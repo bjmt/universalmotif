@@ -12,7 +12,7 @@
 read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
-                      out_format = "vertical_matrix", motif_type = "pwm") {
+                      out_format = "by_col", motif_type = "pwm") {
   meme_raw <- readLines(motif_file)
   if (length(meme_raw) == 0) stop("Empty file.")
   meme_raw <- meme_raw[sapply(meme_raw, function(x) !identical(x, ""))]
@@ -34,7 +34,7 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   if (verbose) cat(paste0("Found ", nrow(posmotifs), " motif(s) of type: ",
                           alph_type[[1]], "\n\n"))
   motifs <- load_mots(meme_raw, posmotifs, show_warnings, use_alt_title,
-                      out_format)
+                      out_format, alphabet)
   return(motifs)
 }
 #-----------------------------------------------------------
@@ -79,12 +79,12 @@ parse_alph <- function(alphabet) {
         "G" %in% alph_parsed) {
       if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4))
       if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4))
-      return(list(alph = "custom", len = nchar(alph_string)))
+      return(list(alph = "custom", len = nchar(alph_string),
+                  letters = alph_parsed))
     }
   }
   warning("Non-standard alphabet detected; this may cause issues downstream.")
-  return("custom")
-  print(identical(alph_parsed, c("T", "C", "G", "A")))
+  return(list(alph = "custom", len = nchar(alph_string)))
 }
 #-----------------------------------------------------------
 meme_bkg <- function(meme_raw) {
@@ -108,7 +108,7 @@ pos_mots <- function(meme_raw) {
    # of code reworking)
 #-----------------------------------------------------------
 load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
-                      out_format) {
+                      out_format, alphabet) {
   allmots <- as.list(seq_len(nrow(posmotifs)))
   for (i in seq_len(nrow(posmotifs))) {
     if (i == nrow(posmotifs)) j <- length(meme_raw) else {
@@ -122,7 +122,7 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
       if (all(test1 > 1.01) || all(test1 < 0.99) && show_warnings) {
         warning(paste(posmotifs[i, 2], "has positions which do not sum to 1."))
       }
-      lpm <- format_mots(lpm, out_format)
+      lpm <- format_mots(lpm, out_format, alphabet)
       allmots[[i]] <- lpm
     }
   }
@@ -138,17 +138,18 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
   return(allmots)
 }
 #-----------------------------------------------------------
-format_mots <- function(lpm, out_format) {
-  if (out_format == "vertical_matrix") {
+format_mots <- function(lpm, out_format, alphabet) {
+  alph <- strsplit(alphabet[[3]], split = "")[[1]]
+  if (out_format == "by_col") {
     lpm <- as.matrix(lpm)
-    colnames(lpm) <- c("A", "C", "G", "T")
+    colnames(lpm) <- alph
   }
-  if (out_format == "horizontal_matrix") {
+  if (out_format == "by_row") {
     lpm <- as.matrix(lpm)
-    colnames(lpm) <- c("A", "C", "G", "T")
+    colnames(lpm) <- alph
     lpm <- t(lpm)
   }
-  if (out_format == "seqLogo") {
+  if (out_format == "seqLogo_pwm") {
     if (requireNamespace("seqLogo", quietly = TRUE)) {
       lpm <- seqLogo::makePWM(t(lpm))
     } else stop("seqLogo package is not installed.")
