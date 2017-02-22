@@ -160,7 +160,7 @@ format_mots <- function(lpm, out_format, alphabet) {
   # dimnames(lpm@pwm)[[1]]  <- c("A", "C", "G", "U")
   # lpm@alphabet <- "RNA"
   # also need to adjust @consensus
-  # ..that doesn't actually seem to change the output..
+  # ..that doesn't actually seem to change the seqLogo graph output..
   # look into how the motifStack package is doing things
 #-----------------------------------------------------------
 # TODO: add filter function
