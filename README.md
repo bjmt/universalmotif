@@ -16,8 +16,12 @@ various classes as defined by other Bioconductor packages.
 
   - complete write_meme
   - read_homer and write_homer
-  - meme and homer wrappers
-  - support for other major formats:
+  - meme and homer wrappers (for Linux/Mac/BSD systems only)
+  - trim_motifs
+  - filter_motifs
+  - convert_motifs (including a reverse compliment option)
+  - support for other major formats: (as seen on
+    [MEME's motif_conversion page](http://meme-suite.org/doc/motif_conversion.html))
       + beeml
       + chen
       + elm
