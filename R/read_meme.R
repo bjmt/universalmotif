@@ -4,10 +4,6 @@
 #                  import meme format motifs into r                   #
 #######################################################################
 
-## dependencies:
-
-    # seqLogo
-
 ######################
 #  public functions  #
 ######################
@@ -102,7 +98,7 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
       lpm <- meme_raw[(as.integer(row.names(posmotifs[i, ])) + 2):j]
       lpm <- read.table(textConnection(lpm))
       test1 <- rowSums(lpm)
-      if (!all(test1 == 1) && show_warnings) {  # consider using identical()
+      if (all(test1 > 1.01) || all(test1 < 0.99) && show_warnings) {
         warning(paste(posmotifs[i, 2], "has positions which do not sum to 1."))
       }
       lpm <- format_mots(lpm, out_format)
@@ -131,8 +127,12 @@ format_mots <- function(lpm, out_format) {
     colnames(lpm) <- c("A", "C", "G", "T")
     lpm <- t(lpm)
   }
-  if (out_format == "seqLogo") lpm <- seqLogo::makePWM(t(lpm))
-  return(lpm)  # TODO: allow for RNA letters
+  if (out_format == "seqLogo") {
+    if (requireNamespace("seqLogo", quietly = TRUE)) {
+      lpm <- seqLogo::makePWM(t(lpm))
+    } else stop("seqLogo package is not installed.")
+  }
+    return(lpm)  # TODO: allow for RNA letters
 }  # TODO: add more out format options
 # modifying seqLogo pwm-class:
   # dimnames(lpm@pwm)[[1]]  <- c("A", "C", "G", "U")
