@@ -70,7 +70,7 @@ meme_alph <- function(meme_raw) {
   return(NULL)
 }
 #-----------------------------------------------------------
-parse_alph <- function(alphabet) {
+parse_alph <- function(alphabet, show_warnings) {
   alph_string <- alphabet[[3]]
   alph_parsed <- strsplit(alph_string, split = "")[[1]]
   if (length(alph_parsed) == 4) {
@@ -84,7 +84,9 @@ parse_alph <- function(alphabet) {
       return(list(alph = "custom", len = 4, letters = alph_parsed))
     }
   }
-  warning("Non-standard alphabet detected; this may cause issues downstream.")
+  if (show_warnings) {
+    warning("Non-standard alphabet detected; this may cause issues downstream.")
+  }
   return(list(alph = "custom", len = nchar(alph_string), letters = alph_parsed))
 }
 #-----------------------------------------------------------
