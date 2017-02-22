@@ -24,13 +24,15 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   if (verbose) cat(paste0("\t", version[[1]], "\n"))
   alphabet <- meme_alph(meme_raw)
   if (verbose && !is.null(alphabet)) cat(paste0("\t", alphabet[[1]], "\n"))
+  alph_type <- parse_alph(alphabet)
   background <- meme_bkg(meme_raw)
   if (verbose && !is.null(background)) cat("\tBackground letter frequencies\n")
   if (verbose && !is.null(background)) cat(paste0("\t", background[[1]],
                                                   "\n\n"))
   posmotifs <- pos_mots(meme_raw)
   if (nrow(posmotifs) == 0) stop("No motifs detected.")
-  if (verbose) cat(paste0("Found ", nrow(posmotifs), " motif(s).", "\n\n"))
+  if (verbose) cat(paste0("Found ", nrow(posmotifs), " motif(s) of type: ",
+                          alph_type[[1]], "\n\n"))
   motifs <- load_mots(meme_raw, posmotifs, show_warnings, use_alt_title,
                       out_format)
   return(motifs)
@@ -61,11 +63,29 @@ meme_ver <- function(meme_raw, show_warnings) {
 meme_alph <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("ALPHABET=", meme_raw[i])) {
-      return(list(meme_raw[i], i))
+      alph <- strsplit(meme_raw[i], split = " ")[[1]][2]
+      return(list(meme_raw[i], i, alph))
     }
   }
   return(NULL)
-}  # TODO: add alphabet detection
+}
+#-----------------------------------------------------------
+parse_alph <- function(alphabet) {
+  alph_string <- alphabet[[3]]
+  alph_parsed <- strsplit(alph_string, split = "")[[1]]
+  if (length(alph_parsed) == 4) {
+    if ("A" %in% alph_parsed &&
+        "C" %in% alph_parsed &&
+        "G" %in% alph_parsed) {
+      if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4))
+      if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4))
+      return(list(alph = "custom", len = nchar(alph_string)))
+    }
+  }
+  warning("Non-standard alphabet detected; this may cause issues downstream.")
+  return("custom")
+  print(identical(alph_parsed, c("T", "C", "G", "A")))
+}
 #-----------------------------------------------------------
 meme_bkg <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
