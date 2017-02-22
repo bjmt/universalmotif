@@ -77,8 +77,10 @@ parse_alph <- function(alphabet) {
     if ("A" %in% alph_parsed &&
         "C" %in% alph_parsed &&
         "G" %in% alph_parsed) {
-      if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4, letters = alph_parsed))
-      if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4, letters = alph_parsed))
+      if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4,
+                                            letters = alph_parsed))
+      if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4,
+                                            letters = alph_parsed))
       return(list(alph = "custom", len = nchar(alph_string),
                   letters = alph_parsed))
     }
