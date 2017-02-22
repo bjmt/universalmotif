@@ -34,7 +34,7 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   if (verbose) cat(paste0("Found ", nrow(posmotifs), " motif(s) of type: ",
                           alph_type[[1]], "\n\n"))
   motifs <- load_mots(meme_raw, posmotifs, show_warnings, use_alt_title,
-                      out_format, alphabet)
+                      out_format, alphabet, alph_type)
   return(motifs)
 }
 #-----------------------------------------------------------
@@ -77,8 +77,8 @@ parse_alph <- function(alphabet) {
     if ("A" %in% alph_parsed &&
         "C" %in% alph_parsed &&
         "G" %in% alph_parsed) {
-      if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4))
-      if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4))
+      if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4, letters = alph_parsed))
+      if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4, letters = alph_parsed))
       return(list(alph = "custom", len = nchar(alph_string),
                   letters = alph_parsed))
     }
@@ -108,7 +108,7 @@ pos_mots <- function(meme_raw) {
    # of code reworking)
 #-----------------------------------------------------------
 load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
-                      out_format, alphabet) {
+                      out_format, alphabet, alph_type) {
   allmots <- as.list(seq_len(nrow(posmotifs)))
   for (i in seq_len(nrow(posmotifs))) {
     if (i == nrow(posmotifs)) j <- length(meme_raw) else {
@@ -122,7 +122,7 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
       if (all(test1 > 1.01) || all(test1 < 0.99) && show_warnings) {
         warning(paste(posmotifs[i, 2], "has positions which do not sum to 1."))
       }
-      lpm <- format_mots(lpm, out_format, alphabet)
+      lpm <- format_mots(lpm, out_format, alphabet, alph_type)
       allmots[[i]] <- lpm
     }
   }
@@ -138,15 +138,14 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
   return(allmots)
 }
 #-----------------------------------------------------------
-format_mots <- function(lpm, out_format, alphabet) {
-  alph <- strsplit(alphabet[[3]], split = "")[[1]]
+format_mots <- function(lpm, out_format, alphabet, alph_type) {
   if (out_format == "by_col") {
     lpm <- as.matrix(lpm)
-    colnames(lpm) <- alph
+    colnames(lpm) <- alph_type[[3]]
   }
   if (out_format == "by_row") {
     lpm <- as.matrix(lpm)
-    colnames(lpm) <- alph
+    colnames(lpm) <- alph_type[[3]]
     lpm <- t(lpm)
   }
   if (out_format == "seqLogo_pwm") {

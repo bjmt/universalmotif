@@ -8,8 +8,9 @@
 #  public functions  #
 ######################
 
-write_meme <- function(motifs, file_out) {
+write_meme <- function(motif_list, file_out) {
   outfile <- file(file_out)
   writeLines(converted_motif, con = file_out)
+  # in this case converted_motif is a vector of chars, each representing a line
   close(outfile)
 }
