@@ -20,7 +20,7 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   meme_raw <- meme_raw[sapply(meme_raw, function(x) !grepl("\\*\\*\\*\\*\\*",
                                                            x))]
   if (verbose) cat("\nReading MEME preamble:\n\n")
-  version <- meme_ver(meme_raw)
+  version <- meme_ver(meme_raw, show_warnings)
   if (verbose) cat(paste0("\t", version[[1]], "\n"))
   alphabet <- meme_alph(meme_raw)
   if (verbose && !is.null(alphabet)) cat(paste0("\t", alphabet[[1]], "\n"))
@@ -42,11 +42,12 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
 ########################
 
 #-----------------------------------------------------------
-meme_ver <- function(meme_raw) {
+meme_ver <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("MEME version", meme_raw[i])) {
-      if (as.double(strsplit(meme_raw[i], split = " ")[[1]][3]) < 4 &&
-          show_warnings) {
+      ver <- strsplit(meme_raw[i], split = " ")[[1]][3]
+      ver <- strsplit(ver, split = "\\.")[[1]][1]
+      if (as.integer(ver) < 4 && show_warnings) {
         warning("MEME version less than 4 detected; please be careful.")
       }
       return(list(meme_raw[i], i))
