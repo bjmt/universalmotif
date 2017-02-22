@@ -81,12 +81,11 @@ parse_alph <- function(alphabet) {
                                             letters = alph_parsed))
       if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4,
                                             letters = alph_parsed))
-      return(list(alph = "custom", len = nchar(alph_string),
-                  letters = alph_parsed))
+      return(list(alph = "custom", len = 4, letters = alph_parsed))
     }
   }
   warning("Non-standard alphabet detected; this may cause issues downstream.")
-  return(list(alph = "custom", len = nchar(alph_string)))
+  return(list(alph = "custom", len = nchar(alph_string), letters = alph_parsed))
 }
 #-----------------------------------------------------------
 meme_bkg <- function(meme_raw) {
