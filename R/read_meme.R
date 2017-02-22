@@ -31,7 +31,7 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
                                                   "\n\n"))
   posmotifs <- pos_mots(meme_raw)
   if (nrow(posmotifs) == 0) stop("No motifs detected.")
-  if (verbose) cat(paste0("Found ", nrow(posmotifs), " motif(s) of type: ",
+  if (verbose) cat(paste("Found", nrow(posmotifs), "motif(s) of type:",
                           alph_type[[1]], "\n\n"))
   motifs <- load_mots(meme_raw, posmotifs, show_warnings, use_alt_title,
                       out_format, alphabet, alph_type)
