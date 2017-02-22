@@ -11,3 +11,25 @@ various classes as defined by other Bioconductor packages.
 ### read_meme ###
 
   - add compatibility for full MEME format files
+
+### various ###
+
+  - complete write_meme
+  - read_homer and write_homer
+  - meme and homer wrappers
+  - support for other major formats:
+      + beeml
+      + chen
+      + elm
+      + iupac
+      + jaspar (old, 2014, 2016, sites, CM)
+      + matrix
+      + nmica
+      + priority
+      + rna
+      + scpd
+      + sites
+      + taipale
+      + tamo
+      + transfac (including transfac-like)
+      + uniprobe

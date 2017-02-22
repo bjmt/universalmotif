@@ -36,7 +36,7 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   motifs <- load_mots(meme_raw, posmotifs, show_warnings, use_alt_title,
                       out_format, alphabet, alph_type)
   return(motifs)
-}
+}  # still need to incorporate motif_type arg
 #-----------------------------------------------------------
 
 ########################
