@@ -1,8 +1,13 @@
 Package: universalmotif
-Title: What the Package Does (one line, title case)
+Title: Import and export motif files with R.
 Version: 0.0.0.9000
 Authors@R: "Benjamin Tremblay <b2trembl@uwaterloo.ca> [aut,cre]"
-Description: What the package does (one paragraph).
+Description: This package allows for importing most commong motif types into R
+    for use by functions provided by other Bioconductor motif-related packages.
+    Motifs can be filtered during import based on parameters provided by each
+    motif formats, as well as during export. Motifs can be export into most
+    major motif formats from various classes as defined by other Bioconductor
+    packages.
 Depends: R (>= 3.3.2)
 License: GPL-3
 Encoding: UTF-8
