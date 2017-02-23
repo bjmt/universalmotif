@@ -78,6 +78,7 @@ write_motif <- function(motif, motif_class) {
     if (attr(attr(motif, "class"), "package") == "seqLogo") {
       motif <- type_seqLogo_pwm(motif)
     }
+    motif <- type_matrix(motif)
   }
   return(motif)
 }

@@ -19,10 +19,12 @@ various classes as defined by other Bioconductor packages.
   - meme and homer wrappers (for Linux/Mac/BSD systems only)
   - trim_motifs
   - filter_motifs
-  - convert_motifs (including a reverse compliment option)
-      + seqLogo pwm
-      + Biobase pwm
-      + motifRG
+  - convert_motifs (including a reverse compliment option via
+    `Biostrings::reverseComplement`)
+      + `seqLogo` pwm
+      + `Biobase` pwm
+      + `motifRG` Motif (this one contains a lot of info!)
+      + `motifStack` pcm and pfm
       + cont.
   - support for other major formats: (as seen on
     [MEME's motif_conversion page](http://meme-suite.org/doc/motif_conversion.html))
@@ -41,3 +43,7 @@ various classes as defined by other Bioconductor packages.
       + tamo
       + transfac (including transfac-like)
       + uniprobe
+  - use `Biostrings::PWM` to convert pfm to pwm
+  - `motifStack::pcm2pfm`
+  - `motifStack::plotMotifLogo(matrixpfm)` --> use this rather than
+    `seqLogo::seqLogo`
