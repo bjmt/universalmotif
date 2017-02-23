@@ -20,6 +20,10 @@ various classes as defined by other Bioconductor packages.
   - trim_motifs
   - filter_motifs
   - convert_motifs (including a reverse compliment option)
+      + seqLogo pwm
+      + Biobase pwm
+      + motifRG
+      + cont.
   - support for other major formats: (as seen on
     [MEME's motif_conversion page](http://meme-suite.org/doc/motif_conversion.html))
       + beeml
