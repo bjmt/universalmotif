@@ -24,7 +24,7 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   if (verbose) cat(paste0("\t", version[[1]], "\n"))
   alphabet <- meme_alph(meme_raw)
   if (verbose && !is.null(alphabet)) cat(paste0("\t", alphabet[[1]], "\n"))
-  alph_type <- parse_alph(alphabet)
+  alph_type <- parse_alph(alphabet, show_warnings)
   background <- meme_bkg(meme_raw)
   if (verbose && !is.null(background)) cat("\tBackground letter frequencies\n")
   if (verbose && !is.null(background)) cat(paste0("\t", background[[1]],
@@ -74,9 +74,7 @@ parse_alph <- function(alphabet, show_warnings) {
   alph_string <- alphabet[[3]]
   alph_parsed <- strsplit(alph_string, split = "")[[1]]
   if (length(alph_parsed) == 4) {
-    if ("A" %in% alph_parsed &&
-        "C" %in% alph_parsed &&
-        "G" %in% alph_parsed) {
+    if (all(c("A", "C", "G") %in% alph_parsed)) {
       if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4,
                                             letters = alph_parsed))
       if ("U" %in% alph_parsed) return(list(alph = "RNA", len = 4,
@@ -117,6 +115,7 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
     if (i == nrow(posmotifs)) j <- length(meme_raw) else {
       j <- as.integer(row.names(posmotifs[i + 1, ])) - 1
     }  # TODO: get rid of this garbage row.names code
+    # just use names(meme_raw) <- seq_along(meme_raw) or something
     if (grepl("letter-probability matrix:",
               meme_raw[as.integer(row.names(posmotifs[i, ])) + 1])) {
       lpm <- meme_raw[(as.integer(row.names(posmotifs[i, ])) + 2):j]
