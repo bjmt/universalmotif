@@ -14,10 +14,18 @@ write_meme <- function(motif_list, file_out, version = "4",
   if (!is.list(motif_list)) motif_list <- list(motif_list)
   motif_class <- class_check(motif_list)
   preamble <- meme_preamble(motif_list, version, bkg, strands, motif_class)
-  motifs <- write_motifs(motif_list, motif_class)
+  motif_names <- names(motif_list)
+  if (is.null(motif_names)) motif_names <- seq_along(motif_list)
+  # motifs  <- lapply(motif_list, write_motif, motif_class = motif_class,
+  #                   motif_names = motif_names)
+  motifs <- mapply(write_motif, motif_list, motif_names,
+                   motif_class = motif_class, SIMPLIFY = FALSE)
   # TODO: need to append empty line between motifs + motif titles
   # idea: create three vectors of equal length (titles, motifs, empty lines)
   # and then paste() them together; then attach preamble afterwards
+  # actually nevermind, I don't think that would work
+  # I think the solution is to do all of this per motif and then glue
+  # everything together at the end
   motifs <- unlist(motifs)
   final <- list(preamble, motifs)
   final <- unlist(final)
@@ -75,17 +83,13 @@ get_alph <- function(motif_list, motif_class) {
   }
 }
 #-----------------------------------------------------------
-write_motifs <- function(motif_list, motif_class) {
-  final_list <- lapply(motif_list, write_motif, motif_class = motif_class)
-}
-#-----------------------------------------------------------
-write_motif <- function(motif, motif_class) {
+write_motif <- function(motif, motif_name, motif_class) {
   if (motif_class == "matrix") motif <- type_matrix(motif)
   if (motif_class == "pwm") {
     if (attr(attr(motif, "class"), "package") == "seqLogo") {
       motif <- type_seqLogo_pwm(motif)
     } else {
-      motif <- type_matrix(as.matrix(motif))
+      motif <- type_matrix(as.matrix(motif, motif_name))
       warning("Unrecognized motif class detected; tried to coerce to class matrix.")
     }
   }
@@ -104,11 +108,17 @@ type_seqLogo_pwm <- function(motif) {
 
 }
 #-----------------------------------------------------------
-type_matrix <- function(motif) {
+type_matrix <- function(motif, motif_name) {
   if (all(rowSums(motif) < 1.01) &&
       all(rowSums(motif) > 0.99)) type <- 1
   if (all(colSums(motif) < 1.01) &&
       all(colSums(motif) > 0.99)) type <- 2
+  finalmotif <- vector(length = ifelse(type == 1, nrow(motif) + 3,
+                                       ncol(motif) + 3))
   motif <- apply(motif, type, function(x) paste(as.vector(x), collapse = " "))
-  return(motif)
+  motif_name <- paste("MOTIF", motif_name)
+  finalmotif[1] <- motif_name
+  finalmotif[2] <- "letter-probability matrix:"
+  finalmotif[3:(length(finalmotif) - 1)] <- motif
+  return(finalmotif)
 }
