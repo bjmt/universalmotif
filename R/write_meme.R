@@ -18,7 +18,6 @@ write_meme <- function(motif_list, file_out, version = "4",
   if (is.null(motif_names)) motif_names <- as.list(seq_along(motif_list))
   motifs <- mapply(write_motif, motif_list, motif_names,
                    MoreArgs = list(motif_class = motif_class), SIMPLIFY = FALSE)
-  motifs <- unlist(motifs)
   final <- list(preamble, motifs)
   final <- unlist(final)
   file_con <- file(file_out)
@@ -76,7 +75,7 @@ get_alph <- function(motif_list, motif_class) {
 }
 #-----------------------------------------------------------
 write_motif <- function(motif, motif_name, motif_class) {
-  if (motif_class == "matrix") motif <- type_matrix(motif)
+  if (motif_class == "matrix") motif <- type_matrix(motif, motif_name)
   if (motif_class == "pwm") {
     if (attr(attr(motif, "class"), "package") == "seqLogo") {
       motif <- type_seqLogo_pwm(motif)
@@ -107,7 +106,7 @@ type_matrix <- function(motif, motif_name) {
       all(colSums(motif) > 0.99)) type <- 2
   finalmotif <- vector(length = ifelse(type == 1, nrow(motif) + 3,
                                        ncol(motif) + 3))
-  motif <- apply(motif, type, function(x) paste(as.vector(x), collapse = " "))
+  motif2 <- apply(motif, type, function(x) paste(as.vector(x), collapse = " "))
   motif_name <- paste("MOTIF", motif_name)
   finalmotif[1] <- motif_name
   if (type == 1) {
@@ -119,7 +118,7 @@ type_matrix <- function(motif, motif_name) {
   }
   lpm <- paste("letter-probability matrix:", "alength=", alen , "w=", w)
   finalmotif[2] <- lpm
-  finalmotif[3:(length(finalmotif) - 1)] <- motif
+  finalmotif[3:(length(finalmotif) - 1)] <- motif2
   finalmotif[length(finalmotif)]  <- ""
   return(finalmotif)
 }

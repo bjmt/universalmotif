@@ -9,6 +9,35 @@
 ######################
 
 #-----------------------------------------------------------
+
+#' Load motifs from a MEME motif file.
+#'
+#' \code{read_meme} can load MEME motifs from a file connection to a list of
+#' motifs in the class specified by the user.
+#'
+#' @param motif_file String. Text file containing MEME format motifs.
+#' @param verbose Logical. \code{read_meme} will return information regarding any 
+#'   detected information in the file preamble.
+#' @param show_warnings Logical. Set this option to FALSE if you using this function
+#'   in a loop and are sure the warnings can be ignored.
+#' @param use_alt_title Logical. Set this to TRUE if you wish to use the
+#'   alternate title in the resulting motif object.
+#' @param mot_length_cutoff Integer. Setting this option will cause \code{
+#'   read_meme} to skip over motifs which are shorter than specified.
+#' @param source_sites_cutoff Integer. Setting this option will cause \code{
+#'   read_meme} to skip over motifs which are found in fewer numbers than
+#'   requested.
+#' @param e_val_cutoff Double. \code{read_meme} will skip over motifs with an
+#'   E value higher than specified.
+#' @param out_format Character. Specify the class the resulting motif objects
+#'   will be stored as.
+#' @param motif_type Character. MEME motifs can be provided as either PWM or
+#'   PFM. This option will specify which is loaded into R.
+#'
+#' @return A list of motif objects of the specified class.
+#'
+#' @examples
+#' \dontrun{read_meme("motifs.txt", out_format = "seqLogo-pwm")}
 read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
