@@ -15,11 +15,9 @@ write_meme <- function(motif_list, file_out, version = "4",
   motif_class <- class_check(motif_list)
   preamble <- meme_preamble(motif_list, version, bkg, strands, motif_class)
   motif_names <- names(motif_list)
-  if (is.null(motif_names)) motif_names <- seq_along(motif_list)
-  # motifs  <- lapply(motif_list, write_motif, motif_class = motif_class,
-  #                   motif_names = motif_names)
+  if (is.null(motif_names)) motif_names <- as.list(seq_along(motif_list))
   motifs <- mapply(write_motif, motif_list, motif_names,
-                   motif_class = motif_class, SIMPLIFY = FALSE)
+                   MoreArgs = list(motif_class = motif_class), SIMPLIFY = FALSE)
   motifs <- unlist(motifs)
   final <- list(preamble, motifs)
   final <- unlist(final)
@@ -46,7 +44,7 @@ meme_preamble <- function(motif_list, version, bkg, strands, motif_class) {
   if (!is.null(bkg)) {
     line_4 <- "Background letter frequencies"
     if (length(alphabet) != length(bkg)) {
-      stop("Alphabet and background frequencies do not match.")
+      stop("Length of alphabet and background frequencies do not match.")
     }
     line_5 <- paste(alphabet, bkg)
     line_5 <- paste(line_5, collapse = " ")
@@ -84,7 +82,7 @@ write_motif <- function(motif, motif_name, motif_class) {
       motif <- type_seqLogo_pwm(motif)
     } else {
       motif <- type_matrix(as.matrix(motif, motif_name))
-      warning("Unrecognized motif class detected; tried to coerce to class matrix.")
+      stop("Unrecognized motif class detected.")
     }
   }
   return(motif)
