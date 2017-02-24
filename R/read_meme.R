@@ -12,7 +12,7 @@
 read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
-                      out_format = "by_col", motif_type = "pwm") {
+                      out_format = "by-col", motif_type = "pwm") {
   meme_raw <- readLines(motif_file)
   if (length(meme_raw) == 0) stop("Empty file.")
   meme_raw <- meme_raw[sapply(meme_raw, function(x) !identical(x, ""))]
@@ -43,6 +43,9 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
 #  internal functions  #
 ########################
 
+# preamble detection is done using for loops, since most of the time that would
+# be faster than using a vectorized approach considering that each for loop
+# exits quite early into the file vs checking every spot
 #-----------------------------------------------------------
 meme_ver <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
@@ -141,16 +144,16 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
 }
 #-----------------------------------------------------------
 format_mots <- function(lpm, out_format, alphabet, alph_type) {
-  if (out_format == "by_col") {
+  if (out_format == "by-col") {
     lpm <- as.matrix(lpm)
     colnames(lpm) <- alph_type[[3]]
   }
-  if (out_format == "by_row") {
+  if (out_format == "by-row") {
     lpm <- as.matrix(lpm)
     colnames(lpm) <- alph_type[[3]]
     lpm <- t(lpm)
   }
-  if (out_format == "seqLogo_pwm") {
+  if (out_format == "seqLogo-pwm") {
     if (requireNamespace("seqLogo", quietly = TRUE)) {
       lpm <- seqLogo::makePWM(t(lpm))
     } else stop("seqLogo package is not installed.")

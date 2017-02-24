@@ -9,14 +9,20 @@
 ######################
 
 write_meme <- function(motif_list, file_out, version = "4",
-                       bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -") {
+                       bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
+                       alphabet = NULL) {
+  if (!is.list(motif_list)) motif_list <- list(motif_list)
   motif_class <- class_check(motif_list)
   preamble <- meme_preamble(motif_list, version, bkg, strands, motif_class)
   motifs <- write_motifs(motif_list, motif_class)
-  # file_con <- file(file_out)
-  # writeLines(converted_motif, con = file_con)
+  # TODO: need to append empty line between motifs + motif titles
+  motifs <- unlist(motifs)
+  final <- list(preamble, motifs)
+  final <- unlist(final)
+  file_con <- file(file_out)
+  writeLines(final, con = file_con)
   # # in this case converted_motif is a vector of chars, each representing a line
-  # close(file_con)
+  close(file_con)
 }  # don't forget to add empty lines between preamble + motifs, and between motifs
 #-----------------------------------------------------------
 
@@ -52,11 +58,11 @@ meme_preamble <- function(motif_list, version, bkg, strands, motif_class) {
 #-----------------------------------------------------------
 get_alph <- function(motif_list, motif_class) {
   if (motif_class == "matrix") {
-    if (all(sapply(motif_list, rowSums) < 1.01) &&
-            all(sapply(motif_list, rowSums) > 0.99)) {
+    if (all(unlist(sapply(motif_list, rowSums)) < 1.01) &&
+            all(unlist(sapply(motif_list, rowSums)) > 0.99)) {
       return(colnames(motif_list[[1]]))
-    } else if (all(sapply(motif_list, colSums) < 1.01) &&
-                   all(sapply(motif_list, colSums) > 0.99)) {
+    } else if (all(unlist(sapply(motif_list, colSums)) < 1.01) &&
+                   all(unlist(sapply(motif_list, colSums)) > 0.99)) {
       return(rownames(motif_list[[1]]))
     }
     stop("Neither columns or rows add up to 1.")
@@ -77,8 +83,10 @@ write_motif <- function(motif, motif_class) {
   if (motif_class == "pwm") {
     if (attr(attr(motif, "class"), "package") == "seqLogo") {
       motif <- type_seqLogo_pwm(motif)
+    } else {
+      motif <- type_matrix(as.matrix(motif))
+      warning("Unrecognized motif class detected; tried to coerce to class matrix.")
     }
-    motif <- type_matrix(motif)
   }
   return(motif)
 }
@@ -96,5 +104,10 @@ type_seqLogo_pwm <- function(motif) {
 }
 #-----------------------------------------------------------
 type_matrix <- function(motif) {
-
+  if (all(rowSums(motif) < 1.01) &&
+      all(rowSums(motif) > 0.99)) type <- 1
+  if (all(colSums(motif) < 1.01) &&
+      all(colSums(motif) > 0.99)) type <- 2
+  motif <- apply(motif, type, function(x) paste(as.vector(x), collapse = " "))
+  return(motif)
 }

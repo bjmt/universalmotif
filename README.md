@@ -24,6 +24,7 @@ various classes as defined by other Bioconductor packages.
       + `seqLogo` pwm
       + `Biobase` pwm
       + `motifRG` Motif (this one contains a lot of info!)
+          * maybe write some methods for this one (e.g. `seqLogo::seqLogo`)
       + `motifStack` pcm and pfm
       + cont.
   - support for other major formats: (as seen on
