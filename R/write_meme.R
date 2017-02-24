@@ -20,12 +20,6 @@ write_meme <- function(motif_list, file_out, version = "4",
   #                   motif_names = motif_names)
   motifs <- mapply(write_motif, motif_list, motif_names,
                    motif_class = motif_class, SIMPLIFY = FALSE)
-  # TODO: need to append empty line between motifs + motif titles
-  # idea: create three vectors of equal length (titles, motifs, empty lines)
-  # and then paste() them together; then attach preamble afterwards
-  # actually nevermind, I don't think that would work
-  # I think the solution is to do all of this per motif and then glue
-  # everything together at the end
   motifs <- unlist(motifs)
   final <- list(preamble, motifs)
   final <- unlist(final)
@@ -118,7 +112,16 @@ type_matrix <- function(motif, motif_name) {
   motif <- apply(motif, type, function(x) paste(as.vector(x), collapse = " "))
   motif_name <- paste("MOTIF", motif_name)
   finalmotif[1] <- motif_name
-  finalmotif[2] <- "letter-probability matrix:"
+  if (type == 1) {
+    alen <- ncol(motif)
+    w <- nrow(motif)
+  } else {
+    alen <- nrow(motif)
+    w <- ncol(motif)
+  }
+  lpm <- paste("letter-probability matrix:", "alength=", alen , "w=", w)
+  finalmotif[2] <- lpm
   finalmotif[3:(length(finalmotif) - 1)] <- motif
+  finalmotif[length(finalmotif)]  <- ""
   return(finalmotif)
 }
