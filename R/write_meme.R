@@ -16,14 +16,15 @@ write_meme <- function(motif_list, file_out, version = "4",
   preamble <- meme_preamble(motif_list, version, bkg, strands, motif_class)
   motifs <- write_motifs(motif_list, motif_class)
   # TODO: need to append empty line between motifs + motif titles
+  # idea: create three vectors of equal length (titles, motifs, empty lines)
+  # and then paste() them together; then attach preamble afterwards
   motifs <- unlist(motifs)
   final <- list(preamble, motifs)
   final <- unlist(final)
   file_con <- file(file_out)
   writeLines(final, con = file_con)
-  # # in this case converted_motif is a vector of chars, each representing a line
   close(file_con)
-}  # don't forget to add empty lines between preamble + motifs, and between motifs
+}
 #-----------------------------------------------------------
 
 ########################
