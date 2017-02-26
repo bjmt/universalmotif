@@ -15,7 +15,7 @@
 #' \code{read_meme} can load MEME motifs from a file connection to a list of
 #' motifs in the class specified by the user.
 #'
-#' @param motif_file String. Text file containing MEME format motifs.
+#' @param motif_file Character. Text file containing MEME format motifs.
 #' @param verbose Logical. \code{read_meme} will return information regarding any 
 #'   detected information in the file preamble.
 #' @param show_warnings Logical. Set this option to FALSE if you using this function
@@ -29,7 +29,7 @@
 #'   requested.
 #' @param e_val_cutoff Double. \code{read_meme} will skip over motifs with an
 #'   E value higher than specified.
-#' @param out_format Character. Specify the class the resulting motif objects
+#' @param out_class Character. Specify the class the resulting motif objects
 #'   will be stored as.
 #' @param motif_type Character. MEME motifs can be provided as either PWM or
 #'   PFM. This option will specify which is loaded into R.
@@ -37,12 +37,14 @@
 #' @return A list of motif objects of the specified class.
 #'
 #' @examples
-#' \dontrun{read_meme("motifs.txt", out_format = "seqLogo-pwm")}
-read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
+#' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")}
+read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
-                      out_format = "by-col", motif_type = "pwm") {
+                      out_class = "by-col", motif_type = "lpm") {
   meme_raw <- readLines(motif_file)
+  names(meme_raw) <- seq_along(meme_raw)
+  browser()
   if (length(meme_raw) == 0) stop("Empty file.")
   meme_raw <- meme_raw[sapply(meme_raw, function(x) !identical(x, ""))]
   meme_raw <- meme_raw[sapply(meme_raw, function(x) !grepl("-----", x))]
@@ -58,12 +60,13 @@ read_meme <- function(motif_file, verbose = TRUE, show_warnings = TRUE,
   if (verbose && !is.null(background)) cat("\tBackground letter frequencies\n")
   if (verbose && !is.null(background)) cat(paste0("\t", background[[1]],
                                                   "\n\n"))
-  posmotifs <- pos_mots(meme_raw)
+  mot_names <- get_names(meme_raw, use_alt_title)
+  posmotifs <- pos_mots(meme_raw, motif_type)
   if (nrow(posmotifs) == 0) stop("No motifs detected.")
   if (verbose) cat(paste("Found", nrow(posmotifs), "motif(s) of type:",
                           alph_type[[1]], "\n\n"))
   motifs <- load_mots(meme_raw, posmotifs, show_warnings, use_alt_title,
-                      out_format, alphabet, alph_type)
+                      out_class, alphabet, alph_type)
   return(motifs)
 }  # still need to incorporate motif_type arg
 #-----------------------------------------------------------
@@ -101,7 +104,7 @@ meme_alph <- function(meme_raw) {
   }
   return(NULL)
 }
-#-----------------------------------------------------------
+#----------------------------------------------------------
 parse_alph <- function(alphabet, show_warnings) {
   alph_string <- alphabet[[3]]
   alph_parsed <- strsplit(alph_string, split = "")[[1]]
@@ -129,19 +132,22 @@ meme_bkg <- function(meme_raw) {
   return(NULL)
 }  # TODO: check that bkg frequencies add up to 1
 #-----------------------------------------------------------
-pos_mots <- function(meme_raw) {
+pos_mots <- function(meme_raw, motif_type) {
   meme_raw2 <- data.frame(cbind(seq_along(meme_raw), meme_raw))
+  if (motif_type == "lpm") mtype <- c("letter-probability", "matrix:")
+  if (motif_type == "lom") mtype <- c("log-odds", "matrix:")
+  if (!exists("mtype")) stop("motif_type must be either lpm or lom")
   meme_raw3 <- meme_raw2[sapply(meme_raw,
                                 function(x) {
-                                  any(strsplit(as.character(x),
-                                      split = " ")[[1]][1] == "MOTIF")
+                                  all(strsplit(as.character(x),
+                                      split = " ")[[1]][1:2] == mtype)
                                 }), ]
   return(meme_raw3)
 }  # TODO: make this compatible with full MEME format (this is will take a lot
    # of code reworking)
 #-----------------------------------------------------------
 load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
-                      out_format, alphabet, alph_type) {
+                      out_class, alphabet, alph_type) {
   allmots <- as.list(seq_len(nrow(posmotifs)))
   for (i in seq_len(nrow(posmotifs))) {
     if (i == nrow(posmotifs)) j <- length(meme_raw) else {
@@ -156,7 +162,7 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
       if (all(test1 > 1.01) || all(test1 < 0.99) && show_warnings) {
         warning(paste(posmotifs[i, 2], "has positions which do not sum to 1."))
       }
-      lpm <- format_mots(lpm, out_format, alphabet, alph_type)
+      lpm <- format_mots(lpm, out_class, alphabet, alph_type)
       allmots[[i]] <- lpm
     }
   }
@@ -172,17 +178,17 @@ load_mots <- function(meme_raw, posmotifs, show_warnings, use_alt_title,
   return(allmots)
 }
 #-----------------------------------------------------------
-format_mots <- function(lpm, out_format, alphabet, alph_type) {
-  if (out_format == "by-col") {
+format_mots <- function(lpm, out_class, alphabet, alph_type) {
+  if (out_class == "by-col") {
     lpm <- as.matrix(lpm)
     colnames(lpm) <- alph_type[[3]]
   }
-  if (out_format == "by-row") {
+  if (out_class == "by-row") {
     lpm <- as.matrix(lpm)
     colnames(lpm) <- alph_type[[3]]
     lpm <- t(lpm)
   }
-  if (out_format == "seqLogo-pwm") {
+  if (out_class == "seqLogo-pwm") {
     if (requireNamespace("seqLogo", quietly = TRUE)) {
       lpm <- seqLogo::makePWM(t(lpm))
     } else stop("seqLogo package is not installed.")
@@ -195,5 +201,16 @@ format_mots <- function(lpm, out_format, alphabet, alph_type) {
   # also need to adjust @consensus
   # ..that doesn't actually seem to change the seqLogo graph output..
   # look into how the motifStack package is doing things
+#-----------------------------------------------------------
+get_names <- function(meme_raw) {
+  # meme_raw2 <- data.frame(cbind(seq_along(meme_raw), meme_raw))
+  names(meme_raw)
+  meme_raw3 <- meme_raw2[sapply(meme_raw,
+                                function(x) {
+                                  all(strsplit(as.character(x),
+                                      split = " ")[[1]][1] == "MOTIF")
+                                }), ]
+  return(meme_raw3)
+}
 #-----------------------------------------------------------
 # TODO: add filter function
