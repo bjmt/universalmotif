@@ -42,8 +42,6 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
                       out_class = "matrix-2", motif_type = "lpm") {
 
-  # TODO: filtering options
-
   # read file
   meme_raw <- readLines(motif_file)
   if (length(meme_raw) == 0) stop("Could not read file, or file is empty.")
