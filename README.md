@@ -10,7 +10,7 @@ various classes as defined by other Bioconductor packages.
 
 ### read_meme ###
 
-  - add compatibility for full MEME format files
+  - ~~add compatibility for full MEME format files~~
 
 ### various ###
 

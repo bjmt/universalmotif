@@ -36,11 +36,11 @@
 #' @return A list of motif objects of the specified class.
 #'
 #' @examples
-#' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")}
+#' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")  # not run.}
 read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
-                      out_class = "matrix-1", motif_type = "lpm") {
+                      out_class = "matrix-2", motif_type = "lpm") {
 
   # read file
   meme_raw <- readLines(motif_file)
@@ -66,17 +66,22 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
   # get motif names 
   mot_names <- get_names(meme_raw, use_alt_title)
+  mot_names <- mot_names[!is.na(mot_names)]  # to be honest I don't quite get 
+                                             # why there are NA values here
 
   # get motif matrix indices
   posmotifs <- pos_mots(meme_raw, motif_type)
-  if (length(posmotifs) == 0) stop("No motifs detected.")
+  nposmotifs <- as.list(names(posmotifs))
 
+  if (length(posmotifs) == 0) stop("No motifs detected.")
+  
   # get motif info
   info_mots <- lapply(posmotifs, get_info, motif_type =  motif_type)
 
   # detect and read motifs
-  motifs <- mapply(load_mots, posmotifs, info_mots,
-                   MoreArgs = list(meme_raw = meme_raw, show_warnings = show_warnings),
+  motifs <- mapply(load_mots, nposmotifs, info_mots,
+                   MoreArgs = list(meme_raw = meme_raw,
+                                   show_warnings = show_warnings),
                    SIMPLIFY = FALSE)
 
   # another verbose call
@@ -89,7 +94,13 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
   # convert motifs to desired class
   motifs <- mapply(convert_mots, mot_names, info_mots, motifs,
+                   MoreArgs = list(out_class = out_class,
+                                   alph_type = alph_type),
                    SIMPLIFY = FALSE)
+
+  names(motifs) <- mot_names
+
+  return(motifs)
 
 }
 
@@ -100,7 +111,7 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 meme_ver <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("MEME version", meme_raw[i])) {
-      ver <- strsplit(meme_raw[i], split = " ")[[1]][3]
+      ver <- strsplit(meme_raw[i], split = "\\s+")[[1]][3]
       ver <- strsplit(ver, split = "\\.")[[1]][1]
       if (as.integer(ver) < 4 && show_warnings) {
         warning("MEME version less than 4 detected; this may cause parsing issues.")
@@ -114,7 +125,7 @@ meme_ver <- function(meme_raw, show_warnings) {
 meme_alph <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("ALPHABET=", meme_raw[i])) {
-      alph <- strsplit(meme_raw[i], split = " ")[[1]][2]
+      alph <- strsplit(meme_raw[i], split = "\\s+")[[1]][2]
       return(list(meme_raw[i], i, alph))
     }
   }
@@ -142,7 +153,7 @@ parse_alph <- function(alphabet, show_warnings) {
 meme_strands <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("strands:", meme_raw[i])) {
-      strands <- strsplit(meme_raw[i], split = " ")[[1]]
+      strands <- strsplit(meme_raw[i], split = "\\s+")[[1]]
       if (length(strands) == 3 && all(c("+", "-") %in% strands)) return(strands[2:3])
       if (length(strands) == 2 && any(c("+", "-") %in% strands)) return(strands[2])
       if (show_warnings) warning("Could not parse strand information.")
@@ -151,12 +162,12 @@ meme_strands <- function(meme_raw, show_warnings) {
   return(NULL)
 }
 
-meme_bkg <- function(meme_raw, aph_type, show_warnings) {
+meme_bkg <- function(meme_raw, alph_type, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("Background letter frequencies", meme_raw[i])) {
       if (show_warnings) {
-        frequencies <- strsplit(meme_raw[i + 1], split = " ")[[1]]
-        frequencies <- frequencies[seq(from = 2, to = alph_type[[2]][1], by = 2)]
+        frequencies <- strsplit(meme_raw[i + 1], split = "\\s+")[[1]]
+        frequencies <- frequencies[seq(from = 2, to = alph_type[[2]], by = 2)]
         f_test <- sum(as.double(frequencies))
         if (f_test < 0.99 || f_test > 1.01) {
           warning("Background letter frequencies do not add up to 1.")
@@ -177,9 +188,9 @@ get_names <- function(meme_raw, use_alt_title) {
                               all(strsplit(x,
                                   split = " ")[[1]][1] == "MOTIF")})]
   if (!use_alt_title) {
-    return(sapply(meme_raw, function(x) strsplit(x, split = " ")[[1]][2]))
+    return(sapply(meme_raw, function(x) strsplit(x, split = "\\s+")[[1]][2]))
   } else {
-    return(sapply(meme_raw, function(x) strsplit(x, split = " ")[[1]][3]))
+    return(sapply(meme_raw, function(x) strsplit(x, split = "\\s+")[[1]][3]))
   }
   stop("No motif names detected.")
 }
@@ -192,14 +203,14 @@ pos_mots <- function(meme_raw, motif_type) {
   if (!exists("mtype")) stop("motif_type must be either lpm or lom")
   meme_raw <- meme_raw[sapply(meme_raw,function(x) {
                               all(strsplit(as.character(x),
-                              split = " ")[[1]][1:2] == mtype)})]
-  return(meme_raw)
+                              split = "\\s+")[[1]][1:2] == mtype)})]
+  return(meme_raw[!is.na(meme_raw)])
 }
 
 # load motif info (such as source sites, etc)
 
 get_info <- function(posmotifs, motif_type) {
-  posmotifs <- strsplit(posmotifs, split = " ")[[1]]
+  posmotifs <- strsplit(posmotifs, split = "\\s+")[[1]]
   # alength=, w=, nsites, E=
   names(posmotifs) <- seq_along(posmotifs)
   alength <- posmotifs[sapply(posmotifs, function(x) identical(x, "alength="))]
@@ -217,9 +228,9 @@ get_info <- function(posmotifs, motif_type) {
 # load motifs as matrices
 
 load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
-  posmot <- as.integer(names(posmotifs))
-  if (!is.na(info_mots["w"])) {
-    mot <- meme_raw[(posmot + 1):(posmot + info_mots["w"])]  # ..seems dangerous
+  posmot <- as.integer(posmotifs)
+  if (!is.na(info_mots["w.6"])) {
+    mot <- meme_raw[(posmot + 1):(posmot + as.integer(info_mots["w.6"]))]  # ..seems dangerous
   } else {
     mot <- vector(length = (length(meme_raw) - posmot))
     mot[seq_along(mot)] <- NA
@@ -230,8 +241,8 @@ load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
     mot <- mot[!is.na(mot)]
   }
   mot_mat <- read.table(textConnection(mot))
-  if (!is.na(info_mots["alength"])) {
-    if (ncol(mot_mat) != info_mots["alength"] && show_warnings) {
+  if (!is.na(info_mots["alength.4"])) {
+    if (ncol(mot_mat) != as.integer(info_mots["alength.4"]) && show_warnings) {
       warning("Motif alength and actual number of columns do not match.")
     }
   }
@@ -241,7 +252,17 @@ load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
 ######################################################################
 
 # final conversion to desired class; this is done by convert_motifs.R
+# (with the exception of 'matrix-1' and 'matrix-2')
 
-convert_mots <- function(mot_names, info_mots, motifs) {
-
+convert_mots <- function(mot_names, info_mots, motifs, out_class,
+                         alph_type) {
+  if (out_class == "matrix-2") {
+    colnames(motifs) <- alph_type[[3]]
+    return(motifs)
+  }
+  if (out_class == "matrix-1") {
+    motifs <- t(motifs)
+    rownames(motifs) <- alph_type[[3]]
+    return(motifs)
+  }
 }
