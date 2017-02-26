@@ -102,6 +102,12 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
   names(motifs) <- mot_names
 
+  # final step: get rid of motifs which do not match filter options
+  if (!is.null(c(mot_length_cutoff, source_sites_cutoff, e_val_cutoff))) {
+    motifs <- filter_meme(motifs, info_mots, mot_length_cutoff,
+                          source_sites_cutoff, e_val_cutoff)
+  }
+
   return(motifs)
 
 }
@@ -250,6 +256,35 @@ load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
   }
   return(as.matrix(mot_mat))
 }
+
+######################################################################
+
+# filter out unwanted motifs
+
+filter_meme <- function(motifs, info_mots, mot_length_cutoff,
+                        source_sites_cutoff, e_val_cutoff) {
+  if (length(motifs) != length(info_mots)) {
+    stop("Please check that the file is properly formatted.")
+  }
+  index <- names(info_mots)
+  names(index) <- seq_along(info_mots)
+  if (!is.null(mot_length_cutoff)) {
+    info_mots <- info_mots[sapply(info_mots, function(x) {
+                                    as.integer(x["w.6"]) > mot_length_cutoff})]
+  }
+  if (!is.null(source_sites_cutoff)) {
+    info_mots <- info_mots[sapply(info_mots, function(x) {
+                                    as.integer(x["nsites.8"]) > source_sites_cutoff})]
+  }
+  if (!is.null(e_val_cutoff)) {
+    info_mots <- info_mots[sapply(info_mots, function(x) {
+                                    as.double(x["E.10"]) < e_val_cutoff})]
+  }
+  index <- index[sapply(index, function(x) any(x == names(info_mots)))]
+  index <- as.integer(names(index))
+  return(motifs[index])
+}
+
 
 ######################################################################
 
