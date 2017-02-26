@@ -11,7 +11,7 @@
 #' motifs in the class specified by the user. Both full MEME format and 
 #' minimal MEME format files can be read; the latter requires at least a MEME
 #' version in the preamble. \code{read_meme} was written for MEME version 4 and
-#' above; reading a file with a lower version of MEME will throw an error, as
+#' above; reading a file with a lower version of MEME will throw a warning, as
 #' this may result in incorrect parsing.
 #'
 #' @param motif_file Character. Text file containing MEME format motifs.
@@ -36,11 +36,13 @@
 #' @return A list of motif objects of the specified class.
 #'
 #' @examples
-#' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")  # not run.}
+#' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")}
 read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
                       out_class = "matrix-2", motif_type = "lpm") {
+
+  # TODO: filtering options
 
   # read file
   meme_raw <- readLines(motif_file)
