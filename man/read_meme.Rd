@@ -59,5 +59,5 @@ this may result in incorrect parsing.
 
 }
 \author{
-Benjamin Tremblay <b2trembl@uwaterloo.ca>
+Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 }

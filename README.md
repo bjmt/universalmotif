@@ -29,6 +29,7 @@ various classes as defined by other Bioconductor packages.
           * maybe write some methods for this one (e.g. `seqLogo::seqLogo`)
       + `motifStack` pcm and pfm
       + cont.
+  - consider using package `TFMPvalue`; has score/p-value calculation functions
   - support for other major formats: (as seen on
     [MEME's motif_conversion page](http://meme-suite.org/doc/motif_conversion.html))
       + beeml

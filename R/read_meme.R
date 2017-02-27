@@ -45,7 +45,7 @@
 #'   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
 #'   rmotifs <- read_meme(motifs, show_warnings = FALSE, out_class = "matrix-2")
 #'
-#' @author Benjamin Tremblay <b2trembl@uwaterloo.ca>
+#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @export
 read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
@@ -124,7 +124,6 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
 # preamble functions: uses for loops to not waste time looking at every line
 
-#' @keywords internal
 meme_ver <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("MEME version", meme_raw[i])) {
@@ -139,7 +138,6 @@ meme_ver <- function(meme_raw, show_warnings) {
   stop("No MEME version detected.")
 }
 
-#' @keywords internal
 meme_alph <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("ALPHABET=", meme_raw[i])) {
@@ -150,7 +148,6 @@ meme_alph <- function(meme_raw) {
   return(NULL)
 }
 
-#' @keywords internal
 parse_alph <- function(alphabet, show_warnings) {
   alph_string <- alphabet[[3]]
   alph_parsed <- strsplit(alph_string, split = "")[[1]]
@@ -169,7 +166,6 @@ parse_alph <- function(alphabet, show_warnings) {
   return(list(alph = "custom", len = nchar(alph_string), letters = alph_parsed))
 }
 
-#' @keywords internal
 meme_strands <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("strands:", meme_raw[i])) {
@@ -182,7 +178,6 @@ meme_strands <- function(meme_raw, show_warnings) {
   return(NULL)
 }
 
-#' @keywords internal
 meme_bkg <- function(meme_raw, alph_type, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("Background letter frequencies", meme_raw[i])) {
@@ -204,54 +199,58 @@ meme_bkg <- function(meme_raw, alph_type, show_warnings) {
 
 # get motif names
 
-#' @keywords internal
 get_names <- function(meme_raw, use_alt_title) {
-  meme_raw <- meme_raw[sapply(meme_raw, function(x) {
+  meme_raw <- meme_raw[vapply(meme_raw, (function(x) {
                               all(strsplit(x,
-                                  split = " ")[[1]][1] == "MOTIF")})]
+                                  split = " ")[[1]][1] == "MOTIF")}),
+                              logical(1))]
   if (!use_alt_title) {
-    return(sapply(meme_raw, function(x) strsplit(x, split = "\\s+")[[1]][2]))
+    return(vapply(meme_raw, (function(x) strsplit(x, split = "\\s+")[[1]][2]),
+                  FUN.VALUE = character(1)))
   } else {
-    return(sapply(meme_raw, function(x) strsplit(x, split = "\\s+")[[1]][3]))
+    return(vapply(meme_raw, (function(x) strsplit(x, split = "\\s+")[[1]][3]),
+                  FUN.VALUE = character(1)))
   }
   stop("No motif names detected.")
 }
 
 # find motifs
 
-#' @keywords internal
 pos_mots <- function(meme_raw, motif_type) {
   if (motif_type == "lpm") mtype <- c("letter-probability", "matrix:")
   if (motif_type == "lom") mtype <- c("log-odds", "matrix:")
   if (!exists("mtype")) stop("motif_type must be either lpm or lom")
-  meme_raw <- meme_raw[sapply(meme_raw,function(x) {
+  meme_raw <- meme_raw[vapply(meme_raw, (function(x) {
                               all(strsplit(as.character(x),
-                              split = "\\s+")[[1]][1:2] == mtype)})]
+                              split = "\\s+")[[1]][1:2] == mtype)}),
+                              logical(1))]
   return(meme_raw[!is.na(meme_raw)])
 }
 
 # load motif info (such as source sites, etc)
 
-#' @keywords internal
 get_info <- function(posmotifs, motif_type) {
   posmotifs <- strsplit(posmotifs, split = "\\s+")[[1]]
   # alength=, w=, nsites, E=
   names(posmotifs) <- seq_along(posmotifs)
-  alength <- posmotifs[sapply(posmotifs, function(x) identical(x, "alength="))]
+  alength <- posmotifs[vapply(posmotifs, (function(x) identical(x, "alength=")),
+                              logical(1))]
   if (length(alength) > 0) alength <- posmotifs[as.integer(names(alength)) + 1]
-  mlength <- posmotifs[sapply(posmotifs, function(x) identical(x, "w="))]
+  mlength <- posmotifs[vapply(posmotifs, (function(x) identical(x, "w=")),
+                              logical(1))]
   if (length(mlength) > 0) mlength <- posmotifs[as.integer(names(mlength)) + 1]
   if (motif_type == "lpm") nsites <- "nsites=" else nsites <- "n="
-  nsites <- posmotifs[sapply(posmotifs, function(x) identical(x, nsites))]
+  nsites <- posmotifs[vapply(posmotifs, (function(x) identical(x, nsites)),
+                             logical(1))]
   if (length(nsites) > 0) nsites <- posmotifs[as.integer(names(nsites)) + 1]
-  e_val <- posmotifs[sapply(posmotifs, function(x) identical(x, "E="))]
+  e_val <- posmotifs[vapply(posmotifs, (function(x) identical(x, "E=")),
+                            logical(1))]
   if (length(nsites) > 0) e_val <- posmotifs[as.integer(names(e_val)) + 1]
   return(c("alength" = alength, "w" = mlength, "nsites" = nsites, "E" = e_val))
 }
 
 # load motifs as matrices
 
-#' @keywords internal
 load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
   posmot <- as.integer(posmotifs)
   if (!is.na(info_mots["w.6"])) {
@@ -278,7 +277,6 @@ load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
 
 # filter out unwanted motifs
 
-#' @keywords internal
 filter_meme <- function(motifs, info_mots, mot_length_cutoff,
                         source_sites_cutoff, e_val_cutoff) {
   if (length(motifs) != length(info_mots)) {
@@ -287,18 +285,22 @@ filter_meme <- function(motifs, info_mots, mot_length_cutoff,
   index <- names(info_mots)
   names(index) <- seq_along(info_mots)
   if (!is.null(mot_length_cutoff)) {
-    info_mots <- info_mots[sapply(info_mots, function(x) {
-                                    as.integer(x["w.6"]) > mot_length_cutoff})]
+    info_mots <- info_mots[vapply(info_mots, (function(x) {
+                                    as.integer(x["w.6"]) > mot_length_cutoff}),
+                                  logical(1))]
   }
   if (!is.null(source_sites_cutoff)) {
-    info_mots <- info_mots[sapply(info_mots, function(x) {
-                                    as.integer(x["nsites.8"]) > source_sites_cutoff})]
+    info_mots <- info_mots[vapply(info_mots, (function(x) {
+                                    as.integer(x["nsites.8"]) > source_sites_cutoff}),
+                                  logical(1))]
   }
   if (!is.null(e_val_cutoff)) {
-    info_mots <- info_mots[sapply(info_mots, function(x) {
-                                    as.double(x["E.10"]) < e_val_cutoff})]
+    info_mots <- info_mots[vapply(info_mots, (function(x) {
+                                    as.double(x["E.10"]) < e_val_cutoff}),
+                                  logical(1))]
   }
-  index <- index[sapply(index, function(x) any(x == names(info_mots)))]
+  index <- index[vapply(index, (function(x) any(x == names(info_mots))),
+                        logical(1))]
   index <- as.integer(names(index))
   return(motifs[index])
 }
@@ -309,7 +311,6 @@ filter_meme <- function(motifs, info_mots, mot_length_cutoff,
 # final conversion to desired class; this is done by convert_motifs.R
 # (with the exception of 'matrix-1' and 'matrix-2')
 
-#' @keywords internal
 convert_mots <- function(mot_names, info_mots, motifs, out_class,
                          alph_type) {
   if (out_class == "matrix-2") {

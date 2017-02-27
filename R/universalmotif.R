@@ -2,8 +2,12 @@
 #'
 #' A collection of utility functions for working with motifs.
 #'
-#' @importClassesFrom seqLogo pwm
 #' @docType package
 #' @name universalmotif
 #' @importClassesFrom seqLogo pwm
+#' @importClassesFrom motifStack pcm pfm
+#' @importClassesFrom TFBSTools MotifSet PFMatrix PWMatrix ICMatrix
+#' @importClassesFrom TFBSTools PFMatrixList PWMatrixList ICMatrixList
+#' @importClassesFrom MotifDb MotifList
+#' @importClassesFrom PWMEnrich PWM
 NULL

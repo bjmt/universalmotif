@@ -18,6 +18,7 @@ RoxygenNote: 6.0.1
 Collate: 
     'convert_motifs.R'
     'read_meme.R'
+    'umot-class.R'
     'universalmotif.R'
     'write_functions.R'
-    'write_meme_methods.R'
+    'write_meme-methods.R'
