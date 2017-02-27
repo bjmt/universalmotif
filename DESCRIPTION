@@ -1,5 +1,5 @@
 Package: universalmotif
-Title: Import and export motif files with R.
+Title: Import, modify, and export motif files with R.
 Version: 0.0.0.9000
 Authors@R: "Benjamin Tremblay <b2trembl@uwaterloo.ca> [aut, cre]"
 Author: Benjamin Tremblay [aut, cre]
@@ -13,7 +13,7 @@ Depends: R (>= 3.3.2)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Suggests: seqLogo
+Imports: seqLogo
 RoxygenNote: 6.0.1
 Collate: 
     'convert_motifs.R'

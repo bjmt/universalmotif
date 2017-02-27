@@ -31,13 +31,13 @@
 #'   E value higher than specified.
 #' @param out_class Character. Specify the class the resulting motif objects
 #'   will be stored as. These classes include:
-#' \itemize{
-#'   \item \code{matrix-1} Matrix with alphabet letters as rows.
-#'   \item \code{matrix-2} Matrix with alphabet letters as columns.
-#' }
+#'   \itemize{
+#'     \item \code{matrix-1} Matrix with alphabet letters as rows.
+#'     \item \code{matrix-2} Matrix with alphabet letters as columns.
+#'   }
 #' @param motif_type Character. MEME motifs can be provided as either letter-
 #'   probability matrices or log-odds matrices. The load the former, set this
-#'   option to "lpm"; for the latter, "lom".
+#'   option to \code{lpm}; for the latter, \code{lom}.
 #'
 #' @return A list of motif objects of the specified class.
 #'

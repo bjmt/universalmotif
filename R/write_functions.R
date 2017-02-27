@@ -13,5 +13,6 @@ write_meme <- function(motif_list, file_out, version = 4,
   UseMethod("write_meme")
 }
 
+#' @keywords internal
 #' @export
 setGeneric("write_meme")  # for S4 classes

@@ -8,6 +8,7 @@
 # make sure this is loaded after respective functions:
 
 #' @include universalmotif.R write_functions.R
+#' @keywords internal
 #' @export
 write_meme.matrix <- function(motif_list, file_out, version = 4,
                            bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
@@ -15,6 +16,7 @@ write_meme.matrix <- function(motif_list, file_out, version = 4,
   print("hello")
 }
 
+#' @keywords internal
 #' @export
 write_meme.pwm <- function(motif_list, file_out, version = 4,
                            bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
@@ -25,6 +27,7 @@ write_meme.pwm <- function(motif_list, file_out, version = 4,
 # Taking care of S4 classes:
 
 
+#' @keywords internal
 #' @export
 setMethod("write_meme", "pwm", write_meme.pwm)
 

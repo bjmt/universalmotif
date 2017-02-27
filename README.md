@@ -8,6 +8,8 @@ various classes as defined by other Bioconductor packages.
 
 ## TODO ##
 
+  - **start using `vapply` instead of `sapply`**
+
 ### read_meme ###
 
   - ~~add compatibility for full MEME format files~~
