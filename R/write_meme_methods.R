@@ -7,7 +7,7 @@
 
 # make sure this is loaded after respective functions:
 
-#' @include write_functions.R
+#' @include universalmotif.R write_functions.R
 #' @export
 write_meme.matrix <- function(motif_list, file_out, version = 4,
                            bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
@@ -24,7 +24,7 @@ write_meme.pwm <- function(motif_list, file_out, version = 4,
 
 # Taking care of S4 classes:
 
-#' @importClassesFrom seqLogo pwm
+
 #' @export
 setMethod("write_meme", "pwm", write_meme.pwm)
 
