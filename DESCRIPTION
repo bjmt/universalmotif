@@ -14,3 +14,9 @@ Encoding: UTF-8
 LazyData: true
 Suggests: seqLogo
 RoxygenNote: 6.0.1
+Collate: 
+    'convert_motifs.R'
+    'read_meme.R'
+    'universalmotif.R'
+    'write_functions.R'
+    'write_meme_methods.R'

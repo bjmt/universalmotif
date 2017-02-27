@@ -20,7 +20,7 @@
 #' @param show_warnings Logical. Set this option to FALSE if you using this function
 #'   in a loop and are sure the warnings can be ignored.
 #' @param use_alt_title Logical. Set this to TRUE if you wish to use the
-#'   alternate title in the resulting motif object.
+#'   alternate name in the resulting motif object.
 #' @param mot_length_cutoff Integer. Setting this option will cause \code{
 #'   read_meme} to skip over motifs which are shorter than specified.
 #' @param source_sites_cutoff Integer. Setting this option will cause \code{
@@ -29,14 +29,21 @@
 #' @param e_val_cutoff Double. \code{read_meme} will skip over motifs with an
 #'   E value higher than specified.
 #' @param out_class Character. Specify the class the resulting motif objects
-#'   will be stored as.
-#' @param motif_type Character. MEME motifs can be provided as either PWM or
-#'   PFM. This option will specify which is loaded into R.
+#'   will be stored as. These classes include:
+#' \itemize{
+#'   \item \code{matrix-1} Matrix with alphabet letters as rows.
+#'   \item \code{matrix-2} Matrix with alphabet letters as columns.
+#' }
+#' @param motif_type Character. MEME motifs can be provided as either letter-
+#'   probability matrices or log-odds matrices. The load the former, set this
+#'   option to "lpm"; for the latter, "lom".
 #'
 #' @return A list of motif objects of the specified class.
 #'
 #' @examples
 #' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")}
+#'
+#' @export
 read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,

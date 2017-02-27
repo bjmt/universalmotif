@@ -1,11 +1,18 @@
+######################################################################
 ## Benjamin Tremblay
+##
+## functions to write motifs to a file connection from various formats
+##
+######################################################################
 
-# functions to write motifs to a file connection from various formats
-
-
-write_meme <- function(motif_list, file_out, version = "4",
+#' Create text files from motif list as MEME
+#' @export
+write_meme <- function(motif_list, file_out, version = 4,
                        bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
                        alphabet = NULL) {
   UseMethod("write_meme")
 }
+
+#' Apply \code{write_meme} to S4 classes.
+#' @export
 setGeneric("write_meme")  # for S4 classes

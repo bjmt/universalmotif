@@ -1,13 +1,23 @@
+######################################################################
 ## Benjamin Tremblay
+##
+## methods for write_meme
+##
+######################################################################
 
-# methods for write_meme
+# make sure this is loaded after respective functions:
 
-# methods:
-write_meme.matrix <- function()
+#' @include universalmotif.R write_functions.R
+write_meme.matrix <- function(motif_list, file_out, version = 4,
+                           bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
+                           alphabet = NULL) {}
 
-write_meme.pwm <- function()
+write_meme.pwm <- function(motif_list, file_out, version = 4,
+                           bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
+                           alphabet = NULL) {}
 
 # Taking care of S4 classes:
+
 setMethod("write_meme", "pwm", write_meme.pwm)
 
 # testing:
