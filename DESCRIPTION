@@ -1,7 +1,8 @@
 Package: universalmotif
 Title: Import and export motif files with R.
 Version: 0.0.0.9000
-Authors@R: "Benjamin Tremblay <b2trembl@uwaterloo.ca> [aut,cre]"
+Authors@R: "Benjamin Tremblay <b2trembl@uwaterloo.ca> [aut, cre]"
+Author: Benjamin Tremblay [aut, cre]
 Description: This package allows for importing most common motif types into R
     for use by functions provided by other Bioconductor motif-related packages.
     Motifs can be filtered during import based on parameters provided by each
@@ -17,6 +18,5 @@ RoxygenNote: 6.0.1
 Collate: 
     'convert_motifs.R'
     'read_meme.R'
-    'universalmotif.R'
     'write_functions.R'
     'write_meme_methods.R'

@@ -19,7 +19,7 @@ detected information in the file preamble.}
 in a loop and are sure the warnings can be ignored.}
 
 \item{use_alt_title}{Logical. Set this to TRUE if you wish to use the
-alternate title in the resulting motif object.}
+alternate name in the resulting motif object.}
 
 \item{mot_length_cutoff}{Integer. Setting this option will cause \code{
 read_meme} to skip over motifs which are shorter than specified.}
@@ -32,10 +32,15 @@ requested.}
 E value higher than specified.}
 
 \item{out_class}{Character. Specify the class the resulting motif objects
-will be stored as.}
+  will be stored as. These classes include:
+\itemize{
+  \item \code{matrix-1} Matrix with alphabet letters as rows.
+  \item \code{matrix-2} Matrix with alphabet letters as columns.
+}}
 
-\item{motif_type}{Character. MEME motifs can be provided as either PWM or
-PFM. This option will specify which is loaded into R.}
+\item{motif_type}{Character. MEME motifs can be provided as either letter-
+probability matrices or log-odds matrices. The load the former, set this
+option to "lpm"; for the latter, "lom".}
 }
 \value{
 A list of motif objects of the specified class.
@@ -49,5 +54,10 @@ above; reading a file with a lower version of MEME will throw a warning, as
 this may result in incorrect parsing.
 }
 \examples{
-\dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")}
+  motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
+  rmotifs <- read_meme(motifs, show_warnings = FALSE, out_class = "matrix-2")
+
+}
+\author{
+Benjamin Tremblay <b2trembl@uwaterloo.ca>
 }

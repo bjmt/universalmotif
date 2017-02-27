@@ -5,8 +5,9 @@
 ##
 ######################################################################
 
-#' [UNDER CONSTRUCTION] Load MEME motifs from a text file.
+#' @title [UNDER CONSTRUCTION] Load MEME motifs from a text file.
 #'
+#' @description
 #' \code{read_meme} can load MEME motifs from a file connection to a list of
 #' motifs in the class specified by the user. Both full MEME format and 
 #' minimal MEME format files can be read; the latter requires at least a MEME
@@ -41,8 +42,10 @@
 #' @return A list of motif objects of the specified class.
 #'
 #' @examples
-#' \dontrun{read_meme("motifs.txt", out_class = "seqLogo-pwm")}
+#'   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
+#'   rmotifs <- read_meme(motifs, show_warnings = FALSE, out_class = "matrix-2")
 #'
+#' @author Benjamin Tremblay <b2trembl@uwaterloo.ca>
 #' @export
 read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
@@ -121,6 +124,7 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
 # preamble functions: uses for loops to not waste time looking at every line
 
+#' @keywords internal
 meme_ver <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("MEME version", meme_raw[i])) {
@@ -135,6 +139,7 @@ meme_ver <- function(meme_raw, show_warnings) {
   stop("No MEME version detected.")
 }
 
+#' @keywords internal
 meme_alph <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("ALPHABET=", meme_raw[i])) {
@@ -145,6 +150,7 @@ meme_alph <- function(meme_raw) {
   return(NULL)
 }
 
+#' @keywords internal
 parse_alph <- function(alphabet, show_warnings) {
   alph_string <- alphabet[[3]]
   alph_parsed <- strsplit(alph_string, split = "")[[1]]
@@ -163,6 +169,7 @@ parse_alph <- function(alphabet, show_warnings) {
   return(list(alph = "custom", len = nchar(alph_string), letters = alph_parsed))
 }
 
+#' @keywords internal
 meme_strands <- function(meme_raw, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("strands:", meme_raw[i])) {
@@ -175,6 +182,7 @@ meme_strands <- function(meme_raw, show_warnings) {
   return(NULL)
 }
 
+#' @keywords internal
 meme_bkg <- function(meme_raw, alph_type, show_warnings) {
   for (i in seq_along(meme_raw)) {
     if (grepl("Background letter frequencies", meme_raw[i])) {
@@ -196,6 +204,7 @@ meme_bkg <- function(meme_raw, alph_type, show_warnings) {
 
 # get motif names
 
+#' @keywords internal
 get_names <- function(meme_raw, use_alt_title) {
   meme_raw <- meme_raw[sapply(meme_raw, function(x) {
                               all(strsplit(x,
@@ -210,6 +219,7 @@ get_names <- function(meme_raw, use_alt_title) {
 
 # find motifs
 
+#' @keywords internal
 pos_mots <- function(meme_raw, motif_type) {
   if (motif_type == "lpm") mtype <- c("letter-probability", "matrix:")
   if (motif_type == "lom") mtype <- c("log-odds", "matrix:")
@@ -222,6 +232,7 @@ pos_mots <- function(meme_raw, motif_type) {
 
 # load motif info (such as source sites, etc)
 
+#' @keywords internal
 get_info <- function(posmotifs, motif_type) {
   posmotifs <- strsplit(posmotifs, split = "\\s+")[[1]]
   # alength=, w=, nsites, E=
@@ -240,6 +251,7 @@ get_info <- function(posmotifs, motif_type) {
 
 # load motifs as matrices
 
+#' @keywords internal
 load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
   posmot <- as.integer(posmotifs)
   if (!is.na(info_mots["w.6"])) {
@@ -266,6 +278,7 @@ load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
 
 # filter out unwanted motifs
 
+#' @keywords internal
 filter_meme <- function(motifs, info_mots, mot_length_cutoff,
                         source_sites_cutoff, e_val_cutoff) {
   if (length(motifs) != length(info_mots)) {
@@ -296,6 +309,7 @@ filter_meme <- function(motifs, info_mots, mot_length_cutoff,
 # final conversion to desired class; this is done by convert_motifs.R
 # (with the exception of 'matrix-1' and 'matrix-2')
 
+#' @keywords internal
 convert_mots <- function(mot_names, info_mots, motifs, out_class,
                          alph_type) {
   if (out_class == "matrix-2") {

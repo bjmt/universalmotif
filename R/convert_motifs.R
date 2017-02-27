@@ -7,7 +7,7 @@
 
 # roxygen comments go here.
 
-convert_motifs <- function() {}
+#convert_motifs <- function() {}
 
 ######################################################################
 
