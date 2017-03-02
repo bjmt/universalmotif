@@ -34,8 +34,8 @@ E value higher than specified.}
 \item{out_class}{Character. Specify the class the resulting motif objects
 will be stored as. These classes include:
 \itemize{
-  \item \code{matrix-1} Matrix with alphabet letters as rows.
-  \item \code{matrix-2} Matrix with alphabet letters as columns.
+  \item \code{matrix-1}: Matrix with alphabet letters as rows.
+  \item \code{matrix-2}: Matrix with alphabet letters as columns.
 }}
 
 \item{motif_type}{Character. MEME motifs can be provided as either letter-
