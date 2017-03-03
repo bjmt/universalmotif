@@ -17,6 +17,7 @@ Imports: seqLogo
 RoxygenNote: 6.0.1
 Collate: 
     'convert_motifs.R'
+    'utils.R'
     'read_homer.R'
     'read_meme.R'
     'umot-class.R'

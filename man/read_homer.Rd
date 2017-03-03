@@ -20,9 +20,9 @@ read_homer(motif_file, verbose = FALSE, show_warnings = TRUE,
 
 \item{mot_length_cutoff}{Integer.}
 
-\item{bkg_cutoff}{Integer.}
+\item{bkg_cutoff}{Double. Percent. Motifs with more than num are cut.}
 
-\item{target_cutoff}{Integer.}
+\item{target_cutoff}{Double. Percent. Motifs with more than num are kept.}
 
 \item{log_odds_thresh}{Double.}
 
@@ -30,11 +30,11 @@ read_homer(motif_file, verbose = FALSE, show_warnings = TRUE,
 
 \item{p_detect_cutoff}{Double.}
 
-\item{tpos_cutoff}{Integer.}
+\item{tpos_cutoff}{Double.}
 
 \item{tstd_cutoff}{Double.}
 
-\item{bpos_cutoff}{Integer.}
+\item{bpos_cutoff}{Double.}
 
 \item{bstd_cutoff}{Double.}
 

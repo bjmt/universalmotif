@@ -52,6 +52,8 @@ minimal MEME format files can be read; the latter requires at least a MEME
 version in the preamble. \code{read_meme} was written for MEME version 4 and
 above; reading a file with a lower version of MEME will throw a warning, as
 this may result in incorrect parsing.
+
+NOTE: parsing full meme format files is quite slower than minimal meme.
 }
 \examples{
   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")

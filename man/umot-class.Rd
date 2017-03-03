@@ -23,10 +23,34 @@ etc.}
 
 \item{\code{nsites}}{Integer. Number of times motif was found in original set.}
 
-\item{\code{pval}}{Double. Motif p-value, if present.}
+\item{\code{penrich}}{Numeric. Motif enrichment p-value, if present.}
 
 \item{\code{pseudoweights}}{Numeric vector. Motif pseudoweights.}
 
-\item{\code{eval}}{Double. Motif e-value, if present.}
+\item{\code{eval}}{Numeric. Motif e-value, if present.}
+
+\item{\code{pdetect}}{Numeric. Motif detection p-value, if present.}
+
+\item{\code{tpos}}{Numeric. Average position of motif in target sequences.}
+
+\item{\code{tstd}}{Numeric. Standard deviation of position of motif in target
+sequences.}
+
+\item{\code{bpos}}{Numeric. Average position of motif in background sequences.}
+
+\item{\code{bstd}}{Numeric. Standard deviation of average position in background
+sequences.}
+
+\item{\code{strandbias}}{Numeric. Log ratio of + strand occurences to - strand
+occurrences.}
+
+\item{\code{tpercent}}{Numeric. Percent of target sequences with motif.}
+
+\item{\code{bpercent}}{Numeric. Percent of background sequences with motif.}
+
+\item{\code{consensus}}{Character. Motif consensus sequences.}
 }}
 
+\author{
+Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+}
