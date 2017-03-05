@@ -62,14 +62,11 @@ read_homer <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
   if (length(motif_info) == 0) stop("could not find any motifs")
   if (verbose) cat("Found", length(motif_info), "motifs.\n")
 
-  # get motif matrix indices
-  beg_mots <- vector(length = length(motif_info))
-  end_mots <- vector(length = length(motif_info))
-  for (i in seq_along(motif_info)) {
-    beg_mots[i] <- as.integer(names(motif_info[i])) + 1
-    end_mots[i] <- as.integer(names(motif_info[i + 1])) - 1
-  }
-  end_mots[length(motif_info)] <- length(homer_raw)
+  # motif indices
+  beg_mots <- as.integer(names(motif_info)) + 1
+  end_mots <- as.integer(names(motif_info)) - 1
+  end_mots[1:(length(end_mots) - 1)] <- end_mots[2:length(end_mots)]
+  end_mots[length(end_mots)] <- length(homer_raw)
 
   # load motifs
   motifs <- mapply(hom_load, beg_mots, end_mots,
