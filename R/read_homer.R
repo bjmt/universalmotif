@@ -12,7 +12,6 @@
 #'
 #' @param motif_file Character.
 #' @param verbose Logical.
-#' @param show_warnings Logical.
 #' @param mot_length_cutoff Integer.
 #' @param bkg_cutoff Double. Percent. Motifs with more than num are cut.
 #' @param target_cutoff Double. Percent. Motifs with more than num are kept.
@@ -35,7 +34,7 @@
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @include utils.R
 #' @export
-read_homer <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
+read_homer <- function(motif_file, verbose = FALSE, 
                        mot_length_cutoff = NULL, bkg_cutoff = NULL,
                        target_cutoff = NULL, log_odds_thresh = NULL,
                        p_enrich_cutoff = NULL, p_detect_cutoff = NULL,
@@ -79,7 +78,7 @@ read_homer <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
   info_occ <- lapply(info[[4]], hom_occ)
 
   # warning checks
-  if (show_warnings && any(is.na(info[[2]]))) {
+  if (any(is.na(info[[2]]))) {
     warning("motifs have missing log odds detection threshold values")
   }
 
@@ -91,19 +90,15 @@ read_homer <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 ######################################################################
 
 hom_load <- function(beg_mot, end_mot, homer_raw) {
-  con <- textConnection(homer_raw[beg_mot:end_mot])
-  x <- as.matrix(read.table(con))
-  close(con)
+  x <- as.matrix(read.table(text = homer_raw[beg_mot:end_mot]))
+  if (ncol(x) != 4) stop("motifs cannot be empty and must have 4 columns")
   colnames(x) <- c("A", "C", "G", "T")
   return(x)
 }
 
 hom_info <- function(motif_info) {
-  info <- lapply(motif_info, function(x) {
-                   con <- textConnection(x)
-                   y <- scan(con, what = "", quiet = TRUE)
-                   close(con)
-                   return(y)})
+  info <- lapply(motif_info, function(x) 
+                   scan(text = x, what = "", quiet = TRUE))
   mot_names <- vapply(info, function(x) x[2], character(1))
   logodds <- vapply(info, function(x) as.double(x[3]), double(1))
   penr <- vapply(info, function(x) as.double(x[4]), double(1))

@@ -20,8 +20,6 @@
 #' @param motif_file Character. Text file containing MEME format motifs.
 #' @param verbose Logical. \code{read_meme} will return information regarding any 
 #'   detected information in the file preamble.
-#' @param show_warnings Logical. Set this option to FALSE if you using this function
-#'   in a loop and are sure the warnings can be ignored.
 #' @param use_alt_title Logical. Set this to TRUE if you wish to use the
 #'   alternate name in the resulting motif object.
 #' @param mot_length_cutoff Integer. Setting this option will cause \code{
@@ -45,12 +43,12 @@
 #'
 #' @examples
 #'   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
-#'   rmotifs <- read_meme(motifs, show_warnings = FALSE, out_class = "matrix-2")
+#'   rmotifs <- read_meme(motifs, out_class = "matrix-2")
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @include utils.R
 #' @export
-read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
+read_meme <- function(motif_file, verbose = FALSE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
                       out_class = "matrix-2", motif_type = "lpm") {
@@ -63,11 +61,11 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
   names(meme_raw) <- seq_along(meme_raw)
 
   # inspect preamble
-  version <- meme_ver(meme_raw, show_warnings)
+  version <- meme_ver(meme_raw)
   alphabet <- meme_alph(meme_raw)
-  alph_type <- parse_alph(alphabet, show_warnings)
-  strands <- meme_strands(meme_raw, show_warnings)
-  background <- meme_bkg(meme_raw, alph_type, show_warnings)
+  alph_type <- parse_alph(alphabet)
+  strands <- meme_strands(meme_raw)
+  background <- meme_bkg(meme_raw, alph_type)
 
   # verbose call
   if (verbose) {
@@ -95,8 +93,7 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
   # detect and read motifs
   motifs <- mapply(load_mots, nposmotifs, info_mots,
-                   MoreArgs = list(meme_raw = meme_raw,
-                                   show_warnings = show_warnings),
+                   MoreArgs = list(meme_raw = meme_raw),
                    SIMPLIFY = FALSE)
 
   # another verbose call
@@ -131,12 +128,12 @@ read_meme <- function(motif_file, verbose = FALSE, show_warnings = TRUE,
 
 # preamble functions: uses for loops to not waste time looking at every line
 
-meme_ver <- function(meme_raw, show_warnings) {
+meme_ver <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("MEME version", meme_raw[i])) {
       ver <- strsplit(meme_raw[i], split = "\\s+")[[1]][3]
       ver <- strsplit(ver, split = "\\.")[[1]][1]
-      if (as.integer(ver) < 4 && show_warnings) {
+      if (as.integer(ver) < 4) {
         warning("MEME version less than 4 detected; this may cause parsing issues")
       }
       return(meme_raw[i])
@@ -155,7 +152,7 @@ meme_alph <- function(meme_raw) {
   return(NULL)
 }
 
-parse_alph <- function(alphabet, show_warnings) {
+parse_alph <- function(alphabet) {
   alph_string <- alphabet[[3]]
   alph_parsed <- strsplit(alph_string, split = "")[[1]]
   if (length(alph_parsed) == 4) {
@@ -167,34 +164,30 @@ parse_alph <- function(alphabet, show_warnings) {
       return(list(alph = "custom", len = 4, letters = alph_parsed))
     }  # TODO: add support for amino acid alphabets
   }
-  if (show_warnings) {
-    warning("non-standard alphabet detected; this may cause issues with other packages")
-  }
+  warning("non-standard alphabet detected; this may cause issues with other packages")
   return(list(alph = "custom", len = nchar(alph_string), letters = alph_parsed))
 }
 
-meme_strands <- function(meme_raw, show_warnings) {
+meme_strands <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("strands:", meme_raw[i])) {
       strands <- strsplit(meme_raw[i], split = "\\s+")[[1]]
       if (length(strands) == 3 && all(c("+", "-") %in% strands)) return(strands[2:3])
       if (length(strands) == 2 && any(c("+", "-") %in% strands)) return(strands[2])
-      if (show_warnings) warning("could not parse strand information")
+      warning("could not parse strand information")
     }
   }
   return(NULL)
 }
 
-meme_bkg <- function(meme_raw, alph_type, show_warnings) {
+meme_bkg <- function(meme_raw, alph_type) {
   for (i in seq_along(meme_raw)) {
     if (grepl("Background letter frequencies", meme_raw[i])) {
-      if (show_warnings) {
-        frequencies <- strsplit(meme_raw[i + 1], split = "\\s+")[[1]]
-        frequencies <- frequencies[seq(from = 2, to = (alph_type[[2]] * 2), by = 2)]
-        f_test <- sum(as.double(frequencies))
-        if (f_test < 0.99 || f_test > 1.01) {
-          warning("background letter frequencies do not add up to 1")
-        }
+      frequencies <- strsplit(meme_raw[i + 1], split = "\\s+")[[1]]
+      frequencies <- frequencies[seq(from = 2, to = (alph_type[[2]] * 2), by = 2)]
+      f_test <- sum(as.double(frequencies))
+      if (f_test < 0.99 || f_test > 1.01) {
+        warning("background letter frequencies do not add up to 1")
       }
       return(list(meme_raw[i + 1], i))
     }
@@ -259,7 +252,7 @@ get_info <- function(posmotifs, motif_type) {
 
 # load motifs as matrices
 
-load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
+load_mots <- function(posmotifs, info_mots, meme_raw) {
   posmot <- as.integer(posmotifs)
   if (!is.na(info_mots["w.6"])) {
     mot <- meme_raw[(posmot + 1):(posmot + as.integer(info_mots["w.6"]))]
@@ -272,11 +265,9 @@ load_mots <- function(posmotifs, info_mots, meme_raw, show_warnings) {
     }
     mot <- mot[!is.na(mot)]
   }
-  con <- textConnection(mot)
-  mot_mat <- read.table(con)
-  close(con)
+  mot_mat <- read.table(text = mot)
   if (!is.na(info_mots["alength.4"])) {
-    if (ncol(mot_mat) != as.integer(info_mots["alength.4"]) && show_warnings) {
+    if (ncol(mot_mat) != as.integer(info_mots["alength.4"])) {
       warning("motif 'alength' and actual number of columns do not match")
     }
   }
