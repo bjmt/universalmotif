@@ -47,7 +47,10 @@ various classes as defined by other Bioconductor packages.
       + tamo
       + transfac (including transfac-like)
       + uniprobe
+  - also more output formats described in the STAMP
+    [help page](http://www.benoslab.pitt.edu/stamp/help.html#input)
   - use `Biostrings::PWM` to convert pfm to pwm
   - `motifStack::pcm2pfm`
   - `motifStack::plotMotifLogo(matrixpfm)` --> use this rather than
     `seqLogo::seqLogo`
+  - `STAMP` functionality

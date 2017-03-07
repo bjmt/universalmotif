@@ -4,19 +4,15 @@
 \alias{read_meme}
 \title{[UNDER CONSTRUCTION] Load MEME motifs from a text file.}
 \usage{
-read_meme(motif_file, verbose = FALSE, show_warnings = TRUE,
-  use_alt_title = FALSE, mot_length_cutoff = NULL,
-  source_sites_cutoff = NULL, e_val_cutoff = NULL, out_class = "matrix-2",
-  motif_type = "lpm")
+read_meme(motif_file, verbose = FALSE, use_alt_title = FALSE,
+  mot_length_cutoff = NULL, source_sites_cutoff = NULL,
+  e_val_cutoff = NULL, out_class = "matrix-2", motif_type = "lpm")
 }
 \arguments{
 \item{motif_file}{Character. Text file containing MEME format motifs.}
 
 \item{verbose}{Logical. \code{read_meme} will return information regarding any 
 detected information in the file preamble.}
-
-\item{show_warnings}{Logical. Set this option to FALSE if you using this function
-in a loop and are sure the warnings can be ignored.}
 
 \item{use_alt_title}{Logical. Set this to TRUE if you wish to use the
 alternate name in the resulting motif object.}
@@ -57,7 +53,7 @@ NOTE: parsing full meme format files is quite slower than minimal meme.
 }
 \examples{
   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
-  rmotifs <- read_meme(motifs, show_warnings = FALSE, out_class = "matrix-2")
+  rmotifs <- read_meme(motifs, out_class = "matrix-2")
 
 }
 \author{

@@ -4,19 +4,16 @@
 \alias{read_homer}
 \title{[UNDER CONSTRUCTION] Load Homer motifs from a text file.}
 \usage{
-read_homer(motif_file, verbose = FALSE, show_warnings = TRUE,
-  mot_length_cutoff = NULL, bkg_cutoff = NULL, target_cutoff = NULL,
-  log_odds_thresh = NULL, p_enrich_cutoff = NULL, p_detect_cutoff = NULL,
-  tpos_cutoff = NULL, tstd_cutoff = NULL, bpos_cutoff = NULL,
-  bstd_cutoff = NULL, strand_bias_cutoff = NULL,
-  multiplicity_cutoff = NULL)
+read_homer(motif_file, verbose = FALSE, mot_length_cutoff = NULL,
+  bkg_cutoff = NULL, target_cutoff = NULL, log_odds_thresh = NULL,
+  p_enrich_cutoff = NULL, p_detect_cutoff = NULL, tpos_cutoff = NULL,
+  tstd_cutoff = NULL, bpos_cutoff = NULL, bstd_cutoff = NULL,
+  strand_bias_cutoff = NULL, multiplicity_cutoff = NULL)
 }
 \arguments{
 \item{motif_file}{Character.}
 
 \item{verbose}{Logical.}
-
-\item{show_warnings}{Logical.}
 
 \item{mot_length_cutoff}{Integer.}
 

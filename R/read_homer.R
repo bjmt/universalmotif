@@ -52,6 +52,7 @@ read_homer <- function(motif_file, verbose = FALSE,
   check_logi_args(as.list(environment())[2])  # utils.R
   check_filter_args(as.list(environment())[3:14])  # utils.R
 
+  # read file
   con <- file(motif_file)
   homer_raw <- readLines(con)
   close(con)
@@ -68,9 +69,7 @@ read_homer <- function(motif_file, verbose = FALSE,
 
   # motif indices
   beg_mots <- as.integer(names(motif_info)) + 1
-  end_mots <- beg_mots - 2
-  end_mots[1:(length(end_mots) - 1)] <- end_mots[2:length(end_mots)]
-  end_mots[length(end_mots)] <- length(homer_raw)
+  end_mots <- c(beg_mots[2:length(beg_mots)] - 2, length(homer_raw))
 
   # load motifs
   motifs <- mapply(hom_load, beg_mots, end_mots,
@@ -84,7 +83,8 @@ read_homer <- function(motif_file, verbose = FALSE,
 
   # warning checks
   if (any(is.na(info[[2]]))) {
-    warning("motifs have missing log odds detection threshold values")
+    warning("motifs have missing log odds detection threshold values",
+            call. = FALSE)
   }
 
   return(motifs)

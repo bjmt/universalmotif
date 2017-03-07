@@ -56,11 +56,11 @@ read_meme <- function(motif_file, verbose = FALSE,
   # check args
   check_logi_args(as.list(environment())[2:3])  # utils.R
   check_filter_args(as.list(environment())[4:6])  # utils.R
-  if (!motif_type %in%
-      c("lpm", "lom")) stop("'motif_type' must be \"lpm\" or \"lom\"",
-                            call. = FALSE)
-  if (!out_class %in%
-      c("matrix-1", "matrix-2")) {
+  if (!motif_type %in% c("lpm", "lom")) {
+    stop("'motif_type' must be \"lpm\" or \"lom\"",
+         call. = FALSE)
+  }
+  if (!out_class %in% c("matrix-1", "matrix-2")) {
     stop("please see `?read_meme` for a list of available 'out_class' options",
          call. = FALSE)
   }
@@ -148,7 +148,8 @@ meme_ver <- function(meme_raw) {
       ver <- strsplit(meme_raw[i], split = "\\s+")[[1]][3]
       ver <- strsplit(ver, split = "\\.")[[1]][1]
       if (as.integer(ver) < 4) {
-        warning("MEME version less than 4 detected; this may cause parsing issues")
+        warning("MEME version less than 4 detected; this may cause parsing issues",
+                call. = FALSE)
       }
       return(meme_raw[i])
     }
@@ -178,7 +179,8 @@ parse_alph <- function(alphabet) {
       return(list(alph = "custom", len = 4, letters = alph_parsed))
     }  # TODO: add support for amino acid alphabets
   }
-  warning("non-standard alphabet detected; this may cause issues with other packages")
+  warning("non-standard alphabet detected; this may cause issues with other packages",
+          call. = FALSE)
   return(list(alph = "custom", len = nchar(alph_string), letters = alph_parsed))
 }
 
@@ -188,7 +190,7 @@ meme_strands <- function(meme_raw) {
       strands <- strsplit(meme_raw[i], split = "\\s+")[[1]]
       if (length(strands) == 3 && all(c("+", "-") %in% strands)) return(strands[2:3])
       if (length(strands) == 2 && any(c("+", "-") %in% strands)) return(strands[2])
-      warning("could not parse strand information")
+      warning("could not parse strand information", call. = FALSE)
     }
   }
   return(NULL)
@@ -201,7 +203,8 @@ meme_bkg <- function(meme_raw, alph_type) {
       frequencies <- frequencies[seq(from = 2, to = (alph_type[[2]] * 2), by = 2)]
       f_test <- sum(as.double(frequencies))
       if (f_test < 0.99 || f_test > 1.01) {
-        warning("background letter frequencies do not add up to 1")
+        warning("background letter frequencies do not add up to 1",
+                call. = FALSE)
       }
       return(list(meme_raw[i + 1], i))
     }
@@ -283,7 +286,8 @@ load_mots <- function(posmotifs, info_mots, meme_raw) {
   mot_mat <- read.table(text = mot)
   if (!is.na(info_mots["alength.4"])) {
     if (ncol(mot_mat) != as.integer(info_mots["alength.4"])) {
-      warning("motif 'alength' and actual number of columns do not match")
+      warning("motif 'alength' and actual number of columns do not match",
+              call. = FALSE)
     }
   }
   return(as.matrix(mot_mat))

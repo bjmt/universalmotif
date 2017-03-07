@@ -2,6 +2,7 @@
 
 export(convert_motifs)
 export(read_homer)
+export(read_jaspar)
 export(read_meme)
 export(write_meme)
 export(write_meme.matrix)

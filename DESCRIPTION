@@ -19,6 +19,7 @@ Collate:
     'convert_motifs.R'
     'utils.R'
     'read_homer.R'
+    'read_jaspar.R'
     'read_meme.R'
     'umot-class.R'
     'universalmotif.R'
