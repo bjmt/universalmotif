@@ -48,22 +48,27 @@ read_homer <- function(motif_file, verbose = FALSE,
 # Score for GGATGT
 # score = log(pG1/0.25) + log(pG2/0.25) + log(pA3/0.25) + log(pT4/0.25) + log(pG5/0.25) + log(pT6/0.25)
 
+  # check args
+  check_logi_args(as.list(environment())[2])  # utils.R
+  check_filter_args(as.list(environment())[3:14])  # utils.R
+
   con <- file(motif_file)
   homer_raw <- readLines(con)
   close(con)
-  if (length(homer_raw) == 0) stop("could not read file, or file is empty")
+  if (length(homer_raw) == 0) stop("could not read file, or file is empty",
+                                   call. = FALSE)
   names(homer_raw) <- seq_along(homer_raw)
 
   # get motif info
   motif_info <- homer_raw[vapply(homer_raw, function(x) grepl(">", x),
                                  logical(1))]
 
-  if (length(motif_info) == 0) stop("could not find any motifs")
+  if (length(motif_info) == 0) stop("could not find any motifs", call. = FALSE)
   if (verbose) cat("Found", length(motif_info), "motifs.\n")
 
   # motif indices
   beg_mots <- as.integer(names(motif_info)) + 1
-  end_mots <- as.integer(names(motif_info)) - 1
+  end_mots <- beg_mots - 2
   end_mots[1:(length(end_mots) - 1)] <- end_mots[2:length(end_mots)]
   end_mots[length(end_mots)] <- length(homer_raw)
 
@@ -91,14 +96,15 @@ read_homer <- function(motif_file, verbose = FALSE,
 
 hom_load <- function(beg_mot, end_mot, homer_raw) {
   x <- as.matrix(read.table(text = homer_raw[beg_mot:end_mot]))
-  if (ncol(x) != 4) stop("motifs cannot be empty and must have 4 columns")
+  if (ncol(x) != 4) stop("motifs cannot be empty and must have 4 columns",
+                         call. = FALSE)
   colnames(x) <- c("A", "C", "G", "T")
   return(x)
 }
 
 hom_info <- function(motif_info) {
-  info <- lapply(motif_info, function(x) 
-                   scan(text = x, what = "", quiet = TRUE))
+  info <- lapply(motif_info, function(x) scan(text = x, what = "",
+                                              quiet = TRUE))
   mot_names <- vapply(info, function(x) x[2], character(1))
   logodds <- vapply(info, function(x) as.double(x[3]), double(1))
   penr <- vapply(info, function(x) as.double(x[4]), double(1))

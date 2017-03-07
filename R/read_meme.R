@@ -53,11 +53,24 @@ read_meme <- function(motif_file, verbose = FALSE,
                       source_sites_cutoff = NULL, e_val_cutoff = NULL,
                       out_class = "matrix-2", motif_type = "lpm") {
 
+  # check args
+  check_logi_args(as.list(environment())[2:3])  # utils.R
+  check_filter_args(as.list(environment())[4:6])  # utils.R
+  if (!motif_type %in%
+      c("lpm", "lom")) stop("'motif_type' must be \"lpm\" or \"lom\"",
+                            call. = FALSE)
+  if (!out_class %in%
+      c("matrix-1", "matrix-2")) {
+    stop("please see `?read_meme` for a list of available 'out_class' options",
+         call. = FALSE)
+  }
+
   # read file
   con <- file(motif_file)
   meme_raw <- readLines(con)
   close(con)
-  if (length(meme_raw) == 0) stop("could not read file, or file is empty")
+  if (length(meme_raw) == 0) stop("could not read file, or file is empty",
+                                  call. = FALSE)
   names(meme_raw) <- seq_along(meme_raw)
 
   # inspect preamble
@@ -86,7 +99,7 @@ read_meme <- function(motif_file, verbose = FALSE,
   posmotifs <- pos_mots(meme_raw, motif_type)
   nposmotifs <- as.list(names(posmotifs))
 
-  if (length(posmotifs) == 0) stop("no motifs detected")
+  if (length(posmotifs) == 0) stop("no motifs detected", call. = FALSE)
   
   # get motif info
   info_mots <- lapply(posmotifs, get_info, motif_type =  motif_type)
@@ -101,7 +114,8 @@ read_meme <- function(motif_file, verbose = FALSE,
                           alph_type[[1]], "\n\n")
 
   if (!identical(length(mot_names), length(motifs))) {
-    stop("the number of motif names do not match the number of motif matrices")
+    stop("the number of motif names do not match the number of motif matrices",
+         call. = FALSE)
   }
 
   # convert motifs to desired class
@@ -139,7 +153,7 @@ meme_ver <- function(meme_raw) {
       return(meme_raw[i])
     }
   }
-  stop("no MEME version detected")
+  stop("no MEME version detected", call. = FALSE)
 }
 
 meme_alph <- function(meme_raw) {
@@ -212,7 +226,7 @@ get_names <- function(meme_raw, use_alt_title) {
     return(vapply(meme_raw, function(x) strsplit(x, split = "\\s+")[[1]][3],
                   character(1)))
   }
-  stop("no motif names detected")
+  stop("no motif names detected", call. = FALSE)
 }
 
 # find motifs
@@ -220,7 +234,8 @@ get_names <- function(meme_raw, use_alt_title) {
 pos_mots <- function(meme_raw, motif_type) {
   if (motif_type == "lpm") mtype <- c("letter-probability", "matrix:")
   if (motif_type == "lom") mtype <- c("log-odds", "matrix:")
-  if (!exists("mtype")) stop("'motif_type' must be either \"lpm\" or \"lom\"")
+  if (!exists("mtype")) stop("'motif_type' must be either \"lpm\" or \"lom\"",
+                             call. = FALSE)
   meme_raw <- meme_raw[vapply(meme_raw, function(x) {
                               all(strsplit(as.character(x),
                               split = "\\s+")[[1]][1:2] == mtype)},
@@ -282,7 +297,7 @@ load_mots <- function(posmotifs, info_mots, meme_raw) {
 filter_meme <- function(motifs, info_mots, mot_length_cutoff,
                         source_sites_cutoff, e_val_cutoff, verbose) {
   if (length(motifs) != length(info_mots)) {
-    stop("please check that the file is properly formatted")
+    stop("please check that the file is properly formatted", call. = FALSE)
   }
   index <- names(info_mots)
   names(index) <- seq_along(info_mots)
