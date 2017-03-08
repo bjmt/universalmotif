@@ -82,7 +82,7 @@ read_meme <- function(motif_file, verbose = FALSE,
 
   # verbose call
   if (verbose) {
-    cat("\nReading MEME preamble:\n\n")
+    cat("Reading MEME preamble:\n\n")
     cat(paste0("\t", version, "\n"))
     if (!is.null(alphabet)) cat("\t", alphabet[[1]], "\n", sep = "")
     if (!is.null(strands)) cat("\tstrands:", strands, "\n")
@@ -111,7 +111,7 @@ read_meme <- function(motif_file, verbose = FALSE,
 
   # another verbose call
   if (verbose) cat("Found", length(posmotifs), "motif(s) of type:",
-                          alph_type[[1]], "\n\n")
+                          alph_type[[1]], "\n")
 
   if (!identical(length(mot_names), length(motifs))) {
     stop("the number of motif names do not match the number of motif matrices",
