@@ -56,12 +56,9 @@ read_meme <- function(motif_file, verbose = FALSE,
   # check args
   check_logi_args(as.list(environment())[2:3])  # utils.R
   check_filter_args(as.list(environment())[4:6])  # utils.R
+  check_out_class(out_class)  # utils.R
   if (!motif_type %in% c("lpm", "lom")) {
     stop("'motif_type' must be \"lpm\" or \"lom\"",
-         call. = FALSE)
-  }
-  if (!out_class %in% c("matrix-1", "matrix-2")) {
-    stop("please see `?read_meme` for a list of available 'out_class' options",
          call. = FALSE)
   }
 
@@ -132,7 +129,11 @@ read_meme <- function(motif_file, verbose = FALSE,
                           source_sites_cutoff, e_val_cutoff, verbose)
   }
 
-  if (length(motifs) == 0) return(NULL)
+  if (length(motifs) == 0) {
+    if (verbose) cat("All motifs were filtered out.\n")
+    return(NULL)
+  }
+
   return(motifs)
 
 }

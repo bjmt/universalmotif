@@ -21,6 +21,7 @@ Collate:
     'read_homer.R'
     'read_jaspar.R'
     'read_meme.R'
+    'read_motif.R'
     'umot-class.R'
     'universalmotif.R'
     'write_functions.R'

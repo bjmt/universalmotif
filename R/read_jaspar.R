@@ -108,7 +108,10 @@ jasp_filter <- function(motifs, mot_length_cutoff) {
   if (!is.null(mot_length_cutoff)) {
     motifs <- motifs[vapply(motifs, function(x) ncol(x) >= mot_length_cutoff,
                             logical(1))]
-    if (length(motifs) == 0) stop("all motifs filtered out", call. = FALSE)
+    if (length(motifs) == 0) {
+      if (verbose) cat("All motifs were filtered out.\n")
+      return(NULL)
+    }
   }
 
   return(motifs)
