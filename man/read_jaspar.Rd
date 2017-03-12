@@ -4,7 +4,8 @@
 \alias{read_jaspar}
 \title{[UNDER CONSTRUCTION] Load Jaspar motifs from a text file.}
 \usage{
-read_jaspar(motif_file, verbose = FALSE, mot_length_cutoff = NULL)
+read_jaspar(motif_file, verbose = FALSE, mot_length_cutoff = NULL,
+  out_class = "matrix-2")
 }
 \arguments{
 \item{motif_file}{Character. Text file containing motifs.}
@@ -12,6 +13,8 @@ read_jaspar(motif_file, verbose = FALSE, mot_length_cutoff = NULL)
 \item{verbose}{Logical.}
 
 \item{mot_length_cutoff}{Integer.}
+
+\item{out_class}{Character.}
 }
 \value{
 A list of motifs.

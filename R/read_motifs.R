@@ -29,6 +29,8 @@ read_motifs <- function(motif_file, verbose = FALSE,
   # check args
   check_logi_args(as.list(environment())[2])  # utils.R
   check_out_class(out_class)  # utils.R
+  if (length(motif_format) != 1) stop("only one 'motif_format' can be used",
+                                      call. = FALSE)
   if (!motif_format %in% c("autodetect", "meme", "jaspar", "homer")) {
     stop("'", motif_format, "' is not a supported motif format", call. = FALSE)
   }

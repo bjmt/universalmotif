@@ -14,6 +14,7 @@
 #' @param motif_file Character. Text file containing motifs.
 #' @param verbose Logical.
 #' @param mot_length_cutoff Integer.
+#' @param out_class Character.
 #'
 #' @return A list of motifs.
 #'
@@ -26,11 +27,12 @@
 #' @include utils.R
 #' @export
 read_jaspar <- function(motif_file, verbose = FALSE,
-                        mot_length_cutoff = NULL) {
+                        mot_length_cutoff = NULL, out_class = "matrix-2") {
 
   # check args
   check_logi_args(as.list(environment())[2])  # utils.R
   check_filter_args(as.list(environment())[3])  # utils.R
+  check_out_class(out_class)
 
   # read file
   con <- file(motif_file)

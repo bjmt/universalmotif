@@ -57,6 +57,8 @@ read_meme <- function(motif_file, verbose = FALSE,
   check_logi_args(as.list(environment())[2:3])  # utils.R
   check_filter_args(as.list(environment())[4:6])  # utils.R
   check_out_class(out_class)  # utils.R
+  if (length(motif_type) != 1) stop("only one 'motif_type' can be used",
+                                    call. = FALSE)
   if (!motif_type %in% c("lpm", "lom")) {
     stop("'motif_type' must be \"lpm\" or \"lom\"",
          call. = FALSE)

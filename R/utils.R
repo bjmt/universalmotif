@@ -29,6 +29,6 @@ check_logi_args <- function(x) {
 
 check_out_class <- function(x) {
   if (!x %in% c("matrix-1", "matrix-2")) {
-    stop("'", x, "' is not a supported 'out_class'", call. = FALSE)
+    stop("\"", x, "\" is not a supported 'out_class'", call. = FALSE)
   }
 }
