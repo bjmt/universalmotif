@@ -5,7 +5,7 @@
 \title{[UNDER CONSTRUCTION] Load motifs from a text file.}
 \usage{
 read_motifs(motif_file, verbose = FALSE, motif_format = "autodetect",
-  out_class = "matrix-2", ...)
+  out_class = "matrix-2", use_warning = FALSE, ...)
 }
 \arguments{
 \item{motif_file}{Character.}
@@ -15,6 +15,8 @@ read_motifs(motif_file, verbose = FALSE, motif_format = "autodetect",
 \item{motif_format}{Character.}
 
 \item{out_class}{Character.}
+
+\item{use_warning}{Logical.}
 
 \item{...}{Additional arguments to be passed to the motif format-specific
 function.}

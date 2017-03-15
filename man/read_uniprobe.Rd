@@ -21,7 +21,7 @@ a list of motif objects of the desired class.
 }
 \description{
 Support for uniprobe-style motifs. Each motif has a header and a number
-matrix.
+matrix. Only DNA.
 }
 \examples{
    motifs <- system.file("extdata", "uniprobe.txt",

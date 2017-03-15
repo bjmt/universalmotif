@@ -14,6 +14,7 @@
 #' @param verbose Logical.
 #' @param motif_format Character.
 #' @param out_class Character.
+#' @param use_warning Logical.
 #' @param ... Additional arguments to be passed to the motif format-specific
 #'    function.
 #'
@@ -24,16 +25,13 @@
 #' @export
 read_motifs <- function(motif_file, verbose = FALSE,
                         motif_format = "autodetect", out_class = "matrix-2",
-                        ...) {
+                        use_warning = FALSE, ...) {
 
   # check args
-  check_logi_args(as.list(environment())[2])  # utils.R
+  check_logi_args(as.list(environment())[c(2, 5)])  # utils.R
   check_out_class(out_class)  # utils.R
   if (length(motif_format) != 1) stop("only one 'motif_format' can be used",
                                       call. = FALSE)
-  if (!motif_format %in% c("autodetect", "meme", "jaspar", "homer")) {
-    stop("\"", motif_format, "\" is not a supported motif format", call. = FALSE)
-  }
 
   available_formats <- list(c("MEME", "read_meme"), c("Jaspar", "read_jaspar"),
                             c("Homer", "read_homer"))
@@ -52,7 +50,6 @@ read_motifs <- function(motif_file, verbose = FALSE,
     for (i in final_format) {
 
       if (verbose) cat("Detected as: '", i[1], "'\n", sep = "")
-
       if (verbose) cat("Using '", i[2], "' to parse motifs..\n",
                      sep = "")
 
@@ -63,13 +60,25 @@ read_motifs <- function(motif_file, verbose = FALSE,
 
     }
 
+  } else {
+
+    final_format <- available_formats[vapply(available_formats, function(x)
+                                      motif_format == x[1], logical(1))]
+    if (length(final_format) == 0) {
+      stop("\"", motif_format, "\" is not a supported motif format", call. = FALSE)
+    }
+
+    motifs <- do.call(final_format[[1]][2], args = motif_args) 
+    return(motifs)
+
   }
 
-  # final is.null check to inform user of autodetection failure
-  if (is.null(motifs)) {
-    warning("autodetection failed", call. = FALSE)
-    return(invisible(NULL))
-  }
+  # inform user of autodetection failure
+  if (!use_warning) stop("autodetection failed", call. = FALSE)
+  
+  warning("autodetection failed", call. = FALSE)
+
+  return(invisible(NULL))
 
 }
 
@@ -86,7 +95,13 @@ find_format <- function(motif_file, verbose, start_detection = NULL) {
                                     call. = FALSE)
   names(motifs_raw) <- seq_along(motifs_raw)
 
+  ##########
+
+  # autodetection algorithm goes here
+
   motif_format <- c("Jaspar", "MEME")
+
+  ##########
   
   return(motif_format)
 
