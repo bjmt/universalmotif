@@ -32,39 +32,51 @@ read_motifs <- function(motif_file, verbose = FALSE,
   if (length(motif_format) != 1) stop("only one 'motif_format' can be used",
                                       call. = FALSE)
   if (!motif_format %in% c("autodetect", "meme", "jaspar", "homer")) {
-    stop("'", motif_format, "' is not a supported motif format", call. = FALSE)
+    stop("\"", motif_format, "\" is not a supported motif format", call. = FALSE)
   }
 
-  # do autodetection, if requested
+  available_formats <- list(c("MEME", "read_meme"), c("Jaspar", "read_jaspar"),
+                            c("Homer", "read_homer"))
+
+  motif_args <- c(list("motif_file" = motif_file, "verbose" = verbose,
+                       "out_class" = out_class), ...)
+
+  # handling autodetection
   if (motif_format == "autodetect") {
+
     if (verbose) cat("Attempting to detect motif format..\n")
     motif_format <- find_format(motif_file, verbose)
-  } 
+    final_format <- available_formats[vapply(available_formats, function(x)
+                                      any(motif_format == x[1]), logical(1))]
 
-  available_formats <- list(c("meme", "read_meme"), c("jaspar", "read_jaspar"),
-                            c("homer", "read_homer"))
+    for (i in final_format) {
 
-  # get function name
-  final_format <- available_formats[vapply(available_formats, function(x)
-                            motif_format == x[1], logical(1))]
+      if (verbose) cat("Detected as: '", i[1], "'\n", sep = "")
 
-  if (verbose) cat("Using '", final_format[[1]][2], "' to parse motifs..\n\n",
-                   sep = "")
+      if (verbose) cat("Using '", i[2], "' to parse motifs..\n",
+                     sep = "")
 
-  # send args to correct function
-  motifs <- do.call(final_format[[1]][2], c(list("motif_file" = motif_file,
-                                                 "verbose" = verbose,
-                                                 "out_class" = out_class),
-                                            ...))
+      motifs <- extract_motifs(i[2], motif_args = motif_args,
+                               verbose = verbose)
 
-  return(motifs)
+      if (!is.null(motifs)) return(motifs)
+
+    }
+
+  }
+
+  # final is.null check to inform user of autodetection failure
+  if (is.null(motifs)) {
+    warning("autodetection failed", call. = FALSE)
+    return(invisible(NULL))
+  }
 
 }
 
 ######################################################################
 ######################################################################
 
-find_format <- function(motif_file, verbose) {
+find_format <- function(motif_file, verbose, start_detection = NULL) {
 
   # read file
   con <- file(motif_file)
@@ -74,10 +86,18 @@ find_format <- function(motif_file, verbose) {
                                     call. = FALSE)
   names(motifs_raw) <- seq_along(motifs_raw)
 
-  motif_format <- "meme"
+  motif_format <- c("Jaspar", "MEME")
+  
+  return(motif_format)
 
-  if (verbose) cat("Detected as: '", motif_format, "'\n", sep = "")
+}
 
-  return("meme")
+extract_motifs <- function(final_format, motif_args, verbose) {
+  motifs <- try(do.call(final_format, args = motif_args), silent = TRUE)
+  if (class(motifs) == "try-error") {
+    if (verbose) cat("Parsing of motifs with '", final_format, "' failed!",
+                     " Continuing autodetection..\n", sep = "") 
+    return(NULL)
+  } else return(motifs)
 
 }

@@ -8,7 +8,7 @@
 #' [UNDER CONSTRUCTION] Load UNIPROBE motifs from a text file.
 #'
 #' Support for uniprobe-style motifs. Each motif has a header and a number
-#' matrix.
+#' matrix. Only DNA.
 #'
 #' @param motif_file Character.
 #' @param verbose Logical.
@@ -38,5 +38,24 @@ read_uniprobe <- function(motif_file, verbose = FALSE,
   if (length(uniprobe_raw) == 0) stop("could not read file, or file is empty",
                                       call. = FALSE)
   names(uniprobe_raw) <- seq_along(uniprobe_raw)
+
+  # initial motif finding:
+      # idea: get all A:, C:, G:, and T:; additional sorting of energy and 
+      # enrichment matricies will have be done
+  uniA <- uniprobe_raw[vapply(uniprobe_raw, function(x) grepl("A:", x),
+                              logical(1))]
+  uniC <- uniprobe_raw[vapply(uniprobe_raw, function(x) grepl("C:", x),
+                              logical(1))]
+  uniG <- uniprobe_raw[vapply(uniprobe_raw, function(x) grepl("G:", x),
+                              logical(1))]
+  uniT <- uniprobe_raw[vapply(uniprobe_raw, function(x) grepl("T:", x),
+                              logical(1))]
+
+  test1 <- c(length(uniA), length(uniC), length(uniG), length(uniT))
+  if (!diff(range(test1)) < 1) {
+    stop("could not find all letters; possible partial motifs", call. = FALSE)
+  }
+
+  #..
 
 }
