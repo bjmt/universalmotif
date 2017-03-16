@@ -41,12 +41,12 @@ read_transfac <- function(motif_file, verbose = FALSE,
   names(transfac_raw) <- seq_along(transfac_raw)
 
   # get motif indices with grepl for speed
-  xx_transfac <- transfac_raw[vapply(transfac_raw, function(x) grepl("XX", x),
+  xx_transfac <- transfac_raw[vapply(transfac_raw, function(x) grepl("^XX$", x),
                                      logical(1))]
   # be safe:
-  xx_transfac <- xx_transfac[vapply(xx_transfac, function(x)
-                                    strsplit(x, split = "\\s+")[[1]][1] == "XX",
-                                    logical(1))]
+  # xx_transfac <- xx_transfac[vapply(xx_transfac, function(x)
+  #                                   strsplit(x, split = "\\s+")[[1]][1] == "XX",
+  #                                   logical(1))]
   fs_transfac <- transfac_raw[vapply(transfac_raw, function(x) grepl("//", x),
                                      logical(1))]
   end_mots <- transfac_indices(xx_transfac, fs_transfac)

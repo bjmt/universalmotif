@@ -34,7 +34,7 @@
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @include utils.R
 #' @export
-read_homer <- function(motif_file, verbose = FALSE, 
+read_homer <- function(motif_file, verbose = FALSE, out_class = "matrix-2",
                        mot_length_cutoff = NULL, bkg_cutoff = NULL,
                        target_cutoff = NULL, log_odds_thresh = NULL,
                        p_enrich_cutoff = NULL, p_detect_cutoff = NULL,
@@ -50,7 +50,8 @@ read_homer <- function(motif_file, verbose = FALSE,
 
   # check args
   check_logi_args(as.list(environment())[2])  # utils.R
-  check_filter_args(as.list(environment())[3:14])  # utils.R
+  check_filter_args(as.list(environment())[4:15])  # utils.R
+  check_out_class(out_class)
 
   # read file
   con <- file(motif_file)

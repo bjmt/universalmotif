@@ -16,6 +16,8 @@ various classes as defined by other Bioconductor packages.
 
 ### various ###
 
+  - to make `grepl` faster: if not using a regular expression, add `fixed = T`
+    for speed
   - complete write_meme
   - read_homer and write_homer
   - meme and homer wrappers (for Linux/Mac/BSD systems only)

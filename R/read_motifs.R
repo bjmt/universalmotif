@@ -34,7 +34,8 @@ read_motifs <- function(motif_file, verbose = FALSE,
                                       call. = FALSE)
 
   available_formats <- list(c("MEME", "read_meme"), c("Jaspar", "read_jaspar"),
-                            c("Homer", "read_homer"))
+                            c("Homer", "read_homer"),
+                            c("Transfac", "read_transfac"))
 
   motif_args <- c(list("motif_file" = motif_file, "verbose" = verbose,
                        "out_class" = out_class), ...)
@@ -43,9 +44,16 @@ read_motifs <- function(motif_file, verbose = FALSE,
   if (motif_format == "autodetect") {
 
     if (verbose) cat("Attempting to detect motif format..\n")
-    motif_format <- find_format(motif_file, verbose)
+    motif_format <- find_format(motif_file, verbose, available_formats)
     final_format <- available_formats[vapply(available_formats, function(x)
                                       any(motif_format == x[1]), logical(1))]
+
+    if (is.null(final_format)) {
+      if (use_warning) {
+        warning("autodetection failed", call. = FALSE)
+        return(invisible(NULL))
+      } else stop("autodetection failed", call. = FALSE)
+    }
 
     for (i in final_format) {
 
@@ -53,8 +61,7 @@ read_motifs <- function(motif_file, verbose = FALSE,
       if (verbose) cat("Using '", i[2], "' to parse motifs..\n",
                      sep = "")
 
-      motifs <- extract_motifs(i[2], motif_args = motif_args,
-                               verbose = verbose)
+      motifs <- extract_motifs(i[2], motif_args = motif_args, verbose = verbose)
 
       if (!is.null(motifs)) return(motifs)
 
@@ -62,10 +69,14 @@ read_motifs <- function(motif_file, verbose = FALSE,
 
   } else {
 
+    # if no autodetection, then just move file along to correct function
+
     final_format <- available_formats[vapply(available_formats, function(x)
-                                      motif_format == x[1], logical(1))]
+                                      grepl(paste0("^", motif_format, "$"), x[1],
+                                            ignore.case = TRUE), logical(1))]
     if (length(final_format) == 0) {
-      stop("\"", motif_format, "\" is not a supported motif format", call. = FALSE)
+      stop("\"", motif_format, "\" is not a supported motif format",
+           call. = FALSE)
     }
 
     motifs <- do.call(final_format[[1]][2], args = motif_args) 
@@ -85,7 +96,7 @@ read_motifs <- function(motif_file, verbose = FALSE,
 ######################################################################
 ######################################################################
 
-find_format <- function(motif_file, verbose, start_detection = NULL) {
+find_format <- function(motif_file, verbose, available_formats) {
 
   # read file
   con <- file(motif_file)
@@ -95,15 +106,42 @@ find_format <- function(motif_file, verbose, start_detection = NULL) {
                                     call. = FALSE)
   names(motifs_raw) <- seq_along(motifs_raw)
 
-  ##########
-
-  # autodetection algorithm goes here
-
-  motif_format <- c("Jaspar", "MEME")
+  final_format <- vector("character", length(available_formats))
 
   ##########
-  
-  return(motif_format)
+
+  # 1 MEME
+
+  if (any(grepl("MEME version", motifs_raw,
+                fixed = TRUE))) final_format[1] <- "MEME"
+
+  # 2 Jaspar
+
+  if (any(grepl("\\[", motifs_raw, fixed = TRUE)) &&
+      any(grepl("\\]", motifs_raw, fixed = TRUE))) final_format[2] <- "Jaspar" 
+
+  # 3 Transfac
+
+  if (any(grepl("^XX$", motifs_raw))) final_format[3] <- "Transfac"
+
+  # 4 Homer
+
+  arrow_test <- motifs_raw[vapply(motifs_raw,
+                                  function(x) grepl(">", x, fixed = TRUE),
+                                  logical(1))]
+
+  if (all(!is.na(vapply(arrow_test, function(x)
+                        strsplit(x, split = "\\s+")[[1]][3], character(1))))) {
+    final_format[4] <- "Homer"
+  } 
+
+  ##########
+
+  final_format <- final_format[final_format != ""]
+
+  if (length(final_format) == 0) return(NULL)
+
+  return(final_format)
 
 }
 
