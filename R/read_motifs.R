@@ -33,10 +33,21 @@ read_motifs <- function(motif_file, verbose = FALSE,
   if (length(motif_format) != 1) stop("only one 'motif_format' can be used",
                                       call. = FALSE)
 
-  available_formats <- list(c("MEME", "read_meme"), c("Jaspar", "read_jaspar"),
-                            c("Homer", "read_homer"),
-                            c("Transfac", "read_transfac"))
+  # motif format support and related functions
+  available_formats <- list(
 
+    # the order for these matters; functions will be called in this order
+        
+        # meme is early on due to how unique the autodetection condition is
+        # transfac must be before homer since it often gets detected as homer
+
+    c("MEME", "read_meme"),             c("Jaspar", "read_jaspar"), 
+    c("Transfac", "read_transfac"),     c("Homer", "read_homer"),
+    c("uniprobe", "read_uniprobe")
+
+    )
+
+  # make life easier for later: 
   motif_args <- c(list("motif_file" = motif_file, "verbose" = verbose,
                        "out_class" = out_class), ...)
 
@@ -44,7 +55,7 @@ read_motifs <- function(motif_file, verbose = FALSE,
   if (motif_format == "autodetect") {
 
     if (verbose) cat("Attempting to detect motif format..\n")
-    motif_format <- find_format(motif_file, verbose, available_formats)
+    motif_format <- find_format(motif_file, verbose, length(available_formats))
     final_format <- available_formats[vapply(available_formats, function(x)
                                       any(motif_format == x[1]), logical(1))]
 
@@ -55,15 +66,20 @@ read_motifs <- function(motif_file, verbose = FALSE,
       } else stop("autodetection failed", call. = FALSE)
     }
 
+    # find_format can return a list of possibilities, which are tried
+    # in the order they are listed in available_formats
     for (i in final_format) {
 
-      if (verbose) cat("Detected as: '", i[1], "'\n", sep = "")
-      if (verbose) cat("Using '", i[2], "' to parse motifs..\n",
-                     sep = "")
+      if (verbose) cat("Detected as: ", i[1], "\n", 
+                       "Using '", i[2], "' to parse motifs..\n",
+                       sep = "")
 
       motifs <- extract_motifs(i[2], motif_args = motif_args, verbose = verbose)
 
-      if (!is.null(motifs)) return(motifs)
+      if (!is.null(motifs)) {
+        cat("Done.\n")  
+        return(motifs)
+      }
 
     }
 
@@ -96,7 +112,7 @@ read_motifs <- function(motif_file, verbose = FALSE,
 ######################################################################
 ######################################################################
 
-find_format <- function(motif_file, verbose, available_formats) {
+find_format <- function(motif_file, verbose, available_formats_len) {
 
   # read file
   con <- file(motif_file)
@@ -104,21 +120,23 @@ find_format <- function(motif_file, verbose, available_formats) {
   close(con)
   if (length(motifs_raw) == 0) stop("could not read file, or file is empty",
                                     call. = FALSE)
-  names(motifs_raw) <- seq_along(motifs_raw)
+  # names(motifs_raw) <- seq_along(motifs_raw)
 
-  final_format <- vector("character", length(available_formats))
+  final_format <- vector("character", available_formats_len)
 
   ##########
+  # autodetection methods are pretty quick and dirty (at least for now)
 
   # 1 MEME
+  # benchmarks: ~160 000 motifs takes a couple mins to parse
 
   if (any(grepl("MEME version", motifs_raw,
                 fixed = TRUE))) final_format[1] <- "MEME"
 
   # 2 Jaspar
 
-  if (any(grepl("\\[", motifs_raw, fixed = TRUE)) &&
-      any(grepl("\\]", motifs_raw, fixed = TRUE))) final_format[2] <- "Jaspar" 
+  if (any(grepl("[", motifs_raw, fixed = TRUE)) &&
+      any(grepl("]", motifs_raw, fixed = TRUE))) final_format[2] <- "Jaspar" 
 
   # 3 Transfac
 
@@ -126,14 +144,19 @@ find_format <- function(motif_file, verbose, available_formats) {
 
   # 4 Homer
 
-  arrow_test <- motifs_raw[vapply(motifs_raw,
-                                  function(x) grepl(">", x, fixed = TRUE),
+  arrow_test <- motifs_raw[vapply(motifs_raw, function(x) grepl("^>", x,),
                                   logical(1))]
 
   if (all(!is.na(vapply(arrow_test, function(x)
-                        strsplit(x, split = "\\s+")[[1]][3], character(1))))) {
-    final_format[4] <- "Homer"
-  } 
+                        strsplit(x, split = "\\s+")[[1]][3],
+                        character(1))))) final_format[4] <- "Homer"
+
+  # 5 uniprobe
+
+  if (any(grepl("A:", motifs_raw, fixed = TRUE)) &&
+      any(grepl("C:", motifs_raw, fixed = TRUE)) &&
+      any(grepl("G:", motifs_raw, fixed = TRUE)) &&
+      any(grepl("T:", motifs_raw, fixed = TRUE))) final_format[5] <- "uniprobe"
 
   ##########
 
@@ -146,11 +169,19 @@ find_format <- function(motif_file, verbose, available_formats) {
 }
 
 extract_motifs <- function(final_format, motif_args, verbose) {
-  motifs <- try(do.call(final_format, args = motif_args), silent = TRUE)
-  if (class(motifs) == "try-error") {
-    if (verbose) cat("Parsing of motifs with '", final_format, "' failed!",
-                     " Continuing autodetection..\n", sep = "") 
-    return(NULL)
-  } else return(motifs)
+
+  motifs <- tryCatch(
+
+    do.call(final_format, args = motif_args),
+
+    error = function(cond) {
+      if (verbose) cat("Parsing of motifs with '", final_format, "' failed!\n",
+                       "Continuing autodetection..\n", sep = "") 
+      return(NULL)
+    }
+
+  )
+
+  return(motifs)
 
 }

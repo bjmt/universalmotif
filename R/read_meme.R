@@ -3,6 +3,9 @@
 ##
 ## Read MEME motifs from a file connection into a list
 ##
+## (Unfortunately, this rather complex function was written quite
+## early on in my R-coding career, meaning it is somewhat of a 
+## mess to comprehend)
 ######################################################################
 
 #' @title [UNDER CONSTRUCTION] Load MEME motifs from a text file.
@@ -81,12 +84,11 @@ read_meme <- function(motif_file, verbose = FALSE,
 
   # verbose call
   if (verbose) {
-    cat("Reading MEME preamble:\n\n")
-    cat(paste0("\t", version, "\n"))
+    cat("Reading MEME preamble:\n\n", paste0("\t", version, "\n"))
     if (!is.null(alphabet)) cat("\t", alphabet[[1]], "\n", sep = "")
     if (!is.null(strands)) cat("\tstrands:", strands, "\n")
-    if (!is.null(background)) cat("\tBackground letter frequencies\n")
-    if (!is.null(background)) cat("\t", background[[1]], "\n\n", sep = "")
+    if (!is.null(background)) cat("\tBackground letter frequencies\n",
+                                  "\t", background[[1]], "\n\n", sep = "")
   }
 
   # get motif names 
@@ -103,21 +105,30 @@ read_meme <- function(motif_file, verbose = FALSE,
   # get motif info
   info_mots <- lapply(posmotifs, get_info, motif_type =  motif_type)
 
-  # detect and read motifs
-  motifs <- mapply(load_mots, nposmotifs, info_mots,
-                   MoreArgs = list(meme_raw = meme_raw),
-                   SIMPLIFY = FALSE)
-
   # another verbose call
   if (verbose) cat("Found", length(posmotifs), "motif(s) of type:",
-                          alph_type[[1]], "\n")
+                          alph_type[[1]], "\nParsing..\n")
+
+  # detect and read motifs
+  # progress bar: min trigger is based on my own benchmarking, not sure what
+  # the best option would be
+  if (verbose && length(posmotifs) > 999) {
+    pb <- txtProgressBar(min = 0, max = length(posmotifs), style = 3)
+    progress <- seq_len(length(posmotifs))
+  } else pb <- NULL
+  motifs <- mapply(load_mots, nposmotifs, info_mots, progress,
+                   MoreArgs = list(meme_raw = meme_raw, pb = pb,
+                                   verbose = verbose),
+                   SIMPLIFY = FALSE)
+  if (!is.null(pb)) close(pb)
 
   if (!identical(length(mot_names), length(motifs))) {
-    stop("the number of motif names do not match the number of motif matrices",
+    stop("the number of motif names do not match the number of motif matricies",
          call. = FALSE)
   }
 
   # convert motifs to desired class
+  if (verbose && out_class != "umot") cat("Converting to desired class..\n")
   motifs <- mapply(convert_mots, mot_names, info_mots, motifs,
                    MoreArgs = list(out_class = out_class,
                                    alph_type = alph_type),
@@ -127,15 +138,17 @@ read_meme <- function(motif_file, verbose = FALSE,
 
   # final step: get rid of motifs which do not match filter options
   if (!is.null(c(mot_length_cutoff, source_sites_cutoff, e_val_cutoff))) {
+    if (verbose) cat("Filtering unwanted motifs..\n")
     motifs <- filter_meme(motifs, info_mots, mot_length_cutoff,
                           source_sites_cutoff, e_val_cutoff, verbose)
   }
 
   if (length(motifs) == 0) {
     if (verbose) cat("All motifs were filtered out.\n")
-    return(NULL)
+    return(invisible(NULL))
   }
 
+  if (verbose) cat("Done.\n")
   return(motifs)
 
 }
@@ -147,9 +160,9 @@ read_meme <- function(motif_file, verbose = FALSE,
 
 meme_ver <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
-    if (grepl("MEME version", meme_raw[i])) {
+    if (grepl("MEME version", meme_raw[i], fixed = TRUE)) {
       ver <- strsplit(meme_raw[i], split = "\\s+")[[1]][3]
-      ver <- strsplit(ver, split = "\\.")[[1]][1]
+      ver <- strsplit(ver, split = ".", fixed = TRUE)[[1]][1]
       if (as.integer(ver) < 4) {
         warning("MEME version less than 4 detected; this may cause parsing issues",
                 call. = FALSE)
@@ -162,7 +175,7 @@ meme_ver <- function(meme_raw) {
 
 meme_alph <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
-    if (grepl("ALPHABET=", meme_raw[i])) {
+    if (grepl("ALPHABET=", meme_raw[i], fixed = TRUE)) {
       alph <- strsplit(meme_raw[i], split = "\\s+")[[1]][2]
       return(list(meme_raw[i], i, alph))
     }
@@ -172,7 +185,7 @@ meme_alph <- function(meme_raw) {
 
 parse_alph <- function(alphabet) {
   alph_string <- alphabet[[3]]
-  alph_parsed <- strsplit(alph_string, split = "")[[1]]
+  alph_parsed <- strsplit(alph_string, split = "", fixed = TRUE)[[1]]
   if (length(alph_parsed) == 4) {
     if (all(c("A", "C", "G") %in% alph_parsed)) {
       if ("T" %in% alph_parsed) return(list(alph = "DNA", len = 4,
@@ -189,7 +202,7 @@ parse_alph <- function(alphabet) {
 
 meme_strands <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
-    if (grepl("strands:", meme_raw[i])) {
+    if (grepl("strands:", meme_raw[i], fixed = TRUE)) {
       strands <- strsplit(meme_raw[i], split = "\\s+")[[1]]
       if (length(strands) == 3 && all(c("+", "-") %in% strands)) return(strands[2:3])
       if (length(strands) == 2 && any(c("+", "-") %in% strands)) return(strands[2])
@@ -201,7 +214,7 @@ meme_strands <- function(meme_raw) {
 
 meme_bkg <- function(meme_raw, alph_type) {
   for (i in seq_along(meme_raw)) {
-    if (grepl("Background letter frequencies", meme_raw[i])) {
+    if (grepl("Background letter frequencies", meme_raw[i], fixed = TRUE)) {
       frequencies <- strsplit(meme_raw[i + 1], split = "\\s+")[[1]]
       frequencies <- frequencies[seq(from = 2, to = (alph_type[[2]] * 2), by = 2)]
       f_test <- sum(as.double(frequencies))
@@ -273,7 +286,7 @@ get_info <- function(posmotifs, motif_type) {
 
 # load motifs as matrices
 
-load_mots <- function(posmotifs, info_mots, meme_raw) {
+load_mots <- function(posmotifs, info_mots, progress, meme_raw, pb, verbose) {
   posmot <- as.integer(posmotifs)
   if (!is.na(info_mots["w.6"])) {
     mot <- meme_raw[(posmot + 1):(posmot + as.integer(info_mots["w.6"]))]
@@ -293,6 +306,7 @@ load_mots <- function(posmotifs, info_mots, meme_raw) {
               call. = FALSE)
     }
   }
+  if (verbose && !is.null(pb)) setTxtProgressBar(pb, progress)
   return(as.matrix(mot_mat))
 }
 
@@ -327,7 +341,7 @@ filter_meme <- function(motifs, info_mots, mot_length_cutoff,
                         logical(1))]
   index <- as.integer(names(index))
   if (verbose) cat("Number of filtered out motifs:",
-                   (length(motifs) - length(index)), "\n\n")
+                   (length(motifs) - length(index)), "\n")
   return(motifs[index])
 }
 

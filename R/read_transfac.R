@@ -122,7 +122,6 @@ transfac_load <- function(beg_mot, end_mot, transfac_raw) {
                                    strsplit(x, split = "\\s+")[[1]][1] == "P0",
                                    logical(1))]
 
-  # change this! as.integer on characters is ~200 times slower!
   beg_mot01 <- which(vapply(motif, function(x)
                             strsplit(x, split = "\\s+")[[1]][1] == "01",
                             logical(1)))
