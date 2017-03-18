@@ -3,12 +3,14 @@
 ##
 ## Read UNIPROBE motifs from a text file.
 ##
+## (The code for this function is quite ugly and inefficient; however
+## this is due to how different the old and new PWM formats are.)
 ######################################################################
 
 #' [UNDER CONSTRUCTION] Load UNIPROBE motifs from a text file.
 #'
 #' Support for uniprobe-style motifs. Each motif has a header and a number
-#' matrix. Only DNA.
+#' matrix. Only DNA. Only PWM files.
 #'
 #' @param motif_file Character.
 #' @param verbose Logical.

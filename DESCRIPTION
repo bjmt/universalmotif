@@ -1,7 +1,8 @@
 Package: universalmotif
 Title: Import, modify, and export motif files with R.
 Version: 0.0.0.9000
-Authors@R: "Benjamin Tremblay <b2trembl@uwaterloo.ca> [aut, cre]"
+Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"),
+                  email = "b2trembl@uwaterloo.ca")
 Author: Benjamin Tremblay [aut, cre]
 Description: This package allows for importing most common motif types into R
     for use by functions provided by other Bioconductor motif-related packages.

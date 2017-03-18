@@ -41,8 +41,10 @@ read_motifs <- function(motif_file, verbose = FALSE,
         # meme is early on due to how unique the autodetection condition is
         # transfac must be before homer since it often gets detected as homer
 
-    c("MEME", "read_meme"),             c("Jaspar", "read_jaspar"), 
-    c("Transfac", "read_transfac"),     c("Homer", "read_homer"),
+    c("MEME", "read_meme"),
+    c("Jaspar", "read_jaspar"), 
+    c("Transfac", "read_transfac"),
+    c("Homer", "read_homer"),
     c("uniprobe", "read_uniprobe")
 
     )
@@ -147,9 +149,11 @@ find_format <- function(motif_file, verbose, available_formats_len) {
   arrow_test <- motifs_raw[vapply(motifs_raw, function(x) grepl("^>", x,),
                                   logical(1))]
 
-  if (all(!is.na(vapply(arrow_test, function(x)
-                        strsplit(x, split = "\\s+")[[1]][3],
-                        character(1))))) final_format[4] <- "Homer"
+  if (length(arrow_test) !=0) {
+    if (all(!is.na(vapply(arrow_test, function(x)
+                          strsplit(x, split = "\\s+")[[1]][3],
+                          character(1))))) final_format[4] <- "Homer"
+  }
 
   # 5 uniprobe
 
