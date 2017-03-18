@@ -5,7 +5,7 @@
 ##
 ######################################################################
 
-#' [UNDER CONSTRUCTION] umot: Motif class.
+#' [UNDER CONSTRUCTION] universalmotif: Motif class.
 #'
 #' Placeholder description.
 #'
@@ -34,7 +34,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @export
-setClass("umot", slots = list(name = "character", motif = "matrix",
+setClass("universalmotif", slots = list(name = "character", motif = "matrix",
                               alphabet = "character", letters = "character",
                               type = "character", nsites = "integer",
                               penrich = "numeric", pseudoweights = "numeric",
@@ -44,4 +44,4 @@ setClass("umot", slots = list(name = "character", motif = "matrix",
                               strandbias = "numeric", tpercent = "numeric",
                               bpercent = "numeric", consensus = "character"))
 
-# idea: make umot a virtual class with fewer slots
+# idea: make universalmotif a virtual class with fewer slots

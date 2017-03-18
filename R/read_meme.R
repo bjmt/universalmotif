@@ -128,7 +128,7 @@ read_meme <- function(motif_file, verbose = FALSE,
   }
 
   # convert motifs to desired class
-  if (verbose && out_class != "umot") cat("Converting to desired class..\n")
+  if (verbose && out_class != "universalmotif") cat("Converting to desired class..\n")
   motifs <- mapply(convert_mots, mot_names, info_mots, motifs,
                    MoreArgs = list(out_class = out_class,
                                    alph_type = alph_type),
@@ -356,11 +356,13 @@ convert_mots <- function(mot_names, info_mots, motifs, out_class,
                          alph_type) {
   if (out_class == "matrix-2") {
     colnames(motifs) <- alph_type[[3]]
+    rownames(motifs) <- NULL
     return(motifs)
   }
   if (out_class == "matrix-1") {
     motifs <- t(motifs)
     rownames(motifs) <- alph_type[[3]]
+    colnames(motifs) <- NULL
     return(motifs)
   }
 }

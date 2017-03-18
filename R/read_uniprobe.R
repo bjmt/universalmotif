@@ -71,6 +71,8 @@ read_uniprobe <- function(motif_file, verbose = FALSE,
   uni_names_indices <- uni_names_indices[vapply(uni_names_indices, function(x)
                                                 !is.null(x), logical(1))]
   if (verbose) cat("Found", length(uni_names_indices), "motifs.\n")
+  # the following function is to support the new version of uniprobe PWM;
+  # however I am somewhat unsure as to how to code this. this will do for now.
   uni_names_indices <- lapply(uni_names_indices, uniprobe_names2,
                               uniprobe_raw)
   uni_names_indices <- mapply(function(x, y) {
@@ -124,6 +126,8 @@ uniprobe_names2 <- function(uni_names_indices, uniprobe_raw) {
       uni_names_indices[1] <- NULL
       return(uni_names_indices)
     } 
+    # unsure whether I should cut all of this !grepl code and just have
+    # grepl("#").. but then I'm not sure how to handle cases with no header
     if (!grepl("Enrichment score matrix", uniprobe_raw[i], fixed = TRUE) &&
         !grepl("Energy matrix", uniprobe_raw[i], fixed = TRUE) &&
         !grepl("^P0\\s+", uniprobe_raw[i]) &&
@@ -148,6 +152,7 @@ uniprobe_load <- function(uni_indicies, uniprobe_raw) {
   motif <- uniprobe_raw[as.integer(uni_indicies[3:6])] 
   motif <- as.matrix(read.table(text = motif, row.names = 1))
   rownames(motif) <- c("A", "C", "G", "T")
+  colnames(motif) <- NULL
   return(motif)
 
 }

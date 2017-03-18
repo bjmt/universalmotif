@@ -100,6 +100,7 @@ hom_load <- function(beg_mot, end_mot, homer_raw) {
   if (ncol(x) != 4) stop("motifs cannot be empty and must have 4 columns",
                          call. = FALSE)
   colnames(x) <- c("A", "C", "G", "T")
+  rownames(x) <- NULL
   return(x)
 }
 

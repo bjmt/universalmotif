@@ -38,14 +38,14 @@ read_motifs <- function(motif_file, verbose = FALSE,
 
     # the order for these matters; functions will be called in this order
         
-        # meme is early on due to how unique the autodetection condition is
-        # transfac must be before homer since it often gets detected as homer
+        # - meme is early on due to how unique the autodetection condition is
+        # - transfac must be before homer since it often gets detected as homer
 
-    c("MEME", "read_meme"),
-    c("Jaspar", "read_jaspar"), 
-    c("Transfac", "read_transfac"),
-    c("Homer", "read_homer"),
-    c("uniprobe", "read_uniprobe")
+           c("MEME",       "read_meme"),
+         c("Jaspar",       "read_jaspar"), 
+       c("Transfac",       "read_transfac"),
+          c("Homer",       "read_homer"),
+       c("uniprobe",       "read_uniprobe")
 
     )
 
@@ -79,7 +79,7 @@ read_motifs <- function(motif_file, verbose = FALSE,
       motifs <- extract_motifs(i[2], motif_args = motif_args, verbose = verbose)
 
       if (!is.null(motifs)) {
-        cat("Done.\n")  
+        if (verbose) cat("Done.\n")  
         return(motifs)
       }
 

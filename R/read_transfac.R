@@ -147,6 +147,7 @@ transfac_load <- function(beg_mot, end_mot, transfac_raw) {
     colnames(motif) <- c("A", "C", "G", "T")
   }
 
+  rownames(motif) <- NULL
   return(motif)
 
 }

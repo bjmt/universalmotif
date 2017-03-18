@@ -25,7 +25,7 @@ Collate:
     'read_motifs.R'
     'read_transfac.R'
     'read_uniprobe.R'
-    'umot-class.R'
+    'universalmotif-class.R'
     'universalmotif.R'
     'write_functions.R'
     'write_meme-methods.R'

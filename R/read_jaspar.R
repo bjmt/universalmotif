@@ -43,8 +43,8 @@ read_jaspar <- function(motif_file, verbose = FALSE,
   names(jaspar_raw) <- seq_along(jaspar_raw)
 
   # get motif_info
-  motif_info <- jaspar_raw[vapply(jaspar_raw, function(x) grepl(">", x),
-                                  logical(1))]
+  motif_info <- jaspar_raw[vapply(jaspar_raw, function(x)
+                                  grepl(">", x, fixed = TRUE), logical(1))]
 
   # warning/verbose
   if (length(motif_info) == 0) stop("could not find any motifs", call. = FALSE)
@@ -66,6 +66,8 @@ read_jaspar <- function(motif_file, verbose = FALSE,
 
   # filter
   motifs <- jasp_filter(motifs, mot_length_cutoff)
+
+  if (is.null(motifs)) return(invisible(NULL))
   
   return(motifs)
 
@@ -86,12 +88,15 @@ jasp_load <- function(beg_mot, end_mot, jaspar_raw) {
                     pattern = c("A", "C", "G", "T"),
                     MoreArgs = list(replacement = ""))
 
-    if (all(grepl("\\[", motif)) && all(grepl("\\]", motif))) {
-      motif <- vapply(motif, function(x) sub("\\[", "", x), character(1))
-      motif <- vapply(motif, function(x) sub("\\]", "", x), character(1))
-    } else if (all(grepl("|", motif))) {
-      motif <- vapply(motif, function(x) sub("|", replacement = "", x),
+    if (all(grepl("[", motif, fixed = TRUE)) &&
+        all(grepl("]", motif,  fixed = TRUE))) {
+      motif <- vapply(motif, function(x) sub("[", "", x, fixed = TRUE),
                       character(1))
+      motif <- vapply(motif, function(x) sub("]", "", x, fixed = TRUE),
+                      character(1))
+    } else if (all(grepl("|", motif, fixed = TRUE))) {
+      motif <- vapply(motif, function(x) sub("|", replacement = "", x,
+                                             fixed = TRUE), character(1))
     } else stop("motifs are not formatted as Jaspar; see `?read_jaspar`",
                 call. = FALSE)
 
@@ -99,7 +104,7 @@ jasp_load <- function(beg_mot, end_mot, jaspar_raw) {
 
   motif <- as.matrix(read.table(text = motif))
   rownames(motif) <- c("A", "C", "G", "T")
-  colnames(motif) <- rep("", ncol(motif))
+  colnames(motif) <- NULL
   
   return(motif)
 
@@ -111,7 +116,7 @@ jasp_filter <- function(motifs, mot_length_cutoff) {
     motifs <- motifs[vapply(motifs, function(x) ncol(x) >= mot_length_cutoff,
                             logical(1))]
     if (length(motifs) == 0) {
-      if (verbose) cat("All motifs were filtered out.\n")
+      warning("All motifs were filtered out.\n", call. = FALSE)
       return(NULL)
     }
   }
