@@ -68,8 +68,16 @@ read_uniprobe <- function(motif_file, verbose = FALSE,
   uni_names_indices <- lapply(uni_all, uniprobe_names, uniprobe_raw)
   uni_names_indices <- uni_names_indices[vapply(uni_names_indices, function(x)
                                                 !is.null(x), logical(1))]
-
-  # need a function to handle names returned as "Probability matrix"
+  if (verbose) cat("Found", length(uni_names_indices), "motifs.\n")
+  uni_names_indices <- lapply(uni_names_indices, uniprobe_names2,
+                              uniprobe_raw)
+  uni_names_indices <- mapply(function(x, y) {
+                                if (!is.null(x[1])) return(x)
+                                x[1] <- y
+                                return(x)
+                              },
+                              uni_names_indices, seq_along(uni_names_indices),
+                              SIMPLIFY = FALSE)
 
   motifs <- lapply(uni_names_indices, uniprobe_load, uniprobe_raw)
 
@@ -85,21 +93,51 @@ read_uniprobe <- function(motif_file, verbose = FALSE,
 uniprobe_names <- function(uni_all, uniprobe_raw) {
 
   tocheck <- as.integer(uni_all[1]) - 1
-  finalname <- NULL
   for (i in tocheck:1) {
     if (grepl("Enrichment score matrix", uniprobe_raw[i],
               fixed = TRUE)) return(NULL)
     if (grepl("Energy matrix", uniprobe_raw[i], fixed = TRUE)) return(NULL)
-    if (grepl("T:", uniprobe_raw[i], fixed = TRUE)) return(NULL)
-    if (uniprobe_raw[i] != "" && !grepl("^P0", uniprobe_raw[i]) &&
-        !grepl("^PO", uniprobe_raw[i])) {
-      finalname <- uniprobe_raw[i]
-      return(c("thename" = finalname, "nameindex" = as.character(i), 
+    #if (grepl("T:", uniprobe_raw[i], fixed = TRUE)) return(NULL)
+    if (uniprobe_raw[i] != "" && !grepl("^P0\\s+", uniprobe_raw[i]) &&
+        !grepl("^PO\\s+", uniprobe_raw[i]) &&
+        !grepl("A:", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("C:", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("G:", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("T:", uniprobe_raw[i], fixed = TRUE)) {
+      return(c("thename" = uniprobe_raw[i], "nameindex" = as.character(i), 
                "A" = uni_all[1], "C" = uni_all[2], "G" = uni_all[3],
                "T" = uni_all[4]))
     }
   }
   stop("could not find any motif names", call. = FALSE)
+
+}
+
+uniprobe_names2 <- function(uni_names_indices, uniprobe_raw) {
+
+  if (uni_names_indices[1] != "Probability matrix") return(uni_names_indices)
+  tocheck <- as.integer(uni_names_indices[2]) - 1
+  for (i in tocheck:1) {
+    if (grepl("Probability matrix", uniprobe_raw[i], fixed = TRUE)) {
+      uni_names_indices[1] <- NULL
+      return(uni_names_indices)
+    } 
+    if (!grepl("Enrichment score matrix", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("Energy matrix", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("^P0\\s+", uniprobe_raw[i]) &&
+        !grepl("^PO\\s+", uniprobe_raw[i]) &&
+        !grepl("A:", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("C:", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("G:", uniprobe_raw[i], fixed = TRUE) &&
+        !grepl("T:", uniprobe_raw[i], fixed = TRUE) &&
+        uniprobe_raw[i] != "") {
+      ifelse(grepl("#", uniprobe_raw[i], fixed = TRUE), msplit <- 3, 
+             msplit <- 1)
+      uni_names_indices[1] <- strsplit(uniprobe_raw[i],
+                                       split = "\\s+")[[1]][msplit]
+      return(uni_names_indices)
+    }
+  }
 
 }
 
