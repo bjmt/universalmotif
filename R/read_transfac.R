@@ -23,7 +23,7 @@
 #'    rmotifs <- read_transfac(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
-#' @include utils.R
+#' @include utils.R universalmotif-class.R universamotif-methods.R
 #' @export
 read_transfac <- function(motif_file, verbose = FALSE,
                           mot_length_cutoff = NULL, out_class = "matrix-2") {
@@ -65,6 +65,8 @@ read_transfac <- function(motif_file, verbose = FALSE,
   mot_names <- mapply(function(x, y) ifelse(is.null(y), x, y),
                       seq_along(mot_names), mot_names)
   names(motifs) <- mot_names
+
+  motifs <- mapply(transfac_to_umot, motifs, mot_names, SIMPLIFY = FALSE)
 
   return(motifs)
 
@@ -149,5 +151,11 @@ transfac_load <- function(beg_mot, end_mot, transfac_raw) {
 
   rownames(motif) <- NULL
   return(motif)
+
+}
+
+transfac_to_umot <- function(motif, name) {
+
+  motif <- new("universalmotif", motif = t(motif), name = name, type = "PCM")
 
 }

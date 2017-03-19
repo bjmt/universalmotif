@@ -24,7 +24,7 @@
 #'    rmotifs <- read_jaspar(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
-#' @include utils.R
+#' @include utils.R universalmotif-class.R universalmotif-methods.R
 #' @export
 read_jaspar <- function(motif_file, verbose = FALSE,
                         mot_length_cutoff = NULL, out_class = "matrix-2") {
@@ -68,6 +68,8 @@ read_jaspar <- function(motif_file, verbose = FALSE,
   motifs <- jasp_filter(motifs, mot_length_cutoff)
 
   if (is.null(motifs)) return(invisible(NULL))
+
+  motifs <- mapply(jaspar_to_umot, motifs, mot_names, SIMPLIFY = FALSE)
   
   return(motifs)
 
@@ -122,5 +124,13 @@ jasp_filter <- function(motifs, mot_length_cutoff) {
   }
 
   return(motifs)
+
+}
+
+jaspar_to_umot <- function(motif, name) {
+  
+  motif <- new("universalmotif", motif = motif, name = name, type = "PCM")
+  
+  return(motif)
 
 }

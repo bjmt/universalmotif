@@ -5,30 +5,58 @@
 ##
 ######################################################################
 
+#' @describeIn universalmotif Show method for universalmotif class.
+#' @include utils.R universalmotif-class.R generics.R
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
-            cat(" Motif name:   ", object@name, "\n",
-                "       Type:   ", object@type, "\n", 
-                "    Strands:   ", paste(object@strand, collapse = " "), "\n",
-                # "         IC:   ", paste(object@icscores, collapse = ", "), "\n",
-                "   Total IC:   ", object@icscore, "\n", 
-                "  Consensus:   ", object@consensus, "\n", sep = "")
-            if (length(object@extra) > 0) {
-              cat(" Extra info:   ", paste(names(object@extra), collapse = " "),
-                  "\n", sep = "")
+            cat("\n       Motif name:   ", object@name, "\n",
+                "             Type:   ", object@type, "\n", 
+                "          Strands:   ", paste(object@strand, collapse = " "), "\n",
+                "         Total IC:   ", object@icscore, "\n", 
+                "        Consensus:   ", object@consensus, "\n", sep = "")
+            if (length(object@nsites) > 0) {
+              cat("     Target sites:   ", object@nsites, "\n", sep = "")
+            }
+            if (length(object@bkgsites) > 0) {
+              cat(" Background sites:   ", object@bkgsites, "\n", sep = "")
+            }
+            if (length(object@pval) > 0) {
+              cat("          P-value:   ", object@pval, "\n", sep = "")
+            }
+            if (length(object@eval) > 0) {
+              cat("          E-value:   ", object@eval, "\n", sep = "")
+            }
+            if (length(object@extrachar) > 0 || length(object@extranum) > 0) {
+              cat("       Extra info:   ")
+              if (length(object@extrachar) > 0) {
+                cat(paste(names(object@extrachar), collapse = ", "))
+                if (length(object@extranum) > 0) cat(", ")
+              }
+              if (length(object@extranum) > 0) {
+                cat(paste(names(object@extranum), collapse = ", "))
+              }
+              cat("\n")
             }
             cat("\n")
             print(object@motif)
             invisible(NULL)
           })
 
+#' @describeIn universalmotif Initialize method for universalmotif class.
 setMethod("initialize", signature = "universalmotif",
           definition = function(.Object, name, motif,
                       alphabet = "DNA", #letters = character(0),
                       type = character(0), icscore = numeric(0),
                       nsites = numeric(0), pseudoweight = 0.8,
                       bkg = numeric(0), consensus = character(0),
-                      strand = c("+", "-"), extra = character(0)) {
+                      strand = c("+", "-"), extrachar = character(0),
+                      extranum = numeric(0), pval = numeric(0),
+                      eval = numeric(0), bkgsites = numeric(0)) {
+
+            # required fields for construction:
+                # - name
+                # - motif matrix
+                # - type
 
             if (missing(name)) stop("motif must have a name")
             .Object@name <- name
@@ -93,7 +121,26 @@ setMethod("initialize", signature = "universalmotif",
             }
             .Object@strand <- strand
 
-            .Object@extra <- extra
+            .Object@extrachar <- extrachar
+
+            .Object@extranum <- extranum
+
+            .Object@pval <- pval
+
+            .Object@bkgsites <- bkgsites
+
+            .Object@eval <- eval
             
             .Object
+
           })
+
+#' @describeIn universalmotif Accessor function for class universalmotif.
+setMethod("motif_slots", "universalmotif", function(object) {
+          toreturn1 <- NULL
+          toreturn2 <- NULL
+          if (length(object@extranum) > 0) toreturn1 <- object@extranum
+          if (length(object@extrachar) > 0) toreturn2 <- object@extrachar
+          if (is.null(toreturn1) && is.null(toreturn2)) return(invisible(NULL))
+          return(list(extranum = toreturn1, extrachar = toreturn2))
+         })

@@ -42,10 +42,10 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
       type <- "PPM"
   }
   if (type == "PPM") {
-    ic1 <- motif[1] * log2(motif[1] / bkg[1])
-    ic2 <- motif[2] * log2(motif[2] / bkg[2])
-    ic3 <- motif[3] * log2(motif[3] / bkg[3])
-    ic4 <- motif[4] * log2(motif[4] / bkg[4])
+    if (motif[1] == 0) ic1 <- 0 else ic1 <- motif[1] * log2(motif[1] / bkg[1])
+    if (motif[2] == 0) ic2 <- 0 else ic2 <- motif[2] * log2(motif[2] / bkg[2])
+    if (motif[3] == 0) ic3 <- 0 else ic3 <- motif[3] * log2(motif[3] / bkg[3])
+    if (motif[4] == 0) ic4 <- 0 else ic4 <- motif[4] * log2(motif[4] / bkg[4])
   }
 
   ic <- sum(ic1, ic2, ic3, ic4)

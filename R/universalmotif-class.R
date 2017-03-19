@@ -19,7 +19,11 @@
 #' @slot bkg Numeric. Background letter frequencies.
 #' @slot consensus Character. Motif consensus sequence.
 #' @slot strand Character. '+' or '-'.`
-#' @slot extra Character.
+#' @slot pval Numeric.
+#' @slot eval Numeric.
+#' @slot extrachar Character.
+#' @slot extranum Numeric.
+#' @slot bkgsites Numeric.
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @export
@@ -29,22 +33,30 @@ setClass("universalmotif",
                       type = "character", icscore = "numeric",
                       nsites = "numeric", pseudoweight = "numeric",
                       bkg = "numeric", consensus = "character",
-                      strand = "character", extra = "character"))
+                      strand = "character", pval = "numeric",
+                      extrachar = "character", extranum = "numeric",
+                      eval = "numeric", bkgsites = "numeric"))
 
-# setValidity("universalmotif",
-#             function(object) {
-#               msg <- NULL
-#               valid <- TRUE
-#               if (length(object@name) == 0) {
-#                 valid <- FALSE
-#                 msg <- c(msg, "motif must have a name")
-#               }
-#               if (valid) TRUE else msg
-#             })
-
-# is setValidity needed if I have a method for initialize?
-
-# setMethod("initialize", "universalmotif")
+setValidity("universalmotif",
+            function(object) {
+              msg <- NULL
+              valid <- TRUE
+              if (object@type == "PCM") {
+                test1 <- colSums(object@motif)
+                if (length(unique(test1)) > 1) {
+                  valid <- FALSE
+                  msg <- c(msg, "motif of type PCM must have equal colSums")
+                }
+              }
+              if (object@type == "PPM") {
+                test2 <- colSums(object@motif)
+                if (any(test2 > 1.01) || any(test2 < 0.99)) {
+                  valid <- FALSE
+                  msg <- c(msg, "motif of type PPM must have colSums of 1")
+                }
+              }
+              if (valid) TRUE else msg
+            })
 
 # position frequency matrix (PFM): counts for hits at that position
 # aka position count matrix (PCM)

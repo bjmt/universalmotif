@@ -32,7 +32,7 @@
 #'   rmotifs <- read_homer(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
-#' @include utils.R
+#' @include utils.R universalmotif-class.R universalmotif-methods.R
 #' @export
 read_homer <- function(motif_file, verbose = FALSE, out_class = "matrix-2",
                        mot_length_cutoff = NULL, bkg_cutoff = NULL,
@@ -88,6 +88,9 @@ read_homer <- function(motif_file, verbose = FALSE, out_class = "matrix-2",
             call. = FALSE)
   }
 
+  motifs <- mapply(homer_to_umot, motifs, names(motifs), info_occ,
+                   info[[2]], SIMPLIFY = FALSE)
+
   return(motifs)
 
 }
@@ -125,10 +128,21 @@ hom_occ <- function(occinfo) {
   occ <- c("T" = tnum, "B" = bnum, "P" = pnum)
 
   occ[c("T", "B")] <- vapply(occ[c("T", "B")], function(x) {
-                   x <- strsplit(x, split = "\\(")[[1]][2]
-                   x <- strsplit(x, split = "%")[[1]][1]
+                   x <- strsplit(x, split = ":")[[1]][2]
+                   x <- strsplit(x, split = "\\(")[[1]][1]
                    return(x)}, character(1))
   occ["P"] <- strsplit(occ[3], split = ":")[[1]][2]
   occ <- vapply(occ, as.double, double(1))
   return(occ)
+}
+
+homer_to_umot <- function(motif, name, info_occ, info) {
+
+  final_motif <- new("universalmotif", name = name, motif = t(motif), 
+                     type = "PPM", nsites = info_occ[1],
+                     pval = info_occ[3], bkgsites = info_occ[2],
+                     extranum = c("detection_threshold" = info))
+
+  return(final_motif)
+
 }

@@ -85,7 +85,11 @@ read_uniprobe <- function(motif_file, verbose = FALSE,
 
   motifs <- lapply(uni_names_indices, uniprobe_load, uniprobe_raw)
 
-  names(motifs) <- vapply(uni_names_indices, function(x) x[1], character(1))
+  mot_names <- vapply(uni_names_indices, function(x) x[1], character(1))
+
+  names(motifs) <- mot_names
+
+  motifs <- mapply(uniprobe_to_umot, motifs, mot_names, SIMPLIFY = FALSE)
 
   return(motifs)
 
@@ -154,5 +158,11 @@ uniprobe_load <- function(uni_indicies, uniprobe_raw) {
   rownames(motif) <- c("A", "C", "G", "T")
   colnames(motif) <- NULL
   return(motif)
+
+}
+
+uniprobe_to_umot <- function(motif, name) {
+
+  motif <- new("universalmotif", name = name, motif = motif, type = "PPM")
 
 }

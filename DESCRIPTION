@@ -18,15 +18,16 @@ Imports: seqLogo
 RoxygenNote: 6.0.1
 Collate: 
     'convert_motifs.R'
+    'generics.R'
+    'universalmotif-class.R'
     'utils.R'
+    'universalmotif-methods.R'
     'read_homer.R'
     'read_jaspar.R'
     'read_meme.R'
     'read_motifs.R'
     'read_transfac.R'
     'read_uniprobe.R'
-    'universalmotif-class.R'
-    'universalmotif-methods.R'
     'universalmotif.R'
     'write_functions.R'
     'write_meme-methods.R'

@@ -18,8 +18,6 @@
 #' above; reading a file with a lower version of MEME will throw a warning, as
 #' this may result in incorrect parsing.
 #'
-#' NOTE: parsing full meme format files is quite slower than minimal meme.
-#'
 #' @param motif_file Character. Text file containing MEME format motifs.
 #' @param verbose Logical. \code{read_meme} will return information regarding any 
 #'   detected information in the file preamble.
@@ -112,6 +110,7 @@ read_meme <- function(motif_file, verbose = FALSE,
   # detect and read motifs
   # progress bar: min trigger is based on my own benchmarking, not sure what
   # the best option would be
+  progress <- 1
   if (verbose && length(posmotifs) > 999) {
     pb <- txtProgressBar(min = 0, max = length(posmotifs), style = 3)
     progress <- seq_len(length(posmotifs))
@@ -147,6 +146,11 @@ read_meme <- function(motif_file, verbose = FALSE,
     if (verbose) cat("All motifs were filtered out.\n")
     return(invisible(NULL))
   }
+
+  motifs <- mapply(meme_to_umot, motifs, info_mots, mot_names,
+                   MoreArgs = list(alphabet = alphabet, alph_type = alph_type,
+                                   strands = strands, background = background,
+                                   motif_type = motif_type))
 
   if (verbose) cat("Done.\n")
   return(motifs)
@@ -204,7 +208,7 @@ meme_strands <- function(meme_raw) {
   for (i in seq_along(meme_raw)) {
     if (grepl("strands:", meme_raw[i], fixed = TRUE)) {
       strands <- strsplit(meme_raw[i], split = "\\s+")[[1]]
-      if (length(strands) == 3 && all(c("+", "-") %in% strands)) return(strands[2:3])
+      if (length(strands) == 3 && all(c("+", "-") %in% strands)) return(c("+", "-"))
       if (length(strands) == 2 && any(c("+", "-") %in% strands)) return(strands[2])
       warning("could not parse strand information", call. = FALSE)
     }
@@ -365,4 +369,32 @@ convert_mots <- function(mot_names, info_mots, motifs, out_class,
     colnames(motifs) <- NULL
     return(motifs)
   }
+}
+
+meme_to_umot <- function(motif, info, name, alphabet, alph_type, strands,
+                         background, motif_type) {
+
+  if (motif_type == "lpm") type <- "PPM" else type <- "PWM"
+  motif <- new("universalmotif", motif = t(motif), name = name, type = type)
+  
+  if (!is.null(alph_type)) motif@alphabet <- alph_type[[1]]
+  if (!is.null(strands)) motif@strand <- strands
+  if (!is.null(background)) {
+    bkg <- background[[1]]
+    bkgn <- strsplit(bkg, split = "\\s+")[[1]]
+    bkg <- bkgn[seq(from = 2, to = length(bkgn), by = 2)]
+    bkg <- as.double(bkg)
+    motif@bkg <- bkg
+  }
+  if (!is.na(info["nsites.8"])) {
+    nsit <- as.integer(info["nsites.8"])
+    motif@nsites <- nsit
+  }
+  if (!is.na(info["E.10"])) {
+    evl <- as.double(info["E.10"])
+    motif@eval <- evl
+  }
+
+  return(motif)
+
 }
