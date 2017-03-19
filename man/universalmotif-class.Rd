@@ -16,21 +16,21 @@ Placeholder description.
 
 \item{\code{alphabet}}{Character. Describes alphabet. Can be: DNA, RNA, AA, custom.}
 
-\item{\code{letters}}{Character. Alphabet letters.}
-
 \item{\code{type}}{Character. Can be: PCM, PPM, or PWM.}
 
-\item{\code{icscore}}{Numeric. Sum of all information content scores.}
+\item{\code{icscore}}{Numeric. Total information content for all positions.}
 
 \item{\code{nsites}}{Numeric. Total number of sites containing motif.}
 
-\item{\code{pseudoweights}}{Numeric. Amount of smoothing to apply.}
+\item{\code{pseudoweight}}{Numeric. Amount of smoothing to apply.}
 
-\item{\code{bk}}{Numeric. Background letter frequencies.}
+\item{\code{bkg}}{Numeric. Background letter frequencies.}
 
 \item{\code{consensus}}{Character. Motif consensus sequence.}
 
 \item{\code{strand}}{Character. '+' or '-'.`}
+
+\item{\code{extra}}{Character.}
 }}
 
 \author{

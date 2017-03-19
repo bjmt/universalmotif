@@ -10,7 +10,8 @@ setMethod("show", signature = "universalmotif",
             cat(" Motif name:   ", object@name, "\n",
                 "       Type:   ", object@type, "\n", 
                 "    Strands:   ", paste(object@strand, collapse = " "), "\n",
-                "   IC Score:   ", object@icscore, "\n", 
+                # "         IC:   ", paste(object@icscores, collapse = ", "), "\n",
+                "   Total IC:   ", object@icscore, "\n", 
                 "  Consensus:   ", object@consensus, "\n", sep = "")
             if (length(object@extra) > 0) {
               cat(" Extra info:   ", paste(names(object@extra), collapse = " "),
@@ -25,7 +26,7 @@ setMethod("initialize", signature = "universalmotif",
           definition = function(.Object, name, motif,
                       alphabet = "DNA", #letters = character(0),
                       type = character(0), icscore = numeric(0),
-                      nsites = numeric(0), pseudoweights = numeric(0),
+                      nsites = numeric(0), pseudoweight = 0.8,
                       bkg = numeric(0), consensus = character(0),
                       strand = c("+", "-"), extra = character(0)) {
 
@@ -54,6 +55,7 @@ setMethod("initialize", signature = "universalmotif",
             } else {
               if (!all(letters %in% rownames(motif))) rownames(motif) <- letters
             }
+            colnames(motif) <- NULL
             .Object@motif <- motif
 
             if (missing(type) || !type %in% c("PCM", "PPM", "PWM")) {
@@ -63,7 +65,7 @@ setMethod("initialize", signature = "universalmotif",
 
             .Object@nsites <- nsites
 
-            .Object@pseudoweights <- pseudoweights
+            .Object@pseudoweight <- pseudoweight
 
             if (missing(bkg) &&
                 alphabet %in% c("DNA", "RNA")) bkg <- c(0.25, 0.25, 0.25, 0.25) 
@@ -71,13 +73,20 @@ setMethod("initialize", signature = "universalmotif",
 
             if (alphabet == "DNA") consensus <- apply(motif, 2, get_consensus,
                                                       alphabet = "DNA",
-                                                      type = type)
+                                                      type = type,
+                                                      pseudoweight = pseudoweight)
             if (alphabet == "RNA") consensus <- apply(motif, 2, get_consensus,
                                                       alphabet = "RNA",
-                                                      type = type)
+                                                      type = type,
+                                                      pseudoweight = pseudoweight)
             .Object@consensus <- consensus
             
-            .Object@icscore <- icscore
+            icscores <- apply(motif, 2, position_icscore,
+                                 bkg = bkg, type = type,
+                                 pseudoweight = pseudoweight) 
+            # .Object@icscores <- icscores
+            .Object@icscore <- sum(icscores)
+
 
             if (!all(strand == c("+", "-") && !any(strand %in% c("+", "-")))) {
               strand <- c("+", "-")

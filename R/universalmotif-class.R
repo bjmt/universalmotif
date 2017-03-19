@@ -13,10 +13,10 @@
 #' @slot motif Matrix. Contains motif.
 #' @slot alphabet Character. Describes alphabet. Can be: DNA, RNA, AA, custom.
 #' @slot type Character. Can be: PCM, PPM, or PWM.
-#' @slot icscore Numeric. Sum of all information content scores.
+#' @slot icscore Numeric. Total information content for all positions.
 #' @slot nsites Numeric. Total number of sites containing motif.
-#' @slot pseudoweights Numeric. Amount of smoothing to apply.
-#' @slot bk Numeric. Background letter frequencies.
+#' @slot pseudoweight Numeric. Amount of smoothing to apply.
+#' @slot bkg Numeric. Background letter frequencies.
 #' @slot consensus Character. Motif consensus sequence.
 #' @slot strand Character. '+' or '-'.`
 #' @slot extra Character.
@@ -27,7 +27,7 @@ setClass("universalmotif",
          slots = list(name = "character", motif = "matrix",
                       alphabet = "character", #letters = "character",
                       type = "character", icscore = "numeric",
-                      nsites = "numeric", pseudoweights = "numeric",
+                      nsites = "numeric", pseudoweight = "numeric",
                       bkg = "numeric", consensus = "character",
                       strand = "character", extra = "character"))
 
