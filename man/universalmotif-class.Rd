@@ -14,41 +14,23 @@ Placeholder description.
 
 \item{\code{motif}}{Matrix. Contains motif.}
 
-\item{\code{alphabet}}{Character. Describes alphabet.}
+\item{\code{alphabet}}{Character. Describes alphabet. Can be: DNA, RNA, AA, custom.}
 
 \item{\code{letters}}{Character. Alphabet letters.}
 
-\item{\code{type}}{Character. Describes how the motif is stores; i.e., as a PWM,
-etc.}
+\item{\code{type}}{Character. Can be: PCM, PPM, or PWM.}
 
-\item{\code{nsites}}{Integer. Number of times motif was found in original set.}
+\item{\code{icscore}}{Numeric. Sum of all information content scores.}
 
-\item{\code{penrich}}{Numeric. Motif enrichment p-value, if present.}
+\item{\code{nsites}}{Numeric. Total number of sites containing motif.}
 
-\item{\code{pseudoweights}}{Numeric vector. Motif pseudoweights.}
+\item{\code{pseudoweights}}{Numeric. Amount of smoothing to apply.}
 
-\item{\code{eval}}{Numeric. Motif e-value, if present.}
+\item{\code{bk}}{Numeric. Background letter frequencies.}
 
-\item{\code{pdetect}}{Numeric. Motif detection p-value, if present.}
+\item{\code{consensus}}{Character. Motif consensus sequence.}
 
-\item{\code{tpos}}{Numeric. Average position of motif in target sequences.}
-
-\item{\code{tstd}}{Numeric. Standard deviation of position of motif in target
-sequences.}
-
-\item{\code{bpos}}{Numeric. Average position of motif in background sequences.}
-
-\item{\code{bstd}}{Numeric. Standard deviation of average position in background
-sequences.}
-
-\item{\code{strandbias}}{Numeric. Log ratio of + strand occurences to - strand
-occurrences.}
-
-\item{\code{tpercent}}{Numeric. Percent of target sequences with motif.}
-
-\item{\code{bpercent}}{Numeric. Percent of background sequences with motif.}
-
-\item{\code{consensus}}{Character. Motif consensus sequences.}
+\item{\code{strand}}{Character. '+' or '-'.`}
 }}
 
 \author{

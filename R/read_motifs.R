@@ -36,7 +36,7 @@ read_motifs <- function(motif_file, verbose = FALSE,
   # motif format support and related functions
   available_formats <- list(
 
-    # the order for these matters; functions will be called in this order
+    # the sequence for these matters; functions will be called in this order
         
         # - meme is early on due to how unique the autodetection condition is
         # - transfac must be before homer since it often gets detected as homer

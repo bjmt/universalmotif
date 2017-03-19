@@ -11,37 +11,100 @@
 #'
 #' @slot name Character. Motif name.
 #' @slot motif Matrix. Contains motif.
-#' @slot alphabet Character. Describes alphabet.
-#' @slot letters Character. Alphabet letters.
-#' @slot type Character. Describes how the motif is stores; i.e., as a PWM,
-#'       etc.
-#' @slot nsites Integer. Number of times motif was found in original set.
-#' @slot penrich Numeric. Motif enrichment p-value, if present.
-#' @slot pseudoweights Numeric vector. Motif pseudoweights.
-#' @slot eval Numeric. Motif e-value, if present.
-#' @slot pdetect Numeric. Motif detection p-value, if present.
-#' @slot tpos Numeric. Average position of motif in target sequences.
-#' @slot tstd Numeric. Standard deviation of position of motif in target
-#'       sequences.
-#' @slot bpos Numeric. Average position of motif in background sequences.
-#' @slot bstd Numeric. Standard deviation of average position in background
-#'       sequences.
-#' @slot strandbias Numeric. Log ratio of + strand occurences to - strand
-#'       occurrences.
-#' @slot tpercent Numeric. Percent of target sequences with motif.
-#' @slot bpercent Numeric. Percent of background sequences with motif.
-#' @slot consensus Character. Motif consensus sequences.
+#' @slot alphabet Character. Describes alphabet. Can be: DNA, RNA, AA, custom.
+#' @slot type Character. Can be: PCM, PPM, or PWM.
+#' @slot icscore Numeric. Sum of all information content scores.
+#' @slot nsites Numeric. Total number of sites containing motif.
+#' @slot pseudoweights Numeric. Amount of smoothing to apply.
+#' @slot bk Numeric. Background letter frequencies.
+#' @slot consensus Character. Motif consensus sequence.
+#' @slot strand Character. '+' or '-'.`
+#' @slot extra Character.
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 #' @export
-setClass("universalmotif", slots = list(name = "character", motif = "matrix",
-                              alphabet = "character", letters = "character",
-                              type = "character", nsites = "integer",
-                              penrich = "numeric", pseudoweights = "numeric",
-                              eval = "numeric", pdetect = "numeric",
-                              tpos = "numeric", tstd = "numeric",
-                              bpos = "numeric", bstd = "numeric",
-                              strandbias = "numeric", tpercent = "numeric",
-                              bpercent = "numeric", consensus = "character"))
+setClass("universalmotif",
+         slots = list(name = "character", motif = "matrix",
+                      alphabet = "character", #letters = "character",
+                      type = "character", icscore = "numeric",
+                      nsites = "numeric", pseudoweights = "numeric",
+                      bkg = "numeric", consensus = "character",
+                      strand = "character", extra = "character"))
 
-# idea: make universalmotif a virtual class with fewer slots
+# setValidity("universalmotif",
+#             function(object) {
+#               msg <- NULL
+#               valid <- TRUE
+#               if (length(object@name) == 0) {
+#                 valid <- FALSE
+#                 msg <- c(msg, "motif must have a name")
+#               }
+#               if (valid) TRUE else msg
+#             })
+
+# is setValidity needed if I have a method for initialize?
+
+# setMethod("initialize", "universalmotif")
+
+# position frequency matrix (PFM): counts for hits at that position
+# aka position count matrix (PCM)
+
+  # WARNING: from what I can tell, PFMs are sometimes actually referring to
+  # PPM
+
+# position probability matrix (PPM): counts at that position divided by total
+# aka position-specific probability matrix (PSPM)
+  # the probability of a particular combo can be calculated by multiplying
+    # pseudocounts: used when calculated PPM from a small dataset; otherwise
+    # certain positions may have a probability of 0, regardless of other
+    # positions
+
+# position weight matrix (PWM): for each position of the PPM, apply the
+# formulat: log2(position/bkgprob)
+# aka position-specific weight matrix (PSWM), aka position-specific
+# scoring matrix (PSSM)
+    # without pseudocounts, there will be positions with -infinity
+  # the probability of a particular combo can be calculated by addition;
+  # if positive, more likely functional; if 0, random; if less than 0,
+  # more likely a random site
+
+# good ref: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2647310/
+  # suggests a pseudocount of 0.8
+
+# PSEUDOCOUNTS:
+  
+  # typically, 'pseudocounts' are added when converting from PFM to PPM.
+  # the formula is thus modified:
+
+    # position prob = (count + [pseudocount / 4]) / (num of seqs + pseudocount]
+
+# pseudocounts can also be applied to PPMs:
+  # prob * 100 = PFM
+  # then recalculate PPM with pseudoweights formula
+
+# workflow:
+# multiple alignment --> PFM --> PPM --> PWM
+
+# information content (IC) at a given position:
+  # IC = log2(number of alph letters) - entropy(position)
+  # for DNA/RNA: IC = 2 + entropy(position)
+  # entropy(given position) = A[posprob*log2(posprob)] + C[..] + G[..] + T[..]
+
+# PWMEnrich::motifIC
+
+# seqLogo:::pwm2ic
+  # ic[i] = 2 + sum( if x>0 (x * log2(x)) else 0 FOR ALL LETTERS)
+  # e.g. for a = 0.25, c = 0.25, g = 0.25, t = 0.25:
+  # 2 + 0.25*log2(0.25) + 0.25*log2(0.25) +..
+
+# to get the bits for each letter of a position: prob * IC
+
+# however the pwm2ic assumes a bkg of 0.25*4; this can be changed to get
+# relative entropy:
+  # 0.25*log2(0.25/lett prob) + etc..
+
+# homer scores:
+# Score for GGATGT
+
+# score = log(pG1/0.25) + log(pG2/0.25) + log(pA3/0.25) + log(pT4/0.25) + 
+#         log(pG5/0.25) + log(pT6/0.25)
