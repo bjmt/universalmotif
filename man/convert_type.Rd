@@ -4,7 +4,7 @@
 \alias{convert_type}
 \title{[UNDER CONSTRUCTION] Convert \linkS4class{universalmotif} type.}
 \usage{
-convert_type(motif, out_type)
+convert_type(motif, out_type, ...)
 }
 \arguments{
 \item{motif}{Motif object.}

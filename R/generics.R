@@ -15,7 +15,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
-setGeneric("motif_slots", function(object) standardGeneric("motif_slots"))
+setGeneric("motif_slots", function(object, ...) standardGeneric("motif_slots"))
 
 #' [UNDER CONSTRUCTION] Convert motifs between various classes.
 #'
@@ -34,7 +34,7 @@ setGeneric("motif_slots", function(object) standardGeneric("motif_slots"))
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
-setGeneric("convert_motifs", function(motif, out_class) 
+setGeneric("convert_motifs", function(motif, out_class, ...) 
            standardGeneric("convert_motifs"))
 
 #' [UNDER CONSTRUCTION] Convert \linkS4class{universalmotif} type.
@@ -48,5 +48,5 @@ setGeneric("convert_motifs", function(motif, out_class)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
-setGeneric("convert_type", function(motif, out_type)
+setGeneric("convert_type", function(motif, out_type, ...)
            standardGeneric("convert_type"))

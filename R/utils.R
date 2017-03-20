@@ -39,19 +39,16 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   if (type == "PCM") {
       possum <- sum(motif)
       motif <- pcm_to_ppm(motif, possum, pseudoweight)
-      type <- "PPM"
   }
-  if (type == "PWM") {
-    # TODO:
-  }
-  if (type == "PPM") {
-    if (motif[1] == 0) ic1 <- 0 else ic1 <- motif[1] * log2(motif[1] / bkg[1])
-    if (motif[2] == 0) ic2 <- 0 else ic2 <- motif[2] * log2(motif[2] / bkg[2])
-    if (motif[3] == 0) ic3 <- 0 else ic3 <- motif[3] * log2(motif[3] / bkg[3])
-    if (motif[4] == 0) ic4 <- 0 else ic4 <- motif[4] * log2(motif[4] / bkg[4])
-  }
+  if (type == "PWM") motif <- pwm_to_ppm(motif, background = bkg)
+
+  ic1 <- motif[1] * log2(motif[1] / bkg[1]) * -1
+  ic2 <- motif[2] * log2(motif[2] / bkg[2]) * -1
+  ic3 <- motif[3] * log2(motif[3] / bkg[3]) * -1
+  ic4 <- motif[4] * log2(motif[4] / bkg[4]) * -1
 
   ic <- sum(ic1, ic2, ic3, ic4)
+
 
   return(ic)
 
@@ -62,6 +59,7 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
     # toICM: generates IC scores for each position from 0 to 2
 
 pcm_to_ppm <- function(position, possum, pseudoweight) {
+  if (missing(possum)) possum <- sum(position)
   pos <- vapply(position, function(x)
                 (x + pseudoweight / 4) / (possum + pseudoweight),
                 double(1))
@@ -71,6 +69,24 @@ pcm_to_ppm <- function(position, possum, pseudoweight) {
 ppm_to_pcm <- function(position, nsites = 100) {
   pos <- vapply(position, function(x) round(x * nsites), numeric(1))
   return(pos)
+}
+
+ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
+                       pseudoweight = 0.8, nsites = nsites) {
+  position <- ppm_to_pcm(position, nsites = nsites)
+  position <- pcm_to_ppm(position, pseudoweight = pseudoweight)
+  for (i in seq_along(position)) {
+    position[i] <- log2(position[i] / background[i])
+  }
+  return(position)
+}
+
+pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
+  for (i in seq_along(position)) {
+    position[i] <- 2 ^ position[i]
+    position[i] <- position[i] * background[i]
+  }
+  return(position)
 }
 
 get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",

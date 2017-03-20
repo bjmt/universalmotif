@@ -160,9 +160,15 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
                 return(motif)
               }
               if (out_type == "PWM") {
-                # TODO:
+                motif@motif <- apply(motif@motif, 2, pcm_to_ppm)
+                motif@motif <- apply(motif@motif, 2, ppm_to_pwm,
+                                     background = motif@bkg,
+                                     pseudoweight = motif@pseudoweight,
+                                     nsites = motif@nsites)
+                motif@type <- "PWM"
               }
             }
+
             if (motif@type == "PPM") {
               if (out_type == "PCM") {
                 motif@motif <- apply(motif@motif, 2, ppm_to_pcm,
@@ -172,16 +178,27 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
                 return(motif)
               }
               if (out_type == "PWM") {
-                # TODO:
+                motif@motif <- apply(motif@motif, 2, ppm_to_pwm,
+                                     background = motif@bkg,
+                                     pseudoweight = motif@pseudoweight,
+                                     nsites = motif@nsites)
+
+                motif@type <- "PWM"
               }
             }
+
             if (motif@type == "PWM") {
               if (out_type == "PCM") {
-                # TODO:
+                motif@motif <- apply(motif@motif, 2, pwm_to_ppm)
+                motif@motif <- apply(motif@motif, 2, ppm_to_pcm)
+                motif@type <- "PCM"
               }
               if (out_type == "PPM") {
-                # TODO:
+                motif@motif <- apply(motif@motif, 2, pwm_to_ppm)
+                motif@type <- "PPM"
               }
             }
+
+            return(motif)
 
          })

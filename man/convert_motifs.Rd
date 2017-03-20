@@ -7,11 +7,13 @@
 \alias{convert_motifs,list-method}
 \title{[UNDER CONSTRUCTION] Convert motifs between various classes.}
 \usage{
-convert_motifs(motif, out_class)
+convert_motifs(motif, out_class, ...)
 
-\S4method{convert_motifs}{universalmotif}(motif, out_class)
+\S4method{convert_motifs}{universalmotif}(motif, out_class,
+  pseudoweight = 0.8, background = c(A = 0.25, C = 0.25, G = 0.25, T =
+  0.25))
 
-\S4method{convert_motifs}{list}(motif, out_class)
+\S4method{convert_motifs}{list}(motif, out_class, ...)
 }
 \arguments{
 \item{motif}{Motif object or list of motif objects..}
