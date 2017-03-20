@@ -1,0 +1,24 @@
+---
+title: "Introduction to the \"universalmotif\" package"
+author: "Benjamin Tremblay"
+date: "`r Sys.Date()`"
+abstract: >
+  Import, manipulate, and export motifs with R.
+vignette: >
+  %\VignetteIndexEntry{Introduciton to motif manipulation with the "universalmotif" package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::pdf_document
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Introduction
+
+This is the introduction. To link a bib file, add
+`bibliography: universalmotif.bib` to the yaml header. To compile the document,
+run `rmarkdown::render("~/universalmotif/vignettes/universalmotif.Rmd",
+BiocStyle::pdf_document())`.

@@ -1,9 +1,10 @@
 Package: universalmotif
-Title: Import, modify, and export motif files with R.
-Version: 0.0.0.9000
+Title: Import, modify, and export motif files with R
+Version: 0.99.0
 Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"),
                   email = "b2trembl@uwaterloo.ca")
 Author: Benjamin Tremblay [aut, cre]
+Maintainer: Benjamin Tremblay <b2trembl@uwaterloo.ca>
 Description: This package allows for importing most common motif types into R
     for use by functions provided by other Bioconductor motif-related packages.
     Motifs can be filtered during import based on parameters provided by each
@@ -14,9 +15,22 @@ Depends: R (>= 3.3.2)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: seqLogo
+Imports: MotifDb,
+    PWMEnrich,
+    TFBSTools,
+    methods,
+    motifStack,
+    seqLogo,
+    utils
+Suggests: knitr,
+    BiocStyle
+VignetteBuilder: knitr
+biocViews: MotifAnnotation,
+    MotifDiscovery,
+    DataImport,
+    GeneRegulation
 RoxygenNote: 6.0.1
-Collate: 
+Collate:
     'generics.R'
     'universalmotif-class.R'
     'utils.R'
