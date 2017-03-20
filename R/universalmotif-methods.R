@@ -148,8 +148,6 @@ setMethod("motif_slots", "universalmotif", function(object) {
 #' @describeIn universalmotif Convert type between PCM, PPM and PWM.
 setMethod("convert_type", "universalmotif", function(motif, out_type) {
 
-            # PWM support still needs to be implemented
-
             if (motif@type == "PCM") {
               if (out_type == "PPM") {
                 possums <- colSums(motif@motif)
@@ -161,6 +159,9 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
                 motif@type <- "PPM"
                 return(motif)
               }
+              if (out_type == "PWM") {
+                # TODO:
+              }
             }
             if (motif@type == "PPM") {
               if (out_type == "PCM") {
@@ -170,8 +171,17 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
                 motif@type <- "PCM"
                 return(motif)
               }
+              if (out_type == "PWM") {
+                # TODO:
+              }
             }
             if (motif@type == "PWM") {
+              if (out_type == "PCM") {
+                # TODO:
+              }
+              if (out_type == "PPM") {
+                # TODO:
+              }
             }
 
          })

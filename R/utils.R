@@ -41,6 +41,9 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
       motif <- pcm_to_ppm(motif, possum, pseudoweight)
       type <- "PPM"
   }
+  if (type == "PWM") {
+    # TODO:
+  }
   if (type == "PPM") {
     if (motif[1] == 0) ic1 <- 0 else ic1 <- motif[1] * log2(motif[1] / bkg[1])
     if (motif[2] == 0) ic2 <- 0 else ic2 <- motif[2] * log2(motif[2] / bkg[2])
@@ -66,7 +69,7 @@ pcm_to_ppm <- function(position, possum, pseudoweight) {
 }
 
 ppm_to_pcm <- function(position, nsites = 100) {
-  pos <- vapply(position, function(x) x * nsites, numeric(1))
+  pos <- vapply(position, function(x) round(x * nsites), numeric(1))
   return(pos)
 }
 
