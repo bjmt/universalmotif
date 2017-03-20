@@ -1,0 +1,44 @@
+######################################################################
+## Benjamin Tremblay
+##
+## Convert motifs between different classes. convert_motifs works on
+## one object at a time, so lapply must be used on lists.
+##
+######################################################################
+
+#' @describeIn convert_motifs Convert from universalmotif.
+#' @include utils.R universalmotif-class.R generics.R
+setMethod("convert_motifs", signature = "universalmotif",
+          definition = function(motif, out_class) {
+            if (out_class == "PFMatrix") {
+              motif <- umot_to_pfmatrix(motif)
+            }
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert a list of motifs.
+setMethod("convert_motifs", signature = "list",
+          definition = function(motif, out_class) {
+            lapply(motif, convert_motifs, out_class)
+          })
+
+######################################################################
+######################################################################
+
+umot_to_pfmatrix <- function(motif) {
+
+  if (motif@type == "PPM") {
+    motif <- convert_type(motif, "PCM")
+  }
+  if (motif@type == "PWM") {
+  }
+
+  if (!motif@alphabet %in% c("DNA", "RNA")) {
+    stop("PFMatrix can only be of type DNA or RNA")
+  }
+  bg <- c("A" = motif@bkg[1], "C" = motif@bkg[2],
+          "G" = motif@bkg[3], "T" = motif@bkg[4])
+  motif <- TFBSTools::PFMatrix(ID = motif@name, name = motif@name,
+                               strand = motif@strand[1], bg = bg,
+                               profileMatrix = motif@motif)
+}

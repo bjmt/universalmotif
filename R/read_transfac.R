@@ -22,8 +22,8 @@
 #'                          package = "universalmotif")
 #'    rmotifs <- read_transfac(motifs)
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
-#' @include utils.R universalmotif-class.R universamotif-methods.R
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
+#' @include utils.R universalmotif-class.R universalmotif-methods.R
 #' @export
 read_transfac <- function(motif_file, verbose = FALSE,
                           mot_length_cutoff = NULL, out_class = "matrix-2") {

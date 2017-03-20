@@ -20,7 +20,7 @@
 #'
 #' @return A list of motifs.
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R
 #' @export
 read_motifs <- function(motif_file, verbose = FALSE,

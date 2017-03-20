@@ -17,10 +17,10 @@ LazyData: true
 Imports: seqLogo
 RoxygenNote: 6.0.1
 Collate: 
-    'convert_motifs.R'
     'generics.R'
     'universalmotif-class.R'
     'utils.R'
+    'convert_motifs-methods.R'
     'universalmotif-methods.R'
     'read_homer.R'
     'read_jaspar.R'

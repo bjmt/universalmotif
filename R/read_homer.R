@@ -31,7 +31,7 @@
 #'   motifs <- system.file("extdata", "example.homer", package = "universalmotif")
 #'   rmotifs <- read_homer(motifs)
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R universalmotif-class.R universalmotif-methods.R
 #' @export
 read_homer <- function(motif_file, verbose = FALSE, out_class = "matrix-2",

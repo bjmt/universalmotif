@@ -7,7 +7,7 @@
 motif_slots(object)
 }
 \arguments{
-\item{object}{Motif object of class universalmotif.}
+\item{object}{Motif object of class \linkS4class{universalmotif}.}
 }
 \value{
 List of motif info.

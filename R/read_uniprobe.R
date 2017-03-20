@@ -24,7 +24,7 @@
 #'                          package = "universalmotif")
 #'    rmotifs <- read_uniprobe(motifs)
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R
 #' @export
 read_uniprobe <- function(motif_file, verbose = FALSE,

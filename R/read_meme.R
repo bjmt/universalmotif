@@ -46,8 +46,8 @@
 #'   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
 #'   rmotifs <- read_meme(motifs, out_class = "matrix-2")
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
-#' @include utils.R
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
+#' @include utils.R universalmotif-methods.R universalmotif-class.R
 #' @export
 read_meme <- function(motif_file, verbose = FALSE,
                       use_alt_title = FALSE, mot_length_cutoff = NULL,

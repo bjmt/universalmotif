@@ -7,6 +7,7 @@
 \alias{show,universalmotif-method}
 \alias{initialize,universalmotif-method}
 \alias{motif_slots,universalmotif-method}
+\alias{convert_type,universalmotif-method}
 \title{[UNDER CONSTRUCTION] universalmotif: Motif class.}
 \usage{
 \S4method{show}{universalmotif}(object)
@@ -15,20 +16,24 @@
   type = character(0), icscore = numeric(0), nsites = numeric(0),
   pseudoweight = 0.8, bkg = numeric(0), consensus = character(0),
   strand = c("+", "-"), extrachar = character(0), extranum = numeric(0),
-  pval = numeric(0), bkgsites = numeric(0))
+  pval = numeric(0), eval = numeric(0), bkgsites = numeric(0))
 
 \S4method{motif_slots}{universalmotif}(object)
+
+\S4method{convert_type}{universalmotif}(motif, out_type)
 }
 \description{
 Placeholder description.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{show}: Show method for universalmotif class.
+\item \code{show}: Show method.
 
-\item \code{initialize}: Initialize method for universalmotif class.
+\item \code{initialize}: Initialize method.
 
-\item \code{motif_slots}: Accessor function for extra motif information.
+\item \code{motif_slots}: Accessor function.
+
+\item \code{convert_type}: Convert type between PCM, PPM and PWM.
 }}
 
 \section{Slots}{
@@ -55,6 +60,8 @@ Placeholder description.
 \item{\code{strand}}{Character. '+' or '-'.`}
 
 \item{\code{pval}}{Numeric.}
+
+\item{\code{eval}}{Numeric.}
 
 \item{\code{extrachar}}{Character.}
 

@@ -62,6 +62,12 @@ pcm_to_ppm <- function(position, possum, pseudoweight) {
   pos <- vapply(position, function(x)
                 (x + pseudoweight / 4) / (possum + pseudoweight),
                 double(1))
+  return(pos)
+}
+
+ppm_to_pcm <- function(position, nsites = 100) {
+  pos <- vapply(position, function(x) x * nsites, numeric(1))
+  return(pos)
 }
 
 get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",

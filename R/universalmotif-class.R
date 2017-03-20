@@ -25,7 +25,7 @@
 #' @slot extranum Numeric.
 #' @slot bkgsites Numeric.
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
 setClass("universalmotif",
          slots = list(name = "character", motif = "matrix",

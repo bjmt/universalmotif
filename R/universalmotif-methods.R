@@ -5,7 +5,7 @@
 ##
 ######################################################################
 
-#' @describeIn universalmotif Show method for universalmotif class.
+#' @describeIn universalmotif Show method.
 #' @include utils.R universalmotif-class.R generics.R
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
@@ -42,7 +42,7 @@ setMethod("show", signature = "universalmotif",
             invisible(NULL)
           })
 
-#' @describeIn universalmotif Initialize method for universalmotif class.
+#' @describeIn universalmotif Initialize method.
 setMethod("initialize", signature = "universalmotif",
           definition = function(.Object, name, motif,
                       alphabet = "DNA", #letters = character(0),
@@ -135,7 +135,7 @@ setMethod("initialize", signature = "universalmotif",
 
           })
 
-#' @describeIn universalmotif Accessor function for class universalmotif.
+#' @describeIn universalmotif Accessor function.
 setMethod("motif_slots", "universalmotif", function(object) {
           toreturn1 <- NULL
           toreturn2 <- NULL
@@ -143,4 +143,35 @@ setMethod("motif_slots", "universalmotif", function(object) {
           if (length(object@extrachar) > 0) toreturn2 <- object@extrachar
           if (is.null(toreturn1) && is.null(toreturn2)) return(invisible(NULL))
           return(list(extranum = toreturn1, extrachar = toreturn2))
+         })
+
+#' @describeIn universalmotif Convert type between PCM, PPM and PWM.
+setMethod("convert_type", "universalmotif", function(motif, out_type) {
+
+            # PWM support still needs to be implemented
+
+            if (motif@type == "PCM") {
+              if (out_type == "PPM") {
+                possums <- colSums(motif@motif)
+                for (i in seq_len(ncol(motif@motif))) {
+                  motif@motif[, i] <- pcm_to_ppm(motif@motif[, i],
+                                       possum = possums[i],
+                                       pseudoweight = motif@pseudoweight)
+                }
+                motif@type <- "PPM"
+                return(motif)
+              }
+            }
+            if (motif@type == "PPM") {
+              if (out_type == "PCM") {
+                motif@motif <- apply(motif@motif, 2, ppm_to_pcm,
+                                     nsites = ifelse(length(motif@nsites) > 0,
+                                                     motif@nsites, 100))
+                motif@type <- "PCM"
+                return(motif)
+              }
+            }
+            if (motif@type == "PWM") {
+            }
+
          })
