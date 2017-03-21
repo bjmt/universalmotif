@@ -16,12 +16,12 @@ convert_motifs(motif, out_class, ...)
 \S4method{convert_motifs}{list}(motif, out_class, ...)
 }
 \arguments{
-\item{motif}{Motif object or list of motif objects..}
+\item{motif}{Motif object or list of motif objects.}
 
 \item{out_class}{Character. Desired motif class to convert to.}
 }
 \value{
-Motif object in the desired class, or list of motifs..
+Motif object in the desired class, or list of motifs.
 }
 \description{
 Convert motif objects between various supported classes; some of these

@@ -86,11 +86,15 @@ setMethod("initialize", signature = "universalmotif",
             colnames(motif) <- NULL
             .Object@motif <- motif
 
-            if (missing(type) || !type %in% c("PCM", "PPM", "PWM")) {
-              stop("type must be provided as 'PCM', 'PPM', or 'PWM'")
+            if (missing(type) || !type %in% c("PCM", "PPM", "PWM", "ICM")) {
+              stop("type must be provided as 'PCM', 'PPM', 'PWM' or 'ICM'")
             }
             .Object@type <- type
 
+            if (type == "PCM" && length(nsites) == 0) {
+              nsites <- unique(colSums(motif))
+              if (length(nsites) != 1) stop("all colSums must be equal")
+            }
             .Object@nsites <- nsites
 
             .Object@pseudoweight <- pseudoweight
@@ -136,17 +140,29 @@ setMethod("initialize", signature = "universalmotif",
           })
 
 #' @describeIn universalmotif Accessor function.
-setMethod("motif_slots", "universalmotif", function(object) {
-          toreturn1 <- NULL
-          toreturn2 <- NULL
-          if (length(object@extranum) > 0) toreturn1 <- object@extranum
-          if (length(object@extrachar) > 0) toreturn2 <- object@extrachar
-          if (is.null(toreturn1) && is.null(toreturn2)) return(invisible(NULL))
-          return(list(extranum = toreturn1, extrachar = toreturn2))
+setMethod("motif_slots", "universalmotif", function(object, slots) {
+
+          if (missing(slots)) {
+            slots <- c("name", "motif", "alphabet", "type", "icscore",
+                       "nsites", "pseudoweight", "bkg", "consensus",
+                       "strand", "pval", "extrachar", "extranum",
+                       "eval", "bkgsites")
+          }
+          
+          returnlist <- lapply(slots, function(x) slot(object, x))
+          names(returnlist) <- slots
+
+          if (length(returnlist) == 1) returnlist <- unlist(returnlist)
+
+          return(returnlist)
+
          })
 
-#' @describeIn universalmotif Convert type between PCM, PPM and PWM.
+#' @describeIn universalmotif Convert type between PCM, PPM, PWM and ICM.
 setMethod("convert_type", "universalmotif", function(motif, out_type) {
+
+            # NOTE: the functions within are stored in utils.R
+            # (purely for historical reasons; may be moved at some point)
 
             if (motif@type == "PCM") {
               if (out_type == "PPM") {
@@ -160,12 +176,22 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
                 return(motif)
               }
               if (out_type == "PWM") {
-                motif@motif <- apply(motif@motif, 2, pcm_to_ppm)
+                motif@motif <- apply(motif@motif, 2, pcm_to_ppm,
+                                     pseudoweight = motif@pseudoweight)
                 motif@motif <- apply(motif@motif, 2, ppm_to_pwm,
                                      background = motif@bkg,
                                      pseudoweight = motif@pseudoweight,
                                      nsites = motif@nsites)
                 motif@type <- "PWM"
+                return(motif)
+              }
+              if (out_type == "ICM") {
+                motif@motif <- apply(motif@motif, 2, pcm_to_ppm,
+                                     pseudoweight = motif@pseudoweight)
+                motif@motif <- apply(motif@motif, 2, ppm_to_icm,
+                                     bkg = motif@bkg)
+                motif@type <- "ICM"
+                return(motif)
               }
             }
 
@@ -184,21 +210,45 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
                                      nsites = motif@nsites)
 
                 motif@type <- "PWM"
+                return(motif)
+              }
+              if (out_type == "ICM") {
+                motif@motif <- apply(motif@motif, 2, ppm_to_icm,
+                                     bkg = motif@bkg)
+                motif@type <- "ICM"
+                return(motif)
               }
             }
 
             if (motif@type == "PWM") {
               if (out_type == "PCM") {
-                motif@motif <- apply(motif@motif, 2, pwm_to_ppm)
-                motif@motif <- apply(motif@motif, 2, ppm_to_pcm)
+                motif@motif <- apply(motif@motif, 2, pwm_to_ppm,
+                                     background = motif@bkg)
+                motif@motif <- apply(motif@motif, 2, ppm_to_pcm,
+                                     nsites = motif@nsites)
                 motif@type <- "PCM"
+                return(motif)
               }
               if (out_type == "PPM") {
-                motif@motif <- apply(motif@motif, 2, pwm_to_ppm)
+                motif@motif <- apply(motif@motif, 2, pwm_to_ppm,
+                                     background = motif@bkg)
                 motif@type <- "PPM"
+                return(motif)
+              }
+              if (out_type == "ICM") {
+                motif@motif <- apply(motif@motif, 2, pwm_to_ppm,
+                                     background = motif@bkg)
+                motif@motif <- apply(motif@motif, 2, ppm_to_icm,
+                                     bkg = motif@bkg)
+                motif@type <- "ICM"
+                return(motif)
               }
             }
 
-            return(motif)
+            if (motif@type == "ICM") {
+              stop("motifs cannot be converted from ICM", call. = FALSE)
+            }
+
+            stop("unrecognized motif type", call. = FALSE)
 
          })

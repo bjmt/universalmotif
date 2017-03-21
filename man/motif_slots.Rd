@@ -4,7 +4,7 @@
 \alias{motif_slots}
 \title{Accessor function for class universalmotif.}
 \usage{
-motif_slots(object, ...)
+motif_slots(object, slots)
 }
 \arguments{
 \item{object}{Motif object of class \linkS4class{universalmotif}.}

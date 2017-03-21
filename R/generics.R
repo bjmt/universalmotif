@@ -15,17 +15,17 @@
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
-setGeneric("motif_slots", function(object, ...) standardGeneric("motif_slots"))
+setGeneric("motif_slots", function(object, slots) standardGeneric("motif_slots"))
 
 #' [UNDER CONSTRUCTION] Convert motifs between various classes.
 #'
 #' Convert motif objects between various supported classes; some of these
 #' require their respective packages being installed.
 #'
-#' @param motif Motif object or list of motif objects..
+#' @param motif Motif object or list of motif objects.
 #' @param out_class Character. Desired motif class to convert to.
 #'
-#' @return Motif object in the desired class, or list of motifs..
+#' @return Motif object in the desired class, or list of motifs.
 #'
 #' @examples
 #'   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
@@ -39,10 +39,10 @@ setGeneric("convert_motifs", function(motif, out_class, ...)
 
 #' [UNDER CONSTRUCTION] Convert \linkS4class{universalmotif} type.
 #'
-#' Convert between PCM, PPM and PWM.
+#' Convert between PCM, PPM, PWM and ICM. Cannot convert back from ICM.
 #'
 #' @param motif Motif object.
-#' @param out_type Character. Either PCM, PPM, or PWM.
+#' @param out_type Character. Either PCM, PPM, PWM or ICM.
 #'
 #' @return Motif object of class \linkS4class{universalmotif}.
 #'

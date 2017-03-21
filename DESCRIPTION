@@ -23,7 +23,8 @@ Imports: MotifDb,
     seqLogo,
     utils
 Suggests: knitr,
-    BiocStyle
+    BiocStyle,
+    testthat
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
     MotifDiscovery,

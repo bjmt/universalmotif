@@ -41,11 +41,12 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
       motif <- pcm_to_ppm(motif, possum, pseudoweight)
   }
   if (type == "PWM") motif <- pwm_to_ppm(motif, background = bkg)
+  if (type == "ICM") stop("cannot handle ICM type for now")
 
-  ic1 <- motif[1] * log2(motif[1] / bkg[1]) * -1
-  ic2 <- motif[2] * log2(motif[2] / bkg[2]) * -1
-  ic3 <- motif[3] * log2(motif[3] / bkg[3]) * -1
-  ic4 <- motif[4] * log2(motif[4] / bkg[4]) * -1
+  ic1 <- motif[1] * log2(motif[1] / bkg[1])
+  ic2 <- motif[2] * log2(motif[2] / bkg[2])
+  ic3 <- motif[3] * log2(motif[3] / bkg[3])
+  ic4 <- motif[4] * log2(motif[4] / bkg[4])
 
   ic <- sum(ic1, ic2, ic3, ic4)
 
@@ -53,12 +54,22 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   return(ic)
 
 }
-#
-# TFBSTools:
-    # toPWM: can generate a prob matrix or log-prob matrix
-    # toICM: generates IC scores for each position from 0 to 2
 
-pcm_to_ppm <- function(position, possum, pseudoweight) {
+ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25)) {
+  for (i in seq_along(position)) {
+    position[i] <- position[i] * log2(position[i] / bkg[i])
+  }
+  return(position)
+}
+
+# is this possible??
+# icm_to_pwm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25)) {
+#   for (i in seq_along(position)) {
+#     position[i] <- position[i] /
+#   }
+# }
+
+pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
   if (missing(possum)) possum <- sum(position)
   pos <- vapply(position, function(x)
                 (x + pseudoweight / 4) / (possum + pseudoweight),
@@ -67,12 +78,18 @@ pcm_to_ppm <- function(position, possum, pseudoweight) {
 }
 
 ppm_to_pcm <- function(position, nsites = 100) {
+  if (length(nsites) == 0) nsites <- 100
   pos <- vapply(position, function(x) round(x * nsites), numeric(1))
+  if (sum(pos) != nsites) {
+    fix <- nsites - sum(pos)
+    pos[which(range(pos)[2] == pos)] <- pos[which(range(pos)[2] == pos)] + fix
+  }
   return(pos)
 }
 
 ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
-                       pseudoweight = 0.8, nsites = nsites) {
+                       pseudoweight = 0.8, nsites = 100) {
+  if (length(nsites) == 0) nsites <- 100
   position <- ppm_to_pcm(position, nsites = nsites)
   position <- pcm_to_ppm(position, pseudoweight = pseudoweight)
   for (i in seq_along(position)) {

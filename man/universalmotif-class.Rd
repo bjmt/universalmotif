@@ -18,7 +18,7 @@
   strand = c("+", "-"), extrachar = character(0), extranum = numeric(0),
   pval = numeric(0), eval = numeric(0), bkgsites = numeric(0))
 
-\S4method{motif_slots}{universalmotif}(object)
+\S4method{motif_slots}{universalmotif}(object, slots)
 
 \S4method{convert_type}{universalmotif}(motif, out_type)
 }
@@ -33,7 +33,7 @@ Placeholder description.
 
 \item \code{motif_slots}: Accessor function.
 
-\item \code{convert_type}: Convert type between PCM, PPM and PWM.
+\item \code{convert_type}: Convert type between PCM, PPM, PWM and ICM.
 }}
 
 \section{Slots}{

@@ -9,13 +9,13 @@ convert_type(motif, out_type, ...)
 \arguments{
 \item{motif}{Motif object.}
 
-\item{out_type}{Character. Either PCM, PPM, or PWM.}
+\item{out_type}{Character. Either PCM, PPM, PWM or ICM.}
 }
 \value{
 Motif object of class \linkS4class{universalmotif}.
 }
 \description{
-Convert between PCM, PPM and PWM.
+Convert between PCM, PPM, PWM and ICM. Cannot convert back from ICM.
 }
 \author{
 Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
