@@ -71,6 +71,15 @@ setValidity("universalmotif",
                   valid <- FALSE
                   msg <- c(msg, "PCM colSums and motif nsites must be equal")
                 }
+                if (any(motif_slots(object, "motif") < 0)) {
+                  valid <- FALSE
+                  msg <- c(msg, "PCM values must be positive")
+                }
+                if (!any(all.equal(colSums(motif_slots(object, "motif"))), 1,
+                         tolerance = 0.01)) {
+                  valid <- FALSE
+                  msg <- c(msg, "PCM colSums must be equal to 1")
+                }
               }
 
               if (!any(motif_slots(object, "strand") %in% c("+", "-"))) {

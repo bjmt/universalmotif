@@ -15,16 +15,17 @@ Depends: R (>= 3.3.2)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: MotifDb,
-    PWMEnrich,
+Imports: PWMEnrich,
     TFBSTools,
     methods,
     motifStack,
     seqLogo,
-    utils
+    utils,
+    Biostrings
 Suggests: knitr,
     BiocStyle,
-    testthat
+    testthat,
+    MotifDb
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
     MotifDiscovery,

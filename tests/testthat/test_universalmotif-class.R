@@ -6,8 +6,7 @@ test_pcm <- matrix(c( 0,  5, 10, 15, 20,  4,  6, 11, 14,  9,
                       9,  4,  1,  2,  0, 10,  6,  0,  1,  0,
                       6,  1,  4,  1,  0,  0,  0,  0,  2, 10),
                    byrow = TRUE, nrow = 4)
-umot_test_pcm <- universalmotif(name = "testmotif", motif = test_pcm,
-                                type = "PCM")
+umot_test_pcm <- universalmotif(name = "testmotif", motif = test_pcm)
 umot_test_ppm <- convert_type(umot_test_pcm, "PPM")
 umot_test_pwm <- convert_type(umot_test_pcm, "PWM")
 

@@ -87,7 +87,12 @@ setMethod("initialize", signature = "universalmotif",
             .Object@motif <- motif
 
             if (missing(type) || !type %in% c("PCM", "PPM", "PWM", "ICM")) {
-              stop("type must be provided as 'PCM', 'PPM', 'PWM' or 'ICM'")
+              if (all(colSums(motif) > 2)) type <- "PCM" else {
+                if (all(motif > 0)) type <- "PPM" else {
+                  type <- "PWM"
+                  warning("assumed 'type' as being PWM")
+                }
+              }
             }
             .Object@type <- type
 
@@ -149,6 +154,8 @@ setMethod("motif_slots", "universalmotif", function(object, slots) {
                        "eval", "bkgsites")
           }
           
+          if (all(slots == "motif")) return(object@motif)
+
           returnlist <- lapply(slots, function(x) slot(object, x))
           names(returnlist) <- slots
 
@@ -174,6 +181,8 @@ setMethod("convert_type", "universalmotif", function(motif, out_type) {
             # the TFBSTools::toICM implementation!
             # (as far I can tell, the universalmotif PWM and TFBSTools::toPWM
             # implementations are identical)
+
+            if (motif_slots(motif, "type") == out_type) return(motif)
 
             if (motif@type == "PCM") {
               if (out_type == "PPM") {

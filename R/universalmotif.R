@@ -7,7 +7,14 @@
 #'
 #' @import methods
 #' @import utils
-#' @importFrom TFBSTools PFMatrix toPWM
+#' @importFrom TFBSTools PFMatrix toPWM toICM
+#' @importClassesFrom TFBSTools PFMatrix PWMatrix ICMatrix
+#' @importFrom seqLogo makePWM
+#' @importClassesFrom seqLogo pwm
+#' @importClassesFrom motifStack pcm pfm
+#' @importFrom PWMEnrich PFMtoPWM
+#' @importClassesFrom PWMEnrich PWM
+#' @importFrom Biostrings PWM
 NULL
 
 # @import seqLogo
