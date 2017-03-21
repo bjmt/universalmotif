@@ -27,20 +27,90 @@
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
-setClass("universalmotif",
-         slots = list(name = "character", motif = "matrix",
-                      alphabet = "character", #letters = "character",
-                      type = "character", icscore = "numeric",
-                      nsites = "numeric", pseudoweight = "numeric",
-                      bkg = "numeric", consensus = "character",
-                      strand = "character", pval = "numeric",
-                      extrachar = "character", extranum = "numeric",
-                      eval = "numeric", bkgsites = "numeric"))
+universalmotif <- setClass("universalmotif",
+                           slots = list(name = "character", motif = "matrix",
+                                        alphabet = "character",
+                                        type = "character", icscore = "numeric",
+                                        nsites = "numeric", 
+                                        pseudoweight = "numeric",
+                                        bkg = "numeric", 
+                                        consensus = "character",
+                                        strand = "character", pval = "numeric",
+                                        extrachar = "character", 
+                                        extranum = "numeric",
+                                        eval = "numeric", bkgsites = "numeric"))
 
 setValidity("universalmotif",
             function(object) {
+
               msg <- NULL
               valid <- TRUE
+
+              if (length(motif_slots(object, "name")) != 1) {
+                valid <- FALSE
+                msg <- c(msg, "motif name must be a character vector of length 1")
+              }
+
+              if (!motif_slots(object, "alphabet") %in% c("DNA", "RNA", "AA",
+                                                          "custom") ||
+                  length(motif_slots(object, "alphabet")) != 1) {
+                valid <- FALSE
+                msg <- c(msg, "motif alphabet must be DNA, RNA, AA, or custom")
+              }
+
+              if (!motif_slots(object, "type") %in% c("PCM", "PPM", "PWM",
+                                                      "ICM") ||
+                  length(motif_slots(object, "type")) != 1) {
+                valid <- FALSE
+                msg <- c(msg, "motif type must be PCM, PPM, PWM or ICM")
+              }
+
+              if (motif_slots(object, "type") == "PCM") {
+                nsitestest <- unique(colSums(motif))
+                if (nsitestest != motif_slots(object, "nsites")) {
+                  valid <- FALSE
+                  msg <- c(msg, "PCM colSums and motif nsites must be equal")
+                }
+              }
+
+              if (!any(motif_slots(object, "strand") %in% c("+", "-"))) {
+                valid <- FALSE
+                msg <- c(msg, "motif strand can only be '+', '-'")
+              }
+
+              if (length(motif_slots(object, "bkg")) > 0) {
+                if (length(motif_slots(object, "bkg")) !=
+                    nrow(motif_slots(object, "motif"))) {
+                  valid <- FALSE
+                  msg <- c(msg, "motif bkg frequencies and matrix nrow must match")
+                }
+              }
+
+              if (length(motif_slots(object, "pseudoweight")) != 1) {
+                valid <- FALSE
+                msg <- c(msg, "pseudoweight must be a numeric of length 1")
+              }
+
+              if (length(motif_slots(object, "nsites")) > 1) {
+                valid <- FALSE
+                msg <- c(msg, "nsites must be a numeric of length 0 or 1")
+              }
+
+              if (length(motif_slots(object, "bkgsites")) > 1) {
+                valid <- FALSE
+                msg <- c(msg, "bkgsites must be a numeric of length 0 or 1")
+              }
+
+              if (length(motif_slots(object, "pval")) > 1) {
+                valid <- FALSE
+                msg <- c(msg, "pval must be a numeric of length 0 or 1")
+              }
+
+              if (length(motif_slots(object, "eval")) > 1) {
+                valid <- FALSE
+                msg <- c(msg, "eval must be a numeric of length 0 or 1")
+              }
+
               if (object@type == "PCM") {
                 test1 <- colSums(object@motif)
                 if (length(unique(test1)) > 1) {
@@ -48,6 +118,7 @@ setValidity("universalmotif",
                   msg <- c(msg, "motif of type PCM must have equal colSums")
                 }
               }
+
               if (object@type == "PPM") {
                 test2 <- colSums(object@motif)
                 if (any(test2 > 1.01) || any(test2 < 0.99)) {
@@ -55,7 +126,9 @@ setValidity("universalmotif",
                   msg <- c(msg, "motif of type PPM must have colSums of 1")
                 }
               }
+
               if (valid) TRUE else msg
+
             })
 
 # position frequency matrix (PFM): counts for hits at that position

@@ -27,6 +27,17 @@ setMethod("convert_motifs", signature = "universalmotif",
                                         pseudocounts = pseudoweight,
                                         bg = background)
             }
+            if (out_class == "ICMatrix") {
+              if (length(motif@bkg) > 0) {
+                background[1] <- motif@bkg[1]
+                background[2] <- motif@bkg[2]
+                background[3] <- motif@bkg[3]
+                background[4] <- motif@bkg[4]
+              }
+              motif <- umot_to_pfmatrix(motif)
+              motif <- TFBSTools::toICM(motif, pseudocounts = pseudoweight,
+                                        bg = background)
+            }
             return(motif)
           })
 
@@ -46,6 +57,9 @@ umot_to_pfmatrix <- function(motif) {
   }
   if (motif@type == "PWM") {
     motif <- convert_type(motif, "PCM")
+  }
+  if (motif@type == "ICM") {
+    stop("ICM conversion currently not supported")
   }
 
   if (!motif@alphabet %in% c("DNA", "RNA")) {

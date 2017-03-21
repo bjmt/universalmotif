@@ -17,6 +17,10 @@
 #' @export
 setGeneric("motif_slots", function(object, slots) standardGeneric("motif_slots"))
 
+#' @export
+setGeneric("motif_slots<-", function(object, slot, value)
+           standardGeneric("motif_slots<-"))
+
 #' [UNDER CONSTRUCTION] Convert motifs between various classes.
 #'
 #' Convert motif objects between various supported classes; some of these

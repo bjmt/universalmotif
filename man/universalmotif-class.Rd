@@ -4,9 +4,11 @@
 \docType{class}
 \name{universalmotif-class}
 \alias{universalmotif-class}
+\alias{universalmotif}
 \alias{show,universalmotif-method}
 \alias{initialize,universalmotif-method}
 \alias{motif_slots,universalmotif-method}
+\alias{motif_slots<-,universalmotif-method}
 \alias{convert_type,universalmotif-method}
 \title{[UNDER CONSTRUCTION] universalmotif: Motif class.}
 \usage{
@@ -20,6 +22,8 @@
 
 \S4method{motif_slots}{universalmotif}(object, slots)
 
+\S4method{motif_slots}{universalmotif}(object, slot) <- value
+
 \S4method{convert_type}{universalmotif}(motif, out_type)
 }
 \description{
@@ -32,6 +36,8 @@ Placeholder description.
 \item \code{initialize}: Initialize method.
 
 \item \code{motif_slots}: Accessor function.
+
+\item \code{motif_slots<-}: Replacement method.
 
 \item \code{convert_type}: Convert type between PCM, PPM, PWM and ICM.
 }}

@@ -158,11 +158,22 @@ setMethod("motif_slots", "universalmotif", function(object, slots) {
 
          })
 
+#' @describeIn universalmotif Replacement method.
+setMethod("motif_slots<-", "universalmotif", function(object, slot, value) {
+           slot(object, slot) <- value
+           if (validObject(object)) return(object)
+         })
+
 #' @describeIn universalmotif Convert type between PCM, PPM, PWM and ICM.
 setMethod("convert_type", "universalmotif", function(motif, out_type) {
 
-            # NOTE: the functions within are stored in utils.R
+            # the functions referred to within are stored in utils.R
             # (purely for historical reasons; may be moved at some point)
+
+            # NOTE: the universalmotif ICM implementation is different from
+            # the TFBSTools::toICM implementation!
+            # (as far I can tell, the universalmotif PWM and TFBSTools::toPWM
+            # implementations are identical)
 
             if (motif@type == "PCM") {
               if (out_type == "PPM") {
