@@ -114,12 +114,6 @@ setMethod("convert_motifs", signature = "universalmotif",
             return(motif2)
           })
 
-#' @describeIn convert_motifs Convert a list of motifs.
-setMethod("convert_motifs", signature = "list",
-          definition = function(motif, out_class, ...) {
-            lapply(X = motif, FUN = convert_motifs, out_class, ...)
-          })
-
 ######################################################################
 ######################################################################
 

@@ -14,7 +14,9 @@
 #' @importClassesFrom motifStack pcm pfm
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importClassesFrom PWMEnrich PWM
-#' @importFrom Biostrings PWM
+#' @importFrom Biostrings PWM width
+#' @importClassesFrom Biostrings DNAStringSet RNAStringSet DNAString RNAString
+#'    XString XStringSet AAString AAStringSet
 NULL
 
 # @import seqLogo

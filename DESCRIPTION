@@ -32,12 +32,13 @@ biocViews: MotifAnnotation,
     DataImport,
     GeneRegulation
 RoxygenNote: 6.0.1
-Collate:
+Collate: 
     'generics.R'
     'universalmotif-class.R'
     'utils.R'
     'convert_motifs-methods.R'
     'universalmotif-methods.R'
+    'methods.R'
     'read_homer.R'
     'read_jaspar.R'
     'read_meme.R'

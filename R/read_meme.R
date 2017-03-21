@@ -374,8 +374,18 @@ convert_mots <- function(mot_names, info_mots, motifs, out_class,
 meme_to_umot <- function(motif, info, name, alphabet, alph_type, strands,
                          background, motif_type) {
 
+  nsit <- NULL
+  if (!is.na(info["nsites.8"])) {
+    nsit <- as.integer(info["nsites.8"])
+  }
+
   if (motif_type == "lpm") type <- "PPM" else type <- "PWM"
-  motif <- new("universalmotif", motif = t(motif), name = name, type = type)
+  if (is.null(nsit)) {
+    motif <- new("universalmotif", motif = t(motif), name = name, type = type)
+  } else {
+    motif <- new("universalmotif", motif = t(motif), name = name, type = type,
+                 nsites = nsit)
+  }
   
   if (!is.null(alph_type)) motif@alphabet <- alph_type[[1]]
   if (!is.null(strands)) motif@strand <- strands
@@ -385,10 +395,6 @@ meme_to_umot <- function(motif, info, name, alphabet, alph_type, strands,
     bkg <- bkgn[seq(from = 2, to = length(bkgn), by = 2)]
     bkg <- as.double(bkg)
     motif@bkg <- bkg
-  }
-  if (!is.na(info["nsites.8"])) {
-    nsit <- as.integer(info["nsites.8"])
-    motif@nsites <- nsit
   }
   if (!is.na(info["E.10"])) {
     evl <- as.double(info["E.10"])

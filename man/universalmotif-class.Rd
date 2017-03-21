@@ -24,7 +24,8 @@
 
 \S4method{motif_slots}{universalmotif}(object, slot) <- value
 
-\S4method{convert_type}{universalmotif}(motif, out_type)
+\S4method{convert_type}{universalmotif}(motif, out_type, pseudoweight = NULL,
+  background = NULL, IC_floor = FALSE)
 }
 \description{
 Placeholder description.
