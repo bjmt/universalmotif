@@ -6,53 +6,16 @@ filtered during import based on parameters provided by each motif formats, as
 well as during export. Motifs can be export into most major motif formats from
 various classes as defined by other Bioconductor packages.
 
-## TODO ##
+## Installation ##
 
-  - **start using `vapply` instead of `sapply`**
+```r
+devtools::install_github("bjmt/universalmotif")
+```
 
-### read_meme ###
+## Currently exported functions ##
 
-  - ~~add compatibility for full MEME format files~~
-
-### various ###
-
-  - to make `grepl` faster: if not using a regular expression, add `fixed = T`
-    for speed
-  - complete write_meme
-  - read_homer and write_homer
-  - meme and homer wrappers (for Linux/Mac/BSD systems only)
-  - trim_motifs
-  - filter_motifs
-  - convert_motifs (including a reverse compliment option via
-    `Biostrings::reverseComplement`)
-      + `seqLogo` pwm
-      + `Biobase` pwm
-      + `motifRG` Motif (this one contains a lot of info!)
-          * maybe write some methods for this one (e.g. `seqLogo::seqLogo`)
-      + `motifStack` pcm and pfm
-      + cont.
-  - consider using package `TFMPvalue`; has score/p-value calculation functions
-  - support for other major formats: (as seen on
-    [MEME's motif_conversion page](http://meme-suite.org/doc/motif_conversion.html))
-      + beeml
-      + chen
-      + elm
-      + iupac
-      + jaspar (old, 2014, 2016, sites, CM)
-      + matrix
-      + nmica
-      + priority
-      + rna
-      + scpd
-      + sites
-      + taipale
-      + tamo
-      + transfac (including transfac-like)
-      + uniprobe
-  - also more output formats described in the STAMP
-    [help page](http://www.benoslab.pitt.edu/stamp/help.html#input)
-  - use `Biostrings::PWM` to convert pfm to pwm
-  - `motifStack::pcm2pfm`
-  - `motifStack::plotMotifLogo(matrixpfm)` --> use this rather than
-    `seqLogo::seqLogo`
-  - `STAMP` functionality
+  - `read_motifs`
+  - `convert_motifs`
+  - `convert_type`
+  - `create_motif`
+  - `motif_slots`
