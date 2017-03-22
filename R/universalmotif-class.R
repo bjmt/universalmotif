@@ -18,12 +18,14 @@
 #' @slot pseudoweight Numeric. Amount of smoothing to apply.
 #' @slot bkg Numeric. Background letter frequencies.
 #' @slot consensus Character. Motif consensus sequence.
-#' @slot strand Character. '+' or '-'.`
+#' @slot strand Character. '+' or '-'.
 #' @slot pval Numeric.
 #' @slot eval Numeric.
 #' @slot extrachar Character.
 #' @slot extranum Numeric.
 #' @slot bkgsites Numeric.
+#'
+#' @return A motif object.
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
@@ -65,22 +67,22 @@ setValidity("universalmotif",
                 msg <- c(msg, "motif type must be PCM, PPM, PWM or ICM")
               }
 
-              if (motif_slots(object, "type") == "PCM") {
-                nsitestest <- unique(colSums(motif))
-                if (nsitestest != motif_slots(object, "nsites")) {
-                  valid <- FALSE
-                  msg <- c(msg, "PCM colSums and motif nsites must be equal")
-                }
-                if (any(motif_slots(object, "motif") < 0)) {
-                  valid <- FALSE
-                  msg <- c(msg, "PCM values must be positive")
-                }
-                if (!any(all.equal(colSums(motif_slots(object, "motif"))), 1,
-                         tolerance = 0.01)) {
-                  valid <- FALSE
-                  msg <- c(msg, "PCM colSums must be equal to 1")
-                }
-              }
+              # if (motif_slots(object, "type") == "PCM") {
+              #   nsitestest <- unique(colSums(object@motif))
+              #   if (nsitestest != motif_slots(object, "nsites")) {
+              #     valid <- FALSE
+              #     msg <- c(msg, "PCM colSums and motif nsites must be equal")
+              #   }
+              #   if (any(motif_slots(object, "motif") < 0)) {
+              #     valid <- FALSE
+              #     msg <- c(msg, "PCM values must be positive")
+              #   }
+                # if (!any(all.equal(colSums(motif_slots(object, "motif"))), 1,
+                #          tolerance = 0.01)) {
+                #   valid <- FALSE
+                #   msg <- c(msg, "PCM colSums must be equal to 1")
+                # }
+              # }
 
               if (!any(motif_slots(object, "strand") %in% c("+", "-"))) {
                 valid <- FALSE
@@ -125,6 +127,12 @@ setValidity("universalmotif",
                 if (length(unique(test1)) > 1) {
                   valid <- FALSE
                   msg <- c(msg, "motif of type PCM must have equal colSums")
+                } else {
+                  nsitestest <- unique(colSums(object@motif))
+                  if (nsitestest != motif_slots(object, "nsites")) {
+                    valid <- FALSE
+                    msg <- c(msg, "PCM colSums and motif nsites must be equal")
+                  }
                 }
               }
 
@@ -133,6 +141,10 @@ setValidity("universalmotif",
                 if (any(test2 > 1.01) || any(test2 < 0.99)) {
                   valid <- FALSE
                   msg <- c(msg, "motif of type PPM must have colSums of 1")
+                }
+                if (any(motif_slots(object, "motif") < 0)) {
+                  valid <- FALSE
+                  msg <- c(msg, "PPM values must be positive")
                 }
               }
 

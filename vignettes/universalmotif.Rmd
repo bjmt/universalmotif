@@ -22,3 +22,18 @@ This is the introduction. To link a bib file, add
 `bibliography: universalmotif.bib` to the yaml header. To compile the document,
 run `rmarkdown::render("~/universalmotif/vignettes/universalmotif.Rmd",
 BiocStyle::pdf_document())`.
+
+## Currently exported functions
+
+`motif_slots<-`
+`convert_motifs`
+`convert_type`
+`create_motif`
+`motif_slots`
+`read_homer`
+`read_jaspar`
+`read_meme`
+`read_motifs`
+`read_transfac`
+`read_uniprobe`
+`universalmotif-class`

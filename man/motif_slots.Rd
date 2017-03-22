@@ -2,18 +2,34 @@
 % Please edit documentation in R/generics.R
 \name{motif_slots}
 \alias{motif_slots}
-\title{Accessor function for class universalmotif.}
+\title{Accessor function for \linkS4class{universalmotif}.}
 \usage{
 motif_slots(object, slots)
 }
 \arguments{
-\item{object}{Motif object of class \linkS4class{universalmotif}.}
+\item{object}{Motif object.}
+
+\item{slots}{Chraracter. One or more motif slots to be accessed. See
+\linkS4class{universalmotif} for a description of the slots.}
 }
 \value{
 List of motif info.
 }
 \description{
-Easy access to universalmotif slots.
+Easy access to \linkS4class{universalmotif} slots.
+}
+\examples{
+   motifs <- system.file("extdata", "minimal.meme",
+                         package = "universalmotif")
+   motifs <- read_motifs(motifs)
+   motif <- motifs[[1]]
+   ## expose the 'name' slot:
+   motif_slots(motif, "name")
+   ## expose all filled slots as a list:
+   motif_slots(motif)
+   ## expose multiple slots:
+   motif_slots(motif, c("icscore", "pseudoweight"))
+
 }
 \author{
 Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}

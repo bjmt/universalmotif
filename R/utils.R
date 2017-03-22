@@ -41,7 +41,7 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
       motif <- pcm_to_ppm(motif, possum, pseudoweight)
   }
   if (type == "PWM") motif <- pwm_to_ppm(motif, background = bkg)
-  if (type == "ICM") stop("cannot handle ICM type for now")
+  if (type == "ICM") return(sum(motif))
 
   if (type == "PPM") {
     motif <- ppm_to_pcm(motif, nsites = nsites)
@@ -54,7 +54,6 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   ic4 <- motif[4] * log2(motif[4] / bkg[4])
 
   ic <- sum(ic1, ic2, ic3, ic4)
-
 
   return(ic)
 
@@ -127,6 +126,16 @@ get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
     possum <- sum(pos)
     pos <- pcm_to_ppm(pos, possum, pseudoweight)
     type <- "PPM"
+  }
+
+  if (type == "PWM") {
+    pos <- pwm_to_ppm(pos)
+    type <- "PPM"
+  }
+
+  if (type == "ICM") {
+    warning("get_consensus cannot handle ICM type for now", call. = FALSE)
+    return(NULL)
   }
 
   if (type == "PPM") {
@@ -218,7 +227,7 @@ consensus_to_ppm <- function(letter) {
   stop("not an IUPAC symbol")
 }
 
-reversevapply <- function(X, FUN, FUN.VALUE, ...) {
+withinlistvapply <- function(X, FUN, FUN.VALUE, ...) {
   if (!is.list(X)) stop("only works across lists")
   thelength <- unique(vapply(X, function(x) length(x), integer(1)))
   if (length(thelength) != 1) stop("list entries are not of the same length")

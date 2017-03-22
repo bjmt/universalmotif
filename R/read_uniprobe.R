@@ -22,7 +22,7 @@
 #' @examples
 #'    motifs <- system.file("extdata", "uniprobe.txt",
 #'                          package = "universalmotif")
-#'    rmotifs <- read_uniprobe(motifs)
+#'    motifs <- read_uniprobe(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R

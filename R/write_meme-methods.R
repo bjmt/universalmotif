@@ -7,29 +7,29 @@
 
 # make sure this is loaded after respective functions:
 
-#' @include universalmotif.R write_functions.R
-#' @keywords internal
-#' @export
-write_meme.matrix <- function(motif_list, file_out, version = 4,
-                           bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
-                           alphabet = NULL) {
-  print("hello")
-}
-
-#' @keywords internal
-#' @export
-write_meme.pwm <- function(motif_list, file_out, version = 4,
-                           bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
-                           alphabet = NULL) {
-  print("bye")
-}
-
+# @include universalmotif.R write_functions.R
+# @keywords internal
+# @export
+# write_meme.matrix <- function(motif_list, file_out, version = 4,
+#                            bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
+#                            alphabet = NULL) {
+#   print("hello")
+# }
+#
+# @keywords internal
+# @export
+# write_meme.pwm <- function(motif_list, file_out, version = 4,
+#                            bkg = c(0.25, 0.25, 0.25, 0.25), strands = "+ -",
+#                            alphabet = NULL) {
+#   print("bye")
+# }
+#
 # Taking care of S4 classes:
 
 
-#' @keywords internal
-#' @export
-setMethod("write_meme", "pwm", write_meme.pwm)
+# @keywords internal
+# @export
+# setMethod("write_meme", "pwm", write_meme.pwm)
 
 # testing:
 # tests4 <- read_meme("~/universalmotif/inst/extdata/minimal.meme", out_format = "seqLogo-pwm")[[1]]

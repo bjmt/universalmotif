@@ -12,6 +12,7 @@
 #'
 #' @param motif_file Character.
 #' @param verbose Logical.
+#' @param out_class Character.
 #' @param mot_length_cutoff Integer.
 #' @param bkg_cutoff Double. Percent. Motifs with more than num are cut.
 #' @param target_cutoff Double. Percent. Motifs with more than num are kept.
@@ -28,8 +29,9 @@
 #' @return A list of motifs.
 #'
 #' @examples
-#'   motifs <- system.file("extdata", "example.homer", package = "universalmotif")
-#'   rmotifs <- read_homer(motifs)
+#'   motifs <- system.file("extdata", "example.homer",
+#'                         package = "universalmotif")
+#'   motifs <- read_homer(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R universalmotif-class.R universalmotif-methods.R

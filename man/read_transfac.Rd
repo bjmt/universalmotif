@@ -26,7 +26,7 @@ with a line containing 'XX' or '//'.
 \examples{
    motifs <- system.file("extdata", "transfac.txt",
                          package = "universalmotif")
-   rmotifs <- read_transfac(motifs)
+   motifs <- read_transfac(motifs)
 
 }
 \author{

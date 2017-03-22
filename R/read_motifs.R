@@ -20,6 +20,11 @@
 #'
 #' @return A list of motifs.
 #'
+#' @examples
+#'    motifs <- system.file("extdata", "minimal.meme",
+#'                          package = "universalmotif")
+#'    motifs <- read_motifs(motifs)
+#'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R
 #' @export

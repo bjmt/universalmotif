@@ -43,8 +43,9 @@
 #' @return A list of motif objects of the specified class.
 #'
 #' @examples
-#'   motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
-#'   rmotifs <- read_meme(motifs, out_class = "matrix-2")
+#'   motifs <- system.file("extdata", "minimal.meme",
+#'                         package = "universalmotif")
+#'   motifs <- read_meme(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R universalmotif-methods.R universalmotif-class.R

@@ -9,7 +9,6 @@
 \alias{initialize,universalmotif-method}
 \alias{motif_slots,universalmotif-method}
 \alias{motif_slots<-,universalmotif-method}
-\alias{convert_type,universalmotif-method}
 \title{[UNDER CONSTRUCTION] universalmotif: Motif class.}
 \usage{
 \S4method{show}{universalmotif}(object)
@@ -23,9 +22,9 @@
 \S4method{motif_slots}{universalmotif}(object, slots)
 
 \S4method{motif_slots}{universalmotif}(object, slot) <- value
-
-\S4method{convert_type}{universalmotif}(motif, out_type, pseudoweight = NULL,
-  background = NULL, IC_floor = FALSE)
+}
+\value{
+A motif object.
 }
 \description{
 Placeholder description.
@@ -39,8 +38,6 @@ Placeholder description.
 \item \code{motif_slots}: Accessor function.
 
 \item \code{motif_slots<-}: Replacement method.
-
-\item \code{convert_type}: Convert type between PCM, PPM, PWM and ICM.
 }}
 
 \section{Slots}{
@@ -64,7 +61,7 @@ Placeholder description.
 
 \item{\code{consensus}}{Character. Motif consensus sequence.}
 
-\item{\code{strand}}{Character. '+' or '-'.`}
+\item{\code{strand}}{Character. '+' or '-'.}
 
 \item{\code{pval}}{Numeric.}
 

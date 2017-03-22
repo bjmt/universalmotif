@@ -26,8 +26,9 @@ create_motif(consensus, matrix, sequences, name, out_type = "PPM",
 
 \item{matrix}{Matrix.}
 
-\item{sequences}{DNAStringSet or RNAStringSet. Set of sequences of
-identical length.}
+\item{sequences}{XStringSet. Set of sequences of identical length.}
+
+\item{name}{Character. Required.}
 
 \item{out_type}{Character. Either PCM, PPM, PWM, or ICM.}
 
@@ -35,7 +36,7 @@ identical length.}
 
 \item{pseudoweight}{Numeric.}
 
-\item{alphabet}{Character. Either DNA or RNA.}
+\item{alphabet}{Character. Currently either DNA or RNA.}
 
 \item{background}{Numeric. Must be of length 4.}
 
@@ -58,6 +59,10 @@ sequences of matching lengths.
 \item \code{consensus = missing,matrix = missing,sequences = XStringSet}: Create motif from an XStringSet.
 }}
 
+\examples{
+   motif <- create_motif(consensus = "AAVBWWWT", name = "Test_motif")
+
+}
 \author{
 Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 }

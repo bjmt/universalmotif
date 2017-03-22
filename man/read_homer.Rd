@@ -16,6 +16,8 @@ read_homer(motif_file, verbose = FALSE, out_class = "matrix-2",
 
 \item{verbose}{Logical.}
 
+\item{out_class}{Character.}
+
 \item{mot_length_cutoff}{Integer.}
 
 \item{bkg_cutoff}{Double. Percent. Motifs with more than num are cut.}
@@ -47,8 +49,9 @@ A list of motifs.
 PLACEHOLDER TEXT.
 }
 \examples{
-  motifs <- system.file("extdata", "example.homer", package = "universalmotif")
-  rmotifs <- read_homer(motifs)
+  motifs <- system.file("extdata", "example.homer",
+                        package = "universalmotif")
+  motifs <- read_homer(motifs)
 
 }
 \author{

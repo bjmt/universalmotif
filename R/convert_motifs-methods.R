@@ -6,13 +6,124 @@
 ##
 ######################################################################
 
-#' @describeIn convert_motifs Convert from universalmotif.
+#' @describeIn convert_motifs Convert a list of motifs.
+setMethod("convert_motifs", signature = "list",
+          definition = function(motif, out_class = "universalmotif",
+                                pseudoweight = 0.8,
+                                background = c("A" = 0.25, "C" = 0.25,
+                                               "G" = 0.25, "T" = 0.25),
+                                ...) {
+            lapply(X = motif, FUN = convert_motifs, out_class = out_class,
+                   pseudoweight = pseudoweight, background = background, ...)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{PFMatrix}.
+setMethod("convert_motifs", signature = "PFMatrix",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            if (all(names(motif@bg) == c("A", "C", "G", "T"))) {
+              alphabet <- "DNA"
+            } else alphabet <- "RNA"
+            motif <- universalmotif(name = motif@name, strand = motif@strand,
+                                    bkg = motif@bg, motif = motif@profileMatrix,
+                                    alphabet = alphabet,
+                                    extrachar = c("ID" = motif@ID,
+                                                  "matrixClass" = motif@matrixClass,
+                                                  unlist(motif@tags)))
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{PWMatrix}.
+setMethod("convert_motifs", signature = "PWMatrix",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            if (all(names(motif@bg) == c("A", "C", "G", "T"))) {
+              alphabet <- "DNA"
+            } else alphabet <- "RNA"
+            motif <- universalmotif(name = motif@name, strand = motif@strand,
+                                    bkg = motif@bg, motif = motif@profileMatrix,
+                                    type = "PWM", alphabet = alphabet,
+                                    extrachar = c("ID" = motif@ID,
+                                                  "matrixClass" = motif@matrixClass,
+                                                  unlist(motif@tags)))
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert fom \linkS4class{ICMatrix}.
+setMethod("convert_motifs", signature = "ICMatrix",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            if (all(names(motif@bg) == c("A", "C", "G", "T"))) {
+              alphabet  <- "DNA"
+            } else alphabet  <- "RNA"
+            motif <- universalmotif(name = motif@name, strand = motif@strand,
+                                    bkg = motif@bg, motif = motif@profileMatrix,
+                                    type = "ICM", alphabet = alphabet,
+                                    extrachar = c("ID" = motif@ID,
+                                                  "matrixClass" = motif@matrixClass,
+                                                  unlist(motif@tags)))
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{pwm}.
+setMethod("convert_motifs", signature = "pwm",
+          definition = function(motif, out_class = "universalmotif",
+                                name, ...) {
+            motif <- universalmotif(name = name, motif = motif@pwm,
+                                    type = "PPM", alphabet = motif@alphabet)
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{pcm}.
+setMethod("convert_motifs", signature = "pcm",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            motif <- universalmotif(name = motif@name, motif = motif@mat,
+                                    type = "PCM", alphabet = motif@alphabet,
+                                    bkg = motif@background)
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{pfm}.
+setMethod("convert_motifs", signature = "pfm",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            motif <- universalmotif(name = motif@name, motif = motif@mat,
+                                    type = "PPM", alphabet = motif@alphabet,
+                                    bkg = motif@background)
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{PWM}.
+setMethod("convert_motifs", signature = "PWM",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            if (all(names(motif@pwm) == c("A", "C", "G", "T"))) {
+              alphabet <- "DNA"
+            } else alphabet <- "RNA"
+            motif <- universalmotif(name = motif@name, motif = motif@pwm,
+                                    type = "PWM", alphabet = alphabet,
+                                    bkg = motif@prior.params,
+                                    extrachar = c("ID" = motif@id))
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{universalmotif}.
 #' @include utils.R universalmotif-class.R generics.R
 setMethod("convert_motifs", signature = "universalmotif",
           definition = function(motif, out_class, pseudoweight = 0.8,
                                 background = c("A" = 0.25, "C" = 0.25,
                                                "G" = 0.25, "T" = 0.25)) {
 
+            if (out_class == "universalmotif") return(motif)
             motif2 <- NULL
 
             if (out_class == "TFBSTools-PFMatrix") {

@@ -28,6 +28,12 @@ A list of motifs.
 Motifs can be autodetected or explicitly named. Each file must only contain
 one format; mixed motif files are not supported.
 }
+\examples{
+   motifs <- system.file("extdata", "minimal.meme",
+                         package = "universalmotif")
+   motifs <- read_motifs(motifs)
+
+}
 \author{
 Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 }

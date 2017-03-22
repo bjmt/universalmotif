@@ -50,8 +50,9 @@ above; reading a file with a lower version of MEME will throw a warning, as
 this may result in incorrect parsing.
 }
 \examples{
-  motifs <- system.file("extdata", "minimal.meme", package = "universalmotif")
-  rmotifs <- read_meme(motifs, out_class = "matrix-2")
+  motifs <- system.file("extdata", "minimal.meme",
+                        package = "universalmotif")
+  motifs <- read_meme(motifs)
 
 }
 \author{

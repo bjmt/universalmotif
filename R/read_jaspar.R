@@ -21,7 +21,7 @@
 #' @examples
 #'    motifs <- system.file("extdata", "example.jaspar",
 #'                          package = "universalmotif")
-#'    rmotifs <- read_jaspar(motifs)
+#'    motifs <- read_jaspar(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @include utils.R universalmotif-class.R universalmotif-methods.R

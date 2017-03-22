@@ -56,7 +56,6 @@ setMethod("initialize", signature = "universalmotif",
             # required fields for construction:
                 # - name
                 # - motif matrix
-                # - type
 
             if (missing(name)) stop("motif must have a name")
             .Object@name <- name
@@ -108,14 +107,9 @@ setMethod("initialize", signature = "universalmotif",
                 alphabet %in% c("DNA", "RNA")) bkg <- c(0.25, 0.25, 0.25, 0.25) 
             .Object@bkg <- bkg
 
-            if (alphabet == "DNA") consensus <- apply(motif, 2, get_consensus,
-                                                      alphabet = "DNA",
-                                                      type = type,
-                                                      pseudoweight = pseudoweight)
-            if (alphabet == "RNA") consensus <- apply(motif, 2, get_consensus,
-                                                      alphabet = "RNA",
-                                                      type = type,
-                                                      pseudoweight = pseudoweight)
+            consensus <- apply(motif, 2, get_consensus, alphabet = alphabet,
+                               type = type, pseudoweight = pseudoweight)
+
             consensus <- paste(consensus, collapse = "")
             .Object@consensus <- consensus
             
@@ -177,7 +171,7 @@ setMethod("motif_slots<-", "universalmotif", function(object, slot, value) {
            if (validObject(object)) return(object)
          })
 
-#' @describeIn universalmotif Convert type between PCM, PPM, PWM and ICM.
+#' @describeIn convert_type Convert type for \linkS4class{universalmotif}.
 setMethod("convert_type", "universalmotif", function(motif, out_type,
                                                      pseudoweight = NULL,
                                                      background = NULL,

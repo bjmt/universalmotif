@@ -26,7 +26,7 @@ in \url{http://jaspar.genereg.net/html/TEMPLATES/help.html}.
 \examples{
    motifs <- system.file("extdata", "example.jaspar",
                          package = "universalmotif")
-   rmotifs <- read_jaspar(motifs)
+   motifs <- read_jaspar(motifs)
 
 }
 \author{
