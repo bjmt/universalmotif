@@ -5,12 +5,18 @@
 \alias{convert_motifs}
 \alias{convert_motifs,list-method}
 \alias{convert_motifs,PFMatrix-method}
+\alias{convert_motifs,PFMatrixList-method}
 \alias{convert_motifs,PWMatrix-method}
+\alias{convert_motifs,PWMatrixList-method}
 \alias{convert_motifs,ICMatrix-method}
+\alias{convert_motifs,ICMatrixList-method}
 \alias{convert_motifs,pwm-method}
 \alias{convert_motifs,pcm-method}
 \alias{convert_motifs,pfm-method}
 \alias{convert_motifs,PWM-method}
+\alias{convert_motifs,MotifList-method}
+\alias{convert_motifs,pwm2-method}
+\alias{convert_motifs,motif-method}
 \alias{convert_motifs,universalmotif-method}
 \title{[UNDER CONSTRUCTION] Convert motifs between various classes.}
 \usage{
@@ -22,9 +28,18 @@ convert_motifs(motif, out_class = "universalmotif", ...)
 
 \S4method{convert_motifs}{PFMatrix}(motif, out_class = "universalmotif", ...)
 
+\S4method{convert_motifs}{PFMatrixList}(motif, out_class = "universalmotif",
+  ...)
+
 \S4method{convert_motifs}{PWMatrix}(motif, out_class = "universalmotif", ...)
 
+\S4method{convert_motifs}{PWMatrixList}(motif, out_class = "universalmotif",
+  ...)
+
 \S4method{convert_motifs}{ICMatrix}(motif, out_class = "universalmotif", ...)
+
+\S4method{convert_motifs}{ICMatrixList}(motif, out_class = "universalmotif",
+  ...)
 
 \S4method{convert_motifs}{pwm}(motif, out_class = "universalmotif", name, ...)
 
@@ -33,6 +48,13 @@ convert_motifs(motif, out_class = "universalmotif", ...)
 \S4method{convert_motifs}{pfm}(motif, out_class = "universalmotif", ...)
 
 \S4method{convert_motifs}{PWM}(motif, out_class = "universalmotif", ...)
+
+\S4method{convert_motifs}{MotifList}(motif, out_class = "universalmotif", ...)
+
+\S4method{convert_motifs}{pwm2}(motif, out_class = "universalmotif", name,
+  ...)
+
+\S4method{convert_motifs}{motif}(motif, out_class = "universalmotif", ...)
 
 \S4method{convert_motifs}{universalmotif}(motif, out_class,
   pseudoweight = 0.8, background = c(A = 0.25, C = 0.25, G = 0.25, T =
@@ -56,19 +78,31 @@ Convert motif objects between various supported classes.
 \itemize{
 \item \code{list}: Convert a list of motifs.
 
-\item \code{PFMatrix}: Convert from \linkS4class{PFMatrix}.
+\item \code{PFMatrix}: Convert from \linkS4class{PFMatrix} (TFBSTools).
 
-\item \code{PWMatrix}: Convert from \linkS4class{PWMatrix}.
+\item \code{PFMatrixList}: Convert from \linkS4class{PFMatrixList} (TFBSTools).
 
-\item \code{ICMatrix}: Convert fom \linkS4class{ICMatrix}.
+\item \code{PWMatrix}: Convert from \linkS4class{PWMatrix} (TFBSTools).
 
-\item \code{pwm}: Convert from \linkS4class{pwm}.
+\item \code{PWMatrixList}: Convert from \linkS4class{PFMatrixList} (TFBSTools).
 
-\item \code{pcm}: Convert from \linkS4class{pcm}.
+\item \code{ICMatrix}: Convert fom \linkS4class{ICMatrix} (TFBSTools).
 
-\item \code{pfm}: Convert from \linkS4class{pfm}.
+\item \code{ICMatrixList}: Convert from \linkS4class{PFMatrixList} (TFBSTools).
 
-\item \code{PWM}: Convert from \linkS4class{PWM}.
+\item \code{pwm}: Convert from \linkS4class{pwm} (seqLogo).
+
+\item \code{pcm}: Convert from \linkS4class{pcm} (motifStack).
+
+\item \code{pfm}: Convert from \linkS4class{pfm} (motifStack).
+
+\item \code{PWM}: Convert from \linkS4class{PWM} (PWMEnrich).
+
+\item \code{MotifList}: Convert from \linkS4class{MotifList} (MotifDb).
+
+\item \code{pwm2}: Convert from \linkS4class{pwm2} (MotIV).
+
+\item \code{motif}: Convert from \linkS4class{motif} (rGADEM).
 
 \item \code{universalmotif}: Convert from \linkS4class{universalmotif}.
 }}

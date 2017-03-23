@@ -21,11 +21,13 @@ Imports: PWMEnrich,
     motifStack,
     seqLogo,
     utils,
-    Biostrings
+    Biostrings,
+    MotIV,
+    rGADEM,
+    MotifDb
 Suggests: knitr,
     BiocStyle,
-    testthat,
-    MotifDb
+    testthat
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
     MotifDiscovery,

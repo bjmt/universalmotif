@@ -17,7 +17,7 @@ setMethod("convert_motifs", signature = "list",
                    pseudoweight = pseudoweight, background = background, ...)
           })
 
-#' @describeIn convert_motifs Convert from \linkS4class{PFMatrix}.
+#' @describeIn convert_motifs Convert from \linkS4class{PFMatrix} (TFBSTools).
 setMethod("convert_motifs", signature = "PFMatrix",
           definition = function(motif, out_class = "universalmotif", ...) {
             if (all(names(motif@bg) == c("A", "C", "G", "T"))) {
@@ -34,7 +34,22 @@ setMethod("convert_motifs", signature = "PFMatrix",
             return(motif)
           })
 
-#' @describeIn convert_motifs Convert from \linkS4class{PWMatrix}.
+#' @describeIn convert_motifs Convert from \linkS4class{PFMatrixList} (TFBSTools).
+setMethod("convert_motifs", signature = "PFMatrixList",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            nummots <- length(motif@listData)
+            motiflist <- list()
+            motnames <- vector(length = nummots)
+            for (i in seq_len(nummots)) {
+              motiflist[[i]] <- motif@listData[[i]]
+              motnames[i] <- motif@listData[[i]]@name
+            }
+            motifs <- convert_motifs(motiflist, out_class = out_class)
+            names(motifs) <- motnames
+            return(motifs)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{PWMatrix} (TFBSTools).
 setMethod("convert_motifs", signature = "PWMatrix",
           definition = function(motif, out_class = "universalmotif", ...) {
             if (all(names(motif@bg) == c("A", "C", "G", "T"))) {
@@ -51,7 +66,22 @@ setMethod("convert_motifs", signature = "PWMatrix",
             return(motif)
           })
 
-#' @describeIn convert_motifs Convert fom \linkS4class{ICMatrix}.
+#' @describeIn convert_motifs Convert from \linkS4class{PFMatrixList} (TFBSTools).
+setMethod("convert_motifs", signature = "PWMatrixList",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            nummots <- length(motif@listData)
+            motiflist <- list()
+            motnames <- vector(length = nummots)
+            for (i in seq_len(nummots)) {
+              motiflist[[i]] <- motif@listData[[i]]
+              motnames[i] <- motif@listData[[i]]@name
+            }
+            motifs <- convert_motifs(motiflist, out_class = out_class)
+            names(motifs) <- motnames
+            return(motifs)
+          })
+
+#' @describeIn convert_motifs Convert fom \linkS4class{ICMatrix} (TFBSTools).
 setMethod("convert_motifs", signature = "ICMatrix",
           definition = function(motif, out_class = "universalmotif", ...) {
             if (all(names(motif@bg) == c("A", "C", "G", "T"))) {
@@ -68,7 +98,22 @@ setMethod("convert_motifs", signature = "ICMatrix",
             return(motif)
           })
 
-#' @describeIn convert_motifs Convert from \linkS4class{pwm}.
+#' @describeIn convert_motifs Convert from \linkS4class{PFMatrixList} (TFBSTools).
+setMethod("convert_motifs", signature = "ICMatrixList",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            nummots <- length(motif@listData)
+            motiflist <- list()
+            motnames <- vector(length = nummots)
+            for (i in seq_len(nummots)) {
+              motiflist[[i]] <- motif@listData[[i]]
+              motnames[i] <- motif@listData[[i]]@name
+            }
+            motifs <- convert_motifs(motiflist, out_class = out_class)
+            names(motifs) <- motnames
+            return(motifs)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{pwm} (seqLogo).
 setMethod("convert_motifs", signature = "pwm",
           definition = function(motif, out_class = "universalmotif",
                                 name, ...) {
@@ -79,7 +124,7 @@ setMethod("convert_motifs", signature = "pwm",
             return(motif)
           })
 
-#' @describeIn convert_motifs Convert from \linkS4class{pcm}.
+#' @describeIn convert_motifs Convert from \linkS4class{pcm} (motifStack).
 setMethod("convert_motifs", signature = "pcm",
           definition = function(motif, out_class = "universalmotif", ...) {
             motif <- universalmotif(name = motif@name, motif = motif@mat,
@@ -90,7 +135,7 @@ setMethod("convert_motifs", signature = "pcm",
             return(motif)
           })
 
-#' @describeIn convert_motifs Convert from \linkS4class{pfm}.
+#' @describeIn convert_motifs Convert from \linkS4class{pfm} (motifStack).
 setMethod("convert_motifs", signature = "pfm",
           definition = function(motif, out_class = "universalmotif", ...) {
             motif <- universalmotif(name = motif@name, motif = motif@mat,
@@ -101,7 +146,7 @@ setMethod("convert_motifs", signature = "pfm",
             return(motif)
           })
 
-#' @describeIn convert_motifs Convert from \linkS4class{PWM}.
+#' @describeIn convert_motifs Convert from \linkS4class{PWM} (PWMEnrich).
 setMethod("convert_motifs", signature = "PWM",
           definition = function(motif, out_class = "universalmotif", ...) {
             if (all(names(motif@pwm) == c("A", "C", "G", "T"))) {
@@ -111,6 +156,71 @@ setMethod("convert_motifs", signature = "PWM",
                                     type = "PWM", alphabet = alphabet,
                                     bkg = motif@prior.params,
                                     extrachar = c("ID" = motif@id))
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{MotifList} (MotifDb).
+setMethod("convert_motifs", signature = "MotifList",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            
+            # system.time(convert_motifs(MotifDb)) --> 8 seconds
+            # system.time(convert_motifs(MotifDb, out_class = "PWMEnrich-PWM"))
+            #     --> 21 seconds
+
+            motnum <- length(motif)
+            motnames <- names(motif@listData)
+            motifs <- list()
+            for (i in seq_len(motnum)) {
+              motifs[[motnames[i]]] <- universalmotif(name = motnames[i],
+                                                   motif = motif@listData[[i]],
+                                                   alphabet = "DNA",
+                                                   type = "PPM",
+                                                   extrachar = c(
+
+         "providerName" = motif@elementMetadata@listData$providerName[i],
+         "providerId" = motif@elementMetadata@listData$providerId[i],
+         "dataSource" = motif@elementMetadata@listData$dataSource[i],
+         "geneSymbol" = motif@elementMetadata@listData$geneSymbol[i],
+         "geneId" = motif@elementMetadata@listData$geneId[i],
+         "geneIdType" = motif@elementMetadata@listData$geneIdType[i],
+         "proteinId" = motif@elementMetadata@listData$proteinId[i],
+         "proteinIdType" = motif@elementMetadata@listData$proteinIdType[i],
+         "organism" = motif@elementMetadata@listData$organism[i],
+         "bindingSequence" = motif@elementMetadata@listData$bindingSequence[i],
+         "tfFamily" = motif@elementMetadata@listData$tfFamily[i],
+         "experimentType" = motif@elementMetadata@listData$experimentType[i],
+         "pubmedID" = motif@elementMetadata@listData$pubmedID[i],
+         "sequenceCount" = motif@elementMetadata@listData$sequenceCount[i]
+         
+         ))
+
+            }
+            if (out_class == "universalmotif") return(motifs)
+            motifs <- convert_motifs(motifs, out_class = out_class)
+            return(motifs)
+          })
+
+
+## pwm2 is NOT exported by MotIV! Would exporting the class myself allow it
+## to interact with MotIV-derived 'pwm2' class objects out in the wild?
+
+#' @describeIn convert_motifs Convert from \linkS4class{pwm2} (MotIV).
+setMethod("convert_motifs", signature = "pwm2",
+          definition = function(motif, out_class = "universalmotif",
+                                name, ...) {
+            motif <- universalmotif(name = name, motif = motif@pwm,
+                                    type = "PPM", alphabet = motif@alphabet)
+            if (out_class == "universalmotif") return(motif)
+            motif <- convert_motifs(motif, out_class = out_class)
+            return(motif)
+          })
+
+#' @describeIn convert_motifs Convert from \linkS4class{motif} (rGADEM).
+setMethod("convert_motifs", signature = "motif",
+          definition = function(motif, out_class = "universalmotif", ...) {
+            motif <- universalmotif(name = motif@name, motif = motif@pwm)
             if (out_class == "universalmotif") return(motif)
             motif <- convert_motifs(motif, out_class = out_class)
             return(motif)
@@ -219,6 +329,19 @@ setMethod("convert_motifs", signature = "universalmotif",
               motif2 <- Biostrings::PWM(x = biomat, 
                                         type = "log2probratio",
                                         prior.params = biopriors)
+            }
+
+            if (out_class == "MotIV-pwm2") {
+              motif2 <- convert_type(motif, "PPM")
+              motif2 <- MotIV::makePWM(motif2@motif,
+                                       alphabet = motif2@alphabet)
+            }
+
+            if (out_class == "rGADEM-motif") {
+              motif <- convert_type(motif, "PPM")
+              rgadmot <- getClass("motif", where = "rGADEM")
+              motif2 <- new("motif", pwm = motif@motif, name = motif@name,
+                            consensus = motif@consensus)
             }
 
             if (is.null(motif2)) stop("unknown 'out_class'")
