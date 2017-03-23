@@ -3,7 +3,7 @@
 #' A collection of utility functions for working with motifs.
 #'
 #' @docType package
-#' @name universalmotif
+#' @name universalmotif-pkg
 #'
 #' @import methods
 #' @import utils
