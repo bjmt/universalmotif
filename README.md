@@ -35,3 +35,10 @@ devtools::install_github("bjmt/universalmotif")
 ## Other todo ##
 
   - lots of code cleanup to be done!
+  - to check platform: run `.Platform` for a list of info
+      + for platform-specific code, have the following line:
+      + `stopifnot(.Platform$OS.type == "unix")`
+      + (the only other possibility is "windows")
+  - I have tests for `read_motifs`, `convert_type`, and `create_motif`;
+    but I'm unsure as to whether I should write tests for `convert_motifs`
+    considering it would require the respective packages being loaded..

@@ -91,6 +91,8 @@ read_uniprobe <- function(motif_file, verbose = FALSE,
 
   motifs <- mapply(uniprobe_to_umot, motifs, mot_names, SIMPLIFY = FALSE)
 
+  if (length(motifs) == 0) stop("could not find any motifs", call. = FALSE)
+
   return(motifs)
 
 }
