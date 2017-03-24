@@ -35,7 +35,7 @@ biocViews: MotifAnnotation,
     GeneRegulation
 RoxygenNote: 6.0.1
 Collate: 
-    'generics.R'
+    'AllGenerics.R'
     'universalmotif-class.R'
     'utils.R'
     'convert_motifs-methods.R'

@@ -227,7 +227,7 @@ setMethod("convert_motifs", signature = "motif",
           })
 
 #' @describeIn convert_motifs Convert from \linkS4class{universalmotif}.
-#' @include utils.R universalmotif-class.R generics.R
+#' @include utils.R universalmotif-class.R AllGenerics.R
 setMethod("convert_motifs", signature = "universalmotif",
           definition = function(motif, out_class, pseudoweight = 0.8,
                                 background = c("A" = 0.25, "C" = 0.25,

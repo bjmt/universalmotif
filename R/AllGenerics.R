@@ -146,3 +146,31 @@ setGeneric("create_motif", function(consensus, matrix, sequences,
                                      background = c(0.25, 0.25, 0.25, 0.25),
                                      nsites = numeric(0))
            standardGeneric("create_motif"))
+
+#' [UNDER CONSTRUCTION] Filter motifs.
+#'
+#' Filter a list of motifs.
+#'
+#' @param motifs List of motifs.
+#' @param ... Extra parameters passed on to class-specific methods.
+#'
+#' @return List of motifs.
+#'
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
+#' @export
+setGeneric("filter_motifs", function(motifs, ...)
+           standardGeneric("filter_motifs"))
+
+#' [UNDER CONSTRUCTION] Trim motifs.
+#
+#' Trim a list of motifs.
+#'
+#' @param motifs List of motifs, or a single motif object.
+#' @param min_ic Numeric. Information cutoff for trimming.
+#'
+#' @return List of motifs or single motif object.
+#'
+#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
+#' @export
+setGeneric("trim_motifs", function(motifs, ic_cutoff = 0.25)
+           standardGeneric("trim_motifs"))

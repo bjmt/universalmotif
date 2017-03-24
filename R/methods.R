@@ -8,7 +8,7 @@
 #' @include universalmotif-methods.R
 #' @describeIn convert_type Convert type on a list of motifs
 setMethod("convert_type", "list", function(motif, out_type,
-                                                     pseudoweight = NULL) {
+                                           pseudoweight = NULL) {
   lapply(motif, convert_type, out_type, pseudoweight)
 })
 
@@ -21,7 +21,6 @@ setMethod("create_motif", signature(consensus = "character",
                                 background, nsites) {
             consensus <- strsplit(consensus, split = "")[[1]]
             motif <- vapply(consensus, consensus_to_ppm, numeric(4))
-            if (missing(name)) stop("please provide a name", call. = FALSE)
             motif <- universalmotif(name = name, motif = motif,
                                     pseudoweight = pseudoweight,
                                     alphabet = alphabet,
@@ -46,7 +45,6 @@ setMethod("create_motif", signature(consensus = "missing",
           definition = function(matrix, name, out_type,
                                 out_class, pseudoweight, alphabet,
                                 background, nsites) {
-            if (missing(name)) stop("please provide a name", call. = FALSE)
             motif <- universalmotif(name = name, motif = matrix,
                                     pseudoweight = pseudoweight,
                                     alphabet = alphabet,
@@ -71,7 +69,6 @@ setMethod("create_motif", signature(consensus = "missing",
           definition = function(sequences, name, out_type,
                                 out_class, pseudoweight, alphabet,
                                 background, nsites) {
-            if (missing(name)) stop("please provide a name", call. = FALSE)
             if (length(unique(Biostrings::width(sequences))) != 1) {
               stop("all sequences must be of the same width", call. = FALSE)
             }
@@ -103,8 +100,43 @@ setMethod("seqLogo", signature(pwm = "universalmotif"),
           definition = function(pwm, ic.scale = TRUE, xaxis = TRUE,
                                 yaxis = TRUE, xfontsize = 15,
                                 yfontsize = 15) {
-            motif <- convert_motifs(motif, "seqLogo-pwm")
+            motif <- convert_motifs(pwm, "seqLogo-pwm")
             seqLogo::seqLogo(pwm = motif, ic.scale = ic.scale, xaxis = xaxis,
                              yaxis = yaxis, xfontsize = xfontsize,
                              yfontsize = yfontsize)
+          })
+
+#' @describeIn filter_motifs Filter a list of motifs.
+setMethod("filter_motifs", signature = "list",
+          definition = function(motifs, ...) {
+            lapply(motifs, filter_motifs, ...)
+          })
+
+#' @describeIn trim_motifs Trim a list of motifs.
+setMethod("trim_motifs", signature = "list",
+          definition = function(motifs, ic_cutoff) {
+            lapply(motifs, trim_motifs, ic_cutoff = ic_cutoff)
+          })
+
+#' @describeIn trim_motifs Trim a list of motifs which are not
+#'    \linkS4class{universalmotif}.
+setMethod("trim_motifs", signature = "ANY",
+          definition = function(motifs, ic_cutoff) {
+            theclass <- class(motifs)
+            theclasses <- c("PFMatrix" = "TFBSTools-PFMatrix",
+                            "PWMatrix" = "TFBSTools-PWMatrix",
+                            "ICMatrix" = "TFBSTools-ICMatrix",
+                            "pwm" = "seqLogo-pwm",
+                            "pcm" = "motifStack-pcm",
+                            "pfm" = "motifStack-pfm",
+                            "PWM" = "PWMEnrich-PWM",
+                            "motif" = "rGADEM-motif")
+            motifs <- convert_motifs(motifs)
+            motifs <- trim_motifs(motifs = motifs, ic_cutoff = ic_cutoff)
+            motifs <- convert_motifs(motifs, 
+
+                            theclasses[which(names(theclasses) == theclass)]
+
+                                     )
+            return(motifs)
           })

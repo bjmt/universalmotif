@@ -6,7 +6,7 @@
 ######################################################################
 
 #' @describeIn universalmotif Show method.
-#' @include utils.R universalmotif-class.R generics.R
+#' @include utils.R universalmotif-class.R AllGenerics.R
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
             cat("\n       Motif name:   ", object@name, "\n",
@@ -54,10 +54,9 @@ setMethod("initialize", signature = "universalmotif",
                       eval = numeric(0), bkgsites = numeric(0)) {
 
             # required fields for construction:
-                # - name
                 # - motif matrix
 
-            if (missing(name)) stop("motif must have a name")
+            if (missing(name)) name <- "placeholder-name"
             .Object@name <- name
 
             if (missing(motif)) stop("missing motif matrix")
@@ -298,3 +297,106 @@ setMethod("convert_type", "universalmotif", function(motif, out_type,
             stop("unrecognized motif type", call. = FALSE)
 
          })
+
+#' @describeIn filter_motifs Filter \linkS4class{universalmotif}.
+setMethod("filter_motifs", signature = "universalmotif",
+          definition = function(motifs, min_width, alphabet, type, icscore,
+                                nsites, strand, pval, eval, bkgsites,
+                                extrachar, extranum) {
+
+            if (!missing(min_width)) {
+              if (ncol(motifs@motif) > min_width) return(NULL)
+            }
+
+            if (!missing(alphabet)) {
+              if (motifs@alphabet != alphabet) return(NULL)
+            }
+
+            if (!missing(type)) {
+              if (motifs@type != type) return(NULL)
+            }
+
+            if (!missing(icscore)) {
+              if (motifs@icscore > icscore) return(NULL)
+            }
+
+            if (!missing(nsites)) {
+              if (motifs@nsites > nsites) return(NULL)
+            }
+
+            if (!missing(strand)) {
+              if (motifs@strand != strand) return(NULL)
+            }
+
+            if (!missing(pval)) {
+              if (motifs@pval < pval) return(NULL)
+            }
+
+            if (!missing(eval)) {
+              if (motifs@eval < eval) return(NULL)
+            }
+            
+            if (!missing(bkgsites)) {
+              if (motifs@bkgsites > bkgsites) return(NULL)
+            }
+            
+            if (!missing(extrachar)) {
+              charnames <- names(extrachar)
+              if (!any(mapply(function(x, y, z) {
+                                checkdel <- x == z[which(names(z) == y)]
+                                if (length(checkdel) == 0) return(FALSE)
+                                return(checkdel)
+                              },
+                              x = extrachar, y = charnames,
+                              MoreArgs = list(z = motifs@extrachar)))) {
+                 return(NULL)
+              }
+            }
+                             
+
+            # right now the extranum filter is pretty useless, but I don't
+            # think there's a quick solution
+
+            if (!missing(extranum)) {
+              numnames <- names(numchar)
+              if (!any(mapply(function(x, y, z) {
+                                checkdel <- x == z[which(names(z) == y)]
+                                if (length(checkdel) == 0) FALSE else checkdel
+                              },
+                              x = extranum, y = numnames,
+                              MoreArgs = list(z = motifs@extranum)))) {
+                 return(NULL)
+              }
+            }
+
+            return(motifs)
+
+          })
+
+#' @describeIn trim_motifs Trim \linkS4class{universalmotif}.
+setMethod("trim_motifs", signature = "universalmotif",
+          definition = function(motifs, ic_cutoff = 0.25) {
+            thescores <- apply(motifs@motif, 2, position_icscore,
+                               bkg = motifs@bkg, type = motifs@type,
+                               pseudoweight = motifs@pseudoweight,
+                               nsites = motifs@nsites)
+            tocut <- vector(length = length(thescores))
+            for (i in seq_along(thescores)) {
+              if (thescores[i] <= ic_cutoff) tocut[i] <- i else break
+            }
+            for (i in rev(seq_along(thescores))) {
+              if (thescores[i] <= ic_cutoff) tocut[i] <- i else break
+            }
+            tocut <- tocut[tocut != 0]
+            motifs@motif <- motifs@motif[, -tocut]
+            motifs@consensus <- apply(motifs@motif, 2, get_consensus,
+                                      alphabet = motifs@alphabet,
+                                      type = motifs@type,
+                                      pseudoweight = motifs@pseudoweight)
+            motifs@icscore <- apply(motifs@motif, 2, position_icscore,
+                                    bkg = motifs@bkg, type = motifs@type,
+                                    pseudoweight = motifs@pseudoweight,
+                                    nsites = motifs@nsites)
+            motifs@icscore <- sum(motifs@icscore)
+            if (ncol(motifs@motif) == 0) return(NULL) else return(motifs)
+          })

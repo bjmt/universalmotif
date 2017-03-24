@@ -36,6 +36,8 @@ check_out_class <- function(x) {
 position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
                              pseudoweight = 0.8, nsites = 100) {
 
+  if (length(nsites) == 0) nsites <- 100
+
   if (type == "PCM") {
       possum <- sum(motif)
       motif <- pcm_to_ppm(motif, possum, pseudoweight)
@@ -44,8 +46,8 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   if (type == "ICM") return(sum(motif))
 
   if (type == "PPM") {
-    motif <- ppm_to_pcm(motif, nsites = nsites)
-    motif <- pcm_to_ppm(motif, pseudoweight = pseudoweight)
+    motif <- ppm_to_pcm(position = motif, nsites = nsites)
+    motif <- pcm_to_ppm(position = motif, pseudoweight = pseudoweight)
   }
 
   ic1 <- motif[1] * log2(motif[1] / bkg[1])
@@ -73,7 +75,7 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   return(position)
 }
 
-# is this possible??
+# is this possible?? i've forgotten how to math..
 # icm_to_pwm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25)) {
 #   for (i in seq_along(position)) {
 #     position[i] <- position[i] /
@@ -206,24 +208,21 @@ get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
 }
 
 consensus_to_ppm <- function(letter) {
-  if (letter == "A") return(c(1, 0, 0, 0))
-  if (letter == "C") return(c(0, 1, 0, 0))
-  if (letter == "G") return(c(0, 0, 1, 0))
-  if (letter == "T" || letter == "U") return(c(0, 0, 0, 1))
-  if (letter == "R") return(c(0.5, 0, 0.5, 0))
-  if (letter == "Y") return(c(0, 0.5, 0, 0.5))
-  if (letter == "M") return(c(0.5, 0.5, 0, 0))
-  if (letter == "K") return(c(0, 0, 0.5, 0.5))
-  if (letter == "S") return(c(0, 0.5, 0.5, 0))
-  if (letter == "W") return(c(0.5, 0, 0, 0.5))
+  if (letter == "A") return(c(0.997, 0.001, 0.001, 0.001))
+  if (letter == "C") return(c(0.001, 0.997, 0.001, 0.001))
+  if (letter == "G") return(c(0.001, 0.001, 0.997, 0.001))
+  if (letter %in% c("T", "U")) return(c(0.001, 0.001, 0.001, 0.997))
+  if (letter == "R") return(c(0.499, 0.001, 0.499, 0.001))
+  if (letter == "Y") return(c(0.001, 0.499, 0.001, 0.499))
+  if (letter == "M") return(c(0.499, 0.499, 0.001, 0.001))
+  if (letter == "K") return(c(0.001, 0.001, 0.499, 0.499))
+  if (letter == "S") return(c(0.001, 0.499, 0.499, 0.001))
+  if (letter == "W") return(c(0.499, 0.001, 0.001, 0.499))
   if (letter == "H") return(c(0.333, 0.333, 0.001, 0.333))
   if (letter == "B") return(c(0.001, 0.333, 0.333, 0.333))
   if (letter == "V") return(c(0.333, 0.333, 0.333, 0.001))
   if (letter == "D") return(c(0.333, 0.001, 0.333, 0.333))
-  if (letter == "N") return(c(0.25, 0.25, 0.25, 0.25))
-  if (letter == "+") return(c(0.25, 0.25, 0.25, 0.25))
-  if (letter == "-") return(c(0.25, 0.25, 0.25, 0.25))
-  if (letter == ".") return(c(0.25, 0.25, 0.25, 0.25))
+  if (letter %in% c("N", "+", "-", ".")) return(c(0.25, 0.25, 0.25, 0.25))
   stop("not an IUPAC symbol")
 }
 

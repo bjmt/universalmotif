@@ -18,14 +18,19 @@ test_that("read_motifs correctly autodetects motif format", {
 
   expect_equal(length(read_motifs(test_meme)), 2)
   expect_identical(class(read_motifs(test_meme)[[1]])[1], "universalmotif")
+
   expect_equal(length(read_motifs(test_longmeme)), 3)
   expect_identical(class(read_motifs(test_longmeme)[[1]])[1], "universalmotif")
+
   expect_equal(length(read_motifs(test_homer)), 3)
   expect_identical(class(read_motifs(test_homer)[[1]])[1], "universalmotif")
+
   expect_equal(length(read_motifs(test_jaspar)), 2)
   expect_identical(class(read_motifs(test_jaspar)[[1]])[1], "universalmotif")
+
   expect_equal(length(read_motifs(test_transfac)), 5)
   expect_identical(class(read_motifs(test_transfac)[[1]])[1], "universalmotif")
+
   expect_equal(length(read_motifs(test_uniprobe)), 5)
   expect_identical(class(read_motifs(test_uniprobe)[[1]])[1], "universalmotif")
 
