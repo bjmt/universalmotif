@@ -223,7 +223,7 @@ consensus_to_ppm <- function(letter) {
   if (letter == "V") return(c(0.333, 0.333, 0.333, 0.001))
   if (letter == "D") return(c(0.333, 0.001, 0.333, 0.333))
   if (letter %in% c("N", "+", "-", ".")) return(c(0.25, 0.25, 0.25, 0.25))
-  stop("not an IUPAC symbol")
+  stop(letter, " is not an IUPAC symbol")
 }
 
 withinlistvapply <- function(X, FUN, FUN.VALUE, ...) {

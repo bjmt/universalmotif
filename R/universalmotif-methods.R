@@ -305,7 +305,7 @@ setMethod("filter_motifs", signature = "universalmotif",
                                 extrachar, extranum) {
 
             if (!missing(min_width)) {
-              if (ncol(motifs@motif) > min_width) return(NULL)
+              if (ncol(motifs@motif) >= min_width) return(NULL)
             }
 
             if (!missing(alphabet)) {
@@ -325,7 +325,7 @@ setMethod("filter_motifs", signature = "universalmotif",
             }
 
             if (!missing(strand)) {
-              if (motifs@strand != strand) return(NULL)
+              if (!any(motifs@strand %in% strand)) return(NULL)
             }
 
             if (!missing(pval)) {
@@ -344,8 +344,7 @@ setMethod("filter_motifs", signature = "universalmotif",
               charnames <- names(extrachar)
               if (!any(mapply(function(x, y, z) {
                                 checkdel <- x == z[which(names(z) == y)]
-                                if (length(checkdel) == 0) return(FALSE)
-                                return(checkdel)
+                                if (length(checkdel) == 0) FALSE else checkdel
                               },
                               x = extrachar, y = charnames,
                               MoreArgs = list(z = motifs@extrachar)))) {
@@ -393,6 +392,7 @@ setMethod("trim_motifs", signature = "universalmotif",
                                       alphabet = motifs@alphabet,
                                       type = motifs@type,
                                       pseudoweight = motifs@pseudoweight)
+            motifs@consensus <- paste(motifs@consensus, collapse = "")
             motifs@icscore <- apply(motifs@motif, 2, position_icscore,
                                     bkg = motifs@bkg, type = motifs@type,
                                     pseudoweight = motifs@pseudoweight,

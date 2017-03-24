@@ -21,6 +21,8 @@ devtools::install_github("bjmt/universalmotif")
   - `create_motif`
   - `motif_slots`
   - `seqLogo-method`
+  - `filter_motifs`
+  - `trim_motifs`
 
 ## Planned exported functions ##
 
@@ -29,7 +31,6 @@ devtools::install_github("bjmt/universalmotif")
   - `run_homer`
   - `run_stamp`
   - `write_motifs`
-  - `filter_motifs`
   - `motifStack-method`
 
 ## Other todo ##

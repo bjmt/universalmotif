@@ -109,7 +109,9 @@ setMethod("seqLogo", signature(pwm = "universalmotif"),
 #' @describeIn filter_motifs Filter a list of motifs.
 setMethod("filter_motifs", signature = "list",
           definition = function(motifs, ...) {
-            lapply(motifs, filter_motifs, ...)
+            motifs <- lapply(motifs, filter_motifs, ...)
+            motifs <- motifs[vapply(motifs, function(x) !is.null(x), logical(1))]
+            return(motifs)
           })
 
 #' @describeIn trim_motifs Trim a list of motifs.
