@@ -95,7 +95,7 @@ ppm_to_pcm <- function(position, nsites = 100) {
   pos <- vapply(position, function(x) round(x * nsites), numeric(1))
   if (sum(pos) != nsites) {
     fix <- nsites - sum(pos)
-    pos[which(range(pos)[2] == pos)] <- pos[which(range(pos)[2] == pos)] + fix
+    pos[which(range(pos)[2] == pos)[1]] <- pos[which(range(pos)[2] == pos)[1]] + fix
   }
   return(pos)
 }
