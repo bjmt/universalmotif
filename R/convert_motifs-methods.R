@@ -353,12 +353,7 @@ setMethod("convert_motifs", signature = "universalmotif",
 
 umot_to_pfmatrix <- function(motif) {
 
-  if (motif@type == "PPM") {
-    motif <- convert_type(motif, "PCM")
-  }
-  if (motif@type == "PWM") {
-    motif <- convert_type(motif, "PCM")
-  }
+  motif <- convert_type(motif, "PCM")
   if (motif@type == "ICM") {
     stop("ICM conversion currently not supported")
   }

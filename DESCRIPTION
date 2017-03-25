@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, modify, and export motif files with R
-Version: 0.99.0
+Version: 0.98.0
 Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"),
                   email = "b2trembl@uwaterloo.ca")
 Author: Benjamin Tremblay [aut, cre]

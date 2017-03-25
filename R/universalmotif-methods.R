@@ -343,7 +343,7 @@ setMethod("filter_motifs", signature = "universalmotif",
             if (!missing(extrachar)) {
               charnames <- names(extrachar)
               if (!any(mapply(function(x, y, z) {
-                                checkdel <- x == z[which(names(z) == y)]
+                                checkdel <- x == z[names(z) == y]
                                 if (length(checkdel) == 0) FALSE else checkdel
                               },
                               x = extrachar, y = charnames,
@@ -359,7 +359,7 @@ setMethod("filter_motifs", signature = "universalmotif",
             if (!missing(extranum)) {
               numnames <- names(numchar)
               if (!any(mapply(function(x, y, z) {
-                                checkdel <- x == z[which(names(z) == y)]
+                                checkdel <- x == z[names(z) == y]
                                 if (length(checkdel) == 0) FALSE else checkdel
                               },
                               x = extranum, y = numnames,
@@ -387,7 +387,7 @@ setMethod("trim_motifs", signature = "universalmotif",
               if (thescores[i] <= ic_cutoff) tocut[i] <- i else break
             }
             tocut <- tocut[tocut != 0]
-            motifs@motif <- motifs@motif[, -tocut]
+            motifs@motif <- as.matrix(motifs@motif[, -tocut])
             motifs@consensus <- apply(motifs@motif, 2, get_consensus,
                                       alphabet = motifs@alphabet,
                                       type = motifs@type,

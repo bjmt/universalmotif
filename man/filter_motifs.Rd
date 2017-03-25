@@ -33,6 +33,13 @@ Filter a list of motifs.
 \item \code{list}: Filter a list of motifs.
 }}
 
+\examples{
+   motifs <- system.file("extdata", "minimal.meme",
+                        package = "universalmotif")
+   motifs <- read_motifs(motifs)
+   motifs <- filter_motifs(motifs, icscore = 18)
+
+}
 \author{
 Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 }

@@ -40,6 +40,13 @@ Trim a list of motifs.
 \linkS4class{universalmotif}.
 }}
 
+\examples{
+   motifs <- system.file("extdata", "example.homer",
+                         package = "universalmotif")
+   motifs <- read_motifs(motifs)
+   motifs <- trim_motifs(motifs)
+
+}
 \author{
 Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
 }

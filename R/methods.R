@@ -136,9 +136,7 @@ setMethod("trim_motifs", signature = "ANY",
             motifs <- convert_motifs(motifs)
             motifs <- trim_motifs(motifs = motifs, ic_cutoff = ic_cutoff)
             motifs <- convert_motifs(motifs, 
-
-                            theclasses[which(names(theclasses) == theclass)]
-
+                                     theclasses[names(theclasses) == theclass]
                                      )
             return(motifs)
           })

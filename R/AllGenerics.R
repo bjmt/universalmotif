@@ -156,6 +156,12 @@ setGeneric("create_motif", function(consensus, matrix, sequences,
 #'
 #' @return List of motifs.
 #'
+#' @examples
+#'    motifs <- system.file("extdata", "minimal.meme",
+#'                         package = "universalmotif")
+#'    motifs <- read_motifs(motifs)
+#'    motifs <- filter_motifs(motifs, icscore = 18)
+#'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
 setGeneric("filter_motifs", function(motifs, ...)
@@ -169,6 +175,12 @@ setGeneric("filter_motifs", function(motifs, ...)
 #' @param min_ic Numeric. Information cutoff for trimming.
 #'
 #' @return List of motifs or single motif object.
+#'
+#' @examples
+#'    motifs <- system.file("extdata", "example.homer",
+#'                          package = "universalmotif")
+#'    motifs <- read_motifs(motifs)
+#'    motifs <- trim_motifs(motifs)
 #'
 #' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
 #' @export
