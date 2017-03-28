@@ -206,16 +206,16 @@ setMethod("convert_motifs", signature = "MotifList",
 ## pwm2 is NOT exported by MotIV! Would exporting the class myself allow it
 ## to interact with MotIV-derived 'pwm2' class objects out in the wild?
 
-#' @describeIn convert_motifs Convert from \linkS4class{pwm2} (MotIV).
-setMethod("convert_motifs", signature = "pwm2",
-          definition = function(motif, out_class = "universalmotif",
-                                name, ...) {
-            motif <- universalmotif(name = name, motif = motif@pwm,
-                                    type = "PPM", alphabet = motif@alphabet)
-            if (out_class == "universalmotif") return(motif)
-            motif <- convert_motifs(motif, out_class = out_class)
-            return(motif)
-          })
+# #' @describeIn convert_motifs Convert from \linkS4class{pwm2} (MotIV).
+# setMethod("convert_motifs", signature = "pwm2",
+#           definition = function(motif, out_class = "universalmotif",
+#                                 name, ...) {
+#             motif <- universalmotif(name = name, motif = motif@pwm,
+#                                     type = "PPM", alphabet = motif@alphabet)
+#             if (out_class == "universalmotif") return(motif)
+#             motif <- convert_motifs(motif, out_class = out_class)
+#             return(motif)
+#           })
 
 #' @describeIn convert_motifs Convert from \linkS4class{motif} (rGADEM).
 setMethod("convert_motifs", signature = "motif",
@@ -331,11 +331,11 @@ setMethod("convert_motifs", signature = "universalmotif",
                                         prior.params = biopriors)
             }
 
-            if (out_class == "MotIV-pwm2") {
-              motif2 <- convert_type(motif, "PPM")
-              motif2 <- MotIV::makePWM(motif2@motif,
-                                       alphabet = motif2@alphabet)
-            }
+            # if (out_class == "MotIV-pwm2") {
+            #   motif2 <- convert_type(motif, "PPM")
+            #   motif2 <- MotIV::makePWM(motif2@motif,
+            #                            alphabet = motif2@alphabet)
+            # }
 
             if (out_class == "rGADEM-motif") {
               motif <- convert_type(motif, "PPM")

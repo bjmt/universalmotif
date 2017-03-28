@@ -15,7 +15,6 @@
 \alias{convert_motifs,pfm-method}
 \alias{convert_motifs,PWM-method}
 \alias{convert_motifs,MotifList-method}
-\alias{convert_motifs,pwm2-method}
 \alias{convert_motifs,motif-method}
 \alias{convert_motifs,universalmotif-method}
 \title{[UNDER CONSTRUCTION] Convert motifs between various classes.}
@@ -50,9 +49,6 @@ convert_motifs(motif, out_class = "universalmotif", ...)
 \S4method{convert_motifs}{PWM}(motif, out_class = "universalmotif", ...)
 
 \S4method{convert_motifs}{MotifList}(motif, out_class = "universalmotif", ...)
-
-\S4method{convert_motifs}{pwm2}(motif, out_class = "universalmotif", name,
-  ...)
 
 \S4method{convert_motifs}{motif}(motif, out_class = "universalmotif", ...)
 
@@ -99,8 +95,6 @@ Convert motif objects between various supported classes.
 \item \code{PWM}: Convert from \linkS4class{PWM} (PWMEnrich).
 
 \item \code{MotifList}: Convert from \linkS4class{MotifList} (MotifDb).
-
-\item \code{pwm2}: Convert from \linkS4class{pwm2} (MotIV).
 
 \item \code{motif}: Convert from \linkS4class{motif} (rGADEM).
 
