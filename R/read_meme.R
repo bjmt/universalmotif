@@ -4,8 +4,7 @@
 ## Read MEME motifs from a file connection into a list
 ##
 ## (Unfortunately, this rather complex function was written quite
-## early on in my R-coding career, meaning it is somewhat of a 
-## mess to comprehend)
+## early on, meaning it is somewhat of a mess to comprehend)
 ######################################################################
 
 #' @title [UNDER CONSTRUCTION] Load MEME motifs from a text file.

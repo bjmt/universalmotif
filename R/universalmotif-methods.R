@@ -38,7 +38,7 @@ setMethod("show", signature = "universalmotif",
               cat("\n")
             }
             cat("\n")
-            print(object@motif)
+            print(object@motif, digits = 3)
             invisible(NULL)
           })
 
@@ -381,13 +381,15 @@ setMethod("trim_motifs", signature = "universalmotif",
                                nsites = motifs@nsites)
             tocut <- vector(length = length(thescores))
             for (i in seq_along(thescores)) {
-              if (thescores[i] <= ic_cutoff) tocut[i] <- i else break
+              if (thescores[i] < ic_cutoff) tocut[i] <- i else break
             }
             for (i in rev(seq_along(thescores))) {
-              if (thescores[i] <= ic_cutoff) tocut[i] <- i else break
+              if (thescores[i] < ic_cutoff) tocut[i] <- i else break
             }
             tocut <- tocut[tocut != 0]
-            motifs@motif <- as.matrix(motifs@motif[, -tocut])
+            if (length(tocut) != 0) {
+              motifs@motif <- as.matrix(motifs@motif[, -tocut])
+            }
             motifs@consensus <- apply(motifs@motif, 2, get_consensus,
                                       alphabet = motifs@alphabet,
                                       type = motifs@type,

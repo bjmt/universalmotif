@@ -11,9 +11,10 @@
 #' @importClassesFrom TFBSTools PFMatrix PWMatrix ICMatrix
 #' @importFrom seqLogo seqLogo
 #' @importClassesFrom seqLogo pwm
-#' @importClassesFrom motifStack pcm pfm
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importClassesFrom PWMEnrich PWM
+#' @importFrom motifStack motifStack
+#' @importClassesFrom motifStack pcm pfm
 #' @importFrom Biostrings PWM width
 #' @importClassesFrom Biostrings DNAStringSet RNAStringSet DNAString RNAString
 #'    XString XStringSet AAString AAStringSet
@@ -21,6 +22,15 @@
 #' @importClassesFrom rGADEM motif
 #' @importClassesFrom MotifDb MotifList
 NULL
+
+# @import TFBSTools
+# @import seqLogo
+# @import PWMEnrich
+# @import Biostrings
+# @import MotIV
+# @import rGADEM
+# @import MotifDb
+# @import motifStack
 
 # @import seqLogo makePWM --> both seqLogo and MotIV export this function name
 # @import motifStack

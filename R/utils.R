@@ -75,7 +75,7 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   return(position)
 }
 
-# is this possible?? i've forgotten how to math..
+# is this possible??
 # icm_to_pwm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25)) {
 #   for (i in seq_along(position)) {
 #     position[i] <- position[i] /

@@ -95,17 +95,6 @@ setMethod("create_motif", signature(consensus = "missing",
             return(motif)
           })
 
-#' @describeIn universalmotif Plot a \linkS4class{universalmotif} object with seqLogo.
-setMethod("seqLogo", signature(pwm = "universalmotif"),
-          definition = function(pwm, ic.scale = TRUE, xaxis = TRUE,
-                                yaxis = TRUE, xfontsize = 15,
-                                yfontsize = 15) {
-            motif <- convert_motifs(pwm, "seqLogo-pwm")
-            seqLogo::seqLogo(pwm = motif, ic.scale = ic.scale, xaxis = xaxis,
-                             yaxis = yaxis, xfontsize = xfontsize,
-                             yfontsize = yfontsize)
-          })
-
 #' @describeIn filter_motifs Filter a list of motifs.
 setMethod("filter_motifs", signature = "list",
           definition = function(motifs, ...) {
