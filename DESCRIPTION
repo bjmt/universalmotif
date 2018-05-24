@@ -11,23 +11,26 @@ Description: This package allows for importing most common motif types into R
     motif formats, as well as during export. Motifs can be export into most
     major motif formats from various classes as defined by other Bioconductor
     packages.
-Depends: R (>= 3.3.2)
+Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: PWMEnrich,
-    TFBSTools,
-    methods,
-    motifStack,
-    seqLogo,
-    utils,
-    Biostrings,
+Imports: methods,
+    foreach,
     MotIV,
-    rGADEM,
-    MotifDb
+    TFBSTools,
+    ggplot2,
+    ggseqlogo,
+    seqLogo,
+    Biostrings
 Suggests: knitr,
     BiocStyle,
-    testthat
+    testthat,
+    motifStack,
+    PWMEnrich,
+    MotifDb,
+    rGADEM,
+    BiocParallel
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
     MotifDiscovery,
@@ -36,23 +39,15 @@ biocViews: MotifAnnotation,
 RoxygenNote: 6.0.1
 Collate: 
     'AllGenerics.R'
-    'Wrapper_functions.R'
+    'convert_type.R'
+    'filter_motifs.R'
     'universalmotif-class.R'
-    'utils.R'
-    'convert_motifs-methods.R'
-    'universalmotif-methods.R'
     'methods.R'
-    'read_homer.R'
-    'read_jaspar.R'
-    'read_meme.R'
-    'read_motifs.R'
+    'motif_dist.R'
+    'motif_logo.R'
+    'motif_simil.R'
     'read_transfac.R'
-    'read_uniprobe.R'
+    'trim_motif.R'
+    'universalmotif-methods.R'
     'universalmotif.R'
-    'write_homer.R'
-    'write_jaspar.R'
-    'write_meme.R'
-    'write_motifs.R'
-    'write_pcm.R'
-    'write_ppm.R'
-    'write_pwm.R'
+    'utils.R'

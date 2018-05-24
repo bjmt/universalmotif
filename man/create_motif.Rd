@@ -6,63 +6,52 @@
 \alias{create_motif,character,missing,missing-method}
 \alias{create_motif,missing,matrix,missing-method}
 \alias{create_motif,missing,missing,XStringSet-method}
-\title{[UNDER CONSTRUCTION] Create motifs.}
+\title{Create a motif.}
 \usage{
-create_motif(consensus, matrix, sequences, name, out_type = "PPM",
-  out_class = "universalmotif", pseudoweight = 0.8, alphabet = "DNA",
-  background = c(0.25, 0.25, 0.25, 0.25), nsites = numeric(0))
+create_motif(consensus, matrix, sequences, name = "motif",
+  pseudoweight = 0.8, alphabet, bkg, nsites)
 
-\S4method{create_motif}{character,missing,missing}(consensus, name, out_type,
-  out_class, pseudoweight, alphabet, background, nsites)
+\S4method{create_motif}{character,missing,missing}(consensus, name,
+  pseudoweight, alphabet, bkg, nsites)
 
-\S4method{create_motif}{missing,matrix,missing}(matrix, name, out_type,
-  out_class, pseudoweight, alphabet, background, nsites)
+\S4method{create_motif}{missing,matrix,missing}(matrix, name, pseudoweight,
+  alphabet, bkg, nsites)
 
-\S4method{create_motif}{missing,missing,XStringSet}(sequences, name, out_type,
-  out_class, pseudoweight, alphabet, background, nsites)
+\S4method{create_motif}{missing,missing,XStringSet}(sequences, name,
+  pseudoweight, alphabet, bkg, nsites)
 }
 \arguments{
 \item{consensus}{Character. Consensus string.}
 
 \item{matrix}{Matrix.}
 
-\item{sequences}{XStringSet. Set of sequences of identical length.}
+\item{sequences}{XStringSet.}
 
-\item{name}{Character. Required.}
-
-\item{out_type}{Character. Either PCM, PPM, PWM, or ICM.}
-
-\item{out_class}{Character.}
+\item{name}{Character.}
 
 \item{pseudoweight}{Numeric.}
 
-\item{alphabet}{Character. Currently either DNA or RNA.}
+\item{alphabet}{Character.}
 
-\item{background}{Numeric. Must be of length 4.}
+\item{bkg}{Numeric.}
 
-\item{nsites}{Numeric. If left as-is, will assume nsites as 100 when
-needed.}
+\item{nsites}{Numeric.}
 }
 \value{
-Motif object of the desired class.
+Motif object.
 }
 \description{
-Manually generate motifs based on a consensus string, matrix, or set of
-sequences of matching lengths.
+Create a motif.
 }
 \section{Methods (by class)}{
 \itemize{
 \item \code{consensus = character,matrix = missing,sequences = missing}: Create motif from a consensus string.
 
-\item \code{consensus = missing,matrix = matrix,sequences = missing}: Create motif from a matrix object.
+\item \code{consensus = missing,matrix = matrix,sequences = missing}: Create motif from a matrix.
 
-\item \code{consensus = missing,matrix = missing,sequences = XStringSet}: Create motif from an XStringSet.
+\item \code{consensus = missing,matrix = missing,sequences = XStringSet}: Create motif from an XStringSet object.
 }}
 
-\examples{
-   motif <- create_motif(consensus = "AAVBWWWT", name = "Test_motif")
-
-}
 \author{
-Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

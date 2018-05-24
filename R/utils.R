@@ -1,36 +1,55 @@
-######################################################################
-## Benjamin Tremblay
-##
-## Assorted shared internal functions.
-##
-######################################################################
-
-check_filter_args <- function(x) {
-  for (i in which(is.na(x))) stop("'", names(x[i]),
-                                  "' must be NULL or numeric", call. = FALSE)
-  for (i in which(!vapply(x, is.null, logical(1)))) {
-    if (!is.numeric(x[[i]]) || length(x[[i]]) != 1) {
-      stop("'", names(x[i]), "' must be NULL or numeric of length 1",
-           call. = FALSE)
-    }
+ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
+                       IC_floor = FALSE, IC_ceiling = FALSE) {
+  # NOTE: different background frequencies can result in IC higher than 2!
+  # not sure how to deal with this..
+  if (is.null(bkg) || missing(bkg)) {
+    bkg <- rep(1 / length(position), length(position))
   }
+  for (i in seq_along(position)) {
+    position[i] <- position[i] * log2(position[i] / bkg[i])
+    if (IC_floor && position[i] < 0) position[i] <- 0
+    if (IC_ceiling && position[i] > 2) position[i] <- 2
+  }
+  return(position)
 }
 
-check_logi_args <- function(x) {
-  for (i in which(is.na(x))) stop("'", names(x[i]), "' must be logical",
-                                  call. = FALSE)
-  for (i in which(!vapply(x, is.logical, logical(1)))) {
-    stop("'", names(x[i]), "' must be logical", call. = FALSE)
-  }
-  for (i in which(!vapply(x, function(x) length(x) == 1, logical(1)))) {
-    stop("'", names(x[i]), "' must be a logical of length 1", call. = FALSE)
-  }
+pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
+  if (missing(possum)) possum <- sum(position)
+  pos <- vapply(position, function(x)
+                (x + (pseudoweight / 4)) / (possum + pseudoweight),
+                double(1))
+  return(pos)
 }
 
-check_out_class <- function(x) {
-  if (!x %in% c("matrix-1", "matrix-2")) {
-    stop("\"", x, "\" is not a supported 'out_class'", call. = FALSE)
+ppm_to_pcm <- function(position, nsites = 100) {
+  if (length(nsites) == 0 || missing(nsites)) nsites <- 100
+  pos <- vapply(position, function(x) round(x * nsites), numeric(1))
+  if (sum(pos) != nsites) {
+    fix <- nsites - sum(pos)
+    pos[which(range(pos)[2] == pos)[1]] <- pos[which(range(pos)[2] == pos)[1]] + fix
   }
+  return(pos)
+}
+
+ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
+                       pseudoweight = 0.8, nsites = 100, smooth = TRUE) {
+  if (length(nsites) == 0) nsites <- 100
+  if (smooth) {
+    position <- ppm_to_pcm(position, nsites = nsites)
+    position <- pcm_to_ppm(position, pseudoweight = pseudoweight)
+  }
+  for (i in seq_along(position)) {
+    position[i] <- log2(position[i] / background[i])
+  }
+  return(position)
+}
+
+pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
+  for (i in seq_along(position)) {
+    position[i] <- 2 ^ position[i]
+    position[i] <- position[i] * background[i]
+  }
+  return(position)
 }
 
 position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
@@ -55,68 +74,8 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   ic3 <- motif[3] * log2(motif[3] / bkg[3])
   ic4 <- motif[4] * log2(motif[4] / bkg[4])
 
-  ic <- sum(ic1, ic2, ic3, ic4)
+  sum(ic1, ic2, ic3, ic4)
 
-  return(ic)
-
-}
-
-ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
-                       IC_floor = FALSE) {
-  # NOTE: different background frequencies can result in IC higher than 2!
-  # not sure how to deal with this..
-  if (is.null(bkg)) {
-    bkg <- rep(1 / length(position), length(position))
-  }
-  for (i in seq_along(position)) {
-    position[i] <- position[i] * log2(position[i] / bkg[i])
-    if (IC_floor && position[i] < 0) position[i] <- 0
-  }
-  return(position)
-}
-
-# is this possible??
-# icm_to_pwm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25)) {
-#   for (i in seq_along(position)) {
-#     position[i] <- position[i] /
-#   }
-# }
-
-pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
-  if (missing(possum)) possum <- sum(position)
-  pos <- vapply(position, function(x)
-                (x + (pseudoweight / 4)) / (possum + pseudoweight),
-                double(1))
-  return(pos)
-}
-
-ppm_to_pcm <- function(position, nsites = 100) {
-  if (length(nsites) == 0) nsites <- 100
-  pos <- vapply(position, function(x) round(x * nsites), numeric(1))
-  if (sum(pos) != nsites) {
-    fix <- nsites - sum(pos)
-    pos[which(range(pos)[2] == pos)[1]] <- pos[which(range(pos)[2] == pos)[1]] + fix
-  }
-  return(pos)
-}
-
-ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
-                       pseudoweight = 0.8, nsites = 100) {
-  if (length(nsites) == 0) nsites <- 100
-  position <- ppm_to_pcm(position, nsites = nsites)
-  position <- pcm_to_ppm(position, pseudoweight = pseudoweight)
-  for (i in seq_along(position)) {
-    position[i] <- log2(position[i] / background[i])
-  }
-  return(position)
-}
-
-pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
-  for (i in seq_along(position)) {
-    position[i] <- 2 ^ position[i]
-    position[i] <- position[i] * background[i]
-  }
-  return(position)
 }
 
 get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
@@ -136,8 +95,7 @@ get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
   }
 
   if (type == "ICM") {
-    warning("get_consensus cannot handle ICM type for now", call. = FALSE)
-    return(NULL)
+    stop("get_consensus cannot handle ICM type")
   }
 
   if (type == "PPM") {
@@ -226,30 +184,47 @@ consensus_to_ppm <- function(letter) {
   stop(letter, " is not an IUPAC symbol")
 }
 
-withinlistvapply <- function(X, FUN, FUN.VALUE, ...) {
-  if (!is.list(X)) stop("only works across lists")
-  thelength <- unique(vapply(X, function(x) length(x), integer(1)))
-  if (length(thelength) != 1) stop("list entries are not of the same length")
-  tmplist <- as.list(seq_len(thelength)) 
-  for (i in seq_len(thelength)) {
-    for (j in seq_along(X)) {
-      tmplist[[i]][j] <- X[[j]][i]
-    }
-  }
-  finalvector <- vapply(X = tmplist, FUN = FUN, FUN.VALUE = FUN.VALUE, ...)
-  return(finalvector)
+consensus_to_ppmAA <- function(letter) {
+  if (letter %in% c("X", ".")) return(rep(0.05, 20))
+  if (letter == "B") return(c(rep(0.001, 2), 0.491, rep(0.001, 8), 0.491,
+                              rep(0.001, 8)))
+  if (letter == "Z") return(c(rep(0.001, 3), 0.491, rep(0.001, 9), 0.491,
+                              rep(0.001, 6)))
+  AAs <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N",
+           "P", "Q", "R", "S", "T", "V", "W", "Y")
+  i <- which(AAs == letter)
+  c(rep(0.001, i - 1), 0.981, rep(0.001, 20 - i))
 }
 
-string_to_pfm <- function(thestring, alphabet) {
-  alphtable <- table(strsplit(thestring, split = "")[[1]])
-  if (alphabet == "DNA") {
-    pospfm <- c("A" = alphtable["A"], "C" = alphtable["C"],
-                "G" = alphtable["G"], "T" = alphtable["T"])
+get_consensusAA <- function(motif) {
+  if (motif[3] >= 0.4 && motif[12] >= 0.4) return("B")
+  if (motif[4] >= 0.4 && motif[14] >= 0.4) return("Z")
+  if (all(motif == 0.05)) return("X")
+  AAs <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P",
+           "Q", "R", "S", "T", "V", "W", "Y")
+  AAs[order(motif, decreasing = TRUE)[1]]
+}
+
+.internal_convert <- function(motifs, class = NULL) {
+
+  if (is.null(class)) {
+    if (class(motifs) == "list") {
+      CLASS_PKG <- unique(vapply(motifs, function(x) attributes(class(x))$package,
+                                 character(1)))
+      CLASS <- unique(vapply(motifs, function(x) class(x), character(1)))
+      CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
+    } else {
+      CLASS_PKG <- attributes(class(motifs))$package
+      CLASS <- class(motifs)
+      CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
+    }
+    return(CLASS_IN)
+  } else {
+    if (length(class) == 1 && class != "universalmotif-universalmotif") {
+      tryCatch(motifs <- convert_motifs(motifs, class),
+               error = function(e) message("motifs converted to class 'universalmotif'"))
+    }
+    return(motifs)
   }
-  if (alphabet == "RNA") {
-    pospfm <- c("A" = alphtable["A"], "C" = alphtable["C"],
-                "G" = alphtable["G"], "U" = alphtable["U"])
-  }
-  pospfm[is.na(pospfm)] <- 0
-  return(pospfm)
+  
 }

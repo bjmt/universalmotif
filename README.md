@@ -56,3 +56,8 @@ devtools::install_github("bjmt/universalmotif")
       + combine `PWMSimilarity`, `outer` and `pheatmap`
   - get rid of filter functionality in read functions, leave that to
     `filter_motifs`
+  - motif distance ideas:
+      + smith-waterman (no gaps)
+      + pearson correlation coefficient (philentropy package) for each column;
+        get a raw score by summing all column scores
+      + get p value?

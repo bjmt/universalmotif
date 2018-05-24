@@ -1,216 +1,175 @@
-######################################################################
-## Benjamin Tremblay
-##
-## S4 class for storing motifs
-##
-######################################################################
-
-#' [UNDER CONSTRUCTION] universalmotif: Motif class.
+#' universalmotif: Motif class.
 #'
-#' Placeholder description.
+#' Description.
 #'
 #' @slot name Character. Motif name.
+#' @slot altname Character.
+#' @slot family Character.
+#' @slot organism Character.
 #' @slot motif Matrix. Contains motif.
-#' @slot alphabet Character. Describes alphabet. Can be: DNA, RNA, AA, custom.
-#' @slot type Character. Can be: PCM, PPM, or PWM.
+#' @slot alphabet Character. Can be: DNA, RNA, AA, custom.
+#' @slot type Character. Can be: PCM, PPM, PWM.
 #' @slot icscore Numeric. Total information content for all positions.
-#' @slot nsites Numeric. Total number of sites containing motif.
+#' @slot nsites Numeric. Total number of sites.
 #' @slot pseudoweight Numeric. Amount of smoothing to apply.
 #' @slot bkg Numeric. Background letter frequencies.
-#' @slot consensus Character. Motif consensus sequence.
-#' @slot strand Character. '+' or '-'.
-#' @slot pval Numeric.
-#' @slot eval Numeric.
-#' @slot extrachar Character.
-#' @slot extranum Numeric.
 #' @slot bkgsites Numeric.
+#' @slot consensus Character. Motif consensus sequence.
+#' @slot strand Character. '+' and/or '-'.
+#' @slot pval Numeric.
+#' @slot qval Numeric.
+#' @slot eval Numeric.
+#' @slot extrainfo List.
 #'
 #' @return A motif object.
 #'
-#' @author Benjamin Tremblay, \email{b2trembl@@uwaterloo.ca}
+#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 universalmotif <- setClass("universalmotif",
-                           slots = list(name = "character", motif = "matrix",
+                           slots = list(name = "character",
+                                        altname = "character",
+                                        family = "character",
+                                        organism = "character",
+                                        motif = "matrix",
                                         alphabet = "character",
                                         type = "character", icscore = "numeric",
-                                        nsites = "numeric", 
+                                        nsites = "numeric",
                                         pseudoweight = "numeric",
-                                        bkg = "numeric", 
+                                        bkg = "numeric",
+                                        bkgsites = "numeric",
                                         consensus = "character",
                                         strand = "character", pval = "numeric",
-                                        extrachar = "character", 
-                                        extranum = "numeric",
-                                        eval = "numeric", bkgsites = "numeric"))
+                                        qval = "numeric", eval = "numeric",
+                                        extrainfo = "character"))
 
 setValidity("universalmotif",
             function(object) {
+            
+            msg <- vector()
+            valid <- TRUE
 
-              msg <- NULL
-              valid <- TRUE
+            ## character slot length checks
 
-              if (length(motif_slots(object, "name")) != 1) {
-                valid <- FALSE
-                msg <- c(msg, "motif name must be a character vector of length 1")
+            # mandatory
+            char_checks1 <- c("name", "type", "alphabet", "strand")
+            # optional
+            char_checks2 <- c("altname", "family", "consensus", "organism")
+
+            char_results1 <- vapply(char_checks1,
+                                   function(x) length(object[x]) == 1,
+                                   logical(1))
+            char_results2 <- vapply(char_checks1,
+                                   function(x) length(object[x]) <= 1,
+                                   logical(1))
+
+            char_checks_all <- c(char_checks1, char_checks2)
+            char_results_all <- c(char_results1, char_results2)
+
+            if (any(isFALSE(char_results_all))) {
+              valid <- FALSE
+              for (check in char_checks_all[isFALSE(char_results_all)]) {
+                msg <- c(msg, paste0("motif '", check,
+                                     "' must be a character vector of length 1"))
               }
+            }
+            
+            ## character slot specific checks
 
-              if (!motif_slots(object, "alphabet") %in% c("DNA", "RNA", "AA",
-                                                          "custom") ||
-                  length(motif_slots(object, "alphabet")) != 1) {
-                valid <- FALSE
-                msg <- c(msg, "motif alphabet must be DNA, RNA, AA, or custom")
+            alphabets <- c("DNA", "RNA", "AA", "custom")
+            types <- c("PCM", "PPM", "PWM", "ICM")
+            strands <- c("+", "-", "+-", "-+")
+
+            if (!object["alphabet"] %in% alphabets) {
+              valid <- FALSE
+              msg <- c(msg,
+                       "motif 'alphabet' must be either 'DNA', 'RNA', 'AA', or 'custom'")
+            }
+
+            if (!object["type"] %in% types) {
+              valid <- FALSE
+              msg <- c(msg, "motif 'type' must be either 'PCM', 'PPM', 'PWM', or 'ICM'")
+            }
+
+            if (!object["strand"] %in% strands) {
+              valid <- FALSE
+              msg <- c(msg, "motif 'strand' must be either '+', '-', or '+-'")
+            }
+
+            ## numeric slot length checks
+
+            num_checks <- c("pval", "qval", "eval", "bkgsites", "pseudoweight",
+                            "nsites")
+            num_results <- vapply(num_checks,
+                                  function(x) length(object[x]) <= 1,
+                                  logical(1))
+
+            if (any(isFALSE(num_results))) {
+              valid <- FALSE
+              for (check in num_checks[isFALSE(num_checks)]) {
+                msg <- c(msg, paste0("motif '", check,
+                                     "' must be a numeric vector of length 1"))
               }
+            }
 
-              if (!motif_slots(object, "type") %in% c("PCM", "PPM", "PWM",
-                                                      "ICM") ||
-                  length(motif_slots(object, "type")) != 1) {
+            ## bkg slot check
+
+            bkg_check1 <- object["bkg"]
+            bkg_check2 <- nrow(object["motif"])
+            if (length(bkg_check1) > 0) {
+              if (length(bkg_check1) != bkg_check2) {
                 valid <- FALSE
-                msg <- c(msg, "motif type must be PCM, PPM, PWM or ICM")
+                msg <- c(msg, "motif 'bkg' must be a numeric vector of length equal to the number of letters in motif")
               }
+            }
 
-              # if (motif_slots(object, "type") == "PCM") {
-              #   nsitestest <- unique(colSums(object@motif))
-              #   if (nsitestest != motif_slots(object, "nsites")) {
-              #     valid <- FALSE
-              #     msg <- c(msg, "PCM colSums and motif nsites must be equal")
-              #   }
-              #   if (any(motif_slots(object, "motif") < 0)) {
-              #     valid <- FALSE
-              #     msg <- c(msg, "PCM values must be positive")
-              #   }
-                # if (!any(all.equal(colSums(motif_slots(object, "motif"))), 1,
-                #          tolerance = 0.01)) {
-                #   valid <- FALSE
-                #   msg <- c(msg, "PCM colSums must be equal to 1")
-                # }
-              # }
+            ## motif slot check
 
-              if (!any(motif_slots(object, "strand") %in% c("+", "-"))) {
+            mat_type <- object["type"]
+            mat <- object["motif"]
+            mat_colsums <- colSums(mat)
+
+            # PCM
+            if (mat_type == "PCM") {
+              mat_nsites <- object["nsites"]
+              if (length(unique(mat_colsums)) > 1) {
                 valid <- FALSE
-                msg <- c(msg, "motif strand can only be '+', '-'")
-              }
-
-              if (length(motif_slots(object, "bkg")) > 0) {
-                if (length(motif_slots(object, "bkg")) !=
-                    nrow(motif_slots(object, "motif"))) {
+                msg <- c(msg, "motif of type 'PCM' must have equal column sums")
+              } else if (length(mat_nsites) > 0) {
+                if (unique(mat_colsums) != mat_nsites) {
                   valid <- FALSE
-                  msg <- c(msg, "motif bkg frequencies and matrix nrow must match")
+                  msg <- c(msg, "motif of type 'PCM' must have column sums equal to 'nsites'")
                 }
               }
+            }
 
-              if (length(motif_slots(object, "pseudoweight")) != 1) {
+            # PPM
+            if (mat_type == "PPM") {
+              if (any(mat_colsums > 1.01) || any(mat_colsums < 0.99)) {
                 valid <- FALSE
-                msg <- c(msg, "pseudoweight must be a numeric of length 1")
+                msg <- c(msg, "motif of type 'PPM' must have column sums equal to 1")
               }
-
-              if (length(motif_slots(object, "nsites")) > 1) {
+              if (any(mat < 0)) {
                 valid <- FALSE
-                msg <- c(msg, "nsites must be a numeric of length 0 or 1")
+                msg <- c(msg, "motif of type 'PPM' can only have positive probabilities")
               }
+            }
 
-              if (length(motif_slots(object, "bkgsites")) > 1) {
+            # check it matches alphabet
+            alph <- object["alphabet"]
+            if (alph %in% c("DNA", "RNA")) {
+              if (nrow(mat) != 4) {
                 valid <- FALSE
-                msg <- c(msg, "bkgsites must be a numeric of length 0 or 1")
+                msg <- c(msg,
+                         "motif with 'alphabet' of type 'DNA' or 'RNA' can only have 4 rows")
               }
-
-              if (length(motif_slots(object, "pval")) > 1) {
+            } else if (alph == "AA") {
+              if (nrow(mat) != 20) {
                 valid <- FALSE
-                msg <- c(msg, "pval must be a numeric of length 0 or 1")
+                msg <- c(msg,
+                         "motif with 'alphabet' of type 'AA' can only have 20 rows")
               }
+            }
 
-              if (length(motif_slots(object, "eval")) > 1) {
-                valid <- FALSE
-                msg <- c(msg, "eval must be a numeric of length 0 or 1")
-              }
-
-              if (object@type == "PCM") {
-                test1 <- colSums(object@motif)
-                if (length(unique(test1)) > 1) {
-                  valid <- FALSE
-                  msg <- c(msg, "motif of type PCM must have equal colSums")
-                } else {
-                  nsitestest <- unique(colSums(object@motif))
-                  if (nsitestest != motif_slots(object, "nsites")) {
-                    valid <- FALSE
-                    msg <- c(msg, "PCM colSums and motif nsites must be equal")
-                  }
-                }
-              }
-
-              if (object@type == "PPM") {
-                test2 <- colSums(object@motif)
-                if (any(test2 > 1.01) || any(test2 < 0.99)) {
-                  valid <- FALSE
-                  msg <- c(msg, "motif of type PPM must have colSums of 1")
-                }
-                if (any(motif_slots(object, "motif") < 0)) {
-                  valid <- FALSE
-                  msg <- c(msg, "PPM values must be positive")
-                }
-              }
-
-              if (valid) TRUE else msg
-
+            if (valid) TRUE else msg
+            
             })
-
-# position frequency matrix (PFM): counts for hits at that position
-# aka position count matrix (PCM)
-
-  # WARNING: from what I can tell, PFMs are sometimes actually referring to
-  # PPM
-
-# position probability matrix (PPM): counts at that position divided by total
-# aka position-specific probability matrix (PSPM)
-  # the probability of a particular combo can be calculated by multiplying
-    # pseudocounts: used when calculated PPM from a small dataset; otherwise
-    # certain positions may have a probability of 0, regardless of other
-    # positions
-
-# position weight matrix (PWM): for each position of the PPM, apply the
-# formulat: log2(position/bkgprob)
-# aka position-specific weight matrix (PSWM), aka position-specific
-# scoring matrix (PSSM)
-    # without pseudocounts, there will be positions with -infinity
-  # the probability of a particular combo can be calculated by addition;
-  # if positive, more likely functional; if 0, random; if less than 0,
-  # more likely a random site
-
-# good ref: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2647310/
-  # suggests a pseudocount of 0.8
-
-# PSEUDOCOUNTS:
-  
-  # typically, 'pseudocounts' are added when converting from PFM to PPM.
-  # the formula is thus modified:
-
-    # position prob = (count + [pseudocount / 4]) / (num of seqs + pseudocount]
-
-# pseudocounts can also be applied to PPMs:
-  # prob * 100 = PFM
-  # then recalculate PPM with pseudoweights formula
-
-# workflow:
-# multiple alignment --> PFM --> PPM --> PWM
-
-# information content (IC) at a given position:
-  # IC = log2(number of alph letters) - entropy(position)
-  # for DNA/RNA: IC = 2 + entropy(position)
-  # entropy(given position) = A[posprob*log2(posprob)] + C[..] + G[..] + T[..]
-
-# PWMEnrich::motifIC
-
-# seqLogo:::pwm2ic
-  # ic[i] = 2 + sum( if x>0 (x * log2(x)) else 0 FOR ALL LETTERS)
-  # e.g. for a = 0.25, c = 0.25, g = 0.25, t = 0.25:
-  # 2 + 0.25*log2(0.25) + 0.25*log2(0.25) +..
-
-# to get the bits for each letter of a position: prob * IC
-
-# however the pwm2ic assumes a bkg of 0.25*4; this can be changed to get
-# relative entropy:
-  # 0.25*log2(0.25/lett prob) + etc..
-
-# homer scores:
-# Score for GGATGT
-
-# score = log(pG1/0.25) + log(pG2/0.25) + log(pA3/0.25) + log(pT4/0.25) + 
-#         log(pG5/0.25) + log(pT6/0.25)

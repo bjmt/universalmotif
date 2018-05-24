@@ -1,30 +1,3 @@
-NA Mync1
-01 0 31 0 0 C
-02 29 0 0 2 A
-03 0 30 0 1 C
-04 2 1 28 0 G
-05 0 3 0 28 T
-06 0 0 31 0 G
-XX
-
-DE Mync2
-1 0 31 0 0 C
-2 29 0 0 2 A
-3 0 30 0 1 C
-4 2 1 28 0 G
-5 0 3 0 28 T
-6 0 0 31 0 G
-XX
-
-P0 A C G T
-01 0 31 0 0 C
-02 29 0 0 2 A
-03 0 30 0 1 C
-04 2 1 28 0 G
-05 0 3 0 28 T
-06 0 0 31 0 G
-XX
-
 ID any_old_name_for_motif_1
 BF species_name_for_motif_1
 P0      A      C      G      T

@@ -5,39 +5,37 @@
 \name{universalmotif-class}
 \alias{universalmotif-class}
 \alias{universalmotif}
-\alias{show,universalmotif-method}
+\alias{[,universalmotif,ANY,ANY,ANY-method}
+\alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{initialize,universalmotif-method}
-\alias{motif_slots,universalmotif-method}
-\alias{motif_slots<-,universalmotif-method}
-\title{[UNDER CONSTRUCTION] universalmotif: Motif class.}
+\alias{show,universalmotif-method}
+\title{universalmotif: Motif class.}
 \usage{
+\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i, drop = "missing")
+
+\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
+
+\S4method{initialize}{universalmotif}(.Object, name, altname, family, organism,
+  motif, alphabet = "DNA", type, icscore, nsites, pseudoweight = 0.8, bkg,
+  bkgsites, consensus, strand = "+-", pval, qval, eval, extrainfo)
+
 \S4method{show}{universalmotif}(object)
-
-\S4method{initialize}{universalmotif}(.Object, name, motif, alphabet = "DNA",
-  type = character(0), icscore = numeric(0), nsites = numeric(0),
-  pseudoweight = 0.8, bkg = numeric(0), consensus = character(0),
-  strand = c("+", "-"), extrachar = character(0), extranum = numeric(0),
-  pval = numeric(0), eval = numeric(0), bkgsites = numeric(0))
-
-\S4method{motif_slots}{universalmotif}(object, slots)
-
-\S4method{motif_slots}{universalmotif}(object, slot) <- value
 }
 \value{
 A motif object.
 }
 \description{
-Placeholder description.
+Description.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{show}: Show method.
+\item \code{[}: Accessor function.
+
+\item \code{[<-}: Replacement method.
 
 \item \code{initialize}: Initialize method.
 
-\item \code{motif_slots}: Accessor function.
-
-\item \code{motif_slots<-}: Replacement method.
+\item \code{show}: Show method.
 }}
 
 \section{Slots}{
@@ -45,35 +43,41 @@ Placeholder description.
 \describe{
 \item{\code{name}}{Character. Motif name.}
 
+\item{\code{altname}}{Character.}
+
+\item{\code{family}}{Character.}
+
+\item{\code{organism}}{Character.}
+
 \item{\code{motif}}{Matrix. Contains motif.}
 
-\item{\code{alphabet}}{Character. Describes alphabet. Can be: DNA, RNA, AA, custom.}
+\item{\code{alphabet}}{Character. Can be: DNA, RNA, AA, custom.}
 
-\item{\code{type}}{Character. Can be: PCM, PPM, or PWM.}
+\item{\code{type}}{Character. Can be: PCM, PPM, PWM.}
 
 \item{\code{icscore}}{Numeric. Total information content for all positions.}
 
-\item{\code{nsites}}{Numeric. Total number of sites containing motif.}
+\item{\code{nsites}}{Numeric. Total number of sites.}
 
 \item{\code{pseudoweight}}{Numeric. Amount of smoothing to apply.}
 
 \item{\code{bkg}}{Numeric. Background letter frequencies.}
 
+\item{\code{bkgsites}}{Numeric.}
+
 \item{\code{consensus}}{Character. Motif consensus sequence.}
 
-\item{\code{strand}}{Character. '+' or '-'.}
+\item{\code{strand}}{Character. '+' and/or '-'.}
 
 \item{\code{pval}}{Numeric.}
 
+\item{\code{qval}}{Numeric.}
+
 \item{\code{eval}}{Numeric.}
 
-\item{\code{extrachar}}{Character.}
-
-\item{\code{extranum}}{Numeric.}
-
-\item{\code{bkgsites}}{Numeric.}
+\item{\code{extrainfo}}{List.}
 }}
 
 \author{
-Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

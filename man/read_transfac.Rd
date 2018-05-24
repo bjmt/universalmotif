@@ -2,33 +2,18 @@
 % Please edit documentation in R/read_transfac.R
 \name{read_transfac}
 \alias{read_transfac}
-\title{[UNDER CONSTRUCTION] Load TRANSFAC motifs from a text file.}
+\title{Import TRANSFAC motifs.}
 \usage{
-read_transfac(motif_file, verbose = FALSE, mot_length_cutoff = NULL,
-  out_class = "matrix-2")
+read_transfac(file, skip = 0)
 }
 \arguments{
-\item{motif_file}{Character.}
+\item{file}{Character.}
 
-\item{verbose}{Logical.}
-
-\item{mot_length_cutoff}{Integer.}
-
-\item{out_class}{Character.}
-}
-\value{
-A list of motif objects of the specified class.
+\item{skip}{Numeric.}
 }
 \description{
-Support for TRANSFAC and TRANSFAC-like motifs. Each motif must be terminated
-with a line containing 'XX' or '//'.
-}
-\examples{
-   motifs <- system.file("extdata", "transfac.txt",
-                         package = "universalmotif")
-   motifs <- read_transfac(motifs)
-
+Assumed to be DNA motifs, type PCM.
 }
 \author{
-Benjamin Tremblay, \email{b2trembl@uwaterloo.ca}
+Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
