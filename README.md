@@ -14,11 +14,14 @@ devtools::install_github("bjmt/universalmotif")
 
 ## Currently exported functions ##
 
-  - `read_motifs`
+  - `read_transfac`
   - `convert_motifs`
   - `convert_type`
   - `create_motif`
   - `filter_motifs`
+  - `motif_dist`
+  - `motif_simil`
+  - `motif_logo`
   - `trim_motifs`
 
 ## Planned exported functions ##
