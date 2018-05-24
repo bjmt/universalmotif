@@ -44,7 +44,7 @@ read_jaspar <- function(file, skip = 0) {
     }
     alphabet <- vapply(x, function(x) strsplit(x, "\\s+")[[1]][1],
                        character(1))
-    if (any(alphabet %in% c("A", "C", "G", "T", "U", "V"))) {
+    if (any(alphabet %in% LETTERS)) {
       x2 <- sapply(x, per_line1)
       x2 <- matrix(x2, nrow = length(x), byrow = TRUE)
       rownames(x2) <- alphabet
