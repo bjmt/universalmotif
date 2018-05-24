@@ -27,13 +27,23 @@ devtools::install_github("bjmt/universalmotif")
 ## Planned exported functions ##
 
   - `run_meme`
-  - `run_tomtom`
   - `run_homer`
-  - `run_stamp`
-  - `write_motifs`
+  - `write_meme`
+  - `write_transfac`
+  - `write_uniprobe`
+  - `write_homer`
+  - `write_jaspar`
+  - `write_cisbp`
+  - `read_cisbp`
+  - `read_jaspar`
+  - `read_homer`
+  - `read_uniprobe`
+  - `read_meme`
 
 ## Other todo ##
 
+  - function documentation
+  - vignette
   - to check platform: run `.Platform` for a list of info
       + for platform-specific code, have the following line:
       + `stopifnot(.Platform$OS.type == "unix")`
