@@ -208,16 +208,9 @@ get_consensusAA <- function(motif) {
 .internal_convert <- function(motifs, class = NULL) {
 
   if (is.null(class)) {
-    if (class(motifs) == "list") {
-      CLASS_PKG <- unique(vapply(motifs, function(x) attributes(class(x))$package,
-                                 character(1)))
-      CLASS <- unique(vapply(motifs, function(x) class(x), character(1)))
-      CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
-    } else {
-      CLASS_PKG <- attributes(class(motifs))$package
-      CLASS <- class(motifs)
-      CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
-    }
+    CLASS_PKG <- attributes(class(motifs))$package
+    CLASS <- class(motifs)
+    CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
     return(CLASS_IN)
   } else {
     if (length(class) == 1 && class != "universalmotif-universalmotif") {

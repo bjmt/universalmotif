@@ -23,7 +23,7 @@ filter_motifs <- function(motifs, name, altname, family, organism,
                           width, alphabet,
                           type, icscore, nsites, strand, pval, qval, eval) {
   
-  CLASS_IN <- .internal_convert(motifs)
+  # CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs)
 
   if (!missing(name)) {
@@ -91,7 +91,7 @@ filter_motifs <- function(motifs, name, altname, family, organism,
     motifs <- motifs[motif_evals <= eval]
   }
 
-  motifs <- .internal_convert(motifs, CLASS_IN)
+  # motifs <- .internal_convert(motifs, CLASS_IN)
 
   motifs
 

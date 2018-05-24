@@ -15,6 +15,7 @@ devtools::install_github("bjmt/universalmotif")
 ## Currently exported functions ##
 
   - `read_transfac`
+  - `read_jaspar`
   - `convert_motifs`
   - `convert_type`
   - `create_motif`
@@ -35,7 +36,6 @@ devtools::install_github("bjmt/universalmotif")
   - `write_jaspar`
   - `write_cisbp`
   - `read_cisbp`
-  - `read_jaspar`
   - `read_homer`
   - `read_uniprobe`
   - `read_meme`

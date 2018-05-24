@@ -47,6 +47,7 @@ Collate:
     'motif_logo.R'
     'motif_simil.R'
     'read_transfac.R'
+    'read_jaspar.R'
     'trim_motifs.R'
     'universalmotif-methods.R'
     'universalmotif.R'

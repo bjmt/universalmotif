@@ -10,7 +10,7 @@
 trim_motifs <- function(motifs, IC_cutoff = 0.25) {
 
   if (class(motifs) == "list") {
-    motifs <- lapply(motifs, trim_motifs)
+    motifs <- lapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff))
     return(motifs)
   }
 
