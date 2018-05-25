@@ -24,6 +24,7 @@ devtools::install_github("bjmt/universalmotif")
   - `motif_dist`
   - `motif_simil`
   - `motif_logo`
+  - `motif_tree`
   - `trim_motifs`
 
 ## Planned exported functions ##
