@@ -25,6 +25,7 @@ motif_dist <- function(motifs, metric = "PCC", align = "SWU",
   if (any(motif_types != "PWM")) {
     motifs[motif_types != "PWM"] <- lapply(motifs[motif_types != "PWM"],
                                            function(x) convert_type(x, "PWM"))
+    # motifs <- lapply(motifs, function(x) convert_type(x, "PWM"))
   }
 
   motif_names <- vapply(motifs, function(x) x["name"], character(1))

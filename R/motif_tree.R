@@ -63,6 +63,9 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       anno_names <- mot_names
       anno_df <- data.frame(name = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
+      if (tipsize %in% c("pval", "qval", "eval")) {
+        anno_df$icscore <- -log10(anno_df$icscore)
+      }
       p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
     }
 
@@ -86,6 +89,9 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       anno_names <- mot_names
       anno_df <- data.frame(name = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
+      if (tipsize %in% c("pval", "qval", "eval")) {
+        anno_df$icscore <- -log10(anno_df$icscore)
+      }
       p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
     }
     return(p)
@@ -97,6 +103,9 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       anno_names <- mot_names
       anno_df <- data.frame(name = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
+      if (tipsize %in% c("pval", "qval", "eval")) {
+        anno_df$icscore <- -log10(anno_df$icscore)
+      }
       p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
     }
     return (p)

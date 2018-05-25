@@ -66,6 +66,9 @@ read_cisbp <- function(file, skip = 0) {
                                  type = "PPM")
                 }, motif_list, meta_list)
 
+  motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,
+                          logical(1))]
+
   motifs
 
 }

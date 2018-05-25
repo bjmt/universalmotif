@@ -52,6 +52,7 @@ Collate:
     'motif_simil.R'
     'motif_tree.R'
     'read_cisbp.R'
+    'read_homer.R'
     'read_jaspar.R'
     'read_transfac.R'
     'trim_motifs.R'

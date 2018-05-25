@@ -81,7 +81,7 @@ setMethod("initialize", signature = "universalmotif",
             }
             .Object@type <- type
 
-            if (missing(nsites)) {
+            if (missing(nsites) || length(nsites) == 0  || is.na(nsites)) {
               if (type == "PCM") {
                 nsites <- sum(motif[, 1])
               } else nsites <- numeric(0)
