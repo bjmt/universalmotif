@@ -7,10 +7,8 @@ Author: Benjamin Tremblay [aut, cre]
 Maintainer: Benjamin Tremblay <b2tremblay@uwaterloo.ca>
 Description: This package allows for importing most common motif types into R
     for use by functions provided by other Bioconductor motif-related packages.
-    Motifs can be filtered during import based on parameters provided by each
-    motif formats, as well as during export. Motifs can be export into most
-    major motif formats from various classes as defined by other Bioconductor
-    packages.
+    Motifs can be exported into most major motif formats from various classes 
+    as defined by other Bioconductor packages.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
