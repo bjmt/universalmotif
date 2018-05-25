@@ -109,7 +109,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
             out_class <- strsplit(class, "-")[[1]][2]
             out_class_pkg <- strsplit(class, "-")[[1]][1]
 
-            if (out_class == "universalmotif") {
+            if (out_class_pkg == "universalmotif") {
               return(motifs)
             }
 

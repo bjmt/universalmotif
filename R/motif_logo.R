@@ -3,10 +3,10 @@
 #' Create logos using ggplot2 + ggseqlogo or seqLogo.
 #'
 #' @param motif universalmotif object.
-#' @param engine Character. ggseqlogo or seqLogo.
+#' @param engine Character. ggseqlogo, seqLogo, motifStack.
 #' @param type Character. ic or prob.
 #' @param ... Package-specific params.
-#
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_logo <- function(motif, engine = "ggseqlogo", type = "ic", ...) {
@@ -30,10 +30,15 @@ motif_logo <- function(motif, engine = "ggseqlogo", type = "ic", ...) {
 
   } else if (engine == "seqLogo") {
 
-    if (type == "ic") type <- TRUE else if (type == "prob") type <- FALSE
     motif <- convert_motifs(motif, "seqLogo-pwm")
     seqLogo(motif, ic.scale = type, ...)
 
-  }
+  } else if (engine == "motifStack") {
+
+    if (type == "ic") type <- TRUE else if (type == "prob") type <- FALSE
+    plotMotifLogo(convert_motifs(motif, "motifStack-pfm"), motif["name"],
+                  p = motif["bkg"], ic.scale = type, ...)
+
+  } 
 
 }

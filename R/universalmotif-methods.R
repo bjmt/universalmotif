@@ -3,7 +3,7 @@
 setMethod("[", "universalmotif", function(x, i, drop = "missing") {
 
   if (missing(i)) {
-    i <- c("name", "altname", "family", "motif", "alphabet", "type",
+    i <- c("name", "altname", "family", "organism", "motif", "alphabet", "type",
                "icscore", "nsites", "pseudoweight", "bkg", "bkgsites",
                "consensus", "strand", "pval", "qval", "eval", "extrainfo")
   }

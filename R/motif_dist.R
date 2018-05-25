@@ -31,8 +31,12 @@ motif_dist <- function(motifs, metric = "PCC", align = "SWU",
   motifs <- lapply(motifs, function(x) x["motif"])
   names(motifs) <- motif_names
 
+  jaspar.scores <- readDBScores(system.file("extdata",
+                                            "jaspar2010_PCC_SWU.scores",
+                                            package = "MotIV"))
   distances <- motifDistances(motifs, cc = metric, align = align,
-                              go = gap_open, ge = gap_extend)
+                              go = gap_open, ge = gap_extend,
+                              DBscores = jaspar.scores)
 
   as.matrix(distances)
 

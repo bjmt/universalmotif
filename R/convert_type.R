@@ -14,6 +14,8 @@
 convert_type <- function(motif, type, pseudoweight, bkg, IC_floor = TRUE,
                          IC_ceiling = TRUE) {
 
+  if (class(motif) == "list") stop("does not support list objects")
+
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
     stop("unrecognized 'type'")
   }

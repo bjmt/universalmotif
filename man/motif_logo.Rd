@@ -9,7 +9,7 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", ...)
 \arguments{
 \item{motif}{universalmotif object.}
 
-\item{engine}{Character. ggseqlogo or seqLogo.}
+\item{engine}{Character. ggseqlogo, seqLogo, motifStack.}
 
 \item{type}{Character. ic or prob.}
 

@@ -21,12 +21,16 @@ Imports: methods,
     TFBSTools,
     ggplot2,
     ggseqlogo,
+    ape,
+    ggtree,
+    ggimage,
+    RColorBrewer,
+    motifStack,
     seqLogo,
     Biostrings
 Suggests: knitr,
     BiocStyle,
     testthat,
-    motifStack,
     PWMEnrich,
     MotifDb,
     rGADEM,
@@ -46,8 +50,10 @@ Collate:
     'motif_dist.R'
     'motif_logo.R'
     'motif_simil.R'
-    'read_transfac.R'
+    'motif_tree.R'
+    'read_cisbp.R'
     'read_jaspar.R'
+    'read_transfac.R'
     'trim_motifs.R'
     'universalmotif-methods.R'
     'universalmotif.R'
