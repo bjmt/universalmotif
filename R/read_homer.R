@@ -16,7 +16,9 @@ read_homer <- function(file, skip = 0) {
 
   headers <- which(grepl("^>", raw_lines))
   motif_starts <- headers + 1
-  motif_stops <- c(headers[-1] - 1, length(raw_lines))
+  if (length(headers) == 1) motif_stops <- length(raw_lines) else {
+    motif_stops <- c(headers[-1] - 1, length(raw_lines))
+  }
 
   parse_motifs <- function(x, y) {
     motif <- raw_lines[x:y]

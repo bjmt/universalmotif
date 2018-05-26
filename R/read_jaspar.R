@@ -14,7 +14,9 @@ read_jaspar <- function(file, skip = 0) {
 
   motif_names <- which(grepl("^>", raw_lines))
   motif_starts <- motif_names + 1
-  motif_stops <- c(motif_names[-1] - 1, length(raw_lines))
+  if (length(motif_starts) == 0) motif_stops <- length(raw_lines) else {
+    motif_stops <- c(motif_names[-1] - 1, length(raw_lines))
+  }
 
   if (length(unique(c(length(motif_names), length(motif_starts),
                       length(motif_stops)))) != 1) {

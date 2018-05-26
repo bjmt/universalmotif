@@ -19,7 +19,9 @@ read_cisbp <- function(file, skip = 0) {
     }
   }
 
-  motif_stops <- c(meta_starts[-1] - 1, length(raw_lines))
+  if (length(meta_starts) == 1) motif_stops <- length(raw_lines) else {
+    motif_stops <- c(meta_starts[-1] - 1, length(raw_lines))
+  }
   motif_starts <- which(grepl("^Pos", raw_lines))
   meta_stops <- motif_starts - 1
 
