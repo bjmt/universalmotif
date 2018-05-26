@@ -19,7 +19,6 @@ convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
     margs <- list(type = type, IC_floor = IC_floor, IC_ceiling = IC_ceiling) 
     if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
     if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
-    print(margs)
     motif <- lapply(motif, function(x) do.call(convert_type,
                                                c(list(motifs = x), margs)))
     return(motif)

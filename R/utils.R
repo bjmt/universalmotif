@@ -7,6 +7,7 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   }
   for (i in seq_along(position)) {
     position[i] <- position[i] * log2(position[i] / bkg[i])
+    if (is.na(position[i])) position[i] <- 0.008
     if (IC_floor && position[i] < 0) position[i] <- 0
     if (IC_ceiling && position[i] > 2) position[i] <- 2
   }
