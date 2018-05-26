@@ -20,5 +20,3 @@
 #' @importFrom MotIV motifDistances makePWM readPWMfile readDBScores
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
 NULL
-
-# Biostrings, motifStack, seqLogo, rGADEM

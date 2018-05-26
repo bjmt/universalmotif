@@ -190,6 +190,8 @@ consensus_to_ppmAA <- function(letter) {
                               rep(0.001, 8)))
   if (letter == "Z") return(c(rep(0.001, 3), 0.491, rep(0.001, 9), 0.491,
                               rep(0.001, 6)))
+  if (letter == "J") return(c(rep(0.001, 7), 0.491, 0.001, 0.491,
+                              rep(0.001, 10)))
   AAs <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N",
            "P", "Q", "R", "S", "T", "V", "W", "Y")
   i <- which(AAs == letter)
@@ -199,6 +201,7 @@ consensus_to_ppmAA <- function(letter) {
 get_consensusAA <- function(motif) {
   if (motif[3] >= 0.4 && motif[12] >= 0.4) return("B")
   if (motif[4] >= 0.4 && motif[14] >= 0.4) return("Z")
+  if (motif[8] >= 0.4 && motif[10] >= 0.4) return("J")
   if (all(motif == 0.05)) return("X")
   AAs <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P",
            "Q", "R", "S", "T", "V", "W", "Y")

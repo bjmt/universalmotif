@@ -36,16 +36,27 @@ setMethod("initialize", signature = "universalmotif",
                                 consensus, strand = "+-", pval,
                                 qval, eval, extrainfo) {
             
-            if (missing(name)) name <- "new motif"
+            if (missing(name) || length(name) == 0 || is.na(name)) {
+              name <- "new motif"
+            }
             .Object@name <- name
 
-            if (missing(altname)) altname <- character(0)
+            if (missing(altname) || length(altname) == 0 ||
+                is.na(altname)) {
+              altname <- character(0)
+            }
             .Object@altname <- altname
 
-            if(missing(family)) family <- character(0)
+            if(missing(family) || length(family) == 0 ||
+               is.na(family)) {
+              family <- character(0)
+            }
             .Object@family <- family
 
-            if (missing(organism)) organism <- character(0)
+            if (missing(organism) || length(organism) == 0 ||
+                is.na(organism)) {
+              organism <- character(0)
+            }
             .Object@organism <- organism
 
             if (missing(motif)) stop("missing motif matrix")
@@ -53,7 +64,8 @@ setMethod("initialize", signature = "universalmotif",
 
             .Object@alphabet <- alphabet
             
-            if (missing(alphabet)) {
+            if (missing(alphabet) || length(alphabet) == 0 ||
+                is.na(alphabet)) {
               if (nrow(motif) == 4) alphabet <- "DNA" else {
                 if (nrow(motif) == 20) {
                   alphabet <- "AA"
@@ -71,7 +83,7 @@ setMethod("initialize", signature = "universalmotif",
                                           "Q", "R", "S", "T", "V", "W", "Y")
             }
 
-            if (missing(type)) {
+            if (missing(type) || length(type) == 0 || is.na(type)) {
               if (all(colSums(motif) >= 2)) type <- "PCM" else {
                 if (all(motif >= 0)) type <- "PPM" else {
                   type <- "PWM"
@@ -88,7 +100,7 @@ setMethod("initialize", signature = "universalmotif",
             }
             .Object@nsites <- nsites
 
-            if (missing(bkg)) {
+            if (missing(bkg) || length(bkg) == 0 || is.na(bkg)) {
               if (alphabet %in% c("DNA", "RNA")) {
                 bkg <- rep(0.25, 4)
               } else if (alphabet == "AA") {
@@ -99,7 +111,7 @@ setMethod("initialize", signature = "universalmotif",
             }
             .Object@bkg <- bkg
 
-            if (missing(icscore)) {
+            if (missing(icscore) || length(icscore) == 0 || is.na(icscore)) {
               icscores <- apply(motif, 2, position_icscore,
                                 bkg = bkg, type = type,
                                 pseudoweight = pseudoweight, nsites = nsites)
@@ -109,10 +121,14 @@ setMethod("initialize", signature = "universalmotif",
 
             .Object@pseudoweight <- pseudoweight
 
-            if (missing(bkgsites)) bkgsites <- numeric(0)
+            if (missing(bkgsites) || length(bkgsites == 0) ||
+                is.na(bkgsites)) {
+              bkgsites <- numeric(0)
+            }
             .Object@bkgsites <- bkgsites
 
-            if (missing(consensus)) {
+            if (missing(consensus) || length(consensus) == 0 ||
+              is.na(consensus)) {
               if (.Object@alphabet %in% c("DNA", "RNA")) {
                 # consensus <- consensusString(.Object@motif, threshold = 0.25,
                                              # ambiguityMap = IUPAC_CODE_MAP)
@@ -127,20 +143,31 @@ setMethod("initialize", signature = "universalmotif",
               } else .Object@consensus <- character(0)
             }
 
-            if (length(.Object@consensus) > 0) colnames(.Object@motif) <- consensus
+            if (length(.Object@consensus) > 0) {
+              colnames(.Object@motif) <- consensus
+            }
 
             .Object@strand <- strand
 
-            if (missing(pval)) pval <- numeric(0)
+            if (missing(pval) || length(pval) == 0 || is.na(pval)) {
+              pval <- numeric(0)
+            }
             .Object@pval <- pval
 
-            if (missing(qval)) qval <- numeric(0)
+            if (missing(qval) || length(qval) == 0 || is.na(qval)) {
+              qval <- numeric(0)
+            }
             .Object@qval <- qval
 
-            if (missing(eval)) eval <- numeric(0)
+            if (missing(eval) || length(eval) == 0 || is.na(eval)) {
+              eval <- numeric(0)
+            }
             .Object@eval <- eval
 
-            if (missing(extrainfo)) extrainfo <- character(0)
+            if (missing(extrainfo) || length(extrainfo) == 0 || 
+                is.na(extrainfo)) {
+              extrainfo <- character(0)
+            }
             .Object@extrainfo <- extrainfo
 
             .Object

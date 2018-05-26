@@ -30,12 +30,18 @@ read_homer <- function(file, skip = 0) {
 
   parse_meta <- function(x) {
     x <- strsplit(x, "\\s+")[[1]]
+    if (grepl("/", x[2])) {
+      y <- strsplit(x[2], "/")[[1]]
+      y <- strsplit(y[1], "\\(")[[1]]
+      x[2] <- y[1]
+      family <- strsplit(y[2], "\\)")[[1]][1]
+    } else family <- character(0)
     x2 <- strsplit(x[6], ",")[[1]]
     nsites <- strsplit(strsplit(x2[1], "T:")[[1]][2], "\\(")[[1]][1]
     bkgsites <- strsplit(strsplit(x2[2], "B:")[[1]][2], "\\(")[[1]][1]
     pval <- strsplit(x2[3], "P:")[[1]][2]
     c(name = x[2], nsites = nsites, bkgsites = bkgsites, pval = pval,
-      threshold = x[3])
+      threshold = x[3], family = family)
   }
 
   motif_list <- mapply(parse_motifs, motif_starts, motif_stops,
@@ -54,6 +60,7 @@ read_homer <- function(file, skip = 0) {
                    motif = t(y),
                    alphabet = "DNA",
                    type = "PPM",
+                   family = x[6],
                    extrainfo = c(logodds = x[5]))
   }
 

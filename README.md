@@ -18,6 +18,7 @@ devtools::install_github("bjmt/universalmotif")
   - `read_cisbp`
   - `read_homer`
   - `read_uniprobe`
+  - `read_meme`
   - `convert_motifs`
   - `convert_type`
   - `create_motif`
@@ -35,6 +36,7 @@ devtools::install_github("bjmt/universalmotif")
   - `motif_enrich`
     + use `TFBSTools::searchSeq` on test + background sequences
     + Ranksum + Fisher's exact test
+    + look into some sort of centrimo implementation..?
   - `run_homer`
   - `write_meme`
   - `write_transfac`
@@ -42,7 +44,6 @@ devtools::install_github("bjmt/universalmotif")
   - `write_homer`
   - `write_jaspar`
   - `write_cisbp`
-  - `read_meme`
 
 ## Other todo ##
 
