@@ -4,11 +4,11 @@
 \alias{convert_type}
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
-convert_type(motif, type, pseudoweight, bkg, IC_floor = TRUE,
+convert_type(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
   IC_ceiling = TRUE)
 }
 \arguments{
-\item{motif}{Motif object.}
+\item{motifs}{Motif object or list.}
 
 \item{type}{Character. Either PCM, PPM, PWM, ICM.}
 

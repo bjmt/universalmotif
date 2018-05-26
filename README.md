@@ -31,12 +31,9 @@ devtools::install_github("bjmt/universalmotif")
 
 ## Planned exported functions ##
 
-  - `run_meme`
   - `motif_rc`
-  - `motif_enrich`
-    + use `TFBSTools::searchSeq` on test + background sequences
-    + Ranksum + Fisher's exact test
-    + look into some sort of centrimo implementation..?
+    + look at `Biostrings::reverseComplement`
+  - `run_meme`
   - `run_homer`
   - `write_meme`
   - `write_transfac`

@@ -1,6 +1,6 @@
 #' Convert \linkS4class{universalmotif} type.
 #'
-#' @param motif Motif object.
+#' @param motifs Motif object or list.
 #' @param type Character. Either PCM, PPM, PWM, ICM.
 #' @param pseudoweight Numeric.
 #' @param bkg Numeric.
@@ -11,10 +11,20 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-convert_type <- function(motif, type, pseudoweight, bkg, IC_floor = TRUE,
+convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
                          IC_ceiling = TRUE) {
 
-  if (class(motif) == "list") stop("does not support list objects")
+  motif <- motifs
+  if (class(motif) == "list") {
+    margs <- list(type = type, IC_floor = IC_floor, IC_ceiling = IC_ceiling) 
+    if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
+    if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+    print(margs)
+    motif <- lapply(motif, function(x) do.call(convert_type,
+                                               c(list(motifs = x), margs)))
+    return(motif)
+
+  }
 
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
     stop("unrecognized 'type'")
