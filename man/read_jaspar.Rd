@@ -11,8 +11,16 @@ read_jaspar(file, skip = 0)
 
 \item{skip}{Numeric.}
 }
+\value{
+List of universalmotif objects.
+}
 \description{
 Import JASPAR motifs.
+}
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

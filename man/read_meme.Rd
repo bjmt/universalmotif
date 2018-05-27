@@ -11,8 +11,18 @@ read_meme(file, skip = 0)
 
 \item{skip}{Numeric.}
 }
+\value{
+List of universalmotif objects.
+}
 \description{
 Import MEME motifs.
+}
+\examples{
+meme.minimal <- read_meme("extdata", "meme_minimal.txt",
+                          package = "universalmotif")
+meme.full <- read_meme("extdata", "meme_full.txt",
+                       package = "universalmotif")
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

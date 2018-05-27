@@ -9,6 +9,11 @@
 #'
 #' @return Motif object.
 #'
+#' @examples
+#' jaspar.ppm <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                       package = "universalmotif"))
+#' jaspar.pwm <- convert_type(jaspar.ppm, type = "PWM")
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,

@@ -52,6 +52,10 @@ Create a motif.
 \item \code{consensus = missing,matrix = missing,sequences = XStringSet}: Create motif from an XStringSet object.
 }}
 
+\examples{
+my.motifs <- create_motif("TATAA")
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

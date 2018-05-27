@@ -2,6 +2,13 @@
 #'
 #' @param motifs List of motifs or a single motif.
 #'
+#' @return List of motifs or single motif object.
+#'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#' jaspar.rc <- motif_rc(jaspar)
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_rc <- function(motifs) {

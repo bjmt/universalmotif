@@ -5,6 +5,11 @@
 #'
 #' @return Motifs Motif object or list.
 #'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#' jaspar.trimmed <- trim_motifs(jaspar)
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 trim_motifs <- function(motifs, IC_cutoff = 0.25) {

@@ -11,6 +11,14 @@
 #' @param branch.length Character.
 #' @param ... ggtree params.
 #'
+#' @return ggplot2 object.
+#'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#' jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
+#'                           layout = "rectangular")
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",

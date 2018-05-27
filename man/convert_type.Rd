@@ -26,6 +26,12 @@ Motif object.
 \description{
 Convert \linkS4class{universalmotif} type.
 }
+\examples{
+jaspar.ppm <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                      package = "universalmotif"))
+jaspar.pwm <- convert_type(jaspar.ppm, type = "PWM")
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

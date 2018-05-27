@@ -5,6 +5,12 @@
 #' @param file Character.
 #' @param skip Numeric.
 #'
+#' @return List of universalmotif objects.
+#'
+#' @examples
+#' homer <- read_homer(system.file("extdata", "homer.txt",
+#'                                 package = "universalmotif"))
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_homer <- function(file, skip = 0) {

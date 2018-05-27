@@ -42,6 +42,12 @@ List of motifs.
 \description{
 Filter a list of \linkS4class{universalmotif} motifs.
 }
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

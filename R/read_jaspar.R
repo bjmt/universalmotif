@@ -3,6 +3,12 @@
 #' @param file Character.
 #' @param skip Numeric.
 #'
+#' @return List of universalmotif objects.
+#'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_jaspar <- function(file, skip = 0) {

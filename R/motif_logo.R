@@ -7,6 +7,13 @@
 #' @param type Character. ic or prob.
 #' @param ... Package-specific params.
 #'
+#' @return For ggseqlogo: a ggplot2 object.
+#'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#' jaspar.logo <- motif_logo(jaspar[[1]], type = "prob")
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_logo <- function(motif, engine = "ggseqlogo", type = "ic", ...) {

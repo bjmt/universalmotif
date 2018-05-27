@@ -9,8 +9,17 @@ motif_rc(motifs)
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
 }
+\value{
+List of motifs or single motif object.
+}
 \description{
 Get the reverse complement of a motif.
+}
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.rc <- motif_rc(jaspar)
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

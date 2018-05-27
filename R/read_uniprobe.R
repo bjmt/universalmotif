@@ -5,6 +5,14 @@
 #' @param file Character.
 #' @param skip Numeric.
 #'
+#' @return List of universalmotif objects.
+#'
+#' @examples
+#' uniprobe.minimal <- read_uniprobe(system.file("extdata", "uniprobe_minimal.txt",
+#'                                               package = "universalmotif"))
+#' uniprobe.full <- read_uniprobe(system.file("extdata", "uniprobe_full.txt",
+#'                                            package = "universalmotif"))
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_uniprobe <- function(file, skip = 0) {

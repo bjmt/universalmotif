@@ -4,6 +4,12 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#'
+#' @return List of universalmotif objects.
+#'
+#' @examples
+#' transfac <- read_transfac(system.file("extdata", "transfac.txt",
+#'                                       package = "universalmotif"))
 #' 
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

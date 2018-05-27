@@ -18,6 +18,15 @@ Similarity matrix.
 TFBSTools implementation of motif similarity. Supports parallel execution
 via foreach package.
 }
+\examples{
+\dontrun{
+library(BiocParallel)
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.simil <- motif_simil(jaspar)
+}
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

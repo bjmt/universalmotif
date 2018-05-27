@@ -11,8 +11,16 @@ read_cisbp(file, skip = 0)
 
 \item{skip}{Numeric.}
 }
+\value{
+List of universalmotif objects.
+}
 \description{
 Import CIS-BP motifs.
+}
+\examples{
+cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
+                                package = "universalmotif"))
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

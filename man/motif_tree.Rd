@@ -25,8 +25,18 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 
 \item{...}{ggtree params.}
 }
+\value{
+ggplot2 object.
+}
 \description{
 For more powerful motif tree functions, see motifStack.
+}
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
+                          layout = "rectangular")
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -3,6 +3,14 @@
 #' @param file Character.
 #' @param skip Numeric.
 #'
+#' @return List of universalmotif objects.
+#'
+#' @examples
+#' meme.minimal <- read_meme("extdata", "meme_minimal.txt",
+#'                           package = "universalmotif")
+#' meme.full <- read_meme("extdata", "meme_full.txt",
+#'                        package = "universalmotif")
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_meme <- function(file, skip = 0) {

@@ -11,8 +11,16 @@ read_transfac(file, skip = 0)
 
 \item{skip}{Numeric.}
 }
+\value{
+List of universalmotif objects.
+}
 \description{
 Assumed to be DNA motifs, type PCM.
+}
+\examples{
+transfac <- read_transfac(system.file("extdata", "transfac.txt",
+                                      package = "universalmotif"))
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

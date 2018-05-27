@@ -11,6 +11,9 @@
 #'
 #' @return Motif object.
 #'
+#' @examples
+#' my.motifs <- create_motif("TATAA")
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 setGeneric("create_motif", function(consensus, matrix, sequences,
@@ -24,6 +27,11 @@ setGeneric("create_motif", function(consensus, matrix, sequences,
 #' @param class Desired motif class. E.g. 'motifStack-pfm'.
 #'
 #' @return Single motif object or list.
+#'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   pacakge = "universalmotif"))
+#' jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

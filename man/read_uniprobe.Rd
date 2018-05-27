@@ -11,8 +11,18 @@ read_uniprobe(file, skip = 0)
 
 \item{skip}{Numeric.}
 }
+\value{
+List of universalmotif objects.
+}
 \description{
 Assumed DNA.
+}
+\examples{
+uniprobe.minimal <- read_uniprobe(system.file("extdata", "uniprobe_minimal.txt",
+                                              package = "universalmotif"))
+uniprobe.full <- read_uniprobe(system.file("extdata", "uniprobe_full.txt",
+                                           package = "universalmotif"))
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

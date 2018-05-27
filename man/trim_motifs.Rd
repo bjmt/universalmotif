@@ -17,6 +17,12 @@ Motifs Motif object or list.
 \description{
 Trim motifs.
 }
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.trimmed <- trim_motifs(jaspar)
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

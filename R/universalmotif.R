@@ -1,4 +1,4 @@
-#' universalmotif: import and export motifs with R
+#' universalmotif: Import, Modify and Export Motifs with R
 #'
 #' @details
 #' A collection of utility functions for working with motifs.

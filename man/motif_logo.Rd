@@ -15,8 +15,17 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", ...)
 
 \item{...}{Package-specific params.}
 }
+\value{
+For ggseqlogo: a ggplot2 object.
+}
 \description{
 Create logos using ggplot2 + ggseqlogo or seqLogo.
+}
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.logo <- motif_logo(jaspar[[1]], type = "prob")
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

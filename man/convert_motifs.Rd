@@ -39,6 +39,12 @@ Convert motif class.
 \item \code{ANY}: Convert non-universalmotif class motifs.
 }}
 
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  pacakge = "universalmotif"))
+jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

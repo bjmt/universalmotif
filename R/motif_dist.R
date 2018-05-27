@@ -14,6 +14,13 @@
 #' @param gap_open Gap open penalty.
 #' @param gap_extend Gap extension penaly.
 #'
+#' @return List of motifs or motif object.
+#'
+#' @examples
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#' jaspar.distances <- motif_dist(jaspar)
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_dist <- function(motifs, metric = "PCC", align = "SWU",

@@ -24,8 +24,17 @@ alignments are extended).}
 
 \item{gap_extend}{Gap extension penaly.}
 }
+\value{
+List of motifs or motif object.
+}
 \description{
 MotIV implementation of the STAMP motif analysis software.
+}
+\examples{
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+jaspar.distances <- motif_dist(jaspar)
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

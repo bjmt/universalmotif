@@ -3,6 +3,12 @@
 #' @param file Character.
 #' @param skip Numeric.
 #'
+#' @return List of universalmotif objects.
+#'
+#' @examples
+#' cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
+#'                                 package = "universalmotif"))
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_cisbp <- function(file, skip = 0) {

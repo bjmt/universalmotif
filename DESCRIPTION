@@ -22,6 +22,7 @@ Imports: methods,
     ape,
     ggtree,
     motifStack,
+    stats,
     seqLogo,
     Biostrings
 Suggests: knitr,

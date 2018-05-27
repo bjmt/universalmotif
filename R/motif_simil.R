@@ -8,6 +8,14 @@
 #'
 #' @return Similarity matrix.
 #'
+#' @examples
+#' \dontrun{
+#' library(BiocParallel)
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#' jaspar.simil <- motif_simil(jaspar)
+#' }
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_simil <- function(motifs, method = "Pearson") {
