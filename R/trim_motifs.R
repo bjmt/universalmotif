@@ -1,6 +1,6 @@
 #' Trim motifs.
 #'
-#' @param motif Motif object.
+#' @param motifs Motif object.
 #' @param IC_cutoff Numeric. Minimum allowed information content.
 #'
 #' @return Motifs Motif object or list.

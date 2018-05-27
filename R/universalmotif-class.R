@@ -1,6 +1,6 @@
 #' universalmotif: Motif class.
 #'
-#' Description.
+#' Container for motif objects.
 #'
 #' @slot name Character. Motif name.
 #' @slot altname Character.
@@ -24,7 +24,9 @@
 #' @return A motif object.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @export
+#' @name universalmotif-class
+#' @rdname universalmotif-class
+#' @exportClass universalmotif
 universalmotif <- setClass("universalmotif",
                            slots = list(name = "character",
                                         altname = "character",

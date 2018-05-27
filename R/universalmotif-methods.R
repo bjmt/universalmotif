@@ -1,6 +1,9 @@
-#' @describeIn universalmotif Accessor function.
+#' @param x universalmotif object.
+#' @param i Slot.
 #' @include universalmotif-class.R
-setMethod("[", "universalmotif", function(x, i, drop = "missing") {
+#' @rdname universalmotif-class
+#' @aliases [,universalmotif-method
+setMethod("[", "universalmotif", function(x, i) {
 
   if (missing(i)) {
     i <- c("name", "altname", "family", "organism", "motif", "alphabet", "type",
@@ -21,13 +24,36 @@ setMethod("[", "universalmotif", function(x, i, drop = "missing") {
 
 })
 
-#' @describeIn universalmotif Replacement method.
+#' @param value Object to replace slot with.
+#' @rdname universalmotif-class
+#' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
   slot(x, i) <- value
   if (validObject(x)) return(x)
 })
 
-#' @describeIn universalmotif Initialize method.
+#' @param .Object universalmotif object.
+#' @param name Character.
+#' @param altname Character.
+#' @param family Character.
+#' @param organism Character.
+#' @param motif Matrix.
+#' @param alphabet Character.
+#' @param type Character.
+#' @param icscore Numeric.
+#' @param nsites Numeric.
+#' @param pseudoweight Numeric.
+#' @param bkg Numeric.
+#' @param bkgsites Numeric.
+#' @param consensus Character.
+#' @param strand Character.
+#' @param pval Numeric.
+#' @param qval Numeric.
+#' @param eval Numeric.
+#' @param extrainfo Character.
+#' @name universalmotif
+#' @rdname universalmotif-class
+#' @aliases initialize,universalmotif-method
 setMethod("initialize", signature = "universalmotif",
           definition = function(.Object, name, altname, family, 
                                 organism, motif,
@@ -170,11 +196,14 @@ setMethod("initialize", signature = "universalmotif",
             }
             .Object@extrainfo <- extrainfo
 
+            validObject(.Object)
             .Object
 
           })
 
-#' @describeIn universalmotif Show method.
+#' @param object universalmotif object.
+#' @rdname universalmotif-class
+#' @aliases show,universalmotif-method
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
             cat("\n       Motif name:   ", object@name, "\n", sep = "")

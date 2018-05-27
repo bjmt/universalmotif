@@ -7,9 +7,9 @@
 trim_motifs(motifs, IC_cutoff = 0.25)
 }
 \arguments{
-\item{IC_cutoff}{Numeric. Minimum allowed information content.}
+\item{motifs}{Motif object.}
 
-\item{motif}{Motif object.}
+\item{IC_cutoff}{Numeric. Minimum allowed information content.}
 }
 \value{
 Motifs Motif object or list.

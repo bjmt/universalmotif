@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif_tree.R
 \name{motif_tree}
 \alias{motif_tree}
-\title{Generate ggplot2 motif trees.}
+\title{Generate ggplot2 motif trees with ggtree.}
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
@@ -26,7 +26,7 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 \item{...}{ggtree params.}
 }
 \description{
-Generate ggplot2 motif trees.
+For more powerful motif tree functions, see motifStack.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

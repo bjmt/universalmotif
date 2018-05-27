@@ -1,5 +1,6 @@
 #' @describeIn create_motif Create motif from a consensus string.
 #' @include universalmotif-class.R
+#' @export
 setMethod("create_motif", signature(consensus = "character",
                                     matrix = "missing",
                                     sequences = "missing"),
@@ -27,6 +28,7 @@ setMethod("create_motif", signature(consensus = "character",
           })
 
 #' @describeIn create_motif Create motif from a matrix.
+#' @export
 setMethod("create_motif", signature(consensus = "missing",
                                     matrix = "matrix",
                                     sequences = "missing"),
@@ -55,6 +57,7 @@ setMethod("create_motif", signature(consensus = "missing",
           })
 
 #' @describeIn create_motif Create motif from an XStringSet object.
+#' @export
 setMethod("create_motif", signature(consensus = "missing",
                                     matrix = "missing",
                                     sequences = "XStringSet"),
@@ -97,12 +100,14 @@ setMethod("create_motif", signature(consensus = "missing",
           })
 
 #' @describeIn convert_motifs Convert a list of motifs.
+#' @export
 setMethod("convert_motifs", signature(motifs = "list"),
           definition = function(motifs, class) {
             lapply(motifs, function(x) convert_motifs(x, class = class))
           })
 
 #' @describeIn convert_motifs Convert a universalmotif object.
+#' @export
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
           definition = function(motifs, class) {
             
@@ -245,6 +250,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
           })
 
 #' @describeIn convert_motifs Convert non-universalmotif class motifs.
+#' @export
 setMethod("convert_motifs", signature(motifs = "ANY"),
           definition = function(motifs, class) {
           

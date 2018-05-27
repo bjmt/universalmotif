@@ -11,7 +11,7 @@
 #' @import ggplot2
 #' @import ggseqlogo
 #' @import ggtree
-#' @import ggimage
+#' @importFrom stats as.dist hclust
 #' @importFrom Biostrings width consensusMatrix DNAMultipleAlignment 
 #' @importFrom Biostrings RNAMultipleAlignment PWM DNAStringSet
 #' @importFrom ape as.phylo

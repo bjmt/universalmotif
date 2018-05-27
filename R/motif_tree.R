@@ -1,4 +1,6 @@
-#' Generate ggplot2 motif trees.
+#' Generate ggplot2 motif trees with ggtree.
+#'
+#' For more powerful motif tree functions, see motifStack.
 #'
 #' @param motifs List of motifs or 'dist' object.
 #' @param layout Character.

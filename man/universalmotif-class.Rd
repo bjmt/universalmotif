@@ -6,12 +6,15 @@
 \alias{universalmotif-class}
 \alias{universalmotif}
 \alias{[,universalmotif,ANY,ANY,ANY-method}
+\alias{[,universalmotif-method}
 \alias{[<-,universalmotif,ANY,ANY,ANY-method}
+\alias{[<-,universalmotif-method}
+\alias{universalmotif}
 \alias{initialize,universalmotif-method}
 \alias{show,universalmotif-method}
 \title{universalmotif: Motif class.}
 \usage{
-\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i, drop = "missing")
+\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i)
 
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
@@ -21,23 +24,59 @@
 
 \S4method{show}{universalmotif}(object)
 }
+\arguments{
+\item{x}{universalmotif object.}
+
+\item{i}{Slot.}
+
+\item{value}{Object to replace slot with.}
+
+\item{.Object}{universalmotif object.}
+
+\item{name}{Character.}
+
+\item{altname}{Character.}
+
+\item{family}{Character.}
+
+\item{organism}{Character.}
+
+\item{motif}{Matrix.}
+
+\item{alphabet}{Character.}
+
+\item{type}{Character.}
+
+\item{icscore}{Numeric.}
+
+\item{nsites}{Numeric.}
+
+\item{pseudoweight}{Numeric.}
+
+\item{bkg}{Numeric.}
+
+\item{bkgsites}{Numeric.}
+
+\item{consensus}{Character.}
+
+\item{strand}{Character.}
+
+\item{pval}{Numeric.}
+
+\item{qval}{Numeric.}
+
+\item{eval}{Numeric.}
+
+\item{extrainfo}{Character.}
+
+\item{object}{universalmotif object.}
+}
 \value{
 A motif object.
 }
 \description{
-Description.
+Container for motif objects.
 }
-\section{Methods (by generic)}{
-\itemize{
-\item \code{[}: Accessor function.
-
-\item \code{[<-}: Replacement method.
-
-\item \code{initialize}: Initialize method.
-
-\item \code{show}: Show method.
-}}
-
 \section{Slots}{
 
 \describe{
