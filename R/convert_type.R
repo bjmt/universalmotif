@@ -22,7 +22,6 @@ convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
     motif <- lapply(motif, function(x) do.call(convert_type,
                                                c(list(motifs = x), margs)))
     return(motif)
-
   }
 
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {

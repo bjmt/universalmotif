@@ -1,7 +1,6 @@
 ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
                        IC_floor = FALSE, IC_ceiling = FALSE) {
   # NOTE: different background frequencies can result in IC higher than 2!
-  # not sure how to deal with this..
   if (is.null(bkg) || missing(bkg)) {
     bkg <- rep(1 / length(position), length(position))
   }

@@ -61,13 +61,13 @@ read_jaspar <- function(file, skip = 0) {
 
   jaspar2umot <- function(motif, name) {
     alphabet <- rownames(motif)
-    if (all(alphabet %in% c("A", "C", "D", "E", "F", "G", "H", "I", "K",
-                            "L", "M", "N", "P", "Q", "R", "S", "T", "V",
-                            "W", "Y"))) {
+    if (all(c("A", "C", "D", "E", "F", "G", "H", "I", "K",
+              "L", "M", "N", "P", "Q", "R", "S", "T", "V",
+              "W", "Y") %in% alphabet)) {
       alphabet <- "AA" 
-    } else if (all(alphabet %in% c("A", "C", "G", "U"))) {
-      alphabet <- "RNA"
-    } else if (all(alphabet %in% c("A", "C", "G", "T"))) {
+    } else if (all(c("A", "C", "G", "U") %in% alphabet)) {
+      alphabet <- "RNA" 
+    } else if (all(c("A", "C", "G", "T") %in% alphabet)) {
       alphabet <- "DNA"
     } else alphabet <- "DNA"
     universalmotif(name = name[1], altname = name[2],

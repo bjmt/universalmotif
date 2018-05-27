@@ -121,7 +121,7 @@ setMethod("initialize", signature = "universalmotif",
 
             .Object@pseudoweight <- pseudoweight
 
-            if (missing(bkgsites) || length(bkgsites == 0) ||
+            if (missing(bkgsites) || length(bkgsites) == 0 ||
                 is.na(bkgsites)) {
               bkgsites <- numeric(0)
             }

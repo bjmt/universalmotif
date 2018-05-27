@@ -287,7 +287,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        motif = motifs@profileMatrix,
                                        alphabet = alphabet, type = "PCM",
                                        bkg = motifs@bg,
-                                       strand = paste0(motifs@strand, collapse = ""))
+                                       strand = paste0(motifs@strand,
+                                                       collapse = ""))
               success <- TRUE
             }
 
@@ -302,7 +303,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        motif = motifs@profileMatrix,
                                        alphabet = alphabet, type = "PWM",
                                        bkg = motifs@bg,
-                                       strand = paste0(motifs@strand, collapse = ""))
+                                       strand = paste0(motifs@strand,
+                                                       collapse = ""))
               success <- TRUE
             }
 
@@ -317,7 +319,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        motif = motifs@profileMatrix,
                                        alphabet = alphabet, type = "ICM",
                                        bkg = motifs@bg,
-                                       strand = paste0(motifs@strand, collapse = ""))
+                                       strand = paste0(motifs@strand,
+                                                       collapse = ""))
               success <- TRUE
             }
 
@@ -374,6 +377,21 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
               success <- TRUE
             }
 
+            # motifRG-Motif
+            if (in_class_pkg == "motifRG" && in_class == "Motif") {
+              motifs <- universalmotif(name = motifs@pattern,
+                                       nsites = sum(motifs@count),
+                                       alphabet = "DNA",
+                                       type = "PCM",
+                                       extrainfo = c(score = motifs@score),
+                               strand = paste(unique(motifs@match$match.strand),
+                                              collapse = ""),
+          motif = create_motif(sequences = DNAStringSet(motifs@match$pattern)))
+              success <- TRUE
+            }
+
+            paste(in_class_pkg)
+            paste(in_class)
             if (!success) stop("unrecognized class")
 
             ## convert to desired class

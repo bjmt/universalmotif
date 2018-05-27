@@ -28,11 +28,10 @@ devtools::install_github("bjmt/universalmotif")
   - `motif_logo`
   - `motif_tree`
   - `trim_motifs`
+  - `motif_rc`
 
 ## Planned exported functions ##
 
-  - `motif_rc`
-    + look at `Biostrings::reverseComplement`
   - `run_meme`
   - `run_homer`
   - `write_meme`

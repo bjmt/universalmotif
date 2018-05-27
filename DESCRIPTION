@@ -32,6 +32,7 @@ Suggests: knitr,
     PWMEnrich,
     MotifDb,
     rGADEM,
+    motifRG,
     BiocParallel
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
@@ -47,6 +48,7 @@ Collate:
     'methods.R'
     'motif_dist.R'
     'motif_logo.R'
+    'motif_rc.R'
     'motif_simil.R'
     'motif_tree.R'
     'read_cisbp.R'
