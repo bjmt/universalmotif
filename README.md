@@ -29,16 +29,14 @@ devtools::install_github("bjmt/universalmotif")
   - `motif_tree`
   - `trim_motifs`
   - `motif_rc`
+  - `write_transfac`
+  - `write_jaspar`
 
 ## Planned exported functions ##
 
-  - `run_meme`
-  - `run_homer`
   - `write_meme`
-  - `write_transfac`
   - `write_uniprobe`
   - `write_homer`
-  - `write_jaspar`
   - `write_cisbp`
 
 ## Other todo ##

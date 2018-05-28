@@ -32,7 +32,7 @@ Suggests: knitr,
     MotifDb,
     rGADEM,
     motifRG,
-    BiocParallel
+    doParallel
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
     MotifDiscovery,
@@ -60,3 +60,5 @@ Collate:
     'universalmotif-methods.R'
     'universalmotif.R'
     'utils.R'
+    'write_jaspar.R'
+    'write_transfac.R'

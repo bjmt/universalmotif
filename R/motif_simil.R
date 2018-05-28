@@ -10,7 +10,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' library(BiocParallel)
+#' library(doParallel)
+#' registerDoParallel()
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' jaspar.simil <- motif_simil(jaspar)

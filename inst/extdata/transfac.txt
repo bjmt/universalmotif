@@ -18,7 +18,7 @@ XX
 
 ID any_old_name_for_motif_2
 BF species_name_for_motif_2
-P0      A      C      G      T
+PO      A      C      G      T
 01      2      1      2      0      R
 02      1      2      2      0      S
 03      0      5      0      0      C
