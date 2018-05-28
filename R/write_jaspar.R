@@ -2,22 +2,21 @@
 #'
 #' @param motifs List of motifs or a motif object.
 #' @param file Character.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return NULL, invisibly.
 #'
 #' @examples
-#' \dontrun{
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
 #'                                     package = "universalmotif"))
-#' write_jaspar(transfac, "motifs.jaspar")
-#' }
+#' write_jaspar(transfac, tempfile())
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_jaspar <- function(motifs, file) {
+write_jaspar <- function(motifs, file, BPPARAM = bpparam()) {
 
-  motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PCM")
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, "PCM", BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_jaspar <- function(motifs) {
@@ -68,7 +67,7 @@ write_jaspar <- function(motifs, file) {
 
   }
 
-  lines_out <- bplapply(motifs, .write_jaspar)
+  lines_out <- bplapply(motifs, .write_jaspar, BPPARAM = BPPARAM)
   lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))

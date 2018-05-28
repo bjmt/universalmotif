@@ -5,7 +5,7 @@
 \title{Filter a list of \linkS4class{universalmotif} motifs.}
 \usage{
 filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
-  icscore, nsites, strand, pval, qval, eval)
+  icscore, nsites, strand, pval, qval, eval, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
@@ -35,6 +35,8 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
 \item{qval}{Keep motifs by q-value.}
 
 \item{eval}{Keep motifs by e-val.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 List of motifs.

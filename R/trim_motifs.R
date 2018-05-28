@@ -2,6 +2,7 @@
 #'
 #' @param motifs Motif object.
 #' @param IC_cutoff Numeric. Minimum allowed information content.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return Motifs Motif object or list.
 #'
@@ -12,10 +13,11 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-trim_motifs <- function(motifs, IC_cutoff = 0.25) {
+trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
 
   if (class(motifs) == "list") {
-    motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff))
+    motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff),
+                       BPPARAM = BPPARAM)
     tokeep <- vapply(motifs, function(x) !is.null(x), logical(1))
     if (FALSE %in% tokeep) {
       num_gone <- length(which(tokeep == FALSE))

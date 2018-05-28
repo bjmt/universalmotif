@@ -8,21 +8,24 @@
 \alias{convert_motifs,ANY-method}
 \title{Convert motif class.}
 \usage{
-convert_motifs(motifs, class = "universalmotif-universalmotif")
+convert_motifs(motifs, class = "universalmotif-universalmotif",
+  BPPARAM = bpparam())
 
 \S4method{convert_motifs}{list}(motifs,
-  class = "universalmotif-universalmotif")
+  class = "universalmotif-universalmotif", BPPARAM = bpparam())
 
 \S4method{convert_motifs}{universalmotif}(motifs,
-  class = "universalmotif-universalmotif")
+  class = "universalmotif-universalmotif", BPPARAM = bpparam())
 
 \S4method{convert_motifs}{ANY}(motifs,
-  class = "universalmotif-universalmotif")
+  class = "universalmotif-universalmotif", BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{Single motif object or list.}
 
 \item{class}{Desired motif class. E.g. 'motifStack-pfm'.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 Single motif object or list.
@@ -41,7 +44,7 @@ Convert motif class.
 
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
-                                  pacakge = "universalmotif"))
+                                  package = "universalmotif"))
 jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
 
 }

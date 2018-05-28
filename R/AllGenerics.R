@@ -25,16 +25,18 @@ setGeneric("create_motif", function(consensus, matrix, sequences,
 #'
 #' @param motifs Single motif object or list.
 #' @param class Desired motif class. E.g. 'motifStack-pfm'.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return Single motif object or list.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
-#'                                   pacakge = "universalmotif"))
+#'                                   package = "universalmotif"))
 #' jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 setGeneric("convert_motifs", function(motifs,
-                                      class = "universalmotif-universalmotif")
+                                      class = "universalmotif-universalmotif",
+                                      BPPARAM = bpparam())
            standardGeneric("convert_motifs"))

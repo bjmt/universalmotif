@@ -14,6 +14,7 @@
 #' @param pval Keep motifs by p-value.
 #' @param qval Keep motifs by q-value.
 #' @param eval Keep motifs by e-val.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of motifs.
 #'
@@ -26,10 +27,11 @@
 #' @export
 filter_motifs <- function(motifs, name, altname, family, organism,
                           width, alphabet,
-                          type, icscore, nsites, strand, pval, qval, eval) {
+                          type, icscore, nsites, strand, pval, qval, eval,
+                          BPPARAM = bpparam()) {
   
   # CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs)
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   if (!missing(name)) {
     motif_names <- vapply(motifs, function(x) x["name"], character(1))

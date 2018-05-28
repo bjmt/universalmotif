@@ -9,6 +9,7 @@
 #' @param tipsize Character. (icscore, pval, qval, eval)
 #' @param legend Logical.
 #' @param branch.length Character.
+#' @param BPPARAM Param for bplapply.
 #' @param ... ggtree params.
 #'
 #' @return ggplot2 object.
@@ -23,12 +24,12 @@
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
-                       branch.length = "none", ...){
+                       branch.length = "none", BPPARAM = bpparam(), ...){
 
   if (class(motifs) == "dist") {
     tree <- as.phylo(hclust(motifs))
   } else {
-    motifs <- convert_motifs(motifs)
+    motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
     tree <- as.phylo(hclust(as.dist(motif_dist(motifs))))
   }
 

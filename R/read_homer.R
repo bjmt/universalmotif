@@ -4,6 +4,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -13,7 +14,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_homer <- function(file, skip = 0) {
+read_homer <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -51,9 +52,9 @@ read_homer <- function(file, skip = 0) {
   }
 
   motif_list <- bpmapply(parse_motifs, motif_starts, motif_stops,
-                         SIMPLIFY = FALSE)
+                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
-  motif_meta <- bplapply(raw_lines[headers], parse_meta)
+  motif_meta <- bplapply(raw_lines[headers], parse_meta, BPPARAM = BPPARAM)
 
   homer2umot <- function(x, y) {
     universalmotif(name = x[1],
@@ -71,7 +72,7 @@ read_homer <- function(file, skip = 0) {
   }
 
   motifs <- bpmapply(homer2umot, motif_meta, motif_list,
-                     SIMPLIFY = FALSE)
+                     SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   motifs
 

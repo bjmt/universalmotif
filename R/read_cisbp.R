@@ -2,6 +2,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -11,7 +12,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_cisbp <- function(file, skip = 0) {
+read_cisbp <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -33,10 +34,10 @@ read_cisbp <- function(file, skip = 0) {
 
   meta_list <- bpmapply(function(x, y) raw_lines[x:y],
                         meta_starts, meta_stops,
-                        SIMPLIFY = FALSE)
+                        SIMPLIFY = FALSE, BPPARAM = BPPARAM)
   motif_list <- bpmapply(function(x, y) raw_lines[x:y],
                          motif_starts, motif_stops,
-                         SIMPLIFY = FALSE)
+                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   parse_meta <- function(x) {
     metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
@@ -56,8 +57,8 @@ read_cisbp <- function(file, skip = 0) {
     x
   }
 
-  meta_list <- bplapply(meta_list, parse_meta)
-  motif_list <- bplapply(motif_list, parse_motifs)
+  meta_list <- bplapply(meta_list, parse_meta, BPPARAM = BPPARAM)
+  motif_list <- bplapply(motif_list, parse_motifs, BPPARAM = BPPARAM)
 
   motifs <- bpmapply(function(x, y) {
                     if (all(colnames(x) %in% c("A", "C", "G", "U"))) {
@@ -72,7 +73,7 @@ read_cisbp <- function(file, skip = 0) {
                                    motif = t(x),
                                    alphabet = alph,
                                    type = "PPM")
-                  }, motif_list, meta_list)
+                  }, motif_list, meta_list, BPPARAM = BPPARAM)
 
   motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,
                           logical(1))]

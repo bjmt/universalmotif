@@ -4,7 +4,8 @@
 \alias{motif_logo}
 \title{Generate ggplot2 motif logos.}
 \usage{
-motif_logo(motif, engine = "ggseqlogo", type = "ic", ...)
+motif_logo(motif, engine = "ggseqlogo", type = "ic", BPPARAM = bpparam(),
+  ...)
 }
 \arguments{
 \item{motif}{universalmotif object.}
@@ -12,6 +13,8 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", ...)
 \item{engine}{Character. ggseqlogo, seqLogo, motifStack.}
 
 \item{type}{Character. ic or prob.}
+
+\item{BPPARAM}{Param for bplapply.}
 
 \item{...}{Package-specific params.}
 }

@@ -5,7 +5,7 @@
 \title{Motif distance score matrix.}
 \usage{
 motif_dist(motifs, metric = "PCC", align = "SWU", gap_open = 1,
-  gap_extend = 0.5)
+  gap_extend = 0.5, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs}
@@ -23,6 +23,8 @@ alignments are extended).}
 \item{gap_open}{Gap open penalty.}
 
 \item{gap_extend}{Gap extension penaly.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 List of motifs or motif object.

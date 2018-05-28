@@ -4,6 +4,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -13,7 +14,7 @@
 #' 
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_transfac <- function(file, skip = 0) {
+read_transfac <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -35,13 +36,13 @@ read_transfac <- function(file, skip = 0) {
 
   motifs <- bpmapply(function(x, y) raw_lines[x:(y - 1)],
                      motif_starts, motif_stops,
-                     SIMPLIFY = FALSE)
+                     SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   motif_stops <- c(1, motif_stops[-length(motif_stops)])
 
   motif_meta <- bpmapply(function(x, y) raw_lines[(x):(y - 1)],
                          motif_stops, motif_starts,
-                         SIMPLIFY = FALSE)
+                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   get_matrix <- function(x) {
     x <- x[-1]
@@ -53,7 +54,7 @@ read_transfac <- function(file, skip = 0) {
     matrix(x, ncol = 4, byrow = TRUE)
   }
 
-  motifs <- bplapply(motifs, get_matrix)
+  motifs <- bplapply(motifs, get_matrix, BPPARAM = BPPARAM)
 
   parse_meta <- function(x) {
     metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
@@ -106,7 +107,7 @@ read_transfac <- function(file, skip = 0) {
     metas_correct
   }
 
-  motif_meta <- bplapply(motif_meta, parse_meta)
+  motif_meta <- bplapply(motif_meta, parse_meta, BPPARAM = BPPARAM)
 
   motifs <- bpmapply(function(x, y) {
                       universalmotif(name = as.character(y[names(y) == 
@@ -120,7 +121,7 @@ read_transfac <- function(file, skip = 0) {
                                      motif = t(x),
                                      alphabet = "DNA",
                                      type = "PCM")
-                     }, motifs, motif_meta)
+                     }, motifs, motif_meta, BPPARAM = BPPARAM)
 
   motifs
 

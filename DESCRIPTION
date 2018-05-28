@@ -62,4 +62,5 @@ Collate:
     'universalmotif.R'
     'utils.R'
     'write_jaspar.R'
+    'write_meme.R'
     'write_transfac.R'

@@ -4,12 +4,14 @@
 \alias{read_uniprobe}
 \title{Import UNIPROBE motifs.}
 \usage{
-read_uniprobe(file, skip = 0)
+read_uniprobe(file, skip = 0, BPPARAM = bpparam())
 }
 \arguments{
 \item{file}{Character.}
 
 \item{skip}{Numeric.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 List of universalmotif objects.

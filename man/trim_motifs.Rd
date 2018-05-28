@@ -4,12 +4,14 @@
 \alias{trim_motifs}
 \title{Trim motifs.}
 \usage{
-trim_motifs(motifs, IC_cutoff = 0.25)
+trim_motifs(motifs, IC_cutoff = 0.25, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{Motif object.}
 
 \item{IC_cutoff}{Numeric. Minimum allowed information content.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 Motifs Motif object or list.

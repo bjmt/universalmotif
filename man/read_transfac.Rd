@@ -4,12 +4,14 @@
 \alias{read_transfac}
 \title{Import TRANSFAC motifs.}
 \usage{
-read_transfac(file, skip = 0)
+read_transfac(file, skip = 0, BPPARAM = bpparam())
 }
 \arguments{
 \item{file}{Character.}
 
 \item{skip}{Numeric.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 List of universalmotif objects.

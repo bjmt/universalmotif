@@ -2,18 +2,19 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
 #'
 #' @examples
-#' meme.minimal <- read_meme("extdata", "meme_minimal.txt",
-#'                           package = "universalmotif")
-#' meme.full <- read_meme("extdata", "meme_full.txt",
-#'                        package = "universalmotif")
+#' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
+#'                                       package = "universalmotif"))
+#' meme.full <- read_meme(system.file("extdata", "meme_full.txt",
+#'                                    package = "universalmotif"))
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_meme <- function(file, skip = 0) {
+read_meme <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -45,7 +46,7 @@ read_meme <- function(file, skip = 0) {
   motif_names <- bplapply(raw_lines[motif_names], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]
-                          })
+                          }, BPPARAM = BPPARAM)
   motif_starts <- motif_meta + 1
   motif_stops <- sapply(raw_lines[motif_meta],
                         function(x) strsplit(x, "\\s+")[[1]][6])
@@ -56,13 +57,14 @@ read_meme <- function(file, skip = 0) {
                            x <- strsplit(x, "\\s+")[[1]]
                            c(nsites = as.numeric(x[8]),
                              eval = as.numeric(x[10]))
-                         })
+                         }, BPPARAM = BPPARAM)
   motif_list <- bpmapply(function(x, y) {
                            z <- raw_lines[x:y]
                            z <- sapply(z, function(x) strsplit(x, "\\s+")[[1]])
                            z <- suppressWarnings(as.numeric(z))
                            z <- z[!is.na(z)]
-                         }, motif_starts, motif_stops, SIMPLIFY = FALSE)
+                         }, motif_starts, motif_stops, SIMPLIFY = FALSE,
+                         BPPARAM = BPPARAM)
 
   motif_list <- bpmapply(function(x, y, z) {
                           universalmotif(name = x,
@@ -74,7 +76,7 @@ read_meme <- function(file, skip = 0) {
                                          motif = t(matrix(z, ncol = 4,
                                                           byrow = TRUE)))
                          }, motif_names, motif_meta, motif_list,
-                         SIMPLIFY = FALSE)
+                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   motif_list
 

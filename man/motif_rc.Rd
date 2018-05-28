@@ -4,10 +4,12 @@
 \alias{motif_rc}
 \title{Get the reverse complement of a motif.}
 \usage{
-motif_rc(motifs)
+motif_rc(motifs, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 List of motifs or single motif object.

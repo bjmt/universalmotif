@@ -6,7 +6,7 @@
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", ...)
+  branch.length = "none", BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{motifs}{List of motifs or 'dist' object.}
@@ -22,6 +22,8 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 \item{legend}{Logical.}
 
 \item{branch.length}{Character.}
+
+\item{BPPARAM}{Param for bplapply.}
 
 \item{...}{ggtree params.}
 }

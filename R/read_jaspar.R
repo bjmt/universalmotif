@@ -2,6 +2,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -11,7 +12,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_jaspar <- function(file, skip = 0) {
+read_jaspar <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -35,7 +36,7 @@ read_jaspar <- function(file, skip = 0) {
 
   motifs <- bpmapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops,
-                     SIMPLIFY = FALSE)
+                     SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   get_matrix <- function(x) {
     x <- sub("\\[", "", x)
@@ -63,7 +64,7 @@ read_jaspar <- function(file, skip = 0) {
     }
   }
 
-  motifs <- bplapply(motifs, get_matrix)
+  motifs <- bplapply(motifs, get_matrix, BPPARAM = BPPARAM)
 
   jaspar2umot <- function(motif, name) {
     alphabet <- rownames(motif)
@@ -81,7 +82,8 @@ read_jaspar <- function(file, skip = 0) {
                    motif = motif)
   }
 
-  motifs <- bpmapply(jaspar2umot, motifs, motif_names, SIMPLIFY = FALSE)
+  motifs <- bpmapply(jaspar2umot, motifs, motif_names, SIMPLIFY = FALSE,
+                     BPPARAM = BPPARAM)
 
   motifs
 

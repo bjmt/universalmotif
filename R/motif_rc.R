@@ -1,6 +1,7 @@
 #' Get the reverse complement of a motif.
 #'
 #' @param motifs List of motifs or a single motif.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of motifs or single motif object.
 #'
@@ -11,15 +12,15 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_rc <- function(motifs) {
+motif_rc <- function(motifs, BPPARAM = bpparam()) {
 
   if (class(motifs) == "list") {
-    motifs <- bplapply(motifs, motif_rc)
+    motifs <- bplapply(motifs, motif_rc, BPPARAM = BPPARAM)
     return(motifs)
   }
 
   CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs)
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   motifs <- universalmotif(name = motifs["name"], altname = motifs["altname"],
                            family = motifs["family"],

@@ -4,6 +4,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -15,7 +16,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_uniprobe <- function(file, skip = 0) {
+read_uniprobe <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -44,7 +45,7 @@ read_uniprobe <- function(file, skip = 0) {
     }
 
     motif_list <- bpmapply(parse_motifs, motif_starts, motif_stops,
-                           SIMPLIFY = FALSE)
+                           SIMPLIFY = FALSE, BPPARAM = BPPARAM)
     motif_list <- bpmapply(function(meta, motif) {
                             universalmotif(name = meta[1],
                                            motif = matrix(motif, nrow = 4,
@@ -52,7 +53,8 @@ read_uniprobe <- function(file, skip = 0) {
                                            alphabet = "DNA",
                                            type = "PPM",
                                            extrainfo = c(enrichment.score = meta[2]))
-                           }, motif_meta, motif_list, SIMPLIFY = FALSE)
+                           }, motif_meta, motif_list, SIMPLIFY = FALSE,
+                           BPPARAM = BPPARAM)
 
   } else {
 
@@ -76,7 +78,7 @@ read_uniprobe <- function(file, skip = 0) {
                                             alphabet = "DNA",
                                             type = "PPM")
                            }, motif_names, motif_A, motif_C, motif_G, motif_T,
-                           SIMPLIFY = FALSE)
+                           SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   }
 

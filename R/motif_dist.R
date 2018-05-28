@@ -13,6 +13,7 @@
 #'              alignments are extended).
 #' @param gap_open Gap open penalty.
 #' @param gap_extend Gap extension penaly.
+#' @param BPPARAM Param for bplapply.
 #'
 #' @return List of motifs or motif object.
 #'
@@ -24,9 +25,9 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_dist <- function(motifs, metric = "PCC", align = "SWU",
-                       gap_open = 1, gap_extend = 0.5) {
+                       gap_open = 1, gap_extend = 0.5, BPPARAM = bpparam()) {
 
-  motifs <- convert_motifs(motifs)
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   motif_types <- vapply(motifs, function(x) x["type"], character(1))
   if (any(motif_types != "PWM")) {

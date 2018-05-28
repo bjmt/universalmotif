@@ -4,12 +4,14 @@
 \alias{read_jaspar}
 \title{Import JASPAR motifs.}
 \usage{
-read_jaspar(file, skip = 0)
+read_jaspar(file, skip = 0, BPPARAM = bpparam())
 }
 \arguments{
 \item{file}{Character.}
 
 \item{skip}{Numeric.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 List of universalmotif objects.

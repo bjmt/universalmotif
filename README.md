@@ -31,10 +31,10 @@ devtools::install_github("bjmt/universalmotif")
   - `motif_rc`
   - `write_transfac`
   - `write_jaspar`
+  - `write_meme`
 
 ## Planned exported functions ##
 
-  - `write_meme`
   - `write_uniprobe`
   - `write_homer`
   - `write_cisbp`

@@ -102,14 +102,15 @@ setMethod("create_motif", signature(consensus = "missing",
 #' @describeIn convert_motifs Convert a list of motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "list"),
-          definition = function(motifs, class) {
-            bplapply(motifs, function(x) convert_motifs(x, class = class))
+          definition = function(motifs, class, BPPARAM) {
+            bplapply(motifs, function(x) convert_motifs(x, class = class,
+                                                        BPPARAM = BPPARAM))
           })
 
 #' @describeIn convert_motifs Convert a universalmotif object.
 #' @export
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
-          definition = function(motifs, class) {
+          definition = function(motifs, class, BPPARAM) {
             
             out_class <- strsplit(class, "-")[[1]][2]
             out_class_pkg <- strsplit(class, "-")[[1]][1]
@@ -120,7 +121,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # MotIV-pwm2
             if (out_class_pkg == "MotIV" && out_class == "pwm2") {
-              motifs <- convert_type(motifs, "PPM")
+              motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
               motifs <- makePWM(motifs["motif"],
                                 alphabet = motifs["alphabet"])
               return(motifs)
@@ -252,7 +253,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 #' @describeIn convert_motifs Convert non-universalmotif class motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "ANY"),
-          definition = function(motifs, class) {
+          definition = function(motifs, class, BPPARAM) {
           
             success <- FALSE
 

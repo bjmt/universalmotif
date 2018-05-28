@@ -4,28 +4,25 @@
 \alias{motif_simil}
 \title{Motif similarity matrix.}
 \usage{
-motif_simil(motifs, method = "Pearson")
+motif_simil(motifs, method = "Pearson", BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
 
 \item{method}{One of Euclidean, Pearson, KL.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 Similarity matrix.
 }
 \description{
-TFBSTools implementation of motif similarity. Supports parallel execution
-via foreach package.
+TFBSTools implementation of motif similarity.
 }
 \examples{
-\dontrun{
-library(doParallel)
-registerDoParallel()
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.simil <- motif_simil(jaspar)
-}
 
 }
 \author{

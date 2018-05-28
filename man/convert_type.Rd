@@ -5,7 +5,7 @@
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
 convert_type(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
-  IC_ceiling = TRUE)
+  IC_ceiling = TRUE, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{Motif object or list.}
@@ -19,6 +19,8 @@ convert_type(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
 \item{IC_floor}{Logical.}
 
 \item{IC_ceiling}{Logical.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 Motif object.

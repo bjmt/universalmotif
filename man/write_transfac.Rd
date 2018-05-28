@@ -4,12 +4,14 @@
 \alias{write_transfac}
 \title{Export motifs in TRANSFAC format.}
 \usage{
-write_transfac(motifs, file)
+write_transfac(motifs, file, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs or a motif object.}
 
 \item{file}{Character.}
+
+\item{BPPARAM}{Param for bplapply.}
 }
 \value{
 NULL, invisibly.
@@ -18,11 +20,9 @@ NULL, invisibly.
 Export motifs in TRANSFAC format.
 }
 \examples{
-\dontrun{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                     package = "universalmotif"))
-write_transfac(jaspar, "motifs.transfac")
-}
+write_transfac(jaspar, tempfile())
 
 }
 \author{

@@ -5,6 +5,7 @@
 #' @param motif universalmotif object.
 #' @param engine Character. ggseqlogo, seqLogo, motifStack.
 #' @param type Character. ic or prob.
+#' @param BPPARAM Param for bplapply.
 #' @param ... Package-specific params.
 #'
 #' @return For ggseqlogo: a ggplot2 object.
@@ -16,9 +17,10 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_logo <- function(motif, engine = "ggseqlogo", type = "ic", ...) {
+motif_logo <- function(motif, engine = "ggseqlogo", type = "ic",
+                       BPPARAM = bpparam(), ...) {
 
-  motif <- convert_motifs(motif)
+  motif <- convert_motifs(motif, BPPARAM = BPPARAM)
 
   if (engine == "ggseqlogo") {
 
