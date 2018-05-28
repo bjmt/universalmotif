@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' jaspar <- read_transfac(system.file("extdata", "jaspar.txt",
+#' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                     package = "universalmotif"))
 #' write_transfac(jaspar, "motifs.transfac")
 #' }
@@ -20,9 +20,9 @@ write_transfac <- function(motifs, file) {
   motifs <- convert_type(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  lines_out <- vector()
-  for (i in seq_along(motifs)) {
-    motif <- motifs[[i]]
+  .write_transfac <- function(motifs) {
+    motif <- motifs
+    lines_out <- vector()
     lines_out <- c(lines_out, paste("ID", motif["name"]))
     if (length(motif["altname"]) > 0) {
       lines_out <- c(lines_out, paste("NA", motif["altname"]))
@@ -43,6 +43,9 @@ write_transfac <- function(motifs, file) {
     }
     lines_out <- c(lines_out, "XX", "//")
   }
+
+  lines_out <- bplapply(motifs, .write_transfac)
+  lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))
   close(con)

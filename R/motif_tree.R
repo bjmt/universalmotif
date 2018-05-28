@@ -36,7 +36,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     mot_names <- sapply(motifs, function(x) x[labels])
     tree$tip.label <- mot_names
   } else {
-    mot_names <- sapply(motifs, function(x) x["name"])
+    mot_names <- vapply(motifs, function(x) x["name"], character(1))
   }
 
   if (linecol != "none") {

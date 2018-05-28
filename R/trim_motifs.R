@@ -15,8 +15,13 @@
 trim_motifs <- function(motifs, IC_cutoff = 0.25) {
 
   if (class(motifs) == "list") {
-    motifs <- lapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff))
-    return(motifs)
+    motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff))
+    tokeep <- vapply(motifs, function(x) !is.null(x), logical(1))
+    if (FALSE %in% tokeep) {
+      num_gone <- length(which(tokeep == FALSE))
+      warning(num_gone, " motifs were completely trimmed and subsequently deleted")
+    }
+    return(motifs[tokeep])
   }
 
   CLASS_IN <- .internal_convert(motifs)

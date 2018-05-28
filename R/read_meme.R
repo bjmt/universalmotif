@@ -42,39 +42,39 @@ read_meme <- function(file, skip = 0) {
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names <- motif_meta - 1
-  motif_names <- lapply(raw_lines[motif_names], function(x) {
-                          x <- strsplit(x, "\\s+")[[1]]
-                          if (x[1] == "") x[3] else x[2]
-                        })
+  motif_names <- bplapply(raw_lines[motif_names], function(x) {
+                            x <- strsplit(x, "\\s+")[[1]]
+                            if (x[1] == "") x[3] else x[2]
+                          })
   motif_starts <- motif_meta + 1
   motif_stops <- sapply(raw_lines[motif_meta],
                         function(x) strsplit(x, "\\s+")[[1]][6])
   motif_stops <- motif_meta + as.numeric(motif_stops)
 
-  motif_meta <- lapply(raw_lines[motif_meta],
-                       function(x) {
-                         x <- strsplit(x, "\\s+")[[1]]
-                         c(nsites = as.numeric(x[8]),
-                           eval = as.numeric(x[10]))
-                       })
-  motif_list <- mapply(function(x, y) {
-                         z <- raw_lines[x:y]
-                         z <- sapply(z, function(x) strsplit(x, "\\s+")[[1]])
-                         z <- suppressWarnings(as.numeric(z))
-                         z <- z[!is.na(z)]
-                       }, motif_starts, motif_stops, SIMPLIFY = FALSE)
+  motif_meta <- bplapply(raw_lines[motif_meta],
+                         function(x) {
+                           x <- strsplit(x, "\\s+")[[1]]
+                           c(nsites = as.numeric(x[8]),
+                             eval = as.numeric(x[10]))
+                         })
+  motif_list <- bpmapply(function(x, y) {
+                           z <- raw_lines[x:y]
+                           z <- sapply(z, function(x) strsplit(x, "\\s+")[[1]])
+                           z <- suppressWarnings(as.numeric(z))
+                           z <- z[!is.na(z)]
+                         }, motif_starts, motif_stops, SIMPLIFY = FALSE)
 
-  motif_list <- mapply(function(x, y, z) {
-                        universalmotif(name = x,
-                                       nsites = y[1],
-                                       eval = y[2],
-                                       bkg = bkg,
-                                       alphabet = alph,
-                                       strand = strands,
-                                       motif = t(matrix(z, ncol = 4,
-                                                        byrow = TRUE)))
-                       }, motif_names, motif_meta, motif_list,
-                       SIMPLIFY = FALSE)
+  motif_list <- bpmapply(function(x, y, z) {
+                          universalmotif(name = x,
+                                         nsites = y[1],
+                                         eval = y[2],
+                                         bkg = bkg,
+                                         alphabet = alph,
+                                         strand = strands,
+                                         motif = t(matrix(z, ncol = 4,
+                                                          byrow = TRUE)))
+                         }, motif_names, motif_meta, motif_list,
+                         SIMPLIFY = FALSE)
 
   motif_list
 

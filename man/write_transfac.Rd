@@ -19,7 +19,7 @@ Export motifs in TRANSFAC format.
 }
 \examples{
 \dontrun{
-jaspar <- read_transfac(system.file("extdata", "jaspar.txt",
+jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                     package = "universalmotif"))
 write_transfac(jaspar, "motifs.transfac")
 }

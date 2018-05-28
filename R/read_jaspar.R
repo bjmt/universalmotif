@@ -33,9 +33,9 @@ read_jaspar <- function(file, skip = 0) {
   motif_names <- sub(">", "", motif_names)
   motif_names <- lapply(motif_names, function(x) strsplit(x, "\\s+")[[1]])
 
-  motifs <- mapply(function(x, y) raw_lines[x:y],
-                   motif_starts, motif_stops,
-                   SIMPLIFY = FALSE)
+  motifs <- bpmapply(function(x, y) raw_lines[x:y],
+                     motif_starts, motif_stops,
+                     SIMPLIFY = FALSE)
 
   get_matrix <- function(x) {
     x <- sub("\\[", "", x)
@@ -63,7 +63,7 @@ read_jaspar <- function(file, skip = 0) {
     }
   }
 
-  motifs <- lapply(motifs, get_matrix)
+  motifs <- bplapply(motifs, get_matrix)
 
   jaspar2umot <- function(motif, name) {
     alphabet <- rownames(motif)
@@ -81,7 +81,7 @@ read_jaspar <- function(file, skip = 0) {
                    motif = motif)
   }
 
-  motifs <- mapply(jaspar2umot, motifs, motif_names, SIMPLIFY = FALSE)
+  motifs <- bpmapply(jaspar2umot, motifs, motif_names, SIMPLIFY = FALSE)
 
   motifs
 

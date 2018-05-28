@@ -50,10 +50,10 @@ read_homer <- function(file, skip = 0) {
       threshold = x[3], family = family)
   }
 
-  motif_list <- mapply(parse_motifs, motif_starts, motif_stops,
-                       SIMPLIFY = FALSE)
+  motif_list <- bpmapply(parse_motifs, motif_starts, motif_stops,
+                         SIMPLIFY = FALSE)
 
-  motif_meta <- lapply(raw_lines[headers], parse_meta)
+  motif_meta <- bplapply(raw_lines[headers], parse_meta)
 
   homer2umot <- function(x, y) {
     universalmotif(name = x[1],
@@ -70,8 +70,8 @@ read_homer <- function(file, skip = 0) {
                    extrainfo = c(logodds = x[5]))
   }
 
-  motifs <- mapply(homer2umot, motif_meta, motif_list,
-                   SIMPLIFY = FALSE)
+  motifs <- bpmapply(homer2umot, motif_meta, motif_list,
+                     SIMPLIFY = FALSE)
 
   motifs
 

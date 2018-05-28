@@ -24,8 +24,9 @@ convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
     margs <- list(type = type, IC_floor = IC_floor, IC_ceiling = IC_ceiling) 
     if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
     if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
-    motif <- lapply(motif, function(x) do.call(convert_type,
-                                               c(list(motifs = x), margs)))
+    motif <- bplapply(motif, function(x) do.call(convert_type,
+                                                 c(list(motifs = x), 
+                                                   margs)))
     return(motif)
   }
 
@@ -74,6 +75,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
       motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
                            nsites = motif["nsites"])
       motif["type"] <- "PCM"
+      if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
     } else if (type == "PWM") {
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
                            background = bkg,
@@ -96,6 +98,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
                            background = bkg)
       motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
                            nsites = motif["nsites"])
+      if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
       motif["type"] <- "PCM"
     } else if (type == "PPM") {
       motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,

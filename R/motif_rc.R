@@ -14,7 +14,7 @@
 motif_rc <- function(motifs) {
 
   if (class(motifs) == "list") {
-    motifs <- lapply(motifs, motif_rc)
+    motifs <- bplapply(motifs, motif_rc)
     return(motifs)
   }
 

@@ -5,6 +5,13 @@
 #'
 #' @return NULL, invisibly.
 #'
+#' @examples
+#' \dontrun{
+#' transfac <- read_transfac(system.file("extdata", "transfac.txt",
+#'                                     package = "universalmotif"))
+#' write_jaspar(transfac, "motifs.jaspar")
+#' }
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_jaspar <- function(motifs, file) {
@@ -13,11 +20,18 @@ write_jaspar <- function(motifs, file) {
   motifs <- convert_type(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  lines_out <- vector()
-  for (i in seq_along(motifs)) {
+  .write_jaspar <- function(motifs) {
 
-    motif <- motifs[[i]]
-    lines_out <- c(lines_out, paste0(">", motif["name"], " ", motif["altname"]))
+    lines_out <- vector()
+
+    motif <- motifs
+    if (length(motif["altname"]) > 0) {
+      lines_out <- c(lines_out, paste0(">", motif["name"], " ",
+                                       motif["altname"]))
+    } else {
+      lines_out <- c(lines_out, paste0(">", motif["name"]))
+    }
+
     if (motif["alphabet"] == "DNA") {
       alph <- c("A", "C", "G", "T") 
     } else if (motif["alphabet"] == "RNA") {
@@ -28,11 +42,14 @@ write_jaspar <- function(motifs, file) {
               "W", "Y")
     } else stop("unknown alphabet")
 
-    if (motif["nsites"] > 9999) {
+    nsites <- motif["nsites"]
+    if (nsites > 99999) {
+      width <- 6
+    } else if (nsites > 9999) {
       width <- 5
-    } else if (motif["nsites"] > 999) {
+    } else if (nsites > 999) {
       width <- 4
-    } else if (motif["nsites"] > 99) {
+    } else if (nsites > 99) {
       width <- 3
     } else width <- 2
 
@@ -40,16 +57,19 @@ write_jaspar <- function(motifs, file) {
       p1 <- alph[j]
       p2 <- "["
       p3 <- as.numeric(motif["motif"][j, ])
-      p3 <- sapply(p3, function(x) formatC(x, width = width, format = "d"))
+      p3 <- vapply(p3, function(x) formatC(x, width = width, format = "d"),
+                   character(1))
       p3 <- paste(p3, collapse = " ")
       p4 <- "]"
       lines_out <- c(lines_out, paste(p1, p2, p3, p4))
-
     }
 
     lines_out <- c(lines_out, "")
 
   }
+
+  lines_out <- bplapply(motifs, .write_jaspar)
+  lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))
   close(con)

@@ -103,7 +103,7 @@ setMethod("create_motif", signature(consensus = "missing",
 #' @export
 setMethod("convert_motifs", signature(motifs = "list"),
           definition = function(motifs, class) {
-            lapply(motifs, function(x) convert_motifs(x, class = class))
+            bplapply(motifs, function(x) convert_motifs(x, class = class))
           })
 
 #' @describeIn convert_motifs Convert a universalmotif object.
@@ -266,7 +266,6 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
 
             # MotifDb-MotifList
             if (in_class_pkg == "MotifDb" && in_class == "MotifList") {
-              motifs_out <- list()
               motifdb_fun <- function(x) {
                 universalmotif(name = x@elementMetadata@listData$providerName,
                                altname = x@elementMetadata@listData$geneSymbol,
@@ -275,6 +274,7 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                motif = x@listData[[1]], alphabet = "DNA",
                                type = "PPM")
               }
+              motifs_out <- vector("list", length(motifs))
               for (i in seq_len(length(motifs))) {
                 motifs_out[[i]] <- motifdb_fun(motifs[i])
               }

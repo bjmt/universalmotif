@@ -17,6 +17,14 @@ NULL, invisibly.
 \description{
 Export motifs in JASPAR format.
 }
+\examples{
+\dontrun{
+transfac <- read_transfac(system.file("extdata", "transfac.txt",
+                                    package = "universalmotif"))
+write_jaspar(transfac, "motifs.jaspar")
+}
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
