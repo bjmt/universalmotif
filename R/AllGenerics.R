@@ -6,6 +6,15 @@
 #' @param alphabet Character.
 #' @param bkg Numeric.
 #' @param nsites Numeric.
+#' @param altname Character.
+#' @param family Character.
+#' @param organism Character.
+#' @param bkgsites Numeric.
+#' @param strand Character.
+#' @param pval Numeric.
+#' @param qval Numeric.
+#' @param eval Numeric.
+#' @param extrainfo Character.
 #'
 #' @return Motif object.
 #'
@@ -16,7 +25,9 @@
 #' @export
 setGeneric("create_motif", function(input,
                                     name = "motif", pseudoweight = 0.8,
-                                    alphabet, bkg, nsites)
+                                    alphabet, bkg, nsites, altname, family,
+                                    organism, bkgsites, strand, pval, qval,
+                                    eval, extrainfo)
            standardGeneric("create_motif"))
 
 #' Convert motif class.

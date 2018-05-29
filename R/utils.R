@@ -216,7 +216,6 @@ get_consensusAA <- function(motif, type, pseudoweight) {
   if (motif[8] >= 0.4 && motif[10] >= 0.4) return("J")
   if (all(motif == 0.05)) return("X")
   .aa <- order(motif, decreasing = TRUE)
-  print(motif[.aa[1]])
   if (motif[.aa[1]] == motif[.aa[2]]) return("X")
   AA_STANDARD[.aa[1]]
 }

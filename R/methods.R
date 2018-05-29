@@ -3,7 +3,8 @@
 #' @export
 setMethod("create_motif", signature(input = "character"),
           definition = function(input, name, pseudoweight, alphabet,
-                                bkg, nsites) {
+                                bkg, nsites, altname, family, organism,
+                                bkgsites, strand, pval, qval, eval) {
             if (missing(alphabet)) alphabet <- "missing"
             consensus <- input
             consensus.all <- vector()
@@ -28,13 +29,22 @@ setMethod("create_motif", signature(input = "character"),
                 alphabet <- "DNA"
                 motif <- vapply(consensus, consensus_to_ppm, numeric(4))
               } else if (length(consensus.all) == 0) {
-                stop("cannot create a motif using a single consensus string with an unknown alphabet")
+                stop("cannot create a motif using a single consensus string without an alphabet")
               }
             }
+            margs <- list(name = name, pseudoweight = pseudoweight)
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+            if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
+            if (!missing(altname)) margs <- c(margs, list(altname = altname))
+            if (!missing(family)) margs <- c(margs, list(family = family))
+            if (!missing(organism)) margs <- c(margs, list(organism = organism))
+            if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
+            if (!missing(strand)) margs <- c(margs, list(strand = strand))
+            if (!missing(pval)) margs <- c(margs, list(pval = pval))
+            if (!missing(qval)) margs <- c(margs, list(qval = qval))
+            if (!missing(eval)) margs <- c(margs, list(eval = eval))
+            if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
             if (length(consensus.all) > 0) {
-              margs <- list(name = name, pseudoweight = pseudoweight)
-              if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
-              if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
               if (alphabet == "DNA") {
                 consensus <- lapply(consensus.all, DNAString)
                 consensus <- DNAStringSet(consensus)
@@ -57,10 +67,9 @@ setMethod("create_motif", signature(input = "character"),
                                  list(alphabet = alphabet)))
               return(motif)
             }
-            motif <- universalmotif(name = name, motif = motif,
-                                    pseudoweight = pseudoweight,
-                                    alphabet = alphabet, bkg = bkg,
-                                    nsites = nsites)
+            motif <- do.call(universalmotif, c(list(motif = motif),
+                                               list(alphabet = alphabet),
+                                               margs))
             motif
           })
 
@@ -68,7 +77,9 @@ setMethod("create_motif", signature(input = "character"),
 #' @export
 setMethod("create_motif", signature(input = "matrix"),
           definition = function(input, name, pseudoweight,
-                                alphabet, bkg, nsites) {
+                                alphabet, bkg, nsites, 
+                                altname, family, organism,
+                                bkgsites, strand, pval, qval, eval) {
             matrix <- input
             if (missing(alphabet)) {
               if (all(rownames(matrix) %in% AA_STANDARD)) {
@@ -85,10 +96,20 @@ setMethod("create_motif", signature(input = "matrix"),
                 alphabet <- "custom"
               } else alphabet <- paste(rownames(matrix), collapse = "")
             }
-            motif <- universalmotif(name = name, motif = matrix,
-                                    pseudoweight = pseudoweight,
-                                    alphabet = alphabet, bkg = bkg,
-                                    nsites = nsites)
+            margs <- list(name = name, pseudoweight = pseudoweight)
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+            if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
+            if (!missing(altname)) margs <- c(margs, list(altname = altname))
+            if (!missing(family)) margs <- c(margs, list(family = family))
+            if (!missing(organism)) margs <- c(margs, list(organism = organism))
+            if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
+            if (!missing(strand)) margs <- c(margs, list(strand = strand))
+            if (!missing(pval)) margs <- c(margs, list(pval = pval))
+            if (!missing(qval)) margs <- c(margs, list(qval = qval))
+            if (!missing(eval)) margs <- c(margs, list(eval = eval))
+            if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
+            motif <- do.call(universalmotif, c(list(motif = matrix), margs,
+                                               list(alphabet = alphabet)))
             motif
           })
 
@@ -96,30 +117,42 @@ setMethod("create_motif", signature(input = "matrix"),
 #' @export
 setMethod("create_motif", signature(input = "XStringSet"),
           definition = function(input, name, pseudoweight, alphabet,
-                                bkg, nsites) {
+                                bkg, nsites,
+                                altname, family, organism,
+                                bkgsites, strand, pval, qval, eval) {
 
             sequences <- input
 
             if (length(unique(width(sequences))) != 1) {
               stop("all sequences must be the same width")
             }
+
+            margs <- list(name = name, pseudoweight = pseudoweight)
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+            if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
+            if (!missing(altname)) margs <- c(margs, list(altname = altname))
+            if (!missing(family)) margs <- c(margs, list(family = family))
+            if (!missing(organism)) margs <- c(margs, list(organism = organism))
+            if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
+            if (!missing(strand)) margs <- c(margs, list(strand = strand))
+            if (!missing(pval)) margs <- c(margs, list(pval = pval))
+            if (!missing(qval)) margs <- c(margs, list(qval = qval))
+            if (!missing(eval)) margs <- c(margs, list(eval = eval))
+            if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
+
             alph <- sequences@elementType
             if (alph == "DNAString") {
               sequences <- consensusMatrix(sequences, baseOnly = TRUE)
               if (sum(sequences[5, ]) > 0) stop("only ACGT are accepted for DNA")
-              motif <- universalmotif(name = name,
-                                      motif = sequences[1:4, ],
-                                      pseudoweight = pseudoweight,
-                                      alphabet = "DNA",
-                                      bkg = bkg, nsites = nsites)
+              motif <- do.call(universalmotif, c(list(motif = sequences[1:4, ]),
+                                                 margs,
+                                                 list(alphabet = "DNA")))
             } else if (alph == "RNAString") {
               sequences <- consensusMatrix(sequences, baseOnly = TRUE)
               if (sum(sequences[5, ]) > 0) stop("only ACGU are accepted for RNA")
-              motif <- universalmotif(name = name,
-                                      motif = sequences[1:4, ],
-                                      pseudoweight = pseudoweight,
-                                      alphabet = "RNA",
-                                      bkg = bkg, nsites = nsites)
+              motif <- do.call(universalmotif, c(list(motif = sequences[1:4, ]),
+                                                 margs,
+                                                 list(alphabet = "RNA")))
             } else if (alph == "AAString") {
               sequences <- consensusMatrix(sequences)
               motif <- vector("list", 20)
@@ -129,18 +162,14 @@ setMethod("create_motif", signature(input = "XStringSet"),
                 if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
               }
               motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
-              motif <- universalmotif(name = name,
-                                      motif = motif,
-                                      pseudoweight = pseudoweight,
-                                      alphabet = "AA",
-                                      bkg = bkg, nsites = nsites)
+              motif <- do.call(universalmotif, c(list(motif = motif),
+                                                 margs,
+                                                 list(alphabet = "AA")))
             } else if (alph == "custom" || missing(alphabet)) {
               sequences <- consensusMatrix(sequences)
-              motif <- universalmotif(name = name,
-                                      motif = sequences,
-                                      pseudoweight = pseudoweight,
-                                      alphabet = "custom",
-                                      bkg = bkg, nsites = nsites)
+              motif <- do.call(universalmotif, c(list(motif = sequences),
+                                                 margs,
+                                                 list(alphabet = "custom")))
             } else {
               sequences <- consensusMatrix(sequences)
               alph.split <- strsplit(alphabet, "")[[1]]
@@ -151,11 +180,9 @@ setMethod("create_motif", signature(input = "XStringSet"),
                 if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
               }
               motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
-              motif <- universalmotif(name = name,
-                                      motif = motif,
-                                      pseudoweight = pseudoweight,
-                                      alphabet = alphabet,
-                                      bkg = bkg, nsites = nsites)
+              motif <- do.call(universalmotif, c(list(motif = motif),
+                                                 margs,
+                                                 list(alphabet = alphabet)))
             }
 
             motif
