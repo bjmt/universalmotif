@@ -12,14 +12,17 @@ create_motif(input, name = "motif", pseudoweight = 0.8, alphabet, bkg,
   nsites, altname, family, organism, bkgsites, strand, pval, qval, eval,
   extrainfo)
 
-\S4method{create_motif}{character}(input, name, pseudoweight, alphabet, bkg,
-  nsites, altname, family, organism, bkgsites, strand, pval, qval, eval)
+\S4method{create_motif}{character}(input, name = "motif",
+  pseudoweight = 0.8, alphabet, bkg, nsites, altname, family, organism,
+  bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{matrix}(input, name, pseudoweight, alphabet, bkg,
-  nsites, altname, family, organism, bkgsites, strand, pval, qval, eval)
+\S4method{create_motif}{matrix}(input, name = "motif", pseudoweight = 0.8,
+  alphabet, bkg, nsites, altname, family, organism, bkgsites, strand, pval,
+  qval, eval, extrainfo)
 
-\S4method{create_motif}{XStringSet}(input, name, pseudoweight, alphabet, bkg,
-  nsites, altname, family, organism, bkgsites, strand, pval, qval, eval)
+\S4method{create_motif}{XStringSet}(input, name = "motif",
+  pseudoweight = 0.8, alphabet, bkg, nsites, altname, family, organism,
+  bkgsites, strand, pval, qval, eval, extrainfo)
 }
 \arguments{
 \item{input}{One of character vector, matrix, or XStringSet.}

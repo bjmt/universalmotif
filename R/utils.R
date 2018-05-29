@@ -13,10 +13,11 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   return(position)
 }
 
-pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
+pcm_to_ppm <- function(position, possum, pseudoweight = 0.8, bkg) {
   if (missing(possum)) possum <- sum(position)
+  num_letters <- length(position)
   pos <- vapply(position, function(x)
-                (x + (pseudoweight / 4)) / (possum + pseudoweight),
+                (x + (pseudoweight / num_letters)) / (possum + pseudoweight),
                 double(1))
   return(pos)
 }

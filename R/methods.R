@@ -4,7 +4,8 @@
 setMethod("create_motif", signature(input = "character"),
           definition = function(input, name, pseudoweight, alphabet,
                                 bkg, nsites, altname, family, organism,
-                                bkgsites, strand, pval, qval, eval) {
+                                bkgsites, strand, pval, qval, eval,
+                                extrainfo) {
             if (missing(alphabet)) alphabet <- "missing"
             consensus <- input
             consensus.all <- vector()
@@ -79,7 +80,8 @@ setMethod("create_motif", signature(input = "matrix"),
           definition = function(input, name, pseudoweight,
                                 alphabet, bkg, nsites, 
                                 altname, family, organism,
-                                bkgsites, strand, pval, qval, eval) {
+                                bkgsites, strand, pval, qval, eval,
+                                extrainfo) {
             matrix <- input
             if (missing(alphabet)) {
               if (all(rownames(matrix) %in% AA_STANDARD)) {
@@ -119,7 +121,8 @@ setMethod("create_motif", signature(input = "XStringSet"),
           definition = function(input, name, pseudoweight, alphabet,
                                 bkg, nsites,
                                 altname, family, organism,
-                                bkgsites, strand, pval, qval, eval) {
+                                bkgsites, strand, pval, qval, eval,
+                                extrainfo) {
 
             sequences <- input
 
@@ -259,9 +262,6 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # motifStack-pcm
             if (out_class_pkg == "motifStack" && out_class == "pcm") {
-              if (!requireNamespace("motifStack", quietly = TRUE)) {
-                stop("'motifStack' package not installed")
-              }
               pcm_class <- getClass("pcm", where = "motifStack")
               motifs <- convert_type(motifs, "PCM")
               motifs <- new(pcm_class, mat = motifs["motif"],
@@ -273,9 +273,6 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # motifStack-pfm
             if (out_class_pkg == "motifStack" && out_class == "pfm") {
-              if (!requireNamespace("motifStack", quietly = TRUE)) {
-                stop("'motifStack' package not installed")
-              }
               pfm_class <- getClass("pfm", where = "motifStack")
               motifs <- convert_type(motifs, "PPM")
               motifs <- new(pfm_class, mat = motifs["motif"],
@@ -309,9 +306,6 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # Biostrings-PWM
             if (out_class_pkg == "Biostrings" && out_class == "PWM") {
-              # if (!requireNamespace("Biostrings", quietly = TRUE)) {
-                # stop("'Biostrings' package not installed")
-              # }
               motifs <- convert_type(motifs, "PCM")
               bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
                                 nrow = 4)
