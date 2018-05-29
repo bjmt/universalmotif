@@ -25,7 +25,8 @@ create_motif(input, name = "motif", pseudoweight = 0.8, alphabet, bkg,
   bkgsites, strand, pval, qval, eval, extrainfo)
 }
 \arguments{
-\item{input}{One of character vector, matrix, or XStringSet.}
+\item{input}{One of character vector, matrix (PCM, PPM, or PWM), or 
+XStringSet.}
 
 \item{name}{Character.}
 

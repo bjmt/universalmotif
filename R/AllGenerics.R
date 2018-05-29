@@ -1,6 +1,7 @@
 #' Create a motif.
 #'
-#' @param input One of character vector, matrix, or XStringSet.
+#' @param input One of character vector, matrix (PCM, PPM, or PWM), or 
+#'              XStringSet.
 #' @param name Character.
 #' @param pseudoweight Numeric.
 #' @param alphabet Character.
@@ -19,7 +20,7 @@
 #' @return Motif object.
 #'
 #' @examples
-#' my.motifs <- create_motif("TATAA")
+#' my.motif <- create_motif("TATAA")
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

@@ -43,9 +43,3 @@ devtools::install_github("bjmt/universalmotif")
 
   - function documentation
   - vignette
-  - to check platform: run `.Platform` for a list of info
-      + for platform-specific code, have the following line:
-      + `stopifnot(.Platform$OS.type == "unix")`
-      + (the only other possibility is "windows")
-  - add `GRanges` objects and BED format compatibility (i.e. going straight
-    from these formats to MEME)
