@@ -111,10 +111,10 @@ setMethod("initialize", signature = "universalmotif",
             } 
 
             if (missing(type) || length(type) == 0 || is.na(type)) {
-              if (all(colSums(motif) >= 2)) type <- "PCM" else {
+              if (all(motif >= 1 || motif == 0)) type <- "PCM" else {
                 if (all(motif >= 0)) type <- "PPM" else {
                   type <- "PWM"
-                  message("assumed 'type' as being PWM")
+                  # message("assumed 'type' as being PWM")
                 }
               }
             }
