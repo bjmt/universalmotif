@@ -82,8 +82,8 @@ read_jaspar <- function(file, skip = 0, BPPARAM = bpparam()) {
                    motif = motif)
   }
 
-  motifs <- bpmapply(jaspar2umot, motifs, motif_names, SIMPLIFY = FALSE,
-                     BPPARAM = BPPARAM)
+  motifs <- bpmapply(jaspar2umot, motifs, motif_names, 
+                     SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   motifs
 

@@ -24,6 +24,7 @@ Imports: methods,
     stats,
     seqLogo,
     BiocParallel,
+    Rdpack (>= 0.7),
     Biostrings
 Suggests: knitr,
     BiocStyle,
@@ -32,9 +33,10 @@ Suggests: knitr,
     MotifDb,
     rGADEM,
     motifRG,
-    motifbreakeR,
+    motifbreakR,
     RcisTarget,
     motifcounter
+RdMacros: Rdpack
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
     MotifDiscovery,

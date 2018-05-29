@@ -72,7 +72,7 @@ Create a motif.
 }}
 
 \examples{
-my.motifs <- create_motif("TATAA")
+my.motif <- create_motif("TATAA")
 
 }
 \author{

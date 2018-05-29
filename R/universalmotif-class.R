@@ -133,7 +133,7 @@ setValidity("universalmotif",
             # PCM
             if (mat_type == "PCM") {
               mat_nsites <- object["nsites"]
-              if (max(mat_colsums) > 1.01 || min(mat_colsums) < 0.99) {
+              if (length(unique(mat_colsums)) > 1) {
                 valid <- FALSE
                 msg <- c(msg, "motif of type 'PCM' must have equal column sums")
               } else if (length(mat_nsites) > 0) {

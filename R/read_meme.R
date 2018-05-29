@@ -68,6 +68,7 @@ read_meme <- function(file, skip = 0, BPPARAM = bpparam()) {
 
   motif_list <- bpmapply(function(x, y, z) {
                           universalmotif(name = x,
+                                         type = "PPM",
                                          nsites = y[1],
                                          eval = y[2],
                                          bkg = bkg,

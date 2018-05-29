@@ -12,8 +12,8 @@
 #' @import ggtree
 #' @import BiocParallel
 #' @importFrom stats as.dist hclust
-#' @importFrom Biostrings width consensusMatrix DNAMultipleAlignment 
-#' @importFrom Biostrings RNAMultipleAlignment PWM DNAStringSet
+#' @importFrom Biostrings width consensusMatrix BString AAString 
+#' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET
 #' @importFrom ape as.phylo
@@ -21,4 +21,5 @@
 #' @importFrom motifStack plotMotifLogo
 #' @importFrom MotIV motifDistances makePWM readDBScores
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
+#' @importFrom Rdpack reprompt
 NULL
