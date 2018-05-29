@@ -1,24 +1,61 @@
 #' @describeIn create_motif Create motif from a consensus string.
 #' @include universalmotif-class.R
 #' @export
-setMethod("create_motif", signature(consensus = "character",
-                                    matrix = "missing",
-                                    sequences = "missing"),
-          definition = function(consensus, name, pseudoweight, alphabet,
+setMethod("create_motif", signature(input = "character"),
+          definition = function(input, name, pseudoweight, alphabet,
                                 bkg, nsites) {
+            if (missing(alphabet)) alphabet <- "missing"
+            consensus <- input
+            consensus.all <- vector()
+            if (length(consensus) > 1) {
+              consensus.all <- consensus
+              consensus <- consensus[1]
+            }
             consensus <- strsplit(consensus, split = "")[[1]]
-            if (missing(alphabet)) {
-              if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z"))) {
+            if (alphabet == "missing") {
+              if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z")) &&
+                  !any(consensus %in% c("O", "U"))) {
                 motif <- vapply(consensus, consensus_to_ppmAA, numeric(20))
                 alphabet <- "AA"
-              } else {
+              } else if (any(consensus == "U") &&
+                         !any(consensus %in% c("E", "F", "I", "J", "L", "O",
+                                               "P", "Q", "T", "X", "Z"))) {
+                alphabet <- "RNA" 
                 motif <- vapply(consensus, consensus_to_ppm, numeric(4))
-                if (any(consensus == "U")) {
-                  alphabet <- "RNA" 
-                } else if (any(consensus %in% c("A", "C", "G", "T"))){
-                  alphabet <- "DNA"
+              } else if (any(consensus %in% DNA_ALPHABET[-c(16:18)]) &&
+                         !any(consensus %in% c("E", "F", "I", "J", "L", "O",
+                                               "P", "Q", "X", "Z", "U"))) {
+                alphabet <- "DNA"
+                motif <- vapply(consensus, consensus_to_ppm, numeric(4))
+              } else if (length(consensus.all) == 0) {
+                stop("cannot create a motif using a single consensus string with an unknown alphabet")
+              }
+            }
+            if (length(consensus.all) > 0) {
+              margs <- list(name = name, pseudoweight = pseudoweight)
+              if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+              if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
+              if (alphabet == "DNA") {
+                consensus <- lapply(consensus.all, DNAString)
+                consensus <- DNAStringSet(consensus)
+              } else if (alphabet == "RNA") {
+                consensus <- lapply(consensus.all, RNAString)
+                consensus <- RNAStringSet(consensus)
+              } else if (alphabet == "AA") {
+                consensus <- lapply(consensus.all, AAString)
+                consensus <- AAStringSet(consensus)
+              } else {
+                consensus <- lapply(consensus.all, BString)
+                consensus <- BStringSet(consensus)
+                if (alphabet == "missing") {
+                  alphabet <- paste(rownames(consensusMatrix(consensus)),
+                                    collapse = "")
                 }
               }
+              motif <- do.call(create_motif,
+                               c(list(input = consensus), margs,
+                                 list(alphabet = alphabet)))
+              return(motif)
             }
             motif <- universalmotif(name = name, motif = motif,
                                     pseudoweight = pseudoweight,
@@ -29,25 +66,24 @@ setMethod("create_motif", signature(consensus = "character",
 
 #' @describeIn create_motif Create motif from a matrix.
 #' @export
-setMethod("create_motif", signature(consensus = "missing",
-                                    matrix = "matrix",
-                                    sequences = "missing"),
-          definition = function(matrix, name, pseudoweight,
+setMethod("create_motif", signature(input = "matrix"),
+          definition = function(input, name, pseudoweight,
                                 alphabet, bkg, nsites) {
+            matrix <- input
             if (missing(alphabet)) {
-              if (all(rownames(matrix) %in% c("A", "C", "D", "E", "F", "G", "H",
-                                              "I", "K", "L", "M", "N", "P", "Q",
-                                              "R", "S", "T", "V", "W", "Y"))) {
+              if (all(rownames(matrix) %in% AA_STANDARD)) {
                 alphabet <- "AA"
-              } else if (all(rownames(matrix) %in% c("A", "C", "G", "T"))) {
+              } else if (all(rownames(matrix) %in% DNA_BASES)) {
                 alphabet  <- "DNA"
-              } else if (all(rownames(matrix) %in% c("A", "C", "G", "U"))) {
+              } else if (all(rownames(matrix) %in% RNA_BASES)) {
                 alphabet <- "RNA"
               } else if (nrow(matrix) == 20) {
                 alphabet <- "AA" 
               } else if (nrow(matrix == 4)) {
                 alphabet <- "DNA" 
-              } else alphabet <- "custom"
+              } else if (is.null(rownames(matrix))) {
+                alphabet <- "custom"
+              } else alphabet <- paste(rownames(matrix), collapse = "")
             }
             motif <- universalmotif(name = name, motif = matrix,
                                     pseudoweight = pseudoweight,
@@ -58,41 +94,68 @@ setMethod("create_motif", signature(consensus = "missing",
 
 #' @describeIn create_motif Create motif from an XStringSet object.
 #' @export
-setMethod("create_motif", signature(consensus = "missing",
-                                    matrix = "missing",
-                                    sequences = "XStringSet"),
-          definition = function(sequences, name, pseudoweight, alphabet,
+setMethod("create_motif", signature(input = "XStringSet"),
+          definition = function(input, name, pseudoweight, alphabet,
                                 bkg, nsites) {
+
+            sequences <- input
 
             if (length(unique(width(sequences))) != 1) {
               stop("all sequences must be the same width")
             }
-            alphabet <- sequences@elementType
-            if (alphabet == "DNAString") {
-              sequences <- DNAMultipleAlignment(sequences)
-              sequences <- consensusMatrix(sequences)
+            alph <- sequences@elementType
+            if (alph == "DNAString") {
+              sequences <- consensusMatrix(sequences, baseOnly = TRUE)
+              if (sum(sequences[5, ]) > 0) stop("only ACGT are accepted for DNA")
               motif <- universalmotif(name = name,
                                       motif = sequences[1:4, ],
                                       pseudoweight = pseudoweight,
                                       alphabet = "DNA",
                                       bkg = bkg, nsites = nsites)
-            } else if (alphabet == "RNAString") {
-              sequences <- RNAMultipleAlignment(sequences)
-              sequences <- consensusMatrix(sequences)
+            } else if (alph == "RNAString") {
+              sequences <- consensusMatrix(sequences, baseOnly = TRUE)
+              if (sum(sequences[5, ]) > 0) stop("only ACGU are accepted for RNA")
               motif <- universalmotif(name = name,
                                       motif = sequences[1:4, ],
                                       pseudoweight = pseudoweight,
                                       alphabet = "RNA",
                                       bkg = bkg, nsites = nsites)
-            } else if (alphabet == "AAString") {
-              stop("cannot handle AAString")
-              # sequences <- AAMultipleAlignment(sequences)
-              # sequences <- consensusMatrix(sequences)
-              # motif <- universalmotif(name = name,
-                                      # motif = sequences[1:20, ],
-                                      # pseudoweight = pseudoweight,
-                                      # alphabet = "AA",
-                                      # bkg = bkg, nsites = nsites)
+            } else if (alph == "AAString") {
+              sequences <- consensusMatrix(sequences)
+              motif <- vector("list", 20)
+              mot_len <- ncol(sequences)
+              for (i in AA_STANDARD) {
+                motif[[i]] <- sequences[rownames(sequences) == i, ]
+                if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
+              }
+              motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
+              motif <- universalmotif(name = name,
+                                      motif = motif,
+                                      pseudoweight = pseudoweight,
+                                      alphabet = "AA",
+                                      bkg = bkg, nsites = nsites)
+            } else if (alph == "custom" || missing(alphabet)) {
+              sequences <- consensusMatrix(sequences)
+              motif <- universalmotif(name = name,
+                                      motif = sequences,
+                                      pseudoweight = pseudoweight,
+                                      alphabet = "custom",
+                                      bkg = bkg, nsites = nsites)
+            } else {
+              sequences <- consensusMatrix(sequences)
+              alph.split <- strsplit(alphabet, "")[[1]]
+              motif <- vector("list", length(alph.split))
+              mot_len <- ncol(sequences)
+              for (i in alph.split) {
+                motif[[i]] <- sequences[rownames(sequences) == i, ]
+                if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
+              }
+              motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
+              motif <- universalmotif(name = name,
+                                      motif = motif,
+                                      pseudoweight = pseudoweight,
+                                      alphabet = alphabet,
+                                      bkg = bkg, nsites = nsites)
             }
 
             motif
@@ -131,7 +194,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
             if (out_class_pkg == "TFBSTools") {
               motifs <- convert_type(motifs, "PCM")
               bkg <- motifs["bkg"]
-              names(bkg) <- c("A", "C", "G", "T")
+              names(bkg) <- DNA_BASES
               if (length(motifs["altname"]) == 0) {
                 motifs["altname"] <- ""
               }
@@ -204,9 +267,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               PWM_class <- getClass("PWM", where = "PWMEnrich")
               bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
                                 nrow = 4)
-              rownames(bio_mat) <- c("A", "C", "G", "T")
+              rownames(bio_mat) <- DNA_BASES
               bio_priors <- motifs["bkg"]
-              names(bio_priors) <- c("A", "C", "G", "T")
+              names(bio_priors) <- DNA_BASES
               bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
                                              prior.params = bio_priors,
                                              pseudo.count = motifs["pseudoweight"])
@@ -225,9 +288,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               motifs <- convert_type(motifs, "PCM")
               bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
                                 nrow = 4)
-              rownames(bio_mat) <- c("A", "C", "G", "T")
+              rownames(bio_mat) <- DNA_BASES
               bio_priors <- motifs["bkg"]
-              names(bio_priors) <- c("A", "C", "G", "T")
+              names(bio_priors) <- DNA_BASES
               motifs <- PWM(x = bio_mat, type = "log2probratio",
                             prior.params = bio_priors)
               return(motifs)
@@ -267,7 +330,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
 
             # MotifDb-MotifList
             if (in_class_pkg == "MotifDb" && in_class == "MotifList") {
-              motifdb_fun <- function(x) {
+              motifdb_fun <- function(i) {
+                x <- motifs[i]
                 universalmotif(name = x@elementMetadata@listData$providerName,
                                altname = x@elementMetadata@listData$geneSymbol,
                                family = x@elementMetadata@listData$tfFamily,
@@ -276,16 +340,15 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                type = "PPM")
               }
               motifs_out <- vector("list", length(motifs))
-              for (i in seq_len(length(motifs))) {
-                motifs_out[[i]] <- motifdb_fun(motifs[i])
-              }
+              motifs_out <- bplapply(seq_len(length(motifs)), motifdb_fun,
+                                     BPPARAM = BPPARAM)
               motifs <- motifs_out
               success <- TRUE
             }
 
             # TFBSTools-PFMatrix
             if (in_class_pkg == "TFBSTools" && in_class == "PFMatrix") {
-              if (all(names(motifs@bg) %in% c("A", "C", "G", "T"))) {
+              if (all(names(motifs@bg) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet  <- "RNA"
               motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
@@ -301,7 +364,7 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
 
             # TFBSTools-PWMatrix
             if (in_class_pkg == "TFBSTools" && in_class == "PWMatrix") {
-              if (all(names(motifs@bg) %in% c("A", "C", "G", "T"))) {
+              if (all(names(motifs@bg) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet  <- "RNA"
               motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
@@ -317,7 +380,7 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
 
             # TFBSTools-ICMatrix
             if (in_class_pkg == "TFBSTools" && in_class == "ICMatrix") {
-              if (all(names(motifs@bg) %in% c("A", "C", "G", "T"))) {
+              if (all(names(motifs@bg) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet  <- "RNA"
               motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
@@ -336,12 +399,14 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                                               "PWMatrixList",
                                                               "ICMatrixList")) {
               motif_num <- length(motifs@listData)
-              motifs_out <- list()
-              motif_names <- vector(length = motif_num)
-              for (i in seq_len(motif_num)) {
-                motifs_out[[i]] <- motifs@listData[[i]]
-                motif_names[i] <- motifs@listData[[i]]@name
-              }
+              motifs_out <- bplapply(seq_len(motif_num),
+                                     function(i) {
+                                       motifs@listData[[i]]
+                                     }, BPPARAM = BPPARAM)
+              motif_names <- unlist(bplapply(seq_len(motif_num),
+                                             function(i) {
+                                              motifs@listData[[i]]@name
+                                             }, BPPARAM = BPPARAM))
               names(motifs_out) <- motif_names
               motifs <- convert_motifs(motifs_out, class = "universalmotif")
               success <- TRUE
@@ -374,7 +439,7 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
 
             # PWMEnrich-PWM
             if (in_class_pkg == "PWMEnrich" && in_class == "PWM") {
-              if (all(names(motifs@pwm) %in% c("A", "C", "G", "T"))) {
+              if (all(names(motifs@pwm) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet <- "RNA"
               motifs <- universalmotif(name = motifs@name, motif = motifs@pwm,
@@ -393,7 +458,7 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        extrainfo = c(score = motifs@score),
                                strand = paste(unique(motifs@match$match.strand),
                                               collapse = ""),
-          motif = create_motif(sequences = DNAStringSet(motifs@match$pattern)))
+          motif = create_motif(input = DNAStringSet(motifs@match$pattern)))
               success <- TRUE
             }
 

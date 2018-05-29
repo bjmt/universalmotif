@@ -95,22 +95,23 @@ get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
   }
 
   if (type == "ICM") {
-    stop("get_consensus cannot handle ICM type")
+    warning("get_consensus cannot handle ICM type")
+    return(character(0))
   }
 
   if (type == "PPM") {
 
-    if (alphabet == "DNA") names(pos) <- c("A", "C", "G", "T")
-    if (alphabet == "RNA") names(pos) <- c("A", "C", "G", "U")
+    if (alphabet == "DNA") names(pos) <- DNA_BASES
+    if (alphabet == "RNA") names(pos) <- DNA_BASES
 
     # single letter consensus:
 
     if (pos[1] > 0.5 && pos[1] > sort(pos)[3] * 2) return("A")
     if (pos[2] > 0.5 && pos[2] > sort(pos)[3] * 2) return("C")
     if (pos[3] > 0.5 && pos[3] > sort(pos)[3] * 2) return("G")
-    if (pos[4] > 0.5 && pos[4] > sort(pos)[3] * 2) ifelse(alphabet == "DNA",
-                                                          return("T"),
-                                                          return("U"))
+    if (pos[4] > 0.5 && pos[4] > sort(pos)[3] * 2) {
+      ifelse(alphabet == "DNA", return("T"), return("U"))
+    }
 
     # two letter consensus:
 
@@ -192,20 +193,32 @@ consensus_to_ppmAA <- function(letter) {
                               rep(0.001, 6)))
   if (letter == "J") return(c(rep(0.001, 7), 0.491, 0.001, 0.491,
                               rep(0.001, 10)))
-  AAs <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N",
-           "P", "Q", "R", "S", "T", "V", "W", "Y")
-  i <- which(AAs == letter)
+  i <- which(AA_STANDARD == letter)
   c(rep(0.001, i - 1), 0.981, rep(0.001, 20 - i))
 }
 
-get_consensusAA <- function(motif) {
+get_consensusAA <- function(motif, type, pseudoweight) {
+  if (type == "PCM") {
+    possum <- sum(motif)
+    motif <- pcm_to_ppm(motif, possum, pseudoweight)
+    type <- "PPM"
+  }
+  if (type == "PWM") {
+    motif <- pwm_to_ppm(motif)
+    type <- "PPM"
+  }
+  if (type == "ICM") {
+    warning("get_consensusAA cannot handle ICM type")
+    return(character(0))
+  }
   if (motif[3] >= 0.4 && motif[12] >= 0.4) return("B")
   if (motif[4] >= 0.4 && motif[14] >= 0.4) return("Z")
   if (motif[8] >= 0.4 && motif[10] >= 0.4) return("J")
   if (all(motif == 0.05)) return("X")
-  AAs <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P",
-           "Q", "R", "S", "T", "V", "W", "Y")
-  AAs[order(motif, decreasing = TRUE)[1]]
+  .aa <- order(motif, decreasing = TRUE)
+  print(motif[.aa[1]])
+  if (motif[.aa[1]] == motif[.aa[2]]) return("X")
+  AA_STANDARD[.aa[1]]
 }
 
 .internal_convert <- function(motifs, class = NULL) {

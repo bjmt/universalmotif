@@ -77,15 +77,15 @@ setValidity("universalmotif",
             
             ## character slot specific checks
 
-            alphabets <- c("DNA", "RNA", "AA", "custom")
+            # alphabets <- c("DNA", "RNA", "AA", "custom")
             types <- c("PCM", "PPM", "PWM", "ICM")
             strands <- c("+", "-", "+-", "-+")
 
-            if (!object["alphabet"] %in% alphabets) {
-              valid <- FALSE
-              msg <- c(msg,
-                       "motif 'alphabet' must be either 'DNA', 'RNA', 'AA', or 'custom'")
-            }
+            # if (!object["alphabet"] %in% alphabets) {
+              # valid <- FALSE
+              # msg <- c(msg,
+                       # "motif 'alphabet' must be either 'DNA', 'RNA', 'AA', or 'custom'")
+            # }
 
             if (!object["type"] %in% types) {
               valid <- FALSE
@@ -169,6 +169,11 @@ setValidity("universalmotif",
                 valid <- FALSE
                 msg <- c(msg,
                          "motif with 'alphabet' of type 'AA' can only have 20 rows")
+              }
+            } else if (alph != "custom") {
+              if (nrow(mat) != length(strsplit(alph, "")[[1]])) {
+                valid <- FALSE
+                msg <- c(msg, paste0("motif with alphabet '", "' has an incorrect number of rows"))
               }
             }
 

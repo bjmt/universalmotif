@@ -100,14 +100,15 @@ setMethod("initialize", signature = "universalmotif",
             }
 
             if (alphabet == "DNA") {
-              rownames(.Object@motif) <- c("A", "C", "G", "T")
+              rownames(.Object@motif) <- DNA_BASES
             } else if (alphabet == "RNA") {
-              rownames(.Object@motif)  <- c("A", "C", "G", "U")
+              rownames(.Object@motif)  <- RNA_BASES
             } else if (alphabet == "AA") {
-              rownames(.Object@motif) <- c("A", "C", "D", "E", "F", "G",
-                                          "H", "I", "K", "L", "M", "N", "P",
-                                          "Q", "R", "S", "T", "V", "W", "Y")
-            }
+              rownames(.Object@motif) <- AA_STANDARD
+            } else if (length(strsplit(alphabet, "")[[1]]) == nrow(motif) &&
+                       alphabet != "custom") {
+              rownames(.Object@motif) <- strsplit(alphabet, "")[[1]]
+            } 
 
             if (missing(type) || length(type) == 0 || is.na(type)) {
               if (all(colSums(motif) >= 2)) type <- "PCM" else {
@@ -131,8 +132,8 @@ setMethod("initialize", signature = "universalmotif",
                 bkg <- rep(0.25, 4)
               } else if (alphabet == "AA") {
                 bkg <- rep(0.05, 20)
-              } else if (alphabet == "custom") {
-                stop("motif 'bkg' required for 'custom' alphabet")
+              } else {
+                bkg <- rep(1 / nrow(motif), nrow(motif))
               }
             }
             .Object@bkg <- bkg
@@ -156,15 +157,12 @@ setMethod("initialize", signature = "universalmotif",
             if (missing(consensus) || length(consensus) == 0 ||
               is.na(consensus)) {
               if (.Object@alphabet %in% c("DNA", "RNA")) {
-                # consensus <- consensusString(.Object@motif, threshold = 0.25,
-                                             # ambiguityMap = IUPAC_CODE_MAP)
-                # .Object@consensus <- consensus
-                # consensus <- strsplit(consensus, "")[[1]]
                 consensus <- apply(motif, 2, get_consensus, alphabet = alphabet,
                                    type = type, pseudoweight = pseudoweight)
                 .Object@consensus <- paste(consensus, collapse = "")
               } else if (.Object@alphabet == "AA") {
-                consensus <- apply(motif, 2, get_consensusAA)
+                consensus <- apply(motif, 2, get_consensusAA, type = type,
+                                   pseudoweight = pseudoweight)
                 .Object@consensus <- consensus
               } else .Object@consensus <- character(0)
             }
@@ -216,10 +214,13 @@ setMethod("show", signature = "universalmotif",
             if (length(object@organism)) {
               cat("         Organism:   ", object@organism, "\n", sep = "")
             }
+            cat("         Alphabet:   ", object@alphabet, "\n", sep = "")
             cat("             Type:   ", object@type, "\n", sep = "")
             cat("          Strands:   ", object@strand, "\n", sep = "")
             cat("         Total IC:   ", object@icscore, "\n", sep = "")
-            cat("        Consensus:   ", object@consensus, "\n", sep = "")
+            if (length(object@consensus) > 0) {
+              cat("        Consensus:   ", object@consensus, "\n", sep = "")
+            }
             if (length(object@nsites) > 0) {
               cat("     Target sites:   ", object@nsites, "\n", sep = "")
             }

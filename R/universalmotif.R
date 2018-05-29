@@ -7,7 +7,6 @@
 #' @name universalmotif-pkg
 #'
 #' @import methods
-#' @import foreach
 #' @import ggplot2
 #' @import ggseqlogo
 #' @import ggtree
@@ -15,9 +14,11 @@
 #' @importFrom stats as.dist hclust
 #' @importFrom Biostrings width consensusMatrix DNAMultipleAlignment 
 #' @importFrom Biostrings RNAMultipleAlignment PWM DNAStringSet
+#' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
+#' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
 #' @importFrom motifStack plotMotifLogo
-#' @importFrom MotIV motifDistances makePWM readPWMfile readDBScores
+#' @importFrom MotIV motifDistances makePWM readDBScores
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
 NULL

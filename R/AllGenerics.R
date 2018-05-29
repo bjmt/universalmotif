@@ -1,8 +1,6 @@
 #' Create a motif.
 #'
-#' @param consensus Character. Consensus string.
-#' @param matrix Matrix.
-#' @param sequences XStringSet.
+#' @param input One of character vector, matrix, or XStringSet.
 #' @param name Character.
 #' @param pseudoweight Numeric.
 #' @param alphabet Character.
@@ -16,7 +14,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-setGeneric("create_motif", function(consensus, matrix, sequences,
+setGeneric("create_motif", function(input,
                                     name = "motif", pseudoweight = 0.8,
                                     alphabet, bkg, nsites)
            standardGeneric("create_motif"))

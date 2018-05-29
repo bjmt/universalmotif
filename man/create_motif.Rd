@@ -3,29 +3,25 @@
 \docType{methods}
 \name{create_motif}
 \alias{create_motif}
-\alias{create_motif,character,missing,missing-method}
-\alias{create_motif,missing,matrix,missing-method}
-\alias{create_motif,missing,missing,XStringSet-method}
+\alias{create_motif,character-method}
+\alias{create_motif,matrix-method}
+\alias{create_motif,XStringSet-method}
 \title{Create a motif.}
 \usage{
-create_motif(consensus, matrix, sequences, name = "motif",
+create_motif(input, name = "motif", pseudoweight = 0.8, alphabet, bkg,
+  nsites)
+
+\S4method{create_motif}{character}(input, name = "motif",
   pseudoweight = 0.8, alphabet, bkg, nsites)
 
-\S4method{create_motif}{character,missing,missing}(consensus, name,
-  pseudoweight, alphabet, bkg, nsites)
-
-\S4method{create_motif}{missing,matrix,missing}(matrix, name, pseudoweight,
+\S4method{create_motif}{matrix}(input, name = "motif", pseudoweight = 0.8,
   alphabet, bkg, nsites)
 
-\S4method{create_motif}{missing,missing,XStringSet}(sequences, name,
-  pseudoweight, alphabet, bkg, nsites)
+\S4method{create_motif}{XStringSet}(input, name = "motif",
+  pseudoweight = 0.8, alphabet, bkg, nsites)
 }
 \arguments{
-\item{consensus}{Character. Consensus string.}
-
-\item{matrix}{Matrix.}
-
-\item{sequences}{XStringSet.}
+\item{input}{One of character vector, matrix, or XStringSet.}
 
 \item{name}{Character.}
 
@@ -45,11 +41,11 @@ Create a motif.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{consensus = character,matrix = missing,sequences = missing}: Create motif from a consensus string.
+\item \code{character}: Create motif from a consensus string.
 
-\item \code{consensus = missing,matrix = matrix,sequences = missing}: Create motif from a matrix.
+\item \code{matrix}: Create motif from a matrix.
 
-\item \code{consensus = missing,matrix = missing,sequences = XStringSet}: Create motif from an XStringSet object.
+\item \code{XStringSet}: Create motif from an XStringSet object.
 }}
 
 \examples{
