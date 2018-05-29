@@ -14,6 +14,13 @@ setMethod("create_motif", signature(input = "character"),
               consensus <- consensus[1]
             }
             consensus <- strsplit(consensus, split = "")[[1]]
+            if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 0) {
+              motif <- vapply(consensus, consensus_to_ppm, numeric(4))
+            } else if (alphabet == "AA" && length(consensus.all) == 0) {
+              motif <- vapply(consensus, consensus_to_ppmAA, numeric(20))
+            } else if (!missing(alphabet)) {
+              motif <- consensusMatrix(paste(consensus, collapse = ""))
+            }
             if (alphabet == "missing") {
               if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z")) &&
                   !any(consensus %in% c("O", "U"))) {
