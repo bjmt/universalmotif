@@ -53,6 +53,15 @@ setMethod("create_motif", signature(input = "character"),
                 stop("cannot create a motif using a single consensus string without an alphabet")
               }
             }
+            if (alphabet == "AA") {
+              motif2 <- vector("list", 20)
+              mot_len <- ncol(motif)
+              for (i in AA_STANDARD) {
+                motif2[[i]] <- motif[rownames(motif) == i, ]
+                if (length(motif2[[i]]) == 0) motif2[[i]] <- rep(0, mot_len)
+              }
+              motif <- matrix(unlist(motif2), ncol = mot_len, byrow = TRUE)
+            }
             margs <- list(name = name, pseudoweight = pseudoweight)
             if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) {
