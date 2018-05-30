@@ -248,3 +248,7 @@ get_consensusAA <- function(motif, type, pseudoweight) {
   }
   
 }
+
+ppm_to_letter <- function(position, alphabet) {
+  
+}

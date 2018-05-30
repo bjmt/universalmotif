@@ -22,6 +22,7 @@ Imports: methods,
     ggtree,
     motifStack,
     stats,
+    msa,
     seqLogo,
     BiocParallel,
     Rdpack (>= 0.7),
@@ -47,6 +48,7 @@ Collate:
     'AllGenerics.R'
     'convert_type.R'
     'filter_motifs.R'
+    'merge_motifs.R'
     'universalmotif-class.R'
     'methods.R'
     'motif_dist.R'

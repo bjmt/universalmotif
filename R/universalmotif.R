@@ -11,11 +11,12 @@
 #' @import ggseqlogo
 #' @import ggtree
 #' @import BiocParallel
+#' @import msa
 #' @importFrom stats as.dist hclust
 #' @importFrom Biostrings width consensusMatrix BString AAString 
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
-#' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET
+#' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
 #' @importFrom motifStack plotMotifLogo

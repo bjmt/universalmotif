@@ -152,6 +152,15 @@ DNA.motif <- create_motif(mat)
 rownames(mat) <- c("Q", "W", "E", "R")
 custom.motif <- create_motif(mat)
 
+# PPM type matrices can also be used as input
+mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
+                    0.5, 0.5, 0.5, 0.5,
+                    0.1, 0.1, 0.1, 0.1,
+                    0.3, 0.3, 0.3, 0.3),
+                    nrow = 4, byrow = TRUE)
+
+DNA.motif <- create_motif(mat.ppm, alphabet = "DNA", type = "PPM")
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
