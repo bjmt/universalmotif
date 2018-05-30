@@ -1,12 +1,12 @@
 ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
                        IC_floor = FALSE, IC_ceiling = FALSE) {
-  # NOTE: different background frequencies can result in IC higher than 2!
+  # NOTE: strange things start to happen with different background frequencies!
   if (is.null(bkg) || missing(bkg)) {
     bkg <- rep(1 / length(position), length(position))
   }
   for (i in seq_along(position)) {
     position[i] <- position[i] * log2(position[i] / bkg[i])
-    if (is.na(position[i])) position[i] <- -0.008
+    if (is.na(position[i])) position[i] <- 0
     if (IC_floor && position[i] < 0) position[i] <- 0
     if (IC_ceiling && position[i] > 2) position[i] <- 2
   }
@@ -78,8 +78,11 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   }
 
   ic <- vector(length = length(motif))
+  
   for (i in seq_along(motif)) {
-    ic[i] <- motif[i] * log2(motif[i] / bkg[i])
+    if (motif[i] == 0) ic[i] <- 0 else {
+      ic[i] <- motif[i] * log2(motif[i] / bkg[i])
+    }
   }
 
   sum(ic)

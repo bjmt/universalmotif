@@ -21,15 +21,62 @@
 #' @return Motif object.
 #'
 #' @examples
-#' ## create motifs from a single string
-#' DNA.motif <- create_motif("TATAAWW")
+#' ##### create motifs from a single string
+#'
+#' # motif is initially generated as a PCM; change final type with 'type'
+#' DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudoweight = 0)
+#'
+#' # nsites will be set to the number of input sequences unless specified 
+#' DNA.motif <- create_motif("TATAWAW", nsites = 20)
 #' RNA.motif <- create_motif("UUUCCG")
+#' 
+#' # 'create_motif' will try to detect the alphabet type; this can be 
+#' # unreliable for AA and custom alphabets
 #' AA.motif <- create_motif("AVLK", alphabet = "AA")
+#' 
 #' custom.motif <- create_motif("QWER", alphabet = "custom")
+#' # specify custom alphabet
 #' custom.motif <- create_motif("QWER", alphabet = "QWERASDF")
 #'
-#' ## create motifs from multiple strings of equal length
+#' ###### create motifs from multiple strings of equal length
+#'
+#' DNA.motif <- create_motif(c("TTTT", "AAAA", "AACC", "TTGG"), type = "PPM")
+#' DNA.motif <- create_motif(c("TTTT", "AAAA", "AACC", "TTGG"), nsites = 20)
+#' RNA.motif <- create_motif(c("UUUU", "AAAA", "AACC", "UUGG"), type = "PWM")
+#' AA.motif <- create_motif(c("ARNDCQ", "EGHILK", "ARNDCQ"), alphabet = "AA")
+#' custom.motif <- create_motif(c("POIU", "LKJH", "POIU", "CVBN"),
+#'                              alphabet = "custom")
+#'
+#' ##### create motifs from XStringSet objects
 #' 
+#' DNA.set <- DNAStringSet(c("TTTT", "AAAA", "AACC", "TTGG"))
+#' DNA.motif <- create_motif(DNA.set)
+#' RNA.set <- RNAStringSet(c("UUUU", "AACC", "UUCC"))
+#' RNA.motif <- create_motif(RNA.set)
+#' AA.set <- AAStringSet(c("VVVLLL", "AAAIII"))
+#' AA.motif <- create_motif(AA.set)
+#' 
+#' # custom motifs can be created from BStringSet objects
+#' B.set <- BStringSet(c("QWER", "ASDF", "ZXCV", "TYUI"))
+#' custom.motif <- create_motif(B.set)
+#'
+#' ##### create motifs from matrices
+#'
+#' mat <- matrix(c(1, 1, 1, 1,
+#'                 2, 0, 2, 0,
+#'                 0, 2, 0, 2,
+#'                 0, 0, 0, 0),
+#'                 nrow = 4, byrow = TRUE)
+#' DNA.motif <- create_motif(mat, alphabet = "DNA")
+#' RNA.motif <- create_motif(mat, alphabet = "RNA", nsites = 20)
+#' custom.motif <- create_motif(mat)
+#'
+#' # specify custom alphabet
+#' custom.motif <- create_motif(mat, alphabet = "QWER")
+#'
+#' # alphabet can be detected from rownames
+#' rownames(mat) <- DNA_BASES
+#' DNA.motif <- create_motif(mat)
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
