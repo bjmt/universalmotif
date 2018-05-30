@@ -16,9 +16,13 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
 pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
   if (missing(possum)) possum <- sum(position)
   num_letters <- length(position)
-  pos <- vapply(position, function(x)
-                (x + (pseudoweight / num_letters)) / (possum + pseudoweight),
-                double(1))
+  if (pseudoweight != 0) {
+    pos <- vapply(position, function(x)
+                  (x + (pseudoweight / num_letters)) / (possum + pseudoweight),
+                  double(1))
+  } else {
+    pos <- vapply(position, function(x) x / possum, double(1))
+  }
   return(pos)
 }
 
@@ -57,6 +61,9 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
                              pseudoweight = 0.8, nsites = 100) {
 
   if (length(nsites) == 0) nsites <- 100
+  if (length(motif) != length(bkg)) {
+    bkg <- rep(1 / length(motif), length(motif))
+  }
 
   if (type == "PCM") {
       possum <- sum(motif)
@@ -70,12 +77,12 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
     motif <- pcm_to_ppm(position = motif, pseudoweight = pseudoweight)
   }
 
-  ic1 <- motif[1] * log2(motif[1] / bkg[1])
-  ic2 <- motif[2] * log2(motif[2] / bkg[2])
-  ic3 <- motif[3] * log2(motif[3] / bkg[3])
-  ic4 <- motif[4] * log2(motif[4] / bkg[4])
+  ic <- vector(length = length(motif))
+  for (i in seq_along(motif)) {
+    ic[i] <- motif[i] * log2(motif[i] / bkg[i])
+  }
 
-  sum(ic1, ic2, ic3, ic4)
+  sum(ic)
 
 }
 

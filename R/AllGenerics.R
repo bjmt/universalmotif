@@ -2,9 +2,10 @@
 #'
 #' @param input One of character vector, matrix (PCM, PPM, or PWM), or 
 #'              XStringSet.
+#' @param alphabet Character.
+#' @param type Character.
 #' @param name Character.
 #' @param pseudoweight Numeric.
-#' @param alphabet Character.
 #' @param bkg Numeric.
 #' @param nsites Numeric.
 #' @param altname Character.
@@ -20,13 +21,21 @@
 #' @return Motif object.
 #'
 #' @examples
-#' my.motif <- create_motif("TATAA")
+#' ## create motifs from a single string
+#' DNA.motif <- create_motif("TATAAWW")
+#' RNA.motif <- create_motif("UUUCCG")
+#' AA.motif <- create_motif("AVLK", alphabet = "AA")
+#' custom.motif <- create_motif("QWER", alphabet = "custom")
+#' custom.motif <- create_motif("QWER", alphabet = "QWERASDF")
+#'
+#' ## create motifs from multiple strings of equal length
+#' 
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-setGeneric("create_motif", function(input,
+setGeneric("create_motif", function(input, alphabet, type,
                                     name = "motif", pseudoweight = 0.8,
-                                    alphabet, bkg, nsites, altname, family,
+                                    bkg, nsites, altname, family,
                                     organism, bkgsites, strand, pval, qval,
                                     eval, extrainfo)
            standardGeneric("create_motif"))
