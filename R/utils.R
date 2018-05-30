@@ -1,6 +1,7 @@
 ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
                        IC_floor = FALSE, IC_ceiling = FALSE) {
   # NOTE: strange things start to happen with different background frequencies!
+  #       not sure if my math is wrong here..
   if (is.null(bkg) || missing(bkg)) {
     bkg <- rep(1 / length(position), length(position))
   }
@@ -197,7 +198,7 @@ consensus_to_ppm <- function(letter) {
 }
 
 consensus_to_ppmAA <- function(letter) {
-  if (letter %in% c("X", ".")) return(rep(0.05, 20))
+  if (letter %in% c("X", ".", "-")) return(rep(0.05, 20))
   if (letter == "B") return(c(rep(0.001, 2), 0.491, rep(0.001, 8), 0.491,
                               rep(0.001, 8)))
   if (letter == "Z") return(c(rep(0.001, 3), 0.491, rep(0.001, 9), 0.491,

@@ -15,7 +15,7 @@ setMethod("create_motif", signature(input = "character"),
             consensus <- strsplit(consensus, split = "")[[1]]
             if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 1) {
               motif <- vapply(consensus, consensus_to_ppm, numeric(4))
-            } else if (alphabet == "AA" && length(consensus.all) == 0) {
+            } else if (alphabet == "AA" && length(consensus.all) == 1) {
               motif <- vapply(consensus, consensus_to_ppmAA, numeric(20))
             } else if (!missing(alphabet)) {
               motif <- consensusMatrix(paste(consensus, collapse = ""))
@@ -53,7 +53,7 @@ setMethod("create_motif", signature(input = "character"),
                 stop("cannot create a motif using a single consensus string without an alphabet")
               }
             }
-            if (alphabet == "AA") {
+            if (alphabet == "AA" && length(consensus.all) > 1) {
               motif2 <- vector("list", 20)
               mot_len <- ncol(motif)
               for (i in AA_STANDARD) {
@@ -113,11 +113,32 @@ setMethod("create_motif", signature(input = "character"),
                                                list(alphabet = alphabet),
                                                list(type = "PPM"),
                                                margs))
-            if (!missing(type)) {
-              motif <- convert_type(motif, type = type)
-            } else {
-              motif <- convert_type(motif, type = "PCM")
+            if (length(consensus.all) == 1 && missing(nsites) &&
+                alphabet %in% c("DNA", "RNA")) {
+              input.split <- strsplit(input, "")[[1]]
+              if ("N" %in% input.split) {
+                motif["nsites"] <- 4
+                if (any(c("H", "B", "V", "D") %in% input.split)) {
+                  motif["nsites"] <- 12
+                }
+              } else if (any(c("H", "B", "V", "D") %in% input.split)) {
+                motif["nsites"] <- 3
+                if (any(c("M", "R", "W", "S", "Y", "K") %in%
+                        input.split)) motif["nsites"] <- 6
+              } else if (any(c("M", "R", "W", "S", "Y", "K") %in%
+                             input.split)) {
+                motif["nsites"] <- 2
+              }
+            } else if (length(consensus.all) == 1 && missing(nsites) &&
+                       alphabet == "AA") {
+              input.split <- strsplit(input, "")[[1]]
+              if ("X" %in% input.split) {
+                motif["nsites"] <- 20
+              } else if (any(c("B", "Z", "J") %in% input.split)) {
+                motif["nsites"] <- 2
+              }
             }
+            motif <- convert_type(motif, type = type)
             motif
           })
 
@@ -189,11 +210,7 @@ setMethod("create_motif", signature(input = "matrix"),
                                                list(type = "PPM"),
                                                list(alphabet = alphabet)))
             if (missing(nsites))  motif["nsites"] <- sum(input[, 1])
-            if (!missing(type)) {
-              motif <- convert_type(motif, type = type)
-            } else {
-              motif <- convert_type(motif, type = "PCM")
-            }
+            motif <- convert_type(motif, type = type)
             motif
           })
 
@@ -244,6 +261,9 @@ setMethod("create_motif", signature(input = "XStringSet"),
                                                  list(alphabet = "RNA")))
             } else if (alph == "AAString") {
               sequences <- consensusMatrix(sequences)
+              if (any(!rownames(sequences) %in% AA_STANDARD)) {
+                stop("only ACDEFGHIKLMNPQRSTVWY are accepted for AA")
+              }
               motif <- vector("list", 20)
               mot_len <- ncol(sequences)
               for (i in AA_STANDARD) {
@@ -281,11 +301,7 @@ setMethod("create_motif", signature(input = "XStringSet"),
             }
 
             if (missing(nsites))  motif["nsites"] <- length(input)
-            if (!missing(type)) {
-              motif <- convert_type(motif, type = type)
-            } else {
-              motif <- convert_type(motif, type = "PCM")
-            }
+            motif <- convert_type(motif, type = type)
             motif
 
           })

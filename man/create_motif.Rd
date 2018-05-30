@@ -8,24 +8,24 @@
 \alias{create_motif,XStringSet-method}
 \title{Create a motif.}
 \usage{
-create_motif(input, alphabet, type, name = "motif", pseudoweight = 0.8, bkg,
-  nsites, altname, family, organism, bkgsites, strand, pval, qval, eval,
-  extrainfo)
-
-\S4method{create_motif}{character}(input, alphabet, type, name = "motif",
+create_motif(input, alphabet, type = "PCM", name = "motif",
   pseudoweight = 0.8, bkg, nsites, altname, family, organism, bkgsites,
   strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{matrix}(input, alphabet, type, name = "motif",
-  pseudoweight = 0.8, bkg, nsites, altname, family, organism, bkgsites,
-  strand, pval, qval, eval, extrainfo)
+\S4method{create_motif}{character}(input, alphabet, type = "PCM",
+  name = "motif", pseudoweight = 0.8, bkg, nsites, altname, family,
+  organism, bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{XStringSet}(input, alphabet, type, name = "motif",
-  pseudoweight = 0.8, bkg, nsites, altname, family, organism, bkgsites,
-  strand, pval, qval, eval, extrainfo)
+\S4method{create_motif}{matrix}(input, alphabet, type = "PCM",
+  name = "motif", pseudoweight = 0.8, bkg, nsites, altname, family,
+  organism, bkgsites, strand, pval, qval, eval, extrainfo)
+
+\S4method{create_motif}{XStringSet}(input, alphabet, type = "PCM",
+  name = "motif", pseudoweight = 0.8, bkg, nsites, altname, family,
+  organism, bkgsites, strand, pval, qval, eval, extrainfo)
 }
 \arguments{
-\item{input}{One of character vector, matrix (PCM, PPM, or PWM), or 
+\item{input}{One of character vector, matrix (PCM, PPM, PWM, or ICM), or
 XStringSet.}
 
 \item{alphabet}{Character.}
@@ -80,7 +80,15 @@ Create a motif.
 DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudoweight = 0)
 
 # nsites will be set to the number of input sequences unless specified 
-DNA.motif <- create_motif("TATAWAW", nsites = 20)
+DNA.motif <- create_motif("TTTTTTT", nsites = 10)
+
+# if ambiguity letters are found and nsites is not specified, nsites will
+# be set to the minimum required to respect amibiguity letters
+DNA.motif <- create_motif("TATAWAW")
+DNA.motif <- create_motif("NNVVWWAAWWDDN")
+
+# be careful about setting nsites when using ambiguity letters!
+DNA.motif <- create_motif("NNVVWWAAWWDDN", nsites = 1)
 
 RNA.motif <- create_motif("UUUCCG")
 
@@ -102,7 +110,15 @@ AA.motif <- create_motif(c("ARNDCQ", "EGHILK", "ARNDCQ"), alphabet = "AA")
 custom.motif <- create_motif(c("POIU", "LKJH", "POIU", "CVBN"),
                              alphabet = "custom")
 
+# ambiguity letters are only allowed for single consensus strings; the
+# following fails
+\dontrun{
+create_motif(c("WWTT", "CCGG"))
+}
+
 ##### create motifs from XStringSet objects
+
+library(Biostrings)
 
 DNA.set <- DNAStringSet(c("TTTT", "AAAA", "AACC", "TTGG"))
 DNA.motif <- create_motif(DNA.set)

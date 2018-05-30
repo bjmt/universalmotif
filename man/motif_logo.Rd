@@ -22,7 +22,7 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", BPPARAM = bpparam(),
 For ggseqlogo: a ggplot2 object.
 }
 \description{
-Create logos using ggplot2 + ggseqlogo or seqLogo.
+Create logos using ggplot2 + ggseqlogo, seqLogo or motifStack.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

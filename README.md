@@ -38,6 +38,7 @@ devtools::install_github("bjmt/universalmotif")
   - `write_uniprobe`
   - `write_homer`
   - `write_cisbp`
+  - `merge_motifs`
 
 ## Other todo ##
 

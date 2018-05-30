@@ -1,6 +1,6 @@
 #' Create a motif.
 #'
-#' @param input One of character vector, matrix (PCM, PPM, or PWM), or 
+#' @param input One of character vector, matrix (PCM, PPM, PWM, or ICM), or
 #'              XStringSet.
 #' @param alphabet Character.
 #' @param type Character.
@@ -27,7 +27,15 @@
 #' DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudoweight = 0)
 #'
 #' # nsites will be set to the number of input sequences unless specified 
-#' DNA.motif <- create_motif("TATAWAW", nsites = 20)
+#' DNA.motif <- create_motif("TTTTTTT", nsites = 10)
+#'
+#' # if ambiguity letters are found and nsites is not specified, nsites will
+#' # be set to the minimum required to respect amibiguity letters
+#' DNA.motif <- create_motif("TATAWAW")
+#' DNA.motif <- create_motif("NNVVWWAAWWDDN")
+#'
+#' # be careful about setting nsites when using ambiguity letters!
+#' DNA.motif <- create_motif("NNVVWWAAWWDDN", nsites = 1)
 #'
 #' RNA.motif <- create_motif("UUUCCG")
 #' 
@@ -49,7 +57,15 @@
 #' custom.motif <- create_motif(c("POIU", "LKJH", "POIU", "CVBN"),
 #'                              alphabet = "custom")
 #'
+#' # ambiguity letters are only allowed for single consensus strings; the
+#' # following fails
+#' \dontrun{
+#' create_motif(c("WWTT", "CCGG"))
+#' }
+#'
 #' ##### create motifs from XStringSet objects
+#'
+#' library(Biostrings)
 #' 
 #' DNA.set <- DNAStringSet(c("TTTT", "AAAA", "AACC", "TTGG"))
 #' DNA.motif <- create_motif(DNA.set)
@@ -84,7 +100,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-setGeneric("create_motif", function(input, alphabet, type,
+setGeneric("create_motif", function(input, alphabet, type = "PCM",
                                     name = "motif", pseudoweight = 0.8,
                                     bkg, nsites, altname, family,
                                     organism, bkgsites, strand, pval, qval,

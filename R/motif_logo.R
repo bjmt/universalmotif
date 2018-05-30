@@ -1,6 +1,6 @@
 #' Generate ggplot2 motif logos.
 #'
-#' Create logos using ggplot2 + ggseqlogo or seqLogo.
+#' Create logos using ggplot2 + ggseqlogo, seqLogo or motifStack.
 #'
 #' @param motif universalmotif object.
 #' @param engine Character. ggseqlogo, seqLogo, motifStack.
