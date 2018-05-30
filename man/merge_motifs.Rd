@@ -23,6 +23,7 @@ A single motif object.
 }
 \description{
 The 'extrainfo' slot will be dropped, as well as any non-identical slots.
+Gaps are not allowed.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

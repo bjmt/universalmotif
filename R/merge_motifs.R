@@ -1,6 +1,7 @@
 #' Merge motifs using msaClustalW
 #'
 #' The 'extrainfo' slot will be dropped, as well as any non-identical slots.
+#' Gaps are not allowed.
 #'
 #' @param motifs List of motifs.
 #' @param newname Name of final merged motif.
