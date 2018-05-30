@@ -61,6 +61,7 @@
 #' # following fails
 #' \dontrun{
 #' create_motif(c("WWTT", "CCGG"))
+#' create_motif(c("XXXX", "XXXX"), alphabet = "AA")
 #' }
 #'
 #' ##### create motifs from XStringSet objects
