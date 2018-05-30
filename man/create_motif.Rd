@@ -76,15 +76,17 @@ Create a motif.
 \examples{
 ##### create motifs from a single string
 
-# motif is initially generated as a PCM; change final type with 'type'
+# motif is initially generated as a PCM; change final type as desired
 DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudoweight = 0)
 
 # nsites will be set to the number of input sequences unless specified 
 DNA.motif <- create_motif("TATAWAW", nsites = 20)
+
 RNA.motif <- create_motif("UUUCCG")
 
 # 'create_motif' will try to detect the alphabet type; this can be 
-# unreliable for AA and custom alphabets
+# unreliable for AA and custom alphabets as DNA and RNA alphabets are
+# detected first
 AA.motif <- create_motif("AVLK", alphabet = "AA")
 
 custom.motif <- create_motif("QWER", alphabet = "custom")
@@ -130,6 +132,8 @@ custom.motif <- create_motif(mat, alphabet = "QWER")
 # alphabet can be detected from rownames
 rownames(mat) <- DNA_BASES
 DNA.motif <- create_motif(mat)
+rownames(mat) <- c("Q", "W", "E", "R")
+custom.motif <- create_motif(mat)
 
 }
 \author{
