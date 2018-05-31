@@ -5,14 +5,14 @@
 \title{Merge motifs using msaClustalW}
 \usage{
 merge_motifs(motifs, newname = "merged motif", cluster = "default",
-  substitutionMatrix = "clustalw", ...)
+  substitutionMatrix = "iub", ...)
 }
 \arguments{
 \item{motifs}{List of motifs.}
 
 \item{newname}{Name of final merged motif.}
 
-\item{cluster}{nj (defaul) or upgma}
+\item{cluster}{nj (default) or upgma}
 
 \item{substitutionMatrix}{iub or clustalw}
 

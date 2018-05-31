@@ -1,7 +1,8 @@
 ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
                        IC_floor = FALSE, IC_ceiling = FALSE) {
-  # NOTE: strange things start to happen with different background frequencies!
-  #       not sure if my math is wrong here..
+  # NOTE: Basic IC computation assumes uniform bkg frequencies!
+  #       For different bkg frequencies: Relative entropy or Kullback-Leibler
+  #       (KL) divergence
   if (is.null(bkg) || missing(bkg)) {
     bkg <- rep(1 / length(position), length(position))
   }
@@ -12,6 +13,12 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
     if (IC_ceiling && position[i] > 2) position[i] <- 2
   }
   return(position)
+  # Relative entropy:
+  # height_before <- -vapply(bkg, function(x) x * log2(x), numeric(1))
+  # height_after <- -vapply(position, function(x) x * log2(x), numeric(1))
+  # ic <- mapply(function(x, y, z) (x - y) * z, height_before, height_after,
+               # position)
+  # ic
 }
 
 pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
@@ -246,9 +253,5 @@ get_consensusAA <- function(motif, type, pseudoweight) {
     }
     return(motifs)
   }
-  
-}
-
-ppm_to_letter <- function(position, alphabet) {
   
 }

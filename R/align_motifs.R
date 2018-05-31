@@ -1,19 +1,17 @@
-#' Merge motifs using msaClustalW
+#' Align motifs using msaClustalW
 #'
-#' The 'extrainfo' slot will be dropped, as well as any non-identical slots.
-#' Gaps are not allowed.
+#' Align a list of motifs then return motifs of equal length.
 #'
-#' @param motifs List of motifs.
-#' @param newname Name of final merged motif.
-#' @param cluster nj (default) or upgma
+#' @param motifs List of motifs
+#' @param cluster nj (default or upgma)
 #' @param substitutionMatrix iub or clustalw
-#' @param ... Other settings for function msaClustalW.
+#' @param ... Other settings for function msaClustalW
 #'
-#' @return A single motif object.
+#' @return List of motifs.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-merge_motifs <- function(motifs, newname = "merged motif", cluster = "default", 
+align_motifs <- function(motifs, cluster = "default",
                          substitutionMatrix = "iub", ...) {
 
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))
@@ -73,40 +71,35 @@ merge_motifs <- function(motifs, newname = "merged motif", cluster = "default",
                             if (isTRUE(index[j])) break
                             right.add <- right.add + 1
                           }
-                          left.mat <- matrix(rep(NA, 4 * left.add), nrow = 4)
-                          right.mat <- matrix(rep(NA, 4 * right.add), nrow = 4)
+                          left.mat <- matrix(rep(0.25, 4 * left.add), nrow = 4)
+                          right.mat <- matrix(rep(0.25, 4 * right.add), nrow = 4)
                           cbind(left.mat, mat, right.mat)
                          }, motif.matrices, matrix.i, SIMPLIFY = FALSE)
 
-  matrix.array <- do.call(cbind, matrix.adjusted)
-  matrix.array <- array(matrix.array, dim = c(dim(matrix.adjusted[[1]]),
-                                              length(matrix.adjusted)))
-  final.matrix <- apply(matrix.array, c(1, 2), mean, na.rm = TRUE)
-
-  margs <- list()
-  pseudoweight <- unique(vapply(motifs, function(x) x["pseudoweight"], numeric(1)))
-  if (length(pseudoweight) == 1) margs <- c(margs, list(pseudoweight = pseudoweight))
-  altname <- unique(sapply(motifs, function(x) x["altname"]))
-  if (length(altname) == 1) margs <- c(margs, list(altname = altname))
-  nsites <- unique(unlist(sapply(motifs, function(x) x["nsites"])))
-  if (length(nsites) == 1) margs <- c(margs, list(nsites = nsites))
-  family <- unique(sapply(motifs, function(x) x["family"]))
-  if (length(family) == 1) margs <- c(margs, list(family = family))
-  organism <- unique(sapply(motifs, function(x) x["organism"]))
-  if (length(organism) == 1) margs <- c(margs, list(organism = organism))
-  bkgsites <- unique(unlist(sapply(motifs, function(x) x["bkgsites"])))
-  if (length(bkgsites) == 1) margs <- c(margs, list(bkgsites = bkgsites))
-  strand <- unique(vapply(motifs, function(x) x["strand"], character(1)))
-  if (length(strand) == 1) margs <- c(margs, list(strand = strand))
-  
-  motif <- do.call(universalmotif, c(list(motif = final.matrix,
-                                          name = newname, alphabet = alphabet),
-                                     margs))
+  motifs.adjusted <- mapply(function(x, y) {
+                              x["motif"] <- y
+                              if (x["alphabet"] %in% c("DNA", "RNA")) {
+                                x["consensus"] <- apply(x["motif"], 2,
+                                                        get_consensus,
+                                                        alphabet = x["alphabet"],
+                                                        type = "PPM",
+                                                        pseudoweight = x["pseudoweight"])
+                                colnames(x@motif) <- x["consensus"]
+                              } else if (x["alphabet"] == "AA") {
+                                x["consensus"] <- apply(x["motif"], 2,
+                                                        get_consensusAA,
+                                                        type = "PPM",
+                                                        pseudoweight = x["pseudoweight"])
+                                colnames(x@motif) <- x["consensus"]
+                              }
+                              return(x)
+                            },
+                            motifs, matrix.adjusted, SIMPLIFY = FALSE)
 
   if (length(CLASS_IN) == 1 && length(TYPE_IN) == 1) {
-    motif <- convert_type(motif, TYPE_IN)
-    motif <- .internal_convert(motif, CLASS_IN)
-    motif
-  } else motif
+    motifs.adjusted <- convert_type(motifs.adjusted, TYPE_IN)
+    motifs.adjusted <- .internal_convert(motifs.adjusted, CLASS_IN)
+    motifs.adjusted
+  } else motifs.adjusted
 
 }
