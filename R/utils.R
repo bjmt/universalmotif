@@ -112,7 +112,10 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   # }
 #
   # sum(ic)
-  height_after <- -sum(vapply(motif, function(x) x * log2(x), numeric(1)))
+  height_after <- -sum(vapply(motif, function(x) {
+                                       y <- x * log2(x)
+                                       ifelse(is.na(y), 0, y)
+                                     }, numeric(1)))
   total_ic <- log2(length(motif)) - height_after
   total_ic
 
