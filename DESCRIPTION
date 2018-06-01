@@ -67,6 +67,7 @@ Collate:
     'universalmotif-methods.R'
     'universalmotif.R'
     'utils.R'
+    'write_homer.R'
     'write_jaspar.R'
     'write_meme.R'
     'write_transfac.R'
