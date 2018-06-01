@@ -17,7 +17,10 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   # return(position)
   # Relative entropy:
   # height_before <- -vapply(bkg, function(x) x * log2(x), numeric(1))
-  height_after <- -sum(vapply(position, function(x) x * log2(x), numeric(1)))
+  height_after <- -sum(vapply(position, function(x) {
+                                        y <- x * log2(x)
+                                        ifelse(is.na(y), 0, y)
+                                        }, numeric(1)))
   total_ic <- log2(length(position)) - height_after
   # if (schneider_correction) {
     # correction <- ppm_to_pcm(position, nsites = nsites)
