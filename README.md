@@ -33,11 +33,12 @@ devtools::install_github("bjmt/universalmotif")
   - `write_jaspar`
   - `write_meme`
   - `merge_motifs`
+  - `write_homer`
+  - `align_motifs`
 
 ## Planned exported functions ##
 
   - `write_uniprobe`
-  - `write_homer`
   - `write_cisbp`
 
 ## Other todo ##
