@@ -115,11 +115,7 @@ setMethod("initialize", signature = "universalmotif",
                 type <- "PCM" 
               } else if (all(colSums(motif) > 0.99 || colSums(motif) < 1.01)) {
                 type <- "PPM"
-              } else if (all(colSums(motif) > 1.99 || colSums(motif) < 2.01) &&
-                         alphabet %in% c("DNA", "RNA")) {
-                type <- "ICM"
-              } else if ((all(colSums(motif) > 4.3 || colSums(motif) < 4.4) &&
-                          alphabet == "AA")) {
+              } else if (all(colSums(motif) >= 0)) {
                 type <- "ICM"
               } else type <- "PWM"
             }
