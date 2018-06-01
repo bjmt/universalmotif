@@ -111,12 +111,17 @@ setMethod("initialize", signature = "universalmotif",
             } 
 
             if (missing(type) || length(type) == 0 || is.na(type)) {
-              if (all(motif >= 1 || motif == 0)) type <- "PCM" else {
-                if (all(motif >= 0)) type <- "PPM" else {
-                  type <- "PWM"
-                  # message("assumed 'type' as being PWM")
-                }
-              }
+              if (all(motif >= 1 || motif == 0)) {
+                type <- "PCM" 
+              } else if (all(colSums(motif) > 0.99 || colSums(motif) < 1.01)) {
+                type <- "PPM"
+              } else if (all(colSums(motif) > 1.99 || colSums(motif) < 2.01) &&
+                         alphabet %in% c("DNA", "RNA")) {
+                type <- "ICM"
+              } else if ((all(colSums(motif) > 4.3 || colSums(motif) < 4.4) &&
+                          alphabet == "AA")) {
+                type <- "ICM"
+              } else type <- "PWM"
             }
             .Object@type <- type
 
