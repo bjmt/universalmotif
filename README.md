@@ -36,11 +36,6 @@ devtools::install_github("bjmt/universalmotif")
   - `write_homer`
   - `align_motifs`
 
-## Planned exported functions ##
-
-  - `write_uniprobe`
-  - `write_cisbp`
-
 ## Other todo ##
 
   - function documentation
