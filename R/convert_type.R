@@ -22,7 +22,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
   IC_ceiling <- FALSE
   motif <- motifs
   if (class(motif) == "list") {
-    margs <- list(type = type) 
+    margs <- list(type = type, schneider_correction = schneider_correction) 
     if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
     if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
     motif <- bplapply(motif, function(x) do.call(convert_type,
@@ -66,7 +66,9 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
                            pseudoweight = pseudoweight)
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
-                           IC_ceiling = IC_ceiling)
+                           IC_ceiling = IC_ceiling,
+                           nsites = motif["nsites"],
+                           schneider_correction = schneider_correction)
       motif["type"] <- "ICM"
     }
   }
@@ -88,7 +90,9 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
     } else if (type == "ICM") {
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
-                           IC_ceiling = IC_ceiling)
+                           IC_ceiling = IC_ceiling,
+                           nsites = motif["nsites"],
+                           schneider_correction = schneider_correction)
       motif["type"] <- "ICM"
     }
   }
@@ -111,7 +115,9 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
                            background = bkg)
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
-                           IC_ceiling)
+                           IC_ceiling = IC_ceiling,
+                           nsites = motif["nsites"],
+                           schneider_correction = schneider_correction)
       motif["type"] <- "ICM"
     }
   }

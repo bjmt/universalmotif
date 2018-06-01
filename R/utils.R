@@ -1,10 +1,12 @@
 ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
-                       IC_floor = FALSE, IC_ceiling = FALSE) {
+                       IC_floor = FALSE, IC_ceiling = FALSE,
+                       schneider_correction = FALSE, nsites = 100) {
   # NOTE: Basic IC computation assumes uniform bkg frequencies!
   #       For different bkg frequencies: Relative entropy or Kullback-Leibler
   #       (KL) divergence
   # if (is.null(bkg) || missing(bkg)) {
   bkg <- rep(1 / length(position), length(position))
+  # if (length(nsites) == 0) nsites <- 100
   # }
   # for (i in seq_along(position)) {
     # position[i] <- position[i] * log2(position[i] / bkg[i])
@@ -17,6 +19,10 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   # height_before <- -vapply(bkg, function(x) x * log2(x), numeric(1))
   height_after <- -sum(vapply(position, function(x) x * log2(x), numeric(1)))
   total_ic <- log2(length(position)) - height_after
+  # if (schneider_correction) {
+    # correction <- ppm_to_pcm(position, nsites = nsites)
+    # total_ic <- total_ic + correction
+  # }
   ic <- position * total_ic
   ic
 }
