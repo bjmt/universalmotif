@@ -22,7 +22,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
   IC_ceiling <- FALSE
   motif <- motifs
   if (class(motif) == "list") {
-    margs <- list(type = type, schneider_correction = schneider_correction) 
+    margs <- list(type = type) 
     if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
     if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
     motif <- bplapply(motif, function(x) do.call(convert_type,
