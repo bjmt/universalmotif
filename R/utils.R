@@ -21,6 +21,7 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   total_ic <- log2(length(position)) - height_after
   # if (schneider_correction) {
     # correction <- ppm_to_pcm(position, nsites = nsites)
+    # correction <- TFBSTools:::schneider_correction(correction, bkg)
     # total_ic <- total_ic + correction
   # }
   ic <- position * total_ic

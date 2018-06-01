@@ -16,12 +16,8 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6,
   motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  get_max_logodds <- function(x) {
-    x <- x["motif"]
-    pos_max <- apply(x, 2, function(x) sort(x, decreasing = TRUE)[1])
-    sum(pos_max)
-  }
-  max_logodds <- vapply(motifs, get_max_logodds, numeric(1))
+  max_logodds <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
+                        numeric(1))
   logodds_thresholds <- max_logodds * logodds_threshold
 
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
