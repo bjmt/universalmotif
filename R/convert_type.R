@@ -4,7 +4,6 @@
 #' @param type Character. Either PCM, PPM, PWM, ICM.
 #' @param pseudoweight Numeric.
 #' @param bkg Numeric.
-#' @param IC_floor Logical.
 #' @param BPPARAM Param for bplapply.
 #'
 #' @return Motif object.
@@ -16,13 +15,14 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
+convert_type <- function(motifs, type, pseudoweight, bkg,
                          BPPARAM = bpparam()) {
 
+  IC_floor <-  TRUE
   IC_ceiling <- FALSE
   motif <- motifs
   if (class(motif) == "list") {
-    margs <- list(type = type, IC_floor = IC_floor, IC_ceiling = IC_ceiling) 
+    margs <- list(type = type) 
     if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
     if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
     motif <- bplapply(motif, function(x) do.call(convert_type,

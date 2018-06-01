@@ -6,19 +6,19 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   # if (is.null(bkg) || missing(bkg)) {
   bkg <- rep(1 / length(position), length(position))
   # }
-  for (i in seq_along(position)) {
-    position[i] <- position[i] * log2(position[i] / bkg[i])
-    if (is.na(position[i])) position[i] <- 0
-    if (IC_floor && position[i] < 0) position[i] <- 0
-    if (IC_ceiling && position[i] > 2) position[i] <- 2
-  }
-  return(position)
+  # for (i in seq_along(position)) {
+    # position[i] <- position[i] * log2(position[i] / bkg[i])
+    # if (is.na(position[i])) position[i] <- 0
+    # if (IC_floor && position[i] < 0) position[i] <- 0
+    # if (IC_ceiling && position[i] > 2) position[i] <- 2
+  # }
+  # return(position)
   # Relative entropy:
   # height_before <- -vapply(bkg, function(x) x * log2(x), numeric(1))
-  # height_after <- -vapply(position, function(x) x * log2(x), numeric(1))
-  # ic <- mapply(function(x, y, z) (x - y) * z, height_before, height_after,
-               # position)
-  # ic
+  height_after <- -sum(vapply(position, function(x) x * log2(x), numeric(1)))
+  total_ic <- log2(length(position)) - height_after
+  ic <- position * total_ic
+  ic
 }
 
 pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
@@ -87,15 +87,18 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
     motif <- pcm_to_ppm(position = motif, pseudoweight = pseudoweight)
   }
 
-  ic <- vector(length = length(motif))
-  
-  for (i in seq_along(motif)) {
-    if (motif[i] == 0) ic[i] <- 0 else {
-      ic[i] <- motif[i] * log2(motif[i] / bkg[i])
-    }
-  }
-
-  sum(ic)
+  # ic <- vector(length = length(motif))
+  #
+  # for (i in seq_along(motif)) {
+    # if (motif[i] == 0) ic[i] <- 0 else {
+      # ic[i] <- motif[i] * log2(motif[i] / bkg[i])
+    # }
+  # }
+#
+  # sum(ic)
+  height_after <- -sum(vapply(motif, function(x) x * log2(x), numeric(1)))
+  total_ic <- log2(length(motif)) - height_after
+  total_ic
 
 }
 
