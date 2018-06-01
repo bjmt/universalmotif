@@ -21,6 +21,11 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   ic
 }
 
+icm_to_ppm <- function(position) {
+  total_ic <- sum(position)
+  ppm <- position / total_ic
+}
+
 pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
   if (missing(possum)) possum <- sum(position)
   num_letters <- length(position)
@@ -210,7 +215,7 @@ consensus_to_ppm <- function(letter) {
 }
 
 consensus_to_ppmAA <- function(letter) {
-  if (letter %in% c("X", ".", "-")) return(rep(0.05, 20))
+  if (letter %in% c("X", ".", "-", "+")) return(rep(0.05, 20))
   if (letter == "B") return(c(rep(0.001, 2), 0.491, rep(0.001, 8), 0.491,
                               rep(0.001, 8)))
   if (letter == "Z") return(c(rep(0.001, 3), 0.491, rep(0.001, 9), 0.491,

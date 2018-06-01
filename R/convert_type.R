@@ -118,7 +118,22 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
 
   # ICM in:
   if (in_type == "ICM") {
-    stop("motifs of type 'ICM' cannot be converted")
+    motif@motif <- apply(motif["motif"], 2, icm_to_ppm)
+    if (type == "PCM") {
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
+                           nsites = motif["nsites"])
+      if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
+      motif["type"] <- "PCM"
+    } else if (type == "PPM") {
+      motif["type"] <- "PPM"
+    } else if (type == "PWM") {
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
+                           background = bkg,
+                           smooth = any(motif["motif"] == 0),
+                           pseudoweight = pseudoweight,
+                           nsites = motif["nsites"])
+      motif["type"] <- "PWM"
+    }
   }
 
   motif <- .internal_convert(motif, CLASS_IN)
