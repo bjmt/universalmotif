@@ -5,7 +5,6 @@
 #' @param pseudoweight Numeric.
 #' @param bkg Numeric.
 #' @param IC_floor Logical.
-#' @param IC_ceiling Logical.
 #' @param BPPARAM Param for bplapply.
 #'
 #' @return Motif object.
@@ -18,8 +17,9 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 convert_type <- function(motifs, type, pseudoweight, bkg, IC_floor = TRUE,
-                         IC_ceiling = TRUE, BPPARAM = bpparam()) {
+                         BPPARAM = bpparam()) {
 
+  IC_ceiling <- FALSE
   motif <- motifs
   if (class(motif) == "list") {
     margs <- list(type = type, IC_floor = IC_floor, IC_ceiling = IC_ceiling) 

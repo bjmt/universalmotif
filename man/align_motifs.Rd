@@ -9,7 +9,7 @@ align_motifs(motifs, cluster = "default", substitutionMatrix = "iub", ...)
 \arguments{
 \item{motifs}{List of motifs}
 
-\item{cluster}{nj (default or upgma)}
+\item{cluster}{nj (default) or upgma}
 
 \item{substitutionMatrix}{iub or clustalw}
 

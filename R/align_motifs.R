@@ -3,7 +3,7 @@
 #' Align a list of motifs then return motifs of equal length.
 #'
 #' @param motifs List of motifs
-#' @param cluster nj (default or upgma)
+#' @param cluster nj (default) or upgma
 #' @param substitutionMatrix iub or clustalw
 #' @param ... Other settings for function msaClustalW
 #'

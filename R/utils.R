@@ -3,9 +3,9 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
   # NOTE: Basic IC computation assumes uniform bkg frequencies!
   #       For different bkg frequencies: Relative entropy or Kullback-Leibler
   #       (KL) divergence
-  if (is.null(bkg) || missing(bkg)) {
-    bkg <- rep(1 / length(position), length(position))
-  }
+  # if (is.null(bkg) || missing(bkg)) {
+  bkg <- rep(1 / length(position), length(position))
+  # }
   for (i in seq_along(position)) {
     position[i] <- position[i] * log2(position[i] / bkg[i])
     if (is.na(position[i])) position[i] <- 0
@@ -67,6 +67,8 @@ pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
 
 position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
                              pseudoweight = 0.8, nsites = 100) {
+
+  bkg <- rep(1 / length(bkg), length(bkg))
 
   if (length(nsites) == 0) nsites <- 100
   if (length(motif) != length(bkg)) {
