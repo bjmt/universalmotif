@@ -210,9 +210,12 @@ setMethod("create_motif", signature(input = "matrix"),
             motif <- apply(matrix, 2, pcm_to_ppm, pseudoweight = 0)
 
             motif <- do.call(universalmotif, c(list(motif = motif), margs,
-                                               list(type = "PPM"),
+                                               # list(type = "PPM"),
                                                list(alphabet = alphabet)))
-            if (missing(nsites))  motif["nsites"] <- sum(input[, 1])
+            if (missing(nsites)) {
+              nsites <- sum(input[, 1])
+              if (nsites == round(nsites)) motif["nsites"] <- nsites
+            }
             motif <- convert_type(motif, type = type)
             motif
           })
