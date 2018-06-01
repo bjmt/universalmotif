@@ -31,6 +31,7 @@ ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
 icm_to_ppm <- function(position) {
   total_ic <- sum(position)
   ppm <- position / total_ic
+  ppm
 }
 
 pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
