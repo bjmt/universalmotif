@@ -20,41 +20,39 @@ read_transfac <- function(file, skip = 0, BPPARAM = bpparam()) {
   close(con)
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
   raw_lines <- raw_lines[!grepl("^XX", raw_lines)]
+  raw_lines <- raw_lines[raw_lines != ""]
 
-  motif_starts <- which(grepl("^P0", raw_lines) | grepl("^PO", raw_lines))
-  motif_stops <- which(grepl("^//", raw_lines))
+  motif_stops <- grep("^//", raw_lines)
 
-  for (i in seq_along(motif_stops)) {
-    if ((motif_stops[i] + 1) %in% motif_stops) {
-      motif_stops <- motif_stops[-(i + 1)]
-    }
+  if (1 == motif_stops[1]) {
+    motif_stops <- motif_stops[-1]
+    raw_lines <- raw_lines[-1]
   }
+  motif_starts <- c(1, motif_stops[-length(motif_stops)] + 1)
+  motif_stops <- motif_stops - 1
 
-  if (length(motif_starts) != length(motif_stops)) {
-    stop("motifs incorrectly formatted")
-  }
-
-  motifs <- bpmapply(function(x, y) raw_lines[x:(y - 1)],
+  motifs <- bpmapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops,
                      SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
-  motif_stops <- c(1, motif_stops[-length(motif_stops)])
-
-  motif_meta <- bpmapply(function(x, y) raw_lines[(x):(y - 1)],
-                         motif_stops, motif_starts,
-                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
-
   get_matrix <- function(x) {
-    x <- x[-1]
+    mot_start <- which(grepl("^P0", x) | grepl("^PO", x)) + 1
+    x <- x[-c(1:(mot_start - 1))]
+    mot_i <- vapply(x, function(x) {
+                         x <- strsplit(x, "\\s+")[[1]][1]
+                         x <- suppressWarnings(as.numeric(x))
+                         !is.na(x)
+                       }, logical(1))
+    mot <- x[mot_i]
     per_line <- function(x) {
       x <- strsplit(x, "\\s+")[[1]]
       as.numeric(x[-c(1, 6)])
     }
-    x <- vapply(x, per_line, numeric(4))
-    matrix(x, ncol = 4, byrow = TRUE)
+    mot <- vapply(mot, per_line, numeric(4))
+    matrix(mot, ncol = 4, byrow = TRUE)
   }
 
-  motifs <- bplapply(motifs, get_matrix, BPPARAM = BPPARAM)
+  motif_matrix <- bplapply(motifs, get_matrix, BPPARAM = BPPARAM)
 
   parse_meta <- function(x) {
     metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
@@ -107,7 +105,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = bpparam()) {
     metas_correct
   }
 
-  motif_meta <- bplapply(motif_meta, parse_meta, BPPARAM = BPPARAM)
+  motif_meta <- bplapply(motifs, parse_meta, BPPARAM = BPPARAM)
 
   motifs <- bpmapply(function(x, y) {
                       universalmotif(name = as.character(y[names(y) == 
@@ -121,7 +119,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = bpparam()) {
                                      motif = t(x),
                                      alphabet = "DNA",
                                      type = "PCM")
-                     }, motifs, motif_meta, BPPARAM = BPPARAM)
+                     }, motif_matrix, motif_meta, BPPARAM = BPPARAM)
 
   motifs
 

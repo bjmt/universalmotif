@@ -18,6 +18,15 @@
 convert_type <- function(motifs, type, pseudoweight, bkg,
                          BPPARAM = bpparam()) {
 
+  if (!missing(pseudoweight)) {
+    if (!is.numeric(pseudoweight)) stop("pseudoweight must be a numeric vector")
+    if (length(pseudoweight) > 1) stop("pseudoweight must a length one vector")
+  }
+
+  if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
+    stop("unrecognized 'type'")
+  }
+
   IC_floor <-  TRUE
   IC_ceiling <- FALSE
   motif <- motifs
@@ -32,10 +41,12 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
     return(motif)
   }
 
-  if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
-    stop("unrecognized 'type'")
+  if (!missing(bkg)) {
+    nalph <- nrow(motif["motif"])
+    nbkg <- length(bkg)
+    if (nalph != nbkg) stop("length of bkg must match alphabet length")
   }
-
+    
   CLASS_IN <- .internal_convert(motif)
   motif <- convert_motifs(motif)
 

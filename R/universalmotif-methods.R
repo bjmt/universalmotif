@@ -86,7 +86,13 @@ setMethod("initialize", signature = "universalmotif",
             .Object@organism <- organism
 
             if (missing(motif)) stop("missing motif matrix")
+
             .Object@motif <- motif
+            # if (!missing(type)) {
+              # if (type == "PCM") {
+                # .Object@motif <- round(motif)
+              # }
+            # }
 
             .Object@alphabet <- alphabet
             

@@ -151,9 +151,9 @@ setMethod("create_motif", signature(input = "matrix"),
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
             matrix <- input
-            if (any(matrix > 0 && matrix < 1) && type == "PCM") {
-              stop("please use whole numbers for PCM type matrix")
-            }
+            # if (any(matrix > 0 && matrix < 1) && type == "PCM") {
+              # stop("please use whole numbers for PCM type matrix")
+            # }
             if (!missing(alphabet) &&
                 !alphabet %in% c("DNA", "RNA", "AA", "custom")) {
               alph.deparsed <- strsplit(alphabet, "")[[1]]
