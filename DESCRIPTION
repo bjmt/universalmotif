@@ -60,6 +60,7 @@ Collate:
     'read_cisbp.R'
     'read_homer.R'
     'read_jaspar.R'
+    'read_matrix.R'
     'read_meme.R'
     'read_transfac.R'
     'read_uniprobe.R'

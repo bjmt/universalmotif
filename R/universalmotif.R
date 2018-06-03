@@ -19,7 +19,7 @@
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
-#' @importFrom motifStack plotMotifLogo
+#' @importFrom motifStack plotMotifLogo mergeMotifs
 #' @importFrom MotIV motifDistances makePWM readDBScores
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
 #' @importFrom Rdpack reprompt

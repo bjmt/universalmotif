@@ -2,19 +2,31 @@
 % Please edit documentation in R/merge_motifs.R
 \name{merge_motifs}
 \alias{merge_motifs}
-\title{Merge motifs using msaClustalW}
+\title{Merge motifs using msa or motifStack}
 \usage{
-merge_motifs(motifs, newname = "merged motif", cluster = "default",
-  substitutionMatrix = "iub", ...)
+merge_motifs(motifs, newname = "merged motif", method = "msa",
+  tryRC = TRUE, RCstrategy = "motif_dist", bgNoise = NA,
+  cluster = "default", substitutionMatrix = "iub", BPPARAM = bpparam(),
+  ...)
 }
 \arguments{
 \item{motifs}{List of motifs.}
 
 \item{newname}{Name of final merged motif.}
 
-\item{cluster}{nj (default) or upgma}
+\item{method}{Character. 'motifStack' or 'msa'.}
 
-\item{substitutionMatrix}{iub or clustalw}
+\item{tryRC}{Logical. Only used if method = 'msa'.}
+
+\item{RCstrategy}{Character. 'motif_dist' or 'motif_simil'.}
+
+\item{bgNoise}{motifStack::mergeMotifs param.}
+
+\item{cluster}{msa::msaClustalW param. nj (default) or upgma}
+
+\item{substitutionMatrix}{msa::msaClustalW param. iub or clustalw}
+
+\item{BPPARAM}{Param for bplapply. Only used if tryRC = TRUE.}
 
 \item{...}{Other settings for function msaClustalW.}
 }
@@ -22,8 +34,21 @@ merge_motifs(motifs, newname = "merged motif", cluster = "default",
 A single motif object.
 }
 \description{
-The 'extrainfo' slot will be dropped, as well as any non-identical slots.
-Gaps are not allowed.
+DNA/RNA only. The 'extrainfo' slot will be dropped, as well as any
+non-identical slots.
+}
+\details{
+If method = 'msa', the motifs are aligned as consensus strings before
+   they are averaged as PPMs. For method = 'motifStack', the
+   motifStack::mergeMotifs function is used. 
+
+   If tryRC = FALSE, the motifs
+   are aligned and merged as-is; if tryRC = TRUE, then one of 
+   motif_dist or motif_simil is applied to all combinations of the motifs
+   and their reverse complements. The highest scoring combination of motifs 
+   is then
+   used for alignment and merging. Please note that this option
+   increases computational time significantly with motif number.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

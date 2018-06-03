@@ -11,8 +11,9 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-align_motifs <- function(motifs, cluster = "default",
-                         substitutionMatrix = "iub", ...) {
+align_motifs <- function(motifs, 
+                         cluster = "default",substitutionMatrix = "iub",
+                         ...) {
 
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   CLASS_IN <- unique(CLASS_IN)
@@ -32,6 +33,34 @@ align_motifs <- function(motifs, cluster = "default",
   if (!alphabet %in% c("DNA", "RNA")) stop("only DNA and RNA alphabets are allowed")
 
   motifs <- convert_type(motifs, "PPM", pseudoweight = 0)
+
+  # if (tryRC) {
+    # motifs.rc <- motif_rc(motifs)
+    # motifs.rc <- lapply(motifs.rc, function(x) {
+                        # x["name"] <- paste0(x["name"], "-RC")
+                        # x
+                       # })
+    # num_mots <- length(motifs)
+    # motifs.all <- c(motifs, motifs.rc)
+    # if (RCstrategy == "motif_simil") {
+      # motifs.all.simil <- motif_simil(motifs.all)
+    # } else if (RCstrategy == "motif_dist") {
+      # motifs.all.simil <- motif_dist(motifs.all)
+    # } else stop("unrecognized 'RCstrategy'")
+    # comb.totry <- combn(num_mots * 2, num_mots)
+    # comb.num <- ncol(comb.totry)
+    # scores <- bplapply(seq_len(comb.num),
+                       # function(x) sum(as.dist(motifs.all.simil[comb.totry[, x],
+                                               # comb.totry[, x]])),
+                       # BPPARAM = BPPARAM)
+    # if (RCstrategy == "motif_simil") {
+      # motifs.touse <- order(unlist(scores), decreasing = TRUE)[1]
+    # } else {
+      # motifs.touse <- order(unlist(scores))[1]
+    # }
+    # motifs.touse <- comb.totry[, motifs.touse]
+    # motifs <- motifs.all[motifs.touse]
+  # }
 
   motif.matrices <- lapply(motifs, function(x) x["motif"])
 

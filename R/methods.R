@@ -563,6 +563,7 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
             # motifStack-pcm
             if (in_class_pkg == "motifStack" && in_class == "pcm") {
               motifs <- universalmotif(name = motifs@name, motif = motifs@mat,
+                                       nsites = unique(colSums(motifs@mat))[1],
                                        alphabet = motifs@alphabet,
                                        bkg = motifs@background,
                                        type = "PCM")

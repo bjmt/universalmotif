@@ -133,17 +133,19 @@ setValidity("universalmotif",
             # PCM
             if (mat_type == "PCM") {
               mat_nsites <- object["nsites"]
-              if (length(unique(mat_colsums)) > 1) {
-                if (sd(unique(mat_colsums)) > 0.1) {
-                  valid <- FALSE
-                  msg <- c(msg, "motif of type 'PCM' must have equal column sums")
-                }
-              } else if (length(mat_nsites) > 0) {
+              # if (length(unique(mat_colsums)) > 1) {
+                # if (sd(unique(mat_colsums)) > 0.1) {
+                  # valid <- FALSE
+                  # msg <- c(msg, "motif of type 'PCM' must have equal column sums")
+                # }
+              # } else if (length(mat_nsites) > 0) {
+              if (length(mat_nsites) > 0){
                 if (unique(mat_colsums) != mat_nsites) {
                   valid <- FALSE
                   msg <- c(msg, "motif of type 'PCM' must have column sums equal to 'nsites'")
                 }
               }
+              # }
             }
 
             # PPM
