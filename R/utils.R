@@ -74,11 +74,14 @@ ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
 }
 
 pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
-  for (i in seq_along(position)) {
-    position[i] <- 2 ^ position[i]
-    position[i] <- position[i] * background[i]
-  }
-  return(position)
+  position <- vapply(position, function(x) 2 ^ x, numeric(1))
+  if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
+  for (i in seq_along(position)) position[i] <- position[i] * background[i]
+  if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
+  warning("position does not add up to 1; normalizing..")
+  pos_missing <- 1 - sum(position)
+  position <- position + pos_missing / length(position)
+  position
 }
 
 position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,

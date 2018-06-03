@@ -31,6 +31,11 @@ List of universalmotif objects.
 \description{
 Import motifs from raw matrices.
 }
+\examples{
+   hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
+   hocomoco <- read_matrix(hocomoco, headers = ">", positions = "rows")
+
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

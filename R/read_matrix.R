@@ -12,6 +12,10 @@
 #'
 #' @return List of universalmotif objects.
 #'
+#' @examples
+#'    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
+#'    hocomoco <- read_matrix(hocomoco, headers = ">", positions = "rows")
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
