@@ -24,6 +24,9 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
 
   seperators <- which(raw_lines == sep)
   if (length(seperators) != 0) {
+    if (seperators[length(seperators)] != length(raw_lines)) {
+      seperators <- c(seperators, length(raw_lines) + 1)
+    }
     if (seperators[1] == 1) {
       motif_stops <- seperators[-1] - 1
     } else motif_stops <- seperators - 1
