@@ -79,8 +79,8 @@ pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
   for (i in seq_along(position)) position[i] <- position[i] * background[i]
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
   warning("position does not add up to 1; normalizing..")
-  pos_missing <- 1 - sum(position)
-  position <- position + pos_missing / length(position)
+  pos_missing <- sum(position)
+  position <- position / pos_missing
   position
 }
 
@@ -260,10 +260,11 @@ get_consensusAA <- function(motif, type, pseudoweight) {
   if (motif[3] >= 0.4 && motif[12] >= 0.4) return("B")
   if (motif[4] >= 0.4 && motif[14] >= 0.4) return("Z")
   if (motif[8] >= 0.4 && motif[10] >= 0.4) return("J")
-  if (all(motif == 0.05)) return("X")
+  if (all(motif == 0.05) || all(motif < 0.1)) return("X")
   .aa <- order(motif, decreasing = TRUE)
   if (motif[.aa[1]] == motif[.aa[2]]) return("X")
-  AA_STANDARD[.aa[1]]
+  if (motif[.aa[1]] > 0.2) return(AA_STANDARD[.aa[1]])
+  "X"
 }
 
 .internal_convert <- function(motifs, class = NULL) {

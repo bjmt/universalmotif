@@ -110,7 +110,7 @@
 #'
 #' ##### create random motifs
 #'
-#' # these are generated as PPMs with 10 positions
+#' # these are generated as PPMs with 8 positions
 #'
 #' DNA.motif <- create_motif()
 #' RNA.motif <- create_motif(alphabet = "RNA")
@@ -120,6 +120,14 @@
 #' # the number of positions can be specified
 #'
 #' DNA.motif <- create_motif(5)
+#'
+#' # if the background frequencies are not provided, they are assumed to be
+#' # uniform; if different background frequencies are used, then at each
+#' # position `abs(rnorm(1, mean = bkg[i], sd = min(c(bkg[i], 1 - bkg[i])))`
+#' # is used to generate individual frequencies for each letter
+#'
+#' DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
+#' DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

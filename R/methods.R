@@ -1,4 +1,4 @@
-#' @describeIn create_motif Create a random motif of length 10.
+#' @describeIn create_motif Create a random motif of length 8.
 #' @include universalmotif-class.R
 #' @export
 setMethod("create_motif", signature(input = "missing"),
@@ -14,11 +14,25 @@ setMethod("create_motif", signature(input = "missing"),
             } else {
               alph_len <- length(strsplit(alphabet, "")[[1]])
             }
-            mot <- matrix(rep(NA, alph_len * 10), ncol = 10)
-            for (i in 1:10) {
-              mot[, i] <- runif(alph_len)
-              mot[, i] <- mot[, i] / sum(mot[, i])
+
+            mot <- matrix(rep(NA, alph_len * 8), ncol = 8)
+
+            if (missing(bkg)) {
+              for (i in seq_len(8)) {
+                mot[, i] <- runif(alph_len)
+                mot[, i] <- mot[, i] / sum(mot[, i])
+              }
+            } else {
+              if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
+              for (i in seq_len(8)) {
+                for (j in seq_along(bkg)) {
+                  mot[j, i] <- abs(rnorm(1, mean = bkg[j],
+                                         sd = min(c(bkg[j], 1 - bkg[j]))))
+                }
+                mot[, i] <- mot[, i] / sum(mot[, i])
+              }
             }
+
             if (missing(type) && missing(nsites)) {
               type <- "PPM"
               nsites <- numeric(0)
@@ -57,11 +71,25 @@ setMethod("create_motif", signature(input = "numeric"),
             } else {
               alph_len <- length(strsplit(alphabet, "")[[1]])
             }
+
             mot <- matrix(rep(NA, alph_len * input), nrow = alph_len)
-            for (i in seq_len(input)) {
-              mot[, i] <- runif(alph_len)
-              mot[, i] <- mot[, i] / sum(mot[, i])
+
+            if (missing(bkg)) {
+              for (i in seq_len(input)) {
+                mot[, i] <- runif(alph_len)
+                mot[, i] <- mot[, i] / sum(mot[, i])
+              }
+            } else {
+              if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
+              for (i in seq_len(input)) {
+                for (j in seq_along(bkg)) {
+                  mot[j, i] <- abs(rnorm(1, mean = bkg[j],
+                                         sd = min(c(bkg[j], 1 - bkg[j]))))
+                }
+                mot[, i] <- mot[, i] / sum(mot[, i])
+              }
             }
+
             if (missing(type) && missing(nsites)) {
               type <- "PPM"
               nsites <- numeric(0)
