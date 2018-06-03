@@ -35,6 +35,7 @@ devtools::install_github("bjmt/universalmotif")
   - `merge_motifs`
   - `write_homer`
   - `align_motifs`
+  - `read_matrix`
 
 ## Other todo ##
 
