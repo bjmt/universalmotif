@@ -78,8 +78,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
-                           nsites = motif["nsites"],
-                           schneider_correction = schneider_correction)
+                           nsites = motif["nsites"])
       motif["type"] <- "ICM"
     }
   }
@@ -102,8 +101,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
-                           nsites = motif["nsites"],
-                           schneider_correction = schneider_correction)
+                           nsites = motif["nsites"])
       motif["type"] <- "ICM"
     }
   }
@@ -127,8 +125,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
-                           nsites = motif["nsites"],
-                           schneider_correction = schneider_correction)
+                           nsites = motif["nsites"])
       motif["type"] <- "ICM"
     }
   }
