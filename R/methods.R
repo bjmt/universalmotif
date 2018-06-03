@@ -1,5 +1,91 @@
-#' @describeIn create_motif Create motif from a consensus string.
+#' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R
+#' @export
+setMethod("create_motif", signature(input = "missing"),
+          definition = function(input, alphabet, type, name, pseudoweight, 
+                                bkg, nsites, altname, family, organism,
+                                bkgsites, strand, pval, qval, eval,
+                                extrainfo) {
+            if (missing(alphabet)) alphabet <- "DNA"
+            if (alphabet %in% c("DNA", "RNA")) {
+              alph_len <- 4
+            } else if (alphabet == "AA") {
+              alph_len <- 20
+            } else {
+              alph_len <- length(strsplit(alphabet, "")[[1]])
+            }
+            mot <- matrix(rep(NA, alph_len * 10), ncol = 10)
+            for (i in 1:10) {
+              mot[, i] <- runif(alph_len)
+              mot[, i] <- mot[, i] / sum(mot[, i])
+            }
+            if (missing(type) && missing(nsites)) {
+              type <- "PPM"
+              nsites <- numeric(0)
+            } else if (missing(type)) {
+              type <- "PPM"
+            } else if (missing(nsites) && type == "PCM") {
+              nsites <- 100
+            } else nsites <- numeric(0)
+            margs <- list(type = type, nsites = nsites)
+            if (!missing(altname)) margs <- c(margs, list(altname = altname))
+            if (!missing(family)) margs <- c(margs, list(family = family))
+            if (!missing(organism)) margs <- c(margs, list(organism = organism))
+            if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
+            if (!missing(strand)) margs <- c(margs, list(strand = strand))
+            if (!missing(pval)) margs <- c(margs, list(pval = pval))
+            if (!missing(qval)) margs <- c(margs, list(qval = qval))
+            if (!missing(eval)) margs <- c(margs, list(eval = eval))
+            if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
+            
+            do.call(create_motif, c(list(input = mot), margs,
+                                    list(alphabet = alphabet)))
+          })
+
+#' @describeIn create_motif Create a random motif with a specified length.
+#' @export
+setMethod("create_motif", signature(input = "numeric"),
+          definition = function(input, alphabet, type, name, pseudoweight, 
+                                bkg, nsites, altname, family, organism,
+                                bkgsites, strand, pval, qval, eval,
+                                extrainfo) {
+            if (missing(alphabet)) alphabet <- "DNA"
+            if (alphabet %in% c("DNA", "RNA")) {
+              alph_len <- 4
+            } else if (alphabet == "AA") {
+              alph_len <- 20
+            } else {
+              alph_len <- length(strsplit(alphabet, "")[[1]])
+            }
+            mot <- matrix(rep(NA, alph_len * input), nrow = alph_len)
+            for (i in seq_len(input)) {
+              mot[, i] <- runif(alph_len)
+              mot[, i] <- mot[, i] / sum(mot[, i])
+            }
+            if (missing(type) && missing(nsites)) {
+              type <- "PPM"
+              nsites <- numeric(0)
+            } else if (missing(type)) {
+              type <- "PPM"
+            } else if (missing(nsites) && type == "PCM") {
+              nsites <- 100
+            } else nsites <- numeric(0)
+            margs <- list(type = type, nsites = nsites)
+            if (!missing(altname)) margs <- c(margs, list(altname = altname))
+            if (!missing(family)) margs <- c(margs, list(family = family))
+            if (!missing(organism)) margs <- c(margs, list(organism = organism))
+            if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
+            if (!missing(strand)) margs <- c(margs, list(strand = strand))
+            if (!missing(pval)) margs <- c(margs, list(pval = pval))
+            if (!missing(qval)) margs <- c(margs, list(qval = qval))
+            if (!missing(eval)) margs <- c(margs, list(eval = eval))
+            if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
+            
+            do.call(create_motif, c(list(input = mot), margs,
+                                    list(alphabet = alphabet)))
+          })
+
+#' @describeIn create_motif Create motif from a consensus string.
 #' @export
 setMethod("create_motif", signature(input = "character"),
           definition = function(input, alphabet, type, name, pseudoweight, 

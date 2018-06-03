@@ -3,6 +3,8 @@
 \docType{methods}
 \name{create_motif}
 \alias{create_motif}
+\alias{create_motif,missing-method}
+\alias{create_motif,numeric-method}
 \alias{create_motif,character-method}
 \alias{create_motif,matrix-method}
 \alias{create_motif,XStringSet-method}
@@ -11,6 +13,14 @@
 create_motif(input, alphabet, type = "PCM", name = "motif",
   pseudoweight = 0.8, bkg, nsites, altname, family, organism, bkgsites,
   strand, pval, qval, eval, extrainfo)
+
+\S4method{create_motif}{missing}(input, alphabet, type = "PCM",
+  name = "motif", pseudoweight = 0.8, bkg, nsites, altname, family,
+  organism, bkgsites, strand, pval, qval, eval, extrainfo)
+
+\S4method{create_motif}{numeric}(input, alphabet, type = "PCM",
+  name = "motif", pseudoweight = 0.8, bkg, nsites, altname, family,
+  organism, bkgsites, strand, pval, qval, eval, extrainfo)
 
 \S4method{create_motif}{character}(input, alphabet, type = "PCM",
   name = "motif", pseudoweight = 0.8, bkg, nsites, altname, family,
@@ -66,6 +76,10 @@ Create a motif.
 }
 \section{Methods (by class)}{
 \itemize{
+\item \code{missing}: Create a random motif of length 10.
+
+\item \code{numeric}: Create a random motif with a specified length.
+
 \item \code{character}: Create motif from a consensus string.
 
 \item \code{matrix}: Create motif from a matrix.
@@ -160,6 +174,19 @@ mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
                     nrow = 4, byrow = TRUE)
 
 DNA.motif <- create_motif(mat.ppm, alphabet = "DNA", type = "PPM")
+
+##### create random motifs
+
+# these are generated as PPMs with 10 positions
+
+DNA.motif <- create_motif()
+RNA.motif <- create_motif(alphabet = "RNA")
+AA.motif <- create_motif(alphabet = "AA")
+custom.motif <- create_motif(alphabet = "QWER")
+
+# the number of positions can be specified
+
+DNA.motif <- create_motif(5)
 
 }
 \author{

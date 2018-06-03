@@ -108,6 +108,19 @@
 #'
 #' DNA.motif <- create_motif(mat.ppm, alphabet = "DNA", type = "PPM")
 #'
+#' ##### create random motifs
+#'
+#' # these are generated as PPMs with 10 positions
+#'
+#' DNA.motif <- create_motif()
+#' RNA.motif <- create_motif(alphabet = "RNA")
+#' AA.motif <- create_motif(alphabet = "AA")
+#' custom.motif <- create_motif(alphabet = "QWER")
+#'
+#' # the number of positions can be specified
+#'
+#' DNA.motif <- create_motif(5)
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 setGeneric("create_motif", function(input, alphabet, type = "PCM",
