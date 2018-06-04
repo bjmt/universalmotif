@@ -19,7 +19,7 @@
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
 \S4method{initialize}{universalmotif}(.Object, name, altname, family, organism,
-  motif, alphabet = "DNA", type, icscore, nsites, pseudoweight = 0.8, bkg,
+  motif, alphabet = "DNA", type, icscore, nsites, pseudocount = 0.8, bkg,
   bkgsites, consensus, strand = "+-", pval, qval, eval, extrainfo)
 
 \S4method{show}{universalmotif}(object)
@@ -52,7 +52,7 @@ string representing the letters.}
 
 \item{nsites}{Numeric. Number of sites the motif was constructed from.}
 
-\item{pseudoweight}{Numeric. Correction to be applied to prevent \code{-Inf}
+\item{pseudocount}{Numeric. Correction to be applied to prevent \code{-Inf}
 from apearing in PWM matrices.}
 
 \item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
@@ -104,7 +104,7 @@ motifs.
 
 \item{\code{nsites}}{Numeric. Length 0 or 1.}
 
-\item{\code{pseudoweight}}{Numeric. Length 1.}
+\item{\code{pseudocount}}{Numeric. Length 1.}
 
 \item{\code{bkg}}{Numeric. Length equal to number of letters in alphabet.}
 

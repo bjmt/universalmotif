@@ -12,7 +12,7 @@
 #' @slot type Character. Length 1.
 #' @slot icscore Numeric. Length 1.
 #' @slot nsites Numeric. Length 0 or 1.
-#' @slot pseudoweight Numeric. Length 1.
+#' @slot pseudocount Numeric. Length 1.
 #' @slot bkg Numeric. Length equal to number of letters in alphabet.
 #' @slot bkgsites Numeric. Lenght 0 or 1.
 #' @slot consensus Character. Length 0 or 1.
@@ -37,7 +37,7 @@ universalmotif <- setClass("universalmotif",
                                         alphabet = "character",
                                         type = "character", icscore = "numeric",
                                         nsites = "numeric",
-                                        pseudoweight = "numeric",
+                                        pseudocount = "numeric",
                                         bkg = "numeric",
                                         bkgsites = "numeric",
                                         consensus = "character",
@@ -100,7 +100,7 @@ setValidity("universalmotif",
 
             ## numeric slot length checks
 
-            num_checks <- c("pval", "qval", "eval", "bkgsites", "pseudoweight",
+            num_checks <- c("pval", "qval", "eval", "bkgsites", "pseudocount",
                             "nsites")
             num_results <- vapply(num_checks,
                                   function(x) length(object[x]) <= 1,

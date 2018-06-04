@@ -31,7 +31,7 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
 
   motif_scores <- apply(motif["motif"], 2, position_icscore,
                         bkg = motif["bkg"], type = motif["type"],
-                        pseudoweight = motif["pseudoweight"],
+                        pseudocount = motif["pseudocount"],
                         nsites = motif["nsites"])
   to_cut <- rep(TRUE, length(motif_scores))
   for (i in seq_along(motif_scores)) {
@@ -47,7 +47,7 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
                           alphabet = motif["alphabet"], type = motif["type"],
                           organism = motif["organism"],
                           nsites = motif["nsites"],
-                          pseudoweight = motif["pseudoweight"],
+                          pseudocount = motif["pseudocount"],
                           bkg = motif["bkg"], bkgsites = motif["bkgsites"],
                           strand = motif["strand"], pval = motif["pval"],
                           qval = motif["qval"], eval = motif["eval"],

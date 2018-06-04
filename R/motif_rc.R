@@ -29,7 +29,7 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
                            alphabet = motifs["alphabet"], type = motifs["type"],
                            organism = motifs["organism"],
                            nsites = motifs["nsites"],
-                           pseudoweight = motifs["pseudoweight"],
+                           pseudocount = motifs["pseudocount"],
                            bkg = motifs["bkg"], bkgsites = motifs["bkgsites"],
                            strand = motifs["strand"], pval = motifs["pval"],
                            qval = motifs["qval"], eval = motifs["eval"],

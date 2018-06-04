@@ -56,7 +56,7 @@ merge_motifs <- function(motifs, newname = "merged motif",
     if (length(alphabet) != 1) stop("all motifs must share the same alphabet")
     if (!alphabet %in% c("DNA", "RNA")) stop("only DNA and RNA alphabets are allowed")
 
-    motifs <- convert_type(motifs, "PPM", pseudoweight = 0)
+    motifs <- convert_type(motifs, "PPM", pseudocount = 0)
 
     if (tryRC) {
       motifs.rc <- motif_rc(motifs)
@@ -135,8 +135,8 @@ merge_motifs <- function(motifs, newname = "merged motif",
     final.matrix <- apply(matrix.array, c(1, 2), mean, na.rm = TRUE)
 
     margs <- list()
-    pseudoweight <- unique(vapply(motifs, function(x) x["pseudoweight"], numeric(1)))
-    if (length(pseudoweight) == 1) margs <- c(margs, list(pseudoweight = pseudoweight))
+    pseudocount <- unique(vapply(motifs, function(x) x["pseudocount"], numeric(1)))
+    if (length(pseudocount) == 1) margs <- c(margs, list(pseudocount = pseudocount))
     altname <- unique(unlist(sapply(motifs, function(x) x["altname"])))
     if (length(altname) == 1) margs <- c(margs, list(altname = altname))
     nsites <- unique(unlist(sapply(motifs, function(x) x["nsites"])))

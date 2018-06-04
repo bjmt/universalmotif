@@ -7,7 +7,7 @@ setMethod("[", "universalmotif", function(x, i) {
 
   if (missing(i)) {
     i <- c("name", "altname", "family", "organism", "motif", "alphabet", "type",
-               "icscore", "nsites", "pseudoweight", "bkg", "bkgsites",
+               "icscore", "nsites", "pseudocount", "bkg", "bkgsites",
                "consensus", "strand", "pval", "qval", "eval", "extrainfo")
   }
 
@@ -43,7 +43,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
 #' @param icscore Numeric. Total information content. Automatically generated.
 #' @param nsites Numeric. Number of sites the motif was constructed from.
-#' @param pseudoweight Numeric. Correction to be applied to prevent \code{-Inf}
+#' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
 #'                     from apearing in PWM matrices.
 #' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
 #'            length.
@@ -63,7 +63,7 @@ setMethod("initialize", signature = "universalmotif",
           definition = function(.Object, name, altname, family, 
                                 organism, motif,
                                 alphabet = "DNA", type, icscore, nsites,
-                                pseudoweight = 0.8, bkg, bkgsites,
+                                pseudocount = 0.8, bkg, bkgsites,
                                 consensus, strand = "+-", pval,
                                 qval, eval, extrainfo) {
             
@@ -155,12 +155,12 @@ setMethod("initialize", signature = "universalmotif",
             if (missing(icscore) || length(icscore) == 0 || is.na(icscore)) {
               icscores <- apply(motif, 2, position_icscore,
                                 bkg = bkg, type = type,
-                                pseudoweight = pseudoweight, nsites = nsites)
+                                pseudocount = pseudocount, nsites = nsites)
               icscore <- sum(icscores)
             }
             .Object@icscore <- icscore
 
-            .Object@pseudoweight <- pseudoweight
+            .Object@pseudocount <- pseudocount
 
             if (missing(bkgsites) || length(bkgsites) == 0 ||
                 is.na(bkgsites)) {
@@ -172,11 +172,11 @@ setMethod("initialize", signature = "universalmotif",
               is.na(consensus)) {
               if (.Object@alphabet %in% c("DNA", "RNA")) {
                 consensus <- apply(motif, 2, get_consensus, alphabet = alphabet,
-                                   type = type, pseudoweight = pseudoweight)
+                                   type = type, pseudocount = pseudocount)
                 .Object@consensus <- paste(consensus, collapse = "")
               } else if (.Object@alphabet == "AA") {
                 consensus <- apply(motif, 2, get_consensusAA, type = type,
-                                   pseudoweight = pseudoweight)
+                                   pseudocount = pseudocount)
                 .Object@consensus <- consensus
               } else .Object@consensus <- character(0)
             }

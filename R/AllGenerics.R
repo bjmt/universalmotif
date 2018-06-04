@@ -6,7 +6,7 @@
 #'                 string representing the letters.
 #' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
 #' @param name Character. Motif name.
-#' @param pseudoweight Numeric. Correction to be applied to prevent \code{-Inf}
+#' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
 #'                     from apearing in PWM matrices.
 #' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
 #'            length.
@@ -28,7 +28,7 @@
 #' ##### create motifs from a single string
 #'
 #' # motif is initially generated as a PCM; change final type as desired
-#' DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudoweight = 0)
+#' DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudocount = 0)
 #'
 #' # nsites will be set to the number of input sequences unless specified 
 #' DNA.motif <- create_motif("TTTTTTT", nsites = 10)
@@ -136,7 +136,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 setGeneric("create_motif", function(input, alphabet, type = "PCM",
-                                    name = "motif", pseudoweight = 0.8,
+                                    name = "motif", pseudocount = 0.8,
                                     bkg, nsites, altname, family,
                                     organism, bkgsites, strand, pval, qval,
                                     eval, extrainfo)

@@ -32,7 +32,7 @@ align_motifs <- function(motifs,
   if (length(alphabet) != 1) stop("all motifs must share the same alphabet")
   if (!alphabet %in% c("DNA", "RNA")) stop("only DNA and RNA alphabets are allowed")
 
-  motifs <- convert_type(motifs, "PPM", pseudoweight = 0)
+  motifs <- convert_type(motifs, "PPM", pseudocount = 0)
 
   # if (tryRC) {
     # motifs.rc <- motif_rc(motifs)
@@ -112,13 +112,13 @@ align_motifs <- function(motifs,
                                                         get_consensus,
                                                         alphabet = x["alphabet"],
                                                         type = "PPM",
-                                                        pseudoweight = x["pseudoweight"])
+                                                        pseudocount = x["pseudocount"])
                                 colnames(x@motif) <- x["consensus"]
                               } else if (x["alphabet"] == "AA") {
                                 x["consensus"] <- apply(x["motif"], 2,
                                                         get_consensusAA,
                                                         type = "PPM",
-                                                        pseudoweight = x["pseudoweight"])
+                                                        pseudocount = x["pseudocount"])
                                 colnames(x@motif) <- x["consensus"]
                               }
                               return(x)

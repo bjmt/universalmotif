@@ -2,7 +2,7 @@
 #'
 #' @param motifs Motif object or list.
 #' @param type Character. Either PCM, PPM, PWM, ICM.
-#' @param pseudoweight Numeric.
+#' @param pseudocount Numeric.
 #' @param bkg Numeric.
 #' @param BPPARAM Param for bplapply.
 #'
@@ -15,12 +15,12 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-convert_type <- function(motifs, type, pseudoweight, bkg,
+convert_type <- function(motifs, type, pseudocount, bkg,
                          BPPARAM = bpparam()) {
 
-  if (!missing(pseudoweight)) {
-    if (!is.numeric(pseudoweight)) stop("pseudoweight must be a numeric vector")
-    if (length(pseudoweight) > 1) stop("pseudoweight must a length one vector")
+  if (!missing(pseudocount)) {
+    if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")
+    if (length(pseudocount) > 1) stop("pseudocount must a length one vector")
   }
 
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
@@ -32,7 +32,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
   motif <- motifs
   if (class(motif) == "list") {
     margs <- list(type = type) 
-    if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
+    if (!missing(pseudocount)) margs <- c(margs, list(pseudocount = pseudocount))
     if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
     motif <- bplapply(motif, function(x) do.call(convert_type,
                                                  c(list(motifs = x), 
@@ -54,27 +54,27 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
 
   if (in_type == type) return(motif)
 
-  if (missing(pseudoweight)) pseudoweight <- motif["pseudoweight"]
+  if (missing(pseudocount)) pseudocount <- motif["pseudocount"]
   if (missing(bkg)) bkg <- motif["bkg"]
 
   # PCM in:
   if (in_type == "PCM") {
     if (type == "PPM") {
       motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
-                           pseudoweight = pseudoweight)
+                           pseudocount = pseudocount)
       motif["type"] <- "PPM"
     } else if (type == "PWM") {
       motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
-                           pseudoweight = pseudoweight)
+                           pseudocount = pseudocount)
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
                            background = bkg,
                            smooth = any(motif["motif"] == 0),
-                           pseudoweight = pseudoweight,
+                           pseudocount = pseudocount,
                            nsites = motif["nsites"])
       motif["type"] <- "PWM"
     } else if (type == "ICM") {
       motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
-                           pseudoweight = pseudoweight)
+                           pseudocount = pseudocount)
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
@@ -94,7 +94,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
                            background = bkg,
                            smooth = any(motif["motif"] == 0),
-                           pseudoweight = pseudoweight,
+                           pseudocount = pseudocount,
                            nsites = motif["nsites"])
       motif["type"] <- "PWM"
     } else if (type == "ICM") {
@@ -144,7 +144,7 @@ convert_type <- function(motifs, type, pseudoweight, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
                            background = bkg,
                            smooth = any(motif["motif"] == 0),
-                           pseudoweight = pseudoweight,
+                           pseudocount = pseudocount,
                            nsites = motif["nsites"])
       motif["type"] <- "PWM"
     }

@@ -12,7 +12,7 @@
 #' @import ggtree
 #' @import BiocParallel
 #' @import msa
-#' @importFrom stats as.dist hclust runif
+#' @importFrom stats as.dist hclust runif rnorm
 #' @importFrom utils combn read.table
 #' @importFrom Biostrings width consensusMatrix BString AAString 
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet

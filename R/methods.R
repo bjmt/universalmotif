@@ -2,7 +2,7 @@
 #' @include universalmotif-class.R
 #' @export
 setMethod("create_motif", signature(input = "missing"),
-          definition = function(input, alphabet, type, name, pseudoweight, 
+          definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
@@ -10,7 +10,7 @@ setMethod("create_motif", signature(input = "missing"),
             margs <- list()
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(name)) margs <- c(margs, list(name = name))
-            if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
+            if (!missing(pseudocount)) margs <- c(margs, list(pseudocount = pseudocount))
             if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(alphabet)) margs <- c(margs, list(alphabet = alphabet))
             if (!missing(type)) margs <- c(margs, list(type = type))
@@ -31,7 +31,7 @@ setMethod("create_motif", signature(input = "missing"),
 #' @describeIn create_motif Create a random motif with a specified length.
 #' @export
 setMethod("create_motif", signature(input = "numeric"),
-          definition = function(input, alphabet, type, name, pseudoweight, 
+          definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
@@ -75,7 +75,7 @@ setMethod("create_motif", signature(input = "numeric"),
             if (!missing(name)) margs <- c(margs, list(name = name))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
             if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
-            if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
+            if (!missing(pseudocount)) margs <- c(margs, list(pseudocount = pseudocount))
             if (!missing(family)) margs <- c(margs, list(family = family))
             if (!missing(organism)) margs <- c(margs, list(organism = organism))
             if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
@@ -92,7 +92,7 @@ setMethod("create_motif", signature(input = "numeric"),
 #' @describeIn create_motif Create motif from a consensus string.
 #' @export
 setMethod("create_motif", signature(input = "character"),
-          definition = function(input, alphabet, type, name, pseudoweight, 
+          definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
@@ -152,7 +152,7 @@ setMethod("create_motif", signature(input = "character"),
               }
               motif <- matrix(unlist(motif2), ncol = mot_len, byrow = TRUE)
             }
-            margs <- list(name = name, pseudoweight = pseudoweight)
+            margs <- list(name = name, pseudocount = pseudocount)
             if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) {
               margs <- c(margs, list(nsites = nsites))
@@ -198,7 +198,7 @@ setMethod("create_motif", signature(input = "character"),
                                  list(alphabet = alphabet)))
               return(motif)
             }
-            motif <- apply(motif, 2, pcm_to_ppm, pseudoweight = 0)
+            motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
             motif <- do.call(universalmotif, c(list(motif = motif),
                                                list(alphabet = alphabet),
                                                list(type = "PPM"),
@@ -235,7 +235,7 @@ setMethod("create_motif", signature(input = "character"),
 #' @describeIn create_motif Create motif from a matrix.
 #' @export
 setMethod("create_motif", signature(input = "matrix"),
-          definition = function(input, alphabet, type, name, pseudoweight,
+          definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, 
                                 altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
@@ -284,7 +284,7 @@ setMethod("create_motif", signature(input = "matrix"),
               }
             }
 
-            margs <- list(name = name, pseudoweight = pseudoweight)
+            margs <- list(name = name, pseudocount = pseudocount)
             if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
@@ -297,7 +297,7 @@ setMethod("create_motif", signature(input = "matrix"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
 
-            motif <- apply(matrix, 2, pcm_to_ppm, pseudoweight = 0)
+            motif <- apply(matrix, 2, pcm_to_ppm, pseudocount = 0)
 
             motif <- do.call(universalmotif, c(list(motif = motif), margs,
                                                # list(type = "PPM"),
@@ -313,7 +313,7 @@ setMethod("create_motif", signature(input = "matrix"),
 #' @describeIn create_motif Create motif from an \linkS4class{XStringSet} object.
 #' @export
 setMethod("create_motif", signature(input = "XStringSet"),
-          definition = function(input, alphabet, type, name, pseudoweight, 
+          definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites,
                                 altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
@@ -325,7 +325,7 @@ setMethod("create_motif", signature(input = "XStringSet"),
               stop("all sequences must be the same width")
             }
 
-            margs <- list(name = name, pseudoweight = pseudoweight)
+            margs <- list(name = name, pseudocount = pseudocount)
             if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
@@ -342,7 +342,7 @@ setMethod("create_motif", signature(input = "XStringSet"),
             if (alph == "DNAString") {
               sequences <- consensusMatrix(sequences, baseOnly = TRUE)
               if (sum(sequences[5, ]) > 0) stop("only ACGT are accepted for DNA")
-              motif <- apply(sequences[1:4, ], 2, pcm_to_ppm, pseudoweight = 0)
+              motif <- apply(sequences[1:4, ], 2, pcm_to_ppm, pseudocount = 0)
               motif <- do.call(universalmotif, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -350,7 +350,7 @@ setMethod("create_motif", signature(input = "XStringSet"),
             } else if (alph == "RNAString") {
               sequences <- consensusMatrix(sequences, baseOnly = TRUE)
               if (sum(sequences[5, ]) > 0) stop("only ACGU are accepted for RNA")
-              motif <- apply(sequences[1:4, ], 2, pcm_to_ppm, pseudoweight = 0)
+              motif <- apply(sequences[1:4, ], 2, pcm_to_ppm, pseudocount = 0)
               motif <- do.call(universalmotif, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -367,14 +367,14 @@ setMethod("create_motif", signature(input = "XStringSet"),
                 if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
               }
               motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
-              motif <- apply(motif, 2, pcm_to_ppm, pseudoweight = 0)
+              motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
               motif <- do.call(universalmotif, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
                                                  list(alphabet = "AA")))
             } else if (alph == "custom" || missing(alphabet)) {
               sequences <- consensusMatrix(sequences)
-              motif <- apply(sequences, 2, pcm_to_ppm, pseudoweight = 0)
+              motif <- apply(sequences, 2, pcm_to_ppm, pseudocount = 0)
               motif <- do.call(universalmotif, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -389,7 +389,7 @@ setMethod("create_motif", signature(input = "XStringSet"),
                 if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
               }
               motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
-              motif <- apply(motif, 2, pcm_to_ppm, pseudoweight = 0)
+              motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
               motif <- do.call(universalmotif, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -506,7 +506,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               names(bio_priors) <- DNA_BASES
               bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
                                              prior.params = bio_priors,
-                                             pseudo.count = motifs["pseudoweight"])
+                                             pseudo.count = motifs["pseudocount"])
               motifs <- new(PWM_class, name = motifs["name"],
                             pfm = motifs["motif"],
                             prior.params = bio_priors,

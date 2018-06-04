@@ -4,14 +4,14 @@
 \alias{convert_type}
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
-convert_type(motifs, type, pseudoweight, bkg, BPPARAM = bpparam())
+convert_type(motifs, type, pseudocount, bkg, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{Motif object or list.}
 
 \item{type}{Character. Either PCM, PPM, PWM, ICM.}
 
-\item{pseudoweight}{Numeric.}
+\item{pseudocount}{Numeric.}
 
 \item{bkg}{Numeric.}
 

@@ -37,12 +37,12 @@ icm_to_ppm <- function(position) {
   ppm
 }
 
-pcm_to_ppm <- function(position, possum, pseudoweight = 0.8) {
+pcm_to_ppm <- function(position, possum, pseudocount = 0.8) {
   if (missing(possum)) possum <- sum(position)
   num_letters <- length(position)
-  if (pseudoweight != 0) {
+  if (pseudocount != 0) {
     pos <- vapply(position, function(x)
-                  (x + (pseudoweight / num_letters)) / (possum + pseudoweight),
+                  (x + (pseudocount / num_letters)) / (possum + pseudocount),
                   double(1))
   } else {
     pos <- vapply(position, function(x) x / possum, double(1))
@@ -61,11 +61,11 @@ ppm_to_pcm <- function(position, nsites = 100) {
 }
 
 ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
-                       pseudoweight = 0.8, nsites = 100, smooth = TRUE) {
+                       pseudocount = 0.8, nsites = 100, smooth = TRUE) {
   if (length(nsites) == 0) nsites <- 100
   if (smooth) {
     position <- ppm_to_pcm(position, nsites = nsites)
-    position <- pcm_to_ppm(position, pseudoweight = pseudoweight)
+    position <- pcm_to_ppm(position, pseudocount = pseudocount)
   }
   for (i in seq_along(position)) {
     position[i] <- log2(position[i] / background[i])
@@ -85,7 +85,7 @@ pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
 }
 
 position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
-                             pseudoweight = 0.8, nsites = 100) {
+                             pseudocount = 0.8, nsites = 100) {
 
   bkg <- rep(1 / length(bkg), length(bkg))
 
@@ -96,14 +96,14 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
 
   if (type == "PCM") {
       possum <- sum(motif)
-      motif <- pcm_to_ppm(motif, possum, pseudoweight)
+      motif <- pcm_to_ppm(motif, possum, pseudocount)
   }
   if (type == "PWM") motif <- pwm_to_ppm(motif, background = bkg)
   if (type == "ICM") return(sum(motif))
 
   if (type == "PPM") {
     motif <- ppm_to_pcm(position = motif, nsites = nsites)
-    motif <- pcm_to_ppm(position = motif, pseudoweight = pseudoweight)
+    motif <- pcm_to_ppm(position = motif, pseudocount = pseudocount)
   }
 
   # ic <- vector(length = length(motif))
@@ -125,13 +125,13 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
 }
 
 get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
-                          pseudoweight = 0.8) {
+                          pseudocount = 0.8) {
 
   pos <- mot_matrix
 
   if (type == "PCM") {
     possum <- sum(pos)
-    pos <- pcm_to_ppm(pos, possum, pseudoweight)
+    pos <- pcm_to_ppm(pos, possum, pseudocount)
     type <- "PPM"
   }
 
@@ -243,10 +243,10 @@ consensus_to_ppmAA <- function(letter) {
   c(rep(0.001, i - 1), 0.981, rep(0.001, 20 - i))
 }
 
-get_consensusAA <- function(motif, type, pseudoweight) {
+get_consensusAA <- function(motif, type, pseudocount) {
   if (type == "PCM") {
     possum <- sum(motif)
-    motif <- pcm_to_ppm(motif, possum, pseudoweight)
+    motif <- pcm_to_ppm(motif, possum, pseudocount)
     type <- "PPM"
   }
   if (type == "PWM") {
