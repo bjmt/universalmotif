@@ -36,47 +36,51 @@ create_motif(input, alphabet, type = "PCM", name = "motif",
 }
 \arguments{
 \item{input}{One of character vector, matrix (PCM, PPM, PWM, or ICM), or
-XStringSet.}
+\linkS4class{XStringSet}.}
 
-\item{alphabet}{Character.}
+\item{alphabet}{Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
+string representing the letters.}
 
-\item{type}{Character.}
+\item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
 
-\item{name}{Character.}
+\item{name}{Character. Motif name.}
 
-\item{pseudoweight}{Numeric.}
+\item{pseudoweight}{Numeric. Correction to be applied to prevent \code{-Inf}
+from apearing in PWM matrices.}
 
-\item{bkg}{Numeric.}
+\item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
+length.}
 
-\item{nsites}{Numeric.}
+\item{nsites}{Numeric. Number of sites the motif was constructed from.}
 
-\item{altname}{Character.}
+\item{altname}{Character. Alternate motif name.}
 
-\item{family}{Character.}
+\item{family}{Character. Transcription factor family.}
 
-\item{organism}{Character.}
+\item{organism}{Character. Species of origin.}
 
-\item{bkgsites}{Numeric.}
+\item{bkgsites}{Numeric. Total number of sites used to find the motif.}
 
-\item{strand}{Character.}
+\item{strand}{Character. Whether the motif is specific to a certain strand.}
 
-\item{pval}{Numeric.}
+\item{pval}{Numeric. P-value associated with motif.}
 
-\item{qval}{Numeric.}
+\item{qval}{Numeric. Adjusted P-value associated with motif.}
 
-\item{eval}{Numeric.}
+\item{eval}{Numeric. E-value associated with motif.}
 
-\item{extrainfo}{Character.}
+\item{extrainfo}{Character. Any other extra information, represented as
+a named character vector.}
 }
 \value{
-Motif object.
+\linkS4class{universalmotif} object.
 }
 \description{
 Create a motif.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{missing}: Create a random motif of length 8.
+\item \code{missing}: Create a random motif of length 10.
 
 \item \code{numeric}: Create a random motif with a specified length.
 
@@ -84,7 +88,7 @@ Create a motif.
 
 \item \code{matrix}: Create motif from a matrix.
 
-\item \code{XStringSet}: Create motif from an XStringSet object.
+\item \code{XStringSet}: Create motif from an \linkS4class{XStringSet} object.
 }}
 
 \examples{
@@ -177,7 +181,7 @@ DNA.motif <- create_motif(mat.ppm, alphabet = "DNA", type = "PPM")
 
 ##### create random motifs
 
-# these are generated as PPMs with 8 positions
+# these are generated as PPMs with 10 positions
 
 DNA.motif <- create_motif()
 RNA.motif <- create_motif(alphabet = "RNA")
@@ -190,7 +194,7 @@ DNA.motif <- create_motif(5)
 
 # if the background frequencies are not provided, they are assumed to be
 # uniform; if different background frequencies are used, then at each
-# position `abs(rnorm(1, mean = bkg[i], sd = min(c(bkg[i], 1 - bkg[i])))`
+# position \\code{abs(rnorm(1, mean = bkg[i], sd = min(c(bkg[i], 1 - bkg[i])))}
 # is used to generate individual frequencies for each letter
 
 DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))

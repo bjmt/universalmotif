@@ -1,24 +1,28 @@
 #' Create a motif.
 #'
 #' @param input One of character vector, matrix (PCM, PPM, PWM, or ICM), or
-#'              XStringSet.
-#' @param alphabet Character.
-#' @param type Character.
-#' @param name Character.
-#' @param pseudoweight Numeric.
-#' @param bkg Numeric.
-#' @param nsites Numeric.
-#' @param altname Character.
-#' @param family Character.
-#' @param organism Character.
-#' @param bkgsites Numeric.
-#' @param strand Character.
-#' @param pval Numeric.
-#' @param qval Numeric.
-#' @param eval Numeric.
-#' @param extrainfo Character.
+#'              \linkS4class{XStringSet}.
+#' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
+#'                 string representing the letters.
+#' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
+#' @param name Character. Motif name.
+#' @param pseudoweight Numeric. Correction to be applied to prevent \code{-Inf}
+#'                     from apearing in PWM matrices.
+#' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
+#'            length.
+#' @param nsites Numeric. Number of sites the motif was constructed from.
+#' @param altname Character. Alternate motif name.
+#' @param family Character. Transcription factor family.
+#' @param organism Character. Species of origin.
+#' @param bkgsites Numeric. Total number of sites used to find the motif.
+#' @param strand Character. Whether the motif is specific to a certain strand.
+#' @param pval Numeric. P-value associated with motif.
+#' @param qval Numeric. Adjusted P-value associated with motif.
+#' @param eval Numeric. E-value associated with motif.
+#' @param extrainfo Character. Any other extra information, represented as
+#'                  a named character vector.
 #'
-#' @return Motif object.
+#' @return \linkS4class{universalmotif} object.
 #'
 #' @examples
 #' ##### create motifs from a single string
@@ -110,7 +114,7 @@
 #'
 #' ##### create random motifs
 #'
-#' # these are generated as PPMs with 8 positions
+#' # these are generated as PPMs with 10 positions
 #'
 #' DNA.motif <- create_motif()
 #' RNA.motif <- create_motif(alphabet = "RNA")
@@ -123,7 +127,7 @@
 #'
 #' # if the background frequencies are not provided, they are assumed to be
 #' # uniform; if different background frequencies are used, then at each
-#' # position `abs(rnorm(1, mean = bkg[i], sd = min(c(bkg[i], 1 - bkg[i])))`
+#' # position \code{abs(rnorm(1, mean = bkg[i], sd = min(c(bkg[i], 1 - bkg[i])))}
 #' # is used to generate individual frequencies for each letter
 #'
 #' DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
@@ -141,15 +145,76 @@ setGeneric("create_motif", function(input, alphabet, type = "PCM",
 #' Convert motif class.
 #'
 #' @param motifs Single motif object or list.
-#' @param class Desired motif class. E.g. 'motifStack-pfm'.
-#' @param BPPARAM Param for bplapply.
+#' @param class Desired motif class. Input as 'package-class'. If left empty,
+#'              defaults to 'universalmotif-universalmotif'. (See details.)
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Single motif object or list.
 #'
+#' @details
+#'    The following packge-class combinations can be used as input:
+#'    \itemize{
+#'       \item MotifDb-MotifList
+#'       \item TFBSTools-PFMatrix
+#'       \item TFBSTools-PWMatrix
+#'       \item TFBSTools-ICMatrix
+#'       \item TFBSTools-PFMatrixList
+#'       \item TFBSTools-PWMatrixList
+#'       \item TFBSTools-ICMatrixList
+#'       \item seqLogo-pwm
+#'       \item motifStack-pcm
+#'       \item motifStack-pfm
+#'       \item PWMEnrich-PWM
+#'       \item motifRG-Motif
+#'       \item universalmotif-universalmotif
+#'    }
+#'
+#'    The following package-class combinations can be output:
+#'    \itemize{
+#'       \item MotIV-pwm2
+#'       \item TFBSTools-PFMatrix
+#'       \item TFBSTools-PWMatrix
+#'       \item TFBSTools-ICMatrix
+#'       \item seqLogo-pwm
+#'       \item motifStack-pcm
+#'       \item motifStack-pfm
+#'       \item PWMEnrich-PWM
+#'       \item Biostrings-PWM
+#'       \item rGADEM-motif
+#'    }
+#'
 #' @examples
+#' # convert from universalmotif:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
+#'
+#' # convert from another class to universalmotif:
+#' library(TFBSTools)
+#' data(MA0003.2)
+#' motif <- convert_motifs(MA0003.2)
+#'
+#' # convert from another class to another class
+#' motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+#'
+#' @references
+#'    \insertRef{motiv}{universalmotif}
+#'
+#'    \insertRef{motifdb}{universalmotif}
+#'
+#'    \insertRef{tfbstools}{universalmotif}
+#'
+#'    \insertRef{seqlogo}{universalmotif}
+#'
+#'    \insertRef{motifstack}{universalmotif}
+#'
+#'    \insertRef{pwmenrich}{universalmotif}
+#'
+#'    \insertRef{motifrg}{universalmotif}
+#'
+#'    \insertRef{rgadem}{universalmotif}
+#'
+#'    \insertRef{biostrings}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

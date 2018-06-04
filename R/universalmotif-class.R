@@ -1,27 +1,28 @@
 #' universalmotif: Motif class.
 #'
-#' Container for motif objects.
+#' Container for motif objects. See \code{\link{create_motif}} for creating
+#' motifs.
 #'
-#' @slot name Character. Motif name.
-#' @slot altname Character.
-#' @slot family Character.
-#' @slot organism Character.
-#' @slot motif Matrix. Contains motif.
-#' @slot alphabet Character. Can be: DNA, RNA, AA, custom.
-#' @slot type Character. Can be: PCM, PPM, PWM.
-#' @slot icscore Numeric. Total information content for all positions.
-#' @slot nsites Numeric. Total number of sites.
-#' @slot pseudoweight Numeric. Amount of smoothing to apply.
-#' @slot bkg Numeric. Background letter frequencies.
-#' @slot bkgsites Numeric.
-#' @slot consensus Character. Motif consensus sequence.
-#' @slot strand Character. '+' and/or '-'.
-#' @slot pval Numeric.
-#' @slot qval Numeric.
-#' @slot eval Numeric.
-#' @slot extrainfo List.
+#' @slot name Character. Length 1.
+#' @slot altname Character. Length 0 or 1.
+#' @slot family Character. Length 0 or 1.
+#' @slot organism Character. Length 0 or 1.
+#' @slot motif Matrix.
+#' @slot alphabet Character. Length 1.
+#' @slot type Character. Length 1.
+#' @slot icscore Numeric. Length 1.
+#' @slot nsites Numeric. Length 0 or 1.
+#' @slot pseudoweight Numeric. Length 1.
+#' @slot bkg Numeric. Length equal to number of letters in alphabet.
+#' @slot bkgsites Numeric. Lenght 0 or 1.
+#' @slot consensus Character. Length 0 or 1.
+#' @slot strand Character. Length 1.
+#' @slot pval Numeric. Length 0 or 1.
+#' @slot qval Numeric. Length 0 or 1.
+#' @slot eval Numeric. Length 0 or 1.
+#' @slot extrainfo Character. Length 0 or more.
 #'
-#' @return A motif object.
+#' @return A motif object of class \linkS4class{universalmotif}.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name universalmotif-class

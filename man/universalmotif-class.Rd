@@ -33,88 +33,94 @@
 
 \item{.Object}{universalmotif object.}
 
-\item{name}{Character.}
+\item{name}{Character. Motif name.}
 
-\item{altname}{Character.}
+\item{altname}{Character. Alternate motif name.}
 
-\item{family}{Character.}
+\item{family}{Character. Transcription factor family.}
 
-\item{organism}{Character.}
+\item{organism}{Character. Species of origin.}
 
 \item{motif}{Matrix.}
 
-\item{alphabet}{Character.}
+\item{alphabet}{Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
+string representing the letters.}
 
-\item{type}{Character.}
+\item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
 
-\item{icscore}{Numeric.}
+\item{icscore}{Numeric. Total information content. Automatically generated.}
 
-\item{nsites}{Numeric.}
+\item{nsites}{Numeric. Number of sites the motif was constructed from.}
 
-\item{pseudoweight}{Numeric.}
+\item{pseudoweight}{Numeric. Correction to be applied to prevent \code{-Inf}
+from apearing in PWM matrices.}
 
-\item{bkg}{Numeric.}
+\item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
+length.}
 
-\item{bkgsites}{Numeric.}
+\item{bkgsites}{Numeric. Total number of sites used to find the motif.}
 
-\item{consensus}{Character.}
+\item{consensus}{Character. Consensus string. Automatically generated for 
+'DNA', 'RNA', and 'AA' alphabets.}
 
-\item{strand}{Character.}
+\item{strand}{Character. Whether the motif is specific to a certain strand.}
 
-\item{pval}{Numeric.}
+\item{pval}{Numeric. P-value associated with motif.}
 
-\item{qval}{Numeric.}
+\item{qval}{Numeric. Adjusted P-value associated with motif.}
 
-\item{eval}{Numeric.}
+\item{eval}{Numeric. E-value associated with motif.}
 
-\item{extrainfo}{Character.}
+\item{extrainfo}{Character. Any other extra information, represented as
+a named character vector.}
 
-\item{object}{universalmotif object.}
+\item{object}{\linkS4class{universalmotif} object.}
 }
 \value{
-A motif object.
+A motif object of class \linkS4class{universalmotif}.
 }
 \description{
-Container for motif objects.
+Container for motif objects. See \code{\link{create_motif}} for creating
+motifs.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{name}}{Character. Motif name.}
+\item{\code{name}}{Character. Length 1.}
 
-\item{\code{altname}}{Character.}
+\item{\code{altname}}{Character. Length 0 or 1.}
 
-\item{\code{family}}{Character.}
+\item{\code{family}}{Character. Length 0 or 1.}
 
-\item{\code{organism}}{Character.}
+\item{\code{organism}}{Character. Length 0 or 1.}
 
-\item{\code{motif}}{Matrix. Contains motif.}
+\item{\code{motif}}{Matrix.}
 
-\item{\code{alphabet}}{Character. Can be: DNA, RNA, AA, custom.}
+\item{\code{alphabet}}{Character. Length 1.}
 
-\item{\code{type}}{Character. Can be: PCM, PPM, PWM.}
+\item{\code{type}}{Character. Length 1.}
 
-\item{\code{icscore}}{Numeric. Total information content for all positions.}
+\item{\code{icscore}}{Numeric. Length 1.}
 
-\item{\code{nsites}}{Numeric. Total number of sites.}
+\item{\code{nsites}}{Numeric. Length 0 or 1.}
 
-\item{\code{pseudoweight}}{Numeric. Amount of smoothing to apply.}
+\item{\code{pseudoweight}}{Numeric. Length 1.}
 
-\item{\code{bkg}}{Numeric. Background letter frequencies.}
+\item{\code{bkg}}{Numeric. Length equal to number of letters in alphabet.}
 
-\item{\code{bkgsites}}{Numeric.}
+\item{\code{bkgsites}}{Numeric. Lenght 0 or 1.}
 
-\item{\code{consensus}}{Character. Motif consensus sequence.}
+\item{\code{consensus}}{Character. Length 0 or 1.}
 
-\item{\code{strand}}{Character. '+' and/or '-'.}
+\item{\code{strand}}{Character. Length 1.}
 
-\item{\code{pval}}{Numeric.}
+\item{\code{pval}}{Numeric. Length 0 or 1.}
 
-\item{\code{qval}}{Numeric.}
+\item{\code{qval}}{Numeric. Length 0 or 1.}
 
-\item{\code{eval}}{Numeric.}
+\item{\code{eval}}{Numeric. Length 0 or 1.}
 
-\item{\code{extrainfo}}{List.}
+\item{\code{extrainfo}}{Character. Length 0 or more.}
 }}
 
 \author{

@@ -1,4 +1,4 @@
-#' @describeIn create_motif Create a random motif of length 8.
+#' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R
 #' @export
 setMethod("create_motif", signature(input = "missing"),
@@ -6,42 +6,14 @@ setMethod("create_motif", signature(input = "missing"),
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
-            if (missing(alphabet)) alphabet <- "DNA"
-            if (alphabet %in% c("DNA", "RNA")) {
-              alph_len <- 4
-            } else if (alphabet == "AA") {
-              alph_len <- 20
-            } else {
-              alph_len <- length(strsplit(alphabet, "")[[1]])
-            }
 
-            mot <- matrix(rep(NA, alph_len * 8), ncol = 8)
-
-            if (missing(bkg)) {
-              for (i in seq_len(8)) {
-                mot[, i] <- runif(alph_len)
-                mot[, i] <- mot[, i] / sum(mot[, i])
-              }
-            } else {
-              if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
-              for (i in seq_len(8)) {
-                for (j in seq_along(bkg)) {
-                  mot[j, i] <- abs(rnorm(1, mean = bkg[j],
-                                         sd = min(c(bkg[j], 1 - bkg[j]))))
-                }
-                mot[, i] <- mot[, i] / sum(mot[, i])
-              }
-            }
-
-            if (missing(type) && missing(nsites)) {
-              type <- "PPM"
-              nsites <- numeric(0)
-            } else if (missing(type)) {
-              type <- "PPM"
-            } else if (missing(nsites) && type == "PCM") {
-              nsites <- 100
-            } else nsites <- numeric(0)
-            margs <- list(type = type, nsites = nsites)
+            margs <- list()
+            if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
+            if (!missing(name)) margs <- c(margs, list(name = name))
+            if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+            if (!missing(alphabet)) margs <- c(margs, list(alphabet = alphabet))
+            if (!missing(type)) margs <- c(margs, list(type = type))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
             if (!missing(family)) margs <- c(margs, list(family = family))
             if (!missing(organism)) margs <- c(margs, list(organism = organism))
@@ -52,8 +24,8 @@ setMethod("create_motif", signature(input = "missing"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
             
-            do.call(create_motif, c(list(input = mot), margs,
-                                    list(alphabet = alphabet)))
+            do.call(create_motif, c(list(input = 10), margs))
+
           })
 
 #' @describeIn create_motif Create a random motif with a specified length.
@@ -98,8 +70,12 @@ setMethod("create_motif", signature(input = "numeric"),
             } else if (missing(nsites) && type == "PCM") {
               nsites <- 100
             } else nsites <- numeric(0)
+
             margs <- list(type = type, nsites = nsites)
+            if (!missing(name)) margs <- c(margs, list(name = name))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+            if (!missing(pseudoweight)) margs <- c(margs, list(pseudoweight = pseudoweight))
             if (!missing(family)) margs <- c(margs, list(family = family))
             if (!missing(organism)) margs <- c(margs, list(organism = organism))
             if (!missing(bkgsites)) margs <- c(margs, list(bkgsites = bkgsites))
@@ -334,7 +310,7 @@ setMethod("create_motif", signature(input = "matrix"),
             motif
           })
 
-#' @describeIn create_motif Create motif from an XStringSet object.
+#' @describeIn create_motif Create motif from an \linkS4class{XStringSet} object.
 #' @export
 setMethod("create_motif", signature(input = "XStringSet"),
           definition = function(input, alphabet, type, name, pseudoweight, 
@@ -434,7 +410,7 @@ setMethod("convert_motifs", signature(motifs = "list"),
                                                         BPPARAM = BPPARAM))
           })
 
-#' @describeIn convert_motifs Convert a universalmotif object.
+#' @describeIn convert_motifs Convert a \linkS4class{universalmotif} object.
 #' @export
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
           definition = function(motifs, class, BPPARAM) {
@@ -568,7 +544,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
           
           })
 
-#' @describeIn convert_motifs Convert non-universalmotif class motifs.
+#' @describeIn convert_motifs Convert non-\linkS4class{universalmotif} class motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "ANY"),
           definition = function(motifs, class, BPPARAM) {

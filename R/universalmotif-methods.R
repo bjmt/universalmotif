@@ -33,24 +33,29 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 })
 
 #' @param .Object universalmotif object.
-#' @param name Character.
-#' @param altname Character.
-#' @param family Character.
-#' @param organism Character.
+#' @param name Character. Motif name.
+#' @param altname Character. Alternate motif name.
+#' @param family Character. Transcription factor family.
+#' @param organism Character. Species of origin.
 #' @param motif Matrix.
-#' @param alphabet Character.
-#' @param type Character.
-#' @param icscore Numeric.
-#' @param nsites Numeric.
-#' @param pseudoweight Numeric.
-#' @param bkg Numeric.
-#' @param bkgsites Numeric.
-#' @param consensus Character.
-#' @param strand Character.
-#' @param pval Numeric.
-#' @param qval Numeric.
-#' @param eval Numeric.
-#' @param extrainfo Character.
+#' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
+#'                 string representing the letters.
+#' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
+#' @param icscore Numeric. Total information content. Automatically generated.
+#' @param nsites Numeric. Number of sites the motif was constructed from.
+#' @param pseudoweight Numeric. Correction to be applied to prevent \code{-Inf}
+#'                     from apearing in PWM matrices.
+#' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
+#'            length.
+#' @param bkgsites Numeric. Total number of sites used to find the motif.
+#' @param consensus Character. Consensus string. Automatically generated for 
+#'                  'DNA', 'RNA', and 'AA' alphabets.
+#' @param strand Character. Whether the motif is specific to a certain strand.
+#' @param pval Numeric. P-value associated with motif.
+#' @param qval Numeric. Adjusted P-value associated with motif.
+#' @param eval Numeric. E-value associated with motif.
+#' @param extrainfo Character. Any other extra information, represented as
+#'                  a named character vector.
 #' @name universalmotif
 #' @rdname universalmotif-class
 #' @aliases initialize,universalmotif-method
@@ -208,7 +213,7 @@ setMethod("initialize", signature = "universalmotif",
 
           })
 
-#' @param object universalmotif object.
+#' @param object \linkS4class{universalmotif} object.
 #' @rdname universalmotif-class
 #' @aliases show,universalmotif-method
 setMethod("show", signature = "universalmotif",

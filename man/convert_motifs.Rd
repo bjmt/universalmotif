@@ -23,9 +23,10 @@ convert_motifs(motifs, class = "universalmotif-universalmotif",
 \arguments{
 \item{motifs}{Single motif object or list.}
 
-\item{class}{Desired motif class. E.g. 'motifStack-pfm'.}
+\item{class}{Desired motif class. Input as 'package-class'. If left empty,
+defaults to 'universalmotif-universalmotif'. (See details.)}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Single motif object or list.
@@ -33,20 +34,80 @@ Single motif object or list.
 \description{
 Convert motif class.
 }
+\details{
+The following packge-class combinations can be used as input:
+   \itemize{
+      \item MotifDb-MotifList
+      \item TFBSTools-PFMatrix
+      \item TFBSTools-PWMatrix
+      \item TFBSTools-ICMatrix
+      \item TFBSTools-PFMatrixList
+      \item TFBSTools-PWMatrixList
+      \item TFBSTools-ICMatrixList
+      \item seqLogo-pwm
+      \item motifStack-pcm
+      \item motifStack-pfm
+      \item PWMEnrich-PWM
+      \item motifRG-Motif
+      \item universalmotif-universalmotif
+   }
+
+   The following package-class combinations can be output:
+   \itemize{
+      \item MotIV-pwm2
+      \item TFBSTools-PFMatrix
+      \item TFBSTools-PWMatrix
+      \item TFBSTools-ICMatrix
+      \item seqLogo-pwm
+      \item motifStack-pcm
+      \item motifStack-pfm
+      \item PWMEnrich-PWM
+      \item Biostrings-PWM
+      \item rGADEM-motif
+   }
+}
 \section{Methods (by class)}{
 \itemize{
 \item \code{list}: Convert a list of motifs.
 
-\item \code{universalmotif}: Convert a universalmotif object.
+\item \code{universalmotif}: Convert a \linkS4class{universalmotif} object.
 
-\item \code{ANY}: Convert non-universalmotif class motifs.
+\item \code{ANY}: Convert non-\linkS4class{universalmotif} class motifs.
 }}
 
 \examples{
+# convert from universalmotif:
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
 
+# convert from another class to universalmotif:
+library(TFBSTools)
+data(MA0003.2)
+motif <- convert_motifs(MA0003.2)
+
+# convert from another class to another class
+motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+
+}
+\references{
+\insertRef{motiv}{universalmotif}
+
+   \insertRef{motifdb}{universalmotif}
+
+   \insertRef{tfbstools}{universalmotif}
+
+   \insertRef{seqlogo}{universalmotif}
+
+   \insertRef{motifstack}{universalmotif}
+
+   \insertRef{pwmenrich}{universalmotif}
+
+   \insertRef{motifrg}{universalmotif}
+
+   \insertRef{rgadem}{universalmotif}
+
+   \insertRef{biostrings}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
