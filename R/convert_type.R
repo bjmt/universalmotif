@@ -7,14 +7,17 @@
 #' @param motifs \linkS4class{universalmotif} object(s).
 #' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
 #' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
-#'                    from apearing in PWM matrices. The default (0.8) is
-#'                    the suggested value from
-#'                    \insertCite{pseudo;textual}{universalmotif}.
-#' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
-#'            length. If missing, assumes a uniform background.
+#'                    from apearing in PWM matrices. If missing,
+#'                    the pseudocount stored in the
+#'                    \linkS4class{universalmotif} 'pseudocount' slot will be
+#'                    used, which defaults to 0.8 (the suggested value from
+#'                    \insertCite{pseudo;textual}{universalmotif}).
 #' @param nsize_correction Logical. If true, the total information content
 #'                          at each position will be corrected for to account
-#'                          for small sample sizes.
+#'                          for small sample sizes. Only used if 
+#'                          \code{relative_entropy = FALSE}.
+#' @param relative_entropy Logical. If true, the information content will be
+#'                         calculated as relative entropy.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{universalmotif} object(s).
@@ -70,6 +73,19 @@
 #'    which some form of correction has been applied will result in a
 #'    PCM/PPM/PWM with slight inaccuracies.
 #'
+#'    Another method of calculating information content is calculating the
+#'    relative entropy, also known as Kullback-Leibler information 
+#'    \insertCite{kl}{universalmotif}. This accounts for background
+#'    frequencies, which
+#'    can be useful for genomes with a heavy imbalance in letter frequencies.
+#'    For each position, the individual letter frequencies are calculated as
+#'    \code{letter_freq * log2(letter_freq / bkg_freq)}. When calculating 
+#'    information content using the previous method, the maximum content for
+#'    each position will always be \code{log2(alphabet_length)}; this does
+#'    not hold for information content calculated as relative entropy.
+#'    Please note that conversion from ICM assumes the information content
+#'    was not calculated as relative entropy.
+#'
 #' @examples
 #' jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                       package = "universalmotif"))
@@ -94,15 +110,19 @@
 #'
 #'    \insertRef{tfbstools}{universalmotif}
 #'
+#'    \insertRef{kl}{universalmotif}
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
-                         nsize_correction = FALSE, BPPARAM = bpparam()) {
+convert_type <- function(motifs, type, pseudocount,
+                         nsize_correction = FALSE, 
+                         relative_entropy = FALSE,
+                         BPPARAM = bpparam()) {
 
-  # if (!missing(pseudocount)) {
+  if (!missing(pseudocount)) {
     if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")
     if (length(pseudocount) > 1) stop("pseudocount must a length one vector")
-  # }
+  }
 
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
     stop("unrecognized 'type'")
@@ -114,7 +134,6 @@ convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
   if (class(motif) == "list") {
     margs <- list(type = type) 
     if (!missing(pseudocount)) margs <- c(margs, list(pseudocount = pseudocount))
-    if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
     motif <- bplapply(motif, function(x) do.call(convert_type,
                                                  c(list(motifs = x), 
                                                    margs)),
@@ -122,11 +141,9 @@ convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
     return(motif)
   }
 
-  if (!missing(bkg)) {
-    nalph <- nrow(motif["motif"])
-    nbkg <- length(bkg)
-    if (nalph != nbkg) stop("length of bkg must match alphabet length")
-  }
+  nalph <- nrow(motif["motif"])
+  nbkg <- length(motif["bkg"])
+  if (nalph != nbkg) stop("length of bkg must match alphabet length")
     
   CLASS_IN <- .internal_convert(motif)
   motif <- convert_motifs(motif)
@@ -136,7 +153,7 @@ convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
   if (in_type == type) return(motif)
 
   if (missing(pseudocount)) pseudocount <- motif["pseudocount"]
-  if (missing(bkg)) bkg <- motif["bkg"]
+  bkg <- motif["bkg"]
 
   # PCM in:
   if (in_type == "PCM") {
@@ -160,7 +177,8 @@ convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
                            nsites = motif["nsites"],
-                           schneider_correction = nsize_correction)
+                           schneider_correction = nsize_correction,
+                           relative_entropy = relative_entropy)
       motif["type"] <- "ICM"
     }
   }
@@ -184,7 +202,8 @@ convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
                            nsites = motif["nsites"],
-                           schneider_correction = nsize_correction)
+                           schneider_correction = nsize_correction,
+                           relative_entropy = relative_entropy)
       motif["type"] <- "ICM"
     }
   }
@@ -209,7 +228,8 @@ convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
                            nsites = motif["nsites"],
-                           schneider_correction = nsize_correction)
+                           schneider_correction = nsize_correction,
+                           relative_entropy = relative_entropy)
       motif["type"] <- "ICM"
     }
   }

@@ -1,34 +1,34 @@
-ppm_to_icm <- function(position, bkg = c(0.25, 0.25, 0.25, 0.25),
+ppm_to_icm <- function(position, bkg,
                        IC_floor = FALSE, IC_ceiling = FALSE,
-                       schneider_correction = FALSE, nsites) {
+                       schneider_correction = FALSE, nsites,
+                       relative_entropy = FALSE) {
   # NOTE: Basic IC computation assumes uniform bkg frequencies!
   #       For different bkg frequencies: Relative entropy or Kullback-Leibler
   #       (KL) divergence
-  # if (is.null(bkg) || missing(bkg)) {
-  bkg <- rep(1 / length(position), length(position))
-  # if (length(nsites) == 0) nsites <- 100
-  # }
-  # for (i in seq_along(position)) {
-    # position[i] <- position[i] * log2(position[i] / bkg[i])
-    # if (is.na(position[i])) position[i] <- 0
-    # if (IC_floor && position[i] < 0) position[i] <- 0
-    # if (IC_ceiling && position[i] > 2) position[i] <- 2
-  # }
-  # return(position)
-  # Relative entropy:
-  # height_before <- -vapply(bkg, function(x) x * log2(x), numeric(1))
-  height_after <- -sum(vapply(position, function(x) {
-                                        y <- x * log2(x)
-                                        ifelse(is.na(y), 0, y)
-                                        }, numeric(1)))
-  total_ic <- log2(length(position)) - height_after
-  if (schneider_correction && !missing(nsites)) {
-    correction <- ppm_to_pcm(position, nsites = nsites)
-    correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
-    total_ic <- total_ic + correction
+  if (is.null(bkg) || missing(bkg)) {
+    bkg <- rep(1 / length(position), length(position))
+  if (length(nsites) == 0) nsites <- 100
   }
-  ic <- position * total_ic
-  ic
+  if (relative_entropy) {
+    for (i in seq_along(position)) {
+      position[i] <- position[i] * log2(position[i] / bkg[i])
+      if (is.na(position[i]) || position[i] < 0) position[i] <- 0
+    }
+    position
+  } else {
+    height_after <- -sum(vapply(position, function(x) {
+                                          y <- x * log2(x)
+                                          ifelse(is.na(y), 0, y)
+                                          }, numeric(1)))
+    total_ic <- log2(length(position)) - height_after
+    if (schneider_correction && !missing(nsites)) {
+      correction <- ppm_to_pcm(position, nsites = nsites)
+      correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
+      total_ic <- total_ic + correction
+    }
+    ic <- position * total_ic
+    ic
+  }
 }
 
 icm_to_ppm <- function(position) {

@@ -4,8 +4,8 @@
 \alias{convert_type}
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
-convert_type(motifs, type, pseudocount = 0.8, bkg, nsize_correction = FALSE,
-  BPPARAM = bpparam())
+convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
+  relative_entropy = FALSE, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{\linkS4class{universalmotif} object(s).}
@@ -13,16 +13,19 @@ convert_type(motifs, type, pseudocount = 0.8, bkg, nsize_correction = FALSE,
 \item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
 
 \item{pseudocount}{Numeric. Correction to be applied to prevent \code{-Inf}
-from apearing in PWM matrices. The default (0.8) is
-the suggested value from
-\insertCite{pseudo;textual}{universalmotif}.}
-
-\item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
-length. If missing, assumes a uniform background.}
+from apearing in PWM matrices. If missing,
+the pseudocount stored in the
+\linkS4class{universalmotif} 'pseudocount' slot will be
+used, which defaults to 0.8 (the suggested value from
+\insertCite{pseudo;textual}{universalmotif}).}
 
 \item{nsize_correction}{Logical. If true, the total information content
 at each position will be corrected for to account
-for small sample sizes.}
+for small sample sizes. Only used if 
+\code{relative_entropy = FALSE}.}
+
+\item{relative_entropy}{Logical. If true, the information content will be
+calculated as relative entropy.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -80,11 +83,23 @@ Position count matrix (PCM), also known as position frequency matrix
    \insertCite{correction;textual}{universalmotif}. This correction can
    applied by setting \code{nsize_correction = TRUE}, however it will only
    be applied if the 'nsites' slot is not empty. This is done using
-   \code{TFBSTools:::schneider_correction} 
-   \insertCite{tfbstools}{universalmotif}.
-   As such, converting from an ICM to
+   \code{TFBSTools:::schneider_correction}
+   \insertCite{tfbstools}{universalmotif}. As such, converting from an ICM to
    which some form of correction has been applied will result in a
    PCM/PPM/PWM with slight inaccuracies.
+
+   Another method of calculating information content is calculating the
+   relative entropy, also known as Kullback-Leibler information 
+   \insertCite{kl}{universalmotif}. This accounts for background
+   frequencies, which
+   can be useful for genomes with a heavy imbalance in letter frequencies.
+   For each position, the individual letter frequencies are calculated as
+   \code{letter_freq * log2(letter_freq / bkg_freq)}. When calculating 
+   information content using the previous method, the maximum content for
+   each position will always be \code{log2(alphabet_length)}; this does
+   not hold for information content calculated as relative entropy.
+   Please note that conversion from ICM assumes the information content
+   was not calculated as relative entropy.
 }
 \examples{
 jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -110,6 +125,8 @@ jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
    \insertRef{correction}{universalmotif}
 
    \insertRef{tfbstools}{universalmotif}
+
+   \insertRef{kl}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
