@@ -46,7 +46,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
 #'                     from apearing in PWM matrices.
 #' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
-#'            length.
+#'            length. If missing, assumes a uniform background.
 #' @param bkgsites Numeric. Total number of sites used to find the motif.
 #' @param consensus Character. Consensus string. Automatically generated for 
 #'                  'DNA', 'RNA', and 'AA' alphabets.

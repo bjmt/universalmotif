@@ -1,27 +1,108 @@
 #' Convert \linkS4class{universalmotif} type.
 #'
-#' @param motifs Motif object or list.
-#' @param type Character. Either PCM, PPM, PWM, ICM.
-#' @param pseudocount Numeric.
-#' @param bkg Numeric.
-#' @param BPPARAM Param for bplapply.
+#' Switch between position count matrix (PCM), position probability matrix
+#' (PPM), position weight matrix (PWM), and information count matrix (ICM)
+#' types.
 #'
-#' @return Motif object.
+#' @param motifs \linkS4class{universalmotif} object(s).
+#' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
+#' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
+#'                    from apearing in PWM matrices. The default (0.8) is
+#'                    the suggested value from
+#'                    \insertCite{pseudo;textual}{universalmotif}.
+#' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
+#'            length. If missing, assumes a uniform background.
+#' @param nsize_correction Logical. If true, the total information content
+#'                          at each position will be corrected for to account
+#'                          for small sample sizes.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#'
+#' @return \linkS4class{universalmotif} object(s).
+#'
+#' @details
+#'    Position count matrix (PCM), also known as position frequency matrix
+#'    (PFM). For n sequences from which the motif was built, each position is
+#'    represented by the numbers of each letter at that position. In theory
+#'    all positions should have sums equal to n, but not all databases are
+#'    this consistent.
+#'
+#'    Position probability matrix (PPM), also known as position frequency
+#'    matrix (PFM). At each position, the probability of individual letters
+#'    is calculated by dividing the count for that letter by the total sum of
+#'    counts at that position (\code{letter_count / position_total}). 
+#'    As a result, each position will sum to 1. Letters with counts of 0 will
+#'    thus have a probability of 0, which can be undesirable when searching for
+#'    motifs in a set of sequences. To avoid this a pseudocount can be added 
+#'    (\code{(letter_count + pseudocount) / (position_total + pseudocount)}).
+#'
+#'    Position weight matrix (PWM; \insertCite{pwm;textual}{universalmotif}),
+#'    also known as position-specific weight
+#'    matrix (PSWM), position-specific scoring matrix (PSSM), or
+#'    log-odds matrix. At each position, each letter is represented by it's
+#'    log-likelihood (\code{log2(letter_probability / background_probility)}),
+#'    which is normalized using the background letter frequencies. A PWM matrix
+#'    is constructed from a PPM; if any position has 0-probability letters to
+#'    which pseudocounts were not added, then the final log-likelihodd of these
+#'    letters will be \code{-Inf}.
+#'
+#'    Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).
+#'    An ICM is a PPM where each letter probability is multiplied by the total
+#'    information content at that position. The information content of each
+#'    position is determined as: \code{Hi - Hf}, where
+#'    
+#'    \code{Hi <- log2(alphabet_length)}, and 
+#'
+#'    \code{Hf <- -sum(sapply(alphabet_frequencies,
+#'                            function(x) x * log(2))}.
+#'
+#'    As a result, the total sum or height of each position is representative of
+#'    it's sequence conservation, measured in the unit 'bits', which is a unit
+#'    of energy (\insertCite{bits;textual}{universalmotif}; see this
+#'    \url{https://fr-s-schneider.ncifcrf.gov/logorecommendations.html}{link}
+#'    for more information). However not all programs will calculate
+#'    information content the same; some will 'correct' the total information
+#'    content at each position using a correction factor as described by
+#'    \insertCite{correction;textual}{universalmotif}. This correction can
+#'    applied by setting \code{nsize_correction = TRUE}, however it will only
+#'    be applied if the 'nsites' slot is not empty. This is done using
+#'    \code{TFBSTools:::schneider_correction}
+#'    \insertCite{tfbstools}{universalmotif}. As such, converting from an ICM to
+#'    which some form of correction has been applied will result in a
+#'    PCM/PPM/PWM with slight inaccuracies.
 #'
 #' @examples
-#' jaspar.ppm <- read_jaspar(system.file("extdata", "jaspar.txt",
+#' jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                       package = "universalmotif"))
-#' jaspar.pwm <- convert_type(jaspar.ppm, type = "PWM")
+#'
+#' # pseudocounts default to 0.8
+#' jaspar.pwm <- convert_type(jaspar.pcm, type = "PPM")
+#' 
+#' # setting pseudocounts to 0 will prevent any correction from being
+#' # applied to PPM/PWM matrices
+#' jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
+#'
+#' @references
+#'    \insertRef{pseudo}{universalmotif}
+#'
+#'    \insertRef{pwm}{universalmotif}
+#'
+#'    \insertRef{icm}{universalmotif}
+#'
+#'    \insertRef{bits}{universalmotif}
+#'
+#'    \insertRef{correction}{universalmotif}
+#'
+#'    \insertRef{tfbstools}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-convert_type <- function(motifs, type, pseudocount, bkg,
-                         BPPARAM = bpparam()) {
+convert_type <- function(motifs, type, pseudocount = 0.8, bkg,
+                         nsize_correction = FALSE, BPPARAM = bpparam()) {
 
-  if (!missing(pseudocount)) {
+  # if (!missing(pseudocount)) {
     if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")
     if (length(pseudocount) > 1) stop("pseudocount must a length one vector")
-  }
+  # }
 
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
     stop("unrecognized 'type'")
@@ -78,7 +159,8 @@ convert_type <- function(motifs, type, pseudocount, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
-                           nsites = motif["nsites"])
+                           nsites = motif["nsites"],
+                           schneider_correction = nsize_correction)
       motif["type"] <- "ICM"
     }
   }
@@ -101,7 +183,8 @@ convert_type <- function(motifs, type, pseudocount, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
-                           nsites = motif["nsites"])
+                           nsites = motif["nsites"],
+                           schneider_correction = nsize_correction)
       motif["type"] <- "ICM"
     }
   }
@@ -125,7 +208,8 @@ convert_type <- function(motifs, type, pseudocount, bkg,
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, IC_floor = IC_floor,
                            IC_ceiling = IC_ceiling,
-                           nsites = motif["nsites"])
+                           nsites = motif["nsites"],
+                           schneider_correction = nsize_correction)
       motif["type"] <- "ICM"
     }
   }

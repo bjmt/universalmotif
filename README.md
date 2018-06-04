@@ -37,6 +37,11 @@ devtools::install_github("bjmt/universalmotif")
   - `align_motifs`
   - `read_matrix`
 
+## Planned functions ##
+
+  - `write_matrix`
+  - `score_sequences`
+
 ## Other todo ##
 
   - function documentation

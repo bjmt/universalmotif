@@ -56,7 +56,7 @@ string representing the letters.}
 from apearing in PWM matrices.}
 
 \item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
-length.}
+length. If missing, assumes a uniform background.}
 
 \item{bkgsites}{Numeric. Total number of sites used to find the motif.}
 
