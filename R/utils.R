@@ -63,7 +63,7 @@ ppm_to_pcm <- function(position, nsites = 100) {
 ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
                        pseudocount = 0.8, nsites = 100, smooth = TRUE) {
   if (length(nsites) == 0) nsites <- 100
-  if (smooth) {
+  if (smooth && pseudocount != 0) {
     position <- ppm_to_pcm(position, nsites = nsites)
     position <- pcm_to_ppm(position, pseudocount = pseudocount)
   }

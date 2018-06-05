@@ -17,7 +17,7 @@
 #'                          for small sample sizes. Only used if 
 #'                          \code{relative_entropy = FALSE}.
 #' @param relative_entropy Logical. If true, the information content will be
-#'                         calculated as relative entropy.
+#'                         calculated as relative entropy. (See details.)
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{universalmotif} object(s).
@@ -51,17 +51,20 @@
 #'    Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).
 #'    An ICM is a PPM where each letter probability is multiplied by the total
 #'    information content at that position. The information content of each
-#'    position is determined as: \code{Hi - Hf}, where
+#'    position is determined as: \code{totalIC - Hi}, where the total information
+#'    totalIC
 #'    
-#'    \code{Hi <- log2(alphabet_length)}, and 
+#'    \code{totalIC <- log2(alphabet_length)}, and the Shannon entropy 
+#'    \insertCite{shannon}{universalmotif} for a specific 
+#'    position (Hi)
 #'
-#'    \code{Hf <- -sum(sapply(alphabet_frequencies,
+#'    \code{Hi <- -sum(sapply(alphabet_frequencies,
 #'                            function(x) x * log(2))}.
 #'
 #'    As a result, the total sum or height of each position is representative of
 #'    it's sequence conservation, measured in the unit 'bits', which is a unit
-#'    of energy (\insertCite{bits;textual}{universalmotif}; see this
-#'    \url{https://fr-s-schneider.ncifcrf.gov/logorecommendations.html}{link}
+#'    of energy (\insertCite{bits;textual}{universalmotif}; see
+#'    \url{https://fr-s-schneider.ncifcrf.gov/logorecommendations.html}
 #'    for more information). However not all programs will calculate
 #'    information content the same; some will 'correct' the total information
 #'    content at each position using a correction factor as described by
@@ -74,17 +77,17 @@
 #'    PCM/PPM/PWM with slight inaccuracies.
 #'
 #'    Another method of calculating information content is calculating the
-#'    relative entropy, also known as Kullback-Leibler information 
+#'    relative entropy, also known as Kullback-Leibler divergence 
 #'    \insertCite{kl}{universalmotif}. This accounts for background
 #'    frequencies, which
 #'    can be useful for genomes with a heavy imbalance in letter frequencies.
 #'    For each position, the individual letter frequencies are calculated as
 #'    \code{letter_freq * log2(letter_freq / bkg_freq)}. When calculating 
-#'    information content using the previous method, the maximum content for
+#'    information content using Shannon entropy, the maximum content for
 #'    each position will always be \code{log2(alphabet_length)}; this does
 #'    not hold for information content calculated as relative entropy.
 #'    Please note that conversion from ICM assumes the information content
-#'    was not calculated as relative entropy.
+#'    was _not_ calculated as relative entropy.
 #'
 #' @examples
 #' jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -111,6 +114,8 @@
 #'    \insertRef{tfbstools}{universalmotif}
 #'
 #'    \insertRef{kl}{universalmotif}
+#'
+#'    \insertRef{shannon}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

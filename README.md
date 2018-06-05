@@ -40,7 +40,7 @@ devtools::install_github("bjmt/universalmotif")
 ## Planned functions ##
 
   - `write_matrix`
-  - `score_sequences`
+  - `score_sites`
 
 ## Other todo ##
 
