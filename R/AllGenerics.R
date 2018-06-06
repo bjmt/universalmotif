@@ -1,7 +1,7 @@
 #' Create a motif.
 #'
-#' @param input One of character vector, matrix (PCM, PPM, PWM, or ICM), or
-#'              \linkS4class{XStringSet}.
+#' @param input One of character vector, numeric,matrix (PCM, PPM, PWM, or ICM),
+#'              or \linkS4class{XStringSet}.
 #' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
 #'                 string representing the letters.
 #' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
@@ -23,6 +23,10 @@
 #'                  a named character vector.
 #'
 #' @return \linkS4class{universalmotif} object.
+#'
+#' @details
+#'    See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
+#'    random motifs.
 #'
 #' @examples
 #' ##### create motifs from a single string
@@ -127,8 +131,7 @@
 #'
 #' # if the background frequencies are not provided, they are assumed to be
 #' # uniform; if different background frequencies are used, then at each
-#' # position \code{abs(rnorm(1, mean = bkg[i], sd = min(c(bkg[i], 1 - bkg[i])))}
-#' # is used to generate individual frequencies for each letter
+#' # position \code{rdirichlet(1, bkg)} is used 
 #'
 #' DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
 #' DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))

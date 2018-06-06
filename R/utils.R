@@ -1,5 +1,4 @@
 ppm_to_icm <- function(position, bkg,
-                       IC_floor = FALSE, IC_ceiling = FALSE,
                        schneider_correction = FALSE, nsites,
                        relative_entropy = FALSE) {
   # NOTE: Basic IC computation assumes uniform bkg frequencies!

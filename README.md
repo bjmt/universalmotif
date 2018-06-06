@@ -36,6 +36,7 @@ devtools::install_github("bjmt/universalmotif")
   - `write_homer`
   - `align_motifs`
   - `read_matrix`
+  - `create_tffm`
 
 ## Planned functions ##
 

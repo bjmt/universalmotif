@@ -23,5 +23,7 @@
 #' @importFrom motifStack plotMotifLogo mergeMotifs
 #' @importFrom MotIV motifDistances makePWM readDBScores
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
+#' @importFrom TFBSTools TFFMFirst TFFMDetail
 #' @importFrom Rdpack reprompt
+#' @importFrom gtools rdirichlet
 NULL

@@ -54,11 +54,13 @@ setMethod("create_motif", signature(input = "numeric"),
             } else {
               if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
               for (i in seq_len(input)) {
-                for (j in seq_along(bkg)) {
-                  mot[j, i] <- abs(rnorm(1, mean = bkg[j],
-                                         sd = min(c(bkg[j], 1 - bkg[j]))))
-                }
-                mot[, i] <- mot[, i] / sum(mot[, i])
+                ## what about using TFBSTools::rPWMDmm?
+                # for (j in seq_along(bkg)) {
+                  # mot[j, i] <- abs(rnorm(1, mean = bkg[j],
+                                         # sd = min(c(bkg[j], 1 - bkg[j]))))
+                # }
+                mot[, i] <- rdirichlet(1, bkg)
+                # mot[, i] <- mot[, i] / sum(mot[, i])
               }
             }
 

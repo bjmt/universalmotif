@@ -23,6 +23,7 @@ Imports: methods,
     motifStack,
     stats,
     utils,
+    gtools,
     msa,
     seqLogo,
     BiocParallel,
@@ -49,6 +50,7 @@ Collate:
     'AllGenerics.R'
     'align_motifs.R'
     'convert_type.R'
+    'create_tffm.R'
     'filter_motifs.R'
     'merge_motifs.R'
     'universalmotif-class.R'

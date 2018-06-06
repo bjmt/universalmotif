@@ -12,11 +12,11 @@
 #'                    \linkS4class{universalmotif} 'pseudocount' slot will be
 #'                    used, which defaults to 0.8 (the suggested value from
 #'                    \insertCite{pseudo;textual}{universalmotif}).
-#' @param nsize_correction Logical. If true, the total information content
-#'                          at each position will be corrected for to account
+#' @param nsize_correction Logical. If true, the ICM
+#'                          at each position will be corrected to account
 #'                          for small sample sizes. Only used if 
 #'                          \code{relative_entropy = FALSE}.
-#' @param relative_entropy Logical. If true, the information content will be
+#' @param relative_entropy Logical. If true, the ICM will be
 #'                         calculated as relative entropy. (See details.)
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
@@ -27,7 +27,8 @@
 #'    (PFM). For n sequences from which the motif was built, each position is
 #'    represented by the numbers of each letter at that position. In theory
 #'    all positions should have sums equal to n, but not all databases are
-#'    this consistent.
+#'    this consistent. If converting from another type to PCM, column sums
+#'    will be equal to the 'nsites' slot; if empty, 100 is used.
 #'
 #'    Position probability matrix (PPM), also known as position frequency
 #'    matrix (PFM). At each position, the probability of individual letters
@@ -129,12 +130,14 @@ convert_type <- function(motifs, type, pseudocount,
     if (length(pseudocount) > 1) stop("pseudocount must a length one vector")
   }
 
+  if (!any(is.logical(nsize_correction), is.logical(relative_entropy))) {
+    stop("'nsize_correction' and 'relative_entropy' must be TRUE or FALSE")
+  }
+
   if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
     stop("unrecognized 'type'")
   }
 
-  IC_floor <-  TRUE
-  IC_ceiling <- FALSE
   motif <- motifs
   if (class(motif) == "list") {
     margs <- list(type = type) 
@@ -179,8 +182,7 @@ convert_type <- function(motifs, type, pseudocount,
       motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
                            pseudocount = pseudocount)
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
-                           bkg = bkg, IC_floor = IC_floor,
-                           IC_ceiling = IC_ceiling,
+                           bkg = bkg, 
                            nsites = motif["nsites"],
                            schneider_correction = nsize_correction,
                            relative_entropy = relative_entropy)
@@ -204,8 +206,7 @@ convert_type <- function(motifs, type, pseudocount,
       motif["type"] <- "PWM"
     } else if (type == "ICM") {
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
-                           bkg = bkg, IC_floor = IC_floor,
-                           IC_ceiling = IC_ceiling,
+                           bkg = bkg, 
                            nsites = motif["nsites"],
                            schneider_correction = nsize_correction,
                            relative_entropy = relative_entropy)
@@ -230,8 +231,7 @@ convert_type <- function(motifs, type, pseudocount,
       motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
                            background = bkg)
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
-                           bkg = bkg, IC_floor = IC_floor,
-                           IC_ceiling = IC_ceiling,
+                           bkg = bkg, 
                            nsites = motif["nsites"],
                            schneider_correction = nsize_correction,
                            relative_entropy = relative_entropy)

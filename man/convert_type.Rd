@@ -19,12 +19,12 @@ the pseudocount stored in the
 used, which defaults to 0.8 (the suggested value from
 \insertCite{pseudo;textual}{universalmotif}).}
 
-\item{nsize_correction}{Logical. If true, the total information content
-at each position will be corrected for to account
+\item{nsize_correction}{Logical. If true, the ICM
+at each position will be corrected to account
 for small sample sizes. Only used if 
 \code{relative_entropy = FALSE}.}
 
-\item{relative_entropy}{Logical. If true, the information content will be
+\item{relative_entropy}{Logical. If true, the ICM will be
 calculated as relative entropy. (See details.)}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
@@ -42,7 +42,8 @@ Position count matrix (PCM), also known as position frequency matrix
    (PFM). For n sequences from which the motif was built, each position is
    represented by the numbers of each letter at that position. In theory
    all positions should have sums equal to n, but not all databases are
-   this consistent.
+   this consistent. If converting from another type to PCM, column sums
+   will be equal to the 'nsites' slot; if empty, 100 is used.
 
    Position probability matrix (PPM), also known as position frequency
    matrix (PFM). At each position, the probability of individual letters
