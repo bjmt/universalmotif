@@ -34,7 +34,6 @@ devtools::install_github("bjmt/universalmotif")
   - `write_meme`
   - `merge_motifs`
   - `write_homer`
-  - `align_motifs` (not sure if this useful at all)
   - `read_matrix`
   - `create_tffm` ('detailed' implementation is incorrect currently)
   - `scan_sequences`

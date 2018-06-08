@@ -48,7 +48,6 @@ biocViews: MotifAnnotation,
 RoxygenNote: 6.0.1
 Collate: 
     'AllGenerics.R'
-    'align_motifs.R'
     'convert_type.R'
     'create_tffm.R'
     'filter_motifs.R'

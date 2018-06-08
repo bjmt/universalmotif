@@ -6,11 +6,12 @@
 #' @param motifs List of motifs.
 #' @param newname Name of final merged motif.
 #' @param method Character. 'motifStack' or 'msa'.
+#' @param printaln Logical. Print msa aln.
 #' @param tryRC Logical. Only used if method = 'msa'.
 #' @param RCstrategy Character. 'motif_dist' or 'motif_simil'.
-#' @param bgNoise motifStack::mergeMotifs param.
-#' @param cluster msa::msaClustalW param. nj (default) or upgma
-#' @param substitutionMatrix msa::msaClustalW param. iub or clustalw
+#' @param bgNoise \code{\link[motifStack]{mergeMotifs}} param.
+#' @param cluster \code{\link[msa]{msaClustalW}} param. nj (default) or upgma
+#' @param substitutionMatrix \code{\link[msa]{msaClustalW}} param. iub or clustalw
 #' @param BPPARAM Param for bplapply. Only used if tryRC = TRUE.
 #' @param ... Other settings for function msaClustalW.
 #'
@@ -21,18 +22,16 @@
 #'    they are averaged as PPMs. For method = 'motifStack', the
 #'    motifStack::mergeMotifs function is used. 
 #'
-#'    If tryRC = FALSE, the motifs
-#'    are aligned and merged as-is; if tryRC = TRUE, then one of 
-#'    motif_dist or motif_simil is applied to all combinations of the motifs
-#'    and their reverse complements. The highest scoring combination of motifs 
-#'    is then
-#'    used for alignment and merging. Please note that this option
-#'    increases computational time significantly with motif number.
+#'    If tryRC = FALSE, the motifs are aligned and merged as-is; if
+#'    tryRC = TRUE, then either \code{\link{motif_simil}} or
+#'    \code{\link{motif_dist}} is used to check if the reverse complement
+#'    is more closely related to the rest of the motifs. If so, the
+#'    reverse complement is used instead for merging.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 merge_motifs <- function(motifs, newname = "merged motif",
-                         method = "msa", tryRC = TRUE,
+                         method = "msa", printaln = FALSE, tryRC = TRUE,
                          RCstrategy = "motif_dist", bgNoise = NA,
                          cluster = "default",  substitutionMatrix = "iub",
                          BPPARAM = bpparam(), ...) {
@@ -61,8 +60,7 @@ merge_motifs <- function(motifs, newname = "merged motif",
     if (tryRC) {
       motifs.rc <- motif_rc(motifs)
       motifs.rc <- lapply(motifs.rc, function(x) {
-                          x["name"] <- paste0(x["name"], "-RC")
-                          x
+                          x["name"] <- paste0(x["name"], "-RC"); x
                          })
       num_mots <- length(motifs)
       motifs.all <- c(motifs, motifs.rc)
@@ -71,19 +69,24 @@ merge_motifs <- function(motifs, newname = "merged motif",
       } else if (RCstrategy == "motif_dist") {
         motifs.all.simil <- motif_dist(motifs.all)
       } else stop("unrecognized 'RCstrategy'")
-      comb.totry <- combn(num_mots * 2, num_mots)
-      comb.num <- ncol(comb.totry)
-      scores <- bplapply(seq_len(comb.num),
-                         function(x) sum(as.dist(motifs.all.simil[comb.totry[, x],
-                                                 comb.totry[, x]])),
-                         BPPARAM = BPPARAM)
-      if (RCstrategy == "motif_simil") {
-        motifs.touse <- order(unlist(scores), decreasing = TRUE)[1]
-      } else {
-        motifs.touse <- order(unlist(scores))[1]
+
+      tokeep <- rep(FALSE, length(motifs) * 2)
+      for (i in seq_along(motifs)) {
+        side1 <- sum(motifs.all.simil[i, seq_along(motifs)[-i]])
+        side2 <- sum(motifs.all.simil[i + length(motifs), seq_along(motifs)[-i]])
+        if (RCstrategy == "motif_dist") {
+          if (side1 > side2) tokeep[i + length(motifs)] <- TRUE
+          if (side2 > side1) tokeep[i] <- TRUE
+          if (side1 == side2) tokeep[i] <- TRUE
+        } else if (RCstrategy == "motif_simil") {
+          if (side1 > side2) tokeep[i] <- TRUE 
+          if (side2 > side1) tokeep[i + length(motifs)] <- TRUE
+          if (side1 == side2) tokeep[i] <- TRUE
+        }
       }
-      motifs.touse <- comb.totry[, motifs.touse]
-      motifs <- motifs.all[motifs.touse]
+
+      motifs <- motifs.all[tokeep]
+
     }
 
     motif.matrices <- lapply(motifs, function(x) x["motif"])
@@ -107,6 +110,8 @@ merge_motifs <- function(motifs, newname = "merged motif",
                          cluster = cluster, order = "input",
                          substitutionMatrix = substitutionMatrix)
     } 
+
+    if (printaln) print(aln)
 
     merged.matrix <- as.matrix(aln)
     split.matrix <- lapply(seq_len(nrow(merged.matrix)),
