@@ -38,10 +38,10 @@ devtools::install_github("bjmt/universalmotif")
   - `read_matrix`
   - `create_tffm` ('detailed' implementation is incorrect currently)
   - `scan_sequences`
+  - `write_matrix`
 
 ## Planned functions ##
 
-  - `write_matrix`
 
 ## Other todo ##
 

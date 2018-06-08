@@ -74,5 +74,6 @@ Collate:
     'utils.R'
     'write_homer.R'
     'write_jaspar.R'
+    'write_matrix.R'
     'write_meme.R'
     'write_transfac.R'
