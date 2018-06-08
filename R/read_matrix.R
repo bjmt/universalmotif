@@ -8,6 +8,7 @@
 #'             try and guess which one.
 #' @param sep Character. Indicates how individual motifs are seperated.
 #' @param headers Logical or character, indicating if and how to read names. 
+#' @param rownames Logical. Are there alphabet letters present as rownames?
 #' @param BPPARAM Param for bplapply.
 #'
 #' @return List of universalmotif objects.
@@ -20,7 +21,7 @@
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
                         alphabet = "DNA", sep = "", headers = FALSE,
-                        BPPARAM = bpparam()) {
+                        rownames = FALSE, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -56,8 +57,18 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   motifs <- bpmapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops, SIMPLIFY = FALSE,
                      BPPARAM = BPPARAM)
-  motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x)),
-                     BPPARAM = BPPARAM)
+  if (rownames && positions == "columns") {
+    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x,
+                                                                row.names = 1)),
+                      BPPARAM = BPPARAM)
+  } else if (rownames && positions == "rows") {
+    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x,
+                                                                header = TRUE)),
+                      BPPARAM = BPPARAM)
+  } else {
+    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x)),
+                      BPPARAM = BPPARAM)
+  }
 
   if (positions == "rows") {
     motifs <- bplapply(motifs, t, BPPARAM = BPPARAM)

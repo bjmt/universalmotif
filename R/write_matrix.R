@@ -8,13 +8,14 @@
 #'             will use whatever type the motif is currently stored as.
 #' @param sep Character. Indicates how to separate individual motifs.
 #' @param header Logical or character, indicating if and how to write names.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
-                         type, sep = "", headers = TRUE) {
+                         type, sep = "", headers = TRUE, BPPARAM = bpparam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!missing(type)) motifs <- convert_type(motifs, type)
@@ -57,12 +58,9 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
 
   }
 
-  # lines_final <- bplapply(motifs, .write_matrix, positions = positions,
-                          # rownames = rownames, sep = sep,
-                          # headers = headers, BPPARAM = BPPARAM)  # not working??
-  lines_final <- lapply(motifs, .write_matrix, positions = positions,
-                        rownames = rownames, sep = sep,
-                        headers = headers)
+  lines_final <- bplapply(motifs, .write_matrix, positions = positions,
+                          rownames = rownames, sep = sep,
+                          headers = headers, BPPARAM = BPPARAM)  # not working??
   lines_final <- unlist(lines_final)
 
   writeLines(lines_final, con <- file(file))

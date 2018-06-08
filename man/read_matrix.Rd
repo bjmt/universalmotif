@@ -5,7 +5,7 @@
 \title{Import motifs from raw matrices.}
 \usage{
 read_matrix(file, skip = 0, type, positions = "columns", alphabet = "DNA",
-  sep = "", headers = FALSE, BPPARAM = bpparam())
+  sep = "", headers = FALSE, rownames = FALSE, BPPARAM = bpparam())
 }
 \arguments{
 \item{file}{Character.}
@@ -22,6 +22,8 @@ try and guess which one.}
 \item{sep}{Character. Indicates how individual motifs are seperated.}
 
 \item{headers}{Logical or character, indicating if and how to read names.}
+
+\item{rownames}{Logical. Are there alphabet letters present as rownames?}
 
 \item{BPPARAM}{Param for bplapply.}
 }
