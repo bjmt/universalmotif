@@ -13,150 +13,90 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
                            RC = TRUE, BPPARAM = bpparam()) {
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
-
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,
-                      BPPARAM = BPPARAM)
+                      sequences = sequences, RC = RC, BPPARAM = BPPARAM)
     results <- do.call(rbind, results)
     return(results)
   }
 
+  motif <- motifs
+  motif <- convert_type(motif,"PWM")
+  motif.rc <- motif_rc(motif)
+  motif <- motif["motif"]
+  motif.rc <- motif.rc["motif"]
+
+  min.score <- threshold * 100
+  min.score <- paste0(min.score, "%")
+
+  mot.name <- motifs["name"]
+  mot.mat <- convert_type(motifs, "PWM")["motif"]
+  mot.len <- ncol(mot.mat)
+  max.score <- sum(apply(mot.mat, 2, max))
+
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
-  motif <- motifs
-
-  mot.name <- motif["name"]
-  mot.mat <- motif["motif"]
-  max.score <- sum(apply(mot.mat, 2, max))
-  min.score <- max.score * threshold
-  mot.len <- ncol(mot.mat)
-
-  mot.mat.rc <- NULL
-  if (RC) mot.mat.rc <- motif_rc(motif)["motif"]
-
-  get_score <- function(x) {
-    vapply(1:mot.len, function(y) mot.mat[rownames(mot.mat) == x[y], y],
-           numeric(1))
-  }
-
-  get_scoreRC <- function(x) {
-    vapply(1:mot.len, function(y) mot.mat.rc[rownames(mot.mat.rc) == x[y], y],
-           numeric(1))
-  }
-
-  sequences <- as.matrix(sequences)
-
-  sequences.split <- lapply(1:nrow(sequences), function(x) sequences[x, ])
-
-  parse_sequences <- function(x) {
-    toadd <- mot.len - 1
-    out <- matrix(ncol = mot.len, nrow = length(x) - toadd)
-    for (i in 1:(length(x) - toadd)) {
-      out[i, ] <- x[i:(i + toadd)]
+  parse_hits <- function(x, y) {
+    if (length(x) == 0) {
+      data.frame(motif = NULL, sequence = NULL, start = NULL, stop = NULL,
+                 max.score = NULL, score.pct = NULL, match = NULL,
+                 strand = NULL)
+    } else {
+      motif <- rep(mot.name, length(x))
+      sequence = rep(y, length(x))
+      start <- x@ranges@start
+      stop <- start + (mot.len - 1)
+      score <- x@elementMetadata$score 
+      max.score <- rep(max.score, length(x))
+      score.pct <- (score / max.score) * 100
+      match <- as.character(x)
+      data.frame(motif = motif, sequence = sequence, start = start, stop = stop,
+                 score = score, max.score = max.score, score.pct = score.pct,
+                 match = match, strand = rep(NA, length(x)))
     }
-    out
   }
 
   ## + strand
 
-  sequences.split <- bplapply(sequences.split, parse_sequences,
-                              BPPARAM = BPPARAM)
+  sequence.hits <- bplapply(seq_len(length(sequences)),
+                            function(x) matchPWM(motif, sequences[[x]],
+                                                 min.score = min.score,
+                                                 with.score = TRUE),
+                            BPPARAM = BPPARAM)
 
-  if (RC) sequences.split.rc <- sequences.split
+  sequence.hits <- bpmapply(parse_hits, sequence.hits, seq.names,
+                            BPPARAM = BPPARAM, SIMPLIFY = FALSE)
 
-  sequence.scores <- bplapply(sequences.split,
-                              function(x) t(apply(x, 1, get_score)),
-                              BPPARAM = BPPARAM)
-
-  sequence.scores <- bplapply(sequence.scores, rowSums, BPPARAM = BPPARAM)
-
-  sequence.matches <- bplapply(sequence.scores, function(x) x >= min.score,
-                               BPPARAM = BPPARAM)
-
-  for (i in seq_along(sequences.split)) {
-    sequences.split[[i]] <- sequences.split[[i]][sequence.matches[[i]], ]
-  }
-
-  for (i in seq_along(sequence.scores)) {
-    sequence.scores[[i]] <- sequence.scores[[i]][sequence.matches[[i]]]
-  }
-
-  sequence.locations <- bplapply(sequence.matches, which,
-                                 BPPARAM = BPPARAM)
-
-  sequences.split <- bplapply(sequences.split, 
-                              function(x) apply(x, 1, paste, collapse = ""),
-                              BPPARAM = BPPARAM)
-
-  collate_results <- function(n, x, y, z) {
-    if (length(y) == 0) {
-      data.frame(motif = NULL, sequence = NULL, start = NULL, stop = NULL,
-                 max.score = NULL, score.pct = NULL, match = NULL)
-    } else {
-      data.frame(motif = rep(mot.name, length(y)), sequence = n, start = x,
-                 stop = x + (mot.len - 1),
-                 score = y, max.score = max.score,
-                 score.pct = (y / max.score) * 100, match = z)  
-    }
-  }
-
-  results.table <- mapply(collate_results,
-                          seq.names, sequence.locations,
-                          sequence.scores, sequences.split,
-                          SIMPLIFY = FALSE)
-
-  results.table <- do.call(rbind, results.table)
-  if (nrow(results.table) > 0) results.table$strand <- "+"
+  sequence.hits <- do.call(rbind, sequence.hits)
+  if (nrow(sequence.hits) > 0) sequence.hits$strand <- "+"
 
   ## - strand
 
   if (RC) {
+    sequence.hits.rc <- bplapply(seq_len(length(sequences)),
+                                 function(x) matchPWM(motif.rc, sequences[[x]],
+                                                      min.score = min.score,
+                                                      with.score = TRUE),
+                                 BPPARAM = BPPARAM)
 
-    sequence.scores.rc <- bplapply(sequences.split.rc,
-                                   function(x) t(apply(x, 1, get_scoreRC)),
-                                   BPPARAM = BPPARAM)
-    sequence.scores.rc <- bplapply(sequence.scores.rc, rowSums, BPPARAM = BPPARAM)
+    sequence.hits.rc <- bpmapply(parse_hits, sequence.hits.rc, seq.names,
+                                 BPPARAM = BPPARAM, SIMPLIFY = FALSE)
 
-    sequence.matches.rc <- bplapply(sequence.scores.rc, function(x) x >= min.score,
-                                    BPPARAM = BPPARAM)
+    sequence.hits.rc <- do.call(rbind, sequence.hits.rc)
+    
+    if (nrow(sequence.hits.rc) > 0) sequence.hits.rc$strand <- "-"
 
-    for (i in seq_along(sequences.split.rc)) {
-      sequences.split.rc[[i]] <- sequences.split.rc[[i]][sequence.matches.rc[[i]], ]
-    }
-
-    for (i in seq_along(sequence.scores.rc)) {
-      sequence.scores.rc[[i]] <- sequence.scores.rc[[i]][sequence.matches.rc[[i]]]
-    }
-
-    sequence.locations.rc <- bplapply(sequence.matches.rc, which,
-                                      BPPARAM = BPPARAM)
-
-    sequences.split.rc <- bplapply(sequences.split.rc, 
-                                   function(x) apply(x, 1, paste, collapse = ""),
-                                   BPPARAM = BPPARAM)
-
-    results.table.rc <- mapply(collate_results,
-                               seq.names, sequence.locations.rc,
-                               sequence.scores.rc, sequences.split.rc,
-                               SIMPLIFY = FALSE)
-
-    results.table.rc <- do.call(rbind, results.table.rc)
-    if (nrow(results.table.rc) > 0) results.table.rc$strand <- "-"
-  
+    sequence.hits <- rbind(sequence.hits, sequence.hits.rc)
   }
 
-  if (RC) results.table <- rbind(results.table, results.table.rc)
-
-  if (nrow(results.table) == 0) {
-    message("no matches found using current threshold")
+  if (nrow(sequence.hits) == 0) {
+    message("no matches found using current threshold for motif ", mot.name)
     return(NULL)
   }
 
-  rownames(results.table) <- seq_len(nrow(results.table))
+  rownames(sequence.hits) <- seq_len(nrow(sequence.hits))
 
-  results.table
+  sequence.hits
 
 }

@@ -4,7 +4,8 @@
 \alias{scan_sequences}
 \title{Find motif binding sites in a set of sequences.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.6, BPPARAM = bpparam())
+scan_sequences(motifs, sequences, threshold = 0.6, RC = TRUE,
+  BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
@@ -12,6 +13,8 @@ scan_sequences(motifs, sequences, threshold = 0.6, BPPARAM = bpparam())
 \item{sequences}{XStringSet object. List of sequences to scan}
 
 \item{threshold}{Numeric. Logodds threshold.}
+
+\item{RC}{Logical. Check reverse strand.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
