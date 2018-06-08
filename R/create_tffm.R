@@ -9,7 +9,7 @@
 #'
 #' @param sequences DNAStringSet. All sequences must be of the same width.
 #' @param type Character. One of 'first' and 'detailed'.
-#' @param ID character. Motif ID.
+#' @param ID Character. Motif ID.
 #' @param name Character. Motif name.
 #' @param strand Character. Motif strand.
 #' @param family Character. Transcription factor family.
@@ -25,11 +25,14 @@
 #'    result, the TFFM is stored using the \linkS4class{TFFM} class from
 #'    TFBSTools.
 #'
+#' @seealso \code{\link{create_motif}}
+#'
 #' @examples
 #'    library(Biostrings)
 #'    sites <- readDNAStringSet(system.file("extdata", "PF0059.1.sites",
 #'                                          package = "universalmotif"))
 #'    PF0059.TFFM <- create_tffm(sites, ID = "PF0059.1")
+#'    TFBSTools::seqLogo(PF0059.TFFM)
 #'
 #' @references
 #'    \insertRef{tffm}{universalmotif}
@@ -40,6 +43,31 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
                         name = "Unknown", strand = "+", family = "Unknown",
                         bkg = c(0.25, 0.25, 0.25, 0.25),
                         pseudocount = 1) {
+
+  if (class(sequences) != "DNAStringSet") {
+    stop("'sequences' must a DNAStringSet")
+  }
+  if (!is.character(type) || length(type) != 1) {
+    stop("incorrect 'type'")
+  }
+  if (!is.character(ID) || length(ID) != 1) {
+    stop("incorrect 'ID'")
+  }
+  if (!is.character(name) || length(name) != 1) {
+    stop("incorrect 'name'")
+  }
+  if (!is.character(strand) || !length(strand) %in% 1:2) {
+    stop("incorrect 'strand'")
+  }
+  if (!is.character(family) || length(family) != 1) {
+    stop("incorrect 'family'")
+  }
+  if (!is.numeric(bkg) || length(bkg) != 4) {
+    stop("'bkg' must be a numeric of length 4")
+  }
+  if (!is.numeric(pseudocount) || length(pseudocount) != 1) {
+    stop("'pseudocount' must be a numeric of length 1")
+  }
 
   pc1 <- pseudocount
   pc4 <- pseudocount * 4
@@ -140,9 +168,9 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
       transitions[[state]][4] <- 0.25
     }
 
-    # return(transitions)
     transitions <- matrix(unlist(transitions), nrow = length(transitions),
-                          byrow = TRUE) + 0.00000001 # somethings wrong, shouldn't need it
+                          byrow = TRUE) + 0.00000001  # somethings wrong,
+                                                      # shouldn't need this
     dimnames(transitions) <- list(0:(nrow(transitions) - 1),
                                   0:(ncol(transitions) - 1))
 
@@ -156,3 +184,11 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
   } else stop("unknown type")
 
 }
+
+# possible workflow:
+
+#   create_tffm2 = create pHMM with aphid
+#     - option to create from universalmotif obj? would need to train..
+#     - create from meme output file?
+#   train_tffm2 = train pHMM with aphid using BaumWelch algo
+#   scan_tffm2 = scan pHMM with HMMER3 (writePHMM)

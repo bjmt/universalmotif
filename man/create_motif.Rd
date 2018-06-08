@@ -204,6 +204,9 @@ DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
 DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 
 }
+\seealso{
+\code{\link{create_tffm}}, \code{\link{convert_type}}
+}
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

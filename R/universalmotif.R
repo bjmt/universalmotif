@@ -25,5 +25,5 @@
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
 #' @importFrom TFBSTools TFFMFirst TFFMDetail
 #' @importFrom Rdpack reprompt
-#' @importFrom gtools rdirichlet
+#' @importFrom gtools rdirichlet permutations
 NULL

@@ -32,7 +32,10 @@ defaults to 'universalmotif-universalmotif'. (See details.)}
 Single motif object or list.
 }
 \description{
-Convert motif class.
+Allows for easy transfer of motif information between different classes
+defined by other Bioconductor packages. This function is also used by
+most other functions, which allows them to be used with foreign class
+types seamlessly.
 }
 \details{
 The following packge-class combinations can be used as input:
@@ -88,6 +91,12 @@ motif <- convert_motifs(MA0003.2)
 
 # convert from another class to another class
 motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+
+# the 'convert_motifs' function is embedded in the rest of the universalmotif
+# functions; non-universalmotif class motifs can be used
+MA0003.2.trimmed <- trim_motifs(MA0003.2)
+# note: if the motif object going in has information that the
+# 'universalmotif' class can't hold, it will be lost
 
 }
 \references{

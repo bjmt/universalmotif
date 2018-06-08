@@ -34,16 +34,23 @@ devtools::install_github("bjmt/universalmotif")
   - `write_meme`
   - `merge_motifs`
   - `write_homer`
-  - `align_motifs`
+  - `align_motifs` (not sure if this useful at all)
   - `read_matrix`
-  - `create_tffm`
+  - `create_tffm` ('detailed' implementation is incorrect currently)
+  - `scan_sequences`
 
 ## Planned functions ##
 
   - `write_matrix`
-  - `score_sites`
 
 ## Other todo ##
 
   - function documentation
   - vignette
+
+## HMM ideas ##
+
+  - use `aphid` package to create + train motifs
+  - `seqHMM` also looks good
+  - scan sequences with `HMMER3`
+  - maybe create a new class?

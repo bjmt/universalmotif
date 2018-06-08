@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_tffm.R
 \name{create_tffm}
 \alias{create_tffm}
-\title{Create a TFFM.}
+\title{Create a TFFM. [WARNING: 'DETAILED' IMPLEMENTATION IS INCORRECT]}
 \usage{
 create_tffm(sequences, type = "first", ID = "Unknown", name = "Unknown",
   strand = "+", family = "Unknown", bkg = c(0.25, 0.25, 0.25, 0.25),
@@ -13,7 +13,7 @@ create_tffm(sequences, type = "first", ID = "Unknown", name = "Unknown",
 
 \item{type}{Character. One of 'first' and 'detailed'.}
 
-\item{ID}{character. Motif ID.}
+\item{ID}{Character. Motif ID.}
 
 \item{name}{Character. Motif name.}
 
@@ -48,10 +48,14 @@ Code based on TFFM python module \insertCite{tffm}{universalmotif}.
    sites <- readDNAStringSet(system.file("extdata", "PF0059.1.sites",
                                          package = "universalmotif"))
    PF0059.TFFM <- create_tffm(sites, ID = "PF0059.1")
+   TFBSTools::seqLogo(PF0059.TFFM)
 
 }
 \references{
 \insertRef{tffm}{universalmotif}
+}
+\seealso{
+\code{\link{create_motif}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
