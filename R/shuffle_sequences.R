@@ -12,7 +12,7 @@
 #'            will generate sequences with even background frequencies.
 #' @param numseqs Numeric. Ignored if \code{sequences} is given; otherwise
 #'                the number of random sequences to generate.
-#' @param seqlen Numeric. Ignored if \code{sequences} is given; other the
+#' @param seqlen Numeric. Ignored if \code{sequences} is given;otherwise the
 #'               length of the random sequences.
 #'
 #' @return XStringSet object.

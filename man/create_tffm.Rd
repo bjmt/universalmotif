@@ -9,9 +9,10 @@ create_tffm(sequences, memefile, type = "first", ID = "Unknown",
   0.25, 0.25, 0.25), pseudocount = 1, BPPARAM = bpparam())
 }
 \arguments{
-\item{sequences}{DNAStringSet. All sequences must be of the same width.}
+\item{sequences}{DNAStringSet (or list of). All sequences must be of the
+same width.}
 
-\item{memefile}{Character. Filepath to MEME output.}
+\item{memefile}{Character. File path to MEME output.}
 
 \item{type}{Character. Currently only 'first' is supported.}
 
