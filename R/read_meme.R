@@ -89,31 +89,36 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = bpparam()) {
                            function(x) grep(paste("Motif", x, "in BLOCKS format"),
                                             raw_lines),
                            numeric(1))
-    block.len <- vapply(block.starts,
-                        function(x) strsplit(raw_lines[x + 1], "seqs=")[[1]][2],
-                        character(1))
-    block.len <- as.numeric(block.len)
-    block.starts <- block.starts + 2
-    block.stops <- block.starts +  block.len - 1
-    blocks <- bpmapply(function(x, y) read.table(text = raw_lines[x:y],
-                                                 stringsAsFactors = FALSE),
-                       block.starts, block.stops, BPPARAM = BPPARAM,
-                       SIMPLIFY = FALSE)
-    sites <- bplapply(blocks, function(x) x$V4, BPPARAM = BPPARAM)
-    site.names <- bplapply(blocks, function(x) x$V1, BPPARAM = BPPARAM)
-    if (alph == "DNA") {
-      sites <- bplapply(sites, DNAStringSet, BPPARAM = BPPARAM)
-    } else if (alph == "RNA") {
-      sites <- bplapply(sites, RNAStringSet, BPPARAM = BPPARAM)
-    } else if (alph == "AA") {
-      sites <- bplapply(sites, AAStringSet, BPPARAM = BPPARAM)
+    if (length(block.starts) == 0) {
+      warning("could not find BLOCKS formatted motifs in MEME file")
+      motif_list <- list(motifs = motif_list, sites = NULL)
     } else {
-      sites <- bplapply(sites, BStringSet, BPPARAM = BPPARAM)
+      block.len <- vapply(block.starts,
+                          function(x) strsplit(raw_lines[x + 1], "seqs=")[[1]][2],
+                          character(1))
+      block.len <- as.numeric(block.len)
+      block.starts <- block.starts + 2
+      block.stops <- block.starts +  block.len - 1
+      blocks <- bpmapply(function(x, y) read.table(text = raw_lines[x:y],
+                                                  stringsAsFactors = FALSE),
+                        block.starts, block.stops, BPPARAM = BPPARAM,
+                        SIMPLIFY = FALSE)
+      sites <- bplapply(blocks, function(x) x$V4, BPPARAM = BPPARAM)
+      site.names <- bplapply(blocks, function(x) x$V1, BPPARAM = BPPARAM)
+      if (alph == "DNA") {
+        sites <- bplapply(sites, DNAStringSet, BPPARAM = BPPARAM)
+      } else if (alph == "RNA") {
+        sites <- bplapply(sites, RNAStringSet, BPPARAM = BPPARAM)
+      } else if (alph == "AA") {
+        sites <- bplapply(sites, AAStringSet, BPPARAM = BPPARAM)
+      } else {
+        sites <- bplapply(sites, BStringSet, BPPARAM = BPPARAM)
+      }
+      sites <- bpmapply(function(x, y) {names(x) <- y; x},
+                        sites, site.names, BPPARAM = BPPARAM,
+                        SIMPLIFY = FALSE)
+      motif_list <- list(motifs = motif_list, sites = sites)
     }
-    sites <- bpmapply(function(x, y) {names(x) <- y; x},
-                      sites, site.names, BPPARAM = BPPARAM,
-                      SIMPLIFY = FALSE)
-    motif_list <- list(motifs = motif_list, sites = sites)
   }
 
   motif_list

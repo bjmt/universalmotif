@@ -49,6 +49,7 @@ RoxygenNote: 6.0.1
 Collate: 
     'AllGenerics.R'
     'convert_type.R'
+    'create_sequences.R'
     'create_tffm.R'
     'filter_motifs.R'
     'merge_motifs.R'

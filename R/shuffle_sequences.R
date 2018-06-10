@@ -3,88 +3,90 @@
 #' @param sequences XStringSet objects.
 #' @param inter Logical. Shuffle letters between sequences? If \code{FALSE},
 #'              then the alphabet frequencies for each sequence are maintained.
-#'              Ignored if \code{sequences} is missing.
-#' @param alphabet Character. Ignored if \code{sequences} is given. If not one
-#'                 of 'DNA', 'RNA', or 'AA', then a sequence of letters
-#'                 representing the alphabet to use (e.g. "QWERTY").
-#' @param bkg Numeric. Ignored if \code{sequences} is given; otherwise generate
-#'            random sequences with these alphabet frequencies. If missing,
-#'            will generate sequences with even background frequencies.
-#' @param numseqs Numeric. Ignored if \code{sequences} is given; otherwise
-#'                the number of random sequences to generate.
-#' @param seqlen Numeric. Ignored if \code{sequences} is given;otherwise the
-#'               length of the random sequences.
+#' @param keepDI Logical. Keep dinucleotide frequencies. Only supported for
+#'               DNA and RNA.
 #'
 #' @return XStringSet object.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-shuffle_sequences <- function(sequences, inter = FALSE, alphabet, bkg,
-                              numseqs = 100, seqlen = 100) {
+shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
 
-  if (!missing(sequences)) {
+  alph <- sequences@elementType
+  if (alph == "DNAString") {
+    alphabet <- "DNA"
+    alph.split <- DNA_BASES
+  } else if (alph == "RNAString") {
+    alphabet <- "RNA"
+    alph.split <- RNA_BASES
+  } else if (alph == "AAString") {
+    alphabet <- "AA"
+  } else {
+    alphabet <- "B"
+  }
 
-    alph <- sequences@elementType
-    if (alph == "DNAString") {
-      alph <- "DNA"
-    } else if (alph == "RNAString") {
-      alph <- "RNA"
-    } else if (alph == "AAString") {
-      alph <- "AA"
-    } else alph <- "B"
+  seq.names <- names(sequences)
+  if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
+  seqs <- as.character(sequences)
+  widths <- width(sequences)
+  seqs <- lapply(seqs, function(x) strsplit(x, "")[[1]])
 
-    seq.names <- names(sequences)
-    if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
-    seqs <- as.character(sequences)
-    widths <- width(sequences)
-    seqs <- lapply(seqs, function(x) strsplit(x, "")[[1]])
+  if (!keepDI) {
 
     if (!inter) {
       seqs <- mapply(function(x, y) sample(x, y), seqs, widths,
-                     SIMPLIFY = FALSE)
+                    SIMPLIFY = FALSE)
       seqs <- lapply(seqs, function(x) paste(x, collapse = ""))
     } else if (inter) {
       seqs.all <- unlist(seqs)
       seqs.all <- sample(seqs.all, length(seqs.all))
       seqs.i <- mapply(function(x, y) as.factor(rep(x, y)),
-                       seq_len(length(sequences)), widths, SIMPLIFY = FALSE)
+                      seq_len(length(sequences)), widths, SIMPLIFY = FALSE)
       seqs.i <- unlist(seqs.i)
       seqs <- split(seqs.all, seqs.i)
       seqs <- lapply(seqs, function(x) paste(x, collapse = ""))
     } else stop("'inter' must be TRUE or FALSE")
 
-    seqs <- unlist(seqs)
+  } else if (keepDI) {
 
-  } else {
+    if (!inter) {
+      monofreqs <- table(unlist(seqs))
+      total.letters <- sum(monofreqs)
+      monofreqs <- vapply(monofreqs, function(x) x / total.letters,
+                          numeric(1))
+      ditrans <- oligonucleotideTransitions(sequences, as.prob = TRUE)
+      seqs.out <- vector("list", length(sequences))
+      for (i in seq_len(length(sequences))) {
+        seqs.out[[i]] <- rep(NA, widths[i])
+        seqs.out[[i]][1] <- sample(alph.split, 1, prob = monofreqs)
+        for (j in 2:widths[i]) {
+          previous.nuc <- seqs.out[[i]][j - 1]
+          curr.prob <- ditrans[previous.nuc, ]
+          seqs.out[[i]][j] <- sample(alph.split, 1, prob = curr.prob)
+        }
+      }
+      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
+    } else if (inter) {
+      seqs.out <- vector("list", length(sequences))
+      for (i in seq_len(length(sequences))) {
+        monofreqs <- table(seqs[[i]])
+        monofreqs <- monofreqs / widths[i]
+        ditrans <- oligonucleotideTransitions(sequences[i], as.prob = TRUE)
+        seq.out <- rep(NA, widths[i])
+        seq.out[1] <- sample(alph.split, 1, prob = monofreqs)
+        for (j in 2:widths[i]) {
+          previous.nuc <- seq.out[j - 1]
+          curr.prob <- ditrans[previous.nuc, ]
+          seq.out[j] <- sample(alph.split, 1, prob = curr.prob)
+        }
+        seqs.out[[i]] <- seq.out
+      }
+      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
+    } else stop("'inter' must be TRUE or FALSE")
 
-    if (missing(alphabet)) stop("one of 'sequences' or 'alphabet' must be input")
+  } 
 
-    if (alphabet == "DNA") {
-      alph.letters <- DNA_BASES
-    } else if (alphabet == "RNA") {
-      alph.letters <- RNA_BASES
-    } else if (alphabet == "AA") {
-      alph.letters <- AA_STANDARD
-    } else {
-      alph.letters <- strsplit(alphabet, "")[[1]]
-    }
-
-    if (!missing(bkg) && length(bkg) != length(alph.letters)) {
-      stop("'bkg' and 'alphabet' must be of the same length")
-    }
-    if (missing(bkg)) bkg <- rep(1 / length(alph.letters), length(alph.letters))
-    
-    seqs <- vector("list", numseqs)
-    for (i in seq_len(numseqs)) {
-      seqs[[i]] <- sample(alph.letters, seqlen, replace = TRUE, prob = bkg)
-      seqs[[i]] <- paste(seqs[[i]], collapse = "")
-    }
-
-    seqs <- unlist(seqs)
-
-    seq.names <- seq_len(numseqs)
-    
-  }
+  seqs <- unlist(seqs)
 
   if (alphabet == "DNA") {
     seqs <- DNAStringSet(seqs)

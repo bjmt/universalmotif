@@ -21,9 +21,9 @@ will use whatever type the motif is currently stored as.}
 
 \item{sep}{Character. Indicates how to separate individual motifs.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{headers}{Logical or character, indicating if and how to write names.}
 
-\item{header}{Logical or character, indicating if and how to write names.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.

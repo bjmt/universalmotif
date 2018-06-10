@@ -4,29 +4,16 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences or generate random sequences.}
 \usage{
-shuffle_sequences(sequences, inter = FALSE, alphabet, bkg, numseqs = 100,
-  seqlen = 100)
+shuffle_sequences(sequences, inter = FALSE, keepDI = FALSE)
 }
 \arguments{
 \item{sequences}{XStringSet objects.}
 
 \item{inter}{Logical. Shuffle letters between sequences? If \code{FALSE},
-then the alphabet frequencies for each sequence are maintained.
-Ignored if \code{sequences} is missing.}
+then the alphabet frequencies for each sequence are maintained.}
 
-\item{alphabet}{Character. Ignored if \code{sequences} is given. If not one
-of 'DNA', 'RNA', or 'AA', then a sequence of letters
-representing the alphabet to use (e.g. "QWERTY").}
-
-\item{bkg}{Numeric. Ignored if \code{sequences} is given; otherwise generate
-random sequences with these alphabet frequencies. If missing,
-will generate sequences with even background frequencies.}
-
-\item{numseqs}{Numeric. Ignored if \code{sequences} is given; otherwise
-the number of random sequences to generate.}
-
-\item{seqlen}{Numeric. Ignored if \code{sequences} is given;otherwise the
-length of the random sequences.}
+\item{keepDI}{Logical. Keep dinucleotide frequencies. Only supported for
+DNA and RNA.}
 }
 \value{
 XStringSet object.

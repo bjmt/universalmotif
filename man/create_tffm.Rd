@@ -27,10 +27,11 @@ same width.}
 \item{bkg}{Numeric. Background frequencies.}
 
 \item{pseudocount}{Numeric. Pseudocount to be added when calculating TFFM.}
+
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-\linkS4class{TFFMFirst} obejct, \linkS4class{TFFMDetail} object,
-        or a list of such objects.
+TFFMFirst object, TFFMDetail object, or a list of such objects.
 }
 \description{
 If the sequences of all binding sites are available, a transcription
@@ -44,13 +45,12 @@ TFFMs using this function is based on the python module 'TFFM'
 Code based on TFFM python module \insertCite{tffm}{universalmotif}.
    Currently the only support for this type of motif in Bioconductor is
    via the TFBSTools package \insertCite{tfbstools}{universalmotif}. As a
-   result, the TFFM is stored using the \linkS4class{TFFM} class from
-   TFBSTools.
+   result, the TFFM is stored using the TFFM class from TFBSTools.
 
    If a MEME output file is used to create the TFFM, then the 'strand'
    and 'bkg' fields will be taken from the MEME output. If there are
    multiple motifs in the output file, a TFFM will be created from each
-   and a list of \linkS4class{TFFM} objects returned.
+   and a list of TFFM objects returned.
 }
 \examples{
    library(Biostrings)

@@ -7,7 +7,7 @@
 #' @param type Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing
 #'             will use whatever type the motif is currently stored as.
 #' @param sep Character. Indicates how to separate individual motifs.
-#' @param header Logical or character, indicating if and how to write names.
+#' @param headers Logical or character, indicating if and how to write names.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.

@@ -17,21 +17,20 @@
 #' @param family Character. Transcription factor family.
 #' @param bkg Numeric. Background frequencies.
 #' @param pseudocount Numeric. Pseudocount to be added when calculating TFFM.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return \linkS4class{TFFMFirst} obejct, \linkS4class{TFFMDetail} object,
-#'         or a list of such objects.
+#' @return TFFMFirst object, TFFMDetail object, or a list of such objects.
 #'
 #' @details
 #'    Code based on TFFM python module \insertCite{tffm}{universalmotif}.
 #'    Currently the only support for this type of motif in Bioconductor is
 #'    via the TFBSTools package \insertCite{tfbstools}{universalmotif}. As a
-#'    result, the TFFM is stored using the \linkS4class{TFFM} class from
-#'    TFBSTools.
+#'    result, the TFFM is stored using the TFFM class from TFBSTools.
 #'
 #'    If a MEME output file is used to create the TFFM, then the 'strand'
 #'    and 'bkg' fields will be taken from the MEME output. If there are
 #'    multiple motifs in the output file, a TFFM will be created from each
-#'    and a list of \linkS4class{TFFM} objects returned.
+#'    and a list of TFFM objects returned.
 #'
 #' @seealso \code{\link{create_motif}}
 #'
@@ -74,6 +73,7 @@ create_tffm <- function(sequences, memefile, type = "first", ID = "Unknown",
     strand <- memefile[[1]][[1]]["strand"]
     bkg <- memefile[[1]][[1]]["bkg"]
     memefile <- memefile[[2]]
+    if (length(memefile) == 0) stop("no sites found in MEME file")
     tffms <-  bplapply(memefile,
                        function(x) create_tffm(sequences = x, type = type, ID = ID,
                                                name = name, strand = strand,
