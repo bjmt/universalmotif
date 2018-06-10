@@ -4,7 +4,8 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences.}
 \usage{
-shuffle_sequences(sequences, inter = FALSE, keepDI = FALSE)
+shuffle_sequences(sequences, inter = FALSE, keepDI = FALSE,
+  keepTRI = FALSE)
 }
 \arguments{
 \item{sequences}{XStringSet objects.}
@@ -13,6 +14,9 @@ shuffle_sequences(sequences, inter = FALSE, keepDI = FALSE)
 then the alphabet frequencies for each sequence are maintained.}
 
 \item{keepDI}{Logical. Keep dinucleotide frequencies. Only supported for
+DNA and RNA.}
+
+\item{keepTRI}{Logical. Keep trinucleotide frequencies. Only supported for
 DNA and RNA.}
 }
 \value{

@@ -5,14 +5,15 @@
 \title{Create random background sequences.}
 \usage{
 create_sequences(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
-  difreq)
+  difreq, trifreq)
 }
 \arguments{
 \item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of letters
 to be used as the alphabet.}
 
 \item{bkg}{Numeric. Alphabet frequencies to use. If missing assumes uniform
-frequencies.}
+frequencies. Not used if \code{difreq} or \code{trifreq} are
+input.}
 
 \item{numseqs}{Numeric. Number of sequences to generate.}
 
@@ -20,6 +21,9 @@ frequencies.}
 
 \item{difreq}{Numeric. Dinucleotide frequencies. DNA only. Must be a
 named numeric vector of length 16.}
+
+\item{trifreq}{Numeric. Trinucleotide frequencies. DNA only. Must be a 
+named numeric vector of length 64.}
 }
 \value{
 XStringSet object.

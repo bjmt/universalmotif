@@ -3,18 +3,21 @@
 #' @param alphabet Character. One of 'DNA', 'RNA', 'AA', or a string of letters
 #'                 to be used as the alphabet.
 #' @param bkg Numeric. Alphabet frequencies to use. If missing assumes uniform
-#'            frequencies.
+#'            frequencies. Not used if \code{difreq} or \code{trifreq} are
+#'            input.
 #' @param numseqs Numeric. Number of sequences to generate.
 #' @param seqlen Numeric. Length of random sequences.
 #' @param difreq Numeric. Dinucleotide frequencies. DNA only. Must be a
 #'               named numeric vector of length 16.
+#' @param trifreq Numeric. Trinucleotide frequencies. DNA only. Must be a 
+#'                named numeric vector of length 64.
 #'
 #' @return XStringSet object.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 create_sequences <- function(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
-                             difreq) {
+                             difreq, trifreq) {
 
   if (alphabet == "DNA") {
     alph.letters <- DNA_BASES
@@ -32,12 +35,12 @@ create_sequences <- function(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
   if (missing(bkg)) bkg <- rep(1 / length(alph.letters), length(alph.letters))
   
   seqs <- vector("list", numseqs)
-  if (missing(difreq)) {
+  if (missing(difreq) && missing(trifreq)) {
     for (i in seq_len(numseqs)) {
       seqs[[i]] <- sample(alph.letters, seqlen, replace = TRUE, prob = bkg)
       seqs[[i]] <- paste(seqs[[i]], collapse = "")
     }
-  } else {
+  } else if (!missing(difreq)) {
     if (!alphabet == "DNA") {
       stop("if 'difreq' is provided, alphabet must be 'DNA'")
     }
@@ -60,6 +63,38 @@ create_sequences <- function(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
       for (j in 2:seqlen) {
         previous.nuc <- seqs.out[[i]][j - 1]
         curr.prob <- ditrans[previous.nuc, ]
+        curr.prob[is.na(curr.prob)] <- 0.01
+        seqs.out[[i]][j] <- sample(alph.letters, 1, prob = curr.prob)
+      }
+    }
+    seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
+  } else if (!missing(trifreq)) {
+    if (alphabet != "DNA") {
+      stop("if 'trifreq' is provided, alphabet must be 'DNA'")
+    }
+    if (length(trifreq) != 64) stop("'trifreq' must be length 64")
+    trinucs <- names(trinucleotideFrequency(DNAString("A")))
+    if (!all(names(trifreq) %in% trinucs)) {
+      stop("trinucleotide frequencies must be provided for ", trinucs)
+    }
+    trifreq <- trifreq[trinucs]
+    tritrans <- matrix(trifreq, nrow = 16, byrow = TRUE)
+    rownames(tritrans) <- c("AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT",
+                            "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT")
+    seqs.out <- vector("list", numseqs)
+    for (i in seq_len(numseqs)) {
+      seqs.out[[i]] <- rep(NA, seqlen)
+      first.tri <- sample(names(trifreq), 1, prob = trifreq)
+      first.tri <- strsplit(first.tri, "")[[1]]
+      seqs.out[[i]][1] <- first.tri[1]
+      seqs.out[[i]][2] <- first.tri[2]
+      seqs.out[[i]][3] <- first.tri[3]
+      for (j in 4:seqlen) {
+        previous.nuc1 <- seqs.out[[i]][j - 1]
+        previous.nuc2 <- seqs.out[[i]][j - 2]
+        previous.nuc <- paste0(previous.nuc2, previous.nuc1)
+        curr.prob <- tritrans[previous.nuc, ]
+        curr.prob[is.na(curr.prob)] <- 0
         seqs.out[[i]][j] <- sample(alph.letters, 1, prob = curr.prob)
       }
     }

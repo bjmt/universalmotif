@@ -5,12 +5,15 @@
 #'              then the alphabet frequencies for each sequence are maintained.
 #' @param keepDI Logical. Keep dinucleotide frequencies. Only supported for
 #'               DNA and RNA.
+#' @param keepTRI Logical. Keep trinucleotide frequencies. Only supported for
+#'                DNA and RNA.
 #'
 #' @return XStringSet object.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
+shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE,
+                              keepTRI = FALSE) {
 
   alph <- sequences@elementType
   if (alph == "DNAString") {
@@ -31,7 +34,9 @@ shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
   widths <- width(sequences)
   seqs <- lapply(seqs, function(x) strsplit(x, "")[[1]])
 
-  if (!keepDI) {
+  if (keepDI && keepTRI) stop("only one of 'keepDI' and 'keepTRI' can be TRUE")
+
+  if (!keepDI && !keepTRI) {
 
     if (!inter) {
       seqs <- mapply(function(x, y) sample(x, y), seqs, widths,
@@ -52,8 +57,10 @@ shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
     if (!inter) {
       monofreqs <- table(unlist(seqs))
       total.letters <- sum(monofreqs)
-      monofreqs <- vapply(monofreqs, function(x) x / total.letters,
-                          numeric(1))
+      monofreqs <- monofreqs / total.letters
+      monofreqs <- c(monofreqs["A"], monofreqs["C"], monofreqs["G"],
+                      monofreqs["T"])
+      monofreqs[is.na(monofreqs)] <- 0
       ditrans <- oligonucleotideTransitions(sequences, as.prob = TRUE)
       seqs.out <- vector("list", length(sequences))
       for (i in seq_len(length(sequences))) {
@@ -62,6 +69,7 @@ shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
         for (j in 2:widths[i]) {
           previous.nuc <- seqs.out[[i]][j - 1]
           curr.prob <- ditrans[previous.nuc, ]
+          curr.prob[is.na(curr.prob)] <- 0.01
           seqs.out[[i]][j] <- sample(alph.split, 1, prob = curr.prob)
         }
       }
@@ -71,12 +79,16 @@ shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
       for (i in seq_len(length(sequences))) {
         monofreqs <- table(seqs[[i]])
         monofreqs <- monofreqs / widths[i]
+        monofreqs <- c(monofreqs["A"], monofreqs["C"], monofreqs["G"],
+                        monofreqs["T"])
+        monofreqs[is.na(monofreqs)] <- 0
         ditrans <- oligonucleotideTransitions(sequences[i], as.prob = TRUE)
         seq.out <- rep(NA, widths[i])
         seq.out[1] <- sample(alph.split, 1, prob = monofreqs)
         for (j in 2:widths[i]) {
           previous.nuc <- seq.out[j - 1]
           curr.prob <- ditrans[previous.nuc, ]
+          curr.prob[is.na(curr.prob)] <- 0.01
           seq.out[j] <- sample(alph.split, 1, prob = curr.prob)
         }
         seqs.out[[i]] <- seq.out
@@ -84,7 +96,67 @@ shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE) {
       seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
     } else stop("'inter' must be TRUE or FALSE")
 
-  } 
+  } else if (keepTRI) {
+    
+    if (!inter) {
+      monofreqs <- table(unlist(seqs))
+      total.letters <- sum(monofreqs)
+      monofreqs <- monofreqs / total.letters
+      monofreqs <- c(monofreqs["A"], monofreqs["C"], monofreqs["G"],
+                      monofreqs["T"])
+      monofreqs[is.na(monofreqs)] <- 0
+      ditrans <- oligonucleotideTransitions(sequences, as.prob = TRUE)
+      tritrans <- oligonucleotideTransitions(sequences, 2, 1, as.prob = TRUE)
+      trifreq <- colSums(trinucleotideFrequency(sequences, as.prob = TRUE))
+      seqs.out <- vector("list", length(sequences))
+      for (i in seq_len(length(sequences))) {
+        seqs.out[[i]] <- rep(NA, widths[i])
+        first.tri <- sample(names(trifreq), 1, prob = trifreq)
+        first.tri <- strsplit(first.tri, "")[[1]]
+        seqs.out[[i]][1] <- first.tri[1]
+        seqs.out[[i]][2] <- first.tri[2]
+        seqs.out[[i]][3] <- first.tri[3]
+        for (j in 4:widths[i]) {
+          previous.nuc1 <- seqs.out[[i]][j - 1]
+          previous.nuc2 <- seqs.out[[i]][j - 2]
+          previous.nuc <- paste0(previous.nuc2, previous.nuc2)
+          curr.prob <- tritrans[previous.nuc, ]
+          curr.prob[is.na(curr.prob)] <- 0
+          seqs.out[[i]][j] <- sample(alph.split, 1, prob = curr.prob)
+        }
+      }
+      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
+    } else if (inter) {
+      seqs.out <- vector("list", length(sequences))
+      for (i in seq_len(length(sequences))) {
+        monofreqs <- table(seqs[[i]])
+        monofreqs <- monofreqs / widths[i]
+        monofreqs <- c(monofreqs["A"], monofreqs["C"], monofreqs["G"],
+                       monofreqs["T"])
+        monofreqs[is.na(monofreqs)] <- 0
+        ditrans <- oligonucleotideTransitions(sequences[i], as.prob = TRUE)
+        trifreq <- trinucleotideFrequency(sequences[i], as.prob = TRUE)[1, ]
+        tritrans <- oligonucleotideTransitions(sequences[i], 2, 1, as.prob = TRUE)
+        seq.out <- rep(NA, widths[i])
+        first.tri <- sample(names(trifreq), 1, prob = trifreq)
+        first.tri <- strsplit(first.tri, "")[[1]]
+        seq.out[1] <- first.tri[1]
+        seq.out[2] <- first.tri[2]
+        seq.out[3] <- first.tri[3]
+        for (j in 4:widths[i]) {
+          previous.nuc1 <- seq.out[j - 1]
+          previous.nuc2 <- seq.out[j - 2]
+          previous.nuc <- paste0(previous.nuc2, previous.nuc1)
+          curr.prob <- tritrans[previous.nuc, ]
+          curr.prob[is.na(curr.prob)] <- 0.01
+          seq.out[j] <- sample(alph.split, 1, prob = curr.prob)
+        }
+        seqs.out[[i]] <- seq.out
+      }
+      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
+    } else stop("'inter' must be TRUE or FALSE")
+
+  }
 
   seqs <- unlist(seqs)
 

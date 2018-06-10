@@ -18,7 +18,7 @@
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
-#' @importFrom Biostrings oligonucleotideTransitions
+#' @importFrom Biostrings oligonucleotideTransitions trinucleotideFrequency
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
 #' @importFrom motifStack plotMotifLogo mergeMotifs
