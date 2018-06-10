@@ -24,7 +24,7 @@ alignments are extended).}
 
 \item{gap_extend}{Gap extension penaly.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of motifs or motif object.

@@ -9,7 +9,7 @@
 #' @param sep Character. Indicates how individual motifs are seperated.
 #' @param headers Logical or character, indicating if and how to read names. 
 #' @param rownames Logical. Are there alphabet letters present as rownames?
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects.
 #'

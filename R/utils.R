@@ -266,7 +266,7 @@ get_consensusAA <- function(motif, type, pseudocount) {
   "X"
 }
 
-.internal_convert <- function(motifs, class = NULL) {
+.internal_convert <- function(motifs, class = NULL, BPPARAM = bpparam()) {
 
   if (is.null(class)) {
     CLASS_PKG <- attributes(class(motifs))$package
@@ -275,7 +275,7 @@ get_consensusAA <- function(motif, type, pseudocount) {
     return(CLASS_IN)
   } else {
     if (length(class) == 1 && class != "universalmotif-universalmotif") {
-      tryCatch(motifs <- convert_motifs(motifs, class),
+      tryCatch(motifs <- convert_motifs(motifs, class, BPPARAM = BPPARAM),
                error = function(e) message("motifs converted to class 'universalmotif'"))
     }
     return(motifs)

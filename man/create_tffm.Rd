@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_tffm.R
 \name{create_tffm}
 \alias{create_tffm}
-\title{Create a TFFM. [WARNING: 'DETAILED' IMPLEMENTATION IS INCORRECT]}
+\title{Create a TFFM.}
 \usage{
 create_tffm(sequences, type = "first", ID = "Unknown", name = "Unknown",
   strand = "+", family = "Unknown", bkg = c(0.25, 0.25, 0.25, 0.25),
@@ -11,7 +11,7 @@ create_tffm(sequences, type = "first", ID = "Unknown", name = "Unknown",
 \arguments{
 \item{sequences}{DNAStringSet. All sequences must be of the same width.}
 
-\item{type}{Character. One of 'first' and 'detailed'.}
+\item{type}{Character. Currently only 'first' is supported.}
 
 \item{ID}{Character. Motif ID.}
 

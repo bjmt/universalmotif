@@ -16,21 +16,25 @@ merge_motifs(motifs, newname = "merged motif", method = "msa",
 
 \item{method}{Character. 'motifStack' or 'msa'.}
 
-\item{printaln}{Logical. Print msa aln.}
+\item{printaln}{Logical. Print msa aln object to get an idea of how the merging
+was done. Only applies if \code{method = 'msa'}.}
 
-\item{tryRC}{Logical. Only used if method = 'msa'.}
+\item{tryRC}{Logical. Only used if \code{method = 'msa'}.}
 
-\item{RCstrategy}{Character. 'motif_dist' or 'motif_simil'.}
+\item{RCstrategy}{Character. 'motif_dist' or 'motif_simil'. Only used if
+\code{method = 'msa'}.}
 
 \item{bgNoise}{\code{\link[motifStack]{mergeMotifs}} param.}
 
-\item{cluster}{\code{\link[msa]{msaClustalW}} param. nj (default) or upgma}
+\item{cluster}{\code{\link[msa]{msaClustalW}} param. 'nj' (default) or
+'upgma'.}
 
-\item{substitutionMatrix}{\code{\link[msa]{msaClustalW}} param. iub or clustalw}
+\item{substitutionMatrix}{\code{\link[msa]{msaClustalW}} param. 'iub' or 
+'clustalw'.}
 
-\item{BPPARAM}{Param for bplapply. Only used if tryRC = TRUE.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
-\item{...}{Other settings for function msaClustalW.}
+\item{...}{Other settings for function \code{\link[msa]{msaClustalW}}.}
 }
 \value{
 A single motif object.
@@ -40,15 +44,32 @@ DNA/RNA only. The 'extrainfo' slot will be dropped, as well as any
 non-identical slots.
 }
 \details{
-If method = 'msa', the motifs are aligned as consensus strings before
-   they are averaged as PPMs. For method = 'motifStack', the
-   motifStack::mergeMotifs function is used. 
+If \code{method = 'msa'} \insertCite{msa}{universalmotif}, the motifs
+   are aligned as consensus strings before they are averaged as PPMs. For
+   \code{method = 'motifStack'} \insertCite{motifstack}{universalmotif}, the
+   \code{\link[motifStack]{mergeMotifs}} function is used. Please note that
+   the resulting merged motif can vary quite significantly when using
+   the different methods.
 
-   If tryRC = FALSE, the motifs are aligned and merged as-is; if
-   tryRC = TRUE, then either \code{\link{motif_simil}} or
-   \code{\link{motif_dist}} is used to check if the reverse complement
-   is more closely related to the rest of the motifs. If so, the
-   reverse complement is used instead for merging.
+   If \code{tryRC = FALSE} and \code{method = 'msa'}, the motifs are aligned
+   and merged as-is; if \code{tryRC = TRUE}, then either
+   \code{\link{motif_simil}} or \code{\link{motif_dist}} is used to check
+   if the reverse complement is more closely related to the rest of the
+   motifs. If so, the reverse complement is used instead for merging.
+}
+\examples{
+motifs <- read_jaspar(system.file("extdata", "jaspar.txt",
+                                  package = "universalmotif"))
+
+merged.motif <- merge_motifs(motifs)
+# compare with:
+merged.motif2 <- merge_motifs(motifs, method = "motifStack")
+
+}
+\references{
+\insertRef{motifstack}{universalmotif}
+
+   \insertRef{msa}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

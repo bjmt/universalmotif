@@ -11,7 +11,7 @@ trim_motifs(motifs, IC_cutoff = 0.25, BPPARAM = bpparam())
 
 \item{IC_cutoff}{Numeric. Minimum allowed information content.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Motifs Motif object or list.

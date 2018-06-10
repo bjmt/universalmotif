@@ -65,8 +65,9 @@ The following packge-class combinations can be used as input:
       \item motifStack-pcm
       \item motifStack-pfm
       \item PWMEnrich-PWM
-      \item Biostrings-PWM (type = "log2prob")
+      \item Biostrings-PWM (\code{type = 'log2prob'})
       \item rGADEM-motif
+      \item universalmotif-universalmotif
    }
 }
 \section{Methods (by class)}{

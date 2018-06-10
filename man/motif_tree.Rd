@@ -23,7 +23,7 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 
 \item{branch.length}{Character.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{ggtree params.}
 }

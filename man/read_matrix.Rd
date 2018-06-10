@@ -25,7 +25,7 @@ try and guess which one.}
 
 \item{rownames}{Logical. Are there alphabet letters present as rownames?}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.

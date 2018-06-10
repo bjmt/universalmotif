@@ -8,7 +8,7 @@
 #'            background frequencies will be set to freq = 1/length(alphabet)
 #' @param strand If missing, will use strand from motif objects (if identical);
 #'               otherwise will default to "+ -"
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'

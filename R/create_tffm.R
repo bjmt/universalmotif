@@ -1,4 +1,4 @@
-#' Create a TFFM. [WARNING: 'DETAILED' IMPLEMENTATION IS INCORRECT]
+#' Create a TFFM. 
 #'
 #' If the sequences of all binding sites are available, a transcription
 #' factor flexible model \insertCite{tffm}{universalmotif} can be generated.
@@ -8,7 +8,7 @@
 #' \insertCite{tffm}{universalmotif}.
 #'
 #' @param sequences DNAStringSet. All sequences must be of the same width.
-#' @param type Character. One of 'first' and 'detailed'.
+#' @param type Character. Currently only 'first' is supported.
 #' @param ID Character. Motif ID.
 #' @param name Character. Motif name.
 #' @param strand Character. Motif strand.
@@ -123,6 +123,8 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
               bg = c(A = bkg[1], C = bkg[2], G = bkg[3], T = bkg[4]))
 
   } else if (type == "detailed") {
+
+    warning("type 'detailed' currently does not work as intended")
   
     emissions <- rep(list(c(1,0,0,0), c(0,1,0,0), c(0,0,1,0), c(0,0,0,1)), mot.len + 1)
 

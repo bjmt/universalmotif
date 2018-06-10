@@ -3,7 +3,7 @@
 #' @param motifs List of motifs or a motif object.
 #' @param file Character.
 #' @param logodds_threshold Stringency required for HOMER to match a motif.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'

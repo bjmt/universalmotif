@@ -1,11 +1,11 @@
 #' Motif similarity matrix.
 #'
-#' TFBSTools implementation of motif similarity. 
+#' TFBSTools implementation of motif similarity
+#' \insertCite{tfbstools}{universalmotif}. 
 #'
 #' @param motifs List of motifs.
 #' @param method One of Euclidean, Pearson, KL.
-#' @param BPPARAM Param for bplapply.
-#
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Similarity matrix.
 #'
@@ -13,6 +13,9 @@
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' jaspar.simil <- motif_simil(jaspar)
+#'
+#' @references
+#'    \insertRef{tfbstools}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

@@ -13,7 +13,7 @@
 #'              alignments are extended).
 #' @param gap_open Gap open penalty.
 #' @param gap_extend Gap extension penaly.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of motifs or motif object.
 #'

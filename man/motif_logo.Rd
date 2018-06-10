@@ -14,7 +14,7 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", BPPARAM = bpparam(),
 
 \item{type}{Character. ic or prob.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{Package-specific params.}
 }

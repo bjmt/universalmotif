@@ -9,7 +9,7 @@
 #' @param tipsize Character. (icscore, pval, qval, eval)
 #' @param legend Logical.
 #' @param branch.length Character.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... ggtree params.
 #'
 #' @return ggplot2 object.

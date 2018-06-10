@@ -5,7 +5,7 @@
 #' @param motif universalmotif object.
 #' @param engine Character. ggseqlogo, seqLogo, motifStack.
 #' @param type Character. ic or prob.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... Package-specific params.
 #'
 #' @return For ggseqlogo: a ggplot2 object.

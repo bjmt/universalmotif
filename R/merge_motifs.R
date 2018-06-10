@@ -6,27 +6,47 @@
 #' @param motifs List of motifs.
 #' @param newname Name of final merged motif.
 #' @param method Character. 'motifStack' or 'msa'.
-#' @param printaln Logical. Print msa aln.
-#' @param tryRC Logical. Only used if method = 'msa'.
-#' @param RCstrategy Character. 'motif_dist' or 'motif_simil'.
+#' @param printaln Logical. Print msa aln object to get an idea of how the merging
+#'                          was done. Only applies if \code{method = 'msa'}.
+#' @param tryRC Logical. Only used if \code{method = 'msa'}.
+#' @param RCstrategy Character. 'motif_dist' or 'motif_simil'. Only used if
+#'                   \code{method = 'msa'}.
 #' @param bgNoise \code{\link[motifStack]{mergeMotifs}} param.
-#' @param cluster \code{\link[msa]{msaClustalW}} param. nj (default) or upgma
-#' @param substitutionMatrix \code{\link[msa]{msaClustalW}} param. iub or clustalw
-#' @param BPPARAM Param for bplapply. Only used if tryRC = TRUE.
-#' @param ... Other settings for function msaClustalW.
+#' @param cluster \code{\link[msa]{msaClustalW}} param. 'nj' (default) or
+#'                'upgma'.
+#' @param substitutionMatrix \code{\link[msa]{msaClustalW}} param. 'iub' or 
+#'                           'clustalw'.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}. 
+#' @param ... Other settings for function \code{\link[msa]{msaClustalW}}.
 #'
 #' @return A single motif object.
 #'
 #' @details
-#'    If method = 'msa', the motifs are aligned as consensus strings before
-#'    they are averaged as PPMs. For method = 'motifStack', the
-#'    motifStack::mergeMotifs function is used. 
+#'    If \code{method = 'msa'} \insertCite{msa}{universalmotif}, the motifs
+#'    are aligned as consensus strings before they are averaged as PPMs. For
+#'    \code{method = 'motifStack'} \insertCite{motifstack}{universalmotif}, the
+#'    \code{\link[motifStack]{mergeMotifs}} function is used. Please note that
+#'    the resulting merged motif can vary quite significantly when using
+#'    the different methods.
 #'
-#'    If tryRC = FALSE, the motifs are aligned and merged as-is; if
-#'    tryRC = TRUE, then either \code{\link{motif_simil}} or
-#'    \code{\link{motif_dist}} is used to check if the reverse complement
-#'    is more closely related to the rest of the motifs. If so, the
-#'    reverse complement is used instead for merging.
+#'    If \code{tryRC = FALSE} and \code{method = 'msa'}, the motifs are aligned
+#'    and merged as-is; if \code{tryRC = TRUE}, then either
+#'    \code{\link{motif_simil}} or \code{\link{motif_dist}} is used to check
+#'    if the reverse complement is more closely related to the rest of the
+#'    motifs. If so, the reverse complement is used instead for merging.
+#'
+#' @examples
+#' motifs <- read_jaspar(system.file("extdata", "jaspar.txt",
+#'                                   package = "universalmotif"))
+#'
+#' merged.motif <- merge_motifs(motifs)
+#' # compare with:
+#' merged.motif2 <- merge_motifs(motifs, method = "motifStack")
+#'
+#' @references
+#'    \insertRef{motifstack}{universalmotif}
+#'
+#'    \insertRef{msa}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
@@ -36,10 +56,10 @@ merge_motifs <- function(motifs, newname = "merged motif",
                          cluster = "default",  substitutionMatrix = "iub",
                          BPPARAM = bpparam(), ...) {
 
-  CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  CLASS_IN <- vapply(motifs, .internal_convert, BPPARAM = BPPARAM, character(1))
   CLASS_IN <- unique(CLASS_IN)
 
-  motifs <- convert_motifs(motifs)
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   TYPE_IN <- vapply(motifs, function(x) x["type"], character(1))
   TYPE_IN <- unique(TYPE_IN)
@@ -53,9 +73,9 @@ merge_motifs <- function(motifs, newname = "merged motif",
     alphabet <- vapply(motifs, function(x) x["alphabet"], character(1))
     alphabet <- unique(alphabet)
     if (length(alphabet) != 1) stop("all motifs must share the same alphabet")
-    if (!alphabet %in% c("DNA", "RNA")) stop("only DNA and RNA alphabets are allowed")
+    if (!alphabet %in% c("DNA", "RNA")) stop("only DNA and RNA are allowed")
 
-    motifs <- convert_type(motifs, "PPM", pseudocount = 0)
+    motifs <- convert_type(motifs, "PPM", pseudocount = 0, BPPARAM = BPPARAM)
 
     if (tryRC) {
       motifs.rc <- motif_rc(motifs)
@@ -162,23 +182,23 @@ merge_motifs <- function(motifs, newname = "merged motif",
   } else if (method == "motifStack") {
 
     if (CLASS_IN == "motifStack-pcm") {
-      motifs <- convert_motifs(motifs, "motifStack-pcm")
+      motifs <- convert_motifs(motifs, "motifStack-pcm", BPPARAM = BPPARAM)
     } else if (CLASS_IN == "motifStack-pfm") {
-      motifs <- convert_motifs(motifs, "motifStack-pfm")
+      motifs <- convert_motifs(motifs, "motifStack-pfm", BPPARAM = BPPARAM)
     } else if (TYPE_IN == "PCM") {
-      motifs <- convert_motifs(motifs, "motifStack-pcm")
+      motifs <- convert_motifs(motifs, "motifStack-pcm", BPPARAM = BPPARAM)
     } else {
-      motifs <- convert_motifs(motifs, "motifStack-pfm")
+      motifs <- convert_motifs(motifs, "motifStack-pfm", BPPARAM = BPPARAM)
     }
     motif <- mergeMotifs(motifs, bgNoise = bgNoise)
-    motif <- convert_motifs(motif)
+    motif <- convert_motifs(motif, BPPARAM = BPPARAM)
     motif["name"] <- newname
   
   } else stop("'method' must be one of 'msa', 'motifStack'")
 
   if (length(CLASS_IN) == 1 && length(TYPE_IN) == 1) {
-    motif <- convert_type(motif, TYPE_IN)
-    motif <- .internal_convert(motif, CLASS_IN)
+    motif <- convert_type(motif, TYPE_IN, BPPARAM = BPPARAM)
+    motif <- .internal_convert(motif, CLASS_IN, BPPARAM = BPPARAM)
     motif
   } else motif
 

@@ -9,7 +9,7 @@ motif_rc(motifs, BPPARAM = bpparam())
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of motifs or single motif object.

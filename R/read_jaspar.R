@@ -2,7 +2,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects.
 #'

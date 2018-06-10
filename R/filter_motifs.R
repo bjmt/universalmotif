@@ -14,7 +14,7 @@
 #' @param pval Keep motifs by p-value.
 #' @param qval Keep motifs by q-value.
 #' @param eval Keep motifs by e-val.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of motifs.
 #'
@@ -98,7 +98,7 @@ filter_motifs <- function(motifs, name, altname, family, organism,
     motifs <- motifs[motif_evals <= eval]
   }
 
-  # motifs <- .internal_convert(motifs, CLASS_IN)
+  # motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
 
   motifs
 

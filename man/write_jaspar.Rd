@@ -11,7 +11,7 @@ write_jaspar(motifs, file, BPPARAM = bpparam())
 
 \item{file}{Character.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.

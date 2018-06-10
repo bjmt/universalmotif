@@ -66,6 +66,7 @@ Collate:
     'read_meme.R'
     'read_transfac.R'
     'read_uniprobe.R'
+    'sample_sites.R'
     'scan_sequences.R'
     'trim_motifs.R'
     'universalmotif-methods.R'

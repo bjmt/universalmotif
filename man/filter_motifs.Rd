@@ -36,7 +36,7 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
 
 \item{eval}{Keep motifs by e-val.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of motifs.

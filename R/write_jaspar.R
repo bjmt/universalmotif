@@ -2,7 +2,7 @@
 #'
 #' @param motifs List of motifs or a motif object.
 #' @param file Character.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'

@@ -11,7 +11,7 @@ read_jaspar(file, skip = 0, BPPARAM = bpparam())
 
 \item{skip}{Numeric.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.

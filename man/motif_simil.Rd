@@ -11,19 +11,23 @@ motif_simil(motifs, method = "Pearson", BPPARAM = bpparam())
 
 \item{method}{One of Euclidean, Pearson, KL.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Similarity matrix.
 }
 \description{
-TFBSTools implementation of motif similarity.
+TFBSTools implementation of motif similarity
+\insertCite{tfbstools}{universalmotif}.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.simil <- motif_simil(jaspar)
 
+}
+\references{
+\insertRef{tfbstools}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

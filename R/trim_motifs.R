@@ -2,7 +2,7 @@
 #'
 #' @param motifs Motif object.
 #' @param IC_cutoff Numeric. Minimum allowed information content.
-#' @param BPPARAM Param for bplapply.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motifs Motif object or list.
 #'
@@ -27,7 +27,7 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
   }
 
   CLASS_IN <- .internal_convert(motifs)
-  motif <- convert_motifs(motifs)
+  motif <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   motif_scores <- apply(motif["motif"], 2, position_icscore,
                         bkg = motif["bkg"], type = motif["type"],
@@ -53,7 +53,7 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
                           qval = motif["qval"], eval = motif["eval"],
                           extrainfo = motif["extrainfo"])
 
-  motif <- .internal_convert(motif, CLASS_IN)
+  motif <- .internal_convert(motif, CLASS_IN, BPPARAM = BPPARAM)
   motif
 
 }

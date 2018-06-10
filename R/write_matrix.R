@@ -18,7 +18,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                          type, sep = "", headers = TRUE, BPPARAM = bpparam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  if (!missing(type)) motifs <- convert_type(motifs, type)
+  if (!missing(type)) motifs <- convert_type(motifs, type, BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_matrix <- function(motifs, positions, rownames, sep, headers) {

@@ -38,6 +38,7 @@ devtools::install_github("bjmt/universalmotif")
   - `create_tffm` ('detailed' implementation is incorrect currently)
   - `scan_sequences`
   - `write_matrix`
+  - `sample_sites`
 
 ## Planned functions ##
 

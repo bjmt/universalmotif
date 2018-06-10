@@ -13,7 +13,7 @@ write_homer(motifs, file, logodds_threshold = 0.6, BPPARAM = bpparam())
 
 \item{logodds_threshold}{Stringency required for HOMER to match a motif.}
 
-\item{BPPARAM}{Param for bplapply.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.
