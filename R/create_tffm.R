@@ -60,10 +60,8 @@ create_tffm <- function(sequences, memefile, type = "first", ID = "Unknown",
     tffms <- bplapply(sequences,
                       function(x) create_tffm(sequences = x,
                                               type = type, ID = ID,
-                                              name = name,
-                                              strand = strand,
-                                              family = family,
-                                              bkg = bkg,
+                                              name = name, strand = strand,
+                                              family = family, bkg = bkg,
                                               pseudocount = pseudocount),
                       BPPARAM = BPPARAM)
     return(tffms)
