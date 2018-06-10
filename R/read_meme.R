@@ -2,9 +2,13 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
+#' @param readsites Logical. If \code{TRUE}, the motif sites will be read
+#'                  as well.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return List of universalmotif objects.
+#' @return List of universalmotif objects. If \code{readsites = TRUE}, a list
+#'         comprising of a sub-list of motif objects and a sub-list of 
+#'         motif sites will be returned.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
@@ -14,7 +18,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_meme <- function(file, skip = 0, BPPARAM = bpparam()) {
+read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = bpparam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -78,6 +82,39 @@ read_meme <- function(file, skip = 0, BPPARAM = bpparam()) {
                                                           byrow = TRUE)))
                          }, motif_names, motif_meta, motif_list,
                          SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+
+  if (readsites) {
+    mot.names <- vapply(motif_list, function(x) x["name"], character(1))
+    block.starts <- vapply(mot.names,
+                           function(x) grep(paste("Motif", x, "in BLOCKS format"),
+                                            raw_lines),
+                           numeric(1))
+    block.len <- vapply(block.starts,
+                        function(x) strsplit(raw_lines[x + 1], "seqs=")[[1]][2],
+                        character(1))
+    block.len <- as.numeric(block.len)
+    block.starts <- block.starts + 2
+    block.stops <- block.starts +  block.len - 1
+    blocks <- bpmapply(function(x, y) read.table(text = raw_lines[x:y],
+                                                 stringsAsFactors = FALSE),
+                       block.starts, block.stops, BPPARAM = BPPARAM,
+                       SIMPLIFY = FALSE)
+    sites <- bplapply(blocks, function(x) x$V4, BPPARAM = BPPARAM)
+    site.names <- bplapply(blocks, function(x) x$V1, BPPARAM = BPPARAM)
+    if (alph == "DNA") {
+      sites <- bplapply(sites, DNAStringSet, BPPARAM = BPPARAM)
+    } else if (alph == "RNA") {
+      sites <- bplapply(sites, RNAStringSet, BPPARAM = BPPARAM)
+    } else if (alph == "AA") {
+      sites <- bplapply(sites, AAStringSet, BPPARAM = BPPARAM)
+    } else {
+      sites <- bplapply(sites, BStringSet, BPPARAM = BPPARAM)
+    }
+    sites <- bpmapply(function(x, y) {names(x) <- y; x},
+                      sites, site.names, BPPARAM = BPPARAM,
+                      SIMPLIFY = FALSE)
+    motif_list <- list(motifs = motif_list, sites = sites)
+  }
 
   motif_list
 

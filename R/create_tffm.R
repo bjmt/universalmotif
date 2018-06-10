@@ -7,7 +7,9 @@
 #' TFFMs using this function is based on the python module 'TFFM'
 #' \insertCite{tffm}{universalmotif}.
 #'
-#' @param sequences DNAStringSet. All sequences must be of the same width.
+#' @param sequences DNAStringSet (or list of). All sequences must be of the
+#'                  same width.
+#' @param memefile Character. File path to MEME output.
 #' @param type Character. Currently only 'first' is supported.
 #' @param ID Character. Motif ID.
 #' @param name Character. Motif name.
@@ -16,7 +18,8 @@
 #' @param bkg Numeric. Background frequencies.
 #' @param pseudocount Numeric. Pseudocount to be added when calculating TFFM.
 #'
-#' @return \linkS4class{TFFMFirst} or \linkS4class{TFFMDetail} object.
+#' @return \linkS4class{TFFMFirst} obejct, \linkS4class{TFFMDetail} object,
+#'         or a list of such objects.
 #'
 #' @details
 #'    Code based on TFFM python module \insertCite{tffm}{universalmotif}.
@@ -25,24 +28,62 @@
 #'    result, the TFFM is stored using the \linkS4class{TFFM} class from
 #'    TFBSTools.
 #'
+#'    If a MEME output file is used to create the TFFM, then the 'strand'
+#'    and 'bkg' fields will be taken from the MEME output. If there are
+#'    multiple motifs in the output file, a TFFM will be created from each
+#'    and a list of \linkS4class{TFFM} objects returned.
+#'
 #' @seealso \code{\link{create_motif}}
 #'
 #' @examples
 #'    library(Biostrings)
-#'    sites <- readDNAStringSet(system.file("extdata", "PF0059.1.sites",
+#'    sites <- readDNAStringSet(system.file("extdata", "sites.txt",
 #'                                          package = "universalmotif"))
-#'    PF0059.TFFM <- create_tffm(sites, ID = "PF0059.1")
-#'    TFBSTools::seqLogo(PF0059.TFFM)
+#'    TFFM <- create_tffm(sites)
+#'    TFBSTools::seqLogo(TFFM)
 #'
 #' @references
 #'    \insertRef{tffm}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-create_tffm <- function(sequences, type = "first", ID = "Unknown",
+create_tffm <- function(sequences, memefile, type = "first", ID = "Unknown",
                         name = "Unknown", strand = "+", family = "Unknown",
                         bkg = c(0.25, 0.25, 0.25, 0.25),
-                        pseudocount = 1) {
+                        pseudocount = 1, BPPARAM = bpparam()) {
+
+  if (!missing(sequences) && !missing(memefile)) {
+    stop("please only enter one of 'sequences' or 'memefile'")
+  }
+
+  if (is.list(sequences)) {
+    tffms <- bplapply(sequences,
+                      function(x) create_tffm(sequences = x,
+                                              type = type, ID = ID,
+                                              name = name,
+                                              strand = strand,
+                                              family = family,
+                                              bkg = bkg,
+                                              pseudocount = pseudocount),
+                      BPPARAM = BPPARAM)
+    return(tffms)
+  }
+
+  if (!missing(memefile)) {
+    memefile <- read_meme(memefile, readsites = TRUE, BPPARAM = BPPARAM)
+    alph <- memefile[[1]][[1]]["alphabet"]
+    if (alph != "DNA") stop("'create_tffm' can only handle DNA motifs")
+    strand <- memefile[[1]][[1]]["strand"]
+    bkg <- memefile[[1]][[1]]["bkg"]
+    memefile <- memefile[[2]]
+    tffms <-  bplapply(memefile,
+                       function(x) create_tffm(sequences = x, type = type, ID = ID,
+                                               name = name, strand = strand,
+                                               family = family, bkg = bkg,
+                                               pseudocount = pseudocount),
+                        BPPARAM = BPPARAM)
+    if (length(tffms) == 1) return(tffms[[1]]) else return(tffms)
+  }
 
   if (class(sequences) != "DNAStringSet") {
     stop("'sequences' must a DNAStringSet")
@@ -72,13 +113,16 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
   pc1 <- pseudocount
   pc4 <- pseudocount * 4
 
+  names(bkg) <- DNA_BASES
+
   motif.mat <- as.matrix(sequences)
-  motif.pfm <- consensusMatrix(motif.mat)
-  num.hits <- nrow(motif.mat)
   mot.len <- ncol(motif.mat)
+  motif.pfm <- consensusMatrix(sequences, baseOnly = TRUE)
+ 
+  num.hits <- nrow(motif.mat)
   first.letters <- rowSums(consensusMatrix(sequences))[1:4]
-  # num.residues <- sum(first.letters)  # the python module uses num.hits * 100
-  num.residues <- num.hits * 100
+  # num.residues <- sum(first.letters)  # the python module uses num.hits * 100;
+  num.residues <- num.hits * 100        # though apparently MEME has this info
   first.letters <- rep(num.residues / 4, 4)  # want bkg frequencies, not site..
 
   if (type == "first") {
@@ -120,7 +164,7 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
                                      nrow = 4, byrow = TRUE,
                                      dimnames = list(c("A", "C", "G", "T"))),
               type = "First", name = name, ID = ID, matrixClass = family,
-              bg = c(A = bkg[1], C = bkg[2], G = bkg[3], T = bkg[4]))
+              bg = bkg)
 
   } else if (type == "detailed") {
 
@@ -172,7 +216,7 @@ create_tffm <- function(sequences, type = "first", ID = "Unknown",
 
     transitions <- matrix(unlist(transitions), nrow = length(transitions),
                           byrow = TRUE) + 0.00000001  # somethings wrong,
-                                                      # shouldn't need this
+                                                      # shouldn't need this(?)
     dimnames(transitions) <- list(0:(nrow(transitions) - 1),
                                   0:(ncol(transitions) - 1))
 

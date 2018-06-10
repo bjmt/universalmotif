@@ -4,12 +4,14 @@
 \alias{create_tffm}
 \title{Create a TFFM.}
 \usage{
-create_tffm(sequences, type = "first", ID = "Unknown", name = "Unknown",
-  strand = "+", family = "Unknown", bkg = c(0.25, 0.25, 0.25, 0.25),
-  pseudocount = 1)
+create_tffm(sequences, memefile, type = "first", ID = "Unknown",
+  name = "Unknown", strand = "+", family = "Unknown", bkg = c(0.25,
+  0.25, 0.25, 0.25), pseudocount = 1, BPPARAM = bpparam())
 }
 \arguments{
 \item{sequences}{DNAStringSet. All sequences must be of the same width.}
+
+\item{memefile}{Character. Filepath to MEME output.}
 
 \item{type}{Character. Currently only 'first' is supported.}
 
@@ -26,7 +28,8 @@ create_tffm(sequences, type = "first", ID = "Unknown", name = "Unknown",
 \item{pseudocount}{Numeric. Pseudocount to be added when calculating TFFM.}
 }
 \value{
-\linkS4class{TFFMFirst} or \linkS4class{TFFMDetail} object.
+\linkS4class{TFFMFirst} obejct, \linkS4class{TFFMDetail} object,
+        or a list of such objects.
 }
 \description{
 If the sequences of all binding sites are available, a transcription
@@ -42,13 +45,18 @@ Code based on TFFM python module \insertCite{tffm}{universalmotif}.
    via the TFBSTools package \insertCite{tfbstools}{universalmotif}. As a
    result, the TFFM is stored using the \linkS4class{TFFM} class from
    TFBSTools.
+
+   If a MEME output file is used to create the TFFM, then the 'strand'
+   and 'bkg' fields will be taken from the MEME output. If there are
+   multiple motifs in the output file, a TFFM will be created from each
+   and a list of \linkS4class{TFFM} objects returned.
 }
 \examples{
    library(Biostrings)
-   sites <- readDNAStringSet(system.file("extdata", "PF0059.1.sites",
+   sites <- readDNAStringSet(system.file("extdata", "sites.txt",
                                          package = "universalmotif"))
-   PF0059.TFFM <- create_tffm(sites, ID = "PF0059.1")
-   TFBSTools::seqLogo(PF0059.TFFM)
+   TFFM <- create_tffm(sites)
+   TFBSTools::seqLogo(TFFM)
 
 }
 \references{
