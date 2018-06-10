@@ -2,7 +2,7 @@
 % Please edit documentation in R/shuffle_sequences.R
 \name{shuffle_sequences}
 \alias{shuffle_sequences}
-\title{Shuffle input sequences or generate random sequences.}
+\title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, inter = FALSE, keepDI = FALSE)
 }
@@ -19,7 +19,7 @@ DNA and RNA.}
 XStringSet object.
 }
 \description{
-Shuffle input sequences or generate random sequences.
+Shuffle input sequences.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

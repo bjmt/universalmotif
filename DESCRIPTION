@@ -38,7 +38,8 @@ Suggests: knitr,
     motifRG,
     motifbreakR,
     RcisTarget,
-    motifcounter
+    motifcounter,
+    BCRANK
 RdMacros: Rdpack
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,

@@ -8,7 +8,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-sample_sites <- function(motif, n = 1, BPPARAM = bpparam()) {
+sample_sites <- function(motif, n = 100, BPPARAM = bpparam()) {
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   motif <- convert_type(motif, "PPM", BPPARAM = BPPARAM)

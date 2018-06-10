@@ -1,4 +1,4 @@
-#' Shuffle input sequences or generate random sequences.
+#' Shuffle input sequences.
 #'
 #' @param sequences XStringSet objects.
 #' @param inter Logical. Shuffle letters between sequences? If \code{FALSE},

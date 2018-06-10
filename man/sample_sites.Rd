@@ -4,7 +4,7 @@
 \alias{sample_sites}
 \title{Generate binding sites from a motif.}
 \usage{
-sample_sites(motif, n = 1, BPPARAM = bpparam())
+sample_sites(motif, n = 100, BPPARAM = bpparam())
 }
 \arguments{
 \item{motif}{Motif object.}
