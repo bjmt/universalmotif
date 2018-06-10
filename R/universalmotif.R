@@ -15,7 +15,7 @@
 #' @importFrom stats as.dist hclust runif rnorm
 #' @importFrom utils combn read.table
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
-#' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet as.character
+#' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom ape as.phylo
