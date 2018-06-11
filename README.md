@@ -40,6 +40,8 @@ devtools::install_github("bjmt/universalmotif")
   - `write_matrix`
   - `sample_sites`
   - `shuffle_sequences`
+  - `create_sequences`
+  - `switch_alph`
 
 ## Planned functions ##
 

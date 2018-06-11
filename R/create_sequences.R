@@ -59,8 +59,11 @@ create_sequences <- function(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
     seqs.out <- vector("list", numseqs)
     for (i in seq_len(numseqs)) {
       seqs.out[[i]] <- rep(NA, seqlen)
-      seqs.out[[i]][1] <- sample(alph.letters, 1, prob = bkg)
-      for (j in 2:seqlen) {
+      first.di <- sample(names(difreq), 1, difreq)
+      first.di <- strsplit(first.di, "")[[1]]
+      seqs.out[[i]][1] <- first.di[1]
+      seqs.out[[i]][2] <- first.di[2]
+      for (j in 3:seqlen) {
         previous.nuc <- seqs.out[[i]][j - 1]
         curr.prob <- ditrans[previous.nuc, ]
         curr.prob[is.na(curr.prob)] <- 0.01

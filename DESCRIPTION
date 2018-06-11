@@ -71,6 +71,7 @@ Collate:
     'sample_sites.R'
     'scan_sequences.R'
     'shuffle_sequences.R'
+    'switch_alph.R'
     'trim_motifs.R'
     'universalmotif-methods.R'
     'universalmotif.R'
