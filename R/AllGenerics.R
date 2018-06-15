@@ -151,8 +151,8 @@ setGeneric("create_motif", function(input, alphabet, type = "PCM",
 #'
 #' Allows for easy transfer of motif information between different classes
 #' defined by other Bioconductor packages. This function is also used by
-#' most other functions, which allows them to be used with foreign class
-#' types seamlessly.
+#' nearly all other functions in this package; so any motifs of a compatible
+#' class can be used without needed to convert beforehand.
 #'
 #' @param motifs Single motif object or list.
 #' @param class Desired motif class. Input as 'package-class'. If left empty,

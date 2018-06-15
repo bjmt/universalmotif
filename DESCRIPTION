@@ -28,7 +28,8 @@ Imports: methods,
     seqLogo,
     BiocParallel,
     Rdpack (>= 0.7),
-    Biostrings
+    Biostrings,
+    Logolas
 Suggests: knitr,
     BiocStyle,
     testthat,

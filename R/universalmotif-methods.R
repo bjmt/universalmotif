@@ -19,7 +19,13 @@ setMethod("[", "universalmotif", function(x, i) {
     return_list$motif <- x@motif
   }
 
-  if (length(return_list) <= 1) return(unlist(return_list))
+  if (length(return_list) <= 1) {
+    return_list <- unlist(return_list)
+    if (i == "extrainfo") {
+      names(return_list) <- gsub("extrainfo.", "", names(return_list))
+      return(return_list)
+    }
+  }
   return(return_list)
 
 })

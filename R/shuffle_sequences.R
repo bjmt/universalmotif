@@ -1,161 +1,253 @@
 #' Shuffle input sequences.
 #'
 #' @param sequences XStringSet objects.
-#' @param inter Logical. Shuffle letters between sequences? If \code{FALSE},
-#'              then the alphabet frequencies for each sequence are maintained.
-#' @param keepDI Logical. Keep dinucleotide frequencies. Only supported for
-#'               DNA and RNA.
-#' @param keepTRI Logical. Keep trinucleotide frequencies. Only supported for
-#'                DNA and RNA.
+#' @param k Numeric. k-let size.
+#' @param method Character.
+#' @param leftovers Character. For \code{method = 'random'}.
 #'
 #' @return XStringSet object.
 #'
+#' @details
+#'    If one of \code{keepDI} and \code{keepTRI} is \code{TRUE}, then
+#'    the Markov model \insertCite{markovmodel}{universalmotif} is used to
+#'    generate sequences which will maintain (on average) the di/trinucleotide
+#'    frequencies. Please note that this method is not a 'true' shuffling, and
+#'    for short sequences (e.g. <100bp) this can result in slightly more
+#'    dissimilar sequences versus true shuffling. See
+#'    \insertCite{markovmodel;textual}{universalmotif} and 
+#'    \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
+#'    topic.
+#'
+#' @references
+#'    \insertRef{markovmodel}{universalmotif}
+#'
+#'    \insertRef{markovmodel2}{universalmotif}
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-shuffle_sequences <- function(sequences, inter = FALSE, keepDI = FALSE,
-                              keepTRI = FALSE) {
+shuffle_sequences <- function(sequences, k = 1, method = "linear",
+                               leftovers = "asis") {
 
-  alph <- sequences@elementType
-  if (alph == "DNAString") {
-    alphabet <- "DNA"
-    alph.split <- DNA_BASES
-  } else if (alph == "RNAString") {
-    alphabet <- "RNA"
-    alph.split <- RNA_BASES
-  } else if (alph == "AAString") {
-    alphabet <- "AA"
-  } else {
-    alphabet <- "B"
-  }
+  alph <- class(sequences)
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
-  seqs <- as.character(sequences)
-  widths <- width(sequences)
-  seqs <- lapply(seqs, function(x) strsplit(x, "")[[1]])
 
-  if (keepDI && keepTRI) stop("only one of 'keepDI' and 'keepTRI' can be TRUE")
+  if (k == 1) {
+    sequences <- as.character(sequences)
+    sequences <- vapply(sequences, shuffle_k1, character(1))
+  } else if (k == 2 && method == "markov") {
+    sequences <- lapply(sequences, shuffle_markov2)
+    sequences <- unlist(sequences)
+  } else if (k == 3 && method == "markov") {
+    sequences <- lapply(sequences, shuffle_markov3)
+    sequences <- unlist(sequences)
+  } else if (method == "random") {
+    sequences <- as.character(sequences)
+    sequences <- vapply(sequences, shuffle_chars, k = k, leftover = leftovers,
+                        character(1))
+  } else if (method == "linear") {
+    sequences <- as.character(sequences)
+    sequences <- vapply(sequences, shuffle_chars2, k = k, character(1))
+  } else stop("incorrect 'k' and 'method' combo")
 
-  if (!keepDI && !keepTRI) {
+  if (alph == "DNAStringSet") {
+    sequences <- DNAStringSet(sequences)
+  } else if (alph == "RNAStringSet") {
+    sequences <- RNAStringSet(sequences)
+  } else if (alph == "AAStringSet") {
+    sequences <- AAStringSet(sequences)
+  } else sequences <- BStringSet(sequences)
 
-    if (!inter) {
-      seqs <- mapply(function(x, y) sample(x, y), seqs, widths,
-                    SIMPLIFY = FALSE)
-      seqs <- lapply(seqs, function(x) paste(x, collapse = ""))
-    } else if (inter) {
-      seqs.all <- unlist(seqs)
-      seqs.all <- sample(seqs.all, length(seqs.all))
-      seqs.i <- mapply(function(x, y) as.factor(rep(x, y)),
-                      seq_len(length(sequences)), widths, SIMPLIFY = FALSE)
-      seqs.i <- unlist(seqs.i)
-      seqs <- split(seqs.all, seqs.i)
-      seqs <- lapply(seqs, function(x) paste(x, collapse = ""))
-    } else stop("'inter' must be TRUE or FALSE")
+  sequences
 
-  } else if (keepDI) {
+}
 
-    if (!inter) {
-      ditrans <- oligonucleotideTransitions(sequences, as.prob = TRUE)
-      difreq <- colSums(dinucleotideFrequency(sequences, as.prob = TRUE))
-      seqs.out <- vector("list", length(sequences))
-      for (i in seq_len(length(sequences))) {
-        first.di <- sample(names(difreq), 1, prob = difreq)
-        first.di <- strsplit(first.di, "")[[1]]
-        seqs.out[[i]] <- rep(NA, widths[i])
-        seqs.out[[i]][1] <- first.di[1]
-        seqs.out[[i]][2] <- first.di[2]
-        for (j in 3:widths[i]) {
-          previous.nuc <- seqs.out[[i]][j - 1]
-          curr.prob <- ditrans[previous.nuc, ]
-          curr.prob[is.na(curr.prob)] <- 0.01
-          seqs.out[[i]][j] <- sample(alph.split, 1, prob = curr.prob)
-        }
-      }
-      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
-    } else if (inter) {
-      seqs.out <- vector("list", length(sequences))
-      for (i in seq_len(length(sequences))) {
-        difreq <- dinucleotideFrequency(sequences[i], as.prob = TRUE)[1, ]
-        ditrans <- oligonucleotideTransitions(sequences[i], as.prob = TRUE)
-        seq.out <- rep(NA, widths[i])
-        first.di <- sample(names(difreq), 1, prob = difreq)
-        first.di <- strsplit(first.di, "")[[1]]
-        seq.out[1] <- first.di[1]
-        seq.out[2] <- first.di[2]
-        for (j in 3:widths[i]) {
-          previous.nuc <- seq.out[j - 1]
-          curr.prob <- ditrans[previous.nuc, ]
-          curr.prob[is.na(curr.prob)] <- 0.01
-          seq.out[j] <- sample(alph.split, 1, prob = curr.prob)
-        }
-        seqs.out[[i]] <- seq.out
-      }
-      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
-    } else stop("'inter' must be TRUE or FALSE")
+# this creates truly random k-lets; unfortunately this has the side effect of
+# leaving behind 'leftover' letters smaller than k
+shuffle_chars <- function(sequence, k, leftover.strat) {
 
-  } else if (keepTRI) {
-    
-    if (!inter) {
-      ditrans <- oligonucleotideTransitions(sequences, as.prob = TRUE)
-      tritrans <- oligonucleotideTransitions(sequences, 2, 1, as.prob = TRUE)
-      trifreq <- colSums(trinucleotideFrequency(sequences, as.prob = TRUE))
-      seqs.out <- vector("list", length(sequences))
-      for (i in seq_len(length(sequences))) {
-        seqs.out[[i]] <- rep(NA, widths[i])
-        first.tri <- sample(names(trifreq), 1, prob = trifreq)
-        first.tri <- strsplit(first.tri, "")[[1]]
-        seqs.out[[i]][1] <- first.tri[1]
-        seqs.out[[i]][2] <- first.tri[2]
-        seqs.out[[i]][3] <- first.tri[3]
-        for (j in 4:widths[i]) {
-          previous.nuc1 <- seqs.out[[i]][j - 1]
-          previous.nuc2 <- seqs.out[[i]][j - 2]
-          previous.nuc <- paste0(previous.nuc2, previous.nuc2)
-          curr.prob <- tritrans[previous.nuc, ]
-          curr.prob[is.na(curr.prob)] <- 0
-          seqs.out[[i]][j] <- sample(alph.split, 1, prob = curr.prob)
-        }
-      }
-      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
-    } else if (inter) {
-      seqs.out <- vector("list", length(sequences))
-      for (i in seq_len(length(sequences))) {
-        ditrans <- oligonucleotideTransitions(sequences[i], as.prob = TRUE)
-        trifreq <- trinucleotideFrequency(sequences[i], as.prob = TRUE)[1, ]
-        tritrans <- oligonucleotideTransitions(sequences[i], 2, 1, as.prob = TRUE)
-        seq.out <- rep(NA, widths[i])
-        first.tri <- sample(names(trifreq), 1, prob = trifreq)
-        first.tri <- strsplit(first.tri, "")[[1]]
-        seq.out[1] <- first.tri[1]
-        seq.out[2] <- first.tri[2]
-        seq.out[3] <- first.tri[3]
-        for (j in 4:widths[i]) {
-          previous.nuc1 <- seq.out[j - 1]
-          previous.nuc2 <- seq.out[j - 2]
-          previous.nuc <- paste0(previous.nuc2, previous.nuc1)
-          curr.prob <- tritrans[previous.nuc, ]
-          curr.prob[is.na(curr.prob)] <- 0.01
-          seq.out[j] <- sample(alph.split, 1, prob = curr.prob)
-        }
-        seqs.out[[i]] <- seq.out
-      }
-      seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
-    } else stop("'inter' must be TRUE or FALSE")
+  seq.len <- nchar(sequence)
+
+  seqs1 <- strsplit(sequence, "")[[1]]
+  seqs2 <- rep(TRUE, seq.len)
+
+  seqs.k <- lapply(seq_len(k),
+                   function(k) {
+                     k <- k - 1
+                     if (k > 0) {
+                       seqs.k <- seqs1[-c(1:k)]
+                       seqs.k <- c(seqs.k, rep(NA, k))
+                       matrix(seqs.k)
+                     } else matrix(seqs1)
+                   })
+
+  seqs.k <- do.call(cbind, seqs.k)
+  seqs.k <- seqs.k[-c((nrow(seqs.k) - k + 2):nrow(seqs.k)), ]
+
+  new.seq <- matrix(nrow = k, ncol = round((nrow(seqs.k) + 0.1) / 2))
+  for (i in 1:nrow(seqs.k)) {
+    if (all(is.na(seqs.k))) break
+    repeat {
+      j <- sample(1:nrow(seqs.k), 1)  # this repeat loop can be removed
+      let <- seqs.k[j, ]
+      if (!any(is.na(let))) break
+    }
+
+    new.seq[, i] <- let
+
+    del1 <- j - k + 1
+    del2 <- j + k - 1
+    if (del1 < 0) del1 <- 0
+    if (del2 > nrow(seqs.k)) del2 <- nrow(seqs.k)
+
+    seqs.k[del1:del2, ] <- NA
+    seqs2[j:(j + k - 1)] <- FALSE
 
   }
 
-  seqs <- unlist(seqs)
+  new.seq <- as.character(new.seq)
+  new.seq <- new.seq[!is.na(new.seq)]
 
-  if (alphabet == "DNA") {
-    seqs <- DNAStringSet(seqs)
-  } else if (alphabet == "RNA") {
-    seqs <- RNAStringSet(seqs)
-  } else if (alphabet == "AA") {
-    seqs <- AAStringSet(seqs)
-  } else seqs <- BStringSet(seqs)
+  leftover <- seqs1[seqs2]
+  
+  if (length(leftover) > 0 ){
+    if (leftover.strat == "last") {
+      new.seq <- c(new.seq, leftover)
+    } else if (leftover.strat == "asis") {
+      leftover <- seqs1
+      leftover[!seqs2] <- NA
+      toadd <- length(leftover) - length(new.seq)
+      toadd.left <- round((toadd + 0.1) / 2)
+      toadd.right <- toadd - toadd.left
+      toadd.left <- rep(NA, toadd.left)
+      toadd.right <- rep(NA, toadd.right)
+      new.seq <- c(toadd.left, new.seq, toadd.right)
+      new.seq <- matrix(c(leftover, new.seq), nrow = 2, byrow = TRUE)
+      new.seq <- as.character(new.seq)
+      new.seq <- new.seq[!is.na(new.seq)]
+    } else if (leftover.strat == "first") {
+      new.seq <- c(leftover, new.seq)
+    } else if (leftover.strat == "split") {
+      if (length(leftover) == 1) {
+        new.seq <- c(leftover, new.seq)
+      } else {
+        left.len <- length(leftover)
+        left.left <- round((left.len + 0.1) / 2)
+        left.right <- left.len - left.left
+        new.seq <- c(leftover[1:left.left], new.seq,
+                     leftover[left.right:length(leftover)])
+      }
+    } else if (leftover.strat == "discard") {
+      # do nothing
+    } else stop("unknown 'leftovers' arg")
+  }
 
-  names(seqs) <- seq.names
 
-  seqs
+  paste(new.seq, collapse = "")
+
+}
+
+# this function won't leave any 'leftover' letters behind, but the k-lets are
+# predictable; the sequence is split up linearly every 'k'-letters
+shuffle_chars2 <- function(sequence, k) {
+
+  seq.len <- nchar(sequence)
+  
+  seq1 <- strsplit(sequence, "")[[1]]
+
+  seq.mod <- seq.len %% k
+  if (seq.mod == 1) {
+    left.keep <- 1
+    right.keep <- 0
+    seq2 <- seq1[-left.keep]
+    left.keep <- seq1[1]
+    right.keep <- character(0)
+  } else if (seq.mod == 0) {
+    left.keep <- character(0)
+    right.keep <- character(0)
+    seq2 <- seq1
+  } else {
+    left.keep <- round((seq.mod + 0.1) / 2)
+    right.keep <- seq.mod - left.keep
+    seq2 <- seq1[-c(1:left.keep, right.keep:seq.len)]
+    left.keep <- seq1[1:left.keep]
+    right.keep <- seq1[right.keep:length(seq1)]
+  }
+
+  seq.len2 <- length(seq2)
+
+  tosplit <- seq.len2 / k
+  tosplit <- tosplit - 1
+
+  tosplit.i <- vapply(0:tosplit, function(x) 1 + k * x, numeric(1))
+
+  seq.split <- lapply(tosplit.i, function(x) matrix(seq2[x:(x + k -1)]))
+  seq.split <- do.call(cbind, seq.split)
+
+  new.i <- sample(seq_len(ncol(seq.split)), ncol(seq.split))
+  seq.split <- seq.split[, new.i]
+
+  seq.split <- as.character(seq.split)
+
+  new.seq <- c(left.keep, seq.split, right.keep)
+  new.seq <- paste(new.seq, collapse = "")
+
+  new.seq
+
+}
+
+shuffle_markov2 <- function(sequence) {
+
+  sequence <- DNAStringSet(sequence)
+  ditrans <- oligonucleotideTransitions(sequence, as.prob = TRUE)
+  difreq <- colSums(dinucleotideFrequency(sequence, as.prob = TRUE))
+  first.di <- sample(names(difreq), 1, prob = difreq)
+  first.di <- strsplit(first.di, "")[[1]]
+  seq.out <- rep(NA, width(sequence))
+  seq.out[1] <- first.di[1]
+  seq.out[2] <- first.di[2]
+  for (i in 3:width(sequence)) {
+    previous.nuc <- seq.out[i - 1]
+    curr.prob <- ditrans[previous.nuc, ]
+    curr.prob[is.na(curr.prob)] <- 0.01
+    seq.out[i] <- sample(DNA_BASES, 1, prob = curr.prob)
+  }
+  seq.out <- paste(seq.out, collapse = "")
+  seq.out
+
+}
+
+shuffle_markov3 <- function(sequence) {
+
+  sequence <- DNAStringSet(sequence)
+  tritrans <- oligonucleotideTransitions(sequence, 2, 1, as.prob = TRUE)
+  trifreq <- colSums(trinucleotideFrequency(sequence, as.prob = TRUE))
+  seq.out <- rep(NA, width(sequence))
+  first.tri <- sample(names(trifreq), 1, prob = trifreq)
+  first.tri <- strsplit(first.tri, "")[[1]]
+  seq.out[1] <- first.tri[1]
+  seq.out[2] <- first.tri[2]
+  seq.out[3] <- first.tri[3]
+  for (i in 4:width(sequence)) {
+    previous.nuc1 <- seq.out[i - 1]
+    previous.nuc2 <- seq.out[i - 2]
+    previous.nuc <- paste0(previous.nuc2, previous.nuc1)
+    curr.prob <- tritrans[previous.nuc, ]
+    curr.prob[is.na(curr.prob)] <- 0.01
+    seq.out[i] <- sample(DNA_BASES, 1, prob = curr.prob)
+  }
+  seq.out <- paste(seq.out, collapse = "")
+  seq.out
+
+}
+
+shuffle_k1 <- function(sequence) {
+  
+  sequence <- as.character(sequence)
+  sequence <- strsplit(sequence, "")[[1]]
+  sequence <- sample(sequence, length(sequence))
+  sequence <- paste(sequence, collapse = "")
+  sequence
 
 }

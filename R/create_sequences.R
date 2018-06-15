@@ -7,9 +7,9 @@
 #'            input.
 #' @param numseqs Numeric. Number of sequences to generate.
 #' @param seqlen Numeric. Length of random sequences.
-#' @param difreq Numeric. Dinucleotide frequencies. DNA only. Must be a
+#' @param difreq Numeric. Dinucleotide frequencies. DNA/RNA only. Must be a
 #'               named numeric vector of length 16.
-#' @param trifreq Numeric. Trinucleotide frequencies. DNA only. Must be a 
+#' @param trifreq Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 #'                named numeric vector of length 64.
 #'
 #' @return XStringSet object.
@@ -41,14 +41,20 @@ create_sequences <- function(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
       seqs[[i]] <- paste(seqs[[i]], collapse = "")
     }
   } else if (!missing(difreq)) {
-    if (!alphabet == "DNA") {
-      stop("if 'difreq' is provided, alphabet must be 'DNA'")
+    if (!alphabet %in% c("DNA", "RNA")) {
+      stop("if 'difreq' is provided, alphabet must be 'DNA' or 'RNA'")
     }
+    difreq <- gsub("U", "T", difreq)
     if (length(difreq) != 16) stop("'difreq' must be length 16")
     dinucs <- c("AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT", "GA", "GC",
                 "GG", "GT", "TA", "TC", "TG", "TT")
     if (!all(names(difreq) %in% dinucs)) {
-      stop("dinucleotide frequncies must be provided for ", dinucs)
+      if (alphabet == "DNA") {
+        stop("dinucleotide frequncies must be provided for ", dinucs)
+      } else {
+        dinucs <- gsub("T", "U", dinucs)
+        stop("dinucleotide frequncies must be provided for ", dinucs)
+      }
     }
     probsA <- difreq[c("AA", "AC", "AG", "AT")]
     probsC <- difreq[c("CA", "CC", "CG", "CT")]
@@ -72,13 +78,19 @@ create_sequences <- function(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
     }
     seqs <- lapply(seqs.out, function(x) paste(x, collapse = ""))
   } else if (!missing(trifreq)) {
-    if (alphabet != "DNA") {
-      stop("if 'trifreq' is provided, alphabet must be 'DNA'")
+    if (!alphabet %in% c("DNA", "RNA")) {
+      stop("if 'trifreq' is provided, alphabet must be 'DNA' or 'RNA'")
     }
     if (length(trifreq) != 64) stop("'trifreq' must be length 64")
     trinucs <- names(trinucleotideFrequency(DNAString("A")))
+    trifreq <- gsub("U", "T", trifreq)
     if (!all(names(trifreq) %in% trinucs)) {
-      stop("trinucleotide frequencies must be provided for ", trinucs)
+      if (alphabet == "DNA") {
+        stop("trinucleotide frequencies must be provided for ", trinucs)
+      } else {
+        trinucs <- gsub("T", "U", trinucs)
+        stop("trinucleotide frequencies must be provided for ", trinucs)
+      }
     }
     trifreq <- trifreq[trinucs]
     tritrans <- matrix(trifreq, nrow = 16, byrow = TRUE)

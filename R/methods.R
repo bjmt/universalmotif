@@ -437,6 +437,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               motifs <- convert_type(motifs, "PCM")
               bkg <- motifs["bkg"]
               names(bkg) <- DNA_BASES
+              extrainfo <- motifs["extrainfo"]
               if (length(motifs["altname"]) == 0) {
                 motifs["altname"] <- ""
               }
@@ -458,6 +459,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               } else if (out_class == "ICMatrix") {
                 motifs <- toICM(motifs, pseudocounts = 0.8,
                                 bg = bkg)
+              }
+              if (length(extrainfo) > 0) {
+                motifs@tags <- as.list(extrainfo)
               }
               return(motifs)
             }
@@ -584,6 +588,12 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
               if (all(names(motifs@bg) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet  <- "RNA"
+              extrainfo <- motifs@tags
+              if (length(extrainfo) > 0) {
+                extrainfo <- unlist(extrainfo)
+              } else {
+                extrainfo <- character()
+              }
               motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
                                        family = motifs@tags$family,
                                        organism = motifs@tags$species,
@@ -591,7 +601,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        alphabet = alphabet, type = "PCM",
                                        bkg = motifs@bg,
                                        strand = paste0(motifs@strand,
-                                                       collapse = ""))
+                                                       collapse = ""),
+                                       extrainfo = extrainfo)
               success <- TRUE
             }
 
@@ -600,6 +611,12 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
               if (all(names(motifs@bg) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet  <- "RNA"
+              extrainfo <- motifs@tags
+              if (length(extrainfo) > 0) {
+                extrainfo <- unlist(extrainfo)
+              } else {
+                extrainfo <- character()
+              }
               motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
                                        family = motifs@tags$family,
                                        organism = motifs@tags$species,
@@ -607,7 +624,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        alphabet = alphabet, type = "PWM",
                                        bkg = motifs@bg,
                                        strand = paste0(motifs@strand,
-                                                       collapse = ""))
+                                                       collapse = ""),
+                                       extrainfo = extrainfo)
               success <- TRUE
             }
 
@@ -616,6 +634,12 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
               if (all(names(motifs@bg) %in% DNA_BASES)) {
                 alphabet <- "DNA"
               } else alphabet  <- "RNA"
+              extrainfo <- motifs@tags
+              if (length(extrainfo) > 0) {
+                extrainfo <- unlist(extrainfo)
+              } else {
+                extrainfo <- character()
+              }
               motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
                                        family = motifs@tags$family,
                                        organism = motifs@tags$species,
@@ -623,7 +647,8 @@ setMethod("convert_motifs", signature(motifs = "ANY"),
                                        alphabet = alphabet, type = "ICM",
                                        bkg = motifs@bg,
                                        strand = paste0(motifs@strand,
-                                                       collapse = ""))
+                                                       collapse = ""),
+                                       extrainfo = extrainfo)
               success <- TRUE
             }
 

@@ -4,26 +4,38 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences.}
 \usage{
-shuffle_sequences(sequences, inter = FALSE, keepDI = FALSE,
-  keepTRI = FALSE)
+shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis")
 }
 \arguments{
 \item{sequences}{XStringSet objects.}
 
-\item{inter}{Logical. Shuffle letters between sequences? If \code{FALSE},
-then the alphabet frequencies for each sequence are maintained.}
+\item{k}{Numeric. k-let size.}
 
-\item{keepDI}{Logical. Keep dinucleotide frequencies. Only supported for
-DNA and RNA.}
+\item{method}{Character.}
 
-\item{keepTRI}{Logical. Keep trinucleotide frequencies. Only supported for
-DNA and RNA.}
+\item{leftovers}{Character. For \code{method = 'random'}.}
 }
 \value{
 XStringSet object.
 }
 \description{
 Shuffle input sequences.
+}
+\details{
+If one of \code{keepDI} and \code{keepTRI} is \code{TRUE}, then
+   the Markov model \insertCite{markovmodel}{universalmotif} is used to
+   generate sequences which will maintain (on average) the di/trinucleotide
+   frequencies. Please note that this method is not a 'true' shuffling, and
+   for short sequences (e.g. <100bp) this can result in slightly more
+   dissimilar sequences versus true shuffling. See
+   \insertCite{markovmodel;textual}{universalmotif} and 
+   \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
+   topic.
+}
+\references{
+\insertRef{markovmodel}{universalmotif}
+
+   \insertRef{markovmodel2}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

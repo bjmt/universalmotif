@@ -15,9 +15,8 @@ switch_alph <- function(motifs, BPPARAM = bpparam()) {
   .switch_alph <- function(motif) {
     old.alph <- motif["alphabet"]
     if (!old.alph %in% c("DNA", "RNA")) {
-      warning("motif '", motif["name"], "' has alphabet '", old.alph,
-              "'; will not convert")
-      return(motif)
+      stop("motif '", motif["name"], "' has alphabet '", old.alph,
+           "'; will not convert")
     }
     if (old.alph == "DNA") new.alph <- "RNA" else new.alph <- "DNA"
     if (new.alph == "RNA") {

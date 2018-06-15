@@ -34,8 +34,8 @@ Single motif object or list.
 \description{
 Allows for easy transfer of motif information between different classes
 defined by other Bioconductor packages. This function is also used by
-most other functions, which allows them to be used with foreign class
-types seamlessly.
+nearly all other functions in this package; so any motifs of a compatible
+class can be used without needed to convert beforehand.
 }
 \details{
 The following packge-class combinations can be used as input:

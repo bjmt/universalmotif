@@ -10,9 +10,11 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", BPPARAM = bpparam(),
 \arguments{
 \item{motif}{universalmotif object.}
 
-\item{engine}{Character. ggseqlogo, seqLogo, motifStack.}
+\item{engine}{Character. ggseqlogo, seqLogo, motifStack, Logolas.}
 
-\item{type}{Character. ic or prob.}
+\item{type}{Character. For \code{engine = c('ggseqlogo', 'seqLogo',
+'motifStack')}: 'ic' or 'prob'. For \code{engine = Logolas}:
+'Logo' or 'EDLogo'.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
@@ -22,7 +24,7 @@ motif_logo(motif, engine = "ggseqlogo", type = "ic", BPPARAM = bpparam(),
 For ggseqlogo: a ggplot2 object.
 }
 \description{
-Create logos using ggplot2 + ggseqlogo, seqLogo or motifStack.
+Create logos using ggplot2 + ggseqlogo, seqLogo, motifStack or Logolas.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

@@ -19,10 +19,10 @@ input.}
 
 \item{seqlen}{Numeric. Length of random sequences.}
 
-\item{difreq}{Numeric. Dinucleotide frequencies. DNA only. Must be a
+\item{difreq}{Numeric. Dinucleotide frequencies. DNA/RNA only. Must be a
 named numeric vector of length 16.}
 
-\item{trifreq}{Numeric. Trinucleotide frequencies. DNA only. Must be a 
+\item{trifreq}{Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
 }
 \value{

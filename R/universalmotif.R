@@ -13,7 +13,7 @@
 #' @import BiocParallel
 #' @import msa
 #' @importFrom stats as.dist hclust runif rnorm
-#' @importFrom utils combn read.table
+#' @importFrom utils read.table
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
@@ -28,4 +28,5 @@
 #' @importFrom TFBSTools TFFMFirst TFFMDetail
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
+#' @importFrom Logolas logomaker
 NULL
