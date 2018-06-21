@@ -2,8 +2,9 @@
 #'
 #' @param sequences XStringSet objects.
 #' @param k Numeric. k-let size.
-#' @param method Character.
+#' @param method Character. One of 'markov', 'linear', and 'random'.
 #' @param leftovers Character. For \code{method = 'random'}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return XStringSet object.
 #'
@@ -26,30 +27,27 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
-                               leftovers = "asis") {
+                               leftovers = "asis", BPPARAM = bpparam()) {
 
   alph <- class(sequences)
 
   seq.names <- names(sequences)
-  if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
   if (k == 1) {
     sequences <- as.character(sequences)
-    sequences <- vapply(sequences, shuffle_k1, character(1))
-  } else if (k == 2 && method == "markov") {
-    sequences <- lapply(sequences, shuffle_markov2)
-    sequences <- unlist(sequences)
-  } else if (k == 3 && method == "markov") {
-    sequences <- lapply(sequences, shuffle_markov3)
-    sequences <- unlist(sequences)
+    sequences <- bplapply(sequences, shuffle_k1, BPPARAM = BPPARAM)
+  } else if (method == "markov") {
+    sequences <- bplapply(sequences, shuffle_markov, k = k, BPPARAM = BPPARAM)
   } else if (method == "random") {
     sequences <- as.character(sequences)
-    sequences <- vapply(sequences, shuffle_chars, k = k, leftover = leftovers,
-                        character(1))
+    sequences <- bplapply(sequences, shuffle_random, k = k, leftover = leftovers,
+                          BPPARAM = BPPARAM)
   } else if (method == "linear") {
     sequences <- as.character(sequences)
-    sequences <- vapply(sequences, shuffle_chars2, k = k, character(1))
+    sequences <- bplapply(sequences, shuffle_linear, k = k, BPPARAM = BPPARAM)
   } else stop("incorrect 'k' and 'method' combo")
+
+  sequences <- unlist(sequences)
 
   if (alph == "DNAStringSet") {
     sequences <- DNAStringSet(sequences)
@@ -59,13 +57,15 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
     sequences <- AAStringSet(sequences)
   } else sequences <- BStringSet(sequences)
 
+  if (!is.null(seq.names)) names(sequences) <- seq.names
+
   sequences
 
 }
 
 # this creates truly random k-lets; unfortunately this has the side effect of
-# leaving behind 'leftover' letters smaller than k
-shuffle_chars <- function(sequence, k, leftover.strat) {
+# leaving behind 'leftover'-lets smaller than k
+shuffle_random <- function(sequence, k, leftover.strat) {
 
   seq.len <- nchar(sequence)
 
@@ -150,7 +150,7 @@ shuffle_chars <- function(sequence, k, leftover.strat) {
 
 # this function won't leave any 'leftover' letters behind, but the k-lets are
 # predictable; the sequence is split up linearly every 'k'-letters
-shuffle_chars2 <- function(sequence, k) {
+shuffle_linear <- function(sequence, k) {
 
   seq.len <- nchar(sequence)
   
@@ -197,48 +197,25 @@ shuffle_chars2 <- function(sequence, k) {
 
 }
 
-shuffle_markov2 <- function(sequence) {
-
+shuffle_markov <- function(sequence, k) {
+  
   sequence <- DNAStringSet(sequence)
-  ditrans <- oligonucleotideTransitions(sequence, as.prob = TRUE)
-  difreq <- colSums(dinucleotideFrequency(sequence, as.prob = TRUE))
-  first.di <- sample(names(difreq), 1, prob = difreq)
-  first.di <- strsplit(first.di, "")[[1]]
-  seq.out <- rep(NA, width(sequence))
-  seq.out[1] <- first.di[1]
-  seq.out[2] <- first.di[2]
-  for (i in 3:width(sequence)) {
-    previous.nuc <- seq.out[i - 1]
-    curr.prob <- ditrans[previous.nuc, ]
-    curr.prob[is.na(curr.prob)] <- 0.01
-    seq.out[i] <- sample(DNA_BASES, 1, prob = curr.prob)
+  freqs <- colSums(oligonucleotideFrequency(sequence, width = k,
+                                            as.prob = TRUE))
+  trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
+  seqout <- rep(NA, width(sequence))
+  first.k <- sample(names(freqs), 1, prob = freqs)
+  first.k <- strsplit(first.k, "")[[1]]
+  seqout[1:k] <- first.k
+  for (i in (k + 1):width(sequence)) {
+    previous.k <- seqout[(i - k + 1):(i - 1)]
+    previous.k <- paste(previous.k, collapse = "")
+    curr.prob <- trans[previous.k, ]
+    curr.prob[is.na(curr.prob)] <- 0.0001
+    seqout[i] <- sample(DNA_BASES, 1, prob = curr.prob)
   }
-  seq.out <- paste(seq.out, collapse = "")
-  seq.out
-
-}
-
-shuffle_markov3 <- function(sequence) {
-
-  sequence <- DNAStringSet(sequence)
-  tritrans <- oligonucleotideTransitions(sequence, 2, 1, as.prob = TRUE)
-  trifreq <- colSums(trinucleotideFrequency(sequence, as.prob = TRUE))
-  seq.out <- rep(NA, width(sequence))
-  first.tri <- sample(names(trifreq), 1, prob = trifreq)
-  first.tri <- strsplit(first.tri, "")[[1]]
-  seq.out[1] <- first.tri[1]
-  seq.out[2] <- first.tri[2]
-  seq.out[3] <- first.tri[3]
-  for (i in 4:width(sequence)) {
-    previous.nuc1 <- seq.out[i - 1]
-    previous.nuc2 <- seq.out[i - 2]
-    previous.nuc <- paste0(previous.nuc2, previous.nuc1)
-    curr.prob <- tritrans[previous.nuc, ]
-    curr.prob[is.na(curr.prob)] <- 0.01
-    seq.out[i] <- sample(DNA_BASES, 1, prob = curr.prob)
-  }
-  seq.out <- paste(seq.out, collapse = "")
-  seq.out
+  seqout <- paste(seqout, collapse = "")
+  seqout
 
 }
 

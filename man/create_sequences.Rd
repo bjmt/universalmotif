@@ -4,26 +4,28 @@
 \alias{create_sequences}
 \title{Create random background sequences.}
 \usage{
-create_sequences(alphabet = "DNA", bkg, numseqs = 100, seqlen = 100,
-  difreq, trifreq)
+create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, monofreqs,
+  difreqs, trifreqs, BPPARAM = bpparam())
 }
 \arguments{
 \item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of letters
 to be used as the alphabet.}
 
-\item{bkg}{Numeric. Alphabet frequencies to use. If missing assumes uniform
-frequencies. Not used if \code{difreq} or \code{trifreq} are
-input.}
-
-\item{numseqs}{Numeric. Number of sequences to generate.}
+\item{seqnum}{Numeric. Number of sequences to generate.}
 
 \item{seqlen}{Numeric. Length of random sequences.}
 
-\item{difreq}{Numeric. Dinucleotide frequencies. DNA/RNA only. Must be a
+\item{monofreqs}{Numeric. Alphabet frequencies to use. If missing assumes uniform
+frequencies. Not used if \code{difreq} or \code{trifreq} are
+input.}
+
+\item{difreqs}{Numeric. Dinucleotide frequencies. DNA/RNA only. Must be a
 named numeric vector of length 16.}
 
-\item{trifreq}{Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
+\item{trifreqs}{Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
+
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 XStringSet object.

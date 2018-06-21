@@ -4,16 +4,19 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences.}
 \usage{
-shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis")
+shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis",
+  BPPARAM = bpparam())
 }
 \arguments{
 \item{sequences}{XStringSet objects.}
 
 \item{k}{Numeric. k-let size.}
 
-\item{method}{Character.}
+\item{method}{Character. One of 'markov', 'linear', and 'random'.}
 
 \item{leftovers}{Character. For \code{method = 'random'}.}
+
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 XStringSet object.

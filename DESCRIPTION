@@ -29,12 +29,12 @@ Imports: methods,
     BiocParallel,
     Rdpack (>= 0.7),
     Biostrings,
+    PWMEnrich,
+    MotifDb,
     Logolas
 Suggests: knitr,
     BiocStyle,
     testthat,
-    PWMEnrich,
-    MotifDb,
     rGADEM,
     motifRG,
     motifbreakR,
@@ -49,14 +49,14 @@ biocViews: MotifAnnotation,
     GeneRegulation
 RoxygenNote: 6.0.1
 Collate: 
-    'AllGenerics.R'
+    'universalmotif-class.R'
+    'convert_motifs.R'
     'convert_type.R'
+    'create_motif.R'
     'create_sequences.R'
     'create_tffm.R'
     'filter_motifs.R'
     'merge_motifs.R'
-    'universalmotif-class.R'
-    'methods.R'
     'motif_dist.R'
     'motif_logo.R'
     'motif_rc.R'

@@ -173,7 +173,7 @@ convert_type <- function(motifs, type, pseudocount,
       motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
                            pseudocount = pseudocount)
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
-                           background = bkg,
+                           bkg = bkg,
                            smooth = any(motif["motif"] == 0),
                            pseudocount = pseudocount,
                            nsites = motif["nsites"])
@@ -199,7 +199,7 @@ convert_type <- function(motifs, type, pseudocount,
       if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
     } else if (type == "PWM") {
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
-                           background = bkg,
+                           bkg = bkg,
                            smooth = any(motif["motif"] == 0),
                            pseudocount = pseudocount,
                            nsites = motif["nsites"])
@@ -218,18 +218,18 @@ convert_type <- function(motifs, type, pseudocount,
   if (in_type == "PWM") {
     if (type == "PCM") {
       motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
-                           background = bkg)
+                           bkg = bkg)
       motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
                            nsites = motif["nsites"])
       if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
       motif["type"] <- "PCM"
     } else if (type == "PPM") {
       motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
-                           background = bkg)
+                           bkg = bkg)
       motif["type"] <- "PPM"
     } else if (type == "ICM") {
       motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
-                           background = bkg)
+                           bkg = bkg)
       motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
                            bkg = bkg, 
                            nsites = motif["nsites"],
@@ -251,7 +251,7 @@ convert_type <- function(motifs, type, pseudocount,
       motif["type"] <- "PPM"
     } else if (type == "PWM") {
       motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
-                           background = bkg,
+                           bkg = bkg,
                            smooth = any(motif["motif"] == 0),
                            pseudocount = pseudocount,
                            nsites = motif["nsites"])

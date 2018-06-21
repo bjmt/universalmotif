@@ -1,3 +1,37 @@
+#' Utility functions.
+#'
+#' @param position Numeric. A numeric vector representing the frequency or
+#'    probability for each alphabet letter at a specific position.
+#' @param bkg Numeric. Should be the same length as the alphabet length.
+#' @param nsites Numeric. Number of sites motif originated from.
+#' @param schneider_correction Logical. Apply sample size correction.
+#' @param relative_entropy Logical. Calculate information content as
+#'    relative entropy or Kullback-Leibler divergence.
+#' @param pseudocount Numeric. Used to prevent zeroes in motif matrix.
+#' @param smooth Logical. Apply pseudocount correction.
+#' @param type Character. 'PCM', 'PPM', 'PWM' or 'ICM'.
+#' @param alphabet Character. 'DNA' or 'RNA'.
+#' @param letter Character. Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
+#'    are accepted.
+#'
+#' @return 
+#'    For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
+#'    \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a numeric
+#'    vector with length equal to input numeric vector.
+#'
+#'    For \code{consensus_to_ppm} and \code{consensus_to_ppmAA}: a numeric
+#'    vector of length 4 and 20, respectively.
+#'
+#'    For \code{position_icscore}: a numeric vector of length 1.
+#'
+#'    For \code{get_consensus} and \code{get_consensusAA}: a character vector
+#'    of length 1.
+#'
+#' @name utilities
+NULL
+
+#' @rdname utilities
+#' @export
 ppm_to_icm <- function(position, bkg,
                        schneider_correction = FALSE, nsites,
                        relative_entropy = FALSE) {
@@ -30,14 +64,18 @@ ppm_to_icm <- function(position, bkg,
   }
 }
 
+#' @rdname utilities
+#' @export
 icm_to_ppm <- function(position) {
   total_ic <- sum(position)
   ppm <- position / total_ic
   ppm
 }
 
-pcm_to_ppm <- function(position, possum, pseudocount = 0.8) {
-  if (missing(possum)) possum <- sum(position)
+#' @rdname utilities
+#' @export
+pcm_to_ppm <- function(position, pseudocount = 0.8) {
+  possum <- sum(position)
   num_letters <- length(position)
   if (pseudocount != 0) {
     pos <- vapply(position, function(x)
@@ -49,6 +87,8 @@ pcm_to_ppm <- function(position, possum, pseudocount = 0.8) {
   return(pos)
 }
 
+#' @rdname utilities
+#' @export
 ppm_to_pcm <- function(position, nsites = 100) {
   if (length(nsites) == 0 || missing(nsites)) nsites <- 100
   pos <- vapply(position, function(x) round(x * nsites), numeric(1))
@@ -59,23 +99,29 @@ ppm_to_pcm <- function(position, nsites = 100) {
   return(pos)
 }
 
-ppm_to_pwm <- function(position, background = c(0.25, 0.25, 0.25, 0.25),
-                       pseudocount = 0.8, nsites = 100, smooth = TRUE) {
+#' @rdname utilities
+#' @export
+ppm_to_pwm <- function(position, bkg, pseudocount = 0.8, nsites = 100,
+                       smooth = TRUE) {
+  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
   if (length(nsites) == 0) nsites <- 100
   if (smooth && pseudocount != 0) {
     position <- ppm_to_pcm(position, nsites = nsites)
     position <- pcm_to_ppm(position, pseudocount = pseudocount)
   }
   for (i in seq_along(position)) {
-    position[i] <- log2(position[i] / background[i])
+    position[i] <- log2(position[i] / bkg[i])
   }
   return(position)
 }
 
-pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
+#' @rdname utilities
+#' @export
+pwm_to_ppm <- function(position, bkg) {
+  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
   position <- vapply(position, function(x) 2 ^ x, numeric(1))
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
-  for (i in seq_along(position)) position[i] <- position[i] * background[i]
+  for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
   warning("position does not add up to 1; normalizing..")
   pos_missing <- sum(position)
@@ -83,10 +129,14 @@ pwm_to_ppm <- function(position, background = c(0.25, 0.25, 0.25, 0.25)) {
   position
 }
 
-position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
-                             pseudocount = 0.8, nsites = 100) {
+#' @rdname utilities
+#' @export
+position_icscore <- function(position, bkg, type,
+                             pseudocount = 0.8, nsites = 100,
+                             relative_entropy = FALSE) {
 
-  bkg <- rep(1 / length(bkg), length(bkg))
+  motif <- position
+  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
 
   if (length(nsites) == 0) nsites <- 100
   if (length(motif) != length(bkg)) {
@@ -94,10 +144,9 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   }
 
   if (type == "PCM") {
-      possum <- sum(motif)
-      motif <- pcm_to_ppm(motif, possum, pseudocount)
+      motif <- pcm_to_ppm(motif, pseudocount)
   }
-  if (type == "PWM") motif <- pwm_to_ppm(motif, background = bkg)
+  if (type == "PWM") motif <- pwm_to_ppm(motif, bkg = bkg)
   if (type == "ICM") return(sum(motif))
 
   if (type == "PPM") {
@@ -114,23 +163,34 @@ position_icscore <- function(motif, bkg = c(0.25, 0.25, 0.25, 0.25), type,
   # }
 #
   # sum(ic)
-  height_after <- -sum(vapply(motif, function(x) {
-                                       y <- x * log2(x)
-                                       ifelse(is.na(y), 0, y)
-                                     }, numeric(1)))
-  total_ic <- log2(length(motif)) - height_after
+
+  if (relative_entropy) {
+    for (i in seq_along(motif)) {
+      motif[i] <- motif[i] * log2(motif[i] / bkg[i])
+      if (is.na(motif[i]) || motif[i] < 0) motif[i] <- 0
+    }
+    total_ic <- sum(motif)
+  } else {
+    bkg <- rep(1 / length(position), length(position))
+    height_after <- -sum(vapply(motif, function(x) {
+                                         y <- x * log2(x)
+                                         ifelse(is.na(y), 0, y)
+                                       }, numeric(1)))
+    total_ic <- log2(length(motif)) - height_after
+  }
   total_ic
 
 }
 
-get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
+#' @rdname utilities
+#' @export
+get_consensus <- function(position, alphabet = "DNA", type = "PPM",
                           pseudocount = 0.8) {
 
-  pos <- mot_matrix
+  pos <- position
 
   if (type == "PCM") {
-    possum <- sum(pos)
-    pos <- pcm_to_ppm(pos, possum, pseudocount)
+    pos <- pcm_to_ppm(pos, pseudocount)
     type <- "PPM"
   }
 
@@ -211,6 +271,8 @@ get_consensus <- function(mot_matrix, alphabet = "DNA", type = "PPM",
 
 }
 
+#' @rdname utilities
+#' @export
 consensus_to_ppm <- function(letter) {
   if (letter == "A") return(c(0.997, 0.001, 0.001, 0.001))
   if (letter == "C") return(c(0.001, 0.997, 0.001, 0.001))
@@ -230,6 +292,8 @@ consensus_to_ppm <- function(letter) {
   stop(letter, " is not an IUPAC symbol")
 }
 
+#' @rdname utilities
+#' @export
 consensus_to_ppmAA <- function(letter) {
   if (letter %in% c("X", ".", "-", "+")) return(rep(0.05, 20))
   if (letter == "B") return(c(rep(0.001, 2), 0.491, rep(0.001, 8), 0.491,
@@ -242,10 +306,12 @@ consensus_to_ppmAA <- function(letter) {
   c(rep(0.001, i - 1), 0.981, rep(0.001, 20 - i))
 }
 
-get_consensusAA <- function(motif, type, pseudocount) {
+#' @rdname utilities
+#' @export
+get_consensusAA <- function(position, type, pseudocount) {
+  motif <- position
   if (type == "PCM") {
-    possum <- sum(motif)
-    motif <- pcm_to_ppm(motif, possum, pseudocount)
+    motif <- pcm_to_ppm(motif, pseudocount)
     type <- "PPM"
   }
   if (type == "PWM") {

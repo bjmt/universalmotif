@@ -10,8 +10,8 @@
 #' @import ggplot2
 #' @import ggseqlogo
 #' @import ggtree
-#' @import BiocParallel
 #' @import msa
+#' @importFrom BiocParallel bplapply bpmapply bpparam
 #' @importFrom stats as.dist hclust runif rnorm
 #' @importFrom utils read.table
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
@@ -19,7 +19,7 @@
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom Biostrings oligonucleotideTransitions trinucleotideFrequency
-#' @importFrom Biostrings dinucleotideFrequency
+#' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
 #' @importFrom motifStack plotMotifLogo mergeMotifs
@@ -29,4 +29,6 @@
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom Logolas logomaker
+#' @importFrom PWMEnrich PFMtoPWM
+#' @importClassesFrom MotifDb MotifList
 NULL
