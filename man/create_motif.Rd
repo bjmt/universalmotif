@@ -13,44 +13,44 @@
 \alias{create_motif,BStringSet-method}
 \title{Create a motif.}
 \usage{
-create_motif(input, alphabet, type = "PCM", name = "motif",
-  pseudocount = 0.8, bkg, nsites, altname, family, organism, bkgsites, strand,
+create_motif(input, alphabet, type = "PPM", name = "motif",
+  pseudocount = 0, bkg, nsites, altname, family, organism, bkgsites, strand,
   pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{missing}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{missing}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{numeric}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{numeric}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{character}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{character}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{matrix}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{matrix}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{DNAStringSet}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{DNAStringSet}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{RNAStringSet}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{RNAStringSet}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{AAStringSet}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{AAStringSet}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 
-\S4method{create_motif}{BStringSet}(input, alphabet, type = "PCM",
-  name = "motif", pseudocount = 0.8, bkg, nsites, altname, family, organism,
+\S4method{create_motif}{BStringSet}(input, alphabet, type = "PPM",
+  name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
   bkgsites, strand, pval, qval, eval, extrainfo)
 }
 \arguments{
-\item{input}{One of character vector, numeric,matrix (PCM, PPM, PWM, or ICM),
+\item{input}{One of character vector, numeric, matrix (PCM, PPM, PWM, or ICM),
 or \linkS4class{XStringSet}.}
 
 \item{alphabet}{Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
@@ -195,7 +195,7 @@ DNA.motif <- create_motif(mat)
 rownames(mat) <- c("Q", "W", "E", "R")
 custom.motif <- create_motif(mat)
 
-# PPM type matrices can also be used as input
+# matrices can also be used as input
 mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
                     0.5, 0.5, 0.5, 0.5,
                     0.1, 0.1, 0.1, 0.1,

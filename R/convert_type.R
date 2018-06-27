@@ -163,29 +163,38 @@ convert_type <- function(motifs, type, pseudocount,
   if (missing(pseudocount)) pseudocount <- motif["pseudocount"]
   bkg <- motif["bkg"]
 
+  if (length(motif["nsites"]) == 0) nsites <- 100 else nsites <- motif["nsites"]
+
+  alph <- rownames(motif@motif)
+
   # PCM in:
   if (in_type == "PCM") {
     if (type == "PPM") {
-      motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
+      motif@motif <- apply(motif["motif"], 2, pcm_to_ppmC,
                            pseudocount = pseudocount)
       motif["type"] <- "PPM"
     } else if (type == "PWM") {
-      motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
+      motif@motif <- apply(motif["motif"], 2, pcm_to_ppmC,
                            pseudocount = pseudocount)
-      motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pwmC,
                            bkg = bkg,
-                           smooth = any(motif["motif"] == 0),
                            pseudocount = pseudocount,
-                           nsites = motif["nsites"])
+                           nsites = nsites)
       motif["type"] <- "PWM"
     } else if (type == "ICM") {
-      motif@motif <- apply(motif["motif"], 2, pcm_to_ppm,
+      motif@motif <- apply(motif["motif"], 2, pcm_to_ppmC,
                            pseudocount = pseudocount)
-      motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
-                           bkg = bkg, 
-                           nsites = motif["nsites"],
-                           schneider_correction = nsize_correction,
-                           relative_entropy = relative_entropy)
+      if (nsize_correction) {
+        motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
+                             bkg = bkg, 
+                             nsites = nsites,
+                             schneider_correction = nsize_correction,
+                             relative_entropy = relative_entropy)
+      } else {
+        motif@motif <- apply(motif["motif"], 2, ppm_to_icmC,
+                             bkg = bkg, 
+                             relative_entropy = relative_entropy)
+      }
       motif["type"] <- "ICM"
     }
   }
@@ -193,23 +202,27 @@ convert_type <- function(motifs, type, pseudocount,
   # PPM in:
   if (in_type == "PPM") {
     if (type == "PCM") {
-      motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
-                           nsites = motif["nsites"])
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pcmC,
+                           nsites = nsites)
       motif["type"] <- "PCM"
-      if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
     } else if (type == "PWM") {
-      motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pwmC,
                            bkg = bkg,
-                           smooth = any(motif["motif"] == 0),
                            pseudocount = pseudocount,
-                           nsites = motif["nsites"])
+                           nsites = nsites)
       motif["type"] <- "PWM"
     } else if (type == "ICM") {
-      motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
-                           bkg = bkg, 
-                           nsites = motif["nsites"],
-                           schneider_correction = nsize_correction,
-                           relative_entropy = relative_entropy)
+      if (nsize_correction) {
+        motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
+                             bkg = bkg, 
+                             nsites = nsites,
+                             schneider_correction = nsize_correction,
+                             relative_entropy = relative_entropy)
+      } else {
+        motif@motif <- apply(motif["motif"], 2, ppm_to_icmC,
+                             bkg = bkg, 
+                             relative_entropy = relative_entropy)
+      }
       motif["type"] <- "ICM"
     }
   }
@@ -217,47 +230,52 @@ convert_type <- function(motifs, type, pseudocount,
   # PWM in:
   if (in_type == "PWM") {
     if (type == "PCM") {
-      motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
+      motif@motif <- apply(motif["motif"], 2, pwm_to_ppmC,
                            bkg = bkg)
-      motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
-                           nsites = motif["nsites"])
-      if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pcmC,
+                           nsites = nsites)
       motif["type"] <- "PCM"
     } else if (type == "PPM") {
-      motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
+      motif@motif <- apply(motif["motif"], 2, pwm_to_ppmC,
                            bkg = bkg)
       motif["type"] <- "PPM"
     } else if (type == "ICM") {
-      motif@motif <- apply(motif["motif"], 2, pwm_to_ppm,
+      motif@motif <- apply(motif["motif"], 2, pwm_to_ppmC,
                            bkg = bkg)
-      motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
-                           bkg = bkg, 
-                           nsites = motif["nsites"],
-                           schneider_correction = nsize_correction,
-                           relative_entropy = relative_entropy)
+      if (nsize_correction) {
+        motif@motif <- apply(motif["motif"], 2, ppm_to_icm,
+                             bkg = bkg, 
+                             nsites = nsites,
+                             schneider_correction = nsize_correction,
+                             relative_entropy = relative_entropy)
+      } else {
+        motif@motif <- apply(motif["motif"], 2, ppm_to_icmC,
+                             bkg = bkg, 
+                             relative_entropy = relative_entropy)
+      }
       motif["type"] <- "ICM"
     }
   }
 
   # ICM in:
   if (in_type == "ICM") {
-    motif@motif <- apply(motif["motif"], 2, icm_to_ppm)
+    motif@motif <- apply(motif["motif"], 2, icm_to_ppmC)
     if (type == "PCM") {
-      motif@motif <- apply(motif["motif"], 2, ppm_to_pcm,
-                           nsites = motif["nsites"])
-      if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pcmC,
+                           nsites = nsites)
       motif["type"] <- "PCM"
     } else if (type == "PPM") {
       motif["type"] <- "PPM"
     } else if (type == "PWM") {
-      motif@motif <- apply(motif["motif"], 2, ppm_to_pwm,
+      motif@motif <- apply(motif["motif"], 2, ppm_to_pwmC,
                            bkg = bkg,
-                           smooth = any(motif["motif"] == 0),
                            pseudocount = pseudocount,
-                           nsites = motif["nsites"])
+                           nsites = nsites)
       motif["type"] <- "PWM"
     }
   }
+
+  rownames(motif@motif) <- alph
 
   motif <- .internal_convert(motif, CLASS_IN, BPPARAM = BPPARAM)
   motif

@@ -1,6 +1,6 @@
 #' Create a motif.
 #'
-#' @param input One of character vector, numeric,matrix (PCM, PPM, PWM, or ICM),
+#' @param input One of character vector, numeric, matrix (PCM, PPM, PWM, or ICM),
 #'              or \linkS4class{XStringSet}.
 #' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
 #'                 string representing the letters.
@@ -109,7 +109,7 @@
 #' rownames(mat) <- c("Q", "W", "E", "R")
 #' custom.motif <- create_motif(mat)
 #'
-#' # PPM type matrices can also be used as input
+#' # matrices can also be used as input
 #' mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
 #'                     0.5, 0.5, 0.5, 0.5,
 #'                     0.1, 0.1, 0.1, 0.1,
@@ -140,8 +140,8 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-setGeneric("create_motif", function(input, alphabet, type = "PCM",
-                                    name = "motif", pseudocount = 0.8,
+setGeneric("create_motif", function(input, alphabet, type = "PPM",
+                                    name = "motif", pseudocount = 0,
                                     bkg, nsites, altname, family,
                                     organism, bkgsites, strand, pval, qval,
                                     eval, extrainfo)
@@ -184,6 +184,11 @@ setMethod("create_motif", signature(input = "numeric"),
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
+
+            if (length(input) != 1) stop("input must be a single number")
+            if (round(input) != input) stop("input must be a whole number")
+            if (input == 0 ) stop("input must be greater than 0")
+
             if (missing(alphabet)) alphabet <- "DNA"
             if (alphabet %in% c("DNA", "RNA")) {
               alph_len <- 4
@@ -203,13 +208,7 @@ setMethod("create_motif", signature(input = "numeric"),
             } else {
               if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
               for (i in seq_len(input)) {
-                ## what about using TFBSTools::rPWMDmm?
-                # for (j in seq_along(bkg)) {
-                  # mot[j, i] <- abs(rnorm(1, mean = bkg[j],
-                                         # sd = min(c(bkg[j], 1 - bkg[j]))))
-                # }
                 mot[, i] <- rdirichlet(1, bkg)
-                # mot[, i] <- mot[, i] / sum(mot[, i])
               }
             }
 
@@ -393,9 +392,6 @@ setMethod("create_motif", signature(input = "matrix"),
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo) {
             matrix <- input
-            # if (any(matrix > 0 && matrix < 1) && type == "PCM") {
-              # stop("please use whole numbers for PCM type matrix")
-            # }
             if (!missing(alphabet) &&
                 !alphabet %in% c("DNA", "RNA", "AA", "custom")) {
               alph.deparsed <- strsplit(alphabet, "")[[1]]
@@ -449,14 +445,15 @@ setMethod("create_motif", signature(input = "matrix"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
 
-            motif <- apply(matrix, 2, pcm_to_ppm, pseudocount = 0)
+            motif <- matrix
 
             motif <- do.call(universalmotif, c(list(motif = motif), margs,
-                                               # list(type = "PPM"),
                                                list(alphabet = alphabet)))
             if (missing(nsites)) {
               nsites <- sum(input[, 1])
-              if (nsites == round(nsites)) motif["nsites"] <- nsites
+              if (nsites == round(nsites) && nsites != 1 && abs(nsites) != Inf) {
+                motif["nsites"] <- nsites
+              }
             }
             motif <- convert_type(motif, type = type)
             motif

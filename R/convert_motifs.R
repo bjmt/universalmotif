@@ -96,6 +96,12 @@ setGeneric("convert_motifs", function(motifs,
 #' @export
 setMethod("convert_motifs", signature(motifs = "list"),
           definition = function(motifs, class, BPPARAM) {
+            mot_classes <- vapply(motifs, function(x) class(x), character(1))
+            mot_classes <- unique(mot_classes)
+            if (length(mot_classes) == 1) {
+              classin <- strsplit(class, "-")[[1]][2]
+              if (mot_classes == classin) return(motifs)
+            }
             bplapply(motifs, function(x) convert_motifs(x, class = class,
                                                         BPPARAM = BPPARAM))
           })

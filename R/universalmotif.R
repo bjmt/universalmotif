@@ -30,5 +30,7 @@
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom Logolas logomaker
 #' @importFrom PWMEnrich PFMtoPWM
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib universalmotif
 #' @importClassesFrom MotifDb MotifList
 NULL

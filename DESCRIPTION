@@ -31,7 +31,8 @@ Imports: methods,
     Biostrings,
     PWMEnrich,
     MotifDb,
-    Logolas
+    Logolas,
+    Rcpp
 Suggests: knitr,
     BiocStyle,
     testthat,
@@ -41,6 +42,7 @@ Suggests: knitr,
     RcisTarget,
     motifcounter,
     BCRANK
+LinkingTo: Rcpp
 RdMacros: Rdpack
 VignetteBuilder: knitr
 biocViews: MotifAnnotation,
@@ -49,6 +51,7 @@ biocViews: MotifAnnotation,
     GeneRegulation
 RoxygenNote: 6.0.1
 Collate: 
+    'RcppExports.R'
     'universalmotif-class.R'
     'convert_motifs.R'
     'convert_type.R'

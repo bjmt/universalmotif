@@ -29,10 +29,12 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
   CLASS_IN <- .internal_convert(motifs)
   motif <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
-  motif_scores <- apply(motif["motif"], 2, position_icscore,
+  if (length(motif["nsites"]) == 0) nsites <- 100 else nsites <- motif["nsites"]
+
+  motif_scores <- apply(motif["motif"], 2, position_icscoreC,
                         bkg = motif["bkg"], type = motif["type"],
                         pseudocount = motif["pseudocount"],
-                        nsites = motif["nsites"])
+                        nsites = nsites)
   to_cut <- rep(TRUE, length(motif_scores))
   for (i in seq_along(motif_scores)) {
     if (motif_scores[i] < IC_cutoff) to_cut[i] <- FALSE else break

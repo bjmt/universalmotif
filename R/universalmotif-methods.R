@@ -128,13 +128,13 @@ setMethod("initialize", signature = "universalmotif",
             } 
 
             if (missing(type) || length(type) == 0 || is.na(type)) {
-              if (all(motif >= 1 || motif == 0)) {
+              if (all(motif >= 1 | motif == 0)) {
                 type <- "PCM" 
-              } else if ((all(colSums(motif) > 0.99 ||
+              } else if ((all(colSums(motif) > 0.99 |
                               colSums(motif) < 1.01)) &&
                          all(motif >= 0)) {
                 type <- "PPM"
-              } else if (all(colSums(motif) >= 0)) {
+              } else if (all(motif >= 0)) {
                 type <- "ICM"
               } else type <- "PWM"
             }
@@ -156,12 +156,16 @@ setMethod("initialize", signature = "universalmotif",
                 bkg <- rep(1 / nrow(motif), nrow(motif))
               }
             }
+            if (length(bkg) != nrow(.Object@motif)) {
+              stop("bkg vector length should be ", nrow(.Object@motif))
+            }
             .Object@bkg <- bkg
 
             if (missing(icscore) || length(icscore) == 0 || is.na(icscore)) {
-              icscores <- apply(motif, 2, position_icscore,
+              icscores <- apply(motif, 2, position_icscoreC,
                                 bkg = bkg, type = type,
-                                pseudocount = pseudocount, nsites = nsites)
+                                pseudocount = pseudocount,
+                                nsites = ifelse(length(nsites) == 0, 100, nsites))
               icscore <- sum(icscores)
             }
             .Object@icscore <- icscore
@@ -177,17 +181,18 @@ setMethod("initialize", signature = "universalmotif",
             if (missing(consensus) || length(consensus) == 0 ||
               is.na(consensus)) {
               if (.Object@alphabet %in% c("DNA", "RNA")) {
-                consensus <- apply(motif, 2, get_consensus, alphabet = alphabet,
+                consensus <- apply(motif, 2, get_consensusC, alphabet = alphabet,
                                    type = type, pseudocount = pseudocount)
                 .Object@consensus <- paste(consensus, collapse = "")
               } else if (.Object@alphabet == "AA") {
-                consensus <- apply(motif, 2, get_consensusAA, type = type,
+                consensus <- apply(motif, 2, get_consensusAAC, type = type,
                                    pseudocount = pseudocount)
                 .Object@consensus <- consensus
               } else .Object@consensus <- character(0)
             }
 
             if (length(.Object@consensus) > 0) {
+              names(consensus) <- NULL
               colnames(.Object@motif) <- consensus
             }
 
