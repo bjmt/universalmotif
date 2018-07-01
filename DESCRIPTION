@@ -52,12 +52,12 @@ biocViews: MotifAnnotation,
 RoxygenNote: 6.0.1
 Collate: 
     'RcppExports.R'
+    'add_hmm.R'
     'universalmotif-class.R'
     'convert_motifs.R'
     'convert_type.R'
     'create_motif.R'
     'create_sequences.R'
-    'create_tffm.R'
     'filter_motifs.R'
     'merge_motifs.R'
     'motif_dist.R'

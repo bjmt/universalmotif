@@ -348,3 +348,65 @@ get_consensusAA <- function(position, type, pseudocount) {
   }
   
 }
+
+.my_create_first <- function(bkg, sequences) {
+
+  seq.width <- unique(width(sequences))
+  if (seq.width < 2) return(matrix())
+
+  emissions <- matrix(nrow = 16, ncol = seq.width - 1)
+  rownames(emissions) <- c("AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT",
+                           "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT")
+  colnames(emissions) <- seq_len(seq.width)[-seq.width]
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- t(seqs.split)
+
+  for (i in seq_len(seq.width - 1)) {
+    current.seqs <- seqs.split[, i:(i + 1)]
+    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    current.seqs <- DNAStringSet(current.seqs)
+    emissions.i <- colSums(dinucleotideFrequency(current.seqs))
+    emissions.i <- emissions.i / sum(emissions.i) #+ 0.00001
+    emissions[, i] <- emissions.i
+  }
+
+  emissions
+
+}
+
+.my_create_second <- function(bkg, sequences) {
+
+  seq.width <- unique(width(sequences))
+  if (seq.width < 3) return(matrix())
+
+  emissions <- matrix(nrow = 64, ncol = seq.width - 2)
+  rownames(emissions) <- colnames(trinucleotideFrequency(DNAStringSet("A")))
+  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 1, seq.width)]
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- t(seqs.split)
+
+  for (i in seq_len(seq.width - 2)) {
+    current.seqs <- seqs.split[, i:(i + 2)]
+    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    current.seqs <- DNAStringSet(current.seqs)
+    emissions.i <- colSums(trinucleotideFrequency(current.seqs))
+    emissions.i <- emissions.i / sum(emissions.i)
+    emissions[, i] <- emissions.i
+  }
+
+  emissions
+
+}
+
+# for a motif of length 4, the transition matrix is:
+
+#      pos0 pos1 pos2 pos3 pos4 
+# pos0    0    1    0    0    0
+# pos1    0    0    1    0    0
+# pos2    0    0    0    1    0
+# pos3    0    0    0    0    1
+# pos4    1    0    0    0    0

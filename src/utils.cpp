@@ -358,3 +358,72 @@ String get_consensusAAC(NumericVector position, String type="PPM",
   return lets[which_max(position)];
 
 }
+
+// [[Rcpp::export]]
+double score_1st(StringVector tmp_seq, NumericMatrix score_mat) {
+  double score = 0;
+  for (int i = 0; i < tmp_seq.size(); ++i) {
+    if (tmp_seq[i] == "AA")
+      score += score_mat(0, i);
+    else if (tmp_seq[i] == "AC")
+      score += score_mat(1, i);
+    else if (tmp_seq[i] == "AG")
+      score += score_mat(2, i);
+    else if (tmp_seq[i] == "AT")
+      score += score_mat(3, i);
+    else if (tmp_seq[i] == "CA")
+      score += score_mat(4, i);
+    else if (tmp_seq[i] == "CC")
+      score += score_mat(5, i);
+    else if (tmp_seq[i] == "CG")
+      score += score_mat(6, i);
+    else if (tmp_seq[i] == "CT")
+      score += score_mat(7, i);
+    else if (tmp_seq[i] == "GA")
+      score += score_mat(8, i);
+    else if (tmp_seq[i] == "GC")
+      score += score_mat(9, i);
+    else if (tmp_seq[i] == "GG")
+      score += score_mat(10, i);
+    else if (tmp_seq[i] == "GT")
+      score += score_mat(11, i);
+    else if (tmp_seq[i] == "TA")
+      score += score_mat(12, i);
+    else if (tmp_seq[i] == "TC")
+      score += score_mat(13, i);
+    else if (tmp_seq[i] == "TG")
+      score += score_mat(14, i);
+    else if (tmp_seq[i] == "TT")
+      score += score_mat(15, i);
+  }
+  return score;
+}
+
+// [[Rcpp::export]]
+NumericVector scan_1st_order(StringVector sequence, NumericMatrix score_mat,
+    double min_score) {
+
+  NumericVector to_keep(sequence.size());
+  for (int i = 0; i < sequence.size(); ++i) {
+    to_keep[i] = 0;
+  }
+
+  StringVector tmp_seq(score_mat.ncol());
+  double tmp_score;
+
+  int max_step = sequence.size() - score_mat.ncol() + 1;
+
+  for (int i = 0; i < max_step; ++i) {
+
+    for (int j = 0; j < score_mat.ncol(); ++j) {
+      tmp_seq[j] = sequence(i + j);
+    }
+
+    tmp_score = score_1st(tmp_seq, score_mat);
+    if (tmp_score >= min_score) to_keep[i] = 1;
+
+  }
+
+  return to_keep;
+
+}

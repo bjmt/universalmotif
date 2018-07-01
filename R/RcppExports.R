@@ -45,3 +45,11 @@ get_consensusAAC <- function(position, type = "PPM", pseudocount = 0) {
     .Call('_universalmotif_get_consensusAAC', PACKAGE = 'universalmotif', position, type, pseudocount)
 }
 
+score_1st <- function(tmp_seq, score_mat) {
+    .Call('_universalmotif_score_1st', PACKAGE = 'universalmotif', tmp_seq, score_mat)
+}
+
+scan_1st_order <- function(sequence, score_mat, min_score) {
+    .Call('_universalmotif_scan_1st_order', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
+}
+

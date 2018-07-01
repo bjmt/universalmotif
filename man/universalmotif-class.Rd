@@ -20,7 +20,8 @@
 
 \S4method{initialize}{universalmotif}(.Object, name, altname, family, organism,
   motif, alphabet = "DNA", type, icscore, nsites, pseudocount = 0.8, bkg,
-  bkgsites, consensus, strand = "+-", pval, qval, eval, extrainfo)
+  bkgsites, consensus, strand = "+-", pval, qval, eval, hmmfirst, hmmsecond,
+  extrainfo)
 
 \S4method{show}{universalmotif}(object)
 }
@@ -71,6 +72,10 @@ length. If missing, assumes a uniform background.}
 
 \item{eval}{Numeric. E-value associated with motif.}
 
+\item{hmmfirst}{Matrix.}
+
+\item{hmmsecond}{Matrix.}
+
 \item{extrainfo}{Character. Any other extra information, represented as
 a named character vector.}
 
@@ -119,6 +124,10 @@ motifs.
 \item{\code{qval}}{Numeric. Length 0 or 1.}
 
 \item{\code{eval}}{Numeric. Length 0 or 1.}
+
+\item{\code{hmmfirst}}{Matrix.}
+
+\item{\code{hmmsecond}}{Matrix.}
 
 \item{\code{extrainfo}}{Character. Length 0 or more.}
 }}

@@ -380,7 +380,16 @@ setMethod("create_motif", signature(input = "character"),
             }
             if (type == "PPM") motif <- convert_type(motif, "PCM")
             motif <- convert_type(motif, type = type)
+
+            if (alphabet == "DNA" && length(input) > 1) {
+              motif@hmmfirst <- .my_create_first(motif@bkg,
+                                                 DNAStringSet(input))
+              motif@hmmsecond <- .my_create_second(motif@bkg,
+                                                   DNAStringSet(input))
+            }
+
             motif
+
           })
 
 #' @describeIn create_motif Create motif from a matrix.
@@ -495,6 +504,14 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
+            
+            if (length(input) > 1) {
+              motif@hmmfirst <- .my_create_first(motif@bkg,
+                                                 DNAStringSet(input))
+              motif@hmmsecond <- .my_create_second(motif@bkg,
+                                                   DNAStringSet(input))
+            }
+
             motif
 
           })

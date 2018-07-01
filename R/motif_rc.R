@@ -22,6 +22,19 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
   CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
+  hmmfirst <- motifs["hmmfirst"]
+  if (length(hmmfirst) > 1) {
+    hmmfirst.dims <- dimnames(hmmfirst)
+    hmmfirst <- matrix(rev(as.numeric(hmmfirst)), nrow = 16, byrow = FALSE)
+    dimnames(hmmfirst) <- hmmfirst.dims
+  }
+  hmmsecond <- motifs["hmmsecond"]
+  if (length(hmmsecond) > 1) {
+    hmmsecond.dims <- dimnames(hmmsecond)
+    hmmsecond <- matrix(rev(as.numeric(hmmsecond)), nrow = 64, byrow = FALSE)
+    dimnames(hmmsecond) <- hmmsecond.dims
+  }
+
   motifs <- universalmotif(name = motifs["name"], altname = motifs["altname"],
                            family = motifs["family"],
                            motif = matrix(rev(as.numeric(motifs["motif"])),
@@ -33,7 +46,9 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
                            bkg = motifs["bkg"], bkgsites = motifs["bkgsites"],
                            strand = motifs["strand"], pval = motifs["pval"],
                            qval = motifs["qval"], eval = motifs["eval"],
-                           extrainfo = motifs["extrainfo"])
+                           extrainfo = motifs["extrainfo"],
+                           hmmfirst = hmmfirst,
+                           hmmsecond = hmmsecond)
 
   motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
   motifs

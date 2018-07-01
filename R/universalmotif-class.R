@@ -20,6 +20,8 @@
 #' @slot pval Numeric. Length 0 or 1.
 #' @slot qval Numeric. Length 0 or 1.
 #' @slot eval Numeric. Length 0 or 1.
+#' @slot hmmfirst Matrix.
+#' @slot hmmsecond Matrix.
 #' @slot extrainfo Character. Length 0 or more.
 #'
 #' @return A motif object of class \linkS4class{universalmotif}.
@@ -43,6 +45,8 @@ universalmotif <- setClass("universalmotif",
                                         consensus = "character",
                                         strand = "character", pval = "numeric",
                                         qval = "numeric", eval = "numeric",
+                                        hmmfirst = "matrix",
+                                        hmmsecond = "matrix",
                                         extrainfo = "character"))
 
 setValidity("universalmotif",

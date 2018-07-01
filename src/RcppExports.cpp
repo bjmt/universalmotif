@@ -144,6 +144,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// score_1st
+double score_1st(StringVector tmp_seq, NumericMatrix score_mat);
+RcppExport SEXP _universalmotif_score_1st(SEXP tmp_seqSEXP, SEXP score_matSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type tmp_seq(tmp_seqSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
+    rcpp_result_gen = Rcpp::wrap(score_1st(tmp_seq, score_mat));
+    return rcpp_result_gen;
+END_RCPP
+}
+// scan_1st_order
+NumericVector scan_1st_order(StringVector sequence, NumericMatrix score_mat, double min_score);
+RcppExport SEXP _universalmotif_scan_1st_order(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type sequence(sequenceSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
+    Rcpp::traits::input_parameter< double >::type min_score(min_scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(scan_1st_order(sequence, score_mat, min_score));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
@@ -157,6 +182,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_consensus_to_ppmC", (DL_FUNC) &_universalmotif_consensus_to_ppmC, 1},
     {"_universalmotif_consensus_to_ppmAAC", (DL_FUNC) &_universalmotif_consensus_to_ppmAAC, 1},
     {"_universalmotif_get_consensusAAC", (DL_FUNC) &_universalmotif_get_consensusAAC, 3},
+    {"_universalmotif_score_1st", (DL_FUNC) &_universalmotif_score_1st, 2},
+    {"_universalmotif_scan_1st_order", (DL_FUNC) &_universalmotif_scan_1st_order, 3},
     {NULL, NULL, 0}
 };
 
