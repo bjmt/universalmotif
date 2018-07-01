@@ -9,10 +9,15 @@
 #'
 #' @return Site search results as a data.frame object.
 #'
+#' @details
+#'    Benchmarking: scanning a 1 billion bp sequence with HMMorder = 1 and 
+#'    RC = FALSE took about 4.5 minutes. Scanning 1000 sequences 1 million bp
+#'    each took about 6 minutes.
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
-                           RC = TRUE, HMMorder = 0, BPPARAM = bpparam()) {
+                           RC = FALSE, HMMorder = 0, BPPARAM = bpparam()) {
 
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,
@@ -111,7 +116,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
                  strand = strand)
     }
 
-    get_res <- function(motif, seq, seq.name, strand) {
+    get_res <- function(motif, seq, seq.name, seqstrand) {
 
       sequence <- as.character(seq)
       sequence <- strsplit(sequence, "")[[1]]
@@ -126,17 +131,21 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
       seq.mat <- matrix(ncol = length(sequence) - 1, nrow = 2)
       seq.mat[1, ] <- sequence[-length(sequence)]
       seq.mat[2, ] <- sequence[-1]
-      seqs <- apply(seq.mat, 2, paste, collapse = "")
+
+      lookup = as.integer(0:15)
+      names(lookup) <- DNA_DI
+
+      seqs <- DNA_to_int_di(as.character(seq.mat))
 
       to_keep <- scan_1st_order(seqs, scores, min.score)
       to_keep <- which(as.logical(to_keep))
 
+      mot_len <- ncol(motif["motif"]) - 1
+      name <- motif["name"]
       res <- lapply(to_keep,
-                    function(x) parse_1st_res(x, sequence, seqs,
-                                              ncol(motif["motif"]) - 1,
-                                              min.score, max.score,
-                                              motif["name"],
-                                              seq.name, scores, strand))
+                    function(x) parse_1st_res(x, sequence, seqs, mot_len,
+                                              min.score, max.score, name,
+                                              seq.name, scores, seqstrand))
       do.call(rbind, res)
 
     }
@@ -145,10 +154,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
                         sequences, seq.names, SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
     if (RC) {
-      motifs.rc <- motif_rc(motifs, BPPARAM = BPPARAM)
-      results.rc <- bpmapply(function(x, y) get_res(motifs.rc, x, y, "-"),
-                             sequences, seq.names, SIMPLIFY = FALSE,
-                             BPPARAM = BPPARAM)
+      results.rc <- bpmapply(function(x, y) get_res(motifs, x, y, "-"),
+                             reverseComplement(sequences), seq.names,
+                             SIMPLIFY = FALSE, BPPARAM = BPPARAM)
       results <- c(results, results.rc)
     }
 

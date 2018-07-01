@@ -24,15 +24,19 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
 
   hmmfirst <- motifs["hmmfirst"]
   if (length(hmmfirst) > 1) {
-    hmmfirst.dims <- dimnames(hmmfirst)
-    hmmfirst <- matrix(rev(as.numeric(hmmfirst)), nrow = 16, byrow = FALSE)
-    dimnames(hmmfirst) <- hmmfirst.dims
+    warning("'hmmfirst' information is lost")
+    hmmfirst <- matrix()
+    # hmmfirst.dims <- dimnames(hmmfirst)
+    # hmmfirst <- matrix(rev(as.numeric(hmmfirst)), nrow = 16, byrow = FALSE)
+    # dimnames(hmmfirst) <- hmmfirst.dims
   }
   hmmsecond <- motifs["hmmsecond"]
   if (length(hmmsecond) > 1) {
-    hmmsecond.dims <- dimnames(hmmsecond)
-    hmmsecond <- matrix(rev(as.numeric(hmmsecond)), nrow = 64, byrow = FALSE)
-    dimnames(hmmsecond) <- hmmsecond.dims
+    warning("'hmmsecond' information is lost")
+    hmmsecond <- matrix()
+    # hmmsecond.dims <- dimnames(hmmsecond)
+    # hmmsecond <- matrix(rev(as.numeric(hmmsecond)), nrow = 64, byrow = FALSE)
+    # dimnames(hmmsecond) <- hmmsecond.dims
   }
 
   motifs <- universalmotif(name = motifs["name"], altname = motifs["altname"],

@@ -20,6 +20,7 @@
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom Biostrings oligonucleotideTransitions trinucleotideFrequency
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
+#' @importFrom Biostrings reverseComplement
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
 #' @importFrom motifStack plotMotifLogo mergeMotifs

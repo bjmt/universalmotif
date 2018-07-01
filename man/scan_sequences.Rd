@@ -4,7 +4,7 @@
 \alias{scan_sequences}
 \title{Find motif binding sites in a set of sequences.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.6, RC = TRUE,
+scan_sequences(motifs, sequences, threshold = 0.6, RC = FALSE,
   HMMorder = 0, BPPARAM = bpparam())
 }
 \arguments{
@@ -25,6 +25,11 @@ Site search results as a data.frame object.
 }
 \description{
 Find motif binding sites in a set of sequences.
+}
+\details{
+Benchmarking: scanning a 1 billion bp sequence with HMMorder = 1 and 
+   RC = FALSE took about 4.5 minutes. Scanning 1000 sequences 1 million bp
+   each took about 6 minutes.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
