@@ -42,6 +42,7 @@ devtools::install_github("bjmt/universalmotif")
   - `create_sequences`
   - `switch_alph`
   - `add_hmm`
+  - `enrich_motifs`
 
 ## Other todo ##
 
