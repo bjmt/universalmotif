@@ -30,6 +30,18 @@
 #' @name utilities
 NULL
 
+DNA_DI <- c("AA", "AC", "AG", "AT",
+            "CA", "CC", "CG", "CT",
+            "GA", "GC", "GG", "GT",
+            "TA", "TC", "TG", "TT")
+
+DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
+             "AGT","ATA","ATC","ATG","ATT","CAA","CAC","CAG","CAT","CCA","CCC",
+             "CCG","CCT","CGA","CGC","CGG","CGT","CTA","CTC","CTG","CTT","GAA",
+             "GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT",
+             "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
+             "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
+
 #' @rdname utilities
 #' @export
 ppm_to_icm <- function(position, bkg,
@@ -355,8 +367,7 @@ get_consensusAA <- function(position, type, pseudocount) {
   if (seq.width < 2) return(matrix())
 
   emissions <- matrix(nrow = 16, ncol = seq.width - 1)
-  rownames(emissions) <- c("AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT",
-                           "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT")
+  rownames(emissions) <- DNA_DI
   colnames(emissions) <- seq_len(seq.width)[-seq.width]
 
   seqs.split <- matrix(as.character(sequences), ncol = 1)
@@ -382,7 +393,7 @@ get_consensusAA <- function(position, type, pseudocount) {
   if (seq.width < 3) return(matrix())
 
   emissions <- matrix(nrow = 64, ncol = seq.width - 2)
-  rownames(emissions) <- colnames(trinucleotideFrequency(DNAStringSet("A")))
+  rownames(emissions) <- DNA_TRI
   colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 1, seq.width)]
 
   seqs.split <- matrix(as.character(sequences), ncol = 1)
@@ -410,15 +421,3 @@ get_consensusAA <- function(position, type, pseudocount) {
 # pos2    0    0    0    1    0
 # pos3    0    0    0    0    1
 # pos4    1    0    0    0    0
-
-DNA_DI <- c("AA", "AC", "AG", "AT",
-            "CA", "CC", "CG", "CT",
-            "GA", "GC", "GG", "GT",
-            "TA", "TC", "TG", "TT")
-
-DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
-             "AGT","ATA","ATC","ATG","ATT","CAA","CAC","CAG","CAT","CCA","CCC",
-             "CCG","CCT","CGA","CGC","CGG","CGT","CTA","CTC","CTG","CTT","GAA",
-             "GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT",
-             "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
-             "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
