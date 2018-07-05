@@ -4,12 +4,12 @@
 \alias{enrich_motifs}
 \title{Enrich for input motifs in a set of sequences.}
 \usage{
-enrich_motifs(motifs, sequences, bkg.sequences, mode = "hits",
+enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   max.p = 0.001, max.q = 0.001, qval.method = "fdr",
-  positional.test = "t.test", threshold = 0.6, verbose = TRUE,
-  RC = FALSE, HMMorder = 0, shuffle.k = 1, shuffle.method = "linear",
-  shuffle.leftovers = "asis", plot = FALSE, plot.top = 5,
-  BPPARAM = bpparam(), ...)
+  positional.test = "t.test", threshold = 0.6, threshold.type = "logodds",
+  verbose = TRUE, RC = TRUE, use.difreq = FALSE, use.trifreq = FALSE,
+  shuffle.k = 1, shuffle.method = "linear", shuffle.leftovers = "asis",
+  BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{Motifs.}
@@ -18,7 +18,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, mode = "hits",
 
 \item{bkg.sequences}{DNAStringSet.}
 
-\item{mode}{Character.}
+\item{search.mode}{Character.}
 
 \item{max.p}{Numeric.}
 
@@ -30,9 +30,13 @@ enrich_motifs(motifs, sequences, bkg.sequences, mode = "hits",
 
 \item{threshold}{Numeric.}
 
+\item{threshold.type}{Character. One of 'logodds' and 'pvalue'.}
+
 \item{RC}{Logical.}
 
-\item{HMMorder}{Numeric.}
+\item{use.difreq}{Logical.}
+
+\item{use.trifreq}{Logical.}
 
 \item{shuffle.k}{Numeric.}
 
@@ -46,7 +50,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, mode = "hits",
 A list of results.
 }
 \description{
-Enrich for input motifs in a set of sequences.
+DNA/RNA only.
 }
 \author{
 Benjamin Tremblay \email{b2tremblay@uwaterloo.ca}

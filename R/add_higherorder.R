@@ -1,9 +1,8 @@
-#' Add first and/or second order HMM data to a motif.
+#' Add multi-nucleotide information to a motif.
 #'
 #' @param motif universalmotif object.
 #' @param sequences DNAStringSet.
-#' @param add.first Logical.
-#' @param add.second Logical.
+#' @param add.k Numeric.
 #' @param threshold Numeric.
 #' @param RC Logical.
 #' @param motifs.perseq Numeric.
@@ -11,9 +10,9 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-add_hmm <- function(motif, sequences, add.first = TRUE, add.second = TRUE,
-                    threshold = 0.01, RC = FALSE, motifs.perseq = 1,
-                    BPPARAM = bpparam()) {
+add_higherorder <- function(motif, sequences, add.k = 2:3,
+                            threshold = 0.01, RC = FALSE,
+                            motifs.perseq = 1, BPPARAM = bpparam()) {
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   
@@ -36,12 +35,10 @@ add_hmm <- function(motif, sequences, add.first = TRUE, add.second = TRUE,
   seqs.out <- levels(seqs.out)
   sequences <- DNAStringSet(seqs.out)
 
-  if (add.first) {
-    motif@hmmfirst <- .my_create_first(motif["bkg"], sequences)
+  for (i in seq_along(add.k)) {
+    motif@multifreq[[i]] <- add_multi(motif["bkg"], sequences, add.k[i])
   }
-  if (add.second) {
-    motif@hmmsecond <- .my_create_second(motif["bkg"], sequences)
-  }
+  names(motif@multifreq) <- add.k
 
   motif
 

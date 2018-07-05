@@ -11,7 +11,7 @@
 #' @import ggseqlogo
 #' @import ggtree
 #' @import msa
-#' @importFrom BiocParallel bplapply bpmapply bpparam
+#' @importFrom BiocParallel bplapply bpmapply bpparam SerialParam
 #' @importFrom stats as.dist hclust runif rnorm
 #' @importFrom utils read.table
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
@@ -26,12 +26,13 @@
 #' @importFrom motifStack plotMotifLogo mergeMotifs
 #' @importFrom MotIV motifDistances makePWM readDBScores
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
-#' @importFrom TFBSTools TFFMFirst TFFMDetail
+#' @importFrom TFBSTools TFFMFirst getPosProb
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom Logolas logomaker
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
+#' @importFrom TFMPvalue TFMpv2sc TFMsc2pv
 #' @useDynLib universalmotif
 #' @importClassesFrom MotifDb MotifList
 NULL

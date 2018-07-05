@@ -1,10 +1,13 @@
 #' Find motif binding sites in a set of sequences.
 #'
+#' DNA/RNA only.
+#'
 #' @param motifs List of motifs or a single motif.
 #' @param sequences XStringSet object. List of sequences to scan
 #' @param threshold Numeric. Logodds threshold.
+#' @param threshold.type Character. One of 'logodds' and 'pvalue'.
 #' @param RC Logical. Check reverse strand.
-#' @param HMMorder Numeric.
+#' @param use.freq Numeric.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Site search results as a data.frame object.
@@ -12,40 +15,65 @@
 #' @details
 #'    Benchmarking: scanning a 1 billion bp sequence with HMMorder = 1 and 
 #'    RC = FALSE took about 4.5 minutes. Scanning 1000 sequences 1 million bp
-#'    each took about 6 minutes.
+#'    each took about 6 minutes. As for HMMorder = 0; for shorter sequences
+#'    it is amazingly fast.. but when I tried with a 1 billion bp long
+#'    sequence it took about 5 min. Not sure why it slows down so much.
+#'
+#'    Careful with large k. A motif with freqs 10 is 80 MB.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
-                           RC = FALSE, HMMorder = 0, BPPARAM = bpparam()) {
+                           threshold.type = "logodds", RC = TRUE,
+                           use.freq = 1, BPPARAM = bpparam()) {
 
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,
-                      sequences = sequences, RC = RC, HMMorder = 0,
-                      BPPARAM = BPPARAM)
+                      threshold.type = threshold.type,
+                      sequences = sequences, RC = RC, 
+                      use.freq = use.freq, BPPARAM = BPPARAM)
     results <- do.call(rbind, results)
     rownames(results) <- seq_len(nrow(results))
     return(results)
   }
 
-  if (missing(motifs) || missing(sequences)) stop("missing 'motifs' and/or 'sequences'")
+  if (missing(motifs) || missing(sequences)) {
+    stop("missing 'motifs' and/or 'sequences'")
+  }
 
-  min.score <- threshold * 100
-  min.score <- paste0(min.score, "%")
+  if (motifs["alphabet"] == "RNA") motifs <- switch_alph(motifs)
+  if (sequences@elementType == "RNAString") {
+    sequences <- DNAStringSet(sequences)
+    RNA <- TRUE
+  } else RNA <- FALSE
+
 
   mot.name <- motifs["name"]
   mot.mat <- convert_type(motifs, "PWM")["motif"]
+  mot.pfm <- convert_type(motifs, "PPM")["motif"]
   mot.len <- ncol(mot.mat)
   max.score <- sum(apply(mot.mat, 2, max))
+
+  bkg <- motifs["bkg"]
+  names(bkg) <- DNA_BASES
+
+  if (threshold.type == "pvalue") {
+    threshold <- TFMpv2sc(mot.pfm, threshold, bkg, type = "PFM")
+    threshold <- threshold / sum(apply(mot.mat, 2, max))
+  }
+  if (threshold < 0) stop("cannot have negative threshold")
+
+  min.score <- threshold * 100
+  min.score <- paste0(min.score, "%")
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
 
-  if (HMMorder == 0) {
+  if (use.freq == 1) {
 
     motif <- motifs
-    motif <- convert_type(motif,"PWM")
+    motif <- convert_type(motif, "PWM")
     motif.rc <- suppressWarnings(motif_rc(motif))
     motif <- motif["motif"]
     motif.rc <- motif.rc["motif"]
@@ -69,6 +97,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
         max.score <- rep(max.score, length(x))
         score.pct <- (score / max.score) * 100
         match <- as.character(x)
+
         data.frame(motif = motif, sequence = sequence, start = start, stop = stop,
                    score = score, max.score = max.score, score.pct = score.pct,
                    match = match, strand = rep(strand, length(x)))
@@ -100,172 +129,36 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
       sequence.hits.rc <- do.call(rbind, sequence.hits.rc)
       
       if (nrow(sequence.hits.rc) > 0) sequence.hits.rc$strand <- "-"
+      match <- sequence.hits.rc$match
+      match <- as.character(reverseComplement(DNAStringSet(match)))
+      sequence.hits.rc$match <- match
 
       sequence.hits <- rbind(sequence.hits, sequence.hits.rc)
 
     }
 
-  } else if (HMMorder == 1) {
+  } else {
 
-    if (length(motifs["hmmfirst"]) <= 1) stop("no 1st-order HMM in motif ",
-                                              mot.name)
-
-    parse_1st_res <- function(to_keep, sequence, seqs, mot_len, min.score,
-                              max.score, mot.name, seq.name, score.mat, strand,
-                              seq.length) {
-      if (strand == "+") {
-        hit <- seqs[to_keep:(to_keep + mot_len - 1)]
-        score <- score_seq(hit, score.mat)
-        data.frame(motif = mot.name, sequence = seq.name, start = to_keep,
-                   stop = to_keep + mot_len, score = score, max.score = max.score,
-                   score.pct = score / max.score * 100,
-                   match = paste(sequence[to_keep:(to_keep + mot_len)],
-                                 collapse = ""),
-                   strand = strand)
-      } else if (strand == "-") {
-        hit <- seqs[to_keep:(to_keep + mot_len - 1)]
-        score <- score_seq(hit, score.mat)
-        start <- seq.length - to_keep + 1
-        stop <- to_keep + mot_len
-        stop <- seq.length - stop + 1
-        match <- paste(sequence[to_keep:(to_keep + mot_len)], collapse = "")
-        match <- reverseComplement(DNAString(match))
-        data.frame(motif = mot.name, sequence = seq.name, start = start,
-                   stop = stop, score = score, max.score = max.score,
-                   score.pct = score / max.score * 100,
-                   match = as.character(match), strand = strand)
-      }
+    if (use.freq > 6) {
+      warning("with 'use.freq' > 6 R may crash; parallel cores disabled")
+      BPPARAM <- SerialParam()
     }
-
-    get_res <- function(motif, seq, seq.name, seqstrand) {
-
-      sequence <- as.character(seq)
-      sequence <- strsplit(sequence, "")[[1]]
-
-      if (motif["pseudocount"] == 0) motif["pseudocount"] <- 0.8
-      scores <- apply(motif["hmmfirst"], 2, ppm_to_pwm,
-                      nsites = motif["nsites"],
-                      pseudocount = motif["pseudocount"])
-      max.score <- sum(apply(scores, 2, max))
-      min.score <- max.score * threshold
-
-      seq.mat <- matrix(ncol = length(sequence) - 1, nrow = 2)
-      seq.mat[1, ] <- sequence[-length(sequence)]
-      seq.mat[2, ] <- sequence[-1]
-
-      lookup <- as.integer(0:15)
-      names(lookup) <- DNA_DI
-
-      seqs <- DNA_to_int_di(as.character(seq.mat))
-
-      to_keep <- scan_1st_order(seqs, scores, min.score)
-      to_keep <- which(as.logical(to_keep))
-
-      mot_len <- ncol(motif["motif"]) - 1
-      name <- motif["name"]
-      res <- lapply(to_keep,
-                    function(x) parse_1st_res(x, sequence, seqs, mot_len,
-                                              min.score, max.score, name,
-                                              seq.name, scores, seqstrand,
-                                              length(sequence)))
-      do.call(rbind, res)
-
-    }
-
-    results <- bpmapply(function(x, y) get_res(motifs, x, y, "+"),
+    results <- bpmapply(function(x, y) get_res_k(motifs, x, y, "+", use.freq,
+                                                 threshold),
                         sequences, seq.names, SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
     if (RC) {
-      results.rc <- bpmapply(function(x, y) get_res(motifs, x, y, "-"),
+      results.rc <- bpmapply(function(x, y) get_res_k(motifs, x, y, "-", use.freq,
+                                                      threshold),
                              reverseComplement(sequences), seq.names,
                              SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+
       results <- c(results, results.rc)
     }
 
     sequence.hits <- do.call(rbind, results)
 
-  }  else if (HMMorder == 2) {
-  
-    if (length(motifs["hmmsecond"]) <= 1) stop("no 2nd-order HMM in motif ",
-                                               mot.name)
-
-    parse_2nd_res <- function(to_keep, sequence, seqs, mot_len, min.score,
-                              max.score, mot.name, seq.name, score.mat,
-                              strand, seq.length) {
-      if (strand == "+") {
-        hit <- seqs[to_keep:(to_keep + mot_len - 1)]
-        score <- score_seq(hit, score.mat)
-        data.frame(motif = mot.name, sequence = seq.name, start = to_keep,
-                   stop = to_keep + mot_len + 1, score = score,
-                   max.score = max.score,
-                   score.pct = score / max.score * 100,
-                   match = paste(sequence[to_keep:(to_keep + mot_len + 1)],
-                                 collapse = ""), strand = strand)
-      } else if (strand == "-") {
-        hit <- seqs[to_keep:(to_keep + mot_len - 1)]
-        score <- score_seq(hit, score.mat)
-        start <- seq.length - to_keep + 1
-        stop <- to_keep + mot_len
-        stop <- seq.length - stop
-        match <- paste(sequence[to_keep:(to_keep + mot_len + 1)],
-                       collapse = "")
-        match <- reverseComplement(DNAString(match))
-        data.frame(motif = mot.name, sequence = seq.name, start = start,
-                   stop = stop, score = score, max.score = max.score,
-                   score.pct = score / max.score * 100,
-                   match = as.character(match), strand = strand)
-      }
-    }
-
-    get_res_2nd <- function(motif, seq, seq.name, seqstrand) {
-    
-      sequence <- as.character(seq)
-      sequence <- strsplit(sequence, "")[[1]]
-
-      if (motif["pseudocount"] == 0) motif["pseudocount"] <- 0.8
-      scores <- apply(motif["hmmsecond"], 2, ppm_to_pwm,
-                      nsites = motif["nsites"],
-                      pseudocount = motif["pseudocount"])
-      max.score <- sum(apply(scores, 2, max))
-      min.score <- max.score * threshold
-
-      seq.mat <- matrix(ncol = length(sequence) - 2, nrow = 3)
-      seq.mat[1, ] <- sequence[-c(length(sequence) - 1, length(sequence))]
-      seq.mat[2, ] <- sequence[-c(1, length(sequence))]
-      seq.mat[3, ] <- sequence[-c(1, 2)]
-
-      lookup <- as.integer(0:63)
-      names(lookup) <- DNA_TRI
-
-      seqs <- DNA_to_int_tri(as.character(seq.mat))
-
-      to_keep <- scan_2nd_order(seqs, scores, min.score)
-      to_keep <- which(as.logical(to_keep))
-
-      mot_len <- ncol(motif["motif"]) - 2
-      name <- motif["name"]
-      res <- lapply(to_keep,
-                    function(x) parse_2nd_res(x, sequence, seqs, mot_len,
-                                              min.score, max.score, name,
-                                              seq.name, scores, seqstrand,
-                                              length(sequence)))
-      do.call(rbind, res)
-    
-    }
-
-    results <- bpmapply(function(x, y) get_res_2nd(motifs, x, y, "+"),
-                        sequences, seq.names, SIMPLIFY = FALSE, BPPARAM = BPPARAM)
-
-    if (RC) {
-      results.rc <- bpmapply(function(x, y) get_res_2nd(motifs, x, y, "-"),
-                             reverseComplement(sequences), seq.names,
-                             SIMPLIFY = FALSE, BPPARAM = BPPARAM)
-      results <- c(results, results.rc)
-    }
-
-    sequence.hits <- do.call(rbind, results)
-
-  } else stop("incorrect 'HMMorder'")
+  } 
 
   if (is.null(sequence.hits)) {
     message("no matches found using current threshold for motif ", mot.name)
@@ -279,6 +172,85 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
                                        decreasing = TRUE), ]
   rownames(sequence.hits) <- seq_len(nrow(sequence.hits))
 
-  sequence.hits
+  if (RNA) {
+    sequence.hits$match <- gsub("T", "U", sequence.hits$match)
+  }
 
+  sequence.hits$p.value <- vapply(sequence.hits$score,
+                                  function(x) TFMsc2pv(mot.pfm, x, bkg, "PFM"),
+                                  numeric(1))
+
+  sequence.hits[, c(1:7, 10, 8:9)]
+
+}
+
+get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
+
+  sequence <- as.character(seq)
+  sequence <- strsplit(sequence, "")[[1]]
+
+  if (motif["pseudocount"] == 0) motif["pseudocount"] <- 0.0001
+  if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
+  # warning: r can run crash here with k > 6
+  scores <- apply(motif@multifreq[[as.character(k)]], 2, ppm_to_pwmC,
+                  nsites = motif["nsites"],
+                  pseudocount = motif["pseudocount"])
+  max.score <- sum(apply(scores, 2, max))
+  min.score <- max.score * threshold
+
+  max.len <- length(sequence)
+  seq.mat <- matrix(ncol = max.len - k + 1, nrow = k)
+
+  for (i in seq_len(k)) {
+    to.remove <- i - 1
+    if (to.remove == 0) {
+      seq.mat[i, ] <- sequence[seq_len(ncol(seq.mat))]
+      next
+    }
+    sequence.i <- sequence[-seq_len(to.remove)]
+    seq.mat[i, ] <- sequence.i[seq_len(ncol(seq.mat))]
+  }
+
+  seqs <- DNA_to_int_k(as.character(seq.mat), k)
+  # warning: r can crash here with k > 6
+  to_keep <- scan_seq_internal(seqs, scores, min.score)
+  to_keep <- which(as.logical(to_keep))
+
+  mot_len <- ncol(motif["motif"]) - k + 1
+  name <- motif["name"]
+
+  res <- lapply(to_keep, function(x) parse_k_res(x, sequence, seqs,
+                mot_len, min.score, max.score, name, seq.name, scores,
+                seqstrand, max.len, k))
+
+  do.call(rbind, res)
+
+}
+
+parse_k_res <- function(to_keep, sequence, seqs, mot_len, min.score,
+                        max.score, mot.name, seq.name, score.mat,
+                        strand, seq.length, k) {
+
+  if (strand == "+") {
+    hit <- seqs[to_keep:(to_keep + mot_len - 1)]
+    score <- score_seq(hit, score.mat)
+    data.frame(motif = mot.name, sequence = seq.name, start = to_keep,
+               stop = to_keep + mot_len + k - 2, score = score,
+               max.score = max.score, score.pct = score / max.score * 100,
+               match = paste(sequence[to_keep:(to_keep + mot_len + k - 2)],
+                             collapse = ""), strand = strand)
+  } else if (strand == "-") {
+    hit <- seqs[to_keep:(to_keep + mot_len - 1)]
+    score <- score_seq(hit, score.mat)
+    start <- seq.length - to_keep + 1
+    stop <- to_keep + mot_len
+    stop <- seq.length - stop - k + 3
+    match <- paste(sequence[to_keep:(to_keep + mot_len + k - 2)],
+                   collapse = "")
+    data.frame(motif = mot.name, sequence = seq.name, start = start,
+               stop = stop, score = score, max.score = max.score,
+               score.pct = score / max.score * 100,
+               match = as.character(match), strand = strand)
+  }
+  
 }

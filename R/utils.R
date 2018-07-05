@@ -35,12 +35,27 @@ DNA_DI <- c("AA", "AC", "AG", "AT",
             "GA", "GC", "GG", "GT",
             "TA", "TC", "TG", "TT")
 
-DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
-             "AGT","ATA","ATC","ATG","ATT","CAA","CAC","CAG","CAT","CCA","CCC",
-             "CCG","CCT","CGA","CGC","CGG","CGT","CTA","CTC","CTG","CTT","GAA",
-             "GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT",
-             "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
-             "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
+# DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
+             # "AGT","ATA","ATC","ATG","ATT","CAA","CAC","CAG","CAT","CCA","CCC",
+             # "CCG","CCT","CGA","CGC","CGG","CGT","CTA","CTC","CTG","CTT","GAA",
+             # "GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT",
+             # "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
+             # "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
+#
+# DNA_TETRA <- matrix(c(rep(DNA_TRI, 4), rep("A", 64), rep("C", 64),
+                      # rep("G", 64), rep("T", 64)), ncol = 2)
+# DNA_TETRA <- apply(DNA_TETRA, 1, paste, collapse = "")
+# DNA_TETRA <- sort(DNA_TETRA)
+#
+# DNA_PENTA <- matrix(c(rep(DNA_TETRA, 4), rep("A", 256), rep("C", 256),
+                      # rep("G", 256), rep("T", 256)), ncol = 2)
+# DNA_PENTA <- apply(DNA_PENTA, 1, paste, collapse = "")
+# DNA_PENTA <- sort(DNA_PENTA)
+#
+# DNA_HEXA <- matrix(c(rep(DNA_PENTA, 4,), rep("A", 1024), rep("C", 1024),
+                     # rep("G", 1024), rep("T", 1024)), ncol = 2)
+# DNA_HEXA <- apply(DNA_HEXA, 1, paste, collapse = "")
+# DNA_HEXA <- sort(DNA_HEXA)
 
 #' @rdname utilities
 #' @export
@@ -405,6 +420,126 @@ get_consensusAA <- function(position, type, pseudocount) {
     current.seqs <- apply(current.seqs, 1, paste, collapse = "")
     current.seqs <- DNAStringSet(current.seqs)
     emissions.i <- colSums(trinucleotideFrequency(current.seqs))
+    emissions.i <- emissions.i / sum(emissions.i)
+    emissions[, i] <- emissions.i
+  }
+
+  emissions
+
+}
+
+.my_create_third <- function(bkg, sequences) {
+
+  seq.width <- unique(width(sequences))
+  if (seq.width < 4) return(matrix())
+
+  emissions <- matrix(nrow = 256, ncol = seq.width - 3)
+  rownames(emissions) <- DNA_TETRA
+  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 2, seq.width - 1,
+                                               seq.width)]
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- t(seqs.split)
+
+  for (i in seq_len(seq.width - 3)) {
+    current.seqs <- seqs.split[, i:(i + 3)]
+    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    current.seqs <- DNAStringSet(current.seqs)
+    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, 4, 1))
+    emissions.i <- emissions.i / sum(emissions.i)
+    emissions[, i] <- emissions.i
+  }
+
+  emissions
+
+}
+
+.my_create_fourth <- function(bkg, sequences) {
+
+  seq.width <- unique(width(sequences))
+  if (seq.width < 5) return(matrix())
+
+  emissions <- matrix(nrow = 1024, ncol = seq.width - 4)
+  rownames(emissions) <- DNA_PENTA
+  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 3, seq.width - 2,
+                                               seq.width - 1, seq.width)]
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- t(seqs.split)
+
+  for (i in seq_len(seq.width - 4)) {
+    current.seqs <- seqs.split[, i:(i + 4)]
+    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    current.seqs <- DNAStringSet(current.seqs)
+    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, 5, 1))
+    emissions.i <- emissions.i / sum(emissions.i)
+    emissions[, i] <- emissions.i
+  }
+
+  emissions
+
+}
+
+.my_create_fifth <- function(bkg, sequences) {
+
+  seq.width <- unique(width(sequences))
+  if (seq.width < 5) return(matrix())
+
+  emissions <- matrix(nrow = 4096, ncol = seq.width - 5)
+  rownames(emissions) <- DNA_HEXA
+  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 4, seq.width - 3,
+                                               seq.width - 2, seq.width - 1,
+                                               seq.width)]
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- t(seqs.split)
+
+  for (i in seq_len(seq.width - 5)) {
+    current.seqs <- seqs.split[, i:(i + 5)]
+    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    current.seqs <- DNAStringSet(current.seqs)
+    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, 6, 1))
+    emissions.i <- emissions.i / sum(emissions.i)
+    emissions[, i] <- emissions.i
+  }
+
+  emissions
+
+}
+
+add_multi <- function(bkg, sequences, k) {
+
+  seq.width <- unique(width(sequences))
+  if (seq.width < k - 1) {
+    warning("motif is not long enough for k = ", k)
+    return(matrix())
+  }
+
+  emissions <- matrix(nrow = 4^k, ncol = seq.width - k + 1)
+  
+  multi_rows <- matrix(nrow = k, ncol = 4^k)
+  for (i in seq_len(k)) {
+    j <- rep(DNA_BASES, each = 4^(k - i + 1) / 4)
+    if (length(j) != 4^k) j <- rep(j, 4^k / length(j))
+    multi_rows[i, ] <- j
+  }
+  multi_rows <- apply(multi_rows, 2, paste, collapse = "")
+
+  rownames(emissions) <- multi_rows
+  colnames(emissions) <- seq_len(ncol(emissions))
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- t(seqs.split)
+
+  for (i in seq_len(seq.width - k + 1)) {
+    current.seqs <- seqs.split[, i:(i + k - 1)]
+    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    current.seqs <- DNAStringSet(current.seqs)
+    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, k, 1))
     emissions.i <- emissions.i / sum(emissions.i)
     emissions[, i] <- emissions.i
   }

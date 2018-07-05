@@ -4,8 +4,9 @@
 \alias{scan_sequences}
 \title{Find motif binding sites in a set of sequences.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.6, RC = FALSE,
-  HMMorder = 0, BPPARAM = bpparam())
+scan_sequences(motifs, sequences, threshold = 0.6,
+  threshold.type = "logodds", RC = TRUE, use.freq = 1,
+  BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
@@ -14,9 +15,11 @@ scan_sequences(motifs, sequences, threshold = 0.6, RC = FALSE,
 
 \item{threshold}{Numeric. Logodds threshold.}
 
+\item{threshold.type}{Character. One of 'logodds' and 'pvalue'.}
+
 \item{RC}{Logical. Check reverse strand.}
 
-\item{HMMorder}{Numeric.}
+\item{use.freq}{Numeric.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -24,12 +27,16 @@ scan_sequences(motifs, sequences, threshold = 0.6, RC = FALSE,
 Site search results as a data.frame object.
 }
 \description{
-Find motif binding sites in a set of sequences.
+DNA/RNA only.
 }
 \details{
 Benchmarking: scanning a 1 billion bp sequence with HMMorder = 1 and 
    RC = FALSE took about 4.5 minutes. Scanning 1000 sequences 1 million bp
-   each took about 6 minutes.
+   each took about 6 minutes. As for HMMorder = 0; for shorter sequences
+   it is amazingly fast.. but when I tried with a 1 billion bp long
+   sequence it took about 5 min. Not sure why it slows down so much.
+
+   Careful with large k. A motif with freqs 10 is 80 MB.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

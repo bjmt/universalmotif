@@ -21,6 +21,7 @@
 #' @param eval Numeric. E-value associated with motif.
 #' @param extrainfo Character. Any other extra information, represented as
 #'                  a named character vector.
+#' @param add.multifreq Numeric.
 #'
 #' @return \linkS4class{universalmotif} object.
 #'
@@ -144,7 +145,7 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
                                     name = "motif", pseudocount = 0,
                                     bkg, nsites, altname, family,
                                     organism, bkgsites, strand, pval, qval,
-                                    eval, extrainfo)
+                                    eval, extrainfo, add.multifreq = NULL)
            standardGeneric("create_motif"))
 
 #' @describeIn create_motif Create a random motif of length 10.
@@ -154,7 +155,7 @@ setMethod("create_motif", signature(input = "missing"),
           definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
 
             margs <- list()
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
@@ -183,7 +184,7 @@ setMethod("create_motif", signature(input = "numeric"),
           definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
 
             if (length(input) != 1) stop("input must be a single number")
             if (round(input) != input) stop("input must be a whole number")
@@ -245,7 +246,7 @@ setMethod("create_motif", signature(input = "character"),
           definition = function(input, alphabet, type, name, pseudocount, 
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
             if (missing(alphabet)) alphabet <- "missing"
             consensus <- input
             consensus.all <- consensus
@@ -381,11 +382,19 @@ setMethod("create_motif", signature(input = "character"),
             if (type == "PPM") motif <- convert_type(motif, "PCM")
             motif <- convert_type(motif, type = type)
 
-            if (alphabet == "DNA" && length(input) > 1) {
-              motif@hmmfirst <- .my_create_first(motif@bkg,
-                                                 DNAStringSet(input))
-              motif@hmmsecond <- .my_create_second(motif@bkg,
-                                                   DNAStringSet(input))
+            if (alphabet %in% c("DNA", "RNA") && length(input) > 1 &&
+                !is.null(add.multifreq)) {
+              for (i in add.multifreq) {
+                motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
+                                                                DNAStringSet(input),
+                                                                i)
+              }
+              if (alphabet == "RNA") {
+                for (i in names(motif@multifreq)) {
+                  rownames(motif@multifreq[[i]]) <- gsub("T", "U",
+                                                         rownames(motif@multifreq[[i]]))
+                }
+              }
             }
 
             motif
@@ -399,7 +408,7 @@ setMethod("create_motif", signature(input = "matrix"),
                                 bkg, nsites, 
                                 altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
             matrix <- input
             if (!missing(alphabet) &&
                 !alphabet %in% c("DNA", "RNA", "AA", "custom")) {
@@ -474,7 +483,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
             sequences <- input
 
             if (length(unique(width(sequences))) != 1) {
@@ -505,11 +514,12 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
             
-            if (length(input) > 1) {
-              motif@hmmfirst <- .my_create_first(motif@bkg,
-                                                 DNAStringSet(input))
-              motif@hmmsecond <- .my_create_second(motif@bkg,
-                                                   DNAStringSet(input))
+            if (length(input) > 1 && !is.null(add.multifreq)) {
+              for (i in add.multifreq) {
+                motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
+                                                                DNAStringSet(input),
+                                                                i)
+              }
             }
 
             motif
@@ -522,7 +532,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
             sequences <- input
 
             if (length(unique(width(sequences))) != 1) {
@@ -552,6 +562,21 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
+
+            if (length(input) > 1 && !is.null(add.multifreq)) {
+              for (i in add.multifreq) {
+                motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
+                                                                DNAStringSet(input),
+                                                                i)
+              }
+              if (alphabet == "RNA") {
+                for (i in names(motif@multifreq)) {
+                  rownames(motif@multifreq[[i]]) <- gsub("T", "U",
+                                                         rownames(motif@multifreq[[i]]))
+                }
+              }
+            }
+            
             motif
 
           })
@@ -562,7 +587,7 @@ setMethod("create_motif", signature(input = "AAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
             sequences <- input
 
             if (length(unique(width(sequences))) != 1) {
@@ -611,7 +636,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
-                                extrainfo) {
+                                extrainfo, add.multifreq) {
 
             sequences <- input
 

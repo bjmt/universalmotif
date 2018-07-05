@@ -17,51 +17,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// scan_1st_order
-NumericVector scan_1st_order(IntegerVector sequence, NumericMatrix score_mat, double min_score);
-RcppExport SEXP _universalmotif_scan_1st_order(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
+// scan_seq_internal
+NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat, double min_score);
+RcppExport SEXP _universalmotif_scan_seq_internal(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type sequence(sequenceSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
     Rcpp::traits::input_parameter< double >::type min_score(min_scoreSEXP);
-    rcpp_result_gen = Rcpp::wrap(scan_1st_order(sequence, score_mat, min_score));
+    rcpp_result_gen = Rcpp::wrap(scan_seq_internal(sequence, score_mat, min_score));
     return rcpp_result_gen;
 END_RCPP
 }
-// DNA_to_int_di
-IntegerVector DNA_to_int_di(StringVector seqs);
-RcppExport SEXP _universalmotif_DNA_to_int_di(SEXP seqsSEXP) {
+// DNA_to_int_k
+IntegerVector DNA_to_int_k(StringVector seqs, int k);
+RcppExport SEXP _universalmotif_DNA_to_int_k(SEXP seqsSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type seqs(seqsSEXP);
-    rcpp_result_gen = Rcpp::wrap(DNA_to_int_di(seqs));
-    return rcpp_result_gen;
-END_RCPP
-}
-// DNA_to_int_tri
-IntegerVector DNA_to_int_tri(StringVector seqs);
-RcppExport SEXP _universalmotif_DNA_to_int_tri(SEXP seqsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< StringVector >::type seqs(seqsSEXP);
-    rcpp_result_gen = Rcpp::wrap(DNA_to_int_tri(seqs));
-    return rcpp_result_gen;
-END_RCPP
-}
-// scan_2nd_order
-NumericVector scan_2nd_order(IntegerVector sequence, NumericMatrix score_mat, double min_score);
-RcppExport SEXP _universalmotif_scan_2nd_order(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type sequence(sequenceSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
-    Rcpp::traits::input_parameter< double >::type min_score(min_scoreSEXP);
-    rcpp_result_gen = Rcpp::wrap(scan_2nd_order(sequence, score_mat, min_score));
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(DNA_to_int_k(seqs, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -207,10 +184,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
-    {"_universalmotif_scan_1st_order", (DL_FUNC) &_universalmotif_scan_1st_order, 3},
-    {"_universalmotif_DNA_to_int_di", (DL_FUNC) &_universalmotif_DNA_to_int_di, 1},
-    {"_universalmotif_DNA_to_int_tri", (DL_FUNC) &_universalmotif_DNA_to_int_tri, 1},
-    {"_universalmotif_scan_2nd_order", (DL_FUNC) &_universalmotif_scan_2nd_order, 3},
+    {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
+    {"_universalmotif_DNA_to_int_k", (DL_FUNC) &_universalmotif_DNA_to_int_k, 2},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},

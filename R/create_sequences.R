@@ -118,8 +118,7 @@ create_k3 <- function(alph.letters, seqlen, trifreq) {
   trinucs <- names(trinucleotideFrequency(DNAString("A")))
   trifreq <- trifreq[trinucs]
   tritrans <- matrix(trifreq, nrow = 16, byrow = 16)
-  rownames(tritrans) <- c("AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT",
-                          "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT")
+  rownames(tritrans) <- DNA_DI
   seqout <- rep(NA, seqlen)
   first.tri <- sample(names(trifreq), 1, prob = trifreq)
   first.tri <- strsplit(first.tri, "")[[1]]

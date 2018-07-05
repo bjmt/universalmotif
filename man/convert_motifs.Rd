@@ -6,6 +6,7 @@
 \alias{convert_motifs,list-method}
 \alias{convert_motifs,universalmotif-method}
 \alias{convert_motifs,MotifList-method}
+\alias{convert_motifs,TFFMFirst-method}
 \alias{convert_motifs,PFMatrix-method}
 \alias{convert_motifs,PWMatrix-method}
 \alias{convert_motifs,ICMatrix-method}
@@ -27,6 +28,9 @@ convert_motifs(motifs, class = "universalmotif-universalmotif",
   class = "universalmotif-universalmotif", BPPARAM = bpparam())
 
 \S4method{convert_motifs}{MotifList}(motifs,
+  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+
+\S4method{convert_motifs}{TFFMFirst}(motifs,
   class = "universalmotif-universalmotif", BPPARAM = bpparam())
 
 \S4method{convert_motifs}{PFMatrix}(motifs,
@@ -83,6 +87,7 @@ The following packge-class combinations can be used as input:
       \item TFBSTools-PFMatrixList
       \item TFBSTools-PWMatrixList
       \item TFBSTools-ICMatrixList
+      \item TFBSTools-TFFMFirst
       \item seqLogo-pwm
       \item motifStack-pcm
       \item motifStack-pfm
@@ -97,6 +102,7 @@ The following packge-class combinations can be used as input:
       \item TFBSTools-PFMatrix
       \item TFBSTools-PWMatrix
       \item TFBSTools-ICMatrix
+      \item TFBSTools-TFFMFirst
       \item seqLogo-pwm
       \item motifStack-pcm
       \item motifStack-pfm
@@ -113,6 +119,8 @@ The following packge-class combinations can be used as input:
 \item \code{universalmotif}: Convert a \linkS4class{universalmotif} object.
 
 \item \code{MotifList}: Convert \linkS4class{MotifList} motifs.
+
+\item \code{TFFMFirst}: Convert \linkS4class{TFFMFirst} motifs.
 
 \item \code{PFMatrix}: Convert \linkS4class{PFMatrix} motifs.
 

@@ -5,20 +5,12 @@ score_seq <- function(tmp_seq, score_mat) {
     .Call('_universalmotif_score_seq', PACKAGE = 'universalmotif', tmp_seq, score_mat)
 }
 
-scan_1st_order <- function(sequence, score_mat, min_score) {
-    .Call('_universalmotif_scan_1st_order', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
+scan_seq_internal <- function(sequence, score_mat, min_score) {
+    .Call('_universalmotif_scan_seq_internal', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
 }
 
-DNA_to_int_di <- function(seqs) {
-    .Call('_universalmotif_DNA_to_int_di', PACKAGE = 'universalmotif', seqs)
-}
-
-DNA_to_int_tri <- function(seqs) {
-    .Call('_universalmotif_DNA_to_int_tri', PACKAGE = 'universalmotif', seqs)
-}
-
-scan_2nd_order <- function(sequence, score_mat, min_score) {
-    .Call('_universalmotif_scan_2nd_order', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
+DNA_to_int_k <- function(seqs, k) {
+    .Call('_universalmotif_DNA_to_int_k', PACKAGE = 'universalmotif', seqs, k)
 }
 
 pcm_to_ppmC <- function(position, pseudocount = 0) {

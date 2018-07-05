@@ -46,7 +46,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = bpparam()) {
   bkg <- as.numeric(bkg[seq_len(length(bkg)) %% 2 == 0])
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
-  motif_names <- motif_meta - 1
+  motif_names <- grep("^MOTIF ", raw_lines)
+  # motif_names <- motif_meta - 1
   motif_names <- bplapply(raw_lines[motif_names], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]

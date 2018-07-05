@@ -4,18 +4,18 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
   double score = 0;
-  for (int i = 0; i < tmp_seq.size(); ++i) {
+  for (int i = 0; i < tmp_seq.length(); ++i) {
     score += score_mat(tmp_seq(i), i);
   }
   return score;
 }
 
 // [[Rcpp::export]]
-NumericVector scan_1st_order(IntegerVector sequence, NumericMatrix score_mat,
+NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat,
     double min_score) {
 
-  NumericVector to_keep(sequence.size());
-  for (int i = 0; i < sequence.size(); ++i) {
+  NumericVector to_keep(sequence.length());
+  for (int i = 0; i < sequence.length(); ++i) {
     to_keep[i] = 0;
   }
 
@@ -29,7 +29,10 @@ NumericVector scan_1st_order(IntegerVector sequence, NumericMatrix score_mat,
       tmp_seq[j] = sequence(i + j);
     }
 
-    tmp_score = score_seq(tmp_seq, score_mat);
+    tmp_score = 0;
+    for (int j = 0; j < tmp_seq.length(); ++j) {
+      tmp_score += score_mat(tmp_seq(j), j);
+    }
     if (tmp_score >= min_score) to_keep[i] = 1;
 
   }
@@ -39,105 +42,40 @@ NumericVector scan_1st_order(IntegerVector sequence, NumericMatrix score_mat,
 }
 
 // [[Rcpp::export]]
-IntegerVector DNA_to_int_di(StringVector seqs) {
+IntegerVector DNA_to_int_k(StringVector seqs, int k) {
 
-  IntegerVector out(seqs.length() / 2);
-
-  for (int i = 0; i < seqs.length(); ++i) {
-    if (i % 2 == 0) {
-
-         if (as<std::string>(seqs(i)) == "A" &&
-        as<std::string>(seqs(i + 1)) == "A") out[i / 2] = 0;
-    else if (as<std::string>(seqs(i)) == "A" &&
-        as<std::string>(seqs(i + 1)) == "C") out[i / 2] = 1;
-    else if (as<std::string>(seqs(i)) == "A" &&
-        as<std::string>(seqs(i + 1)) == "G") out[i / 2] = 2;
-    else if (as<std::string>(seqs(i)) == "A" &&
-        as<std::string>(seqs(i + 1)) == "T") out[i / 2] = 3;
-    else if (as<std::string>(seqs(i)) == "C" &&
-        as<std::string>(seqs(i + 1)) == "A") out[i / 2] = 4;
-    else if (as<std::string>(seqs(i)) == "C" &&
-        as<std::string>(seqs(i + 1)) == "C") out[i / 2] = 5;
-    else if (as<std::string>(seqs(i)) == "C" &&
-        as<std::string>(seqs(i + 1)) == "G") out[i / 2] = 6;
-    else if (as<std::string>(seqs(i)) == "C" &&
-        as<std::string>(seqs(i + 1)) == "T") out[i / 2] = 7;
-    else if (as<std::string>(seqs(i)) == "G" &&
-        as<std::string>(seqs(i + 1)) == "A") out[i / 2] = 8;
-    else if (as<std::string>(seqs(i)) == "G" &&
-        as<std::string>(seqs(i + 1)) == "C") out[i / 2] = 9;
-    else if (as<std::string>(seqs(i)) == "G" &&
-        as<std::string>(seqs(i + 1)) == "G") out[i / 2] = 10;
-    else if (as<std::string>(seqs(i)) == "G" &&
-        as<std::string>(seqs(i + 1)) == "T") out[i / 2] = 11;
-    else if (as<std::string>(seqs(i)) == "T" &&
-        as<std::string>(seqs(i + 1)) == "A") out[i / 2] = 12;
-    else if (as<std::string>(seqs(i)) == "T" &&
-        as<std::string>(seqs(i + 1)) == "C") out[i / 2] = 13;
-    else if (as<std::string>(seqs(i)) == "T" &&
-        as<std::string>(seqs(i + 1)) == "G") out[i / 2] = 14;
-    else if (as<std::string>(seqs(i)) == "T" &&
-        as<std::string>(seqs(i + 1)) == "T") out[i / 2] = 15;
-
-    }
+  IntegerVector out(seqs.length() / k);
+  for (int i = 0; i < out.length(); ++i) {
+    out[i] = 0;
   }
 
-  return out;
-
-}
-
-// [[Rcpp::export]]
-IntegerVector DNA_to_int_tri(StringVector seqs) {
-
-  IntegerVector out(seqs.length() / 3);
-  StringVector score_di(2);
-  IntegerVector score_di_i;
+  IntegerVector out_i;
+  int l_;
 
   for (int i = 0; i < seqs.length(); ++i) {
-    if (i % 3 == 0) {
+    if (i % k == 0) {
 
-      score_di[0] = seqs[i + 1];
-      score_di[1] = seqs[i + 2];
-      score_di_i = DNA_to_int_di(score_di);
-    
-      if (as<std::string>(seqs(i)) == "A") {
-        out[i / 3] = score_di_i[0]; 
-      } else if (as<std::string>(seqs(i)) == "C") {
-        out[i / 3] = score_di_i[0] + 16;
-      } else if (as<std::string>(seqs(i)) == "G") {
-        out[i / 3] = score_di_i[0] + 32;
-      } else if (as<std::string>(seqs(i)) == "T") {
-        out[i / 3] = score_di_i[0] + 48;
+      for (int j = 0; j < k; ++j) {
+             if (as<std::string>(seqs(i + j)) == "A") out_i[j] = 0;
+        else if (as<std::string>(seqs(i + j)) == "C") out_i[j] = 1;
+        else if (as<std::string>(seqs(i + j)) == "G") out_i[j] = 2;
+        else if (as<std::string>(seqs(i + j)) == "T") out_i[j] = 3;
       }
-    
+
+      for (int l = 0; l < k; ++l) {
+        l_ = k - l;
+        l_ = pow(4, l_);
+             if (out_i[l] == 0) l_ = 0;
+        else if (out_i[l] == 1) l_ = l_ * 0.25;
+        else if (out_i[l] == 2) l_ = l_ * 0.5;
+        else if (out_i[l] == 3) l_ = l_ * 0.75;
+        if (l_ == 0) out[i / k] += out_i[l];
+        else out[i / k] += l_;
+      }
+
     }
   }
 
   return out;
-
-}
-
-// [[Rcpp::export]]
-NumericVector scan_2nd_order(IntegerVector sequence, NumericMatrix score_mat,
-    double min_score) {
-
-  NumericVector to_keep(sequence.size());
-  for (int i = 0; i < sequence.size(); ++i) {
-    to_keep[i] = 0;
-  }
-
-  double tmp_score;
-  int max_step = sequence.size() - score_mat.ncol() + 1;
-  IntegerVector tmp_seq(score_mat.ncol());
-
-  for (int i = 0; i < max_step; ++i) {
-    for (int j = 0; j < score_mat.ncol(); ++j) {
-      tmp_seq[j] = sequence(i + j);
-    }
-    tmp_score = score_seq(tmp_seq, score_mat);
-    if (tmp_score >= min_score) to_keep[i] = 1;
-  }
-
-  return to_keep;
 
 }

@@ -22,6 +22,7 @@
 #'       \item TFBSTools-PFMatrixList
 #'       \item TFBSTools-PWMatrixList
 #'       \item TFBSTools-ICMatrixList
+#'       \item TFBSTools-TFFMFirst
 #'       \item seqLogo-pwm
 #'       \item motifStack-pcm
 #'       \item motifStack-pfm
@@ -36,6 +37,7 @@
 #'       \item TFBSTools-PFMatrix
 #'       \item TFBSTools-PWMatrix
 #'       \item TFBSTools-ICMatrix
+#'       \item TFBSTools-TFFMFirst
 #'       \item seqLogo-pwm
 #'       \item motifStack-pcm
 #'       \item motifStack-pfm
@@ -127,7 +129,8 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
             }
 
             # TFBSTools- PFMatrix, PWMatrix, and ICMatrix
-            if (out_class_pkg == "TFBSTools") {
+            if (out_class_pkg == "TFBSTools" && out_class %in% 
+                c("PFMatrix", "PWMatrix", "ICMatrix")) {
               motifs <- convert_type(motifs, "PCM")
               bkg <- motifs["bkg"]
               names(bkg) <- DNA_BASES
@@ -157,6 +160,45 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               if (length(extrainfo) > 0) {
                 motifs@tags <- as.list(extrainfo)
               }
+              return(motifs)
+            }
+
+            # TFBSTools-TFFMFirst
+            if (out_class_pkg == "TFBSTools" && out_class == "TFFMFirst") {
+              motifs <- convert_type(motifs, "PPM")
+              if (!`2` %in% names(motifs@multifreq)) {
+                stop("cannot convert without filled multifreq slot")
+              }
+              if (motifs["alphabet"] != "DNA") stop("alphabet must be DNA")
+              bkg <- motifs["bkg"]
+              emission <- list(length = ncol(motifs@multifreq$`2`) + 1)
+              bkg <- motifs["bkg"]
+              names(bkg) <- DNA_BASES
+              emission[[1]] <- bkg
+              transition <- matrix(rep(0, (ncol(motifs@multifreq$`2`) + 1) *
+                                           ncol(motifs@multifreq$`2`)),
+                                   nrow = ncol(motifs@multifreq$`2`) + 1,
+                                   ncol = ncol(motifs@multifreq$`2`))
+              for (i in seq_len(ncol(motifs@multifreq$`2`))) {
+                emission[[i + 1]] <- motifs@multifreq$`2`[, i]
+                transition[i, i] <- 1
+              }
+              names(emission) <- rep("state", length(emission))
+              transition[nrow(transition), 1] <- 1
+              transition[2, 1:2] <- c(0.95, 0.05)
+              colnames(transition) <- seq_len(ncol(transition))
+              rownames(transition) <- c(0, seq_len(ncol(transition)))
+              if (length(motifs["altname"]) < 1) motifs@altname <- "Unknown"
+              strand <- motifs["strand"]
+              if (strand %in% c("+-", "-+")) strand <- "*"
+              family <- motifs["family"]
+              if (length(family) < 1) family <- "Unknown"
+              motifs <- TFFMFirst(ID = motifs["altname"], name = motifs["name"],
+                                  strand = strand, type = "First",
+                                  bg = bkg, matrixClass = family,
+                                  profileMatrix = motifs["motif"],
+                                  tags = as.list(motifs["extrainfo"]),
+                                  emission = emission, transition = transition)
               return(motifs)
             }
 
@@ -267,6 +309,21 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
             motifs_out <- bplapply(seq_len(length(motifs)), motifdb_fun,
                                    BPPARAM = BPPARAM)
             convert_motifs(motifs_out, class = class, BPPARAM = BPPARAM)
+          })
+
+#' @describeIn convert_motifs Convert \linkS4class{TFFMFirst} motifs.
+#' @export
+setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
+          definition = function(motifs, class, BPPARAM) {
+            difreq <- motifs@emission[-1]
+            difreq <- do.call(c, difreq)
+            difreq <- matrix(difreq, nrow = 16) / 4
+            rownames(difreq) <- DNA_DI
+            colnames(difreq) <- seq_len(ncol(difreq))
+            universalmotif(name = motifs@name, altname = motifs@ID,
+                           strand = motifs@strand, bkg = motifs@bg,
+                           motif = getPosProb(motifs),
+                           multifreq = list(`2` = difreq))
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{PFMatrix} motifs.

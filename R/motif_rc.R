@@ -22,21 +22,8 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
   CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
-  hmmfirst <- motifs["hmmfirst"]
-  if (length(hmmfirst) > 1) {
-    warning("'hmmfirst' information is lost")
-    hmmfirst <- matrix()
-    # hmmfirst.dims <- dimnames(hmmfirst)
-    # hmmfirst <- matrix(rev(as.numeric(hmmfirst)), nrow = 16, byrow = FALSE)
-    # dimnames(hmmfirst) <- hmmfirst.dims
-  }
-  hmmsecond <- motifs["hmmsecond"]
-  if (length(hmmsecond) > 1) {
-    warning("'hmmsecond' information is lost")
-    hmmsecond <- matrix()
-    # hmmsecond.dims <- dimnames(hmmsecond)
-    # hmmsecond <- matrix(rev(as.numeric(hmmsecond)), nrow = 64, byrow = FALSE)
-    # dimnames(hmmsecond) <- hmmsecond.dims
+  if (length(motifs@multifreq) > 1) {
+    warning("'multifreq' information is lost")
   }
 
   motifs <- universalmotif(name = motifs["name"], altname = motifs["altname"],
@@ -50,9 +37,7 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
                            bkg = motifs["bkg"], bkgsites = motifs["bkgsites"],
                            strand = motifs["strand"], pval = motifs["pval"],
                            qval = motifs["qval"], eval = motifs["eval"],
-                           extrainfo = motifs["extrainfo"],
-                           hmmfirst = hmmfirst,
-                           hmmsecond = hmmsecond)
+                           extrainfo = motifs["extrainfo"])
 
   motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
   motifs

@@ -9,25 +9,17 @@ setMethod("[", "universalmotif", function(x, i) {
     i <- c("name", "altname", "family", "organism", "motif", "alphabet", "type",
                "icscore", "nsites", "pseudocount", "bkg", "bkgsites",
                "consensus", "strand", "pval", "qval", "eval",
-               "hmmfirst", "hmmsecond", "extrainfo")
+               "multifreq", "extrainfo")
   }
 
   if (all(i == "motif")) return(x@motif)
-  if (all(i == "hmmfirst")) return(x@hmmfirst)
-  if (all(i == "hmmsecond")) return(x@hmmsecond)
   
   return_list <- lapply(i, function(y) slot(x, y))
   names(return_list) <- i
   if ("motif" %in% names(return_list)) {
     return_list$motif <- x@motif
   }
-  if ("hmmfirst" %in% names(return_list)) {
-    return_list$hmmfirst <- x@hmmfirst
-  }
-  if ("hmmsecond" %in% names(return_list)) {
-    return_list$hmmsecond <- x@hmmsecond
-  }
-
+ 
   if (length(return_list) <= 1) {
     return_list <- unlist(return_list)
     if (i == "extrainfo") {
@@ -69,8 +61,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param pval Numeric. P-value associated with motif.
 #' @param qval Numeric. Adjusted P-value associated with motif.
 #' @param eval Numeric. E-value associated with motif.
-#' @param hmmfirst Matrix.
-#' @param hmmsecond Matrix.
+#' @param multifreq List.
 #' @param extrainfo Character. Any other extra information, represented as
 #'                  a named character vector.
 #' @name universalmotif
@@ -82,7 +73,7 @@ setMethod("initialize", signature = "universalmotif",
                                 alphabet = "DNA", type, icscore, nsites,
                                 pseudocount = 0.8, bkg, bkgsites,
                                 consensus, strand = "+-", pval,
-                                qval, eval, hmmfirst, hmmsecond, extrainfo) {
+                                qval, eval, multifreq, extrainfo) {
             
             if (missing(name) || length(name) == 0 || is.na(name)) {
               name <- "new motif"
@@ -224,15 +215,7 @@ setMethod("initialize", signature = "universalmotif",
             }
             .Object@eval <- eval
 
-            if (missing(hmmfirst) || length(hmmfirst) <= 1) {
-              hmmfirst <- matrix()
-            } 
-            .Object@hmmfirst <- hmmfirst
-
-            if (missing(hmmsecond) || length(hmmsecond) <= 1) {
-              hmmsecond <- matrix()
-            } 
-            .Object@hmmsecond <- hmmsecond
+            if (!missing(multifreq)) .Object@multifreq <- multifreq
 
             if (missing(extrainfo) || length(extrainfo) == 0 || 
                 is.na(extrainfo)) {
@@ -282,13 +265,11 @@ setMethod("show", signature = "universalmotif",
             if (length(object@eval) > 0) {
               cat("          E-value:   ", object@eval, "\n", sep = "")
             }
-            if (object@alphabet %in% c("DNA")) {#, "RNA")) {
-              if (length(object@hmmfirst) > 1) {
-                cat("    1st-order HMM:   yes\n")
-              } #else cat("    1st-order HMM:   no\n")
-              if (length(object@hmmsecond) > 1) {
-                cat("    2nd-order HMM:   yes\n")
-              } #else cat("    2nd-order HMM:   no\n")
+            if (object@alphabet %in% c("DNA", "RNA")) {
+              if (length(object@multifreq) > 0) {
+                toprint <- paste(names(object@multifreq), collapse = ", ")
+                cat("   k-letter freqs:  ", toprint, "\n")
+              }
             }
             if (length(object@extrainfo) > 0 ) {
               cat("       Extra info:   ")

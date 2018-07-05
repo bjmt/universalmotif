@@ -24,11 +24,21 @@ switch_alph <- function(motifs, BPPARAM = bpparam()) {
       rownames(motif@motif) <- RNA_BASES
       colnames(motif@motif) <- gsub("T", "U", colnames(motif@motif))
       motif@consensus <- gsub("T", "U", motif@consensus)
+      if (length(motif@multifreq) > 0) {
+        for (i in names(motif@multifreq)) {
+          rownames(motif@multifreq[[i]]) <- gsub("T", "U", rownames(motif@multifreq[[i]]))
+        }
+      }
     } else {
       motif@alphabet <- "DNA"
       rownames(motif@motif) <- DNA_BASES
       colnames(motif@motif) <- gsub("U", "T", colnames(motif@motif))
       motif@consensus <- gsub("U", "T", motif@consensus)
+      if (length(motif@multifreq) > 0) {
+        for (i in names(motif@multifreq)) {
+          rownames(motif@multifreq[[i]]) <- gsub("U", "T", rownames(motif@multifreq[[i]]))
+        }
+      }
     }
     motif
   }
