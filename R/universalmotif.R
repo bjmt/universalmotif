@@ -11,6 +11,7 @@
 #' @import ggseqlogo
 #' @import ggtree
 #' @import msa
+#' @import bigmemory
 #' @importFrom BiocParallel bplapply bpmapply bpparam SerialParam
 #' @importFrom stats as.dist hclust runif rnorm
 #' @importFrom utils read.table

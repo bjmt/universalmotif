@@ -140,8 +140,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   } else {
 
     if (use.freq > 6) {
-      warning("with 'use.freq' > 6 R may crash; parallel cores disabled")
-      BPPARAM <- SerialParam()
+      stop("'use.freq' > 6 is not supported as this crashes R")
+      # warning("with 'use.freq' > 6 R may crash; parallel cores disabled")
+      # BPPARAM <- SerialParam()
     }
     results <- bpmapply(function(x, y) get_res_k(motifs, x, y, "+", use.freq,
                                                  threshold),
@@ -191,11 +192,29 @@ get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
 
   if (motif["pseudocount"] == 0) motif["pseudocount"] <- 0.0001
   if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
+
   # warning: r can run crash here with k > 6
-  scores <- apply(motif@multifreq[[as.character(k)]], 2, ppm_to_pwmC,
-                  nsites = motif["nsites"],
-                  pseudocount = motif["pseudocount"])
-  max.score <- sum(apply(scores, 2, max))
+  # skip.bigmem <- TRUE
+  # if (k > 6) {
+    # if (!requireNamespace("bigmemory", quietly = TRUE)) {
+      # skip.bigmem <- TRUE
+    # } else {
+      # skip.bigmem <- FALSE
+      # scores <- bigmemory::as.big.matrix(motif@multifreq[[as.character(k)]])
+      # max.score <- vector("numeric", ncol(scores))
+      # for (i in colnames(scores)) {
+        # scores[, i] <- ppm_to_pwm(scores[, i], motif["bkg"], motif["pseudocount"],
+                                  # motif["nsites"])
+        # max.score[i] <- sum(scores[, i])
+      # # }
+      # max.score <- sum(max.score)
+    # }
+  # } else if (k <= 6) {
+    scores <- apply(motif@multifreq[[as.character(k)]], 2, ppm_to_pwmC,
+                    nsites = motif["nsites"],
+                    pseudocount = motif["pseudocount"])
+    max.score <- sum(apply(scores, 2, max))
+  # }
   min.score <- max.score * threshold
 
   max.len <- length(sequence)
@@ -213,7 +232,11 @@ get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
 
   seqs <- DNA_to_int_k(as.character(seq.mat), k)
   # warning: r can crash here with k > 6
-  to_keep <- scan_seq_internal(seqs, scores, min.score)
+  # if (!skip.bigmem) {
+    # to_keep <- scan_seq_internal_bigmem(seqs, scores@address, min.score)
+  # } else {
+    to_keep <- scan_seq_internal(seqs, scores, min.score)
+  # }
   to_keep <- which(as.logical(to_keep))
 
   mot_len <- ncol(motif["motif"]) - k + 1

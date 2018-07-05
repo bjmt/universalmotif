@@ -1,5 +1,10 @@
 #include <Rcpp.h>
+// // [[Rcpp::plugins(cpp11)]]
+// // [[Rcpp::depends(BH, bigmemory)]]
+// #include <bigmemory/MatrixAccessor.hpp>
+// if using bigmemory: add BH and bigmemory to 'LinkingTo'
 using namespace Rcpp;
+
 
 // [[Rcpp::export]]
 double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
@@ -40,6 +45,38 @@ NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat,
   return to_keep;
 
 }
+
+// // [[Rcpp::export]]
+// NumericVector scan_seq_internal_bigmem(IntegerVector sequence, SEXP score_mat,
+    // double min_score) {
+//
+  // XPtr<BigMatrix> pMat(score_mat);
+  // MatrixAccessor<double> mat(*pMat);
+  // int score_mat_ncol = pMat->ncol();
+//
+  // NumericVector to_keep(sequence.length());
+  // for (int i = 0; i < sequence.length(); ++i) {
+    // to_keep[i] = 0;
+  // }
+//
+  // double tmp_score;
+  // int max_step = sequence.size() - score_mat_ncol + 1;
+  // IntegerVector tmp_seq(score_mat_ncol);
+//
+  // for (int i = 0; i < max_step; ++i) {
+    // for (int j = 0; j < score_mat_ncol; ++j) {
+      // tmp_seq[j] = sequence(i + j);
+    // }
+    // tmp_score = 0;
+    // for (int j = 0; j < tmp_seq.length(); ++j) {
+      // tmp_score += mat[tmp_seq(j)][j];
+    // }
+    // if (tmp_score >= min_score) to_keep[i] = 1;
+  // }
+//
+  // return to_keep;
+//
+// }
 
 // [[Rcpp::export]]
 IntegerVector DNA_to_int_k(StringVector seqs, int k) {
