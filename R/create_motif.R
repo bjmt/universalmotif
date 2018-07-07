@@ -174,7 +174,9 @@ setMethod("create_motif", signature(input = "missing"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
             
-            do.call(create_motif, c(list(input = 10), margs))
+            motif <- do.call(create_motif, c(list(input = 10), margs))
+            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            motif
 
           })
 
@@ -236,8 +238,11 @@ setMethod("create_motif", signature(input = "numeric"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
             
-            do.call(create_motif, c(list(input = mot), margs,
-                                    list(alphabet = alphabet)))
+            motif <- do.call(create_motif, c(list(input = mot), margs,
+                                             list(alphabet = alphabet)))
+            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            motif
+
           })
 
 #' @describeIn create_motif Create motif from a consensus string.
@@ -291,7 +296,8 @@ setMethod("create_motif", signature(input = "character"),
                 alphabet <- "DNA"
                 motif <- vapply(consensus, consensus_to_ppm, numeric(4))
               } else if (length(consensus.all) == 1) {
-                stop("cannot create a motif using a single consensus string without an alphabet")
+                alphabet <- paste(sort(unique(consensus)), collapse = "")
+                motif <- consensusMatrix(paste(consensus, collapse = ""))
               }
             }
             if (alphabet == "AA" && length(consensus.all) > 1) {
@@ -347,6 +353,7 @@ setMethod("create_motif", signature(input = "character"),
               motif <- do.call(create_motif,
                                c(list(input = consensus), margs,
                                  list(alphabet = alphabet)))
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
               return(motif)
             }
             motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
@@ -397,6 +404,7 @@ setMethod("create_motif", signature(input = "character"),
               }
             }
 
+            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             motif
 
           })
@@ -474,6 +482,7 @@ setMethod("create_motif", signature(input = "matrix"),
               }
             }
             motif <- convert_type(motif, type = type)
+            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             motif
           })
 
@@ -683,6 +692,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
           
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
+            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             motif
 
           })

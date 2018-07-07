@@ -28,8 +28,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           max.p = 0.001, max.q = 0.001, qval.method = "fdr",
                           positional.test = "t.test", threshold = 0.6,
                           threshold.type = "logodds",
-                          verbose = TRUE, RC = TRUE, use.difreq = FALSE,
-                          use.trifreq = FALSE,
+                          verbose = TRUE, RC = TRUE, use.freq = 1,
                           shuffle.k = 1, shuffle.method = "linear",
                           shuffle.leftovers = "asis", BPPARAM = bpparam()) {
 
@@ -45,8 +44,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   res.all <- lapply(motifs, function(x) .enrich_mots(x, sequences,
                                          bkg.sequences,
-                                         threshold, verbose, RC, use.difreq,
-                                         use.trifreq,
+                                         threshold, verbose, RC, use.freq,
                                          positional.test, BPPARAM,
                                          search.mode, threshold.type))
 
@@ -90,7 +88,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 }
 
 .enrich_mots <- function(motifs, sequences, bkg.sequences, threshold, verbose,
-                         RC, use.difreq, use.trifreq, positional.test, 
+                         RC, use.freq, positional.test, 
                          BPPARAM = BPPARAM, search.mode, threshold.type) {
 
   if (verbose) cat("Enriching sequences for motif:", motifs["name"], "\n")
@@ -98,11 +96,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (verbose) cat("  scanning input sequences\n")
   results <- suppressMessages(scan_sequences(motifs, sequences, threshold,
                                              threshold.type, RC,
-                                             use.difreq, use.trifreq, BPPARAM))
+                                             use.freq, BPPARAM))
   if (verbose) cat("  scanning background sequences\n")
   results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
-                                                 threshold.type, RC, use.difreq,
-                                                 use.trifreq,
+                                                 threshold.type, RC, use.freq,
                                                  BPPARAM))
 
   seq.names <- names(sequences)

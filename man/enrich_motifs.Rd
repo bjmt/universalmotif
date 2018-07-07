@@ -7,8 +7,8 @@
 enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   max.p = 0.001, max.q = 0.001, qval.method = "fdr",
   positional.test = "t.test", threshold = 0.6, threshold.type = "logodds",
-  verbose = TRUE, RC = TRUE, use.difreq = FALSE, use.trifreq = FALSE,
-  shuffle.k = 1, shuffle.method = "linear", shuffle.leftovers = "asis",
+  verbose = TRUE, RC = TRUE, use.freq = 1, shuffle.k = 1,
+  shuffle.method = "linear", shuffle.leftovers = "asis",
   BPPARAM = bpparam())
 }
 \arguments{
@@ -34,10 +34,6 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 
 \item{RC}{Logical.}
 
-\item{use.difreq}{Logical.}
-
-\item{use.trifreq}{Logical.}
-
 \item{shuffle.k}{Numeric.}
 
 \item{shuffle.method}{Character.}
@@ -45,6 +41,10 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 \item{shuffle.leftovers}{Character.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+
+\item{use.difreq}{Logical.}
+
+\item{use.trifreq}{Logical.}
 }
 \value{
 A list of results.

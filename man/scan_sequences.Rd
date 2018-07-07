@@ -5,8 +5,8 @@
 \title{Find motif binding sites in a set of sequences.}
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.6,
-  threshold.type = "logodds", RC = TRUE, use.freq = 1,
-  BPPARAM = bpparam())
+  threshold.type = "logodds", RC = FALSE, use.freq = 1,
+  do.not.ask = FALSE, BPPARAM = bpparam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
@@ -20,6 +20,8 @@ scan_sequences(motifs, sequences, threshold = 0.6,
 \item{RC}{Logical. Check reverse strand.}
 
 \item{use.freq}{Numeric.}
+
+\item{do.not.ask}{Logical.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -37,6 +39,19 @@ Benchmarking: scanning a 1 billion bp sequence with HMMorder = 1 and
    sequence it took about 5 min. Not sure why it slows down so much.
 
    Careful with large k. A motif with freqs 10 is 80 MB.
+
+   Note: there are no memory-saving strategies implemented. Therefore
+   memory and cpu requirements increase exponentially with k.
+}
+\examples{
+   \dontrun{
+   set.seed(1)
+   alphabet <- paste(c(letters), collapse = "")
+   motif <- create_motif("hello", alphabet = alphabet)
+   sequences <- create_sequences(alphabet, seqnum = 1000, seqlen = 100000)
+   scan_sequences(motif, sequences)
+   }
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

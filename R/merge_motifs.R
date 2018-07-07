@@ -9,8 +9,7 @@
 #' @param printaln Logical. Print msa aln object to get an idea of how the merging
 #'                          was done. Only applies if \code{method = 'msa'}.
 #' @param tryRC Logical. Only used if \code{method = 'msa'}.
-#' @param RCstrategy Character. 'motif_dist' or 'motif_simil'. Only used if
-#'                   \code{method = 'msa'}.
+#' @param RCstrategy Character. One of 'Pearson', 'Euclidean', 'KL'.
 #' @param bgNoise \code{\link[motifStack]{mergeMotifs}} param.
 #' @param cluster \code{\link[msa]{msaClustalW}} param. 'nj' (default) or
 #'                'upgma'.
@@ -52,9 +51,12 @@
 #' @export
 merge_motifs <- function(motifs, newname = "merged motif",
                          method = "msa", printaln = FALSE, tryRC = TRUE,
-                         RCstrategy = "motif_dist", bgNoise = NA,
+                         RCstrategy = "Euclidean", bgNoise = NA,
                          cluster = "default",  substitutionMatrix = "iub",
                          BPPARAM = bpparam(), ...) {
+
+  ## TODO: this function needs a complete rework. It's way too slow for what
+  ## it's achieving. 
 
   CLASS_IN <- vapply(motifs, .internal_convert, BPPARAM = BPPARAM, character(1))
   CLASS_IN <- unique(CLASS_IN)
@@ -84,21 +86,18 @@ merge_motifs <- function(motifs, newname = "merged motif",
                          })
       num_mots <- length(motifs)
       motifs.all <- c(motifs, motifs.rc)
-      if (RCstrategy == "motif_simil") {
-        motifs.all.simil <- motif_simil(motifs.all)
-      } else if (RCstrategy == "motif_dist") {
-        motifs.all.simil <- motif_dist(motifs.all)
-      } else stop("unrecognized 'RCstrategy'")
+      motifs.all.simil <- compare_motifs(motifs.all, method = RCstrategy,
+                                         BPPARAM = BPPARAM)
 
       tokeep <- rep(FALSE, length(motifs) * 2)
       for (i in seq_along(motifs)) {
         side1 <- sum(motifs.all.simil[i, seq_along(motifs)[-i]])
         side2 <- sum(motifs.all.simil[i + length(motifs), seq_along(motifs)[-i]])
-        if (RCstrategy == "motif_dist") {
+        if (RCstrategy %in% c("Euclidean", "KL")) {
           if (side1 > side2) tokeep[i + length(motifs)] <- TRUE
           if (side2 > side1) tokeep[i] <- TRUE
           if (side1 == side2) tokeep[i] <- TRUE
-        } else if (RCstrategy == "motif_simil") {
+        } else if (RCstrategy == "Pearson") {
           if (side1 > side2) tokeep[i] <- TRUE 
           if (side2 > side1) tokeep[i + length(motifs)] <- TRUE
           if (side1 == side2) tokeep[i] <- TRUE

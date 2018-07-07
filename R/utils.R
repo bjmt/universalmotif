@@ -376,140 +376,6 @@ get_consensusAA <- function(position, type, pseudocount) {
   
 }
 
-.my_create_first <- function(bkg, sequences) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < 2) return(matrix())
-
-  emissions <- matrix(nrow = 16, ncol = seq.width - 1)
-  rownames(emissions) <- DNA_DI
-  colnames(emissions) <- seq_len(seq.width)[-seq.width]
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
-  seqs.split <- t(seqs.split)
-
-  for (i in seq_len(seq.width - 1)) {
-    current.seqs <- seqs.split[, i:(i + 1)]
-    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
-    current.seqs <- DNAStringSet(current.seqs)
-    emissions.i <- colSums(dinucleotideFrequency(current.seqs))
-    emissions.i <- emissions.i / sum(emissions.i) #+ 0.00001
-    emissions[, i] <- emissions.i
-  }
-
-  emissions
-
-}
-
-.my_create_second <- function(bkg, sequences) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < 3) return(matrix())
-
-  emissions <- matrix(nrow = 64, ncol = seq.width - 2)
-  rownames(emissions) <- DNA_TRI
-  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 1, seq.width)]
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
-  seqs.split <- t(seqs.split)
-
-  for (i in seq_len(seq.width - 2)) {
-    current.seqs <- seqs.split[, i:(i + 2)]
-    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
-    current.seqs <- DNAStringSet(current.seqs)
-    emissions.i <- colSums(trinucleotideFrequency(current.seqs))
-    emissions.i <- emissions.i / sum(emissions.i)
-    emissions[, i] <- emissions.i
-  }
-
-  emissions
-
-}
-
-.my_create_third <- function(bkg, sequences) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < 4) return(matrix())
-
-  emissions <- matrix(nrow = 256, ncol = seq.width - 3)
-  rownames(emissions) <- DNA_TETRA
-  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 2, seq.width - 1,
-                                               seq.width)]
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
-  seqs.split <- t(seqs.split)
-
-  for (i in seq_len(seq.width - 3)) {
-    current.seqs <- seqs.split[, i:(i + 3)]
-    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
-    current.seqs <- DNAStringSet(current.seqs)
-    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, 4, 1))
-    emissions.i <- emissions.i / sum(emissions.i)
-    emissions[, i] <- emissions.i
-  }
-
-  emissions
-
-}
-
-.my_create_fourth <- function(bkg, sequences) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < 5) return(matrix())
-
-  emissions <- matrix(nrow = 1024, ncol = seq.width - 4)
-  rownames(emissions) <- DNA_PENTA
-  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 3, seq.width - 2,
-                                               seq.width - 1, seq.width)]
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
-  seqs.split <- t(seqs.split)
-
-  for (i in seq_len(seq.width - 4)) {
-    current.seqs <- seqs.split[, i:(i + 4)]
-    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
-    current.seqs <- DNAStringSet(current.seqs)
-    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, 5, 1))
-    emissions.i <- emissions.i / sum(emissions.i)
-    emissions[, i] <- emissions.i
-  }
-
-  emissions
-
-}
-
-.my_create_fifth <- function(bkg, sequences) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < 5) return(matrix())
-
-  emissions <- matrix(nrow = 4096, ncol = seq.width - 5)
-  rownames(emissions) <- DNA_HEXA
-  colnames(emissions) <- seq_len(seq.width)[-c(seq.width - 4, seq.width - 3,
-                                               seq.width - 2, seq.width - 1,
-                                               seq.width)]
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
-  seqs.split <- t(seqs.split)
-
-  for (i in seq_len(seq.width - 5)) {
-    current.seqs <- seqs.split[, i:(i + 5)]
-    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
-    current.seqs <- DNAStringSet(current.seqs)
-    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, 6, 1))
-    emissions.i <- emissions.i / sum(emissions.i)
-    emissions[, i] <- emissions.i
-  }
-
-  emissions
-
-}
-
 add_multi <- function(bkg, sequences, k) {
 
   seq.width <- unique(width(sequences))
@@ -548,10 +414,51 @@ add_multi <- function(bkg, sequences, k) {
 
 }
 
-# for a motif of length 4, the transition matrix is:
+add_multi_ANY <- function(sequences, k, alph) {
 
-#      pos0 pos1 pos2 pos3 pos4 
-# pos0    0    1    0    0    0
+  seq.width <- unique(width(sequences))
+  if (seq.width < k - 1) {
+    warning("motif is not long enough for k = ", k)
+    return(matrix())
+  }
+
+  alph.len <- length(alph)
+  emissions <- matrix(rep(0, alph.len^k * (seq.width - k + 1)),
+                      nrow = alph.len^k, ncol = seq.width - k + 1)
+
+  alph.comb <- as.matrix(expand.grid(rep(list(alph), k)))
+  alph.comb <- apply(alph.comb, 1, paste, collapse = "")
+  alph.comb <- sort(alph.comb)
+
+  rownames(emissions) <- alph.comb
+  colnames(emissions) <- seq_len(ncol(emissions))
+
+  seqs.split <- matrix(as.character(sequences), ncol = 1)
+  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+
+  seq.list <- lapply(seq_len(ncol(seqs.split)),
+                     function(x) single_to_k(seqs.split[, x], k))
+
+  seq.list.i <- character(length(seq.list[[1]]))
+  for (i in seq_along(seq.list[[1]])) {
+    for (j in seq_along(seq.list)) {
+      seq.list.i[j] <- seq.list[[j]][i]
+    }
+    seq.list.t <- as.matrix(table(seq.list.i))
+    for (j in seq_len(nrow(seq.list.t))) {
+      emissions[rownames(emissions) == rownames(seq.list.t)[j], i] <- seq.list.t[j, ]
+    }
+    emissions[, i] <- emissions[, i] / sum(emissions[, i])
+  }
+
+  emissions
+
+}
+
+# for a motif of length 4, the transition matrix is something like this:
+
+#       bkg pos1 pos2 pos3 pos4 
+#  bkg    0    1    0    0    0
 # pos1    0    0    1    0    0
 # pos2    0    0    0    1    0
 # pos3    0    0    0    0    1

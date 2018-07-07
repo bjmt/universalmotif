@@ -13,11 +13,15 @@ setMethod("[", "universalmotif", function(x, i) {
   }
 
   if (all(i == "motif")) return(x@motif)
+  if (all(i == "multifreq")) return(x@multifreq)
   
   return_list <- lapply(i, function(y) slot(x, y))
   names(return_list) <- i
   if ("motif" %in% names(return_list)) {
     return_list$motif <- x@motif
+  }
+  if ("multifreq" %in% names(return_list)) {
+    return_list$multifreq <- x@multifreq
   }
  
   if (length(return_list) <= 1) {
@@ -107,6 +111,10 @@ setMethod("initialize", signature = "universalmotif",
               # }
             # }
 
+            if (!alphabet %in% c("DNA", "RNA", "AA", "custom")) {
+              alphabet <- strsplit(alphabet, "")[[1]]
+              alphabet <- paste(sort(alphabet), collapse = "")
+            }
             .Object@alphabet <- alphabet
             
             if (missing(alphabet) || length(alphabet) == 0 ||
@@ -265,11 +273,9 @@ setMethod("show", signature = "universalmotif",
             if (length(object@eval) > 0) {
               cat("          E-value:   ", object@eval, "\n", sep = "")
             }
-            if (object@alphabet %in% c("DNA", "RNA")) {
-              if (length(object@multifreq) > 0) {
-                toprint <- paste(names(object@multifreq), collapse = ", ")
-                cat("   k-letter freqs:  ", toprint, "\n")
-              }
+            if (length(object@multifreq) > 0) {
+              toprint <- paste(names(object@multifreq), collapse = ", ")
+              cat("   k-letter freqs:  ", toprint, "\n")
             }
             if (length(object@extrainfo) > 0 ) {
               cat("       Extra info:   ")

@@ -5,7 +5,7 @@
 \title{Merge motifs using msa or motifStack}
 \usage{
 merge_motifs(motifs, newname = "merged motif", method = "msa",
-  printaln = FALSE, tryRC = TRUE, RCstrategy = "motif_dist",
+  printaln = FALSE, tryRC = TRUE, RCstrategy = "Euclidean",
   bgNoise = NA, cluster = "default", substitutionMatrix = "iub",
   BPPARAM = bpparam(), ...)
 }
@@ -21,8 +21,7 @@ was done. Only applies if \code{method = 'msa'}.}
 
 \item{tryRC}{Logical. Only used if \code{method = 'msa'}.}
 
-\item{RCstrategy}{Character. 'motif_dist' or 'motif_simil'. Only used if
-\code{method = 'msa'}.}
+\item{RCstrategy}{Character. One of 'Pearson', 'Euclidean', 'KL'.}
 
 \item{bgNoise}{\code{\link[motifStack]{mergeMotifs}} param.}
 

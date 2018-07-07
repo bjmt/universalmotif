@@ -36,14 +36,32 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
                         pseudocount = motif["pseudocount"],
                         nsites = nsites)
   to_cut <- rep(TRUE, length(motif_scores))
+  cut_left <- 0
   for (i in seq_along(motif_scores)) {
     if (motif_scores[i] < IC_cutoff) to_cut[i] <- FALSE else break
+    cut_left <- cut_left + 1
   }
+  cut_right <- 0
   for (i in rev(seq_along(motif_scores))) {
     if (motif_scores[i] < IC_cutoff) to_cut[i] <- FALSE else break
+    cut_right <- cut_right + 1
   }
   motif@motif <- as.matrix(motif@motif[, to_cut])
   if (ncol(motif@motif) == 0) return(NULL)
+
+  if (cut_right != 0) {
+    cut_right <- ncol(motif@motif) - cut_right + 1
+    if (cut_right != ncol(motif@motif)) cut_right <- cut_right:ncol(motif@motif)
+  }
+  multifreq <- motif@multifreq
+  if (length(multifreq) > 0) {
+    for (i in seq_along(multifreq)) {
+      multifreq[[i]] <- multifreq[[i]][, -seq_len(cut_left)]
+      multifreq[[i]] <- multifreq[[i]][, -cut_right]
+      colnames(multifreq[[i]]) <- seq_len(ncol(multifreq[[i]]))
+    }
+  }
+
   motif <- universalmotif(name = motif["name"], altname = motif["altname"],
                           family = motif["family"], motif = motif["motif"],
                           alphabet = motif["alphabet"], type = motif["type"],
@@ -53,7 +71,8 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
                           bkg = motif["bkg"], bkgsites = motif["bkgsites"],
                           strand = motif["strand"], pval = motif["pval"],
                           qval = motif["qval"], eval = motif["eval"],
-                          extrainfo = motif["extrainfo"])
+                          extrainfo = motif["extrainfo"],
+                          multifreq = multifreq)
 
   motif <- .internal_convert(motif, CLASS_IN, BPPARAM = BPPARAM)
   motif

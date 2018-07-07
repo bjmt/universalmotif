@@ -182,9 +182,36 @@ setValidity("universalmotif",
             } else if (alph != "custom") {
               if (nrow(mat) != length(strsplit(alph, "")[[1]])) {
                 valid <- FALSE
-                msg <- c(msg, paste0("motif with alphabet '", "' has an incorrect number of rows"))
+                msg <- c(msg, paste0("motif with alphabet '",
+                                     "' has an incorrect number of rows"))
               }
             }
+
+            # check multifreq
+            # multifreq <- object["multifreq"]
+            # if (length(multifreq) > 0) {
+              # for (i in seq_along(names(multifreq))) {
+                # if (!is.matrix(multifreq[[i]])) {
+                  # valid <- FALSE
+                  # msg <- c(msg, "multifreq slot must be a list of matrices")
+                # }
+                # if (as.integer(i) != as.numeric(i) || is.na(as.numeric(i))) {
+                  # valid <- FALSE
+                  # msg <- c(msg, "multifreq list names must be whole numbers")
+                # }
+                # if (nrow(multifreq[[i]]) != 4^as.numeric(i)) {
+                  # valid <- FALSE
+                  # msg <- c(msg, paste0(i, "-letter multifreq matrix must have ",
+                                       # 4^as.numeric(i), " rows"))
+                # }
+                # mot_len_check <- ncol(object["motif"]) - as.numeric(i) + 1
+                # if (ncol(multifreq[[i]]) != mot_len_check) {
+                  # valid <- FALSE
+                  # msg <- c(msg, paste0(i, "-letter multifreq matrix must have ",
+                                       # mot_len_check, " columns"))
+                # }
+              # }
+            # }
 
             if (valid) TRUE else msg
             

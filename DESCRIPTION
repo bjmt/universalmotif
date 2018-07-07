@@ -52,7 +52,8 @@ biocViews: MotifAnnotation,
 RoxygenNote: 6.0.1
 Collate: 
     'RcppExports.R'
-    'add_higherorder.R'
+    'add_multifreq.R'
+    'compare_motifs.R'
     'universalmotif-class.R'
     'convert_motifs.R'
     'convert_type.R'
@@ -61,10 +62,8 @@ Collate:
     'enrich_motifs.R'
     'filter_motifs.R'
     'merge_motifs.R'
-    'motif_dist.R'
     'motif_logo.R'
     'motif_rc.R'
-    'motif_simil.R'
     'motif_tree.R'
     'read_bamm.R'
     'read_cisbp.R'

@@ -51,7 +51,7 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
   if (nsites == 0) nsites = 100;
 
   double n_pos2 = n_pos;
-  NumericVector bkg2(n_pos, 1 / n_pos2);
+  NumericVector bkg2(n_pos, 1.0 / n_pos2);
   if (n_pos != n_bkg) bkg = bkg2;
 
   if (pseudocount != 0) {
@@ -78,7 +78,7 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
   if (n_pos != n_bkg) bkg = bkg2;
 
   for (int i = 0; i < n_pos; ++i) {
-    position[i] = pow(2, position[i]);
+    position[i] = pow(2.0, position[i]);
   }  
 
   double possum = sum(position);
@@ -158,15 +158,15 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
   if (relative_entropy) {
     for (int i = 0; i < n_pos; ++i) {
       position[i] = position[i] * log2(position[i] / bkg[i]);
-      if (NumericVector::is_na(position[i])) position[i] = 0;
-      if (position[i] < 0) position[i] = 0;
+      if (NumericVector::is_na(position[i])) position[i] = 0.0;
+      if (position[i] < 0) position[i] = 0.0;
     }
     return sum(position);
   } else {
     NumericVector heights(n_pos);
     for (int i = 0; i < n_pos; ++i) {
       heights[i] = -position[i] * log2(position[i]);
-      if (NumericVector::is_na(heights[i])) heights[i] = 0;
+      if (NumericVector::is_na(heights[i])) heights[i] = 0.0;
     }
     double height_after = sum(heights);
     double total_ic = log2(n_pos2) - height_after;
@@ -199,21 +199,21 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
 
   // single letter consensus
   if (position[0] > 0.5 &&
-      position[0] > position[1] * 2 &&
-      position[0] > position[2] * 2 &&
-      position[0] > position[3] * 2) return "A";
+      position[0] > position[1] * 2.0 &&
+      position[0] > position[2] * 2.0 &&
+      position[0] > position[3] * 2.0) return "A";
   if (position[1] > 0.5 &&
-      position[1] > position[0] * 2 &&
-      position[1] > position[2] * 2 &&
-      position[1] > position[3] * 2) return "C";
+      position[1] > position[0] * 2.0 &&
+      position[1] > position[2] * 2.0 &&
+      position[1] > position[3] * 2.0) return "C";
   if (position[2] > 0.5 &&
-      position[2] > position[0] * 2 &&
-      position[2] > position[1] * 2 &&
-      position[2] > position[3] * 2) return "G";
+      position[2] > position[0] * 2.0 &&
+      position[2] > position[1] * 2.0 &&
+      position[2] > position[3] * 2.0) return "G";
   if (position[3] > 0.5 &&
-      position[3] > position[0] * 2 &&
-      position[3] > position[1] * 2 &&
-      position[3] > position[2] * 2) {
+      position[3] > position[0] * 2.0 &&
+      position[3] > position[1] * 2.0 &&
+      position[3] > position[2] * 2.0) {
     if (alphabet == "DNA") return "T";
     return "U";
   }
@@ -287,7 +287,7 @@ NumericVector consensus_to_ppmC(String letter) {
   if (letter == "+") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
   if (letter == "-") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
   if (letter == ".") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
-  return NumericVector::create(0, 0, 0, 0);
+  return NumericVector::create(0.0, 0.0, 0.0, 0.0);
 
 }
 
@@ -329,7 +329,7 @@ NumericVector consensus_to_ppmAAC(String letter) {
 
 // [[Rcpp::export]]
 String get_consensusAAC(NumericVector position, String type="PPM",
-    double pseudocount=0) {
+    double pseudocount=0.0) {
 
   if (type == "PCM") {
     position = pcm_to_ppmC(position, pseudocount);

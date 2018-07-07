@@ -8,6 +8,7 @@
 #' @param threshold.type Character. One of 'logodds' and 'pvalue'.
 #' @param RC Logical. Check reverse strand.
 #' @param use.freq Numeric.
+#' @param do.not.ask Logical.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Site search results as a data.frame object.
@@ -21,11 +22,24 @@
 #'
 #'    Careful with large k. A motif with freqs 10 is 80 MB.
 #'
+#'    Note: there are no memory-saving strategies implemented. Therefore
+#'    memory and cpu requirements increase exponentially with k.
+#'
+#' @examples
+#'    \dontrun{
+#'    set.seed(1)
+#'    alphabet <- paste(c(letters), collapse = "")
+#'    motif <- create_motif("hello", alphabet = alphabet)
+#'    sequences <- create_sequences(alphabet, seqnum = 1000, seqlen = 100000)
+#'    scan_sequences(motif, sequences)
+#'    }
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
-                           threshold.type = "logodds", RC = TRUE,
-                           use.freq = 1, BPPARAM = bpparam()) {
+                           threshold.type = "logodds", RC = FALSE,
+                           use.freq = 1, do.not.ask = FALSE, 
+                           BPPARAM = bpparam()) {
 
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,
@@ -41,13 +55,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
     stop("missing 'motifs' and/or 'sequences'")
   }
 
-  if (motifs["alphabet"] == "RNA") motifs <- switch_alph(motifs)
-  if (sequences@elementType == "RNAString") {
-    sequences <- DNAStringSet(sequences)
-    RNA <- TRUE
-  } else RNA <- FALSE
-
-
   mot.name <- motifs["name"]
   mot.mat <- convert_type(motifs, "PWM")["motif"]
   mot.pfm <- convert_type(motifs, "PPM")["motif"]
@@ -57,9 +64,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   bkg <- motifs["bkg"]
   names(bkg) <- DNA_BASES
 
-  if (threshold.type == "pvalue") {
+  if (threshold.type == "pvalue" && motifs["alphabet"] == "DNA") {
     threshold <- TFMpv2sc(mot.pfm, threshold, bkg, type = "PFM")
     threshold <- threshold / sum(apply(mot.mat, 2, max))
+  } else if (threshold.type == "pvalue") {
+    stop("'threshold.type = pvalue' is only valid for DNA")
   }
   if (threshold < 0) stop("cannot have negative threshold")
 
@@ -70,7 +79,15 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
 
-  if (use.freq == 1) {
+  if (use.freq == 1 &&
+      motifs["alphabet"] %in% c("DNA", "RNA") &&
+      sequences@elementType %in% c("DNAString", "RNAString")) {
+
+    if (motifs["alphabet"] == "RNA") motifs <- switch_alph(motifs)
+    if (sequences@elementType == "RNAString") {
+      sequences <- DNAStringSet(sequences)
+      RNA <- TRUE
+    } else RNA <- FALSE
 
     motif <- motifs
     motif <- convert_type(motif, "PWM")
@@ -137,25 +154,41 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
 
     }
 
+    if (RNA) {
+      sequence.hits$match <- gsub("T", "U", sequence.hits$match)
+    }
+
+
   } else {
 
-    if (use.freq > 6) {
-      stop("'use.freq' > 6 is not supported as this crashes R")
-      # warning("with 'use.freq' > 6 R may crash; parallel cores disabled")
-      # BPPARAM <- SerialParam()
+    # if (use.freq > 6 && !do.not.ask) {
+      # answer <- askYesNo("'use.freq' > 6 may crash R; do you wish to continue?")
+      # if (!answer || is.na(answer)) {
+        # return(NULL)
+      # } else {
+        # message("to skip this check set 'donot.ask = TRUE'")
+      # }
+    # }
+
+    if (!as.character(use.freq) %in% names(motifs@multifreq) && use.freq != 1) {
+      stop("no ", use.freq, "-letter frequencies found in motif ", motifs["name"])
     }
+
     results <- bpmapply(function(x, y) get_res_k(motifs, x, y, "+", use.freq,
                                                  threshold),
                         sequences, seq.names, SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
-    if (RC) {
+    if (RC && motifs["alphabet"] %in% c("DNA", "RNA") &&
+        sequences@elementType %in% c("DNAString", "RNAString")) {
+
       results.rc <- bpmapply(function(x, y) get_res_k(motifs, x, y, "-", use.freq,
                                                       threshold),
                              reverseComplement(sequences), seq.names,
                              SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
       results <- c(results, results.rc)
-    }
+
+    } else if (RC) warning("'RC = TRUE' is only supported for DNA/RNA")
 
     sequence.hits <- do.call(rbind, results)
 
@@ -173,15 +206,17 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
                                        decreasing = TRUE), ]
   rownames(sequence.hits) <- seq_len(nrow(sequence.hits))
 
-  if (RNA) {
-    sequence.hits$match <- gsub("T", "U", sequence.hits$match)
+  if (motifs["alphabet"] == "DNA") {
+    sequence.hits$p.value <- vapply(sequence.hits$score,
+                                    function(x) TFMsc2pv(mot.pfm, x, bkg, "PFM"),
+                                    numeric(1))
+    sequence.hits[, c(1:7, 10, 8:9)]
+  } else if (motifs["alphabet"] == "RNA") {
+    sequence.hits
+  } else {
+    sequence.hits[, -9]
   }
 
-  sequence.hits$p.value <- vapply(sequence.hits$score,
-                                  function(x) TFMsc2pv(mot.pfm, x, bkg, "PFM"),
-                                  numeric(1))
-
-  sequence.hits[, c(1:7, 10, 8:9)]
 
 }
 
@@ -193,28 +228,14 @@ get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
   if (motif["pseudocount"] == 0) motif["pseudocount"] <- 0.0001
   if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
 
-  # warning: r can run crash here with k > 6
-  # skip.bigmem <- TRUE
-  # if (k > 6) {
-    # if (!requireNamespace("bigmemory", quietly = TRUE)) {
-      # skip.bigmem <- TRUE
-    # } else {
-      # skip.bigmem <- FALSE
-      # scores <- bigmemory::as.big.matrix(motif@multifreq[[as.character(k)]])
-      # max.score <- vector("numeric", ncol(scores))
-      # for (i in colnames(scores)) {
-        # scores[, i] <- ppm_to_pwm(scores[, i], motif["bkg"], motif["pseudocount"],
-                                  # motif["nsites"])
-        # max.score[i] <- sum(scores[, i])
-      # # }
-      # max.score <- sum(max.score)
-    # }
-  # } else if (k <= 6) {
+  if (k == 1) {
+    scores <- convert_type(motif, "PWM")["motif"]
+  } else {
     scores <- apply(motif@multifreq[[as.character(k)]], 2, ppm_to_pwmC,
                     nsites = motif["nsites"],
                     pseudocount = motif["pseudocount"])
-    max.score <- sum(apply(scores, 2, max))
-  # }
+  }
+  max.score <- sum(apply(scores, 2, max))
   min.score <- max.score * threshold
 
   max.len <- length(sequence)
@@ -230,13 +251,13 @@ get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
     seq.mat[i, ] <- sequence.i[seq_len(ncol(seq.mat))]
   }
 
-  seqs <- DNA_to_int_k(as.character(seq.mat), k)
-  # warning: r can crash here with k > 6
-  # if (!skip.bigmem) {
-    # to_keep <- scan_seq_internal_bigmem(seqs, scores@address, min.score)
-  # } else {
-    to_keep <- scan_seq_internal(seqs, scores, min.score)
-  # }
+  ############
+  # cpp
+  seq.mat <- string_to_factor(seq.mat)
+  seqs <- LETTER_to_int(as.integer(seq.mat) - 1, k)
+  to_keep <- scan_seq_internal(seqs, scores, min.score)
+  ############
+
   to_keep <- which(as.logical(to_keep))
 
   mot_len <- ncol(motif["motif"]) - k + 1

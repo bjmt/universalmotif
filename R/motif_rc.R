@@ -22,8 +22,15 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
   CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
-  if (length(motifs@multifreq) > 1) {
-    warning("'multifreq' information is lost")
+  multifreq <- motifs@multifreq
+  if (length(multifreq) > 0) {
+    for (i in seq_along(multifreq)) {
+      rown.prev <- rownames(multifreq[[i]])
+      multifreq[[i]] <- matrix(rev(as.numeric(multifreq[[i]])),
+                               nrow = nrow(multifreq[[i]]))
+      rownames(multifreq[[i]]) <- rown.prev
+      colnames(multifreq[[i]]) <- seq_len(ncol(multifreq[[i]]))
+    }
   }
 
   motifs <- universalmotif(name = motifs["name"], altname = motifs["altname"],
@@ -37,7 +44,8 @@ motif_rc <- function(motifs, BPPARAM = bpparam()) {
                            bkg = motifs["bkg"], bkgsites = motifs["bkgsites"],
                            strand = motifs["strand"], pval = motifs["pval"],
                            qval = motifs["qval"], eval = motifs["eval"],
-                           extrainfo = motifs["extrainfo"])
+                           extrainfo = motifs["extrainfo"],
+                           multifreq = multifreq)
 
   motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
   motifs
