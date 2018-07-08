@@ -41,21 +41,6 @@ DNA_DI <- c("AA", "AC", "AG", "AT",
              # "GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT",
              # "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
              # "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
-#
-# DNA_TETRA <- matrix(c(rep(DNA_TRI, 4), rep("A", 64), rep("C", 64),
-                      # rep("G", 64), rep("T", 64)), ncol = 2)
-# DNA_TETRA <- apply(DNA_TETRA, 1, paste, collapse = "")
-# DNA_TETRA <- sort(DNA_TETRA)
-#
-# DNA_PENTA <- matrix(c(rep(DNA_TETRA, 4), rep("A", 256), rep("C", 256),
-                      # rep("G", 256), rep("T", 256)), ncol = 2)
-# DNA_PENTA <- apply(DNA_PENTA, 1, paste, collapse = "")
-# DNA_PENTA <- sort(DNA_PENTA)
-#
-# DNA_HEXA <- matrix(c(rep(DNA_PENTA, 4,), rep("A", 1024), rep("C", 1024),
-                     # rep("G", 1024), rep("T", 1024)), ncol = 2)
-# DNA_HEXA <- apply(DNA_HEXA, 1, paste, collapse = "")
-# DNA_HEXA <- sort(DNA_HEXA)
 
 #' @rdname utilities
 #' @export

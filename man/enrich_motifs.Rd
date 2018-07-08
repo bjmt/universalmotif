@@ -32,7 +32,11 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 
 \item{threshold.type}{Character. One of 'logodds' and 'pvalue'.}
 
+\item{verbose}{Logical.}
+
 \item{RC}{Logical.}
+
+\item{use.freq}{Numeric.}
 
 \item{shuffle.k}{Numeric.}
 
@@ -41,10 +45,6 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 \item{shuffle.leftovers}{Character.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
-
-\item{use.difreq}{Logical.}
-
-\item{use.trifreq}{Logical.}
 }
 \value{
 A list of results.

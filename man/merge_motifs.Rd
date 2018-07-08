@@ -51,8 +51,7 @@ If \code{method = 'msa'} \insertCite{msa}{universalmotif}, the motifs
    the different methods.
 
    If \code{tryRC = FALSE} and \code{method = 'msa'}, the motifs are aligned
-   and merged as-is; if \code{tryRC = TRUE}, then either
-   \code{\link{motif_simil}} or \code{\link{motif_dist}} is used to check
+   and merged as-is; if \code{tryRC = TRUE}, then compare_motifs is used to check
    if the reverse complement is more closely related to the rest of the
    motifs. If so, the reverse complement is used instead for merging.
 }

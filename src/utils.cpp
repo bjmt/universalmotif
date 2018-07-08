@@ -34,7 +34,7 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
   if (possum != nsites) {
     double fix = nsites - possum;
     int tochange = which_max(position);
-    position[tochange] = position[tochange] + fix;
+    position[tochange] += fix;
   }
 
   return position; 
@@ -85,7 +85,7 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
   if (possum > 0.99 && possum < 1.01) return position;
 
   for (int i = 0; i < n_pos; ++i) {
-    position[i] = position[i] * bkg[i];
+    position[i] *= bkg[i];
   }
 
   possum = sum(position);
@@ -93,7 +93,7 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 
   possum = sum(position);
   for (int i = 0; i < n_pos; ++i) {
-    position[i] = position[i] / possum;
+    position[i] /= possum;
   }
 
   return position;
@@ -148,16 +148,16 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
   if (n_pos != n_bkg) bkg = bkg2;
 
   if (type == "PCM") position = pcm_to_ppmC(position, pseudocount);
-  if (type == "PWM") position = pwm_to_ppmC(position, bkg);
-  if (type == "ICM") return sum(position);
-  if (type == "PPM") {
+  else if (type == "PWM") position = pwm_to_ppmC(position, bkg);
+  else if (type == "ICM") return sum(position);
+  else if (type == "PPM") {
     position = ppm_to_pcmC(position, nsites);
     position = pcm_to_ppmC(position, pseudocount);
   }
 
   if (relative_entropy) {
     for (int i = 0; i < n_pos; ++i) {
-      position[i] = position[i] * log2(position[i] / bkg[i]);
+      position[i] *= log2(position[i] / bkg[i]);
       if (NumericVector::is_na(position[i])) position[i] = 0.0;
       if (position[i] < 0) position[i] = 0.0;
     }
@@ -180,7 +180,7 @@ NumericVector icm_to_ppmC(NumericVector position) {
   double total_ic = sum(position);
   int n = position.size();
   for (int i = 0; i < n; ++i) {
-    position[i] = position[i] / total_ic;
+    position[i] /= total_ic;
   }
   return position;
 }
@@ -198,67 +198,67 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
   }
 
   // single letter consensus
-  if (position[0] > 0.5 &&
-      position[0] > position[1] * 2.0 &&
-      position[0] > position[2] * 2.0 &&
-      position[0] > position[3] * 2.0) return "A";
-  if (position[1] > 0.5 &&
-      position[1] > position[0] * 2.0 &&
-      position[1] > position[2] * 2.0 &&
-      position[1] > position[3] * 2.0) return "C";
-  if (position[2] > 0.5 &&
-      position[2] > position[0] * 2.0 &&
-      position[2] > position[1] * 2.0 &&
-      position[2] > position[3] * 2.0) return "G";
-  if (position[3] > 0.5 &&
-      position[3] > position[0] * 2.0 &&
-      position[3] > position[1] * 2.0 &&
-      position[3] > position[2] * 2.0) {
+       if (position[0] > 0.5 &&
+           position[0] > position[1] * 2.0 &&
+           position[0] > position[2] * 2.0 &&
+           position[0] > position[3] * 2.0) return "A";
+  else if (position[1] > 0.5 &&
+           position[1] > position[0] * 2.0 &&
+           position[1] > position[2] * 2.0 &&
+           position[1] > position[3] * 2.0) return "C";
+  else if (position[2] > 0.5 &&
+           position[2] > position[0] * 2.0 &&
+           position[2] > position[1] * 2.0 &&
+           position[2] > position[3] * 2.0) return "G";
+  else if (position[3] > 0.5 &&
+           position[3] > position[0] * 2.0 &&
+           position[3] > position[1] * 2.0 &&
+           position[3] > position[2] * 2.0) {
     if (alphabet == "DNA") return "T";
-    return "U";
+    else return "U";
   }
 
   // two letter consensus
-  if (position[0] > 0.5) {
-    if (position[1] > 0.25) return "M";
-    if (position[2] > 0.25) return "R";
-    if (position[3] > 0.25) return "W";
+  else if (position[0] > 0.5) {
+         if (position[1] > 0.25) return "M";
+    else if (position[2] > 0.25) return "R";
+    else if (position[3] > 0.25) return "W";
   }
-  if (position[1] > 0.5) {
-    if (position[0] > 0.25) return "M";
-    if (position[2] > 0.25) return "S";
-    if (position[3] > 0.25) return "Y";
+  else if (position[1] > 0.5) {
+         if (position[0] > 0.25) return "M";
+    else if (position[2] > 0.25) return "S";
+    else if (position[3] > 0.25) return "Y";
   }
-  if (position[2] > 0.5) {
-    if (position[0] > 0.25) return "R";
-    if (position[1] > 0.25) return "S";
-    if (position[3] > 0.25) return "Y";
+  else if (position[2] > 0.5) {
+         if (position[0] > 0.25) return "R";
+    else if (position[1] > 0.25) return "S";
+    else if (position[3] > 0.25) return "Y";
   }
-  if (position[3] > 0.5) {
-    if (position[0] > 0.25) return "W";
-    if (position[1] > 0.25) return "Y";
-    if (position[2] > 0.25) return "K";
+  else if (position[3] > 0.5) {
+         if (position[0] > 0.25) return "W";
+    else if (position[1] > 0.25) return "Y";
+    else if (position[2] > 0.25) return "K";
   }
-  if ((position[0] + position[1]) > 0.75) return "M";
-  if ((position[0] + position[2]) > 0.75) return "R";
-  if ((position[0] + position[3]) > 0.75) return "W";
-  if ((position[1] + position[2]) > 0.75) return "S";
-  if ((position[1] + position[3]) > 0.75) return "Y";
-  if ((position[2] + position[3]) > 0.75) return "K";
+  else if ((position[0] + position[1]) > 0.75) return "M";
+  else if ((position[0] + position[2]) > 0.75) return "R";
+  else if ((position[0] + position[3]) > 0.75) return "W";
+  else if ((position[1] + position[2]) > 0.75) return "S";
+  else if ((position[1] + position[3]) > 0.75) return "Y";
+  else if ((position[2] + position[3]) > 0.75) return "K";
 
   // three letter consensus
-  if (position[0] > 0.25 &&
-      position[1] > 0.25 &&
-      position[3] > 0.25) return "H";
-  if (position[1] > 0.25 &&
-      position[2] > 0.25 &&
-      position[3] > 0.25) return "B";
-  if (position[0] > 0.25 &&
-      position[1] > 0.25 &&
-      position[2] > 0.25) return "V";
-  if (position[0] > 0.25 &&
-      position[2] > 0.25 &&
-      position[3] > 0.25) return "D";
+  else if (position[0] > 0.25 &&
+           position[1] > 0.25 &&
+           position[3] > 0.25) return "H";
+  else if (position[1] > 0.25 &&
+           position[2] > 0.25 &&
+           position[3] > 0.25) return "B";
+  else if (position[0] > 0.25 &&
+           position[1] > 0.25 &&
+           position[2] > 0.25) return "V";
+  else if (position[0] > 0.25 &&
+           position[2] > 0.25 &&
+           position[3] > 0.25) return "D";
 
   // no consensus
   return "N";
@@ -268,25 +268,26 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
 // [[Rcpp::export]]
 NumericVector consensus_to_ppmC(String letter) {
 
-  if (letter == "A") return NumericVector::create(0.997, 0.001, 0.001, 0.001);
-  if (letter == "C") return NumericVector::create(0.001, 0.997, 0.001, 0.001);
-  if (letter == "G") return NumericVector::create(0.001, 0.001, 0.997, 0.001);
-  if (letter == "T") return NumericVector::create(0.001, 0.001, 0.001, 0.997);
-  if (letter == "U") return NumericVector::create(0.001, 0.001, 0.001, 0.997);
-  if (letter == "R") return NumericVector::create(0.499, 0.001, 0.499, 0.001);
-  if (letter == "Y") return NumericVector::create(0.001, 0.499, 0.001, 0.449);
-  if (letter == "M") return NumericVector::create(0.499, 0.499, 0.001, 0.001);
-  if (letter == "K") return NumericVector::create(0.001, 0.001, 0.499, 0.499);
-  if (letter == "S") return NumericVector::create(0.001, 0.499, 0.499, 0.001);
-  if (letter == "W") return NumericVector::create(0.499, 0.001, 0.001, 0.499);
-  if (letter == "H") return NumericVector::create(0.333, 0.333, 0.001, 0.333);
-  if (letter == "B") return NumericVector::create(0.001, 0.333, 0.333, 0.333);
-  if (letter == "V") return NumericVector::create(0.333, 0.333, 0.333, 0.001);
-  if (letter == "D") return NumericVector::create(0.333, 0.001, 0.333, 0.333);
-  if (letter == "N") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
-  if (letter == "+") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
-  if (letter == "-") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
-  if (letter == ".") return NumericVector::create(0.25, 0.25, 0.25, 0.25);
+       if (letter == "A") return NumericVector::create(0.997, 0.001, 0.001, 0.001);
+  else if (letter == "C") return NumericVector::create(0.001, 0.997, 0.001, 0.001);
+  else if (letter == "G") return NumericVector::create(0.001, 0.001, 0.997, 0.001);
+  else if (letter == "T") return NumericVector::create(0.001, 0.001, 0.001, 0.997);
+  else if (letter == "U") return NumericVector::create(0.001, 0.001, 0.001, 0.997);
+  else if (letter == "R") return NumericVector::create(0.499, 0.001, 0.499, 0.001);
+  else if (letter == "Y") return NumericVector::create(0.001, 0.499, 0.001, 0.449);
+  else if (letter == "M") return NumericVector::create(0.499, 0.499, 0.001, 0.001);
+  else if (letter == "K") return NumericVector::create(0.001, 0.001, 0.499, 0.499);
+  else if (letter == "S") return NumericVector::create(0.001, 0.499, 0.499, 0.001);
+  else if (letter == "W") return NumericVector::create(0.499, 0.001, 0.001, 0.499);
+  else if (letter == "H") return NumericVector::create(0.333, 0.333, 0.001, 0.333);
+  else if (letter == "B") return NumericVector::create(0.001, 0.333, 0.333, 0.333);
+  else if (letter == "V") return NumericVector::create(0.333, 0.333, 0.333, 0.001);
+  else if (letter == "D") return NumericVector::create(0.333, 0.001, 0.333, 0.333);
+  else if (letter == "N") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
+  else if (letter == "+") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
+  else if (letter == "-") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
+  else if (letter == ".") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
+
   return NumericVector::create(0.0, 0.0, 0.0, 0.0);
 
 }
@@ -295,23 +296,21 @@ NumericVector consensus_to_ppmC(String letter) {
 NumericVector consensus_to_ppmAAC(String letter) {
 
   NumericVector let_n(20, 0.05);
-  if (letter == "X") return let_n;
-  if (letter == ".") return let_n;
-  if (letter == "-") return let_n;
-  if (letter == "+") return let_n;
+       if (letter == "X") return let_n;
+  else if (letter == ".") return let_n;
+  else if (letter == "-") return let_n;
+  else if (letter == "+") return let_n;
 
   NumericVector let_2(20, 0.001);
   if (letter == "B") {
     let_2[2] = 0.491;
     let_2[11] = 0.491;
     return let_2;
-  }
-  if (letter == "Z") {
+  } else if (letter == "Z") {
     let_2[3] = 0.491;
     let_2[13] = 0.491;
     return let_2;
-  }
-  if (letter == "J") {
+  } else if (letter == "J") {
     let_2[7] = 0.491;
     let_2[9] = 0.491;
     return let_2;
@@ -339,9 +338,9 @@ String get_consensusAAC(NumericVector position, String type="PPM",
     position = icm_to_ppmC(position);
   }
 
-  if (position[2] >= 0.4 && position[11] >= 0.4) return "B";
-  if (position[3] >= 0.4 && position[13] >= 0.4) return "Z";
-  if (position[7] >= 0.4 && position[9] >= 0.4) return "J";
+       if (position[2] >= 0.4 && position[11] >= 0.4) return "B";
+  else if (position[3] >= 0.4 && position[13] >= 0.4) return "Z";
+  else if (position[7] >= 0.4 && position[9]  >= 0.4) return "J";
 
   bool test = all(position < 0.1).is_true();
   if (test) return "X";

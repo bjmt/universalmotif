@@ -120,7 +120,7 @@ The following packge-class combinations can be used as input:
 
 \item \code{MotifList}: Convert \linkS4class{MotifList} motifs.
 
-\item \code{TFFMFirst}: Convert \linkS4class{TFFMFirst} motifs.
+\item \code{TFFMFirst}: Convert TFFMFirst motifs.
 
 \item \code{PFMatrix}: Convert \linkS4class{PFMatrix} motifs.
 

@@ -126,17 +126,6 @@ setMethod("initialize", signature = "universalmotif",
               }
             }
 
-            if (alphabet == "DNA") {
-              rownames(.Object@motif) <- DNA_BASES
-            } else if (alphabet == "RNA") {
-              rownames(.Object@motif)  <- RNA_BASES
-            } else if (alphabet == "AA") {
-              rownames(.Object@motif) <- AA_STANDARD
-            } else if (length(strsplit(alphabet, "")[[1]]) == nrow(motif) &&
-                       alphabet != "custom") {
-              rownames(.Object@motif) <- strsplit(alphabet, "")[[1]]
-            } 
-
             if (missing(type) || length(type) == 0 || is.na(type)) {
               if (all(motif >= 1 | motif == 0)) {
                 type <- "PCM" 
@@ -154,8 +143,25 @@ setMethod("initialize", signature = "universalmotif",
               if (type == "PCM") {
                 nsites <- sum(motif[, 1])
               } else nsites <- numeric(0)
+            } else if (type == "PCM" && any(colSums(motif) != nsites)) {
+              for (i in seq_len(ncol(motif))) {
+                motif[, i] <- motif[, i] / sum(motif[, i])
+                motif[, i] <- motif[, i] * nsites
+              }
+              .Object@motif <- motif
             }
             .Object@nsites <- nsites
+
+            if (alphabet == "DNA") {
+              rownames(.Object@motif) <- DNA_BASES
+            } else if (alphabet == "RNA") {
+              rownames(.Object@motif)  <- RNA_BASES
+            } else if (alphabet == "AA") {
+              rownames(.Object@motif) <- AA_STANDARD
+            } else if (length(strsplit(alphabet, "")[[1]]) == nrow(motif) &&
+                       alphabet != "custom") {
+              rownames(.Object@motif) <- strsplit(alphabet, "")[[1]]
+            } 
 
             if (missing(bkg) || length(bkg) == 0 || is.na(bkg)) {
               if (alphabet %in% c("DNA", "RNA")) {

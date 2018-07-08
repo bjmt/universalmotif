@@ -30,7 +30,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     tree <- as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-    tree <- as.phylo(hclust(as.dist(motif_dist(motifs))))
+    tree <- as.phylo(hclust(as.dist(compare_motifs(motifs, BPPARAM = BPPARAM))))
   }
 
   if (labels != "none") {

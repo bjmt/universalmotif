@@ -12,9 +12,9 @@
 #' @param positional.test Character.
 #' @param threshold Numeric.
 #' @param threshold.type Character. One of 'logodds' and 'pvalue'.
+#' @param verbose Logical.
 #' @param RC Logical.
-#' @param use.difreq Logical.
-#' @param use.trifreq Logical.
+#' @param use.freq Numeric.
 #' @param shuffle.k Numeric.
 #' @param shuffle.method Character.
 #' @param shuffle.leftovers Character.

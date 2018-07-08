@@ -11,9 +11,9 @@
 #' @import ggseqlogo
 #' @import ggtree
 #' @import msa
-#' @import bigmemory
 #' @importFrom BiocParallel bplapply bpmapply bpparam SerialParam
-#' @importFrom stats as.dist hclust runif rnorm
+#' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd
+#' @importFrom stats p.adjust shapiro.test t.test wilcox.test
 #' @importFrom utils read.table
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet

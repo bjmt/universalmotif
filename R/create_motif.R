@@ -29,7 +29,7 @@
 #'    See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
 #'    random motifs.
 #'
-#' @seealso \code{\link{create_tffm}}, \code{\link{convert_type}}
+#' @seealso \code{\link{convert_type}}
 #'
 #' @examples
 #' ##### create motifs from a single string
@@ -175,7 +175,9 @@ setMethod("create_motif", signature(input = "missing"),
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
             
             motif <- do.call(create_motif, c(list(input = 10), margs))
-            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            if (!is.null(motif@motif)) {
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            }
             motif
 
           })
@@ -240,7 +242,9 @@ setMethod("create_motif", signature(input = "numeric"),
             
             motif <- do.call(create_motif, c(list(input = mot), margs,
                                              list(alphabet = alphabet)))
-            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            if (!is.null(motif@motif)) {
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            }
             motif
 
           })
@@ -353,7 +357,9 @@ setMethod("create_motif", signature(input = "character"),
               motif <- do.call(create_motif,
                                c(list(input = consensus), margs,
                                  list(alphabet = alphabet)))
-              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+              if (!is.null(motif@motif)) {
+                motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+              }
               return(motif)
             }
             motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
@@ -404,7 +410,9 @@ setMethod("create_motif", signature(input = "character"),
               }
             }
 
-            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            if (!is.null(rownames(motif@motif))) {
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            }
             motif
 
           })
@@ -482,7 +490,9 @@ setMethod("create_motif", signature(input = "matrix"),
               }
             }
             motif <- convert_type(motif, type = type)
-            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            if (!is.null(rownames(motif@motif))) {
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            }
             motif
           })
 
@@ -692,7 +702,9 @@ setMethod("create_motif", signature(input = "BStringSet"),
           
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
-            motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            if (!is.null(motif@motif)) {
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            }
             motif
 
           })

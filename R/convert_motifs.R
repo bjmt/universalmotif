@@ -311,7 +311,7 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
             convert_motifs(motifs_out, class = class, BPPARAM = BPPARAM)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{TFFMFirst} motifs.
+#' @describeIn convert_motifs Convert TFFMFirst motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
           definition = function(motifs, class, BPPARAM) {
