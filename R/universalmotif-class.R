@@ -84,12 +84,6 @@ setValidity("universalmotif",
             types <- c("PCM", "PPM", "PWM", "ICM")
             strands <- c("+", "-", "+-", "-+")
 
-            # if (!object["alphabet"] %in% alphabets) {
-              # valid <- FALSE
-              # msg <- c(msg,
-                       # "motif 'alphabet' must be either 'DNA', 'RNA', 'AA', or 'custom'")
-            # }
-
             if (!object["type"] %in% types) {
               valid <- FALSE
               msg <- c(msg, "motif 'type' must be either 'PCM', 'PPM', 'PWM', or 'ICM'")
@@ -173,17 +167,44 @@ setValidity("universalmotif",
                 msg <- c(msg,
                          "motif with 'alphabet' of type 'DNA' or 'RNA' can only have 4 rows")
               }
+              if (alph == "DNA" && any(rownames(object["motif"]) != DNA_BASES)) {
+                valid <- FALSE
+                msg <- c(msg, "DNA motif must have rownames A, C, G, T")
+              }
+              if (alph == "RNA" && any(rownames(object["motif"]) != RNA_BASES)) {
+                valid <- FALSE
+                msg <- c(msg, "RNA motif must have rownames A, C, G, U")
+              }
             } else if (alph == "AA") {
               if (nrow(mat) != 20) {
                 valid <- FALSE
                 msg <- c(msg,
                          "motif with 'alphabet' of type 'AA' can only have 20 rows")
               }
+              if (any(rownames(object["motif"]) != AA_STANDARD)) {
+                valid <- FALSE
+                msg <- c(msg, paste("AA motif must have rownames", AA_STANDARD,
+                                    collapse = ""))
+              }
             } else if (alph != "custom") {
               if (nrow(mat) != length(strsplit(alph, "")[[1]])) {
                 valid <- FALSE
                 msg <- c(msg, paste0("motif with alphabet '",
                                      "' has an incorrect number of rows"))
+              }
+              if (any(rownames(object["motif"]) != strsplit(alph, "")[[1]])) {
+                valid <- FALSE
+                msg <- c(msg, "motif rownames must match alphabet")
+              }
+            }
+
+            # consensus
+            consensus <- object["consensus"]
+            if (length(consensus) != 0) {
+              consensus <- strsplit(consensus, "")[[1]]
+              if (length(consensus) != ncol(object["motif"])) {
+                valid <- FALSE
+                msg <- c(msg, "consensus string length does not match motif length")
               }
             }
 

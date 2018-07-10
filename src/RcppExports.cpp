@@ -217,6 +217,45 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// universalmotif_cpp
+S4 universalmotif_cpp(NumericMatrix motif, String name, StringVector altname, StringVector family, StringVector organism, StringVector alphabet, StringVector type, NumericVector icscore, NumericVector nsites, double pseudocount, NumericVector bkg, NumericVector bkgsites, StringVector consensus, String strand, NumericVector pval, NumericVector qval, NumericVector eval, StringVector extrainfo);
+RcppExport SEXP _universalmotif_universalmotif_cpp(SEXP motifSEXP, SEXP nameSEXP, SEXP altnameSEXP, SEXP familySEXP, SEXP organismSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP icscoreSEXP, SEXP nsitesSEXP, SEXP pseudocountSEXP, SEXP bkgSEXP, SEXP bkgsitesSEXP, SEXP consensusSEXP, SEXP strandSEXP, SEXP pvalSEXP, SEXP qvalSEXP, SEXP evalSEXP, SEXP extrainfoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type motif(motifSEXP);
+    Rcpp::traits::input_parameter< String >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type altname(altnameSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type family(familySEXP);
+    Rcpp::traits::input_parameter< StringVector >::type organism(organismSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type alphabet(alphabetSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type icscore(icscoreSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nsites(nsitesSEXP);
+    Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type bkgsites(bkgsitesSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type consensus(consensusSEXP);
+    Rcpp::traits::input_parameter< String >::type strand(strandSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type pval(pvalSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type qval(qvalSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type eval(evalSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type extrainfo(extrainfoSEXP);
+    rcpp_result_gen = Rcpp::wrap(universalmotif_cpp(motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo));
+    return rcpp_result_gen;
+END_RCPP
+}
+// validObject_universalmotif
+StringVector validObject_universalmotif(S4 motif);
+RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type motif(motifSEXP);
+    rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
@@ -236,6 +275,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_consensus_to_ppmC", (DL_FUNC) &_universalmotif_consensus_to_ppmC, 1},
     {"_universalmotif_consensus_to_ppmAAC", (DL_FUNC) &_universalmotif_consensus_to_ppmAAC, 1},
     {"_universalmotif_get_consensusAAC", (DL_FUNC) &_universalmotif_get_consensusAAC, 3},
+    {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
+    {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
     {NULL, NULL, 0}
 };
 

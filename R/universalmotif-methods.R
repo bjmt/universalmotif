@@ -39,6 +39,11 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @rdname universalmotif-class
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
+  if (i == "icscore") stop("'icscore' is generated automatically")
+  if (i == "multifreq") stop("please use 'add_multifreq'")
+  if (i == "consensus" && x@alphabet %in% c("DNA", "RNA", "AA")) {
+    stop("consensus string for ", x@alphabet, " motifs is generated automatically")
+  }
   slot(x, i) <- value
   if (validObject(x)) return(x)
 })
@@ -129,7 +134,7 @@ setMethod("initialize", signature = "universalmotif",
             if (missing(type) || length(type) == 0 || is.na(type)) {
               if (all(motif >= 1 | motif == 0)) {
                 type <- "PCM" 
-              } else if ((all(colSums(motif) > 0.99 |
+              } else if ((all(colSums(motif) > 0.99 &
                               colSums(motif) < 1.01)) &&
                          all(motif >= 0)) {
                 type <- "PPM"
@@ -146,22 +151,26 @@ setMethod("initialize", signature = "universalmotif",
             } else if (type == "PCM" && any(colSums(motif) != nsites)) {
               for (i in seq_len(ncol(motif))) {
                 motif[, i] <- motif[, i] / sum(motif[, i])
-                motif[, i] <- motif[, i] * nsites
               }
+              motif <- apply(motif, 2, ppm_to_pcmC, nsites = nsites)
               .Object@motif <- motif
             }
             .Object@nsites <- nsites
 
-            if (alphabet == "DNA") {
-              rownames(.Object@motif) <- DNA_BASES
-            } else if (alphabet == "RNA") {
-              rownames(.Object@motif)  <- RNA_BASES
-            } else if (alphabet == "AA") {
-              rownames(.Object@motif) <- AA_STANDARD
-            } else if (length(strsplit(alphabet, "")[[1]]) == nrow(motif) &&
-                       alphabet != "custom") {
-              rownames(.Object@motif) <- strsplit(alphabet, "")[[1]]
-            } 
+            if (is.null(rownames(.Object@motif))) {
+              if (alphabet == "DNA") {
+                rownames(.Object@motif) <- DNA_BASES
+              } else if (alphabet == "RNA") {
+                rownames(.Object@motif)  <- RNA_BASES
+              } else if (alphabet == "AA") {
+                rownames(.Object@motif) <- AA_STANDARD
+              } else if (length(strsplit(alphabet, "")[[1]]) == nrow(motif) &&
+                         alphabet != "custom") {
+                rownames(.Object@motif) <- strsplit(alphabet, "")[[1]]
+              } 
+            } else {
+              .Object@motif <- .Object@motif[order(rownames(.Object@motif)), ]
+            }
 
             if (missing(bkg) || length(bkg) == 0 || is.na(bkg)) {
               if (alphabet %in% c("DNA", "RNA")) {

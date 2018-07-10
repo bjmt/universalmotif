@@ -15,39 +15,39 @@
 \usage{
 create_motif(input, alphabet, type = "PPM", name = "motif",
   pseudocount = 0, bkg, nsites, altname, family, organism, bkgsites, strand,
-  pval, qval, eval, extrainfo, add.multifreq = NULL)
+  pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{missing}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{numeric}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{character}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{matrix}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{DNAStringSet}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{RNAStringSet}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{AAStringSet}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 
 \S4method{create_motif}{BStringSet}(input, alphabet, type = "PPM",
   name = "motif", pseudocount = 0, bkg, nsites, altname, family, organism,
-  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq = NULL)
+  bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 }
 \arguments{
 \item{input}{One of character vector, numeric, matrix (PCM, PPM, PWM, or ICM),

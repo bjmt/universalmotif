@@ -3,6 +3,8 @@ using namespace Rcpp;
 
 StringVector paste_cpp(StringVector string_in) {
 
+  // use collapse()? would that be any faster?
+
   int n = string_in.length();
   std::string out = as<std::string>(string_in(0));
 

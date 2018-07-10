@@ -145,7 +145,7 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
                                     name = "motif", pseudocount = 0,
                                     bkg, nsites, altname, family,
                                     organism, bkgsites, strand, pval, qval,
-                                    eval, extrainfo, add.multifreq = NULL)
+                                    eval, extrainfo, add.multifreq)
            standardGeneric("create_motif"))
 
 #' @describeIn create_motif Create a random motif of length 10.
@@ -178,6 +178,8 @@ setMethod("create_motif", signature(input = "missing"),
             if (!is.null(motif@motif)) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             }
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })
@@ -245,6 +247,8 @@ setMethod("create_motif", signature(input = "numeric"),
             if (!is.null(motif@motif)) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             }
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })
@@ -264,9 +268,9 @@ setMethod("create_motif", signature(input = "character"),
             }
             consensus <- strsplit(consensus, split = "")[[1]]
             if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 1) {
-              motif <- vapply(consensus, consensus_to_ppm, numeric(4))
+              motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
             } else if (alphabet == "AA" && length(consensus.all) == 1) {
-              motif <- vapply(consensus, consensus_to_ppmAA, numeric(20))
+              motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
             } else if (!missing(alphabet)) {
               motif <- consensusMatrix(paste(consensus, collapse = ""))
             }
@@ -287,18 +291,18 @@ setMethod("create_motif", signature(input = "character"),
             if (alphabet == "missing") {
               if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z")) &&
                   !any(consensus %in% c("O", "U"))) {
-                motif <- vapply(consensus, consensus_to_ppmAA, numeric(20))
+                motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
                 alphabet <- "AA"
               } else if (any(consensus == "U") &&
                          !any(consensus %in% c("E", "F", "I", "J", "L", "O",
                                                "P", "Q", "T", "X", "Z"))) {
                 alphabet <- "RNA" 
-                motif <- vapply(consensus, consensus_to_ppm, numeric(4))
+                motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
               } else if (any(consensus %in% DNA_ALPHABET[-c(16:18)]) &&
                          !any(consensus %in% c("E", "F", "I", "J", "L", "O",
                                                "P", "Q", "X", "Z", "U"))) {
                 alphabet <- "DNA"
-                motif <- vapply(consensus, consensus_to_ppm, numeric(4))
+                motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
               } else if (length(consensus.all) == 1) {
                 alphabet <- paste(sort(unique(consensus)), collapse = "")
                 motif <- consensusMatrix(paste(consensus, collapse = ""))
@@ -360,10 +364,12 @@ setMethod("create_motif", signature(input = "character"),
               if (!is.null(motif@motif)) {
                 motif@motif <- motif@motif[order(rownames(motif@motif)), ]
               }
+              msg <- validObject_universalmotif(motif)
+              if (length(msg) > 0) stop(msg)
               return(motif)
             }
-            motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
-            motif <- do.call(universalmotif, c(list(motif = motif),
+            motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+            motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(alphabet = alphabet),
                                                list(type = "PPM"),
                                                margs))
@@ -392,11 +398,12 @@ setMethod("create_motif", signature(input = "character"),
                 motif["nsites"] <- 2
               }
             }
+
             if (type == "PPM") motif <- convert_type(motif, "PCM")
             motif <- convert_type(motif, type = type)
 
             if (alphabet %in% c("DNA", "RNA") && length(input) > 1 &&
-                !is.null(add.multifreq)) {
+                !missing(add.multifreq)) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
                                                                 DNAStringSet(input),
@@ -413,6 +420,9 @@ setMethod("create_motif", signature(input = "character"),
             if (!is.null(rownames(motif@motif))) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             }
+
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })
@@ -481,7 +491,7 @@ setMethod("create_motif", signature(input = "matrix"),
 
             motif <- matrix
 
-            motif <- do.call(universalmotif, c(list(motif = motif), margs,
+            motif <- do.call(universalmotif_cpp, c(list(motif = motif), margs,
                                                list(alphabet = alphabet)))
             if (missing(nsites)) {
               nsites <- sum(input[, 1])
@@ -493,6 +503,8 @@ setMethod("create_motif", signature(input = "matrix"),
             if (!is.null(rownames(motif@motif))) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             }
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
           })
 
@@ -524,8 +536,8 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
             sequences <- consensusMatrix(sequences, baseOnly = TRUE)
             if (sum(sequences[5, ]) > 0) stop("only ACGT are accepted for DNA")
-            motif <- apply(sequences[1:4, ], 2, pcm_to_ppm, pseudocount = 0)
-            motif <- do.call(universalmotif, c(list(motif = motif),
+            motif <- apply(sequences[1:4, ], 2, pcm_to_ppmC, pseudocount = 0)
+            motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(type = "PPM"),
                                                margs,
                                                list(alphabet = "DNA")))
@@ -533,7 +545,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
             
-            if (length(input) > 1 && !is.null(add.multifreq)) {
+            if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
                                                                 DNAStringSet(input),
@@ -541,6 +553,8 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
               }
             }
 
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })
@@ -573,8 +587,8 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
             sequences <- consensusMatrix(sequences, baseOnly = TRUE)
             if (sum(sequences[5, ]) > 0) stop("only ACGU are accepted for RNA")
-            motif <- apply(sequences[1:4, ], 2, pcm_to_ppm, pseudocount = 0)
-            motif <- do.call(universalmotif, c(list(motif = motif),
+            motif <- apply(sequences[1:4, ], 2, pcm_to_ppmC, pseudocount = 0)
+            motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(type = "PPM"),
                                                margs,
                                                list(alphabet = "RNA")))
@@ -582,7 +596,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
 
-            if (length(input) > 1 && !is.null(add.multifreq)) {
+            if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
                                                                 DNAStringSet(input),
@@ -596,6 +610,8 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
               }
             }
             
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })
@@ -637,14 +653,16 @@ setMethod("create_motif", signature(input = "AAStringSet"),
               if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
             }
             motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
-            motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
-            motif <- do.call(universalmotif, c(list(motif = motif),
+            motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+            motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(type = "PPM"),
                                                margs,
                                                list(alphabet = "AA")))
 
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })
@@ -678,8 +696,8 @@ setMethod("create_motif", signature(input = "BStringSet"),
 
             if (missing(alphabet) || alphabet == "custom") {
               sequences <- consensusMatrix(sequences)
-              motif <- apply(sequences, 2, pcm_to_ppm, pseudocount = 0)
-              motif <- do.call(universalmotif, c(list(motif = motif),
+              motif <- apply(sequences, 2, pcm_to_ppmC, pseudocount = 0)
+              motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
                                                  list(alphabet = "custom")))
@@ -693,8 +711,8 @@ setMethod("create_motif", signature(input = "BStringSet"),
                 if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
               }
               motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
-              motif <- apply(motif, 2, pcm_to_ppm, pseudocount = 0)
-              motif <- do.call(universalmotif, c(list(motif = motif),
+              motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+              motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
                                                  list(alphabet = alphabet)))
@@ -705,6 +723,8 @@ setMethod("create_motif", signature(input = "BStringSet"),
             if (!is.null(motif@motif)) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             }
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
             motif
 
           })

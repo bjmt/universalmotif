@@ -29,7 +29,7 @@ pcm_to_ppmC <- function(position, pseudocount = 0) {
     .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
 }
 
-ppm_to_pcmC <- function(position, nsites = 0) {
+ppm_to_pcmC <- function(position, nsites) {
     .Call('_universalmotif_ppm_to_pcmC', PACKAGE = 'universalmotif', position, nsites)
 }
 
@@ -67,5 +67,13 @@ consensus_to_ppmAAC <- function(letter) {
 
 get_consensusAAC <- function(position, type = "PPM", pseudocount = 0.0) {
     .Call('_universalmotif_get_consensusAAC', PACKAGE = 'universalmotif', position, type, pseudocount)
+}
+
+universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character_, family = NA_character_, organism = NA_character_, alphabet = "DNA", type = NA_character_, icscore = as.numeric( c()), nsites = as.numeric( c()), pseudocount = 0.8, bkg = as.numeric( c()), bkgsites = as.numeric( c()), consensus = NA_character_, strand = "+-", pval = as.numeric( c()), qval = as.numeric( c()), eval = as.numeric( c()), extrainfo = NA_character_) {
+    .Call('_universalmotif_universalmotif_cpp', PACKAGE = 'universalmotif', motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo)
+}
+
+validObject_universalmotif <- function(motif) {
+    .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
 }
 

@@ -280,13 +280,13 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
             }
 
             # custom convert function
-            custom_convert <- NULL
-            tryCatch({custom_convert <- get(class)}, error = function(e) {})
-            if (is.function(custom_convert)) {
-              message("attempting to convert using custom function")
-              motifs <- custom_convert(motifs)
-              return(motifs)
-            }
+            # custom_convert <- NULL
+            # tryCatch({custom_convert <- get(class)}, error = function(e) {})
+            # if (is.function(custom_convert)) {
+              # message("attempting to convert using custom function")
+              # motifs <- custom_convert(motifs)
+              # return(motifs)
+            # }
 
             stop("unknown 'class'")
           
@@ -297,13 +297,16 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 setMethod("convert_motifs", signature(motifs = "MotifList"),
           definition = function(motifs, class, BPPARAM) {
             motifdb_fun <- function(i) {
-              x <- motifs[i]
-              universalmotif(name = x@elementMetadata@listData$providerName,
-                             altname = x@elementMetadata@listData$geneSymbol,
-                             family = x@elementMetadata@listData$tfFamily,
-                             organism = x@elementMetadata@listData$organism,
-                             motif = x@listData[[1]], alphabet = "DNA",
+              x <- motifs
+              mot <- universalmotif_cpp(name = x@elementMetadata@listData$providerName[i],
+                             altname = x@elementMetadata@listData$geneSymbol[i],
+                             family = x@elementMetadata@listData$tfFamily[i],
+                             organism = x@elementMetadata@listData$organism[i],
+                             motif = x@listData[[i]], alphabet = "DNA",
                              type = "PPM")
+              msg <- validObject_universalmotif(mot)
+              if (length(msg) > 0) stop(msg)
+              mot
             }
             motifs_out <- vector("list", length(motifs))
             motifs_out <- bplapply(seq_len(length(motifs)), motifdb_fun,
@@ -320,10 +323,13 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
             difreq <- matrix(difreq, nrow = 16) / 4
             rownames(difreq) <- DNA_DI
             colnames(difreq) <- seq_len(ncol(difreq))
-            universalmotif(name = motifs@name, altname = motifs@ID,
+            mot <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
                            strand = motifs@strand, bkg = motifs@bg,
                            motif = getPosProb(motifs),
                            multifreq = list(`2` = difreq))
+            msg <- validObject_universalmotif(mot)
+            if (length(msg) > 0) stop(msg)
+            convert_motifs(motifs_out, class = class, BPPARAM = BPPARAM)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{PFMatrix} motifs.
@@ -339,7 +345,7 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
             } else {
               extrainfo <- character()
             }
-            motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
+            motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
                                      family = motifs@tags$family,
                                      organism = motifs@tags$species,
                                      motif = motifs@profileMatrix,
@@ -348,6 +354,8 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
                                      strand = paste0(motifs@strand,
                                                      collapse = ""),
                                      extrainfo = extrainfo)
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -363,7 +371,7 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
             } else {
               extrainfo <- character()
             }
-            motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
+            motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
                                      family = motifs@tags$family,
                                      organism = motifs@tags$species,
                                      motif = motifs@profileMatrix,
@@ -372,6 +380,8 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
                                      strand = paste0(motifs@strand,
                                                      collapse = ""),
                                      extrainfo = extrainfo)
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -387,7 +397,7 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
             } else {
               extrainfo <- character()
             }
-            motifs <- universalmotif(name = motifs@name, altname = motifs@ID,
+            motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
                                      family = motifs@tags$family,
                                      organism = motifs@tags$species,
                                      motif = motifs@profileMatrix,
@@ -396,6 +406,8 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
                                      strand = paste0(motifs@strand,
                                                      collapse = ""),
                                      extrainfo = extrainfo)
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -422,8 +434,10 @@ setMethod("convert_motifs", signature(motifs = "XMatrixList"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "pwm"),
           definition = function(motifs, class, BPPARAM) {
-            motifs <- universalmotif(motif = motifs@pwm, type = "PPM",
+            motifs <- universalmotif_cpp(motif = motifs@pwm, type = "PPM",
                                      alphabet = motifs@alphabet)
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -431,11 +445,13 @@ setMethod("convert_motifs", signature(motifs = "pwm"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
           definition = function(motifs, class, BPPARAM) {
-            motifs <- universalmotif(name = motifs@name, motif = motifs@mat,
+            motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
                                      nsites = unique(colSums(motifs@mat))[1],
                                      alphabet = motifs@alphabet,
                                      bkg = motifs@background,
                                      type = "PCM")
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -443,10 +459,12 @@ setMethod("convert_motifs", signature(motifs = "pcm"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "pfm"),
           definition = function(motifs, class, BPPARAM) {
-            motifs <- universalmotif(name = motifs@name, motif = motifs@mat,
+            motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
                                      alphabet = motifs@alphabet,
                                      bkg = motifs@background,
                                      type = "PPM")
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -457,10 +475,12 @@ setMethod("convert_motifs", signature(motifs = "PWM"),
             if (all(names(motifs@pwm) %in% DNA_BASES)) {
               alphabet <- "DNA"
             } else alphabet <- "RNA"
-            motifs <- universalmotif(name = motifs@name, motif = motifs@pwm,
+            motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@pwm,
                                      type = "PWM", alphabet = alphabet,
                                      bkg = motifs@prior.params,
                                      altname = motifs@id)
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
@@ -468,14 +488,16 @@ setMethod("convert_motifs", signature(motifs = "PWM"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "Motif"),
           definition = function(motifs, class, BPPARAM) {
-            motifs <- universalmotif(name = motifs@pattern,
+            motifs <- universalmotif_cpp(name = motifs@pattern,
                                      nsites = sum(motifs@count),
                                      alphabet = "DNA",
                                      type = "PCM",
                                      extrainfo = c(score = motifs@score),
                              strand = paste(unique(motifs@match$match.strand),
                                             collapse = ""),
-            motif = create_motif(input = DNAStringSet(motifs@match$pattern)))
+            motif = create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
+            msg <- validObject_universalmotif(motifs)
+            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 
