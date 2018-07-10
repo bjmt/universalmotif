@@ -4,12 +4,12 @@
 \alias{switch_alph}
 \title{Switch between DNA and RNA alphabets.}
 \usage{
-switch_alph(motifs, BPPARAM = bpparam())
+switch_alph(motifs, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{Motif object or list of.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 The DNA/RNA version of the motif(s).

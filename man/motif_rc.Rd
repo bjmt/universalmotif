@@ -4,12 +4,12 @@
 \alias{motif_rc}
 \title{Get the reverse complement of a motif.}
 \usage{
-motif_rc(motifs, BPPARAM = bpparam())
+motif_rc(motifs, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 List of motifs or single motif object.

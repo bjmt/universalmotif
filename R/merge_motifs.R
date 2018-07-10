@@ -15,7 +15,7 @@
 #'                'upgma'.
 #' @param substitutionMatrix \code{\link[msa]{msaClustalW}} param. 'iub' or 
 #'                           'clustalw'.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}. 
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}. 
 #' @param ... Other settings for function \code{\link[msa]{msaClustalW}}.
 #'
 #' @return A single motif object.
@@ -52,7 +52,7 @@ merge_motifs <- function(motifs, newname = "merged motif",
                          method = "msa", printaln = FALSE, tryRC = TRUE,
                          RCstrategy = "Euclidean", bgNoise = NA,
                          cluster = "default",  substitutionMatrix = "iub",
-                         BPPARAM = bpparam(), ...) {
+                         BPPARAM = SerialParam(), ...) {
 
   ## TODO: this function needs a complete rework. It's way too slow for what
   ## it's achieving. 

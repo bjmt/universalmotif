@@ -5,7 +5,7 @@
 \title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis",
-  BPPARAM = bpparam())
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{sequences}{XStringSet objects.}
@@ -16,7 +16,7 @@ shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis",
 
 \item{leftovers}{Character. For \code{method = 'random'}.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 XStringSet object.

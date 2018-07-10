@@ -18,7 +18,7 @@
 #' @param shuffle.k Numeric.
 #' @param shuffle.method Character.
 #' @param shuffle.leftovers Character.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return A list of results.
 #'
@@ -30,7 +30,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           threshold.type = "logodds",
                           verbose = TRUE, RC = TRUE, use.freq = 1,
                           shuffle.k = 1, shuffle.method = "linear",
-                          shuffle.leftovers = "asis", BPPARAM = bpparam()) {
+                          shuffle.leftovers = "asis", BPPARAM = SerialParam()) {
 
   # sequences <- DNAStringSet(sequences)
 

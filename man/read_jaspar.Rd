@@ -4,14 +4,14 @@
 \alias{read_jaspar}
 \title{Import JASPAR motifs.}
 \usage{
-read_jaspar(file, skip = 0, BPPARAM = bpparam())
+read_jaspar(file, skip = 0, BPPARAM = SerialParam())
 }
 \arguments{
 \item{file}{Character.}
 
 \item{skip}{Numeric.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 List of universalmotif objects.

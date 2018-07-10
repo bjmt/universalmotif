@@ -5,7 +5,7 @@
 \title{Create random background sequences.}
 \usage{
 create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, monofreqs,
-  difreqs, trifreqs, BPPARAM = bpparam())
+  difreqs, trifreqs, BPPARAM = SerialParam())
 }
 \arguments{
 \item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of letters
@@ -25,7 +25,7 @@ named numeric vector of length 16.}
 \item{trifreqs}{Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 XStringSet object.

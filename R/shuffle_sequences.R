@@ -4,7 +4,7 @@
 #' @param k Numeric. k-let size.
 #' @param method Character. One of 'markov', 'linear', and 'random'.
 #' @param leftovers Character. For \code{method = 'random'}.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return XStringSet object.
 #'
@@ -27,7 +27,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
-                               leftovers = "asis", BPPARAM = bpparam()) {
+                               leftovers = "asis", BPPARAM = SerialParam()) {
 
   alph <- class(sequences)
 

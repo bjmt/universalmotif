@@ -9,7 +9,7 @@
 #' @param tipsize Character. (icscore, pval, qval, eval)
 #' @param legend Logical.
 #' @param branch.length Character.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #' @param ... ggtree params.
 #'
 #' @return ggplot2 object.
@@ -24,7 +24,7 @@
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
-                       branch.length = "none", BPPARAM = bpparam(), ...){
+                       branch.length = "none", BPPARAM = SerialParam(), ...){
 
   if (class(motifs) == "dist") {
     tree <- as.phylo(hclust(motifs))

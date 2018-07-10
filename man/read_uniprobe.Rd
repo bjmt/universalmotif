@@ -4,14 +4,14 @@
 \alias{read_uniprobe}
 \title{Import UNIPROBE motifs.}
 \usage{
-read_uniprobe(file, skip = 0, BPPARAM = bpparam())
+read_uniprobe(file, skip = 0, BPPARAM = SerialParam())
 }
 \arguments{
 \item{file}{Character.}
 
 \item{skip}{Numeric.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 List of universalmotif objects.

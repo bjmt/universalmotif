@@ -11,7 +11,7 @@
 #' @import ggseqlogo
 #' @import ggtree
 #' @import msa
-#' @importFrom BiocParallel bplapply bpmapply bpparam SerialParam
+#' @importFrom BiocParallel bplapply bpmapply SerialParam 
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test
 #' @importFrom utils read.table

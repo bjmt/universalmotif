@@ -4,14 +4,14 @@
 \alias{sample_sites}
 \title{Generate binding sites from a motif.}
 \usage{
-sample_sites(motif, n = 100, BPPARAM = bpparam())
+sample_sites(motif, n = 100, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motif}{Motif object.}
 
 \item{n}{Numeric. Number of sites to generate.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 \linkS4class{XStringSet} object.

@@ -1,7 +1,7 @@
 #' Get the reverse complement of a motif.
 #'
 #' @param motifs List of motifs or a single motif.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return List of motifs or single motif object.
 #'
@@ -12,7 +12,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_rc <- function(motifs, BPPARAM = bpparam()) {
+motif_rc <- function(motifs, BPPARAM = SerialParam()) {
 
   if (class(motifs) == "list") {
     motifs <- bplapply(motifs, motif_rc, BPPARAM = BPPARAM)

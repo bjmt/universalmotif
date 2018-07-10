@@ -344,7 +344,7 @@ get_consensusAA <- function(position, type, pseudocount) {
   "X"
 }
 
-.internal_convert <- function(motifs, class = NULL, BPPARAM = bpparam()) {
+.internal_convert <- function(motifs, class = NULL, BPPARAM = SerialParam()) {
 
   if (is.null(class)) {
     CLASS_PKG <- attributes(class(motifs))$package

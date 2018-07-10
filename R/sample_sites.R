@@ -2,13 +2,13 @@
 #'
 #' @param motif Motif object.
 #' @param n Numeric. Number of sites to generate.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return \linkS4class{XStringSet} object.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-sample_sites <- function(motif, n = 100, BPPARAM = bpparam()) {
+sample_sites <- function(motif, n = 100, BPPARAM = SerialParam()) {
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   motif <- convert_type(motif, "PPM", BPPARAM = BPPARAM)

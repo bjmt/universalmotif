@@ -11,7 +11,7 @@
 #'               named numeric vector of length 16.
 #' @param trifreqs Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 #'                named numeric vector of length 64.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return XStringSet object.
 #'
@@ -19,7 +19,7 @@
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                              monofreqs, difreqs, trifreqs,
-                             BPPARAM = bpparam()) {
+                             BPPARAM = SerialParam()) {
 
   if (alphabet == "DNA") {
     alph.letters <- DNA_BASES

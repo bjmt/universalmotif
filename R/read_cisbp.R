@@ -2,7 +2,7 @@
 #'
 #' @param file Character.
 #' @param skip Numeric.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -12,7 +12,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_cisbp <- function(file, skip = 0, BPPARAM = bpparam()) {
+read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)

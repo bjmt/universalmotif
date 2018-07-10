@@ -7,7 +7,7 @@
 merge_motifs(motifs, newname = "merged motif", method = "msa",
   printaln = FALSE, tryRC = TRUE, RCstrategy = "Euclidean",
   bgNoise = NA, cluster = "default", substitutionMatrix = "iub",
-  BPPARAM = bpparam(), ...)
+  BPPARAM = SerialParam(), ...)
 }
 \arguments{
 \item{motifs}{List of motifs.}
@@ -31,7 +31,7 @@ was done. Only applies if \code{method = 'msa'}.}
 \item{substitutionMatrix}{\code{\link[msa]{msaClustalW}} param. 'iub' or 
 'clustalw'.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 
 \item{...}{Other settings for function \code{\link[msa]{msaClustalW}}.}
 }

@@ -8,14 +8,14 @@
 #'             will use whatever type the motif is currently stored as.
 #' @param sep Character. Indicates how to separate individual motifs.
 #' @param headers Logical or character, indicating if and how to write names.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return NULL, invisibly.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
-                         type, sep = "", headers = TRUE, BPPARAM = bpparam()) {
+                         type, sep = "", headers = TRUE, BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!missing(type)) motifs <- convert_type(motifs, type, BPPARAM = BPPARAM)

@@ -5,7 +5,7 @@
 \title{Add multi-nucleotide information to a motif.}
 \usage{
 add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE, threshold = 0.01,
-  threshold.type = "logodds", motifs.perseq = 1, BPPARAM = bpparam())
+  threshold.type = "logodds", motifs.perseq = 1, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motif}{universalmotif object.}
@@ -22,7 +22,7 @@ add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE, threshold = 0.01,
 
 \item{motifs.perseq}{Numeric.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \description{
 Add multi-nucleotide information to a motif.

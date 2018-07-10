@@ -14,7 +14,7 @@
 #' @param pval Keep motifs by p-value.
 #' @param qval Keep motifs by q-value.
 #' @param eval Keep motifs by e-val.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return List of motifs.
 #'
@@ -28,7 +28,7 @@
 filter_motifs <- function(motifs, name, altname, family, organism,
                           width, alphabet,
                           type, icscore, nsites, strand, pval, qval, eval,
-                          BPPARAM = bpparam()) {
+                          BPPARAM = SerialParam()) {
   
   # CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)

@@ -4,7 +4,7 @@
 \alias{write_meme}
 \title{Export motifs in MEME format.}
 \usage{
-write_meme(motifs, file, version = 4, bkg, strand, BPPARAM = bpparam())
+write_meme(motifs, file, version = 4, bkg, strand, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a motif object.}
@@ -20,7 +20,7 @@ background frequencies will be set to freq = 1/length(alphabet)}
 \item{strand}{If missing, will use strand from motif objects (if identical);
 otherwise will default to "+ -"}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 NULL, invisibly.

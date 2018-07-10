@@ -5,7 +5,7 @@
 \title{Import motifs from raw matrices.}
 \usage{
 read_matrix(file, skip = 0, type, positions = "columns", alphabet = "DNA",
-  sep = "", headers = FALSE, rownames = FALSE, BPPARAM = bpparam())
+  sep = "", headers = FALSE, rownames = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{file}{Character.}
@@ -25,7 +25,7 @@ try and guess which one.}
 
 \item{rownames}{Logical. Are there alphabet letters present as rownames?}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 List of universalmotif objects.

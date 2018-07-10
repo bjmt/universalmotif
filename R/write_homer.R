@@ -3,14 +3,14 @@
 #' @param motifs List of motifs or a motif object.
 #' @param file Character.
 #' @param logodds_threshold Stringency required for HOMER to match a motif.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return NULL, invisibly.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_homer <- function(motifs, file, logodds_threshold = 0.6,
-                        BPPARAM = bpparam()) {
+                        BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)

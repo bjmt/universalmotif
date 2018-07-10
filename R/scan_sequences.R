@@ -9,7 +9,7 @@
 #' @param RC Logical. Check reverse strand.
 #' @param use.freq Numeric.
 #' @param do.not.ask Logical.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return Site search results as a data.frame object.
 #'
@@ -39,7 +39,7 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
                            threshold.type = "logodds", RC = FALSE,
                            use.freq = 1, do.not.ask = FALSE, 
-                           BPPARAM = bpparam()) {
+                           BPPARAM = SerialParam()) {
 
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,

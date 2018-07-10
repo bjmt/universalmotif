@@ -7,13 +7,13 @@
 #' @param threshold.type Character.
 #' @param RC Logical.
 #' @param motifs.perseq Numeric.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0.01, threshold.type = "logodds",
-                          motifs.perseq = 1, BPPARAM = bpparam()) {
+                          motifs.perseq = 1, BPPARAM = SerialParam()) {
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   

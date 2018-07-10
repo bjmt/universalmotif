@@ -1,13 +1,13 @@
 #' Switch between DNA and RNA alphabets.
 #'
 #' @param motifs Motif object or list of.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return The DNA/RNA version of the motif(s).
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-switch_alph <- function(motifs, BPPARAM = bpparam()) {
+switch_alph <- function(motifs, BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)

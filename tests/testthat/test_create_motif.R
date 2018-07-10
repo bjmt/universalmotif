@@ -59,8 +59,7 @@ test_that("motif creation from matrix input works", {
   motif6 <- create_motif(mat2, type = "PCM")
 
   expect_equal(motif1["alphabet"], c(alphabet = "custom"))
-  # this test is commented out since there's some shallow copy trickery going on
-  # expect_equal(motif2["consensus"], c(consensus = "TATAW"))
+  expect_equal(motif2["consensus"], c(consensus = "TATAW"))
   expect_equal(motif3["consensus"], c(consensus = "UAUAW"))
   expect_equal(motif3["nsites"], c(nsites = 10))
   expect_true(all(motif6["motif"] >= 1))

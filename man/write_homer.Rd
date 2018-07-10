@@ -4,7 +4,7 @@
 \alias{write_homer}
 \title{Export motifs in HOMER format.}
 \usage{
-write_homer(motifs, file, logodds_threshold = 0.6, BPPARAM = bpparam())
+write_homer(motifs, file, logodds_threshold = 0.6, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a motif object.}
@@ -13,7 +13,7 @@ write_homer(motifs, file, logodds_threshold = 0.6, BPPARAM = bpparam())
 
 \item{logodds_threshold}{Stringency required for HOMER to match a motif.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 NULL, invisibly.

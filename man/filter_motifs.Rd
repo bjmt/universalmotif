@@ -5,7 +5,7 @@
 \title{Filter a list of \linkS4class{universalmotif} motifs.}
 \usage{
 filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
-  icscore, nsites, strand, pval, qval, eval, BPPARAM = bpparam())
+  icscore, nsites, strand, pval, qval, eval, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
@@ -36,7 +36,7 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
 
 \item{eval}{Keep motifs by e-val.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 List of motifs.

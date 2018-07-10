@@ -4,14 +4,14 @@
 \alias{compare_motifs}
 \title{Compare motifs.}
 \usage{
-compare_motifs(motifs, method = "Euclidean", BPPARAM = bpparam())
+compare_motifs(motifs, method = "Euclidean", BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
 
 \item{method}{One of Euclidean, Pearson, and KL.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 Distance matrix for Euclidean and KL; similarity matrix for Pearson.

@@ -403,27 +403,16 @@ S4 universalmotif_cpp(
     rownames(m_motif) = CharacterVector::create("A", "C", "G", "U");
   else if (alphabet[0] == "AA")
     rownames(m_motif) = CharacterVector::create("A", "C", "D", "E", "F",
-                                              "G", "H", "I", "K", "L",
-                                              "M", "N", "P", "Q", "R",
-                                              "S", "T", "V", "W", "Y");
+                                                "G", "H", "I", "K", "L",
+                                                "M", "N", "P", "Q", "R",
+                                                "S", "T", "V", "W", "Y");
   else if (alphabet[0] != "custom") {
     StringVector alph_split;
     for (int i = 0; i < alphabet[0].size(); ++i) {
       alph_split.push_back(alphabet[0][i]);
     }
     StringVector mat_rownames = rownames(m_motif);
-    // if (mat_rownames[0] == R_NilValue)
-      rownames(m_motif) = sort_unique(alph_split);
-    // else {
-      // StringVector mat_rownames2 = clone(mat_rownames).sort();
-      // IntegerVector mat_rownames_sort = match(mat_rownames2, mat_rownames);
-      // NumericMatrix motif_tmp = clone(motif);
-      // for (int i = 0; i < motif.nrow(); ++i) {
-        // motif_tmp(i, _) = motif(mat_rownames_sort[i] - 1, _);
-      // }
-      // motif = motif_tmp;
-      // rownames(motif) = mat_rownames2;
-    // }
+    rownames(m_motif) = sort_unique(alph_split);
   }
 
   if (StringVector::is_na(alphabet[0]) || alphabet.length() == 0) {
@@ -510,27 +499,26 @@ S4 universalmotif_cpp(
     for (int i = 0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
     }
-    consensus[0] = collapse(consensus_tmp);
+    x.slot("consensus") = collapse(consensus_tmp);
     colnames(m_motif) = consensus_tmp;
   } else if (alphabet[0] == "RNA") {
     for (int i = 0; i < motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
     }
-    consensus[0] = collapse(consensus_tmp);
+    x.slot("consensus") = collapse(consensus_tmp);
     colnames(m_motif) = consensus_tmp;
   } else if (alphabet[0] == "AA") {
     for (int i =0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
     }
-    consensus[0] = collapse(consensus_tmp);
+    x.slot("consensus") = collapse(consensus_tmp);
     colnames(m_motif) = consensus_tmp;
   } else {
-    consensus = StringVector::create();
     StringVector mot_rownames = rownames(m_motif);
     colnames(m_motif) = StringVector::create();
     rownames(m_motif) = mot_rownames;
+    x.slot("consensus") = StringVector::create();
   }
-  x.slot("consensus") = consensus;
   
   x.slot("motif") = m_motif;
   

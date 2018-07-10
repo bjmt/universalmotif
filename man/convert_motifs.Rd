@@ -19,46 +19,46 @@
 \title{Convert motif class.}
 \usage{
 convert_motifs(motifs, class = "universalmotif-universalmotif",
-  BPPARAM = bpparam())
+  BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{list}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{universalmotif}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{MotifList}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{TFFMFirst}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{PFMatrix}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{PWMatrix}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{ICMatrix}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{XMatrixList}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{pwm}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{pcm}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{pfm}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{PWM}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 
 \S4method{convert_motifs}{Motif}(motifs,
-  class = "universalmotif-universalmotif", BPPARAM = bpparam())
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{Single motif object or list.}
@@ -66,7 +66,7 @@ convert_motifs(motifs, class = "universalmotif-universalmotif",
 \item{class}{Desired motif class. Input as 'package-class'. If left empty,
 defaults to 'universalmotif-universalmotif'. (See details.)}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 Single motif object or list.

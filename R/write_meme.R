@@ -8,7 +8,7 @@
 #'            background frequencies will be set to freq = 1/length(alphabet)
 #' @param strand If missing, will use strand from motif objects (if identical);
 #'               otherwise will default to "+ -"
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -20,7 +20,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_meme <- function(motifs, file, version = 4, bkg, strand,
-                       BPPARAM = bpparam()) {
+                       BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)

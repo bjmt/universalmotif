@@ -4,14 +4,14 @@
 \alias{read_transfac}
 \title{Import TRANSFAC motifs.}
 \usage{
-read_transfac(file, skip = 0, BPPARAM = bpparam())
+read_transfac(file, skip = 0, BPPARAM = SerialParam())
 }
 \arguments{
 \item{file}{Character.}
 
 \item{skip}{Numeric.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 List of universalmotif objects.

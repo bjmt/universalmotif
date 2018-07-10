@@ -5,7 +5,7 @@
 \title{Export motifs as raw matrices.}
 \usage{
 write_matrix(motifs, file, positions = "columns", rownames = FALSE, type,
-  sep = "", headers = TRUE, BPPARAM = bpparam())
+  sep = "", headers = TRUE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif object.}
@@ -23,7 +23,7 @@ will use whatever type the motif is currently stored as.}
 
 \item{headers}{Logical or character, indicating if and how to write names.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 NULL, invisibly.

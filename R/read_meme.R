@@ -4,7 +4,7 @@
 #' @param skip Numeric.
 #' @param readsites Logical. If \code{TRUE}, the motif sites will be read
 #'                  as well.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return List of universalmotif objects. If \code{readsites = TRUE}, a list
 #'         comprising of a sub-list of motif objects and a sub-list of 
@@ -18,7 +18,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = bpparam()) {
+read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)

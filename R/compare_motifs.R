@@ -4,7 +4,7 @@
 #'
 #' @param motifs List of motifs.
 #' @param method One of Euclidean, Pearson, and KL.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return Distance matrix for Euclidean and KL; similarity matrix for Pearson.
 #'
@@ -13,7 +13,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-compare_motifs <- function(motifs, method = "Euclidean", BPPARAM = bpparam()) {
+compare_motifs <- function(motifs, method = "Euclidean", BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)

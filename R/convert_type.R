@@ -18,7 +18,7 @@
 #'                          \code{relative_entropy = FALSE}.
 #' @param relative_entropy Logical. If true, the ICM will be
 #'                         calculated as relative entropy. (See details.)
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return \linkS4class{universalmotif} object(s).
 #'
@@ -123,7 +123,7 @@
 convert_type <- function(motifs, type, pseudocount,
                          nsize_correction = FALSE, 
                          relative_entropy = FALSE,
-                         BPPARAM = bpparam()) {
+                         BPPARAM = SerialParam()) {
 
   if (!missing(pseudocount)) {
     if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")

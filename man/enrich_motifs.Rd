@@ -9,7 +9,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   positional.test = "t.test", threshold = 0.6, threshold.type = "logodds",
   verbose = TRUE, RC = TRUE, use.freq = 1, shuffle.k = 1,
   shuffle.method = "linear", shuffle.leftovers = "asis",
-  BPPARAM = bpparam())
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{Motifs.}
@@ -44,7 +44,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 
 \item{shuffle.leftovers}{Character.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 A list of results.

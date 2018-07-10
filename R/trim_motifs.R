@@ -2,7 +2,7 @@
 #'
 #' @param motifs Motif object.
 #' @param IC_cutoff Numeric. Minimum allowed information content.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return Motifs Motif object or list.
 #'
@@ -13,7 +13,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = bpparam()) {
+trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
 
   if (class(motifs) == "list") {
     motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff),

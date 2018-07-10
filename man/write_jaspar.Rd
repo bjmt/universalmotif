@@ -4,14 +4,14 @@
 \alias{write_jaspar}
 \title{Export motifs in JASPAR format.}
 \usage{
-write_jaspar(motifs, file, BPPARAM = bpparam())
+write_jaspar(motifs, file, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a motif object.}
 
 \item{file}{Character.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 NULL, invisibly.

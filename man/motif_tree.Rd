@@ -6,7 +6,7 @@
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", BPPARAM = bpparam(), ...)
+  branch.length = "none", BPPARAM = SerialParam(), ...)
 }
 \arguments{
 \item{motifs}{List of motifs or 'dist' object.}
@@ -23,7 +23,7 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 
 \item{branch.length}{Character.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 
 \item{...}{ggtree params.}
 }

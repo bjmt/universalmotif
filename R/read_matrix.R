@@ -9,7 +9,7 @@
 #' @param sep Character. Indicates how individual motifs are seperated.
 #' @param headers Logical or character, indicating if and how to read names. 
 #' @param rownames Logical. Are there alphabet letters present as rownames?
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -21,7 +21,7 @@
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
                         alphabet = "DNA", sep = "", headers = FALSE,
-                        rownames = FALSE, BPPARAM = bpparam()) {
+                        rownames = FALSE, BPPARAM = SerialParam()) {
 
   raw_lines <- readLines(con <- file(file))
   close(con)

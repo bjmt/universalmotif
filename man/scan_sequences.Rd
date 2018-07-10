@@ -6,7 +6,7 @@
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.6,
   threshold.type = "logodds", RC = FALSE, use.freq = 1,
-  do.not.ask = FALSE, BPPARAM = bpparam())
+  do.not.ask = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
@@ -23,7 +23,7 @@ scan_sequences(motifs, sequences, threshold = 0.6,
 
 \item{do.not.ask}{Logical.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
 }
 \value{
 Site search results as a data.frame object.
