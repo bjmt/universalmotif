@@ -324,12 +324,10 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
             difreq <- matrix(difreq, nrow = 16) / 4
             rownames(difreq) <- DNA_DI
             colnames(difreq) <- seq_len(ncol(difreq))
-            mot <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
+            mot <- universalmotif(name = motifs@name, altname = motifs@ID,
                            strand = motifs@strand, bkg = motifs@bg,
                            motif = getPosProb(motifs),
                            multifreq = list(`2` = difreq))
-            msg <- validObject_universalmotif(mot)
-            if (length(msg) > 0) stop(msg)
             convert_motifs(motifs_out, class = class, BPPARAM = BPPARAM)
           })
 

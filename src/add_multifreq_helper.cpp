@@ -1,21 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-StringVector paste_cpp(StringVector string_in) {
-
-  // use collapse()? would that be any faster?
-
-  int n = string_in.length();
-  std::string out = as<std::string>(string_in(0));
-
-  for (int i = 1; i < n; ++i) {
-    out += as<std::string>(string_in[i]);
-  }
-
-  return out;
-
-}
-
 // [[Rcpp::export]]
 StringVector single_to_k(StringVector seq, int k) {
 
@@ -39,7 +24,7 @@ StringVector single_to_k(StringVector seq, int k) {
     for (int j = 0; j < k; ++j) {
       out_[j] = seq_mat(j, i);
     }
-    out_i = paste_cpp(out_);
+    out_i = collapse(out_);
     out[i] = out_i[0];
   }
 
