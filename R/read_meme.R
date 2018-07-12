@@ -1,10 +1,15 @@
 #' Import MEME motifs.
 #'
+#' Import MEME formatted motifs, as well as original motif sequences. See
+#' \url{http://meme-suite.org/}. Both 'full' and 'minimal' formats are
+#' supported.
+#'
 #' @param file Character.
-#' @param skip Numeric.
+#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#'    file before starting to read.
 #' @param readsites Logical. If \code{TRUE}, the motif sites will be read
 #'                  as well.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects. If \code{readsites = TRUE}, a list
 #'         comprising of a sub-list of motif objects and a sub-list of 
@@ -16,6 +21,10 @@
 #' meme.full <- read_meme(system.file("extdata", "meme_full.txt",
 #'                                    package = "universalmotif"))
 #'
+#' @references
+#'    \insertRef{meme}{universalmotif}
+#'
+#' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()) {

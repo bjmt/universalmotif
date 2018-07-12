@@ -11,19 +11,29 @@ write_transfac(motifs, file, BPPARAM = SerialParam())
 
 \item{file}{Character.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.
 }
 \description{
-Export motifs in TRANSFAC format.
+Convert motifs to TRANSFAC format and write to file.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                     package = "universalmotif"))
 write_transfac(jaspar, tempfile())
 
+}
+\references{
+\insertRef{transfac}{universalmotif}
+}
+\seealso{
+\code{\link{read_transfac}}
+
+Other write_motifs: \code{\link{write_homer}},
+  \code{\link{write_jaspar}}, \code{\link{write_matrix}},
+  \code{\link{write_meme}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

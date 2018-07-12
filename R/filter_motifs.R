@@ -1,27 +1,36 @@
 #' Filter a list of \linkS4class{universalmotif} motifs.
 #'
+#' Filter motifs based on the contents of available \linkS4class{universalmotif}
+#' slots.
+#'
 #' @param motifs List of motifs.
 #' @param name Keep motifs by names.
 #' @param altname Keep motifs by altnames.
 #' @param family Keep motifs by family.
-#' @param organism By organism.
+#' @param organism Keep motifs by organism.
 #' @param width Keep motifs with minimum width.
 #' @param alphabet Keep motifs by alphabet.
 #' @param type Keep motifs by type.
 #' @param icscore Keep motifs with minimum total IC.
 #' @param nsites Keep motifs with minimum number of target sites.
 #' @param strand Keeps motifs by strand.
-#' @param pval Keep motifs by p-value.
-#' @param qval Keep motifs by q-value.
-#' @param eval Keep motifs by e-val.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param pval Keep motifs by max P-value.
+#' @param qval Keep motifs by max Q-value.
+#' @param eval Keep motifs by max E-val.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of motifs.
 #'
 #' @examples
+#' # By minimum IC:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
+#'
+#' # By organism:
+#' library(MotifDb)
+#' motifs <- convert_motifs(MotifDb)
+#' motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
@@ -39,17 +48,17 @@ filter_motifs <- function(motifs, name, altname, family, organism,
   }
 
   if (!missing(altname)) {
-    motif_altnames <- vapply(motifs, function(x) x["altname"], character(1))
+    motif_altnames <- sapply(motifs, function(x) x["altname"])
     motifs <- motifs[motif_altnames %in% altname]
   }
 
   if (!missing(family)) {
-    motif_families <- vapply(motifs, function(x) x["family"], character(1))
+    motif_families <- sapply(motifs, function(x) x["family"])
     motifs <- motifs[motif_families %in% family]
   }
 
   if (!missing(organism)) {
-    motif_organisms <- vapply(motifs, function(x) x["organism"], character(1))
+    motif_organisms <- sapply(motifs, function(x) x["organism"])
     motifs <- motifs[motif_organisms %in% organism]
   }
 
@@ -74,7 +83,7 @@ filter_motifs <- function(motifs, name, altname, family, organism,
   }
 
   if (!missing(nsites)) {
-    motif_nsites <- vapply(motifs, function(x) x["nsites"], numeric(1))
+    motif_nsites <- apply(motifs, function(x) x["nsites"])
     motifs <- motifs[motif_nsites >= nsites]
   }
 
@@ -84,17 +93,17 @@ filter_motifs <- function(motifs, name, altname, family, organism,
   }
 
   if (!missing(pval)) {
-    motif_pvals <- vapply(motifs, function(x) x["pval"], numeric(1))
+    motif_pvals <- sapply(motifs, function(x) x["pval"])
     motifs <- motifs[motif_pvals <= pval]
   }
 
   if (!missing(qval)) {
-    motif_qvals <- vapply(motifs, function(x) x["qval"], numeric(1))
+    motif_qvals <- sapply(motifs, function(x) x["qval"])
     motifs <- motifs[motif_qvals <= qval]
   }
 
   if (!missing(eval)) {
-    motif_evals <- vapply(motifs, function(x) x["eval"], numeric(1))
+    motif_evals <- sapply(motifs, function(x) x["eval"])
     motifs <- motifs[motif_evals <= eval]
   }
 

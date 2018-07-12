@@ -9,13 +9,21 @@ switch_alph(motifs, BPPARAM = SerialParam())
 \arguments{
 \item{motifs}{Motif object or list of.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-The DNA/RNA version of the motif(s).
+The DNA/RNA version of the motifs.
 }
 \description{
-Switch between DNA and RNA alphabets.
+Convert a motif from DNA to RNA, or RNA to DNA.
+}
+\examples{
+DNA.motif <- create_motif()
+RNA.motif <- switch_alph(DNA.motif)
+
+}
+\seealso{
+\code{\link{create_motif}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

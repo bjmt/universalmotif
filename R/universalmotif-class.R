@@ -10,18 +10,18 @@
 #' @slot motif Matrix.
 #' @slot alphabet Character. Length 1.
 #' @slot type Character. Length 1.
-#' @slot icscore Numeric. Length 1.
+#' @slot icscore Numeric. Length 1. Generated automatically.
 #' @slot nsites Numeric. Length 0 or 1.
 #' @slot pseudocount Numeric. Length 1.
 #' @slot bkg Numeric. Length equal to number of letters in alphabet.
 #' @slot bkgsites Numeric. Lenght 0 or 1.
-#' @slot consensus Character. Length 0 or 1.
+#' @slot consensus Character. Length 0 or 1. Generated automatically.
 #' @slot strand Character. Length 1.
 #' @slot pval Numeric. Length 0 or 1.
 #' @slot qval Numeric. Length 0 or 1.
 #' @slot eval Numeric. Length 0 or 1.
 #' @slot multifreq List.
-#' @slot extrainfo Character. Length 0 or more.
+#' @slot extrainfo Named character vector. Length 0 or more.
 #'
 #' @return A motif object of class \linkS4class{universalmotif}.
 #'
@@ -181,10 +181,10 @@ setValidity("universalmotif",
                 msg <- c(msg,
                          "motif with 'alphabet' of type 'AA' can only have 20 rows")
               }
-              if (any(rownames(object["motif"]) != AA_STANDARD)) {
+              if (any(!rownames(object["motif"]) %in% AA_STANDARD)) {
                 valid <- FALSE
-                msg <- c(msg, paste("AA motif must have rownames", AA_STANDARD,
-                                    collapse = ""))
+                msg <- c(msg, paste("AA motif must have rownames",
+                                    paste(sort(AA_STANDARD), collapse = "")))
               }
             } else if (alph != "custom") {
               if (nrow(mat) != length(strsplit(alph, "")[[1]])) {
@@ -192,7 +192,7 @@ setValidity("universalmotif",
                 msg <- c(msg, paste0("motif with alphabet '",
                                      "' has an incorrect number of rows"))
               }
-              if (any(rownames(object["motif"]) != strsplit(alph, "")[[1]])) {
+              if (any(!rownames(object["motif"]) %in% strsplit(alph, "")[[1]])) {
                 valid <- FALSE
                 msg <- c(msg, "motif rownames must match alphabet")
               }

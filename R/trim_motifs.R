@@ -1,8 +1,10 @@
 #' Trim motifs.
 #'
+#' Remove edges of a motif with low information content.
+#'
 #' @param motifs Motif object.
 #' @param IC_cutoff Numeric. Minimum allowed information content.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motifs Motif object or list.
 #'
@@ -11,9 +13,12 @@
 #'                                   package = "universalmotif"))
 #' jaspar.trimmed <- trim_motifs(jaspar)
 #'
+#' @seealso \code{\link{create_motif}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
+
+  # TODO: too slow. Need to implement in C++.
 
   if (class(motifs) == "list") {
     motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff),
@@ -46,12 +51,12 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
     if (motif_scores[i] < IC_cutoff) to_cut[i] <- FALSE else break
     cut_right <- cut_right + 1
   }
-  motif@motif <- as.matrix(motif@motif[, to_cut])
-  if (ncol(motif@motif) == 0) return(NULL)
+  motif_mat <- as.matrix(motif@motif[, to_cut])
+  if (ncol(motif_mat) == 0) return(NULL)
 
   if (cut_right != 0) {
-    cut_right <- ncol(motif@motif) - cut_right + 1
-    if (cut_right != ncol(motif@motif)) cut_right <- cut_right:ncol(motif@motif)
+    cut_right <- ncol(motif_mat) - cut_right + 1
+    if (cut_right != ncol(motif_mat)) cut_right <- cut_right:ncol(motif_mat)
   }
   multifreq <- motif@multifreq
   if (length(multifreq) > 0) {
@@ -62,6 +67,7 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
     }
   }
 
+  if (!is.matrix(motif_mat)) motif_mat <- as.matrix(motif_mat)
   motif <- universalmotif(name = motif["name"], altname = motif["altname"],
                           family = motif["family"], motif = motif["motif"],
                           alphabet = motif["alphabet"], type = motif["type"],

@@ -1,4 +1,4 @@
-#' Merge motifs using msa or motifStack
+#' Merge motifs.
 #'
 #' DNA/RNA only. The 'extrainfo' slot will be dropped, as well as any
 #' non-identical slots. 
@@ -9,14 +9,14 @@
 #' @param printaln Logical. Print msa aln object to get an idea of how the merging
 #'                          was done. Only applies if \code{method = 'msa'}.
 #' @param tryRC Logical. Only used if \code{method = 'msa'}.
-#' @param RCstrategy Character. One of 'Pearson', 'Euclidean', 'KL'.
+#' @param RCstrategy Character. One of 'Pearson', 'Euclidean', 'KL'. See
+#'    \code{\link{compare_motifs}}.
 #' @param bgNoise \code{\link[motifStack]{mergeMotifs}} param.
 #' @param cluster \code{\link[msa]{msaClustalW}} param. 'nj' (default) or
 #'                'upgma'.
 #' @param substitutionMatrix \code{\link[msa]{msaClustalW}} param. 'iub' or 
 #'                           'clustalw'.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}. 
-#' @param ... Other settings for function \code{\link[msa]{msaClustalW}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}. 
 #'
 #' @return A single motif object.
 #'
@@ -46,16 +46,18 @@
 #'
 #'    \insertRef{msa}{universalmotif}
 #'
+#' @seealso \code{\link[motifStack]{mergeMotifs}}, \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 merge_motifs <- function(motifs, newname = "merged motif",
                          method = "msa", printaln = FALSE, tryRC = TRUE,
                          RCstrategy = "Euclidean", bgNoise = NA,
                          cluster = "default",  substitutionMatrix = "iub",
-                         BPPARAM = SerialParam(), ...) {
+                         BPPARAM = SerialParam()) {
 
   ## TODO: this function needs a complete rework. It's way too slow for what
-  ## it's achieving. 
+  ## it's achieving. In theory should be trivial to add support for custom
+  ## alphabets as well.
 
   CLASS_IN <- vapply(motifs, .internal_convert, BPPARAM = BPPARAM, character(1))
   CLASS_IN <- unique(CLASS_IN)

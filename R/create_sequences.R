@@ -1,7 +1,9 @@
-#' Create random background sequences.
+#' Create random sequences.
 #'
-#' @param alphabet Character. One of 'DNA', 'RNA', 'AA', or a string of letters
-#'                 to be used as the alphabet.
+#' Generate random sequences from any set of characters.
+#'
+#' @param alphabet Character. One of 'DNA', 'RNA', 'AA', or a string of
+#'                 letters/characters to be used as the alphabet.
 #' @param monofreqs Numeric. Alphabet frequencies to use. If missing assumes uniform
 #'            frequencies. Not used if \code{difreq} or \code{trifreq} are
 #'            input.
@@ -11,11 +13,23 @@
 #'               named numeric vector of length 16.
 #' @param trifreqs Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 #'                named numeric vector of length 64.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return XStringSet object.
 #'
+#' @examples
+#' # create DNA sequences with slightly increased AT content:
+#' sequences <- create_sequences(monofreqs = c(0.3, 0.2, 0.2, 0.3))
+#' # create custom sequences:
+#' sequences.QWER <- create_sequences("QWER")
+#' # you can include non-alphabet characters are well, even spaces:
+#' sequences.custom <- create_sequences("!@#$ ")
+#'
+#' @references
+#'    \insertRef{biostrings}{universalmotif}
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso \code{\link{create_motif}}
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                              monofreqs, difreqs, trifreqs,

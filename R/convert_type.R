@@ -4,7 +4,7 @@
 #' (PPM), position weight matrix (PWM), and information count matrix (ICM)
 #' types.
 #'
-#' @param motifs \linkS4class{universalmotif} object(s).
+#' @param motifs \linkS4class{universalmotif} objects.
 #' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
 #' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
 #'                    from apearing in PWM matrices. If missing,
@@ -18,9 +18,9 @@
 #'                          \code{relative_entropy = FALSE}.
 #' @param relative_entropy Logical. If true, the ICM will be
 #'                         calculated as relative entropy. (See details.)
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return \linkS4class{universalmotif} object(s).
+#' @return \linkS4class{universalmotif} objects.
 #'
 #' @details
 #'    Position count matrix (PCM), also known as position frequency matrix

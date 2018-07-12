@@ -1,7 +1,10 @@
 #' Create a motif.
 #'
-#' @param input One of character vector, numeric, matrix (PCM, PPM, PWM, or ICM),
-#'              or \linkS4class{XStringSet}.
+#' Create a motif from a set of sequences, a matrix, or generate a random
+#' motif.
+#'
+#' @param input A character vector, number, matrix (PCM, PPM, PWM, or ICM),
+#'              \linkS4class{XStringSet}, or nothing.
 #' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
 #'                 string representing the letters.
 #' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
@@ -21,21 +24,30 @@
 #' @param eval Numeric. E-value associated with motif.
 #' @param extrainfo Character. Any other extra information, represented as
 #'                  a named character vector.
-#' @param add.multifreq Numeric.
+#' @param add.multifreq Numeric. If the motif is created from a set of
+#'    sequences, then the \code{\link{add_multifreq}} function can be
+#'    run at the same type.
 #'
 #' @return \linkS4class{universalmotif} object.
 #'
 #' @details
+#'    The aim of this function is provide an easy interface to creating
+#'    \linkS4class{universalmotif} motifs, as an alternative to the
+#'    default class constructor (i.e. \code{new('universalmotif', name=...)}).
+#'    See examples for potential use cases.
+#'
 #'    See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
 #'    random motifs.
 #'
-#' @seealso \code{\link{convert_type}}
+#' @seealso \code{\link{convert_type}}, \code{\link{add_multifreq}},
+#' \code{\link{create_sequences}}, \code{\link[TFBSTools]{rPWMDmm}}.
 #'
 #' @examples
 #' ##### create motifs from a single string
 #'
-#' # motif is initially generated as a PCM; change final type as desired
-#' DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudocount = 0)
+#' # motif is by default generated as a PPM; change final type as desired
+#' DNA.motif <- create_motif("TATAWAW")
+#' DNA.motif <- create_motif("TATAWAW", type = "PCM")
 #'
 #' # nsites will be set to the number of input sequences unless specified 
 #' DNA.motif <- create_motif("TTTTTTT", nsites = 10)
@@ -89,6 +101,10 @@
 #' # custom motifs can be created from BStringSet objects
 #' B.set <- BStringSet(c("QWER", "ASDF", "ZXCV", "TYUI"))
 #' custom.motif <- create_motif(B.set)
+#'
+#' ##### create motifs with filled 'multifreq' slot
+#'
+#' DNA.motif.k2 <- create_motif(DNA.set, add.multifreq = 2)
 #'
 #' ##### create motifs from matrices
 #'
@@ -694,9 +710,19 @@ setMethod("create_motif", signature(input = "BStringSet"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
 
-            if (missing(alphabet) || alphabet == "custom") {
+            if (missing(alphabet)) {
               sequences <- consensusMatrix(sequences)
               motif <- apply(sequences, 2, pcm_to_ppmC, pseudocount = 0)
+              # rownames(motif) <- rownames(sequences)
+              alphabet <- paste(rownames(sequences), collapse = "")
+              motif <- do.call(universalmotif_cpp, c(list(motif = motif),
+                                                 list(type = "PPM"),
+                                                 margs,
+                                                 list(alphabet = alphabet)))
+            } else if (alphabet == "custom") {
+              sequences <- consensusMatrix(sequences)
+              motif <- apply(sequences, 2, pcm_to_ppmC, pseudocount = 0)
+              rownames(motif) <- rownames(sequences)
               motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -720,7 +746,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
           
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
-            if (!is.null(motif@motif)) {
+            if (!is.null(motif@motif) && !is.null(rownames(motif@motif))) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
             }
             msg <- validObject_universalmotif(motif)

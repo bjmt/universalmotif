@@ -1,5 +1,7 @@
 #' Export motifs in MEME format.
 #'
+#' Convert motifs to minimal MEME format and write to file.
+#'
 #' @param motifs List of motifs or a motif object.
 #' @param file Character.
 #' @param version MEME version.
@@ -8,7 +10,7 @@
 #'            background frequencies will be set to freq = 1/length(alphabet)
 #' @param strand If missing, will use strand from motif objects (if identical);
 #'               otherwise will default to "+ -"
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -17,6 +19,11 @@
 #'                                     package = "universalmotif"))
 #' write_meme(transfac, tempfile())
 #'
+#' @references
+#'    \insertRef{meme}{universalmotif}
+#'
+#' @family write_motifs
+#' @seealso \code{\link{read_meme}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_meme <- function(motifs, file, version = 4, bkg, strand,

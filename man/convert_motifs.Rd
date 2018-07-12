@@ -66,7 +66,7 @@ convert_motifs(motifs, class = "universalmotif-universalmotif",
 \item{class}{Desired motif class. Input as 'package-class'. If left empty,
 defaults to 'universalmotif-universalmotif'. (See details.)}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Single motif object or list.

@@ -1,11 +1,20 @@
 #' Generate binding sites from a motif.
 #'
+#' Given probabilities for a sequence as represented by a motif, generate
+#' random sequences with the same length as the motif.
+#'
 #' @param motif Motif object.
 #' @param n Numeric. Number of sites to generate.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{XStringSet} object.
 #'
+#' @examples
+#' motif <- create_motif()
+#' sites <- sample_sites(motif)
+#'
+#' @seealso \code{\link{create_sequences}}, \code{\link{create_motif}},
+#'    \code{\link{add_multifreq}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 sample_sites <- function(motif, n = 100, BPPARAM = SerialParam()) {

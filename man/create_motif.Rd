@@ -50,8 +50,8 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
   bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 }
 \arguments{
-\item{input}{One of character vector, numeric, matrix (PCM, PPM, PWM, or ICM),
-or \linkS4class{XStringSet}.}
+\item{input}{A character vector, number, matrix (PCM, PPM, PWM, or ICM),
+\linkS4class{XStringSet}, or nothing.}
 
 \item{alphabet}{Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
 string representing the letters.}
@@ -87,16 +87,24 @@ length.}
 \item{extrainfo}{Character. Any other extra information, represented as
 a named character vector.}
 
-\item{add.multifreq}{Numeric.}
+\item{add.multifreq}{Numeric. If the motif is created from a set of
+sequences, then the \code{\link{add_multifreq}} function can be
+run at the same type.}
 }
 \value{
 \linkS4class{universalmotif} object.
 }
 \description{
-Create a motif.
+Create a motif from a set of sequences, a matrix, or generate a random
+motif.
 }
 \details{
-See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
+The aim of this function is provide an easy interface to creating
+   \linkS4class{universalmotif} motifs, as an alternative to the
+   default class constructor (i.e. \code{new('universalmotif', name=...)}).
+   See examples for potential use cases.
+
+   See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
    random motifs.
 }
 \section{Methods (by class)}{
@@ -121,8 +129,9 @@ See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
 \examples{
 ##### create motifs from a single string
 
-# motif is initially generated as a PCM; change final type as desired
-DNA.motif <- create_motif("TATAWAW", type = "PPM", pseudocount = 0)
+# motif is by default generated as a PPM; change final type as desired
+DNA.motif <- create_motif("TATAWAW")
+DNA.motif <- create_motif("TATAWAW", type = "PCM")
 
 # nsites will be set to the number of input sequences unless specified 
 DNA.motif <- create_motif("TTTTTTT", nsites = 10)
@@ -177,6 +186,10 @@ AA.motif <- create_motif(AA.set)
 B.set <- BStringSet(c("QWER", "ASDF", "ZXCV", "TYUI"))
 custom.motif <- create_motif(B.set)
 
+##### create motifs with filled 'multifreq' slot
+
+DNA.motif.k2 <- create_motif(DNA.set, add.multifreq = 2)
+
 ##### create motifs from matrices
 
 mat <- matrix(c(1, 1, 1, 1,
@@ -228,7 +241,8 @@ DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 
 }
 \seealso{
-\code{\link{convert_type}}
+\code{\link{convert_type}}, \code{\link{add_multifreq}},
+\code{\link{create_sequences}}, \code{\link[TFBSTools]{rPWMDmm}}.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

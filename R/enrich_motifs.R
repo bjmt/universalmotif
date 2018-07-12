@@ -1,28 +1,64 @@
 #' Enrich for input motifs in a set of sequences.
 #'
-#' DNA/RNA only.
+#' Given a set of target and background sequences, test if the target motifs
+#' are significantly enriched in the targets sequences relative to the
+#' background sequences.
 #'
-#' @param motifs Motifs.
-#' @param sequences DNAStringSet.
-#' @param bkg.sequences DNAStringSet.
-#' @param search.mode Character.
-#' @param max.p Numeric.
-#' @param max.q Numeric.
-#' @param qval.method Numeric.
-#' @param positional.test Character.
-#' @param threshold Numeric.
-#' @param threshold.type Character. One of 'logodds' and 'pvalue'.
-#' @param verbose Logical.
-#' @param RC Logical.
-#' @param use.freq Numeric.
-#' @param shuffle.k Numeric.
-#' @param shuffle.method Character.
-#' @param shuffle.leftovers Character.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param motifs \linkS4class{universalmotif} objects.
+#' @param sequences XStringSet. Alphabet should match motif.
+#' @param bkg.sequences XStringSet. Optional; if missing,
+#'    \code{\link{shuffle_sequences}} is used to create background sequences from
+#'    the input sequences.
+#' @param search.mode Character. One of 'hits', 'positional', and 'both'.
+#'    See details.
+#' @param max.p Numeric. P-value threshold.
+#' @param max.q Numeric. Adjusted P-value threshold. This is only useful
+#'    if more than one motif is being enriched for.
+#' @param qval.method Numeric. See \code{\link[stats]{p.adjust}}.
+#' @param positional.test Character. One of 't.test', 'wilcox.test',
+#'    'chisq.test', and 'shapiro.test'. If using the Shapiro test for
+#'    normality, then only the input sequences are tested for positionality;
+#'    the background sequences are ignored. See \code{\link[stats]{t.test}},
+#'    \code{\link[stats]{wilcox.test}}, \code{\link[stats]{chisq.test}},
+#'    \code{\link[stats]{shapiro.test}}.
+#' @param threshold Numeric, between 1 and 0. See \code{\link{scan_sequences}}.
+#' @param threshold.type Character. One of 'logodds' and 'pvalue'. See
+#'    \code{\link{scan_sequences}}.
+#' @param verbose Logical. If \code{TRUE}, then the user is informed as each
+#'    motif is scored.
+#' @param RC Logical. Whether to consider the reverse complement of the
+#'    sequences.
+#' @param use.freq Numeric. If the 'multifreq' slot of the motifs are filled,
+#'    then they can be used to scan the sequences. See
+#'    \code{\link{scan_sequences}}.
+#' @param shuffle.k Numeric. The k-let size to use when shuffling input
+#'    sequences. Only used if no background sequences are input. See
+#'    \code{\link{shuffle_sequences}}.
+#' @param shuffle.method Character. See \code{\link{shuffle_sequences}}.
+#' @param shuffle.leftovers Character. See \code{\link{shuffle_sequences}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return A list of results.
+#' @return Motif enrichment results, as a data.frame.
+#'
+#' @details
+#' To find enriched motifs, \code{\link{scan_sequences}} is run on both 
+#' target and background sequences. If \code{search.mode = 'hits'},
+#' \code{\link[stats]{fisher.test}} is run to test for enrichment. If
+#' \code{search.mode = 'positional'}, then the test as set by
+#' \code{positional.test} is run to check for positional differences
+#' between target and background sequences. However if
+#' \code{positional.test = 'shapiro.test'}, then only target sequence
+#' hits are considered.
+#'
+#' @examples
+#' target.sequences <- create_sequences(monofreqs = c(0.7, 0.1, 0.1, 0.1))
+#' bkg.sequences <- create_sequences()
+#' motif <- create_motif(bkg = c(0.7, 0.1, 0.1, 0.1))
+#' enrich_motifs(motif, target.sequences, bkg.sequences)
 #'
 #' @author Benjamin Tremblay \email{b2tremblay@@uwaterloo.ca}
+#' @seealso \code{\link{scan_sequences}}, \code{\link{shuffle_sequences}},
+#'    \code{\link{add_multifreq}}
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 0.001, max.q = 0.001, qval.method = "fdr",

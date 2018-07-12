@@ -2,12 +2,12 @@
 % Please edit documentation in R/merge_motifs.R
 \name{merge_motifs}
 \alias{merge_motifs}
-\title{Merge motifs using msa or motifStack}
+\title{Merge motifs.}
 \usage{
 merge_motifs(motifs, newname = "merged motif", method = "msa",
   printaln = FALSE, tryRC = TRUE, RCstrategy = "Euclidean",
   bgNoise = NA, cluster = "default", substitutionMatrix = "iub",
-  BPPARAM = SerialParam(), ...)
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
@@ -21,7 +21,8 @@ was done. Only applies if \code{method = 'msa'}.}
 
 \item{tryRC}{Logical. Only used if \code{method = 'msa'}.}
 
-\item{RCstrategy}{Character. One of 'Pearson', 'Euclidean', 'KL'.}
+\item{RCstrategy}{Character. One of 'Pearson', 'Euclidean', 'KL'. See
+\code{\link{compare_motifs}}.}
 
 \item{bgNoise}{\code{\link[motifStack]{mergeMotifs}} param.}
 
@@ -31,9 +32,7 @@ was done. Only applies if \code{method = 'msa'}.}
 \item{substitutionMatrix}{\code{\link[msa]{msaClustalW}} param. 'iub' or 
 'clustalw'.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
-
-\item{...}{Other settings for function \code{\link[msa]{msaClustalW}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 A single motif object.
@@ -68,6 +67,9 @@ merged.motif2 <- merge_motifs(motifs, method = "motifStack")
 \insertRef{motifstack}{universalmotif}
 
    \insertRef{msa}{universalmotif}
+}
+\seealso{
+\code{\link[motifStack]{mergeMotifs}}, \code{\link{compare_motifs}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -9,12 +9,13 @@ read_meme(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam())
 \arguments{
 \item{file}{Character.}
 
-\item{skip}{Numeric.}
+\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+file before starting to read.}
 
 \item{readsites}{Logical. If \code{TRUE}, the motif sites will be read
 as well.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects. If \code{readsites = TRUE}, a list
@@ -22,7 +23,9 @@ List of universalmotif objects. If \code{readsites = TRUE}, a list
         motif sites will be returned.
 }
 \description{
-Import MEME motifs.
+Import MEME formatted motifs, as well as original motif sequences. See
+\url{http://meme-suite.org/}. Both 'full' and 'minimal' formats are
+supported.
 }
 \examples{
 meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
@@ -30,6 +33,15 @@ meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
 meme.full <- read_meme(system.file("extdata", "meme_full.txt",
                                    package = "universalmotif"))
 
+}
+\references{
+\insertRef{meme}{universalmotif}
+}
+\seealso{
+Other read_motifs: \code{\link{read_cisbp}},
+  \code{\link{read_homer}}, \code{\link{read_jaspar}},
+  \code{\link{read_matrix}}, \code{\link{read_transfac}},
+  \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

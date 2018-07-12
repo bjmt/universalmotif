@@ -77,5 +77,11 @@ For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
    of length 1.
 }
 \description{
-Utility functions.
+Various small functions used for motif creation.
+}
+\seealso{
+\code{\link{create_motif}}
+}
+\author{
+Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

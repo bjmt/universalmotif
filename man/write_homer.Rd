@@ -11,15 +11,31 @@ write_homer(motifs, file, logodds_threshold = 0.6, BPPARAM = SerialParam())
 
 \item{file}{Character.}
 
-\item{logodds_threshold}{Stringency required for HOMER to match a motif.}
+\item{logodds_threshold}{Stringency required for HOMER to match a motif.
+See \code{\link{scan_sequences}}.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.
 }
 \description{
-Export motifs in HOMER format.
+Convert motifs to HOMER format and write to file.
+}
+\examples{
+motif <- create_motif()
+write_homer(motif, tempfile())
+
+}
+\references{
+\insertRef{homer}{universalmotif}
+}
+\seealso{
+\code{\link{read_homer}}
+
+Other write_motifs: \code{\link{write_jaspar}},
+  \code{\link{write_matrix}}, \code{\link{write_meme}},
+  \code{\link{write_transfac}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

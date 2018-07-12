@@ -1,5 +1,7 @@
 #' Utility functions.
 #'
+#' Various small functions used for motif creation.
+#'
 #' @param position Numeric. A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
 #' @param bkg Numeric. Should be the same length as the alphabet length.
@@ -27,6 +29,8 @@
 #'    For \code{get_consensus} and \code{get_consensusAA}: a character vector
 #'    of length 1.
 #'
+#' @seealso \code{\link{create_motif}}
+#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utilities
 NULL
 

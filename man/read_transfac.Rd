@@ -9,20 +9,32 @@ read_transfac(file, skip = 0, BPPARAM = SerialParam())
 \arguments{
 \item{file}{Character.}
 
-\item{skip}{Numeric.}
+\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+file before starting to read.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.
 }
 \description{
-Assumed to be DNA motifs, type PCM.
+Import TRANSFAC formatted motifs. Assumed to be DNA motifs, type PCM.
+See \code{system.file("extdata", "transfac.txt", pacakge="universalmotif")}
+for an example motif.
 }
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",
                                       package = "universalmotif"))
 
+}
+\references{
+\insertRef{transfac}{universalmotif}
+}
+\seealso{
+Other read_motifs: \code{\link{read_cisbp}},
+  \code{\link{read_homer}}, \code{\link{read_jaspar}},
+  \code{\link{read_matrix}}, \code{\link{read_meme}},
+  \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

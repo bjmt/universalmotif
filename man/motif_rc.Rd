@@ -9,13 +9,15 @@ motif_rc(motifs, BPPARAM = SerialParam())
 \arguments{
 \item{motifs}{List of motifs or a single motif.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of motifs or single motif object.
 }
 \description{
-Get the reverse complement of a motif.
+For any motif, change the 'motif' slot to it's reverse complement. If the
+'multifreq' slot is filled, then it is also applied. No other slots are
+affected.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

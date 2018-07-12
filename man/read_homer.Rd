@@ -9,20 +9,31 @@ read_homer(file, skip = 0, BPPARAM = SerialParam())
 \arguments{
 \item{file}{Character.}
 
-\item{skip}{Numeric.}
+\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+file before starting to read.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.
 }
 \description{
-Assumed DNA.
+Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
+Assumed to be DNA motifs.
 }
 \examples{
 homer <- read_homer(system.file("extdata", "homer.txt",
                                 package = "universalmotif"))
 
+}
+\references{
+\insertRef{homer}{universalmotif}
+}
+\seealso{
+Other read_motifs: \code{\link{read_cisbp}},
+  \code{\link{read_jaspar}}, \code{\link{read_matrix}},
+  \code{\link{read_meme}}, \code{\link{read_transfac}},
+  \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

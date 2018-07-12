@@ -9,20 +9,31 @@ read_jaspar(file, skip = 0, BPPARAM = SerialParam())
 \arguments{
 \item{file}{Character.}
 
-\item{skip}{Numeric.}
+\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+file before starting to read.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.
 }
 \description{
-Import JASPAR motifs.
+Import JASPAR formatted motifs. See \url{http://jaspar.genereg.net/}.
+Can be either DNA, RNA, or AA motifs.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 
+}
+\references{
+\insertRef{jaspar}{universalmotif}
+}
+\seealso{
+Other read_motifs: \code{\link{read_cisbp}},
+  \code{\link{read_homer}}, \code{\link{read_matrix}},
+  \code{\link{read_meme}}, \code{\link{read_transfac}},
+  \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

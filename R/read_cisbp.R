@@ -1,11 +1,19 @@
 #' Import CIS-BP motifs.
+#' 
+#' Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
+#' Assumed to be DNA motifs.
 #'
 #' @param file Character.
-#' @param skip Numeric.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#'    file before starting to read.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects.
 #'
+#' @references
+#'    \insertRef{cisbp}{universalmotif}
+#'
+#' @family read_motifs
 #' @examples
 #' cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
 #'                                 package = "universalmotif"))

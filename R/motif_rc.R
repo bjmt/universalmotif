@@ -1,7 +1,11 @@
 #' Get the reverse complement of a motif.
 #'
+#' For any motif, change the 'motif' slot to it's reverse complement. If the
+#' 'multifreq' slot is filled, then it is also applied. No other slots are
+#' affected.
+#'
 #' @param motifs List of motifs or a single motif.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of motifs or single motif object.
 #'

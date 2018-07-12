@@ -1,10 +1,11 @@
 #' Import UNIPROBE motifs.
 #'
-#' Assumed DNA.
+#' Import UNIPROBE formatted motifs. Assumed DNA.
 #'
 #' @param file Character.
-#' @param skip Numeric.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#'    file before starting to read.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -14,6 +15,10 @@
 #' uniprobe.full <- read_uniprobe(system.file("extdata", "uniprobe_full.txt",
 #'                                            package = "universalmotif"))
 #'
+#' @references
+#'    \insertRef{uniprobe}{universalmotif}
+#'
+#' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_uniprobe <- function(file, skip = 0, BPPARAM = SerialParam()) {

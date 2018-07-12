@@ -1,45 +1,74 @@
 #' Find motif binding sites in a set of sequences.
 #'
-#' DNA/RNA only.
+#' Find matches to motifs in a set of input sequences.
 #'
-#' @param motifs List of motifs or a single motif.
-#' @param sequences XStringSet object. List of sequences to scan
-#' @param threshold Numeric. Logodds threshold.
-#' @param threshold.type Character. One of 'logodds' and 'pvalue'.
-#' @param RC Logical. Check reverse strand.
-#' @param use.freq Numeric.
-#' @param do.not.ask Logical.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param motifs \linkS4class{universalmotif} objects.
+#' @param sequences XStringSet object. Sequences to scan. Alphabet should
+#'    match motif.
+#' @param threshold Numeric. Between 0 and 1. See details.
+#' @param threshold.type Character. One of 'logodds' and 'pvalue'. See details.
+#' @param RC Logical. If \code{TRUE}, check reverse complement of input
+#'    sequences.
+#' @param use.freq Numeric. The default, 1, uses the motif matrix (from
+#'    the \code{motif["motif"]} slot) to search for sequences. If a higher
+#'    number is used, then the matching k-let matrix from the
+#'    \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return Site search results as a data.frame object.
+#' @return Results as a data.frame object.
 #'
 #' @details
-#'    Benchmarking: scanning a 1 billion bp sequence with HMMorder = 1 and 
-#'    RC = FALSE took about 4.5 minutes. Scanning 1000 sequences 1 million bp
-#'    each took about 6 minutes. As for HMMorder = 0; for shorter sequences
-#'    it is amazingly fast.. but when I tried with a 1 billion bp long
-#'    sequence it took about 5 min. Not sure why it slows down so much.
+#'    If \code{use.freq = 1} and the sequences are DNAStringSet or RNAStringSet
+#'    class, then the \code{\link[Biostrings]{matchPWM}} function from the
+#'    Biostrings package is used. Otherwise, a different (and less efficient)
+#'    scanning function is used.
+#'    
+#'    Similar to \code{\link[Biostrings]{matchPWM}}, the scanning method uses
+#'    logodds scoring. (To see the scoring matrix for any motif, simply
+#'    run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
+#'    matrix: \code{apply(motif["multifreq"]$`2`, 2, ppm_to_pwm)}). In order
+#'    to score a sequence, at each position within a sequence of length equal
+#'    to the length of the motif, the scores for each base are summed. If the
+#'    score sum is above the desired threshold, it is kept.
 #'
-#'    Careful with large k. A motif with freqs 10 is 80 MB.
+#'    If \code{threshold.type = 'logodds'}, then to calculate the minimum
+#'    allowed score the maximum possible score for a motif is multiplied
+#'    by the value set by \code{threshold}. To determine the maximum
+#'    possible score a motif (of type PWM), run
+#'    \code{sum(apply(motif['motif'], 2, max))}.
 #'
-#'    Note: there are no memory-saving strategies implemented. Therefore
-#'    memory and cpu requirements increase exponentially with k.
+#'    If \code{threshold.type = 'pvalue'}, then the P-value as set by
+#'    \code{threshold} is converted to a minimum logodds score using
+#'    the \code{\link[TFMPvalue]{TFMpv2sc}} function. Note that this
+#'    is available for DNA motifs only. Accordingly, if DNA motifs are
+#'    used then the P-value for each result is also reported using the
+#'    \code{\link[TFMPvalue]{TFMsc2pv}} function.
+#'
+#'    Note: the memory and processing costs for this function increase
+#'    exponentially with increasing k.
 #'
 #' @examples
-#'    \dontrun{
-#'    set.seed(1)
-#'    alphabet <- paste(c(letters), collapse = "")
-#'    motif <- create_motif("hello", alphabet = alphabet)
-#'    sequences <- create_sequences(alphabet, seqnum = 1000, seqlen = 100000)
-#'    scan_sequences(motif, sequences)
-#'    }
+#' # any alphabet can be used
+#' \dontrun{
+#' set.seed(1)
+#' alphabet <- paste(c(letters), collapse = "")
+#' motif <- create_motif("hello", alphabet = alphabet)
+#' sequences <- create_sequences(alphabet, seqnum = 1000, seqlen = 100000)
+#' scan_sequences(motif, sequences)
+#' }
+#'
+#' @references
+#'    \insertRef{biostrings}{universalmotif}
+#'
+#'    \insertRef{tfmpvalue}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
+#'    \code{\link{enrich_motifs}}
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
                            threshold.type = "logodds", RC = FALSE,
-                           use.freq = 1, do.not.ask = FALSE, 
-                           BPPARAM = SerialParam()) {
+                           use.freq = 1, BPPARAM = SerialParam()) {
 
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,

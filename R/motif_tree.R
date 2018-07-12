@@ -1,18 +1,26 @@
 #' Generate ggplot2 motif trees with ggtree.
 #'
-#' For more powerful motif tree functions, see motifStack.
+#' For more powerful motif tree functions, see the motifStack package.
 #'
-#' @param motifs List of motifs or 'dist' object.
-#' @param layout Character.
-#' @param linecol Character. (family, organism, etc)
-#' @param labels Character. (name, altname, etc)
-#' @param tipsize Character. (icscore, pval, qval, eval)
-#' @param legend Logical.
-#' @param branch.length Character.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param motifs List of \linkS4class{universalmotif} objects or 'dist' object.
+#' @param layout Character. One of 'rectangular', 'slanted', 'fan', 'circular',
+#'    'radial', 'equal_angle', and 'daylight'.
+#' @param linecol Character. \linkS4class{universalmotif} slot to use to
+#'    colour lines (e.g. 'family').
+#' @param labels Character. \linkS4class{universalmotif} slot to use to label
+#'    tips (e.g. 'name').
+#' @param tipsize Character. \linkS4class{universalmotif} slot to use to
+#'    control tip size (e.g. 'icscore').
+#' @param legend Logical. Show legend for line colour and tip size.
+#' @param branch.length Character. If 'none', draw a cladogram.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... ggtree params.
 #'
 #' @return ggplot2 object.
+#'
+#' @details
+#'    See \code{\link[ggtree]{ggtree}} for more detailed descriptions of
+#'    parameters.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -20,6 +28,14 @@
 #' jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 #'                           layout = "rectangular")
 #'
+#' @references
+#'    \insertRef{ggtree}{universalmotif}
+#'
+#'    \insertRef{ggplot2}{universalmotif}
+
+#'
+#' @seealso \code{\link[motifStack]{motifStack}}, \code{\link{compare_motifs}},
+#'    \code{\link[ggtree]{ggtree}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",

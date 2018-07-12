@@ -1,17 +1,21 @@
 #' Shuffle input sequences.
 #'
-#' @param sequences XStringSet objects.
+#' Given a set of input sequences, shuffle the letters within those
+#' sequences with any k-let size.
+#'
+#' @param sequences XStringSet object. For \code{method = 'markov'}, DNAStringSet
+#'    and RNAStringSet only.
 #' @param k Numeric. k-let size.
-#' @param method Character. One of 'markov', 'linear', and 'random'.
-#' @param leftovers Character. For \code{method = 'random'}.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param method Character. One of 'markov', 'linear', and 'random'. See details.
+#' @param leftovers Character. For \code{method = 'random'}. One of 'asis',
+#'    'first', 'split', and 'discard'. See details.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return XStringSet object.
 #'
 #' @details
-#'    If one of \code{keepDI} and \code{keepTRI} is \code{TRUE}, then
-#'    the Markov model \insertCite{markovmodel}{universalmotif} is used to
-#'    generate sequences which will maintain (on average) the di/trinucleotide
+#'    If \code{method = 'markov'}, then the Markov model is used to
+#'    generate sequences which will maintain (on average) the k-let
 #'    frequencies. Please note that this method is not a 'true' shuffling, and
 #'    for short sequences (e.g. <100bp) this can result in slightly more
 #'    dissimilar sequences versus true shuffling. See
@@ -19,11 +23,30 @@
 #'    \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
 #'    topic.
 #'
+#'    If \code{method = 'linear'}, then the input sequences are split linearly
+#'    every k letters; for example, for k = 3 'ACAGATAGACCC' becomes
+#'    'ACA GAT AGA CCC'; afterwhich these 3-lets are shuffled randomly. If
+#'    \code{method = 'random'}, then k-lets are picked from the sequence
+#'    completely randomly. This however can leave 'leftover' letters, where
+#'    lone letter islands smaller than k are left. There are a few options
+#'    provided to deal with these: \code{leftovers = 'asis'} will leave these
+#'    letter islands in place; \code{leftovers = 'first'} will place these
+#'    letters at the beginning of the sequence; \code{leftovers = 'split'}
+#'    will place half of the leftovers at the beginning and end of the 
+#'    sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
+#'    Do note however, that the 'method' parameter is only relevant for k > 1.
+#'
 #' @references
 #'    \insertRef{markovmodel}{universalmotif}
 #'
 #'    \insertRef{markovmodel2}{universalmotif}
 #'
+#' @examples
+#' sequences <- create_sequences()
+#' sequences.shuffled <- shuffle_sequences(sequences, k = 2)
+#'
+#' @seealso \code{\link{create_sequences}}, \code{\link{scan_sequences}},
+#'    \code{\link{enrich_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",

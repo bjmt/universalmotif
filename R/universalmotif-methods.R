@@ -171,7 +171,6 @@ setMethod("initialize", signature = "universalmotif",
             } else {
               .Object@motif <- .Object@motif[order(rownames(.Object@motif)), ]
             }
-
             if (missing(bkg) || length(bkg) == 0 || is.na(bkg)) {
               if (alphabet %in% c("DNA", "RNA")) {
                 bkg <- rep(0.25, 4)

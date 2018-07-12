@@ -345,7 +345,7 @@ String get_consensusAAC(NumericVector position, String type="PPM",
   bool test = all(position < 0.1).is_true();
   if (test) return "X";
 
-  NumericVector position2 = position;
+  NumericVector position2 = Rcpp::clone(position);
   std::sort(position2.begin(), position2.end());
   if (position2[19] == position2[18]) return "X";
 

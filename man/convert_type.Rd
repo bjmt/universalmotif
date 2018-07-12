@@ -8,7 +8,7 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
   relative_entropy = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{\linkS4class{universalmotif} object(s).}
+\item{motifs}{\linkS4class{universalmotif} objects.}
 
 \item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
 
@@ -27,10 +27,10 @@ for small sample sizes. Only used if
 \item{relative_entropy}{Logical. If true, the ICM will be
 calculated as relative entropy. (See details.)}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-\linkS4class{universalmotif} object(s).
+\linkS4class{universalmotif} objects.
 }
 \description{
 Switch between position count matrix (PCM), position probability matrix

@@ -1,15 +1,19 @@
 #' Import motifs from raw matrices.
 #'
+#' Import motifs formatted simply, as matrices.
+#'
 #' @param file Character.
-#' @param skip Numeric.
-#' @param positions Character. One of 'columns' or 'rows'.
+#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#'    file before starting to read.
+#' @param positions Character. One of 'columns' or 'rows'. Indicate whether each
+#'    position within a motif is represented as a row or a column in the file.
 #' @param alphabet Character. 'DNA', 'RNA', 'AA', or a string of letters.
 #' @param type Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing will
 #'             try and guess which one.
 #' @param sep Character. Indicates how individual motifs are seperated.
 #' @param headers Logical or character, indicating if and how to read names. 
 #' @param rownames Logical. Are there alphabet letters present as rownames?
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -17,6 +21,7 @@
 #'    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
 #'    hocomoco <- read_matrix(hocomoco, headers = ">", positions = "rows")
 #'
+#' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
@@ -74,6 +79,7 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
     motifs <- bplapply(motifs, t, BPPARAM = BPPARAM)
   }
 
+  motifs <- bplapply(motifs, function(x) {rownames(x) <- NULL; x}, BPPARAM = BPPARAM)
   if (!missing(type)) {
     motifs <- bplapply(motifs, function(x) {
                       universalmotif(motif = x, type = type, alphabet = alphabet)
@@ -89,6 +95,7 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
                        BPPARAM = BPPARAM, SIMPLIFY = FALSE)
   }
 
+  if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
 
 }

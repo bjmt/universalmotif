@@ -102,7 +102,7 @@ motifs.
 
 \item{\code{type}}{Character. Length 1.}
 
-\item{\code{icscore}}{Numeric. Length 1.}
+\item{\code{icscore}}{Numeric. Length 1. Generated automatically.}
 
 \item{\code{nsites}}{Numeric. Length 0 or 1.}
 
@@ -112,7 +112,7 @@ motifs.
 
 \item{\code{bkgsites}}{Numeric. Lenght 0 or 1.}
 
-\item{\code{consensus}}{Character. Length 0 or 1.}
+\item{\code{consensus}}{Character. Length 0 or 1. Generated automatically.}
 
 \item{\code{strand}}{Character. Length 1.}
 
@@ -124,7 +124,7 @@ motifs.
 
 \item{\code{multifreq}}{List.}
 
-\item{\code{extrainfo}}{Character. Length 0 or more.}
+\item{\code{extrainfo}}{Named character vector. Length 0 or more.}
 }}
 
 \author{

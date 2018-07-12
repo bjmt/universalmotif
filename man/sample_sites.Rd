@@ -11,13 +11,23 @@ sample_sites(motif, n = 100, BPPARAM = SerialParam())
 
 \item{n}{Numeric. Number of sites to generate.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \linkS4class{XStringSet} object.
 }
 \description{
-Generate binding sites from a motif.
+Given probabilities for a sequence as represented by a motif, generate
+random sequences with the same length as the motif.
+}
+\examples{
+motif <- create_motif()
+sites <- sample_sites(motif)
+
+}
+\seealso{
+\code{\link{create_sequences}}, \code{\link{create_motif}},
+   \code{\link{add_multifreq}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

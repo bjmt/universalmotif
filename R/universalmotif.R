@@ -30,7 +30,6 @@
 #' @importFrom TFBSTools TFFMFirst getPosProb
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
-#' @importFrom Logolas logomaker
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
 #' @importFrom TFMPvalue TFMpv2sc TFMsc2pv

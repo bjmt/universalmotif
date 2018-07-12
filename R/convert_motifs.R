@@ -8,7 +8,7 @@
 #' @param motifs Single motif object or list.
 #' @param class Desired motif class. Input as 'package-class'. If left empty,
 #'              defaults to 'universalmotif-universalmotif'. (See details.)
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Single motif object or list.
 #'
@@ -299,8 +299,8 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
             motifdb_fun <- function(i) {
               x <- motifs
               mot <- universalmotif_cpp(
-                             name = x@elementMetadata@listData$providerName[i],
-                             altname = x@elementMetadata@listData$geneSymbol[i],
+                             altname = x@elementMetadata@listData$providerName[i],
+                             name = x@elementMetadata@listData$geneSymbol[i],
                              family = x@elementMetadata@listData$tfFamily[i],
                              organism = x@elementMetadata@listData$organism[i],
                              motif = x@listData[[i]], alphabet = "DNA",

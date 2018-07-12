@@ -12,45 +12,84 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{Motifs.}
+\item{motifs}{\linkS4class{universalmotif} objects.}
 
-\item{sequences}{DNAStringSet.}
+\item{sequences}{XStringSet. Alphabet should match motif.}
 
-\item{bkg.sequences}{DNAStringSet.}
+\item{bkg.sequences}{XStringSet. Optional; if missing,
+\code{\link{shuffle_sequences}} is used to create background sequences from
+the input sequences.}
 
-\item{search.mode}{Character.}
+\item{search.mode}{Character. One of 'hits', 'positional', and 'both'.
+See details.}
 
-\item{max.p}{Numeric.}
+\item{max.p}{Numeric. P-value threshold.}
 
-\item{max.q}{Numeric.}
+\item{max.q}{Numeric. Adjusted P-value threshold. This is only useful
+if more than one motif is being enriched for.}
 
-\item{qval.method}{Numeric.}
+\item{qval.method}{Numeric. See \code{\link[stats]{p.adjust}}.}
 
-\item{positional.test}{Character.}
+\item{positional.test}{Character. One of 't.test', 'wilcox.test',
+'chisq.test', and 'shapiro.test'. If using the Shapiro test for
+normality, then only the input sequences are tested for positionality;
+the background sequences are ignored. See \code{\link[stats]{t.test}},
+\code{\link[stats]{wilcox.test}}, \code{\link[stats]{chisq.test}},
+\code{\link[stats]{shapiro.test}}.}
 
-\item{threshold}{Numeric.}
+\item{threshold}{Numeric, between 1 and 0. See \code{\link{scan_sequences}}.}
 
-\item{threshold.type}{Character. One of 'logodds' and 'pvalue'.}
+\item{threshold.type}{Character. One of 'logodds' and 'pvalue'. See
+\code{\link{scan_sequences}}.}
 
-\item{verbose}{Logical.}
+\item{verbose}{Logical. If \code{TRUE}, then the user is informed as each
+motif is scored.}
 
-\item{RC}{Logical.}
+\item{RC}{Logical. Whether to consider the reverse complement of the
+sequences.}
 
-\item{use.freq}{Numeric.}
+\item{use.freq}{Numeric. If the 'multifreq' slot of the motifs are filled,
+then they can be used to scan the sequences. See
+\code{\link{scan_sequences}}.}
 
-\item{shuffle.k}{Numeric.}
+\item{shuffle.k}{Numeric. The k-let size to use when shuffling input
+sequences. Only used if no background sequences are input. See
+\code{\link{shuffle_sequences}}.}
 
-\item{shuffle.method}{Character.}
+\item{shuffle.method}{Character. See \code{\link{shuffle_sequences}}.}
 
-\item{shuffle.leftovers}{Character.}
+\item{shuffle.leftovers}{Character. See \code{\link{shuffle_sequences}}.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-A list of results.
+Motif enrichment results, as a data.frame.
 }
 \description{
-DNA/RNA only.
+Given a set of target and background sequences, test if the target motifs
+are significantly enriched in the targets sequences relative to the
+background sequences.
+}
+\details{
+To find enriched motifs, \code{\link{scan_sequences}} is run on both 
+target and background sequences. If \code{search.mode = 'hits'},
+\code{\link[stats]{fisher.test}} is run to test for enrichment. If
+\code{search.mode = 'positional'}, then the test as set by
+\code{positional.test} is run to check for positional differences
+between target and background sequences. However if
+\code{positional.test = 'shapiro.test'}, then only target sequence
+hits are considered.
+}
+\examples{
+target.sequences <- create_sequences(monofreqs = c(0.7, 0.1, 0.1, 0.1))
+bkg.sequences <- create_sequences()
+motif <- create_motif(bkg = c(0.7, 0.1, 0.1, 0.1))
+enrich_motifs(motif, target.sequences, bkg.sequences)
+
+}
+\seealso{
+\code{\link{scan_sequences}}, \code{\link{shuffle_sequences}},
+   \code{\link{add_multifreq}}
 }
 \author{
 Benjamin Tremblay \email{b2tremblay@uwaterloo.ca}

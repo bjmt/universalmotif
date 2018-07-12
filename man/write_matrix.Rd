@@ -23,13 +23,25 @@ will use whatever type the motif is currently stored as.}
 
 \item{headers}{Logical or character, indicating if and how to write names.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.
 }
 \description{
-Export motifs as raw matrices.
+Write motifs as simple matrices with optional headers to file.
+}
+\examples{
+motif <- create_motif()
+write_matrix(motif, tempfile(), headers = ">")
+
+}
+\seealso{
+\code{\link{read_matrix}}
+
+Other write_motifs: \code{\link{write_homer}},
+  \code{\link{write_jaspar}}, \code{\link{write_meme}},
+  \code{\link{write_transfac}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

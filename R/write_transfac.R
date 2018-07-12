@@ -1,8 +1,10 @@
 #' Export motifs in TRANSFAC format.
 #'
+#' Convert motifs to TRANSFAC format and write to file.
+#'
 #' @param motifs List of motifs or a motif object.
 #' @param file Character.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -11,6 +13,11 @@
 #'                                     package = "universalmotif"))
 #' write_transfac(jaspar, tempfile())
 #'
+#' @references
+#'    \insertRef{transfac}{universalmotif}
+#'
+#' @family write_motifs
+#' @seealso \code{\link{read_transfac}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_transfac <- function(motifs, file, BPPARAM = SerialParam()) {

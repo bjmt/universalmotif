@@ -1,5 +1,7 @@
 #' Export motifs as raw matrices.
 #'
+#' Write motifs as simple matrices with optional headers to file.
+#'
 #' @param motifs List of motifs or a single motif object.
 #' @param file Character.
 #' @param positions Character. One of 'columns' or 'rows'.
@@ -8,10 +10,16 @@
 #'             will use whatever type the motif is currently stored as.
 #' @param sep Character. Indicates how to separate individual motifs.
 #' @param headers Logical or character, indicating if and how to write names.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
+#' @examples
+#' motif <- create_motif()
+#' write_matrix(motif, tempfile(), headers = ">")
+#'
+#' @family write_motifs
+#' @seealso \code{\link{read_matrix}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,

@@ -31,7 +31,6 @@ Imports: methods,
     Biostrings,
     PWMEnrich,
     MotifDb,
-    Logolas,
     TFMPvalue,
     Rcpp
 Suggests: knitr,
@@ -42,6 +41,7 @@ Suggests: knitr,
     motifbreakR,
     RcisTarget,
     motifcounter,
+    Logolas,
     BCRANK
 LinkingTo: Rcpp
 RdMacros: Rdpack
@@ -65,7 +65,6 @@ Collate:
     'merge_motifs.R'
     'motif_rc.R'
     'motif_tree.R'
-    'read_bamm.R'
     'read_cisbp.R'
     'read_homer.R'
     'read_jaspar.R'

@@ -16,7 +16,7 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
 
 \item{family}{Keep motifs by family.}
 
-\item{organism}{By organism.}
+\item{organism}{Keep motifs by organism.}
 
 \item{width}{Keep motifs with minimum width.}
 
@@ -30,24 +30,31 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
 
 \item{strand}{Keeps motifs by strand.}
 
-\item{pval}{Keep motifs by p-value.}
+\item{pval}{Keep motifs by max P-value.}
 
-\item{qval}{Keep motifs by q-value.}
+\item{qval}{Keep motifs by max Q-value.}
 
-\item{eval}{Keep motifs by e-val.}
+\item{eval}{Keep motifs by max E-val.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of motifs.
 }
 \description{
-Filter a list of \linkS4class{universalmotif} motifs.
+Filter motifs based on the contents of available \linkS4class{universalmotif}
+slots.
 }
 \examples{
+# By minimum IC:
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
+
+# By organism:
+library(MotifDb)
+motifs <- convert_motifs(MotifDb)
+motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))
 
 }
 \author{

@@ -9,20 +9,31 @@ read_cisbp(file, skip = 0, BPPARAM = SerialParam())
 \arguments{
 \item{file}{Character.}
 
-\item{skip}{Numeric.}
+\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+file before starting to read.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.
 }
 \description{
-Import CIS-BP motifs.
+Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
+Assumed to be DNA motifs.
 }
 \examples{
 cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
                                 package = "universalmotif"))
 
+}
+\references{
+\insertRef{cisbp}{universalmotif}
+}
+\seealso{
+Other read_motifs: \code{\link{read_homer}},
+  \code{\link{read_jaspar}}, \code{\link{read_matrix}},
+  \code{\link{read_meme}}, \code{\link{read_transfac}},
+  \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

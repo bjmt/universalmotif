@@ -2,14 +2,14 @@
 % Please edit documentation in R/create_sequences.R
 \name{create_sequences}
 \alias{create_sequences}
-\title{Create random background sequences.}
+\title{Create random sequences.}
 \usage{
 create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, monofreqs,
   difreqs, trifreqs, BPPARAM = SerialParam())
 }
 \arguments{
-\item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of letters
-to be used as the alphabet.}
+\item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of
+letters/characters to be used as the alphabet.}
 
 \item{seqnum}{Numeric. Number of sequences to generate.}
 
@@ -25,13 +25,28 @@ named numeric vector of length 16.}
 \item{trifreqs}{Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 XStringSet object.
 }
 \description{
-Create random background sequences.
+Generate random sequences from any set of characters.
+}
+\examples{
+# create DNA sequences with slightly increased AT content:
+sequences <- create_sequences(monofreqs = c(0.3, 0.2, 0.2, 0.3))
+# create custom sequences:
+sequences.QWER <- create_sequences("QWER")
+# you can include non-alphabet characters are well, even spaces:
+sequences.custom <- create_sequences("!@#$ ")
+
+}
+\references{
+\insertRef{biostrings}{universalmotif}
+}
+\seealso{
+\code{\link{create_motif}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

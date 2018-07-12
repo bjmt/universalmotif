@@ -20,19 +20,29 @@ background frequencies will be set to freq = 1/length(alphabet)}
 \item{strand}{If missing, will use strand from motif objects (if identical);
 otherwise will default to "+ -"}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.
 }
 \description{
-Export motifs in MEME format.
+Convert motifs to minimal MEME format and write to file.
 }
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",
                                     package = "universalmotif"))
 write_meme(transfac, tempfile())
 
+}
+\references{
+\insertRef{meme}{universalmotif}
+}
+\seealso{
+\code{\link{read_meme}}
+
+Other write_motifs: \code{\link{write_homer}},
+  \code{\link{write_jaspar}}, \code{\link{write_matrix}},
+  \code{\link{write_transfac}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -9,21 +9,25 @@ motif_tree(motifs, layout = "circular", linecol = "family",
   branch.length = "none", BPPARAM = SerialParam(), ...)
 }
 \arguments{
-\item{motifs}{List of motifs or 'dist' object.}
+\item{motifs}{List of \linkS4class{universalmotif} objects or 'dist' object.}
 
-\item{layout}{Character.}
+\item{layout}{Character. One of 'rectangular', 'slanted', 'fan', 'circular',
+'radial', 'equal_angle', and 'daylight'.}
 
-\item{linecol}{Character. (family, organism, etc)}
+\item{linecol}{Character. \linkS4class{universalmotif} slot to use to
+colour lines (e.g. 'family').}
 
-\item{labels}{Character. (name, altname, etc)}
+\item{labels}{Character. \linkS4class{universalmotif} slot to use to label
+tips (e.g. 'name').}
 
-\item{tipsize}{Character. (icscore, pval, qval, eval)}
+\item{tipsize}{Character. \linkS4class{universalmotif} slot to use to
+control tip size (e.g. 'icscore').}
 
-\item{legend}{Logical.}
+\item{legend}{Logical. Show legend for line colour and tip size.}
 
-\item{branch.length}{Character.}
+\item{branch.length}{Character. If 'none', draw a cladogram.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{ggtree params.}
 }
@@ -31,7 +35,11 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 ggplot2 object.
 }
 \description{
-For more powerful motif tree functions, see motifStack.
+For more powerful motif tree functions, see the motifStack package.
+}
+\details{
+See \code{\link[ggtree]{ggtree}} for more detailed descriptions of
+   parameters.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -39,6 +47,15 @@ jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
                           layout = "rectangular")
 
+}
+\references{
+\insertRef{ggtree}{universalmotif}
+
+   \insertRef{ggplot2}{universalmotif}
+}
+\seealso{
+\code{\link[motifStack]{motifStack}}, \code{\link{compare_motifs}},
+   \code{\link[ggtree]{ggtree}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

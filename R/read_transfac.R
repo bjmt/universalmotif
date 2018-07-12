@@ -1,10 +1,13 @@
 #' Import TRANSFAC motifs.
 #'
-#' Assumed to be DNA motifs, type PCM.
+#' Import TRANSFAC formatted motifs. Assumed to be DNA motifs, type PCM.
+#' See \code{system.file("extdata", "transfac.txt", pacakge="universalmotif")}
+#' for an example motif.
 #'
 #' @param file Character.
-#' @param skip Numeric.
-#' @param BPPARAM See \code{\link[BiocParallel]{SerialParam}}.
+#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#'    file before starting to read.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return List of universalmotif objects.
 #'
@@ -12,6 +15,10 @@
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
 #'                                       package = "universalmotif"))
 #' 
+#' @references
+#'    \insertRef{transfac}{universalmotif}
+#'
+#' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {

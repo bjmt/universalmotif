@@ -10,12 +10,14 @@ read_matrix(file, skip = 0, type, positions = "columns", alphabet = "DNA",
 \arguments{
 \item{file}{Character.}
 
-\item{skip}{Numeric.}
+\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+file before starting to read.}
 
 \item{type}{Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing will
 try and guess which one.}
 
-\item{positions}{Character. One of 'columns' or 'rows'.}
+\item{positions}{Character. One of 'columns' or 'rows'. Indicate whether each
+position within a motif is represented as a row or a column in the file.}
 
 \item{alphabet}{Character. 'DNA', 'RNA', 'AA', or a string of letters.}
 
@@ -25,18 +27,24 @@ try and guess which one.}
 
 \item{rownames}{Logical. Are there alphabet letters present as rownames?}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 List of universalmotif objects.
 }
 \description{
-Import motifs from raw matrices.
+Import motifs formatted simply, as matrices.
 }
 \examples{
    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
    hocomoco <- read_matrix(hocomoco, headers = ">", positions = "rows")
 
+}
+\seealso{
+Other read_motifs: \code{\link{read_cisbp}},
+  \code{\link{read_homer}}, \code{\link{read_jaspar}},
+  \code{\link{read_meme}}, \code{\link{read_transfac}},
+  \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -8,37 +8,61 @@ shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis",
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{sequences}{XStringSet objects.}
+\item{sequences}{XStringSet object. For \code{method = 'markov'}, DNAStringSet
+and RNAStringSet only.}
 
 \item{k}{Numeric. k-let size.}
 
-\item{method}{Character. One of 'markov', 'linear', and 'random'.}
+\item{method}{Character. One of 'markov', 'linear', and 'random'. See details.}
 
-\item{leftovers}{Character. For \code{method = 'random'}.}
+\item{leftovers}{Character. For \code{method = 'random'}. One of 'asis',
+'first', 'split', and 'discard'. See details.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 XStringSet object.
 }
 \description{
-Shuffle input sequences.
+Given a set of input sequences, shuffle the letters within those
+sequences with any k-let size.
 }
 \details{
-If one of \code{keepDI} and \code{keepTRI} is \code{TRUE}, then
-   the Markov model \insertCite{markovmodel}{universalmotif} is used to
-   generate sequences which will maintain (on average) the di/trinucleotide
+If \code{method = 'markov'}, then the Markov model is used to
+   generate sequences which will maintain (on average) the k-let
    frequencies. Please note that this method is not a 'true' shuffling, and
    for short sequences (e.g. <100bp) this can result in slightly more
    dissimilar sequences versus true shuffling. See
    \insertCite{markovmodel;textual}{universalmotif} and 
    \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
    topic.
+
+   If \code{method = 'linear'}, then the input sequences are split linearly
+   every k letters; for example, for k = 3 'ACAGATAGACCC' becomes
+   'ACA GAT AGA CCC'; afterwhich these 3-lets are shuffled randomly. If
+   \code{method = 'random'}, then k-lets are picked from the sequence
+   completely randomly. This however can leave 'leftover' letters, where
+   lone letter islands smaller than k are left. There are a few options
+   provided to deal with these: \code{leftovers = 'asis'} will leave these
+   letter islands in place; \code{leftovers = 'first'} will place these
+   letters at the beginning of the sequence; \code{leftovers = 'split'}
+   will place half of the leftovers at the beginning and end of the 
+   sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
+   Do note however, that the 'method' parameter is only relevant for k > 1.
+}
+\examples{
+sequences <- create_sequences()
+sequences.shuffled <- shuffle_sequences(sequences, k = 2)
+
 }
 \references{
 \insertRef{markovmodel}{universalmotif}
 
    \insertRef{markovmodel2}{universalmotif}
+}
+\seealso{
+\code{\link{create_sequences}}, \code{\link{scan_sequences}},
+   \code{\link{enrich_motifs}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

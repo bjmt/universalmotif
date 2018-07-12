@@ -11,19 +11,22 @@ trim_motifs(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam())
 
 \item{IC_cutoff}{Numeric. Minimum allowed information content.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{SerialParam}}.}
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Motifs Motif object or list.
 }
 \description{
-Trim motifs.
+Remove edges of a motif with low information content.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.trimmed <- trim_motifs(jaspar)
 
+}
+\seealso{
+\code{\link{create_motif}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
