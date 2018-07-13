@@ -37,7 +37,7 @@ motif_rc <- function(motifs, BPPARAM = SerialParam()) {
     }
   }
 
-  motifs <- universalmotif(name = motifs["name"], altname = motifs["altname"],
+  motifs <- universalmotif_cpp(name = motifs["name"], altname = motifs["altname"],
                            family = motifs["family"],
                            motif = matrix(rev(as.numeric(motifs["motif"])),
                                           nrow = 4, byrow = FALSE),
@@ -48,8 +48,11 @@ motif_rc <- function(motifs, BPPARAM = SerialParam()) {
                            bkg = motifs["bkg"], bkgsites = motifs["bkgsites"],
                            strand = motifs["strand"], pval = motifs["pval"],
                            qval = motifs["qval"], eval = motifs["eval"],
-                           extrainfo = motifs["extrainfo"],
-                           multifreq = multifreq)
+                           extrainfo = motifs["extrainfo"])
+  if (length(multifreq) > 0) motif@multifreq <- multifreq
+
+  msg <- validObject_universalmotif(motifs)
+  if (length(msg) > 0) stop(msg)
 
   motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
   motifs

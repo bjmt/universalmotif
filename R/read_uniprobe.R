@@ -78,10 +78,12 @@ read_uniprobe <- function(file, skip = 0, BPPARAM = SerialParam()) {
     motif_list <- bpmapply(function(name, a, c, g, t) {
                              motif <- matrix(c(a, c, g, t), nrow = 4,
                                              byrow = TRUE)
-                             universalmotif(name = name,
+                             mot <- universalmotif_cpp(name = name,
                                             motif = motif,
                                             alphabet = "DNA",
                                             type = "PPM")
+                             msg <- validObject_universalmotif(mot)
+                             if (length(msg) > 0) stop(msg) else mot
                            }, motif_names, motif_A, motif_C, motif_G, motif_T,
                            SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 

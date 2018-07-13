@@ -69,6 +69,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           shuffle.leftovers = "asis", BPPARAM = SerialParam()) {
 
   # sequences <- DNAStringSet(sequences)
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   if (missing(bkg.sequences)) {
     if (verbose) cat("Shuffling input sequences\n")

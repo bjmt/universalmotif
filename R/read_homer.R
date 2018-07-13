@@ -63,7 +63,7 @@ read_homer <- function(file, skip = 0, BPPARAM = SerialParam()) {
   motif_meta <- bplapply(raw_lines[headers], parse_meta, BPPARAM = BPPARAM)
 
   homer2umot <- function(x, y) {
-    universalmotif(name = x[1],
+    mot <- universalmotif_cpp(name = x[1],
                    nsites = ifelse(is.na(as.numeric(x[2])), numeric(0),
                                    as.numeric(x[2])),
                    bkgsites = ifelse(is.na(as.numeric(x[3])), numeric(0),
@@ -75,6 +75,8 @@ read_homer <- function(file, skip = 0, BPPARAM = SerialParam()) {
                    type = "PPM",
                    family = x[6],
                    extrainfo = c(logodds = x[5]))
+    msg <- validObject_universalmotif(mot)
+    if (length(msg) > 0) stop(msg) else mot
   }
 
   motifs <- bpmapply(homer2umot, motif_meta, motif_list,

@@ -115,7 +115,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
   motif_meta <- bplapply(motifs, parse_meta, BPPARAM = BPPARAM)
 
   motifs <- bpmapply(function(x, y) {
-                      universalmotif(name = as.character(y[names(y) == 
+                      mot <- universalmotif_cpp(name = as.character(y[names(y) == 
                                                          "name"]),
                                      altname = as.character(y[names(y) == 
                                                             "altname"]),
@@ -126,6 +126,8 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
                                      motif = t(x),
                                      alphabet = "DNA",
                                      type = "PCM")
+                      msg <- validObject_universalmotif(mot)
+                      if (length(msg) > 0) stop(msg) else mot
                      }, motif_matrix, motif_meta, BPPARAM = BPPARAM)
 
   motifs

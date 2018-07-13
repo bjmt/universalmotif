@@ -74,13 +74,15 @@ read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
                     } else if (all(colnames(x) %in% c("A", "C", "G", "T"))) {
                       alph <- "DNA"
                     }
-                    universalmotif(name = y[1],
+                    mot <- universalmotif_cpp(name = y[1],
                                    altname = y[2],
                                    family = y[3],
                                    organism = y[4],
                                    motif = t(x),
                                    alphabet = alph,
                                    type = "PPM")
+                    msg <- validObject_universalmotif(mot)
+                    if (length(msg) > 0) stop(msg) else mot
                   }, motif_list, meta_list, BPPARAM = BPPARAM)
 
   motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,

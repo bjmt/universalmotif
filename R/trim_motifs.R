@@ -18,7 +18,7 @@
 #' @export
 trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
 
-  # TODO: too slow. Need to implement in C++.
+  # TODO: too slow. Need to implement in c++.
 
   if (class(motifs) == "list") {
     motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff),
@@ -68,7 +68,7 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
   }
 
   if (!is.matrix(motif_mat)) motif_mat <- as.matrix(motif_mat)
-  motif <- universalmotif(name = motif["name"], altname = motif["altname"],
+  motif <- universalmotif_cpp(name = motif["name"], altname = motif["altname"],
                           family = motif["family"], motif = motif["motif"],
                           alphabet = motif["alphabet"], type = motif["type"],
                           organism = motif["organism"],
@@ -77,8 +77,11 @@ trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
                           bkg = motif["bkg"], bkgsites = motif["bkgsites"],
                           strand = motif["strand"], pval = motif["pval"],
                           qval = motif["qval"], eval = motif["eval"],
-                          extrainfo = motif["extrainfo"],
-                          multifreq = multifreq)
+                          extrainfo = motif["extrainfo"])
+  if (length(multifreq) > 0) motif@multifreq <- multifreq
+
+  msg <- validObject_universalmotif(motif)
+  if (length(msg) > 0) stop(msg)
 
   motif <- .internal_convert(motif, CLASS_IN, BPPARAM = BPPARAM)
   motif

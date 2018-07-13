@@ -82,20 +82,26 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   motifs <- bplapply(motifs, function(x) {rownames(x) <- NULL; x}, BPPARAM = BPPARAM)
   if (!missing(type)) {
     motifs <- bplapply(motifs, function(x) {
-                      universalmotif(motif = x, type = type, alphabet = alphabet)
+                      universalmotif_cpp(motif = x, type = type, alphabet = alphabet)
                      }, BPPARAM = BPPARAM)
   } else {
-    motifs <- bplapply(motifs, function(x) universalmotif(motif = x,
+    motifs <- bplapply(motifs, function(x) universalmotif_cpp(motif = x,
                                                           alphabet = alphabet),
                        BPPARAM = BPPARAM)
   }
 
   if (!isFALSE(headers)) {
-    motifs <- bpmapply(function(x, y) {x["name"] <- y; x}, motifs, headers,
+    motifs <- bpmapply(function(x, y) {x@name <- y; x}, motifs, headers,
                        BPPARAM = BPPARAM, SIMPLIFY = FALSE)
   }
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
+
+  motifs <- bplapply(motifs, function(x) {
+                         msg <- validObject_universalmotif(x)
+                         if (length(msg) > 0) stop(msg) else x
+                       }, BPPARAM = BPPARAM)
+
   motifs
 
 }

@@ -22,17 +22,25 @@ knitr::opts_chunk$set(collapse=TRUE, comment="#>")
 
 # Introduction to sequence motifs
 
+## Position count matrices
+
+## Position probability matrices
+
+## Position weight matrices
+
+# The universalmotif class and conversion utilities
+
+# The universalmotif class
+
+## Converting from another package
+
+## Converting from a universalmotif motif
+
 # Importing and exporting motifs
 
 ## Importing
 
 ## Exporting
-
-# Converting motif class
-
-## Starting from another package
-
-## Starting as a universalmotif motif
 
 # Modifying motifs and related functions
 

@@ -85,9 +85,11 @@ read_jaspar <- function(file, skip = 0, BPPARAM = SerialParam()) {
     } else if (all(c("A", "C", "G", "T") %in% alphabet)) {
       alphabet <- "DNA"
     } else alphabet <- "DNA"
-    universalmotif(name = name[1], altname = name[2],
+    mot <- universalmotif_cpp(name = name[1], altname = name[2],
                    type = "PCM", alphabet = alphabet,
                    motif = motif)
+    msg <- validObject_universalmotif(mot)
+    if (length(msg) > 0) stop(msg) else mot
   }
 
   motifs <- bpmapply(jaspar2umot, motifs, motif_names, 

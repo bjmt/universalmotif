@@ -149,13 +149,13 @@ convert_type <- function(motifs, type, pseudocount,
     return(motif)
   }
 
+  CLASS_IN <- .internal_convert(motif, BPPARAM = BPPARAM)
+  motif <- convert_motifs(motif, BPPARAM = BPPARAM)
+
   nalph <- nrow(motif["motif"])
   nbkg <- length(motif["bkg"])
   if (nalph != nbkg) stop("length of bkg must match alphabet length")
     
-  CLASS_IN <- .internal_convert(motif, BPPARAM = BPPARAM)
-  motif <- convert_motifs(motif, BPPARAM = BPPARAM)
-
   in_type <- motif["type"]
 
   if (in_type == type) return(motif)

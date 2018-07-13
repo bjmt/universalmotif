@@ -492,6 +492,7 @@ S4 universalmotif_cpp(
   }
   x.slot("icscore") = icscore[0];
 
+  if (NumericVector::is_na(bkgsites[0])) bkgsites = NumericVector::create();
   x.slot("bkgsites") = bkgsites;
   
   StringVector consensus_tmp(m_motif.ncol());
@@ -524,10 +525,13 @@ S4 universalmotif_cpp(
   
   x.slot("strand") = strand;
   
+  if (NumericVector::is_na(pval[0])) pval = NumericVector::create();
   x.slot("pval") = pval;
   
+  if (NumericVector::is_na(qval[0])) qval = NumericVector::create();
   x.slot("qval") = qval;
   
+  if (NumericVector::is_na(eval[0])) eval = NumericVector::create();
   x.slot("eval") = eval;
   
   if (StringVector::is_na(extrainfo[0])) extrainfo = StringVector::create();

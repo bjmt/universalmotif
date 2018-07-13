@@ -81,7 +81,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
                          BPPARAM = BPPARAM)
 
   motif_list <- bpmapply(function(x, y, z) {
-                          universalmotif(name = x,
+                          mot <- universalmotif_cpp(name = x,
                                          type = "PPM",
                                          nsites = y[1],
                                          eval = y[2],
@@ -90,6 +90,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
                                          strand = strands,
                                          motif = t(matrix(z, ncol = 4,
                                                           byrow = TRUE)))
+                          msg <- validObject_universalmotif(mot)
+                          if (length(msg) > 0) stop(msg) else mot
                          }, motif_names, motif_meta, motif_list,
                          SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 

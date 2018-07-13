@@ -84,6 +84,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
     stop("missing 'motifs' and/or 'sequences'")
   }
 
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   mot.name <- motifs["name"]
   mot.mat <- convert_type(motifs, "PWM")["motif"]
   mot.pfm <- convert_type(motifs, "PPM")["motif"]
