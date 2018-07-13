@@ -35,6 +35,7 @@ Imports: methods,
     Rcpp
 Suggests: knitr,
     BiocStyle,
+    rmarkdown,
     testthat,
     rGADEM,
     motifRG,

@@ -1,9 +1,10 @@
 ---
-title: "Introduction to the \"universalmotif\" package"
+title: "Introduction to motif manipulation with the \"universalmotif\" package"
+shorttitle: "Motif manipulation with \"universalmotif\""
 author:
 - name: Benjamin Tremblay
+  affiliation: University of Waterloo, Waterloo, Canada
   email: b2tremblay@uwaterloo.ca
-date: "`r Sys.Date()`"
 abstract: >
   Import, manipulate, and export motifs with R.
 bibliography: universalmotif.bib
@@ -15,13 +16,57 @@ output:
   BiocStyle::pdf_document
 ---
 
-```{r setup, echo = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment="#>")
 ```
 
-# Introduction
+# Introduction to sequence motifs
 
-This is the introduction. To link a bib file, add
-`bibliography: universalmotif.bib` to the yaml header. To compile the document,
-run `rmarkdown::render("~/universalmotif/vignettes/universalmotif.Rmd",
-BiocStyle::html_document())`.
+# Importing and exporting motifs
+
+## Importing
+
+## Exporting
+
+# Converting motif class
+
+## Starting from another package
+
+## Starting as a universalmotif motif
+
+# Modifying motifs and related functions
+
+## Accessing and changing universalmotif slots
+
+## Converting motif type
+
+## Comparing and merging motifs
+
+## Multi-letter information
+
+# Motif creation
+
+## From a PCM/PPM/PWM/ICM matrix
+
+## From sequences or character strings
+
+## Generating random motifs
+
+# Sequence-related functions
+
+## Sequence shuffling and creation
+
+## Searching for motifs in sequences
+
+# Motif visualization
+
+## Motif logos
+
+## Motif trees with ggtree and motifStack
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
