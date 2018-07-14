@@ -5,6 +5,7 @@ Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"),
                   email = "b2tremblay@uwaterloo.ca")
 Author: Benjamin Tremblay [aut, cre]
 Maintainer: Benjamin Tremblay <b2tremblay@uwaterloo.ca>
+URL: https://github.com/bjmt/universalmotif
 Description: Allows for importing most common motif types into R
     for use by functions provided by other Bioconductor motif-related packages.
     Motifs can be exported into most major motif formats from various classes 
@@ -61,6 +62,7 @@ Collate:
     'convert_type.R'
     'create_motif.R'
     'create_sequences.R'
+    'data.R'
     'enrich_motifs.R'
     'filter_motifs.R'
     'merge_motifs.R'
