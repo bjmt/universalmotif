@@ -35,13 +35,12 @@ NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat,
 }
 
 // [[Rcpp::export]]
-IntegerVector LETTER_to_int(IntegerVector seqs, int k) {
+IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
 
   IntegerVector out(seqs.length() / k);
-  int out_i;
-  int l_;
-  IntegerVector letters = unique(seqs);
-  int let_length = letters.length();
+  double out_i;
+  double l_;
+  double let_length = letters.length();
 
   for (int i = 0; i < seqs.length(); ++i) {
     if (i % k == 0) {
@@ -67,9 +66,9 @@ IntegerVector LETTER_to_int(IntegerVector seqs, int k) {
 }
 
 // [[Rcpp::export]]
-IntegerVector string_to_factor(StringVector x) {
+IntegerVector string_to_factor(StringVector x, StringVector y) {
 
-  StringVector lvls = sort_unique(x);
+  StringVector lvls = sort_unique(y);
   IntegerVector out = match(x, lvls);
 
   out.attr("levels") = as<CharacterVector>(lvls);

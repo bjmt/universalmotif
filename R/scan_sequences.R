@@ -191,15 +191,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
 
   } else {
 
-    # if (use.freq > 6 && !do.not.ask) {
-      # answer <- askYesNo("'use.freq' > 6 may crash R; do you wish to continue?")
-      # if (!answer || is.na(answer)) {
-        # return(NULL)
-      # } else {
-        # message("to skip this check set 'donot.ask = TRUE'")
-      # }
-    # }
-
     if (!as.character(use.freq) %in% names(motifs@multifreq) && use.freq != 1) {
       stop("no ", use.freq, "-letter frequencies found in motif ", motifs["name"])
     }
@@ -281,10 +272,24 @@ get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
     seq.mat[i, ] <- sequence.i[seq_len(ncol(seq.mat))]
   }
 
+  alph <- motif["alphabet"]
+  if (alph == "DNA") {
+    alph <- DNA_BASES
+  } else if (alph == "RNA") {
+    alph <- RNA_BASES
+  } else if (alph == "AA") {
+    alph <- AA_STANDARD
+  } else if (alph == "custom") {
+    alph <- unique(sequence)
+  } else {
+    alph <- strsplit(alph, "")[[1]]
+  }
+  alph.int <- as.integer(seq_len(length(alph)))
+
   ############
   # cpp
-  seq.mat <- string_to_factor(seq.mat)
-  seqs <- LETTER_to_int(as.integer(seq.mat) - 1, k)
+  seq.mat <- string_to_factor(seq.mat, alph)
+  seqs <- LETTER_to_int(as.integer(seq.mat) - 1, k, alph.int)
   to_keep <- scan_seq_internal(seqs, scores, min.score)
   ############
 

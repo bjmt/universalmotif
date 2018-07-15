@@ -8,7 +8,6 @@
 #'
 #' @import methods
 #' @import ggplot2
-#' @import ggseqlogo
 #' @import ggtree
 #' @import msa
 #' @importFrom BiocParallel bplapply bpmapply SerialParam 
@@ -24,8 +23,8 @@
 #' @importFrom Biostrings reverseComplement
 #' @importFrom ape as.phylo
 #' @importFrom seqLogo seqLogo
-#' @importFrom motifStack plotMotifLogo mergeMotifs
-#' @importFrom MotIV motifDistances makePWM readDBScores
+#' @importFrom motifStack mergeMotifs
+#' @importFrom MotIV makePWM
 #' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
 #' @importFrom TFBSTools TFFMFirst getPosProb
 #' @importFrom Rdpack reprompt

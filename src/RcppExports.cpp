@@ -56,25 +56,27 @@ BEGIN_RCPP
 END_RCPP
 }
 // LETTER_to_int
-IntegerVector LETTER_to_int(IntegerVector seqs, int k);
-RcppExport SEXP _universalmotif_LETTER_to_int(SEXP seqsSEXP, SEXP kSEXP) {
+IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters);
+RcppExport SEXP _universalmotif_LETTER_to_int(SEXP seqsSEXP, SEXP kSEXP, SEXP lettersSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type seqs(seqsSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(LETTER_to_int(seqs, k));
+    Rcpp::traits::input_parameter< IntegerVector >::type letters(lettersSEXP);
+    rcpp_result_gen = Rcpp::wrap(LETTER_to_int(seqs, k, letters));
     return rcpp_result_gen;
 END_RCPP
 }
 // string_to_factor
-IntegerVector string_to_factor(StringVector x);
-RcppExport SEXP _universalmotif_string_to_factor(SEXP xSEXP) {
+IntegerVector string_to_factor(StringVector x, StringVector y);
+RcppExport SEXP _universalmotif_string_to_factor(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(string_to_factor(x));
+    Rcpp::traits::input_parameter< StringVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(string_to_factor(x, y));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -262,8 +264,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 3},
     {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
-    {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 2},
-    {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 1},
+    {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},
+    {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},

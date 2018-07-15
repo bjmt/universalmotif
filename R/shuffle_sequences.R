@@ -193,6 +193,7 @@ shuffle_linear <- function(sequence, k) {
   } else {
     left.keep <- round((seq.mod + 0.1) / 2)
     right.keep <- seq.mod - left.keep
+    right.keep <- seq.len - right.keep + 1
     seq2 <- seq1[-c(1:left.keep, right.keep:seq.len)]
     left.keep <- seq1[1:left.keep]
     right.keep <- seq1[right.keep:length(seq1)]

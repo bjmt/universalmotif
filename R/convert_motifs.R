@@ -220,6 +220,8 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
                             name = motifs["name"],
                             alphabet = motifs["alphabet"],
                             background = motifs["bkg"])
+              colnames(motifs@mat) <- seq_len(ncol(motifs@mat))
+              names(motifs@background) <- rownames(motifs@mat)
               return(motifs)
             }
 
@@ -231,6 +233,8 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
                             name = motifs["name"],
                             alphabet = motifs["alphabet"],
                             background = motifs["bkg"])
+              colnames(motifs@mat) <- seq_len(ncol(motifs@mat))
+              names(motifs@background) <- rownames(motifs@mat)
               return(motifs)
             }
 

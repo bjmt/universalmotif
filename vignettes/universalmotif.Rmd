@@ -32,6 +32,9 @@ various types, in this package they are referred to as Position Count Matrix
 (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and
 Information Content Matrix (ICM). 
 
+These four types will be described here. Furthermore, the actual code used to
+go between these types can be see in `?utilities`.
+
 ## Position count matrices
 
 Also known as position frequency matrices, these are typically the most basic
@@ -197,7 +200,7 @@ library(universalmotif)
 library(seqLogo)
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-seqLogo(motif["motif"], ic.scale = FALSE)
+seqLogo::seqLogo(motif["motif"], ic.scale = FALSE)
 ```
 
 In this case, the height of the letters represent their probabilities at each
@@ -210,7 +213,7 @@ library(universalmotif)
 library(seqLogo)
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-seqLogo(motif["motif"], ic.scale = TRUE)
+seqLogo::seqLogo(motif["motif"], ic.scale = TRUE)
 ```
 
 Now, the total height of each position is scaled using the total
@@ -225,7 +228,7 @@ information content (IC) or maximum uncertainty, then subtracting that
 positions' actual uncertainty
 [@correction; @icm]. This calculation is based on Shannon's entropy
 [@shannon], with the final values representing 'bits' [@bits].
-The total information content (IC) is based on alphabet length,
+The total IC is based on alphabet length,
 using the following equation:
 
 \begin{equation}
@@ -237,7 +240,7 @@ For DNA motifs which have an alphabet length of 4, the total IC is 2. To
 calculate the positions' actual uncertainty, the following equation is used:
 
 \begin{equation}
-  Uncertainty = - \sum_{N=A}^{T} Prob_N \times{} \log{2}(Prob_N)
+  Uncertainty = - \sum_{N=A}^{T} Prob_N \times{} \log_{2}(Prob_N)
   (\#eq:posuncer)
 \end{equation}
 
@@ -262,7 +265,7 @@ The details for calculating this factor will not be covered here; refer to
 @correction. The `r Biocpkg("TFBSTools")` package offers the ability to
 incorporate this error correction.
 
-Finally, the get the height of each letter at each position, the final IC is
+Finally, to get the height of each letter at each position, the final IC is
 multiplied by the letter and position probabilities:
 
 \begin{equation}
@@ -290,7 +293,7 @@ entropy on the other hand will take this into account, but all positions no
 longer share the same maximum IC. To calculate relative entropy:
 
 \begin{equation}
-  IC_N = Prob_N \times{} \log{2}\left(\frac{Prob_N}{ProbBkg_N}\right)
+  IC_N = Prob_N \times{} \log_{2}\left(\frac{Prob_N}{ProbBkg_N}\right)
   (\#eq:kldiv)
 \end{equation}
 
@@ -382,45 +385,427 @@ examplemotif@strand <- "x"
 examplemotif
 ```
 
-## Converting from another package
+Below the exposed metadata slots, the actual 'motif' matrix is shown. Each
+position is its' own column; row names showing the alphabet letters, and 
+the column names showing the consensus letter at each position.
 
-## Converting from a universalmotif motif
+## Converting to and from another package's class
+
+The `r Biocpkg("universalmotif")` package aims to unify most of the
+motif-related Bioconductor packages by providing the `convert_motif` function.
+This allows for easy transition between supported packages (see
+`?convert_motif` for a complete list of supported packages).
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+suppressPackageStartupMessages(library(TFBSTools))
+data(MA0003.2)
+library(MotifDb)
+
+## convert from a universalmotif to another
+convert_motifs(examplemotif, "TFBSTools-PWMatrix")
+
+## convert to universalmotif
+convert_motifs(MA0003.2)
+
+## convert between two packages
+convert_motifs(MotifDb[1], "TFBSTools-ICMatrix")
+```
+
+The `convert_motifs` function is embedded in most of the
+`r Biocpkg("universalmotif")` functions, meaning that compatible motif classes
+from other packages can be used without needed to convert them first.
 
 # Importing and exporting motifs
 
 ## Importing
 
+The `r Biocpkg("universalmotif")` package offers a number of `read_` functions
+to allow for easy import of various motif formats. These include:
+
+* `read_cisbp`: CIS-BP [@cisbp]
+* `read_homer`: HOMER [@homer]
+* `read_jaspar`: JASPAR [@jaspar]
+* `read_meme`: MEME [@meme]
+* `read_transfac`: TRANSFAC [@transfac]
+* `read_uniprobe`: UniPROBE [@uniprobe]
+
+These functions should work natively with these formats, but if you are
+generating your own motifs in one of these formats than it must adhere quite
+strictly to the format. An example of each of these is included in this package;
+see `system.file("extdata", package="universalmotif")`.
+
+Additionally, the generic `read_matrix` function can read simply-formatted
+motif files; each motif can have a header and a motif matrix.
+
 ## Exporting
+
+Compatible motif classes can be written to disk using:
+
+* `write_homer`
+* `write_jaspar`
+* `write_matrix`
+* `write_meme`
+* `write_transfac`
+
+The `write_matrix` function, similar to its' `read_matrix` counterpart, can
+write motifs as simple matrices with an optional header.
 
 # Modifying motifs and related functions
 
-## Accessing and changing universalmotif slots
-
 ## Converting motif type
+
+Any `universalmotif` object can transition between PCM, PPM, PWM, and ICM types
+seamlessly using the `convert_type` function. The only exception to this is if
+the ICM calculation is performed with sample correction, or as relative
+entropy. If this occurs, then back conversion to another type will be
+inaccurate. 
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+
+## This motif is currently a PPM:
+examplemotif["type"]
+
+## When converting to PCM, the 'nsites' slot is needed to tell it how
+## many sequences it originated from. If empty, 100 is used.
+convert_type(examplemotif, "PCM")
+
+## For converting to PWM, the 'pseudocount' slot is used to determine if any
+## correction should be applied:
+examplemotif["pseudocount"]
+convert_type(examplemotif, "PWM")
+
+## You can either change the 'pseudocount' slot manually beforehand, or pass
+## one to 'convert_type'
+convert_type(examplemotif, "PWM", pseudocount = 1)
+
+## There are a couple of additional options for ICM conversion:
+## 'nsize_correction' and 'relative_entropy'. The former uses the
+## TFBSTools:::schneider_correction function for sample size correction.
+## The latter uses the 'bkg' slot to calculate information content.
+examplemotif["nsites"] = 10
+convert_type(examplemotif, "ICM", nsize_correction = FALSE)
+convert_type(examplemotif, "ICM", nsize_correction = TRUE)
+examplemotif["bkg"] = c(0.4, 0.1, 0.1, 0.4)
+convert_type(examplemotif, "ICM", relative_entropy = TRUE)
+```
 
 ## Comparing and merging motifs
 
+There a few functions available in other Bioconductor packages which allow for
+motif comparison. These include `PWMSimlarity` (`r Biocpkg("TFBSTools")`),
+`motifDistances` (`r Biocpkg("MotIV")`), and `motifSimilarity`
+(`r Biocpkg("PWMEnrich")`). Unfortunately these functions are not designed for
+comparing large numbers of motifs, and can result in long run times.
+The `r Biocpkg("universalmotif")` package
+aims to fix this by providing the `compare_motifs` function. Using the
+`r Biocpkg("TFBSTools")` implementation as a source, the function has been
+rewritten in C++ and allows for comparing thousands of motifs in seconds.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+## No need to convert class, most universalmotif functions will do it
+## automatically
+motifs.dist <- compare_motifs(MotifDb[1:5])
+as.dist(motifs.dist)
+
+## If comparing thousands of motifs, multicore usage is made available via
+## the 'BiocParallel' package
+
+library(BiocParallel)
+parallel.opt <- bpparam()
+## To add a progress bar:
+# parallel.opt$progressBar <- TRUE
+motifs.dist <- compare_motifs(MotifDb[1:5], BPPARAM = parallel.opt)
+```
+
+Additionally, `r Biocpkg("universalmotif")` provides the `merge_motifs`
+function. This first finds the best alignment of input motifs before merging.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+motifs <- convert_motifs(MotifDb[1:5])
+
+## Two merging methods are offered: via the 'msa' package, and via the 
+## 'motifStack' package.
+merge_motifs(motifs, method = "msa")
+merge_motifs(motifs, method = "motifStack")
+```
+
 ## Multi-letter information
+
+Though PCM/PPM/PWM/ICM type motifs are still widely used today, a few 'next
+generation' motif formats have been proposed. These wish to add another layer
+of information to motifs: nucleotide interdependence. To illustrate this,
+consider the following sequences:
+
+ # | Sequence
+-- | --------
+ 1 | CAAAACC
+ 2 | CAAAACC
+ 3 | CAAAACC
+ 4 | CTTTTCC
+ 5 | CTTTTCC
+ 6 | CTTTTCC
+: (\#tab:seqs2) Example sequences.
+
+This becomes the following PPM:
+
+Position |   1 |   2 |   3 |   4 |   5 |   6 |   7
+-------- | --- | --- | --- | --- | --- | --- | ---
+       A | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
+       C | 1.0 | 0.0 | 0.0 | 0.0 | 0.0 | 1.0 | 1.0
+       G | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+       T | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
+: (\#tab:ppm2) Position probability matrix.
+
+Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are
+equally likely. Though looking at the starting sequences, should CTATACC really
+be considered so? For transcription factor binding sites, generally the
+answer is no. By incorporating this type of information into the motif,
+this can allow for increased accuracy in motif searching. A few implementations
+of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
+
+The `r Biocpkg("universalmotif")` package implements its' own, much simplified,
+version of this concept. Plainly, the standard PPM has been extended to include
+k-letter frequencies, with k being any number higher than 1. For example, the
+2-letter version of the table \@ref(tab:ppm2) motif would be:
+
+Position |   1 |   2 |   3 |   4 |   5 |   6 
+-------- | --- | --- | --- | --- | --- | --- 
+      AA | 0.0 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
+      AC | 0.0 | 0.0 | 0.0 | 0.0 | 0.5 | 0.0
+      AG | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      AT | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      CA | 0.5 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      CC | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 1.0
+      CG | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      CT | 0.5 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      GA | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      GC | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      GG | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      GT | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      TA | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      TC | 0.0 | 0.0 | 0.0 | 0.0 | 0.5 | 0.0
+      TG | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
+      TT | 0.0 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
+: (\#tab:multi) 2-letter probability matrix.
+
+This format shows the probability of each letter combined with the probability
+of the letter in the next position. The seventh column has been dropped, since
+it is not needed; the information in the sixth column is sufficient, and there
+is no eighth position to draw 2-letter probabilities from.
+Now, the probability of getting CTATACC is no longer equal to CTTTTCC and
+CAAAACC. This information is kept in the `multifreq` slot of `universalmotif`
+class motifs. To add this information, use the `add_multifreq` function.
+
+```{r}
+library(universalmotif)
+library(Biostrings)
+
+motif <- create_motif("CWWWWCC", nsites = 6)  ## -> see next section
+sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
+motif.k2 <- add_multifreq(motif, sequences, add.k = 2)
+motif.k2
+```
 
 # Motif creation
 
+Though `universalmotif` class motifs can be created using the `new`
+constructor, the `r Biocpkg("universalmotif")` package provides the
+`create_motif` function which aims to provide a simpler interface to motif
+creation. The `universalmotif` class was designed to work natively with DNA,
+RNA, and amino acid motifs. Despite this, it can handle any custom alphabet
+just as easily.
+
+The `create_motif` function will be introduced briefly here; see `?create_motif`
+for details.
+
 ## From a PCM/PPM/PWM/ICM matrix
+
+Should you wish to make use of the `r Biocpkg("universalmotif")` functions
+starting from a unsupported motif class, you can instead create
+`universalmotif` class motifs using the `create_motif` function.
+
+```{r}
+motif.matrix <- matrix(c(0.7, 0.1, 0.1, 0.1,
+                         0.7, 0.1, 0.1, 0.1,
+                         0.1, 0.7, 0.1, 0.1,
+                         0.1, 0.7, 0.1, 0.1,
+                         0.1, 0.1, 0.7, 0.1,
+                         0.1, 0.1, 0.7, 0.1,
+                         0.1, 0.1, 0.1, 0.7,
+                         0.1, 0.1, 0.1, 0.7), nrow = 4)
+motif <- create_motif(motif.matrix, alphabet = "RNA", name = "My motif",
+                      pseudocount = 1, nsites = 20, strand = "+")
+## The 'type', 'icscore' and 'consensus' slots will be filled for you
+motif
+```
 
 ## From sequences or character strings
 
+If all you have is a particular consensus sequence in mind, you can easily
+create a full motif using `create_motif`. This can be convenient if you'd like
+to create a motif to use with an external program such as MEME or HOMER.
+
+```{r}
+motif <- create_motif("CCNSNGG", nsites = 50, pseudocount = 1)
+## write_meme(motif, "meme_motif.txt")
+
+motif
+```
+
 ## Generating random motifs
+
+If you wish, it's easy to generate random motifs:
+
+```{r}
+create_motif()
+
+## You can change the probabilities:
+create_motif(bkg = c(0.2, 0.4, 0.2, 0.2))
+
+## With a custom alphabet:
+create_motif(alphabet = "QWERTY")
+```
 
 # Sequence-related functions
 
 ## Sequence shuffling and creation
 
+The `r Biocpkg("Biostrings")` package offers an excellent suite of functions for
+dealing with biological sequences. The `r Biocpkg("universalmotif")` package
+hopes to help extend these by providing the `create_sequences` and
+`shuffle_sequences` functions.
+
+```{r}
+library(universalmotif)
+## library(Biostrings)
+## Create some DNA sequences for use with an external program:
+sequences <- create_sequences(seqnum = 500, monofreqs = c(0.3, 0.2, 0.2, 0.3))
+## writeXStringSet(sequences, "bkg.fasta")
+
+## Shuffle sequences:
+## sequences <- readDNAStringSet("sequences.fasta")
+sequences <- shuffle_sequences(sequences)
+
+## Maintain dinucleotide frequencies:
+sequences <- shuffle_sequences(sequences, k = 2)
+
+## Create sequences from any starting alphabet:
+sequences <- create_sequences(alphabet = "QWERTY")
+sequences <- shuffle_sequences(sequences, k = 6)
+```
+
 ## Searching for motifs in sequences
+
+There are many fantastic motif scanning and enrichment programs available, such
+as [HOMER](http://homer.ucsd.edu/homer/index.html) and the
+[MEME suite](http://meme-suite.org/) to name a couple. The
+`r Biocpkg("universalmotif")` package does not aim to supplant these, but
+rather provide convenience functions for quickly scanning a few sequences
+without needing to leave the R environment. Furthermore, these functions
+allow for taking advantage of the k-letter motif format described earlier.
+
+Two functions are provided: `scan_sequences` and `enrich_motifs`. Given a motif
+of length n, `scan_sequences` considers every n-length subset in a sequence and
+scores it using the PWM format. If it surpasses the minimum threshold, it is
+reported. This is case regardless of whether one is scanning with a regular
+motif, or using the k-letter motif format (the k-letter PPM is converted to
+a k-letter PWM). The second function, `enrich_motifs`,
+simply scans a set of target sequences, then a set of background sequences, and
+checks for significant enrichment.
+
+```{r}
+library(universalmotif)
+library(Biostrings)
+
+sequences <- create_sequences()
+
+## Let us revisit our 2-letter motif example:
+motif.k2 <- create_motif("CWWWWCC", nsites = 6)
+sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
+motif.k2 <- add_multifreq(motif.k2, sequences.k2, add.k = 2)
+
+## Regular scanning:
+scan_sequences(motif.k2, sequences, RC = TRUE)
+
+## Using 2-letter information to scan:
+scan_sequences(motif.k2, sequences, use.freq = 2, RC = TRUE)
+```
 
 # Motif visualization
 
 ## Motif logos
 
+There are several packages which offer motif visualization capabilities,
+such as `r Biocpkg("seqLogo")`, `r Biocpkg("Logolas")`,
+`r Biocpkg("motifStack")`, and `r CRANpkg("ggseqlogo")`. Here I will briefly
+show how to use these to visualize `universalmotif` class motifs.
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+
+## For all the examples, simply passing the functions a PPM is sufficient
+motif <- convert_type(examplemotif, "PPM")
+## Only need the matrix itself
+motif <- motif["motif"]
+
+## seqLogo:
+library(seqLogo)
+seqLogo::seqLogo(motif)
+
+## motifStack: 
+suppressPackageStartupMessages(library(motifStack))
+plotMotifLogo(motif)
+
+## Logolas:
+if (requireNamespace("Logolas", quietly = TRUE)) {
+  library(Logolas)
+  colnames(motif) <- seq_len(ncol(motif))
+  logomaker(motif, type = "Logo")
+}
+
+## ggseqlogo:
+if (requireNamespace("ggseqlogo", quietly = TRUE)) {
+  library(ggseqlogo)
+  ggseqlogo(motif)
+}
+```
+
+The `r Biocpkg("Logolas")` and `r CRANpkg("ggseqlogo")` offer many additional
+options for logo customization, including custom alphabets as well as manually
+determining the heights of each letter, via the
+`r Rpackage("grid")` and `r CRANpkg("ggplot2")` packages respectively.
+
 ## Motif trees with ggtree and motifStack
+
+The `r Biocpkg("motifStack")` offers a number of excellent functions for
+comparing motifs. Any of them can be used after using `convert_motifs`.
+Additionally, this package introduces the `motif_tree` function for generating
+basic tree-like diagrams for comparing motifs.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+suppressPackageStartupMessages(library(motifStack))
+
+## A simple motifStack example:
+motifs <- convert_motifs(MotifDb[1:10], "motifStack-pfm")
+motifStack(motifs, layout = "phylog")
+
+## motif_tree is much simpler, but also much faster and allows for
+## bigger trees; done via the ggtree package
+motif_tree(MotifDb[301:400], layout = "daylight", linecol = "family")
+```
 
 # Session info {.unnumbered}
 
