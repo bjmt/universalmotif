@@ -9,6 +9,7 @@ Bioconductor packages.
 
 ```r
 if (!requireNamespace("devtools", quietly=TRUE)) install.packages("devtools")
-devtools::install_github("bjmt/universalmotif")
+devtools::install_github("bjmt/universalmotif", build_vignettes = TRUE,
+                         dependencies = TRUE)
 ```
 
