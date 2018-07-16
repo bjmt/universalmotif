@@ -437,6 +437,12 @@ setMethod("create_motif", signature(input = "character"),
                                                          rownames(motif@multifreq[[i]]))
                 }
               }
+            } else if (length(input) > 1 && !missing(add.multifreq)) {
+              for (i in add.multifreq) {
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(BStringSet(input),
+                                                                    i,
+                                                                    rownames(motif["motif"]))
+              }
             }
 
             if (!is.null(rownames(motif@motif))) {
@@ -570,7 +576,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
             if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
-                                                                DNAStringSet(input),
+                                                         DNAStringSet(input),
                                                                 i)
               }
             }
@@ -621,14 +627,12 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
             if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
-                                                                DNAStringSet(input),
-                                                                i)
+                                                        DNAStringSet(input),
+                                                             i)
               }
-              if (alphabet == "RNA") {
-                for (i in names(motif@multifreq)) {
-                  rownames(motif@multifreq[[i]]) <- gsub("T", "U",
-                                                         rownames(motif@multifreq[[i]]))
-                }
+              for (i in names(motif@multifreq)) {
+                rownames(motif@multifreq[[i]]) <- gsub("T", "U",
+                                                   rownames(motif@multifreq[[i]]))
               }
             }
             
@@ -680,6 +684,14 @@ setMethod("create_motif", signature(input = "AAStringSet"),
                                                list(type = "PPM"),
                                                margs,
                                                list(alphabet = "AA")))
+
+            if (length(input) > 1 && !missing(add.multifreq)) {
+              for (i in add.multifreq) {
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(input,
+                                                                    i,
+                                                              AA_STANDARD)
+              }
+            }
 
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
@@ -750,6 +762,14 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                  list(alphabet = alphabet)))
             }
           
+            if (length(input) > 1 && !missing(add.multifreq)) {
+              for (i in add.multifreq) {
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(input,
+                                                                    i,
+                                                 rownames(motif["motif"]))
+              }
+            }
+
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
             if (!is.null(motif@motif) && !is.null(rownames(motif@motif))) {
