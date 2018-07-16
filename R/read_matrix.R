@@ -95,12 +95,12 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
                        BPPARAM = BPPARAM, SIMPLIFY = FALSE)
   }
 
-  if (length(motifs) == 1) motifs <- motifs[[1]]
-
   motifs <- bplapply(motifs, function(x) {
                          msg <- validObject_universalmotif(x)
                          if (length(msg) > 0) stop(msg) else x
                        }, BPPARAM = BPPARAM)
+
+  if (length(motifs) == 1) motifs <- motifs[[1]]
 
   motifs
 

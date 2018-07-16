@@ -49,6 +49,7 @@ write_jaspar <- function(motifs, file, BPPARAM = SerialParam()) {
     } else stop("unknown alphabet")
 
     nsites <- motif["nsites"]
+    if (length(nsites) == 0) nsites <- 100
     if (nsites > 99999) {
       width <- 6
     } else if (nsites > 9999) {
