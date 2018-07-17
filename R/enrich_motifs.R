@@ -36,6 +36,7 @@
 #'    \code{\link{shuffle_sequences}}.
 #' @param shuffle.method Character. See \code{\link{shuffle_sequences}}.
 #' @param shuffle.leftovers Character. See \code{\link{shuffle_sequences}}.
+#' @param progress_bar Logical. Show progress bar.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motif enrichment results, as a data.frame.
@@ -66,13 +67,14 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           threshold.type = "logodds",
                           verbose = TRUE, RC = TRUE, use.freq = 1,
                           shuffle.k = 1, shuffle.method = "linear",
-                          shuffle.leftovers = "asis", BPPARAM = SerialParam()) {
+                          shuffle.leftovers = "asis", progress_bar = FALSE,
+                          BPPARAM = SerialParam()) {
 
   # sequences <- DNAStringSet(sequences)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   if (missing(bkg.sequences)) {
-    if (verbose) cat("Shuffling input sequences\n")
+    if (verbose) cat(" * Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
                                        shuffle.leftovers, BPPARAM)
   } #else bkg.sequences <- DNAStringSet(bkg.sequences)
@@ -83,12 +85,13 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                          bkg.sequences,
                                          threshold, verbose, RC, use.freq,
                                          positional.test, BPPARAM,
-                                         search.mode, threshold.type))
+                                         search.mode, threshold.type,
+                                         progress_bar))
 
   res.all <- do.call(rbind, res.all)
 
   if (nrow(res.all) < 1) {
-    message("no enriched motifs")
+    message(" ! No enriched motifs")
     return(NULL)
   } 
 
@@ -116,7 +119,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   rownames(res.all) <- NULL
 
   if (nrow(res.all) < 1) {
-    message("no enriched motifs")
+    message(" ! No enriched motifs")
     return(NULL)
   } 
 
@@ -126,18 +129,20 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
 .enrich_mots <- function(motifs, sequences, bkg.sequences, threshold, verbose,
                          RC, use.freq, positional.test, 
-                         BPPARAM = BPPARAM, search.mode, threshold.type) {
+                         BPPARAM = BPPARAM, search.mode, threshold.type,
+                         progress_bar) {
 
-  if (verbose) cat("Enriching sequences for motif:", motifs["name"], "\n")
+  if (verbose) cat(" * Enriching sequences for motif:", motifs["name"], "\n")
 
-  if (verbose) cat("  scanning input sequences\n")
+  if (verbose) cat("   * scanning input sequences\n")
   results <- suppressMessages(scan_sequences(motifs, sequences, threshold,
                                              threshold.type, RC,
-                                             use.freq, BPPARAM))
-  if (verbose) cat("  scanning background sequences\n")
+                                             use.freq, progress_bar,
+                                             BPPARAM))
+  if (verbose) cat("   * scanning background sequences\n")
   results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
                                                  threshold.type, RC, use.freq,
-                                                 BPPARAM))
+                                                 progress_bar, BPPARAM))
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -170,7 +175,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                             length(bkg.hits) * bkg.norm, bkg.no * bkg.norm),
                           nrow = 2, byrow = TRUE)
 
-  if (verbose) cat("  testing for enrichment\n")
+  if (verbose) cat("   * testing for enrichment\n")
 
   hits.p <- fisher.test(results.table, alternative = "greater")$p.value
 
@@ -200,10 +205,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
 
   if (verbose && search.mode %in% c("hits", "both")) {
-    cat("    occurrences p-value:", hits.p, "\n")
+    cat("     * occurrences p-value:", hits.p, "\n")
   }
   if (verbose && search.mode %in% c("positional", "both")) {
-    cat("    positional bias p-value:", pos.p, "\n")
+    cat("     * positional bias p-value:", pos.p, "\n")
   } 
 
   results <- data.frame(motif = motifs["name"], sequence.hits = length(seq.hits),

@@ -4,7 +4,8 @@
 \alias{compare_motifs}
 \title{Compare motifs.}
 \usage{
-compare_motifs(motifs, method = "Euclidean", BPPARAM = SerialParam())
+compare_motifs(motifs, method = "Euclidean", k = 1,
+  BPPARAM = SerialParam(), progress_bar = FALSE)
 }
 \arguments{
 \item{motifs}{List of motifs. If not a \linkS4class{universalmotif} object,
@@ -13,7 +14,12 @@ classes.}
 
 \item{method}{One of 'Euclidean', 'Pearson', and 'KL'.}
 
+\item{k}{Numeric. If '1', compare regular motif matrices. Otherwise, compare
+k-freq multifreq slot.}
+
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+
+\item{progress_bar}{Logical. Show progress bar.}
 }
 \value{
 Distance matrix for Euclidean or KL; similarity matrix for Pearson.

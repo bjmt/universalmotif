@@ -6,7 +6,7 @@
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.6,
   threshold.type = "logodds", RC = FALSE, use.freq = 1,
-  BPPARAM = SerialParam())
+  progress_bar = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{\linkS4class{universalmotif} objects.}
@@ -25,6 +25,8 @@ sequences.}
 the \code{motif["motif"]} slot) to search for sequences. If a higher
 number is used, then the matching k-let matrix from the
 \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.}
+
+\item{progress_bar}{Logical. Shoe progress bar.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

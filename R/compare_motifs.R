@@ -10,6 +10,7 @@
 #' @param k Numeric. If '1', compare regular motif matrices. Otherwise, compare
 #'    k-freq multifreq slot.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param progress_bar Logical. Show progress bar.
 #'
 #' @return Distance matrix for Euclidean or KL; similarity matrix for Pearson.
 #'    Each distance/similarity score is between 0 and 1.
@@ -42,14 +43,25 @@
 #'    \code{\link{motif_tree}}
 #' @export
 compare_motifs <- function(motifs, method = "Euclidean", k = 1,
-                           BPPARAM = SerialParam()) {
+                           BPPARAM = SerialParam(),
+                           progress_bar = FALSE) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
 
+  pb_prev <- BPPARAM$progressbar
+  if (progress_bar) BPPARAM$progressbar <- TRUE
+
   if (k > 1) {
+
+    for (i in seq_along(motifs)) {
+      if (is.null(motifs[[i]]["multifreq"][[as.character(k)]])) {
+        stop("The following motif is missing ", k, "-letter freqs: ",
+             motifs[[i]]["name"])
+      }
+    }
 
     .compare_k <- function(x) {
       y <- vector("numeric", length = length(motifs))
@@ -82,6 +94,8 @@ compare_motifs <- function(motifs, method = "Euclidean", k = 1,
 
   colnames(comparisons) <- mot.names
   rownames(comparisons) <- mot.names
+
+  BPPARAM$progressbar <- pb_prev
 
   comparisons
 

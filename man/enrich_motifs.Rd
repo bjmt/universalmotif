@@ -9,7 +9,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   positional.test = "t.test", threshold = 0.6, threshold.type = "logodds",
   verbose = TRUE, RC = TRUE, use.freq = 1, shuffle.k = 1,
   shuffle.method = "linear", shuffle.leftovers = "asis",
-  BPPARAM = SerialParam())
+  progress_bar = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{\linkS4class{universalmotif} objects.}
@@ -59,6 +59,8 @@ sequences. Only used if no background sequences are input. See
 \item{shuffle.method}{Character. See \code{\link{shuffle_sequences}}.}
 
 \item{shuffle.leftovers}{Character. See \code{\link{shuffle_sequences}}.}
+
+\item{progress_bar}{Logical. Show progress bar.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

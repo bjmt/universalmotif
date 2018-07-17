@@ -13,6 +13,7 @@
 #'    the \code{motif["motif"]} slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
 #'    \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.
+#' @param progress_bar Logical. Shoe progress bar.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Results as a data.frame object.
@@ -68,7 +69,8 @@
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
                            threshold.type = "logodds", RC = FALSE,
-                           use.freq = 1, BPPARAM = SerialParam()) {
+                           use.freq = 1, progress_bar = FALSE,
+                           BPPARAM = SerialParam()) {
 
   if (is.list(motifs)) {
     results <- lapply(motifs, scan_sequences, threshold = threshold,
@@ -93,6 +95,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
 
   bkg <- motifs["bkg"]
   names(bkg) <- DNA_BASES
+
+  pb_prev <- BPPARAM$progressbar
 
   if (threshold.type == "pvalue" && motifs["alphabet"] == "DNA") {
     threshold <- TFMpv2sc(mot.pfm, threshold, bkg, type = "PFM")
@@ -151,11 +155,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
       }
     }
 
+    if (progress_bar) BPPARAM$progressbar <- TRUE
+    if (progress_bar) cat("Foward strand:\n")
     sequence.hits <- bplapply(seq_len(length(sequences)),
                               function(x) matchPWM(motif, sequences[[x]],
                                                    min.score = min.score,
                                                    with.score = TRUE),
                               BPPARAM = BPPARAM)
+    if (progress_bar) BPPARAM$progressbar <- FALSE
 
     sequence.hits <- bpmapply(parse_hits, sequence.hits, seq.names,
                               BPPARAM = BPPARAM, SIMPLIFY = FALSE)
@@ -164,11 +171,15 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
     if (nrow(sequence.hits) > 0) sequence.hits$strand <- "+"
 
     if (RC) {
+
+      if (progress_bar) BPPARAM$progressbar <- TRUE
+      if (progress_bar) cat("Reverse strand:\n")
       sequence.hits.rc <- bplapply(seq_len(length(sequences)),
                                    function(x) matchPWM(motif.rc, sequences[[x]],
                                                         min.score = min.score,
                                                         with.score = TRUE),
                                    BPPARAM = BPPARAM)
+      if (progress_bar) BPPARAM$progressbar <- FALSE
 
       sequence.hits.rc <- bpmapply(parse_hits, sequence.hits.rc, seq.names,
                                    "-", BPPARAM = BPPARAM, SIMPLIFY = FALSE)
@@ -195,17 +206,23 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
       stop("no ", use.freq, "-letter frequencies found in motif ", motifs["name"])
     }
 
+    if (progress_bar) BPPARAM$progressbar <- TRUE
+    if (progress_bar) cat("Foward strand:\n")
     results <- bpmapply(function(x, y) get_res_k(motifs, x, y, "+", use.freq,
                                                  threshold),
                         sequences, seq.names, SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+    if (progress_bar) BPPARAM$progressbar <- FALSE
 
     if (RC && motifs["alphabet"] %in% c("DNA", "RNA") &&
         sequences@elementType %in% c("DNAString", "RNAString")) {
 
+      if (progress_bar) BPPARAM$progressbar <- TRUE
+      if (progress_bar) cat("Reverse strand:\n")
       results.rc <- bpmapply(function(x, y) get_res_k(motifs, x, y, "-", use.freq,
                                                       threshold),
                              reverseComplement(sequences), seq.names,
                              SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+      if (progress_bar) BPPARAM$progressbar <- FALSE
 
       results <- c(results, results.rc)
 
@@ -226,6 +243,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   sequence.hits <- sequence.hits[order(sequence.hits$score.pct,
                                        decreasing = TRUE), ]
   rownames(sequence.hits) <- seq_len(nrow(sequence.hits))
+
+  BPPARAM$progressbar <- pb_prev
 
   if (motifs["alphabet"] == "DNA") {
     sequence.hits$p.value <- vapply(sequence.hits$score,
