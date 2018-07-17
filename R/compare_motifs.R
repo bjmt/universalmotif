@@ -7,6 +7,8 @@
 #'    they will be converted. See \code{\link{convert_motifs}} for supported
 #'    classes.
 #' @param method One of 'Euclidean', 'Pearson', and 'KL'.
+#' @param k Numeric. If '1', compare regular motif matrices. Otherwise, compare
+#'    k-freq multifreq slot.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Distance matrix for Euclidean or KL; similarity matrix for Pearson.
@@ -39,22 +41,42 @@
 #' @seealso \code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
 #'    \code{\link{motif_tree}}
 #' @export
-compare_motifs <- function(motifs, method = "Euclidean", BPPARAM = SerialParam()) {
+compare_motifs <- function(motifs, method = "Euclidean", k = 1,
+                           BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  .compare <- function(x) {
-    y <- vector("numeric", length = length(motifs))
-    for (j in seq_along(motifs)) {
-      y[j] <- motif_simil_internal(motifs[[x]]["motif"], motifs[[j]]["motif"],
-                                   method)
+
+  if (k > 1) {
+
+    .compare_k <- function(x) {
+      y <- vector("numeric", length = length(motifs))
+      for (j in seq_along(motifs)) {
+        y[j] <- motif_simil_internal(motifs[[x]]["multifreq"][[as.character(k)]],
+                                     motifs[[j]]["multifreq"][[as.character(k)]],
+                                     method)
+      }
+      data.frame(y)
     }
-    data.frame(y)
+
+    comparisons <- bplapply(seq_along(motifs), .compare_k, BPPARAM = BPPARAM)
+
+  } else {
+
+    .compare <- function(x) {
+      y <- vector("numeric", length = length(motifs))
+      for (j in seq_along(motifs)) {
+        y[j] <- motif_simil_internal(motifs[[x]]["motif"], motifs[[j]]["motif"],
+                                     method)
+      }
+      data.frame(y)
+    }
+
+    comparisons <- bplapply(seq_along(motifs), .compare, BPPARAM = BPPARAM)
   }
 
-  comparisons <- bplapply(seq_along(motifs), .compare, BPPARAM = BPPARAM)
   comparisons <- unlist(comparisons)
   comparisons <- matrix(comparisons, ncol = length(motifs))
 

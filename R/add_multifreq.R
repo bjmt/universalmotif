@@ -74,19 +74,21 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
   }
 
+  multifreq <- vector("list", length(add.k))
   if (sequences@elementType == "DNAString") {
     sequences <- DNAStringSet(seqs.out)
     for (i in seq_along(add.k)) {
-      motif@multifreq[[i]] <- add_multi(motif["bkg"], sequences, add.k[i])
+      multifreq[[i]] <- add_multi(motif["bkg"], sequences, add.k[i])
     }
   } else {
     alph <- rownames(motif["motif"])
     for (i in seq_along(add.k)) {
-      motif@multifreq[[i]] <- add_multi_ANY(sequences, add.k[i], alph)
+      multifreq[[i]] <- add_multi_ANY(sequences, add.k[i], alph)
     }
   }
 
-  names(motif@multifreq) <- add.k
+  names(multifreq) <- add.k
+  motif@multifreq <- multifreq
 
   motif
 

@@ -30,8 +30,8 @@ double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
   int mat_size = mot1.nrow() * mot1.ncol();
   
   for (int i = 0; i < mat_size; ++i) {
-    mot1[i] -= 0.25;
-    mot2[i] -= 0.25;
+    mot1[i] -= 1.0 / mot1.nrow();
+    mot2[i] -= 1.0 / mot1.nrow();
   }
 
   NumericMatrix mult_mat(mot1.nrow(), mot1.ncol());
