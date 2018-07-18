@@ -76,7 +76,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
     results <- lapply(motifs, scan_sequences, threshold = threshold,
                       threshold.type = threshold.type,
                       sequences = sequences, RC = RC, 
-                      use.freq = use.freq, BPPARAM = BPPARAM)
+                      use.freq = use.freq, BPPARAM = BPPARAM,
+                      progress_bar = progress_bar)
     results <- do.call(rbind, results)
     rownames(results) <- seq_len(nrow(results))
     return(results)
@@ -92,6 +93,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   mot.pfm <- convert_type(motifs, "PPM")["motif"]
   mot.len <- ncol(mot.mat)
   max.score <- sum(apply(mot.mat, 2, max))
+
+  if (progress_bar) cat(" * Scanning for motif:", mot.name, "\n")
 
   bkg <- motifs["bkg"]
   names(bkg) <- DNA_BASES
