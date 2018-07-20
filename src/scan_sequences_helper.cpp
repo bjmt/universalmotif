@@ -77,3 +77,19 @@ IntegerVector string_to_factor(StringVector x, StringVector y) {
   return out;
 
 }
+
+// [[Rcpp::export]]
+IntegerVector res_to_index(IntegerVector x) {
+
+  int x_len = x.length();
+
+  for (int i = 0; i < x_len; ++i) {
+    if (x[i] == 1) x[i] += i;
+  }
+
+  LogicalVector y = x != 0;
+  x = x[y];
+
+  return x;
+
+}

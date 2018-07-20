@@ -68,290 +68,265 @@
 #'    \code{\link{enrich_motifs}}
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.6,
-                           threshold.type = "logodds", RC = FALSE,
-                           use.freq = 1, progress_bar = FALSE,
-                           BPPARAM = SerialParam()) {
-
-  if (is.list(motifs)) {
-    results <- lapply(motifs, scan_sequences, threshold = threshold,
-                      threshold.type = threshold.type,
-                      sequences = sequences, RC = RC, 
-                      use.freq = use.freq, BPPARAM = BPPARAM,
-                      progress_bar = progress_bar)
-    results <- do.call(rbind, results)
-    rownames(results) <- seq_len(nrow(results))
-    return(results)
-  }
+                            threshold.type = "logodds", RC = FALSE,
+                            use.freq = 1, verbose = TRUE,
+                            progress_bar = FALSE,
+                            BPPARAM = SerialParam()) {
 
   if (missing(motifs) || missing(sequences)) {
-    stop("missing 'motifs' and/or 'sequences'")
+    stop("need both motifs and sequences")
   }
+
+  if (verbose) cat(" * Processing motifs\n")
+
+  if (!is.list(motifs)) motifs <- list(motifs)
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  mot.name <- motifs["name"]
-  mot.mat <- convert_type(motifs, "PWM")["motif"]
-  mot.pfm <- convert_type(motifs, "PPM")["motif"]
-  mot.len <- ncol(mot.mat)
-  max.score <- sum(apply(mot.mat, 2, max))
 
-  if (progress_bar) cat(" * Scanning for motif:", mot.name, "\n")
-
-  bkg <- motifs["bkg"]
-  names(bkg) <- DNA_BASES
-
-  pb_prev <- BPPARAM$progressbar
-
-  if (threshold.type == "pvalue" && motifs["alphabet"] == "DNA") {
-    threshold <- TFMpv2sc(mot.pfm, threshold, bkg, type = "PFM")
-    threshold <- threshold / sum(apply(mot.mat, 2, max))
-  } else if (threshold.type == "pvalue") {
-    stop("'threshold.type = pvalue' is only valid for DNA")
-  }
-  if (threshold < 0) stop("cannot have negative threshold")
-
-  min.score <- threshold * 100
-  min.score <- paste0(min.score, "%")
+  mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  mot.pwms <- convert_type(motifs, "PWM")
+  mot.pwms <- lapply(mot.pwms, function(x) x["motif"])
+  mot.lens <- vapply(mot.pwms, ncol, numeric(1))
+  mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
+  if (length(unique(mot.alphs)) != 1) stop("can only scan using one alphabet")
+  mot.alphs <- unique(mot.alphs)
+  alph <- unique(mot.alphs)
+  mot.bkgs <- lapply(motifs, function(x) x["bkg"])
+  seq.lens <- width(sequences)
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
+  if (threshold < 0) stop("cannot have negative threshold")
 
-  if (use.freq == 1 &&
-      motifs["alphabet"] %in% c("DNA", "RNA") &&
-      sequences@elementType %in% c("DNAString", "RNAString")) {
-
-    if (motifs["alphabet"] == "RNA") motifs <- switch_alph(motifs)
-    if (sequences@elementType == "RNAString") {
-      sequences <- DNAStringSet(sequences)
-      RNA <- TRUE
-    } else RNA <- FALSE
-
-    motif <- motifs
-    motif <- convert_type(motif, "PWM")
-    motif.rc <- suppressWarnings(motif_rc(motif))
-    motif <- motif["motif"]
-    motif.rc <- motif.rc["motif"]
-
-    parse_hits <- function(x, y, strand = "+") {
-      if (length(x) == 0) {
-        data.frame(motif = NULL, sequence = NULL, start = NULL, stop = NULL,
-                   max.score = NULL, score.pct = NULL, match = NULL,
-                   strand = NULL)
-      } else {
-        motif <- rep(mot.name, length(x))
-        sequence = rep(y, length(x))
-        start <- x@ranges@start
-        stop <- start + (mot.len - 1)
-        if (strand == "-") {
-          tmp <- start
-          start <- stop
-          stop <- tmp
-        }
-        score <- x@elementMetadata$score 
-        max.score <- rep(max.score, length(x))
-        score.pct <- (score / max.score) * 100
-        match <- as.character(x)
-
-        data.frame(motif = motif, sequence = sequence, start = start, stop = stop,
-                   score = score, max.score = max.score, score.pct = score.pct,
-                   match = match, strand = rep(strand, length(x)))
-      }
-    }
-
-    if (progress_bar) BPPARAM$progressbar <- TRUE
-    if (progress_bar) cat("Foward strand:\n")
-    sequence.hits <- bplapply(seq_len(length(sequences)),
-                              function(x) matchPWM(motif, sequences[[x]],
-                                                   min.score = min.score,
-                                                   with.score = TRUE),
-                              BPPARAM = BPPARAM)
-    if (progress_bar) BPPARAM$progressbar <- FALSE
-
-    sequence.hits <- bpmapply(parse_hits, sequence.hits, seq.names,
-                              BPPARAM = BPPARAM, SIMPLIFY = FALSE)
-
-    sequence.hits <- do.call(rbind, sequence.hits)
-    if (nrow(sequence.hits) > 0) sequence.hits$strand <- "+"
-
-    if (RC) {
-
-      if (progress_bar) BPPARAM$progressbar <- TRUE
-      if (progress_bar) cat("Reverse strand:\n")
-      sequence.hits.rc <- bplapply(seq_len(length(sequences)),
-                                   function(x) matchPWM(motif.rc, sequences[[x]],
-                                                        min.score = min.score,
-                                                        with.score = TRUE),
-                                   BPPARAM = BPPARAM)
-      if (progress_bar) BPPARAM$progressbar <- FALSE
-
-      sequence.hits.rc <- bpmapply(parse_hits, sequence.hits.rc, seq.names,
-                                   "-", BPPARAM = BPPARAM, SIMPLIFY = FALSE)
-
-      sequence.hits.rc <- do.call(rbind, sequence.hits.rc)
-      
-      if (nrow(sequence.hits.rc) > 0) sequence.hits.rc$strand <- "-"
-      match <- sequence.hits.rc$match
-      match <- as.character(reverseComplement(DNAStringSet(match)))
-      sequence.hits.rc$match <- match
-
-      sequence.hits <- rbind(sequence.hits, sequence.hits.rc)
-
-    }
-
-    if (RNA) {
-      sequence.hits$match <- gsub("T", "U", sequence.hits$match)
-    }
-
-
-  } else {
-
-    if (!as.character(use.freq) %in% names(motifs@multifreq) && use.freq != 1) {
-      stop("no ", use.freq, "-letter frequencies found in motif ", motifs["name"])
-    }
-
-    if (progress_bar) BPPARAM$progressbar <- TRUE
-    if (progress_bar) cat("Foward strand:\n")
-    results <- bpmapply(function(x, y) get_res_k(motifs, x, y, "+", use.freq,
-                                                 threshold),
-                        sequences, seq.names, SIMPLIFY = FALSE, BPPARAM = BPPARAM)
-    if (progress_bar) BPPARAM$progressbar <- FALSE
-
-    if (RC && motifs["alphabet"] %in% c("DNA", "RNA") &&
-        sequences@elementType %in% c("DNAString", "RNAString")) {
-
-      if (progress_bar) BPPARAM$progressbar <- TRUE
-      if (progress_bar) cat("Reverse strand:\n")
-      results.rc <- bpmapply(function(x, y) get_res_k(motifs, x, y, "-", use.freq,
-                                                      threshold),
-                             reverseComplement(sequences), seq.names,
-                             SIMPLIFY = FALSE, BPPARAM = BPPARAM)
-      if (progress_bar) BPPARAM$progressbar <- FALSE
-
-      results <- c(results, results.rc)
-
-    } else if (RC) warning("'RC = TRUE' is only supported for DNA/RNA")
-
-    sequence.hits <- do.call(rbind, results)
-
-  } 
-
-  if (is.null(sequence.hits)) {
-    message("no matches found using current threshold for motif ", mot.name)
-    return(NULL)
-  } else if (nrow(sequence.hits) == 0) {
-    message("no matches found using current threshold for motif ", mot.name)
-    return(NULL)
+  if (use.freq > 1) {
+    if (any(vapply(motifs, function(x) length(x["multifreq"]) == 0, logical(1))))
+      stop("missing multifreq slots")
+    check_multi <- vapply(motifs,
+                          function(x) any(names(x["multifreq"]) %in%
+                                          as.character(use.freq)),
+                          logical(1))
+    if (!any(check_multi)) stop("not all motifs have correct multifreqs")
   }
 
-  sequence.hits <- sequence.hits[order(sequence.hits$score.pct,
-                                       decreasing = TRUE), ]
-  rownames(sequence.hits) <- seq_len(nrow(sequence.hits))
-
-  BPPARAM$progressbar <- pb_prev
-
-  if (motifs["alphabet"] == "DNA") {
-    sequence.hits$p.value <- vapply(sequence.hits$score,
-                                    function(x) TFMsc2pv(mot.pfm, x, bkg, "PFM"),
-                                    numeric(1))
-    sequence.hits[, c(1:7, 10, 8:9)]
-  } else if (motifs["alphabet"] == "RNA") {
-    sequence.hits
-  } else {
-    sequence.hits[, -9]
-  }
-
-
-}
-
-get_res_k <- function(motif, seq, seq.name, seqstrand, k, threshold) {
-
-  sequence <- as.character(seq)
-  sequence <- strsplit(sequence, "")[[1]]
-
-  if (motif["pseudocount"] == 0) motif["pseudocount"] <- 0.0001
-  if (length(motif["nsites"]) == 0) motif["nsites"] <- 100
-
-  if (k == 1) {
-    scores <- convert_type(motif, "PWM")["motif"]
-  } else {
-    scores <- apply(motif@multifreq[[as.character(k)]], 2, ppm_to_pwmC,
-                    nsites = motif["nsites"],
-                    pseudocount = motif["pseudocount"])
-  }
-  max.score <- sum(apply(scores, 2, max))
-  min.score <- max.score * threshold
-
-  max.len <- length(sequence)
-  seq.mat <- matrix(ncol = max.len - k + 1, nrow = k)
-
-  for (i in seq_len(k)) {
-    to.remove <- i - 1
-    if (to.remove == 0) {
-      seq.mat[i, ] <- sequence[seq_len(ncol(seq.mat))]
-      next
-    }
-    sequence.i <- sequence[-seq_len(to.remove)]
-    seq.mat[i, ] <- sequence.i[seq_len(ncol(seq.mat))]
-  }
-
-  alph <- motif["alphabet"]
-  if (alph == "DNA") {
-    alph <- DNA_BASES
-  } else if (alph == "RNA") {
-    alph <- RNA_BASES
-  } else if (alph == "AA") {
-    alph <- AA_STANDARD
-  } else if (alph == "custom") {
-    alph <- unique(sequence)
-  } else {
-    alph <- strsplit(alph, "")[[1]]
-  }
-  alph.int <- as.integer(seq_len(length(alph)))
-
-  ############
-  # cpp
-  seq.mat <- string_to_factor(seq.mat, alph)
-  seqs <- LETTER_to_int(as.integer(seq.mat) - 1, k, alph.int)
-  to_keep <- scan_seq_internal(seqs, scores, min.score)
-  ############
-
-  to_keep <- which(as.logical(to_keep))
-
-  mot_len <- ncol(motif["motif"]) - k + 1
-  name <- motif["name"]
-
-  res <- lapply(to_keep, function(x) parse_k_res(x, sequence, seqs,
-                mot_len, min.score, max.score, name, seq.name, scores,
-                seqstrand, max.len, k))
-
-  do.call(rbind, res)
-
-}
-
-parse_k_res <- function(to_keep, sequence, seqs, mot_len, min.score,
-                        max.score, mot.name, seq.name, score.mat,
-                        strand, seq.length, k) {
-
-  if (strand == "+") {
-    hit <- seqs[to_keep:(to_keep + mot_len - 1)]
-    score <- score_seq(hit, score.mat)
-    data.frame(motif = mot.name, sequence = seq.name, start = to_keep,
-               stop = to_keep + mot_len + k - 2, score = score,
-               max.score = max.score, score.pct = score / max.score * 100,
-               match = paste(sequence[to_keep:(to_keep + mot_len + k - 2)],
-                             collapse = ""), strand = strand)
-  } else if (strand == "-") {
-    hit <- seqs[to_keep:(to_keep + mot_len - 1)]
-    score <- score_seq(hit, score.mat)
-    start <- seq.length - to_keep + 1
-    stop <- to_keep + mot_len
-    stop <- seq.length - stop - k + 3
-    match <- paste(sequence[to_keep:(to_keep + mot_len + k - 2)],
-                   collapse = "")
-    data.frame(motif = mot.name, sequence = seq.name, start = start,
-               stop = stop, score = score, max.score = max.score,
-               score.pct = score / max.score * 100,
-               match = as.character(match), strand = strand)
+  for (i in seq_along(motifs)) {
+    if (motifs[[i]]["pseudocount"] == 0) motifs[[i]]["pseudocount"] <- 0.0001
+    if (length(motifs[[i]]["nsites"]) == 0) motifs[[i]]["nsites"] <- 100
   }
   
+  if (use.freq == 1) {
+    score.mats <- convert_type(motifs, "PWM")
+    score.mats <- lapply(score.mats, function(x) x["motif"])
+  } else {
+    score.mats <- lapply(motifs,
+                         function(x) x["multifreq"][[as.character(use.freq)]]) 
+    for (i in seq_along(score.mats)) {
+      score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
+                               nsites = motifs[[i]]["nsites"],
+                               pseudocount = motifs[[i]]["pseudocount"])
+    }
+  }
+
+  max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
+  thresholds <- max.scores * threshold
+
+  if (threshold.type == "pvalue" && alph == "DNA") {
+    thresholds <- vector("numeric", length(motifs))
+    mot.pfms <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+    mot.pfms <- lapply(mot.pfms, function(x) x["motif"])
+    mot.bkgs <- lapply(mot.bkgs, function(x) {names(x) <- DNA_BASES; x})
+    for (i in seq_along(motifs)) {
+      thresholds[i] <- TFMpv2sc(mot.pfms[[i]], threshold, mot.bkgs[[i]],
+                                type = "PFM")
+    }
+    thresholds[thresholds < 0] <- 0
+  } else if (threshold.type == "pvalue") {
+    stop("'threshold.type = pvalue' is only valid for DNA")
+  }
+
+  if (verbose) cat(" * Processing sequences\n")
+
+  seqs.aschar <- as.character(sequences)
+  seqs.aschar <- bplapply(seqs.aschar, function(x) strsplit(x, "")[[1]],
+                          BPPARAM = BPPARAM)
+
+  seq.lens <- width(sequences)
+  seq.matrices <- lapply(seq.lens, function(x) matrix(ncol = x - use.freq + 1,
+                                                      nrow = use.freq))
+
+  seq.matrices <- bpmapply(.process_seqs, seq.matrices, seqs.aschar,
+                           MoreArgs = list(k = use.freq),
+                           BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+
+  if (mot.alphs == "DNA") {
+    mot.alphs <- DNA_BASES
+  } else if (mot.alphs == "RNA") {
+    mot.alphs <- RNA_BASES
+  } else if (mot.alphs == "AA") {
+    mot.alphs <- AA_STANDARD
+  } else if (alph == "custom") {
+    if (RC) stop("RC search is only available for DNA/RNA")
+    mot.alphs <- lapply(seqs.aschar, unique)
+    mot.alphs <- unique(do.call(c, mot.alphs))
+  } else {
+    if (RC) stop("RC search is only available for DNA/RNA")
+    mot.alphs <- strsplit(mot.alphs, "")[[1]]
+  }
+
+  alph.int <- as.integer(seq_len(length(mot.alphs)))
+
+  seq.matrices <- bplapply(seq.matrices,
+                           function(x) string_to_factor(x, mot.alphs),
+                           BPPARAM = BPPARAM)
+
+  seq.ints <- bplapply(seq.matrices,
+                       function(x) LETTER_to_int(as.integer(x) - 1,
+                                                 use.freq, alph.int),
+                       BPPARAM = BPPARAM)
+
+  if (verbose) cat(" * Scanning sequences for motifs\n")
+
+  if (progress_bar) pb_prev <- BPPARAM$progressbar
+  if (progress_bar) BPPARAM$progressbar <- TRUE
+
+  if (RC && verbose) cat("   * Forward strand\n")
+  to.keep <- bplapply(seq_along(score.mats),
+                      function(x) .score_motif(seq.ints, score.mats[[x]],
+                                               thresholds[x]),
+                      BPPARAM = BPPARAM)
+
+  if (RC) {
+    score.mats.rc <- lapply(score.mats,
+                            function(x) matrix(rev(as.numeric(x)),
+                                               ncol = ncol(x)))
+    if (verbose) cat("   * Reverse strand\n")
+    to.keep.rc <- bplapply(seq_along(score.mats.rc),
+                           function(x) .score_motif(seq.ints, score.mats.rc[[x]],
+                                                    thresholds[x]),
+                           BPPARAM = BPPARAM)
+  }
+
+  if (progress_bar) BPPARAM$progressbar <- FALSE
+
+  if (verbose) cat(" * Processing results\n")
+
+  to.keep <- bplapply(to.keep,
+                      function(x) lapply(x, function(x) res_to_index(x)),
+                      BPPARAM = BPPARAM)
+
+  if (RC) {
+    to.keep.rc <- bplapply(to.keep.rc,
+                           function(x) lapply(x, function(x) res_to_index(x)),
+                           BPPARAM = BPPARAM)
+  }
+
+  if (progress_bar) BPPARAM$progressbar <- TRUE
+
+  if (RC && verbose) cat("   * Forward strand\n")
+
+  res <- bplapply(seq_along(to.keep),
+                  function(x) .get_res(to.keep[[x]], seqs.aschar,
+                                       seq.ints, mot.lens[x], min.scores[x],
+                                       max.scores[x], mot.names[x], seq.names,
+                                       score.mats[[x]], strand = "+", seq.lens,
+                                       use.freq),
+                  BPPARAM = BPPARAM)
+
+  if (RC) {
+    if (verbose) cat("   * Reverse strand\n")
+    res.rc <- bplapply(seq_along(to.keep.rc),
+                       function(x) .get_res(to.keep.rc[[x]], seqs.aschar,
+                                            seq.ints, mot.lens[x], min.scores[x],
+                                            max.scores[x], mot.names[x],
+                                            seq.names, score.mats.rc[[x]],
+                                            strand = "-", seq.lens, use.freq),
+                       BPPARAM = BPPARAM)
+    res <- do.call(rbind, list(res, res.rc))
+  }
+
+  if (progress_bar) BPPARAM$progressbar <- FALSE
+
+  res <- res[vapply(res, is.data.frame, logical(1))]
+  if (length(res) == 0) {
+    message("no matches found")
+    return(NULL)
+  }
+  res <- do.call(rbind, res)
+  rownames(res) <- NULL
+
+  if (progress_bar) BPPARAM$progressbar <- pb_prev
+
+  if (!alph %in% c("DNA", "RNA")) res <- res[, -9]
+
+  res
+
+}
+
+.get_res <- function(to.keep, seqs.aschar, seq.ints, mot.lens, min.scores,
+                     max.scores, mot.names, seq.names, score.mats, strand,
+                     seq.lens, use.freq) {
+  # needs to be optimised
+  res <- lapply(seq_along(to.keep),
+                function(x) parse_k_res_v2(to.keep[[x]], seqs.aschar[[x]],
+                                        seq.ints[[x]], mot.lens, min.scores,
+                                        max.scores, mot.names, seq.names[x],
+                                        score.mats, strand, seq.lens[x],
+                                        use.freq))
+  res <- res[vapply(res, is.data.frame, logical(1))]
+  if (length(res) == 0) return(NULL)
+  res <- do.call(rbind, res)
+  res
+}
+
+.score_motif <- function(seqs, score.1, thresh) {
+  lapply(seqs, function(x) scan_seq_internal(x, score.1, thresh))
+}
+
+.process_seqs <- function(seq.matrix, seq.aschar, k) {
+  for (i in seq_len(k)) {
+    to.remove <- k - 1
+    if (to.remove == 0) {
+      seq.matrix[i, ] <- seq.aschar[seq_len(ncol(seq.matrix))]
+      next
+    }
+    seq.i <- seq.aschar[-seq_len(to.remove)]
+    seq.matrix[i, ] <- seq.aschar[seq_len(ncol(seq.matrix))]
+  }
+  seq.matrix
+}
+
+parse_k_res_v2 <- function(to_keep, sequence, seqs, mot_len, min.score,
+                           max.score, mot.name, seq.name, score.mat,
+                           strand, seq.length, k) {
+  n <- length(to_keep)
+
+  res <- data.frame(matrix(ncol = 9, nrow = n))
+  colnames(res) <- c("motif", "sequence", "start", "stop", "score",
+                     "max.score", "score.pct", "match", "strand")
+
+  res$motif <- rep(mot.name, n)
+  res$sequence <- rep(seq.name, n)
+  res$strand <- rep(strand, n)
+  res$max.score <- rep(max.score, n)
+  if (strand == "+") {
+    res$start <- to_keep
+    res$stop <- to_keep + mot_len + k - 2
+  } else if (strand == "-") {
+    res$start <- seq.length - to_keep
+    res$stop <- seq.length - (to_keep + mot_len) - k + 2
+  }
+
+  hits <- lapply(seq_along(to_keep),
+                 function(x) seqs[to_keep[x]:(to_keep[x] + mot_len - 1)])
+  scores <- vapply(hits, function(x) score_seq(x, score.mat), numeric(1))
+  res$score <- scores
+  res$score.pct <- res$score / res$max.score * 100
+
+  matches <- lapply(to_keep,
+                    function(x) paste(sequence[x:(x + mot_len + k - 2)],
+                                      collapse = ""))
+  res$match <- matches
+
+  res
+
 }
