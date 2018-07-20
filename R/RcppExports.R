@@ -25,6 +25,10 @@ string_to_factor <- function(x, y) {
     .Call('_universalmotif_string_to_factor', PACKAGE = 'universalmotif', x, y)
 }
 
+res_to_index <- function(x) {
+    .Call('_universalmotif_res_to_index', PACKAGE = 'universalmotif', x)
+}
+
 pcm_to_ppmC <- function(position, pseudocount = 0) {
     .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
 }

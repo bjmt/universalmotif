@@ -80,6 +80,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// res_to_index
+IntegerVector res_to_index(IntegerVector x);
+RcppExport SEXP _universalmotif_res_to_index(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(res_to_index(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pcm_to_ppmC
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount);
 RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP positionSEXP, SEXP pseudocountSEXP) {
@@ -266,6 +277,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},
     {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},
+    {"_universalmotif_res_to_index", (DL_FUNC) &_universalmotif_res_to_index, 1},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},

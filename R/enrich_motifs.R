@@ -14,6 +14,8 @@
 #' @param max.p Numeric. P-value threshold.
 #' @param max.q Numeric. Adjusted P-value threshold. This is only useful
 #'    if more than one motif is being enriched for.
+#' @param max.e Numeric. The E-value is calculated by multiplying the
+#'    P-value with the number of input motifs \insertCite{meme2}{universalmotif}.
 #' @param qval.method Numeric. See \code{\link[stats]{p.adjust}}.
 #' @param positional.test Character. One of 't.test', 'wilcox.test',
 #'    'chisq.test', and 'shapiro.test'. If using the Shapiro test for
@@ -35,6 +37,10 @@
 #'    \code{\link{shuffle_sequences}}.
 #' @param shuffle.method Character. See \code{\link{shuffle_sequences}}.
 #' @param shuffle.leftovers Character. See \code{\link{shuffle_sequences}}.
+#' @param progress_bar Logical. Show progress bar from
+#'    \code{\link{scans_sequences}}.
+#' @param return.scan.results Logical. Return output from
+#'    \code{\link{scan_sequences}}.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motif enrichment results, as a data.frame.
@@ -55,18 +61,23 @@
 #' motif <- create_motif(bkg = c(0.7, 0.1, 0.1, 0.1))
 #' enrich_motifs(motif, target.sequences, bkg.sequences)
 #'
+#' @references
+#'    \insertRef{meme2}{universalmotif}
+#'
 #' @author Benjamin Tremblay \email{b2tremblay@@uwaterloo.ca}
 #' @seealso \code{\link{scan_sequences}}, \code{\link{shuffle_sequences}},
 #'    \code{\link{add_multifreq}}
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
-                          max.p = 0.001, max.q = 0.001, qval.method = "fdr",
+                          max.p = 10e-6, max.q = 10e-6, max.e = 1,
+                          qval.method = "fdr",
                           positional.test = "t.test", threshold = 0.6,
                           threshold.type = "logodds",
                           verbose = 1, RC = FALSE, use.freq = 1,
-                          shuffle.k = 1, shuffle.method = "linear",
+                          shuffle.k = 2, shuffle.method = "linear",
                           shuffle.leftovers = "asis",
                           progress_bar = FALSE,
+                          return.scan.results = FALSE,
                           BPPARAM = SerialParam()) {
 
   v1 <- FALSE; v2 <- FALSE
@@ -86,51 +97,74 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   res.all <- .enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                            verbose, RC, use.freq, positional.test,
                            BPPARAM, search.mode, threshold.type,
-                           motcount, v1, v2, progress_bar)
+                           motcount, v1, v2, progress_bar,
+                           return.scan.results)
+
+  if (return.scan.results) {
+    res.scan <- res.all[2:3]
+    res.all <- res.all[[1]]
+    if (nrow(res.scan[[1]]) == 0) res.scan[[1]] <- NULL
+    if (nrow(res.scan[[2]]) == 0) res.scan[[2]] <- NULL
+  }
 
   if (nrow(res.all) < 1) {
-    if (v1) cat("\n")
     message(" ! No enriched motifs")
-    return(NULL)
+    if (return.scan.results) {
+      res.all <- c(list(NULL), res.scan)
+      names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
+      return(res.all)
+    } else return(NULL)
   } 
 
   res.all$Qval.hits <- p.adjust(res.all$Pval.hits, method = qval.method)
   res.all$Qval.pos <- p.adjust(res.all$Pval.pos, method = qval.method)
+  res.all$Eval.hits <- res.all$Pval.hits * length(motifs)
+  res.all$Eval.pos <- res.all$Pval.pos * length(motifs)
 
   if (search.mode == "hits") {
     res.all <- res.all[order(res.all$Qval.hits), ]
     res.all <- res.all[res.all$Pval.hits < max.p, ]
     res.all <- res.all[res.all$Qval.hits < max.q, ]
-    res.all <- res.all[, -c(4, 5, 8, 9, 11, 13)]
+    res.all <- res.all[res.all$Eval.hits < max.e, ]
+    res.all <- res.all[, -c(4, 5, 8, 9, 11, 13, 15)]
   } else if (search.mode == "positional") {
     res.all <- res.all[order(res.all$Qval.pos), ]
     res.all <- res.all[res.all$Pval.pos < max.p, ]
     res.all <- res.all[res.all$Qval.pos < max.q, ]
-    res.all <- res.all[, -c(2, 3, 6, 7, 10, 12)]
+    res.all <- res.all[res.all$Eval.pos < max.e, ]
+    res.all <- res.all[, -c(2, 3, 6, 7, 10, 12, 14)]
   } else if (search.mode == "both") {
     res.all <- res.all[order(res.all$Qval.hits), ]
     res.all <- res.all[res.all$Pval.hits < max.p | res.all$Pval.pos < max.p, ]
     res.all <- res.all[res.all$Qval.hits < max.q | res.all$Qval.pos < max.q, ]
+    res.all <- res.all[res.all$Eval.hits < max.e | res.all$Eval.pos < max.e, ]
   } else stop("unknown 'search.mode'")
 
   rownames(res.all) <- NULL
 
   if (nrow(res.all) < 1) {
-    if (v1) cat("\n")
     message(" ! No enriched motifs")
-    return(NULL)
+    if (return.scan.results) {
+      res.all <- c(list(NULL), res.scan)
+      names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
+      return(res.all)
+    } else return(NULL)
   } 
 
-  if (v1) cat("\n")
+  if (return.scan.results) {
+    res.all <- c(list(res.all), res.scan)
+    names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
+  }
 
-  return(res.all)
+  res.all
 
 }
 
 .enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
                           BPPARAM, search.mode, threshold.type,
-                          motcount, v1, v2, progress_bar) {
+                          motcount, v1, v2, progress_bar,
+                          return.scan.results) {
 
   if (v1 || v2) cat(" > Scanning input sequences\n")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
@@ -151,8 +185,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   seq.widths <- width(sequences)
   bkg.widths <- width(bkg.sequences)
 
-  results <- .split_by_motif(motifs, results)
-  results.bkg <- .split_by_motif(motifs, results.bkg)
+  results2 <- .split_by_motif(motifs, results)
+  results.bkg2 <- .split_by_motif(motifs, results.bkg)
 
   if (v1) cat(" > Testing motifs for enrichment\n")
 
@@ -161,10 +195,14 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                                   bkg.widths, search.mode,
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, v2, v1),
-                          results, results.bkg, motifs,
+                          results2, results.bkg2, motifs,
                           SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
   results.all <- do.call(rbind, results.all)
+
+  if (return.scan.results) {
+    results.all <- list(results.all, results, results.bkg)
+  }
 
   results.all
 

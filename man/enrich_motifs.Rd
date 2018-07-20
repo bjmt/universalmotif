@@ -5,11 +5,12 @@
 \title{Enrich for input motifs in a set of sequences.}
 \usage{
 enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
-  max.p = 0.001, max.q = 0.001, qval.method = "fdr",
+  max.p = 1e-05, max.q = 1e-05, max.e = 1, qval.method = "fdr",
   positional.test = "t.test", threshold = 0.6, threshold.type = "logodds",
-  verbose = TRUE, RC = TRUE, use.freq = 1, shuffle.k = 1,
+  verbose = 1, RC = FALSE, use.freq = 1, shuffle.k = 2,
   shuffle.method = "linear", shuffle.leftovers = "asis",
-  progress_bar = FALSE, BPPARAM = SerialParam())
+  progress_bar = FALSE, return.scan.results = FALSE,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{\linkS4class{universalmotif} objects.}
@@ -28,6 +29,9 @@ See details.}
 \item{max.q}{Numeric. Adjusted P-value threshold. This is only useful
 if more than one motif is being enriched for.}
 
+\item{max.e}{Numeric. The E-value is calculated by multiplying the
+P-value with the number of input motifs \insertCite{meme2}{universalmotif}.}
+
 \item{qval.method}{Numeric. See \code{\link[stats]{p.adjust}}.}
 
 \item{positional.test}{Character. One of 't.test', 'wilcox.test',
@@ -42,8 +46,7 @@ the background sequences are ignored. See \code{\link[stats]{t.test}},
 \item{threshold.type}{Character. One of 'logodds' and 'pvalue'. See
 \code{\link{scan_sequences}}.}
 
-\item{verbose}{Logical. If \code{TRUE}, then the user is informed as each
-motif is scored.}
+\item{verbose}{Numeric. 0 for no output, 2 for max verbosity.}
 
 \item{RC}{Logical. Whether to consider the reverse complement of the
 sequences.}
@@ -60,7 +63,11 @@ sequences. Only used if no background sequences are input. See
 
 \item{shuffle.leftovers}{Character. See \code{\link{shuffle_sequences}}.}
 
-\item{progress_bar}{Logical. Show progress bar.}
+\item{progress_bar}{Logical. Show progress bar from
+\code{\link{scans_sequences}}.}
+
+\item{return.scan.results}{Logical. Return output from
+\code{\link{scan_sequences}}.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -88,6 +95,9 @@ bkg.sequences <- create_sequences()
 motif <- create_motif(bkg = c(0.7, 0.1, 0.1, 0.1))
 enrich_motifs(motif, target.sequences, bkg.sequences)
 
+}
+\references{
+\insertRef{meme2}{universalmotif}
 }
 \seealso{
 \code{\link{scan_sequences}}, \code{\link{shuffle_sequences}},
