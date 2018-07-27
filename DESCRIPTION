@@ -29,7 +29,6 @@ Imports: methods,
     Biostrings,
     PWMEnrich,
     MotifDb,
-    TFMPvalue,
     Rcpp
 Suggests: knitr,
     BiocStyle,
@@ -64,6 +63,7 @@ Collate:
     'enrich_motifs.R'
     'filter_motifs.R'
     'merge_motifs.R'
+    'motif_pvalue.R'
     'motif_rc.R'
     'motif_tree.R'
     'read_cisbp.R'

@@ -14,7 +14,7 @@
 #' @param max.p Numeric. P-value threshold.
 #' @param max.q Numeric. Adjusted P-value threshold. This is only useful
 #'    if more than one motif is being enriched for.
-#' @param max.e Numeric. The E-value is calculated by multiplying the
+#' @param max.e Numeric. The E-value is calculated by multiplying the adjusted
 #'    P-value with the number of input motifs \insertCite{meme2}{universalmotif}.
 #' @param qval.method Numeric. See \code{\link[stats]{p.adjust}}.
 #' @param positional.test Character. One of 't.test', 'wilcox.test',
@@ -69,9 +69,9 @@
 #'    \code{\link{add_multifreq}}
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
-                          max.p = 10e-6, max.q = 10e-6, max.e = 1,
+                          max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr",
-                          positional.test = "t.test", threshold = 0.6,
+                          positional.test = "t.test", threshold = 0.4,
                           threshold.type = "logodds",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
@@ -118,8 +118,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   res.all$Qval.hits <- p.adjust(res.all$Pval.hits, method = qval.method)
   res.all$Qval.pos <- p.adjust(res.all$Pval.pos, method = qval.method)
-  res.all$Eval.hits <- res.all$Pval.hits * length(motifs)
-  res.all$Eval.pos <- res.all$Pval.pos * length(motifs)
+  res.all$Eval.hits <- res.all$Qval.hits * length(motifs)
+  res.all$Eval.pos <- res.all$Qval.pos * length(motifs)
 
   if (search.mode == "hits") {
     res.all <- res.all[order(res.all$Qval.hits), ]
@@ -280,10 +280,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   }
 
   if (v2 && search.mode %in% c("hits", "both")) {
-    cat("     > occurrences p-value:", hits.p, "\n")
+    cat("       occurrences p-value:", hits.p, "\n")
   }
   if (v2 && search.mode %in% c("positional", "both")) {
-    cat("     > positional bias p-value:", pos.p, "\n")
+    cat("       positional bias p-value:", pos.p, "\n")
   } 
 
   results <- data.frame(motif = motifs["name"], sequence.hits = length(seq.hits),

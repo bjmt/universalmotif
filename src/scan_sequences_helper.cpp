@@ -1,7 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-
 // [[Rcpp::export]]
 double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
   double score = 0;

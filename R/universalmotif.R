@@ -31,7 +31,6 @@
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
-#' @importFrom TFMPvalue TFMpv2sc TFMsc2pv
 #' @useDynLib universalmotif
 #' @importClassesFrom MotifDb MotifList
 NULL

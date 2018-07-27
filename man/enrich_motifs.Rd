@@ -5,8 +5,8 @@
 \title{Enrich for input motifs in a set of sequences.}
 \usage{
 enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
-  max.p = 1e-05, max.q = 1e-05, max.e = 1, qval.method = "fdr",
-  positional.test = "t.test", threshold = 0.6, threshold.type = "logodds",
+  max.p = 1e-05, max.q = 1e-05, max.e = 0.001, qval.method = "fdr",
+  positional.test = "t.test", threshold = 0.4, threshold.type = "logodds",
   verbose = 1, RC = FALSE, use.freq = 1, shuffle.k = 2,
   shuffle.method = "linear", shuffle.leftovers = "asis",
   progress_bar = FALSE, return.scan.results = FALSE,
@@ -29,7 +29,7 @@ See details.}
 \item{max.q}{Numeric. Adjusted P-value threshold. This is only useful
 if more than one motif is being enriched for.}
 
-\item{max.e}{Numeric. The E-value is calculated by multiplying the
+\item{max.e}{Numeric. The E-value is calculated by multiplying the adjusted
 P-value with the number of input motifs \insertCite{meme2}{universalmotif}.}
 
 \item{qval.method}{Numeric. See \code{\link[stats]{p.adjust}}.}

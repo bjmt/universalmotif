@@ -17,6 +17,107 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calc_scores_cpp
+NumericVector calc_scores_cpp(NumericMatrix paths, NumericMatrix score_mat);
+RcppExport SEXP _universalmotif_calc_scores_cpp(SEXP pathsSEXP, SEXP score_matSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type paths(pathsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_scores_cpp(paths, score_mat));
+    return rcpp_result_gen;
+END_RCPP
+}
+// kmer_mat_to_probs_k1_cpp
+NumericVector kmer_mat_to_probs_k1_cpp(NumericMatrix bb_mat, NumericVector bkg, NumericMatrix alph_sort);
+RcppExport SEXP _universalmotif_kmer_mat_to_probs_k1_cpp(SEXP bb_matSEXP, SEXP bkgSEXP, SEXP alph_sortSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type bb_mat(bb_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type alph_sort(alph_sortSEXP);
+    rcpp_result_gen = Rcpp::wrap(kmer_mat_to_probs_k1_cpp(bb_mat, bkg, alph_sort));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_paths_cpp
+NumericMatrix init_paths_cpp(NumericMatrix score_mat, double score, double max_score);
+RcppExport SEXP _universalmotif_init_paths_cpp(SEXP score_matSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
+    Rcpp::traits::input_parameter< double >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< double >::type max_score(max_scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_paths_cpp(score_mat, score, max_score));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_next_subworker_cpp
+NumericMatrix calc_next_subworker_cpp(NumericMatrix paths_totry, NumericVector scores_tmp, double score);
+RcppExport SEXP _universalmotif_calc_next_subworker_cpp(SEXP paths_totrySEXP, SEXP scores_tmpSEXP, SEXP scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type paths_totry(paths_totrySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scores_tmp(scores_tmpSEXP);
+    Rcpp::traits::input_parameter< double >::type score(scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_next_subworker_cpp(paths_totry, scores_tmp, score));
+    return rcpp_result_gen;
+END_RCPP
+}
+// list_to_matrix
+NumericMatrix list_to_matrix(List paths);
+RcppExport SEXP _universalmotif_list_to_matrix(SEXP pathsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type paths(pathsSEXP);
+    rcpp_result_gen = Rcpp::wrap(list_to_matrix(paths));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_next_path_cpp
+NumericMatrix calc_next_path_cpp(NumericMatrix score_mat, NumericMatrix paths, double score, double max_score);
+RcppExport SEXP _universalmotif_calc_next_path_cpp(SEXP score_matSEXP, SEXP pathsSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type paths(pathsSEXP);
+    Rcpp::traits::input_parameter< double >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< double >::type max_score(max_scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_next_path_cpp(score_mat, paths, score, max_score));
+    return rcpp_result_gen;
+END_RCPP
+}
+// branch_and_bound_cpp
+NumericMatrix branch_and_bound_cpp(NumericMatrix score_mat, double min_score);
+RcppExport SEXP _universalmotif_branch_and_bound_cpp(SEXP score_matSEXP, SEXP min_scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
+    Rcpp::traits::input_parameter< double >::type min_score(min_scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(branch_and_bound_cpp(score_mat, min_score));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_final_probs_cpp
+NumericVector calc_final_probs_cpp(List all_probs, List all_scores, double score);
+RcppExport SEXP _universalmotif_calc_final_probs_cpp(SEXP all_probsSEXP, SEXP all_scoresSEXP, SEXP scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type all_probs(all_probsSEXP);
+    Rcpp::traits::input_parameter< List >::type all_scores(all_scoresSEXP);
+    Rcpp::traits::input_parameter< double >::type score(scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_final_probs_cpp(all_probs, all_scores, score));
+    return rcpp_result_gen;
+END_RCPP
+}
 // motif_simil_internal
 double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, StringVector method);
 RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP) {
@@ -272,6 +373,14 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
+    {"_universalmotif_calc_scores_cpp", (DL_FUNC) &_universalmotif_calc_scores_cpp, 2},
+    {"_universalmotif_kmer_mat_to_probs_k1_cpp", (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k1_cpp, 3},
+    {"_universalmotif_init_paths_cpp", (DL_FUNC) &_universalmotif_init_paths_cpp, 3},
+    {"_universalmotif_calc_next_subworker_cpp", (DL_FUNC) &_universalmotif_calc_next_subworker_cpp, 3},
+    {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
+    {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
+    {"_universalmotif_branch_and_bound_cpp", (DL_FUNC) &_universalmotif_branch_and_bound_cpp, 2},
+    {"_universalmotif_calc_final_probs_cpp", (DL_FUNC) &_universalmotif_calc_final_probs_cpp, 3},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 3},
     {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},

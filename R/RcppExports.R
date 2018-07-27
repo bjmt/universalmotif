@@ -5,6 +5,38 @@ single_to_k <- function(seq, k) {
     .Call('_universalmotif_single_to_k', PACKAGE = 'universalmotif', seq, k)
 }
 
+calc_scores_cpp <- function(paths, score_mat) {
+    .Call('_universalmotif_calc_scores_cpp', PACKAGE = 'universalmotif', paths, score_mat)
+}
+
+kmer_mat_to_probs_k1_cpp <- function(bb_mat, bkg, alph_sort) {
+    .Call('_universalmotif_kmer_mat_to_probs_k1_cpp', PACKAGE = 'universalmotif', bb_mat, bkg, alph_sort)
+}
+
+init_paths_cpp <- function(score_mat, score, max_score) {
+    .Call('_universalmotif_init_paths_cpp', PACKAGE = 'universalmotif', score_mat, score, max_score)
+}
+
+calc_next_subworker_cpp <- function(paths_totry, scores_tmp, score) {
+    .Call('_universalmotif_calc_next_subworker_cpp', PACKAGE = 'universalmotif', paths_totry, scores_tmp, score)
+}
+
+list_to_matrix <- function(paths) {
+    .Call('_universalmotif_list_to_matrix', PACKAGE = 'universalmotif', paths)
+}
+
+calc_next_path_cpp <- function(score_mat, paths, score, max_score) {
+    .Call('_universalmotif_calc_next_path_cpp', PACKAGE = 'universalmotif', score_mat, paths, score, max_score)
+}
+
+branch_and_bound_cpp <- function(score_mat, min_score) {
+    .Call('_universalmotif_branch_and_bound_cpp', PACKAGE = 'universalmotif', score_mat, min_score)
+}
+
+calc_final_probs_cpp <- function(all_probs, all_scores, score) {
+    .Call('_universalmotif_calc_final_probs_cpp', PACKAGE = 'universalmotif', all_probs, all_scores, score)
+}
+
 motif_simil_internal <- function(mot1, mot2, method) {
     .Call('_universalmotif_motif_simil_internal', PACKAGE = 'universalmotif', mot1, mot2, method)
 }

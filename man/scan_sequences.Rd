@@ -4,7 +4,7 @@
 \alias{scan_sequences}
 \title{Find motif binding sites in a set of sequences.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.6,
+scan_sequences(motifs, sequences, threshold = 0.4,
   threshold.type = "logodds", RC = FALSE, use.freq = 1, verbose = TRUE,
   progress_bar = FALSE, BPPARAM = SerialParam())
 }
@@ -56,15 +56,7 @@ If \code{use.freq = 1} and the sequences are DNAStringSet or RNAStringSet
    possible score a motif (of type PWM), run
    \code{sum(apply(motif['motif'], 2, max))}.
 
-   If \code{threshold.type = 'pvalue'}, then the P-value as set by
-   \code{threshold} is converted to a minimum logodds score using
-   the \code{\link[TFMPvalue]{TFMpv2sc}} function. Note that this
-   is available for DNA motifs only. Accordingly, if DNA motifs are
-   used then the P-value for each result is also reported using the
-   \code{\link[TFMPvalue]{TFMsc2pv}} function.
-
-   Note: the memory and processing costs for this function increase
-   exponentially with increasing k.
+   Note: memory usage increases exponentially with k.
 }
 \examples{
 # any alphabet can be used

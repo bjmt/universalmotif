@@ -38,15 +38,7 @@
 #'    possible score a motif (of type PWM), run
 #'    \code{sum(apply(motif['motif'], 2, max))}.
 #'
-#'    If \code{threshold.type = 'pvalue'}, then the P-value as set by
-#'    \code{threshold} is converted to a minimum logodds score using
-#'    the \code{\link[TFMPvalue]{TFMpv2sc}} function. Note that this
-#'    is available for DNA motifs only. Accordingly, if DNA motifs are
-#'    used then the P-value for each result is also reported using the
-#'    \code{\link[TFMPvalue]{TFMsc2pv}} function.
-#'
-#'    Note: the memory and processing costs for this function increase
-#'    exponentially with increasing k.
+#'    Note: memory usage increases exponentially with k.
 #'
 #' @examples
 #' # any alphabet can be used
@@ -67,7 +59,7 @@
 #' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
 #'    \code{\link{enrich_motifs}}
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.6,
+scan_sequences <- function(motifs, sequences, threshold = 0.4,
                             threshold.type = "logodds", RC = FALSE,
                             use.freq = 1, verbose = TRUE,
                             progress_bar = FALSE,
@@ -77,6 +69,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
     stop("need both motifs and sequences")
   }
 
+  if (progress_bar) pb_prev <- BPPARAM$progressbar
+
   if (verbose) cat(" * Processing motifs\n")
 
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -84,7 +78,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.pwms <- convert_type(motifs, "PWM")
+  mot.pwms <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
   mot.pwms <- lapply(mot.pwms, function(x) x["motif"])
   mot.lens <- vapply(mot.pwms, ncol, numeric(1))
   mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
@@ -97,7 +91,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
-  if (threshold < 0) stop("cannot have negative threshold")
+  # if (threshold < 0) stop("cannot have negative threshold")
 
   if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x["multifreq"]) == 0, logical(1))))
@@ -115,8 +109,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   }
   
   if (use.freq == 1) {
-    score.mats <- convert_type(motifs, "PWM")
-    score.mats <- lapply(score.mats, function(x) x["motif"])
+    score.mats <- mot.pwms
   } else {
     score.mats <- lapply(motifs,
                          function(x) x["multifreq"][[as.character(use.freq)]]) 
@@ -128,21 +121,19 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
   }
 
   max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
-  thresholds <- max.scores * threshold
 
-  if (threshold.type == "pvalue" && alph == "DNA") {
-    thresholds <- vector("numeric", length(motifs))
-    mot.pfms <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
-    mot.pfms <- lapply(mot.pfms, function(x) x["motif"])
-    mot.bkgs <- lapply(mot.bkgs, function(x) {names(x) <- DNA_BASES; x})
-    for (i in seq_along(motifs)) {
-      thresholds[i] <- TFMpv2sc(mot.pfms[[i]], threshold, mot.bkgs[[i]],
-                                type = "PFM")
-    }
-    thresholds[thresholds < 0] <- 0
+  if (threshold.type == "logodds") {
+    thresholds <- max.scores * threshold
   } else if (threshold.type == "pvalue") {
-    stop("'threshold.type = pvalue' is only valid for DNA")
-  }
+    if (verbose) cat(" * Converting P-values to logodds thresholds\n")
+    thresholds <- vector("numeric", length(motifs))
+    if (progress_bar) BPPARAM$progressbar <- TRUE
+    thresholds <- bplapply(mot.pwms,
+                           function(x) motif_score(x, threshold),
+                           BPPARAM = BPPARAM)
+    if (progress_bar) BPPARAM$progressbar <- FALSE
+    thresholds <- unlist(thresholds)
+  } else stop("unknown 'threshold.type'")
 
   if (verbose) cat(" * Processing sequences\n")
 
@@ -186,7 +177,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
 
   if (verbose) cat(" * Scanning sequences for motifs\n")
 
-  if (progress_bar) pb_prev <- BPPARAM$progressbar
   if (progress_bar) BPPARAM$progressbar <- TRUE
 
   if (RC && verbose) cat("   * Forward strand\n")
@@ -220,31 +210,48 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
                            BPPARAM = BPPARAM)
   }
 
-  if (progress_bar) BPPARAM$progressbar <- TRUE
-
   if (RC && verbose) cat("   * Forward strand\n")
 
-  res <- bplapply(seq_along(to.keep),
-                  function(x) .get_res(to.keep[[x]], seqs.aschar,
-                                       seq.ints, mot.lens[x], min.scores[x],
-                                       max.scores[x], mot.names[x], seq.names,
-                                       score.mats[[x]], strand = "+", seq.lens,
-                                       use.freq),
-                  BPPARAM = BPPARAM)
+  if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
+  res <- vector("list", length(to.keep))
+  for (i in seq_along(res)) {
+    res[[i]] <- .get_res(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
+                         min.scores[i], max.scores[i], mot.names[i],
+                         seq.names, score.mats[[i]], strand = "+",
+                         seq.lens, use.freq, BPPARAM)
+    if (progress_bar) setTxtProgressBar(pb, i)
+  }
+  if (progress_bar) close(pb)
+
+  # res <- lapply(seq_along(to.keep),
+                  # function(x) .get_res(to.keep[[x]], seqs.aschar,
+                                       # seq.ints, mot.lens[x], min.scores[x],
+                                       # max.scores[x], mot.names[x], seq.names,
+                                       # score.mats[[x]], strand = "+", seq.lens,
+                                       # use.freq, BPPARAM))
 
   if (RC) {
     if (verbose) cat("   * Reverse strand\n")
-    res.rc <- bplapply(seq_along(to.keep.rc),
-                       function(x) .get_res(to.keep.rc[[x]], seqs.aschar,
-                                            seq.ints, mot.lens[x], min.scores[x],
-                                            max.scores[x], mot.names[x],
-                                            seq.names, score.mats.rc[[x]],
-                                            strand = "-", seq.lens, use.freq),
-                       BPPARAM = BPPARAM)
+
+    if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
+    res.rc <- vector("list", length(to.keep.rc))
+    for (i in seq_along(res)) {
+      res.rc[[i]] <- .get_res(to.keep.rc[[i]], seqs.aschar, seq.ints, mot.lens[i],
+                           min.scores[i], max.scores[i], mot.names[i],
+                           seq.names, score.mats.rc[[i]], strand = "+",
+                           seq.lens, use.freq, BPPARAM)
+      if (progress_bar) setTxtProgressBar(pb, i)
+    }
+    if (progress_bar) close(pb)
+
+    # res.rc <- lapply(seq_along(to.keep.rc),
+                       # function(x) .get_res(to.keep.rc[[x]], seqs.aschar,
+                                            # seq.ints, mot.lens[x], min.scores[x],
+                                            # max.scores[x], mot.names[x],
+                                            # seq.names, score.mats.rc[[x]],
+                                            # strand = "-", seq.lens, use.freq))
     res <- do.call(rbind, list(res, res.rc))
   }
-
-  if (progress_bar) BPPARAM$progressbar <- FALSE
 
   res <- res[vapply(res, is.data.frame, logical(1))]
   if (length(res) == 0) {
@@ -252,11 +259,16 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
     return(NULL)
   }
   res <- do.call(rbind, res)
-  rownames(res) <- NULL
+
+  if (!alph %in% c("DNA", "RNA")) res <- res[, -9]
+
+  # if (verbose) cat(" * Calculating P-values\n")
+  # if (progress_bar) BPPARAM$progressbar <- TRUE
+  # res$p.value <- motif_pval(res$score,)
 
   if (progress_bar) BPPARAM$progressbar <- pb_prev
 
-  if (!alph %in% c("DNA", "RNA")) res <- res[, -9]
+  rownames(res) <- NULL
 
   res
 
@@ -264,7 +276,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.6,
 
 .get_res <- function(to.keep, seqs.aschar, seq.ints, mot.lens, min.scores,
                      max.scores, mot.names, seq.names, score.mats, strand,
-                     seq.lens, use.freq) {
+                     seq.lens, use.freq, BPPARAM) {
   # needs to be optimised
   res <- lapply(seq_along(to.keep),
                 function(x) parse_k_res_v2(to.keep[[x]], seqs.aschar[[x]],

@@ -41,6 +41,7 @@ The implementations of this function are the exact same as that of the
    motifs are not the same length, then the calculation is performed
    repeatedly by moving the smaller motif along the larger motif. Afterwards,
    either the smallest distance or the largest similarity is reported.
+   Do note that the smaller motif is only aligned _within_ the bigger motif.
 }
 \examples{
    motif1 <- create_motif()
