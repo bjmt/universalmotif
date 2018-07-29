@@ -1,32 +1,55 @@
 #' Motif P-value and scoring utility
 #'
-#' @param motif Single motif.
-#' @param score Numeric.
+#' For calculating p-values/scores for any number of motifs. Vectorized;
+#' arguments are recycled.
+#'
+#' @param motif Single motif or list of motifs.
+#' @param score Numeric. 
 #' @param pvalue Numeric.
-#' @param bkg.probs Numeric.
+#' @param bkg.probs Numeric. If supplying individual background probabilities
+#'    for each motif, a list.
+#' @param use.freq Numeric.
 #' @param k Numeric.
-#' @param tolerance Numeric.
+#' @param progress_bar Logical.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Numeric.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_pvalue <- function(motif, score, pvalue, bkg.probs, k = 6,
-                         tolerance = 0.75) {
+motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
+                         progress_bar = FALSE, BPPARAM = SerialParam()) {
 
-  motif <- convert_motifs(motif)
-  if (is.list(motif)) motif <- motif[[1]]
-  motif <- convert_type(motif, "PWM")["motif"]
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "PWM")
 
-  if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(motif), nrow(motif))
+  if (!is.list(motifs)) motifs <- list(motifs)
+  if (use.freq == 1) {
+    motifs <- lapply(motifs, function(x) x["motif"])
+  } else {
+    motifs <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
+  }
+
+  if (missing(bkg.probs)) {
+    bkg.probs <- lapply(motifs, function(x) rep( 1 / nrow(x), nrow(x)))
+  }
+  if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
+
+  if (progress_bar) {
+    pb_prev <- BPPARAM$progressbar
+    BPPARAM$progressbar <- TRUE
+  }
 
   if (!missing(score) && missing(pvalue)) {
-    return(motif_pval(score.mat = motif, score = score,
-                       bkg.probs = bkg.probs, k = k))
+    out <- bpmapply(motif_pval, motifs, score, bkg.probs, k, BPPARAM = BPPARAM)
   } else if (missing(score) && !missing(pvalue)) {
-    return(motif_score(score.mat = motif, pval = pvalue,
-                       bkg.probs = bkg.probs, k = k, tolerance = tolerance))
+    out <- bpmapply(motif_score, motifs, pvalue, bkg.probs, k,
+                    BPPARAM = BPPARAM)
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
+
+  if (progress_bar) BPPARAM$progressbar <- pb_prev
+
+  out
 
 }
 
@@ -139,14 +162,13 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6) {
 
 motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
 
-  max.score <- sum(apply(score.mat, 2, max)) - 0.0000001
-  min.score <- sum(apply(score.mat, 2, min)) + 0.0000001
+  max.score <- sum(apply(score.mat, 2, max)) - 0.0001
+  min.score <- sum(apply(score.mat, 2, min)) + 0.0001
   if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
   pv.refine <- motif_pval(score.mat, 0, bkg.probs, k)
 
-  if (pv.refine > pval) score <- 5 else score <- -5
-  pv.refine <- motif_pval(score.mat, score, bkg.probs, k)
+  if (pv.refine > pval) score <- 1 else score <- -1
 
   if (score < 0) {
 

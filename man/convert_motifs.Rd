@@ -16,6 +16,7 @@
 \alias{convert_motifs,pfm-method}
 \alias{convert_motifs,PWM-method}
 \alias{convert_motifs,Motif-method}
+\alias{convert_motifs,matrix-method}
 \title{Convert motif class.}
 \usage{
 convert_motifs(motifs, class = "universalmotif-universalmotif",
@@ -59,6 +60,9 @@ convert_motifs(motifs, class = "universalmotif-universalmotif",
 
 \S4method{convert_motifs}{Motif}(motifs,
   class = "universalmotif-universalmotif", BPPARAM = SerialParam())
+
+\S4method{convert_motifs}{matrix}(motifs,
+  class = "universalmotif-universalmotif", BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{Single motif object or list.}
@@ -94,6 +98,7 @@ The following packge-class combinations can be used as input:
       \item PWMEnrich-PWM
       \item motifRG-Motif
       \item universalmotif-universalmotif
+      \item matrix
    }
 
    The following package-class combinations can be output:
@@ -139,6 +144,8 @@ The following packge-class combinations can be used as input:
 \item \code{PWM}: Convert \linkS4class{PWM} motifs.
 
 \item \code{Motif}: Convert Motif motifs.
+
+\item \code{matrix}: Create motif from matrices.
 }}
 
 \examples{

@@ -29,6 +29,7 @@
 #'       \item PWMEnrich-PWM
 #'       \item motifRG-Motif
 #'       \item universalmotif-universalmotif
+#'       \item matrix
 #'    }
 #'
 #'    The following package-class combinations can be output:
@@ -498,9 +499,17 @@ setMethod("convert_motifs", signature(motifs = "Motif"),
                                      extrainfo = c(score = motifs@score),
                              strand = paste(unique(motifs@match$match.strand),
                                             collapse = ""),
-            motif = create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
+            motif <- create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
+            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+          })
+
+#' @describeIn convert_motifs Create motif from matrices.
+#' @export
+setMethod("convert_motifs", signature(motifs = "matrix"),
+          definition = function(motifs, class, BPPARAM) {
+            motifs <- create_motif(motifs)
             convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
           })
 

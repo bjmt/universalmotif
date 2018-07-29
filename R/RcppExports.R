@@ -29,10 +29,6 @@ calc_next_path_cpp <- function(score_mat, paths, score, max_score) {
     .Call('_universalmotif_calc_next_path_cpp', PACKAGE = 'universalmotif', score_mat, paths, score, max_score)
 }
 
-branch_and_bound_cpp <- function(score_mat, min_score) {
-    .Call('_universalmotif_branch_and_bound_cpp', PACKAGE = 'universalmotif', score_mat, min_score)
-}
-
 calc_final_probs_cpp <- function(all_probs, all_scores, score) {
     .Call('_universalmotif_calc_final_probs_cpp', PACKAGE = 'universalmotif', all_probs, all_scores, score)
 }

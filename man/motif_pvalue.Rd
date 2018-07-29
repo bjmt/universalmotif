@@ -4,26 +4,31 @@
 \alias{motif_pvalue}
 \title{Motif P-value and scoring utility}
 \usage{
-motif_pvalue(motif, score, pvalue, bkg.probs, k = 6, tolerance = 0.75)
+motif_pvalue(motifs, score, pvalue, bkg.probs, k = 6, progress_bar = FALSE,
+  BPPARAM = SerialParam())
 }
 \arguments{
-\item{motif}{Single motif.}
-
 \item{score}{Numeric.}
 
 \item{pvalue}{Numeric.}
 
-\item{bkg.probs}{Numeric.}
+\item{bkg.probs}{Numeric. If supplying individual background probabilities
+for each motif, a list.}
 
 \item{k}{Numeric.}
 
-\item{tolerance}{Numeric.}
+\item{progress_bar}{Logical.}
+
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+
+\item{motif}{Single motif or list of motifs.}
 }
 \value{
 Numeric.
 }
 \description{
-Motif P-value and scoring utility
+For calculating p-values/scores for any number of motifs. Vectorized;
+arguments are recycled.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

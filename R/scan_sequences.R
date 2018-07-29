@@ -59,11 +59,10 @@
 #' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
 #'    \code{\link{enrich_motifs}}
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.4,
+scan_sequences <- function(motifs, sequences, threshold = 0.25,
                             threshold.type = "logodds", RC = FALSE,
                             use.freq = 1, verbose = TRUE,
-                            progress_bar = FALSE,
-                            BPPARAM = SerialParam()) {
+                            progress_bar = FALSE, BPPARAM = SerialParam()) {
 
   if (missing(motifs) || missing(sequences)) {
     stop("need both motifs and sequences")
@@ -128,9 +127,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.4,
     if (verbose) cat(" * Converting P-values to logodds thresholds\n")
     thresholds <- vector("numeric", length(motifs))
     if (progress_bar) BPPARAM$progressbar <- TRUE
-    thresholds <- bplapply(mot.pwms,
-                           function(x) motif_score(x, threshold),
-                           BPPARAM = BPPARAM)
+    thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
+                               BPPARAM = BPPARAM)
     if (progress_bar) BPPARAM$progressbar <- FALSE
     thresholds <- unlist(thresholds)
   } else stop("unknown 'threshold.type'")
