@@ -32,8 +32,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
 
   if (missing(bkg.probs)) {
     bkg.probs <- lapply(motifs, function(x) rep( 1 / nrow(x), nrow(x)))
-  }
-  if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
+  } else if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
 
   if (progress_bar) {
     pb_prev <- BPPARAM$progressbar

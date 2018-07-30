@@ -180,6 +180,55 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// parse_k_res_helper_1
+List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep, int mot_len);
+RcppExport SEXP _universalmotif_parse_k_res_helper_1(SEXP seqsSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type seqs(seqsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type to_keep(to_keepSEXP);
+    Rcpp::traits::input_parameter< int >::type mot_len(mot_lenSEXP);
+    rcpp_result_gen = Rcpp::wrap(parse_k_res_helper_1(seqs, to_keep, mot_len));
+    return rcpp_result_gen;
+END_RCPP
+}
+// parse_k_res_helper_2
+List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep, int mot_len, int k);
+RcppExport SEXP _universalmotif_parse_k_res_helper_2(SEXP sequenceSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type sequence(sequenceSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type to_keep(to_keepSEXP);
+    Rcpp::traits::input_parameter< int >::type mot_len(mot_lenSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(parse_k_res_helper_2(sequence, to_keep, mot_len, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_res_cpp
+DataFrame get_res_cpp(List to_keep, List seqs_aschar, List seq_ints, int mot_lens, double min_scores, double max_scores, String mot_names, StringVector seq_names, NumericMatrix score_mats, String strand, IntegerVector seq_lens, int k);
+RcppExport SEXP _universalmotif_get_res_cpp(SEXP to_keepSEXP, SEXP seqs_ascharSEXP, SEXP seq_intsSEXP, SEXP mot_lensSEXP, SEXP min_scoresSEXP, SEXP max_scoresSEXP, SEXP mot_namesSEXP, SEXP seq_namesSEXP, SEXP score_matsSEXP, SEXP strandSEXP, SEXP seq_lensSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type to_keep(to_keepSEXP);
+    Rcpp::traits::input_parameter< List >::type seqs_aschar(seqs_ascharSEXP);
+    Rcpp::traits::input_parameter< List >::type seq_ints(seq_intsSEXP);
+    Rcpp::traits::input_parameter< int >::type mot_lens(mot_lensSEXP);
+    Rcpp::traits::input_parameter< double >::type min_scores(min_scoresSEXP);
+    Rcpp::traits::input_parameter< double >::type max_scores(max_scoresSEXP);
+    Rcpp::traits::input_parameter< String >::type mot_names(mot_namesSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seq_names(seq_namesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type score_mats(score_matsSEXP);
+    Rcpp::traits::input_parameter< String >::type strand(strandSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type seq_lens(seq_lensSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_res_cpp(to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, max_scores, mot_names, seq_names, score_mats, strand, seq_lens, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pcm_to_ppmC
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount);
 RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP positionSEXP, SEXP pseudocountSEXP) {
@@ -374,6 +423,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},
     {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},
     {"_universalmotif_res_to_index", (DL_FUNC) &_universalmotif_res_to_index, 1},
+    {"_universalmotif_parse_k_res_helper_1", (DL_FUNC) &_universalmotif_parse_k_res_helper_1, 3},
+    {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 4},
+    {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},

@@ -120,6 +120,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
   }
 
   max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
+  min.scores <- vapply(score.mats, function(x) sum(apply(x, 2, min)), numeric(1))
 
   if (threshold.type == "logodds") {
     thresholds <- max.scores * threshold
@@ -213,20 +214,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
   if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
   res <- vector("list", length(to.keep))
   for (i in seq_along(res)) {
-    res[[i]] <- .get_res(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
+    res[[i]] <- get_res_cpp(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
                          min.scores[i], max.scores[i], mot.names[i],
-                         seq.names, score.mats[[i]], strand = "+",
-                         seq.lens, use.freq, BPPARAM)
+                         seq.names, score.mats[[i]], "+",
+                         seq.lens, use.freq)
     if (progress_bar) setTxtProgressBar(pb, i)
   }
   if (progress_bar) close(pb)
-
-  # res <- lapply(seq_along(to.keep),
-                  # function(x) .get_res(to.keep[[x]], seqs.aschar,
-                                       # seq.ints, mot.lens[x], min.scores[x],
-                                       # max.scores[x], mot.names[x], seq.names,
-                                       # score.mats[[x]], strand = "+", seq.lens,
-                                       # use.freq, BPPARAM))
 
   if (RC) {
     if (verbose) cat("   * Reverse strand\n")
@@ -234,20 +228,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
     if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
     res.rc <- vector("list", length(to.keep.rc))
     for (i in seq_along(res)) {
-      res.rc[[i]] <- .get_res(to.keep.rc[[i]], seqs.aschar, seq.ints, mot.lens[i],
+      res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.aschar, seq.ints, mot.lens[i],
                            min.scores[i], max.scores[i], mot.names[i],
-                           seq.names, score.mats.rc[[i]], strand = "+",
-                           seq.lens, use.freq, BPPARAM)
+                           seq.names, score.mats.rc[[i]], "-",
+                           seq.lens, use.freq)
       if (progress_bar) setTxtProgressBar(pb, i)
     }
     if (progress_bar) close(pb)
 
-    # res.rc <- lapply(seq_along(to.keep.rc),
-                       # function(x) .get_res(to.keep.rc[[x]], seqs.aschar,
-                                            # seq.ints, mot.lens[x], min.scores[x],
-                                            # max.scores[x], mot.names[x],
-                                            # seq.names, score.mats.rc[[x]],
-                                            # strand = "-", seq.lens, use.freq))
     res <- do.call(rbind, list(res, res.rc))
   }
 
@@ -272,22 +260,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
 
 }
 
-.get_res <- function(to.keep, seqs.aschar, seq.ints, mot.lens, min.scores,
-                     max.scores, mot.names, seq.names, score.mats, strand,
-                     seq.lens, use.freq, BPPARAM) {
-  # needs to be optimised
-  res <- lapply(seq_along(to.keep),
-                function(x) parse_k_res_v2(to.keep[[x]], seqs.aschar[[x]],
-                                        seq.ints[[x]], mot.lens, min.scores,
-                                        max.scores, mot.names, seq.names[x],
-                                        score.mats, strand, seq.lens[x],
-                                        use.freq))
-  res <- res[vapply(res, is.data.frame, logical(1))]
-  if (length(res) == 0) return(NULL)
-  res <- do.call(rbind, res)
-  res
-}
-
 .score_motif <- function(seqs, score.1, thresh) {
   lapply(seqs, function(x) scan_seq_internal(x, score.1, thresh))
 }
@@ -303,40 +275,4 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
     seq.matrix[i, ] <- seq.aschar[seq_len(ncol(seq.matrix))]
   }
   seq.matrix
-}
-
-parse_k_res_v2 <- function(to_keep, sequence, seqs, mot_len, min.score,
-                           max.score, mot.name, seq.name, score.mat,
-                           strand, seq.length, k) {
-  n <- length(to_keep)
-
-  res <- data.frame(matrix(ncol = 9, nrow = n))
-  colnames(res) <- c("motif", "sequence", "start", "stop", "score",
-                     "max.score", "score.pct", "match", "strand")
-
-  res$motif <- rep(mot.name, n)
-  res$sequence <- rep(seq.name, n)
-  res$strand <- rep(strand, n)
-  res$max.score <- rep(max.score, n)
-  if (strand == "+") {
-    res$start <- to_keep
-    res$stop <- to_keep + mot_len + k - 2
-  } else if (strand == "-") {
-    res$start <- seq.length - to_keep
-    res$stop <- seq.length - (to_keep + mot_len) - k + 2
-  }
-
-  hits <- lapply(seq_along(to_keep),
-                 function(x) seqs[to_keep[x]:(to_keep[x] + mot_len - 1)])
-  scores <- vapply(hits, function(x) score_seq(x, score.mat), numeric(1))
-  res$score <- scores
-  res$score.pct <- res$score / res$max.score * 100
-
-  matches <- lapply(to_keep,
-                    function(x) paste(sequence[x:(x + mot_len + k - 2)],
-                                      collapse = ""))
-  res$match <- matches
-
-  res
-
 }

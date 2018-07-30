@@ -4,8 +4,8 @@
 \alias{motif_pvalue}
 \title{Motif P-value and scoring utility}
 \usage{
-motif_pvalue(motifs, score, pvalue, bkg.probs, k = 6, progress_bar = FALSE,
-  BPPARAM = SerialParam())
+motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
+  progress_bar = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{score}{Numeric.}
@@ -14,6 +14,8 @@ motif_pvalue(motifs, score, pvalue, bkg.probs, k = 6, progress_bar = FALSE,
 
 \item{bkg.probs}{Numeric. If supplying individual background probabilities
 for each motif, a list.}
+
+\item{use.freq}{Numeric.}
 
 \item{k}{Numeric.}
 

@@ -94,6 +94,21 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (!is.list(motifs)) motifs <- list(motifs)
   motcount <- length(motifs)
 
+  if (threshold.type == "pvalue") {
+    threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
+                              BPPARAM = BPPARAM)
+    if (use.freq == 1) {
+      max.scores <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
+                           numeric(1))
+    } else {
+      max.scores <- vapply(motifs,
+                           function(x) sum(apply(x["multifreq"][[as.character(use.freq)]])),
+                           numeric(1))
+    }
+    threshold <- threshold / max.scores
+    threshold.type <- "logodds"
+  }
+
   res.all <- .enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                            verbose, RC, use.freq, positional.test,
                            BPPARAM, search.mode, threshold.type,
