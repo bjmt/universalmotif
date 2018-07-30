@@ -59,8 +59,8 @@
 #' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
 #'    \code{\link{enrich_motifs}}
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.25,
-                            threshold.type = "logodds", RC = FALSE,
+scan_sequences <- function(motifs, sequences, threshold = 0.01,
+                            threshold.type = "pvalue", RC = FALSE,
                             use.freq = 1, verbose = TRUE,
                             progress_bar = FALSE, BPPARAM = SerialParam()) {
 
@@ -89,8 +89,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
-
-  # if (threshold < 0) stop("cannot have negative threshold")
 
   if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x["multifreq"]) == 0, logical(1))))
@@ -199,21 +197,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
 
   if (verbose) cat(" * Processing results\n")
 
-  to.keep <- bplapply(to.keep,
-                      function(x) lapply(x, function(x) res_to_index(x)),
-                      BPPARAM = BPPARAM)
-
-  if (RC) {
-    to.keep.rc <- bplapply(to.keep.rc,
-                           function(x) lapply(x, function(x) res_to_index(x)),
-                           BPPARAM = BPPARAM)
-  }
-
   if (RC && verbose) cat("   * Forward strand\n")
 
   if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
   res <- vector("list", length(to.keep))
   for (i in seq_along(res)) {
+    to.keep[[i]] <- lapply(to.keep[[i]], res_to_index)
     res[[i]] <- get_res_cpp(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
                          min.scores[i], max.scores[i], mot.names[i],
                          seq.names, score.mats[[i]], "+",
@@ -227,7 +216,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
 
     if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
     res.rc <- vector("list", length(to.keep.rc))
-    for (i in seq_along(res)) {
+    for (i in seq_along(res.rc)) {
+      to.keep.rc[[i]] <- lapply(to.keep.rc[[i]], res_to_index)
       res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.aschar, seq.ints, mot.lens[i],
                            min.scores[i], max.scores[i], mot.names[i],
                            seq.names, score.mats.rc[[i]], "-",
@@ -236,21 +226,18 @@ scan_sequences <- function(motifs, sequences, threshold = 0.25,
     }
     if (progress_bar) close(pb)
 
-    res <- do.call(rbind, list(res, res.rc))
+    res <- c(res, res.rc)
   }
 
-  res <- res[vapply(res, is.data.frame, logical(1))]
-  if (length(res) == 0) {
+  if (verbose) cat(" * Generating output\n")
+  res <- res_list_to_df_cpp(res)
+
+  if (nrow(res) == 0) {
     message("no matches found")
-    return(NULL)
+    return(invisible(NULL))
   }
-  res <- do.call(rbind, res)
 
   if (!alph %in% c("DNA", "RNA")) res <- res[, -9]
-
-  # if (verbose) cat(" * Calculating P-values\n")
-  # if (progress_bar) BPPARAM$progressbar <- TRUE
-  # res$p.value <- motif_pval(res$score,)
 
   if (progress_bar) BPPARAM$progressbar <- pb_prev
 

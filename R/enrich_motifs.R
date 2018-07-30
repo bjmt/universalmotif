@@ -71,8 +71,8 @@
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr",
-                          positional.test = "t.test", threshold = 0.4,
-                          threshold.type = "logodds",
+                          positional.test = "t.test", threshold = 0.01,
+                          threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
                           shuffle.leftovers = "asis",
@@ -95,6 +95,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   motcount <- length(motifs)
 
   if (threshold.type == "pvalue") {
+    if (verbose > 0) cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                               BPPARAM = BPPARAM)
     if (use.freq == 1) {
@@ -128,7 +129,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       res.all <- c(list(NULL), res.scan)
       names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
       return(res.all)
-    } else return(NULL)
+    } else return(invisible(NULL))
   } 
 
   res.all$Qval.hits <- p.adjust(res.all$Pval.hits, method = qval.method)
@@ -163,7 +164,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       res.all <- c(list(NULL), res.scan)
       names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
       return(res.all)
-    } else return(NULL)
+    } else return(invisible(NULL))
   } 
 
   if (return.scan.results) {

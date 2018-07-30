@@ -69,6 +69,10 @@ get_res_cpp <- function(to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, ma
     .Call('_universalmotif_get_res_cpp', PACKAGE = 'universalmotif', to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, max_scores, mot_names, seq_names, score_mats, strand, seq_lens, k)
 }
 
+res_list_to_df_cpp <- function(res) {
+    .Call('_universalmotif_res_list_to_df_cpp', PACKAGE = 'universalmotif', res)
+}
+
 pcm_to_ppmC <- function(position, pseudocount = 0) {
     .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
 }

@@ -132,7 +132,7 @@ List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
 }
 
 // [[Rcpp::export]]
-DataFrame get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
+List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     int mot_lens, double min_scores, double max_scores, String mot_names,
     StringVector seq_names, NumericMatrix score_mats, String strand,
     IntegerVector seq_lens, int k) {
@@ -195,6 +195,74 @@ DataFrame get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
 
   }
   
+  List out = List::create(_["motif"] = col_motif,
+      _["sequence"] = col_sequence, _["start"] = col_start,
+      _["stop"] = col_stop, _["score"] = col_score,
+      _["max.score"] = col_max_score, _["score.pct"] = col_score_pct,
+      _["match"] = col_match, _["strand"] = col_strand);
+
+  return out;
+
+}
+
+// [[Rcpp::export]]
+DataFrame res_list_to_df_cpp(List res) {
+
+  int n = res.length();
+  IntegerVector n_per(n);
+  List tmp, tmp2;
+  for (int i = 0; i < n; ++i) {
+    tmp = res(i);
+    tmp2 = tmp["motif"];
+    n_per(i) = tmp2.length();
+  }
+
+  int n_all = sum(n_per);
+
+  StringVector col_motif(n_all);
+  StringVector col_sequence(n_all);
+  IntegerVector col_start(n_all);
+  IntegerVector col_stop(n_all);
+  NumericVector col_score(n_all);
+  NumericVector col_max_score(n_all);
+  NumericVector col_score_pct(n_all);
+  StringVector col_match(n_all);
+  StringVector col_strand(n_all);
+
+  int row_offset = 0;
+
+  for (int i = 0; i < n; ++i) {
+
+    List res_ = res(i);
+
+    StringVector col_motif_ = res_["motif"];
+    StringVector col_sequence_ = res_["sequence"];
+    IntegerVector col_start_ = res_["start"];
+    IntegerVector col_stop_ = res_["stop"];
+    NumericVector col_score_ = res_["score"];
+    NumericVector col_max_score_ = res_["max.score"];
+    NumericVector col_score_pct_ = res_["score.pct"];
+    StringVector col_match_ = res_["match"];
+    StringVector col_strand_ = res_["strand"];
+
+    for (int j = 0; j < n_per(i); ++j) {
+
+      col_motif(j + row_offset) = col_motif_[j];
+      col_sequence(j + row_offset) = col_sequence_[j];
+      col_start(j + row_offset) = col_start_[j];
+      col_stop(j + row_offset) = col_stop_[j];
+      col_score(j + row_offset) = col_score_[j];
+      col_max_score(j + row_offset) = col_max_score_[j];
+      col_score_pct(j + row_offset) = col_score_pct_[j];
+      col_match(j + row_offset) = col_match_[j];
+      col_strand(j + row_offset) = col_strand_[j];
+    
+    }
+
+    row_offset += n_per(i);
+
+  }
+
   DataFrame out = DataFrame::create(_["motif"] = col_motif,
       _["sequence"] = col_sequence, _["start"] = col_start,
       _["stop"] = col_stop, _["score"] = col_score,

@@ -208,7 +208,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_res_cpp
-DataFrame get_res_cpp(List to_keep, List seqs_aschar, List seq_ints, int mot_lens, double min_scores, double max_scores, String mot_names, StringVector seq_names, NumericMatrix score_mats, String strand, IntegerVector seq_lens, int k);
+List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints, int mot_lens, double min_scores, double max_scores, String mot_names, StringVector seq_names, NumericMatrix score_mats, String strand, IntegerVector seq_lens, int k);
 RcppExport SEXP _universalmotif_get_res_cpp(SEXP to_keepSEXP, SEXP seqs_ascharSEXP, SEXP seq_intsSEXP, SEXP mot_lensSEXP, SEXP min_scoresSEXP, SEXP max_scoresSEXP, SEXP mot_namesSEXP, SEXP seq_namesSEXP, SEXP score_matsSEXP, SEXP strandSEXP, SEXP seq_lensSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -226,6 +226,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type seq_lens(seq_lensSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     rcpp_result_gen = Rcpp::wrap(get_res_cpp(to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, max_scores, mot_names, seq_names, score_mats, strand, seq_lens, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// res_list_to_df_cpp
+DataFrame res_list_to_df_cpp(List res);
+RcppExport SEXP _universalmotif_res_list_to_df_cpp(SEXP resSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type res(resSEXP);
+    rcpp_result_gen = Rcpp::wrap(res_list_to_df_cpp(res));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -426,6 +437,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_parse_k_res_helper_1", (DL_FUNC) &_universalmotif_parse_k_res_helper_1, 3},
     {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 4},
     {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
+    {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},
