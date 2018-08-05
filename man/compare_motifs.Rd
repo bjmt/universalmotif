@@ -15,14 +15,14 @@ they will be converted. See \code{\link{convert_motifs}} for supported
 classes.}
 
 \item{compare.to}{Numeric. If NULL, compares all motifs to all other motifs.
-Otherwise compares all motifs to the specified motif.}
+Otherwise compares all motifs to the specified motif(s).}
 
 \item{db.scores}{data.frame.}
 
 \item{method}{One of 'Euclidean', 'Pearson', and 'KL'.}
 
 \item{tryRC}{Try the reverse complement of the motifs as well, report the
-better score.}
+best score.}
 
 \item{min.overlap}{Numeric. Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
@@ -50,13 +50,6 @@ The implementations of this function are the exact same as that of the
    \code{\link[TFBSTools]{PWMSimilarity}} function, except that this function
    allows for more than two motifs to be compared as well as providing
    significant performance gains.
-
-   Each possible motif pairs are compared to generate the final matrix. This
-   is done by first aligning the two motifs, then performing the
-   distance/similarity calculation for each position pairs. If the two
-   motifs are not the same length, then the calculation is performed
-   repeatedly by moving the smaller motif along the larger motif. Afterwards,
-   either the smallest distance or the largest similarity is reported.
 }
 \examples{
 motif1 <- create_motif()

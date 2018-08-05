@@ -34,3 +34,5 @@
 #' @useDynLib universalmotif
 #' @importClassesFrom MotifDb MotifList
 NULL
+
+data(JASPAR2018_CORE_DBSCORES, envir = environment())
