@@ -101,7 +101,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   }
 
   for (i in seq_along(motifs)) {
-    if (motifs[[i]]["pseudocount"] == 0) motifs[[i]]["pseudocount"] <- 0.0001
+    if (motifs[[i]]["pseudocount"] == 0) motifs[[i]]["pseudocount"] <- 0.00001
     if (length(motifs[[i]]["nsites"]) == 0) motifs[[i]]["nsites"] <- 100
   }
   
@@ -204,9 +204,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   for (i in seq_along(res)) {
     to.keep[[i]] <- lapply(to.keep[[i]], res_to_index)
     res[[i]] <- get_res_cpp(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
-                         min.scores[i], max.scores[i], mot.names[i],
-                         seq.names, score.mats[[i]], "+",
-                         seq.lens, use.freq)
+                            min.scores[i], max.scores[i], mot.names[i],
+                            seq.names, score.mats[[i]], "+",
+                            seq.lens, use.freq)
     if (progress_bar) setTxtProgressBar(pb, i)
   }
   if (progress_bar) close(pb)
@@ -218,10 +218,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     res.rc <- vector("list", length(to.keep.rc))
     for (i in seq_along(res.rc)) {
       to.keep.rc[[i]] <- lapply(to.keep.rc[[i]], res_to_index)
-      res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.aschar, seq.ints, mot.lens[i],
-                           min.scores[i], max.scores[i], mot.names[i],
-                           seq.names, score.mats.rc[[i]], "-",
-                           seq.lens, use.freq)
+      res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.aschar, seq.ints,
+                                 mot.lens[i], min.scores[i], max.scores[i],
+                                 mot.names[i], seq.names, score.mats.rc[[i]],
+                                 "-", seq.lens, use.freq)
       if (progress_bar) setTxtProgressBar(pb, i)
     }
     if (progress_bar) close(pb)
@@ -237,7 +237,17 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     return(invisible(NULL))
   }
 
-  if (!alph %in% c("DNA", "RNA")) res <- res[, -9]
+  if (!alph %in% c("DNA", "RNA")) res <- res[, colnames(res) != "strand"]
+
+  factor2string <- vapply(res, is.factor, logical(1))
+  res[factor2string] <- lapply(res[factor2string], as.character)
+
+  # if (calc.pvals) {
+    # res.split <- .split_by_motif(motifs, res)
+    # pv.split <- mapply(function(x, y) motif_pvalue(x, y$score),
+                       # motifs, res.split)
+    # print(pv.split)
+  # }
 
   if (progress_bar) BPPARAM$progressbar <- pb_prev
 

@@ -15,6 +15,12 @@
 #' @param alphabet Character. 'DNA' or 'RNA'.
 #' @param letter Character. Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
+#' @param db.motifs List. Database motifs.
+#' @param method Character. One of Pearson, Euclidean, KL.
+#' @param tries Numeric. Number of random motifs to use for calculating db scores.
+#' @param min.overlap Numeric. Minimum required motif overlap.
+#' @param progress_bar Logical. Show progress.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return 
 #'    For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
@@ -28,6 +34,9 @@
 #'
 #'    For \code{get_consensus} and \code{get_consensusAA}: a character vector
 #'    of length 1.
+#'
+#'    For \code{make_DBscores}: a data.frame with score distributions for the
+#'    input database.
 #'
 #' @seealso \code{\link{create_motif}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}

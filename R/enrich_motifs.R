@@ -103,7 +103,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                            numeric(1))
     } else {
       max.scores <- vapply(motifs,
-                           function(x) sum(apply(x["multifreq"][[as.character(use.freq)]])),
+            function(x) sum(apply(x["multifreq"][[as.character(use.freq)]])),
                            numeric(1))
     }
     threshold <- threshold / max.scores
@@ -134,21 +134,25 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   res.all$Qval.hits <- p.adjust(res.all$Pval.hits, method = qval.method)
   res.all$Qval.pos <- p.adjust(res.all$Pval.pos, method = qval.method)
-  res.all$Eval.hits <- res.all$Qval.hits * length(motifs)
-  res.all$Eval.pos <- res.all$Qval.pos * length(motifs)
+  res.all$Eval.hits <- res.all$Qval.hits * length(motifs) * 2
+  res.all$Eval.pos <- res.all$Qval.pos * length(motifs) * 2
 
   if (search.mode == "hits") {
     res.all <- res.all[order(res.all$Qval.hits), ]
     res.all <- res.all[res.all$Pval.hits < max.p, ]
     res.all <- res.all[res.all$Qval.hits < max.q, ]
     res.all <- res.all[res.all$Eval.hits < max.e, ]
-    res.all <- res.all[, -c(4, 5, 8, 9, 11, 13, 15)]
+    res.all <- res.all[, !colnames(res.all) %in% c("seq.pos.mean", "seq.pos.sd",
+                                                   "bkg.pos.mean", "bkg.pos.sd",
+                                                   "Pval.pos", "Qval.pos",
+                                                   "Eval.pos")]
   } else if (search.mode == "positional") {
     res.all <- res.all[order(res.all$Qval.pos), ]
     res.all <- res.all[res.all$Pval.pos < max.p, ]
     res.all <- res.all[res.all$Qval.pos < max.q, ]
     res.all <- res.all[res.all$Eval.pos < max.e, ]
-    res.all <- res.all[, -c(2, 3, 6, 7, 10, 12, 14)]
+    res.all <- res.all[, !colnames(res.all) %in% c("Pval.hits", "Qval.hits",
+                                                    "Eval.hits")]
   } else if (search.mode == "both") {
     res.all <- res.all[order(res.all$Qval.hits), ]
     res.all <- res.all[res.all$Pval.hits < max.p | res.all$Pval.pos < max.p, ]
@@ -156,6 +160,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     res.all <- res.all[res.all$Eval.hits < max.e | res.all$Eval.pos < max.e, ]
   } else stop("unknown 'search.mode'")
 
+
+  res.all <- res.all[!is.na(res.all$motif), ]
   rownames(res.all) <- NULL
 
   if (nrow(res.all) < 1) {
@@ -252,6 +258,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     bkg.hits.mean <- 0
   } else bkg.hits.mean <- mean(bkg.hits)
 
+  if (length(seq.hits) == 0 && length(bkg.hits) == 0) return(NULL)
+
   seq.total <- (mean(seq.widths) - ncol(motifs["motif"]) + 1) *
                length(sequences)
   if (RC) seq.total <- seq.total * 2
@@ -272,18 +280,18 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   pos.p <- NA
 
-  if (search.mode %in% c("both", "positional")) {
-    if (positional.test == "t.test") {
+  if (search.mode %in% c("both", "positional") && length(seq.hits) > 0) {
+    if (positional.test == "t.test" && length(bkg.hits) > 0) {
       tryCatch({
         pos.p <- t.test(seq.hits / mean(seq.widths),
                         bkg.hits / mean(bkg.widths))$p.value
       }, error = function(e) warning("t.test failed"))
-    } else if (positional.test == "wilcox.test") {
+    } else if (positional.test == "wilcox.test" && length(bkg.hits) > 0) {
       tryCatch({
         pos.p <- wilcox.test(seq.hits / mean(seq.widths),
                              bkg.hits / mean(bkg.widths))$p.value
       }, error = function(e) warning("wilcox.test failed"))
-    } else if (positional.test == "chisq.test") {
+    } else if (positional.test == "chisq.test" && length(bkg.hits) > 0) {
       tryCatch({
         pos.p <- chisq.test(seq.hits / mean(seq.widths),
                             bkg.hits / mean(bkg.widths))$p.value
@@ -292,7 +300,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       tryCatch({
       pos.p <- shapiro.test(seq.hits)$p.value
       }, error = function(e) warning("shapiro.test failed"))
-    } else stop("unknown 'positional.test'")
+    } 
   }
 
   if (v2 && search.mode %in% c("hits", "both")) {
@@ -302,15 +310,19 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     cat("       positional bias p-value:", pos.p, "\n")
   } 
 
-  results <- data.frame(motif = motifs["name"], sequence.hits = length(seq.hits),
-                        num.sequences = length(sequences),
+  results <- data.frame(motif = motifs["name"],
+                        total.seq.hits = length(seq.hits),
+                        num.seqs.hit = length(unique(results$sequence)),
+                        num.seqs.total = length(sequences),
                         seq.pos.mean = seq.hits.mean / mean(seq.widths),
                         seq.pos.sd = sd(seq.hits) / mean(seq.widths),
-                        bkg.hits = length(bkg.hits),
-                        num.bkg = length(bkg.sequences),
+                        total.bkg.hits = length(bkg.hits),
+                        num.bkg.hit = length(unique(results.bkg$sequence)),
+                        num.bkg.total = length(bkg.sequences),
                         bkg.pos.mean = bkg.hits.mean / mean(bkg.widths),
                         bkg.pos.sd = sd(bkg.hits) / mean(bkg.widths),
-                        Pval.hits = hits.p, Pval.pos = pos.p)
+                        Pval.hits = hits.p, Pval.pos = pos.p,
+                        stringsAsFactors = FALSE)
 
   results
 

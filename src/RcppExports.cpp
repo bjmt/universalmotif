@@ -106,16 +106,49 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// motif_simil_internal
-double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, StringVector method);
-RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP) {
+// add_cols
+List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, NumericVector ic2, int overlap);
+RcppExport SEXP _universalmotif_add_cols(SEXP mot1SEXP, SEXP mot2SEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP overlapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
-    Rcpp::traits::input_parameter< StringVector >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(motif_simil_internal(mot1, mot2, method));
+    Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
+    Rcpp::traits::input_parameter< int >::type overlap(overlapSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_cols(mot1, mot2, ic1, ic2, overlap));
+    return rcpp_result_gen;
+END_RCPP
+}
+// motif_simil_internal
+double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, String method, int min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic);
+RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< int >::type min_overlap(min_overlapSEXP);
+    Rcpp::traits::input_parameter< bool >::type tryRC(tryRCSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
+    Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_simil_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic));
+    return rcpp_result_gen;
+END_RCPP
+}
+// list_to_matrix_simil
+NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names, String method);
+RcppExport SEXP _universalmotif_list_to_matrix_simil(SEXP comparisonsSEXP, SEXP mot_namesSEXP, SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type comparisons(comparisonsSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type mot_names(mot_namesSEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(list_to_matrix_simil(comparisons, mot_names, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -428,7 +461,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
     {"_universalmotif_calc_final_probs_cpp", (DL_FUNC) &_universalmotif_calc_final_probs_cpp, 3},
-    {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 3},
+    {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
+    {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 8},
+    {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},
     {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},

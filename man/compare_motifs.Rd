@@ -4,26 +4,42 @@
 \alias{compare_motifs}
 \title{Compare motifs.}
 \usage{
-compare_motifs(motifs, method = "Euclidean", k = 1,
-  BPPARAM = SerialParam(), progress_bar = FALSE)
+compare_motifs(motifs, compare.to, db.scores, method = "Pearson",
+  tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
+  relative_entropy = FALSE, max.p = 0.05, max.e = 10,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs. If not a \linkS4class{universalmotif} object,
 they will be converted. See \code{\link{convert_motifs}} for supported
 classes.}
 
+\item{compare.to}{Numeric. If NULL, compares all motifs to all other motifs.
+Otherwise compares all motifs to the specified motif.}
+
+\item{db.scores}{data.frame.}
+
 \item{method}{One of 'Euclidean', 'Pearson', and 'KL'.}
 
-\item{k}{Numeric. If '1', compare regular motif matrices. Otherwise, compare
-k-freq multifreq slot.}
+\item{tryRC}{Try the reverse complement of the motifs as well, report the
+better score.}
+
+\item{min.overlap}{Numeric. Minimum overlap required when aligning the
+motifs. Setting this to a number higher then the width of the motifs
+will not allow any overhangs.}
+
+\item{min.mean.ic}{Numeric.}
+
+\item{relative_entropy}{Logical.}
+
+\item{max.p}{Numeric.}
+
+\item{max.e}{Numeric.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
-
-\item{progress_bar}{Logical. Show progress bar.}
 }
 \value{
 Distance matrix for Euclidean or KL; similarity matrix for Pearson.
-   Each distance/similarity score is between 0 and 1.
 }
 \description{
 TFBSTools implementation of motif comparison, rewritten in C++. See
@@ -41,14 +57,13 @@ The implementations of this function are the exact same as that of the
    motifs are not the same length, then the calculation is performed
    repeatedly by moving the smaller motif along the larger motif. Afterwards,
    either the smallest distance or the largest similarity is reported.
-   Do note that the smaller motif is only aligned _within_ the bigger motif.
 }
 \examples{
-   motif1 <- create_motif()
-   motif2 <- create_motif()
-   motif1vs2 <- compare_motifs(list(motif1, motif2))
-   # to get a dist object:
-   as.dist(motif1vs2)
+motif1 <- create_motif()
+motif2 <- create_motif()
+motif1vs2 <- compare_motifs(list(motif1, motif2))
+# to get a dist object:
+as.dist(motif1vs2)
 
 }
 \references{

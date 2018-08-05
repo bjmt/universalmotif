@@ -33,8 +33,16 @@ calc_final_probs_cpp <- function(all_probs, all_scores, score) {
     .Call('_universalmotif_calc_final_probs_cpp', PACKAGE = 'universalmotif', all_probs, all_scores, score)
 }
 
-motif_simil_internal <- function(mot1, mot2, method) {
-    .Call('_universalmotif_motif_simil_internal', PACKAGE = 'universalmotif', mot1, mot2, method)
+add_cols <- function(mot1, mot2, ic1, ic2, overlap) {
+    .Call('_universalmotif_add_cols', PACKAGE = 'universalmotif', mot1, mot2, ic1, ic2, overlap)
+}
+
+motif_simil_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic) {
+    .Call('_universalmotif_motif_simil_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic)
+}
+
+list_to_matrix_simil <- function(comparisons, mot_names, method) {
+    .Call('_universalmotif_list_to_matrix_simil', PACKAGE = 'universalmotif', comparisons, mot_names, method)
 }
 
 score_seq <- function(tmp_seq, score_mat) {

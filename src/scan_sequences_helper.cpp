@@ -33,6 +33,23 @@ NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat,
 
 }
 
+/*  --> no speed increase
+List scan_seq_internal2(List seqs, NumericMatrix score_mat,
+    double min_score) {
+
+  List out = Rcpp::clone(seqs);
+  int n = seqs.length();
+
+  for (int i = 0; i < n; ++i) {
+    IntegerVector curr_seq = seqs(i);
+    out(i) = scan_seq_internal(curr_seq, score_mat, min_score);
+  }
+
+  return out;
+
+}
+*/
+
 // [[Rcpp::export]]
 IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
 
@@ -165,7 +182,6 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     StringVector seqs_aschar_i = seqs_aschar(i);
     IntegerVector seq_ints_i = seq_ints(i);
     String seq_names_i = seq_names(i);
-    int seq_lens_i = seq_lens(i);
     List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens);
     List matches_i = parse_k_res_helper_2(seqs_aschar_i, to_keep_i, mot_lens, k);
 
@@ -177,8 +193,8 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
         col_start(j + row_offset) = to_keep_i(j);
         col_stop(j + row_offset) = col_start(j + row_offset) + mot_lens + k - 2;
       } else if (strand == "-") {
-        col_start(j + row_offset) = to_keep_i(j) - seq_lens_i;
-        col_stop(j + row_offset) = seq_lens_i - to_keep_i(j) + mot_lens - k + 2;
+        col_start(j + row_offset) = to_keep_i(j) + mot_lens + k - 2;
+        col_stop(j + row_offset) = to_keep_i(j);
       }
 
       col_score(j + row_offset) = score_seq(hits_i(j), score_mats);
