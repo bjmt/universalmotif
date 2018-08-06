@@ -183,9 +183,10 @@ double motif_simil_rc(NumericMatrix mot1, NumericMatrix mot2,
     String method, int min_overlap, NumericVector ic1,
     NumericVector ic2, double min_ic) {
 
-  NumericMatrix mot1_rc = rev_motif(mot1);
-  double ans = motif_simil_internal(mot1_rc, mot2, method, min_overlap, false,
-      ic1, ic2, min_ic);
+  NumericMatrix mot2_rc = rev_motif(mot2);
+  NumericVector ic2_rc = rev(ic2);
+  double ans = motif_simil_internal(mot1, mot2_rc, method, min_overlap, false,
+      ic1, ic2_rc, min_ic);
 
   return ans;
 
@@ -324,5 +325,229 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
   colnames(out) = mot_names;
 
   return out;
+
+}
+
+NumericMatrix merge_mats(NumericMatrix mat1, NumericMatrix mat2,
+    double weight1, double weight2) {
+
+  NumericMatrix new_mat(mat1.nrow(), mat1.ncol());
+
+  for (int i = 0; i < mat1.nrow(); ++i) {
+    for (int j = 0; j < mat1.ncol(); ++j) {
+
+      if (NumericVector::is_na(mat1(i, j)) &&
+          NumericVector::is_na(mat2(i, j))) new_mat(i, j) = NA_REAL;
+      else if (NumericVector::is_na(mat1(i, j))) new_mat(i, j) = mat2(i, j);
+      else if (NumericVector::is_na(mat2(i, j))) new_mat(i, j) = mat1(i, j);
+      else new_mat(i, j) = (mat1(i, j) * weight1 + mat2(i, j) * weight2) /
+                           (weight1 + weight2);
+
+    }
+  }
+
+  return new_mat;
+
+}
+
+void merge_add_cols(List out) {
+
+  NumericMatrix mot1 = out(0);
+  NumericMatrix mot2 = out(1);
+  int offset = out(2);
+
+  int ncol1 = mot1.ncol();
+  int nrow1 = mot1.nrow();
+  int ncol2 = mot2.ncol();
+
+  int inner_mat, ncol3;
+  bool dontskip = true;
+  NumericMatrix tmp_mat;
+
+  if (ncol1 > ncol2) {
+    ncol3 = ncol1;
+    tmp_mat = mot2;
+    inner_mat = ncol2;
+  } else if (ncol2 > ncol1) {
+    ncol3 = ncol2;
+    tmp_mat = mot1;
+    inner_mat = ncol1;
+  } else dontskip = false;
+
+  if (dontskip) {
+
+    NumericMatrix new_mat(nrow1, ncol3); 
+
+    for (int i = 0; i < offset; ++i) {
+      for (int j = 0; j < nrow1; ++j) {
+        new_mat(j, i) = NA_REAL;  
+      }
+    }
+
+    for (int i = offset; i < offset + inner_mat; ++i) {
+      for (int j = 0; j < nrow1; ++j) {
+        new_mat(j, i) = tmp_mat(j, i - offset);
+      }
+    }
+
+    for (int i = offset + inner_mat; i < ncol3; ++i) {
+      for (int j = 0; j < nrow1; ++j) {
+        new_mat(j, i) = NA_REAL;
+      }
+    }
+
+    if (ncol1 > ncol2) out(1) = new_mat;
+    else if (ncol2 > ncol1) out(0) = new_mat;
+
+  }
+
+}
+
+List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
+    String method, int min_overlap, NumericVector ic1,
+    NumericVector ic2, double min_ic) {
+
+  if (method == "KL") {
+    mot1 = mot1 + 0.0001;
+    mot2 = mot2 + 0.0001;
+  }
+
+  List new_mots = add_cols(mot1, mot2, ic1, ic2, min_overlap);
+  NumericMatrix mot1_new = new_mots(0);
+  NumericMatrix mot2_new = new_mots(1);
+  NumericVector ic1_new = new_mots(2);
+  NumericVector ic2_new = new_mots(3);
+
+  NumericVector widths(2);
+  widths[0] = mot1_new.ncol();
+  widths[1] = mot2_new.ncol();
+  int min_width = min(widths);
+  int for_i = 1 + mot1_new.ncol() - min_width;
+  int for_j = 1 + mot2_new.ncol() - min_width;
+  NumericMatrix mot1_tmp(mot1_new.nrow(), min_width);
+  NumericMatrix mot2_tmp(mot2_new.nrow(), min_width);
+  NumericVector ic1_tmp(min_width);
+  NumericVector ic2_tmp(min_width);
+  NumericVector ans(for_i + for_j - 1);
+
+  int method_i = 0;
+  double ic1_mean;
+  double ic2_mean;
+  bool low_ic = false;
+
+       if (method == "Euclidean") method_i = 1;
+  else if (method == "Pearson")   method_i = 2;
+  else if (method == "KL")        method_i = 3;
+
+  for (int i = 0; i < for_i; ++i) {
+    for (int j = 0; j < for_j; ++j) {
+      
+      for (int k = 0; k < min_width; ++k) {
+        mot1_tmp(_, k) = mot1_new(_, k + i);
+        mot2_tmp(_, k) = mot2_new(_, k + j);
+        ic1_tmp[k] = ic1_new[k + i];
+        ic2_tmp[k] = ic2_new[k + j];
+      }
+
+      ic1_mean = mean(na_omit(ic1_tmp));
+      ic2_mean = mean(na_omit(ic2_tmp));
+      if (ic1_mean < min_ic || ic2_mean < min_ic) low_ic = true;
+
+      switch(method_i) {
+
+        case 1: if (low_ic) ans(i + j) = 1;
+                else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp);
+                break;
+        case 2: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp);
+                break;
+        case 3: if (low_ic) ans(i + j) = 10;
+                else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp);
+                break;
+
+      }
+
+      low_ic = false;
+
+    }
+  }
+
+  int offset;
+  double score;
+  switch(method_i) {
+
+    case 1: offset = which_min(ans);
+            score = min(ans);
+            break;
+    case 2: offset = which_max(ans);
+            score = max(ans);
+            break;
+    case 3: offset = which_min(ans);
+            score = min(ans);
+            break;
+
+  }
+
+  List out = List::create(_["mot1_new"] = mot1_new, _["mot2_new"] = mot2_new,
+                          _["offset"] = offset, _["score"] = score);
+
+  merge_add_cols(out);
+
+  return out;
+
+}
+
+// [[Rcpp::export]]
+NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
+    String method, int min_overlap, bool tryRC, NumericVector ic1,
+    NumericVector ic2, double min_ic, double weight1, double weight2) {
+
+  List out = merge_motifs_get_offset(mot1, mot2, method, min_overlap,
+      ic1, ic2, min_ic);
+
+  NumericMatrix mot1_;
+  NumericMatrix mot2_;
+
+  if (tryRC) {
+
+    double score;
+    double score_rc;
+    NumericMatrix mot2_rc = rev_motif(mot2);
+    NumericVector ic2_rc = rev(ic2);
+    List out_rc = merge_motifs_get_offset(mot1, mot2_rc, method, min_overlap,
+        ic1, ic2_rc, min_ic);
+    score = out(3);
+    score_rc = out_rc(3);
+
+    if (score >= score_rc) {
+
+      merge_add_cols(out);
+      NumericMatrix mot1_ = out(0);
+      NumericMatrix mot2_ = out(1);
+      NumericMatrix final_mot = merge_mats(mot1_, mot2_, weight1, weight2);
+      return final_mot;
+
+    } else {
+
+      merge_add_cols(out_rc);
+      NumericMatrix mot1_ = out_rc(0);
+      NumericMatrix mot2_ = out_rc(1);
+      NumericMatrix final_mot = merge_mats(mot1_, mot2_, weight1, weight2);
+      return final_mot;
+
+    }
+
+  } else {
+
+    merge_add_cols(out);
+    NumericMatrix mot1_ = out(0);
+    NumericMatrix mot2_ = out(1);
+    NumericMatrix final_mot = merge_mats(mot1_, mot2_, weight1, weight2);
+    return final_mot;
+
+  }
+
+  NumericMatrix final_mot;
+  return final_mot;
 
 }

@@ -4,33 +4,22 @@
 \alias{merge_motifs}
 \title{Merge motifs.}
 \usage{
-merge_motifs(motifs, newname = "merged motif", method = "msa",
-  printaln = FALSE, tryRC = TRUE, RCstrategy = "Euclidean",
-  bgNoise = NA, cluster = "default", substitutionMatrix = "iub",
+merge_motifs(motifs, method = "Pearson", min.overlap = 6,
+  min.mean.ic = 0.5, tryRC = TRUE, relative_entropy = FALSE,
   BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
 
-\item{newname}{Name of final merged motif.}
+\item{method}{Character.}
 
-\item{method}{Character. 'motifStack' or 'msa'.}
+\item{min.overlap}{Numeric.}
 
-\item{printaln}{Logical. Print msa aln object to get an idea of how the merging
-was done. Only applies if \code{method = 'msa'}.}
+\item{min.mean.ic}{Numeric.}
 
-\item{tryRC}{Logical. Only used if \code{method = 'msa'}.}
+\item{tryRC}{Logical.}
 
-\item{RCstrategy}{Character. One of 'Pearson', 'Euclidean', 'KL'. See
-\code{\link{compare_motifs}}.}
-
-\item{bgNoise}{\code{\link[motifStack]{mergeMotifs}} param.}
-
-\item{cluster}{\code{\link[msa]{msaClustalW}} param. 'nj' (default) or
-'upgma'.}
-
-\item{substitutionMatrix}{\code{\link[msa]{msaClustalW}} param. 'iub' or 
-'clustalw'.}
+\item{relative_entropy}{Logical.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -41,19 +30,6 @@ A single motif object.
 DNA/RNA only. The 'extrainfo' slot will be dropped, as well as any
 non-identical slots.
 }
-\details{
-If \code{method = 'msa'} \insertCite{msa}{universalmotif}, the motifs
-   are aligned as consensus strings before they are averaged as PPMs. For
-   \code{method = 'motifStack'} \insertCite{motifstack}{universalmotif}, the
-   \code{\link[motifStack]{mergeMotifs}} function is used. Please note that
-   the resulting merged motif can vary quite significantly when using
-   the different methods.
-
-   If \code{tryRC = FALSE} and \code{method = 'msa'}, the motifs are aligned
-   and merged as-is; if \code{tryRC = TRUE}, then compare_motifs is used to check
-   if the reverse complement is more closely related to the rest of the
-   motifs. If so, the reverse complement is used instead for merging.
-}
 \examples{
 motifs <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
@@ -63,13 +39,8 @@ merged.motif <- merge_motifs(motifs)
 merged.motif2 <- merge_motifs(motifs, method = "motifStack")
 
 }
-\references{
-\insertRef{motifstack}{universalmotif}
-
-   \insertRef{msa}{universalmotif}
-}
 \seealso{
-\code{\link[motifStack]{mergeMotifs}}, \code{\link{compare_motifs}}
+\code{\link{compare_motifs}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

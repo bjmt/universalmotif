@@ -45,6 +45,10 @@ list_to_matrix_simil <- function(comparisons, mot_names, method) {
     .Call('_universalmotif_list_to_matrix_simil', PACKAGE = 'universalmotif', comparisons, mot_names, method)
 }
 
+merge_motifs_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2) {
+    .Call('_universalmotif_merge_motifs_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2)
+}
+
 score_seq <- function(tmp_seq, score_mat) {
     .Call('_universalmotif_score_seq', PACKAGE = 'universalmotif', tmp_seq, score_mat)
 }

@@ -152,6 +152,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// merge_motifs_internal
+NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, String method, int min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, double weight1, double weight2);
+RcppExport SEXP _universalmotif_merge_motifs_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP weight1SEXP, SEXP weight2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< int >::type min_overlap(min_overlapSEXP);
+    Rcpp::traits::input_parameter< bool >::type tryRC(tryRCSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
+    Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
+    Rcpp::traits::input_parameter< double >::type weight1(weight1SEXP);
+    Rcpp::traits::input_parameter< double >::type weight2(weight2SEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_motifs_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // score_seq
 double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat);
 RcppExport SEXP _universalmotif_score_seq(SEXP tmp_seqSEXP, SEXP score_matSEXP) {
@@ -464,6 +484,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 8},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},
+    {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 10},
     {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},

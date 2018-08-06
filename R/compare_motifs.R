@@ -49,12 +49,6 @@ compare_motifs <- function(motifs, compare.to, db.scores, method = "Pearson",
                            BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  if (method == "KL") {
-    motifs <- lapply(motifs, function(x) {
-                             x["pseudocount"] <- x["pseudocount"] + 0.0001
-                             x
-                           })
-  }
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
@@ -63,11 +57,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, method = "Pearson",
   mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
                       motifs, mot.mats, BPPARAM = BPPARAM)
   if (missing(compare.to)) {
+
     comparisons <- bplapply(seq_along(motifs)[-length(motifs)],
                             function(x) .compare(x, mot.mats, method,
                                                  min.overlap, tryRC,
                                                  min.mean.ic, mot.ics),
                             BPPARAM = BPPARAM)
+
   } else {
 
     if (missing(db.scores)) {
@@ -83,18 +79,21 @@ compare_motifs <- function(motifs, compare.to, db.scores, method = "Pearson",
                                                mot.mats[[x]], method,
                                                min.overlap, tryRC,
                                                mot.ics[[compare.to[i]]],
-                                               mot.ics[[x]],
-                                               min.mean.ic),
+                                               mot.ics[[x]], min.mean.ic),
                                    BPPARAM = BPPARAM)
       comparisons[[i]] <- do.call(c, comparisons[[i]])
       pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-compare.to],
                              db.scores, comparisons[[i]], method)
     }
+
   }
 
   if (missing(compare.to)) {
+
     comparisons <- list_to_matrix_simil(comparisons, mot.names, method)
+
   } else {
+
     names(comparisons) <- mot.names[compare.to]
     comparisons <- bplapply(seq_along(compare.to),
                             function(i) {
@@ -110,11 +109,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, method = "Pearson",
     comparisons <- comparisons[comparisons$Pval <= max.p &
                                comparisons$Eval <= max.e, ]
     comparisons <- comparisons[comparisons$subject != comparisons$target, ]
+
     if (nrow(comparisons) == 0) {
       message("No significant hits")
       return(invisible(NULL))
     }
     rownames(comparisons) <- NULL
+
   }
 
   comparisons
