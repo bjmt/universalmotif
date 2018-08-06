@@ -6,7 +6,9 @@
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", BPPARAM = SerialParam(), ...)
+  branch.length = "none", db.scores, method = "Pearson", min.overlap = 6,
+  tryRC = TRUE, min.mean.ic = 0.5, relative_entropy = TRUE,
+  BPPARAM = SerialParam(), ...)
 }
 \arguments{
 \item{motifs}{List of \linkS4class{universalmotif} objects or 'dist' object.}
@@ -26,6 +28,18 @@ control tip size (e.g. 'icscore').}
 \item{legend}{Logical. Show legend for line colour and tip size.}
 
 \item{branch.length}{Character. If 'none', draw a cladogram.}
+
+\item{db.scores}{data.frame.}
+
+\item{method}{Character.}
+
+\item{min.overlap}{Numeric.}
+
+\item{tryRC}{Logical.}
+
+\item{min.mean.ic}{Numeric.}
+
+\item{relative_entropy}{Logical.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 

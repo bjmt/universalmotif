@@ -13,6 +13,12 @@
 #'    control tip size (e.g. 'icscore').
 #' @param legend Logical. Show legend for line colour and tip size.
 #' @param branch.length Character. If 'none', draw a cladogram.
+#' @param db.scores data.frame.
+#' @param method Character.
+#' @param min.overlap Numeric.
+#' @param tryRC Logical.
+#' @param min.mean.ic Numeric.
+#' @param relative_entropy Logical.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... ggtree params.
 #'
@@ -40,13 +46,20 @@
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
-                       branch.length = "none", BPPARAM = SerialParam(), ...){
+                       branch.length = "none", db.scores, method = "Pearson",
+                       min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
+                       relative_entropy = TRUE, BPPARAM = SerialParam(), ...){
 
   if (class(motifs) == "dist") {
     tree <- as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-    tree <- as.phylo(hclust(as.dist(compare_motifs(motifs, BPPARAM = BPPARAM))))
+    tree <- as.phylo(hclust(as.dist(compare_motifs(motifs, db.scores = db.scores,
+                                                   method = method, tryRC = tryRC,
+                                                   min.overlap = min.overlap,
+                                                   min.mean.ic = min.mean.ic,
+                                                   relative_entropy = relative_entropy,
+                                                   BPPARAM = BPPARAM))))
   }
 
   if (labels != "none") {

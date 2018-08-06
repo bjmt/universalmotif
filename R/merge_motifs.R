@@ -28,11 +28,15 @@ merge_motifs <- function(motifs, method = "Pearson", min.overlap = 6,
                          min.mean.ic = 0.5, tryRC = TRUE,
                          relative_entropy = FALSE, BPPARAM = SerialParam()) {
 
+  CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
 
-  merge_mot_list(motifs, tryRC, min.overlap, min.mean.ic, method,
-                 relative_entropy)
+  mot <- merge_mot_list(motifs, tryRC, min.overlap, min.mean.ic, method,
+                        relative_entropy)
+
+  mot <- .internal_convert(mot, unique(CLASS_IN), BPPARAM = BPPARAM)
+  mot
 
 }
 
