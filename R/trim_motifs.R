@@ -3,7 +3,7 @@
 #' Remove edges of a motif with low information content.
 #'
 #' @param motifs Motif object.
-#' @param IC_cutoff Numeric. Minimum allowed information content.
+#' @param min.ic Numeric. Minimum allowed information content.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motifs Motif object or list.

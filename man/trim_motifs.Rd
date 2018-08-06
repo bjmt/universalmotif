@@ -4,12 +4,12 @@
 \alias{trim_motifs}
 \title{Trim motifs.}
 \usage{
-trim_motifs(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam())
+trim_motifs(motifs, min.ic = 0.25, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{Motif object.}
 
-\item{IC_cutoff}{Numeric. Minimum allowed information content.}
+\item{min.ic}{Numeric. Minimum allowed information content.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
