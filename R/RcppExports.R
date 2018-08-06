@@ -85,6 +85,10 @@ res_list_to_df_cpp <- function(res) {
     .Call('_universalmotif_res_list_to_df_cpp', PACKAGE = 'universalmotif', res)
 }
 
+trim_motif_internal <- function(motif, ic_scores, min_ic) {
+    .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
+}
+
 pcm_to_ppmC <- function(position, pseudocount = 0) {
     .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
 }

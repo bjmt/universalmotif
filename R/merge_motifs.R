@@ -77,7 +77,7 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                     numeric(1))
   nsites.1 <- motifs[[1]]["nsites"]
   nsites.2 <- motifs[[2]]["nsites"]
-  nsites.new <- nsites.1 + nsites.2
+  nsites.new <- max(c(nsites.1, nsites.2))
   pseudo.1 <- motifs[[1]]["pseudocount"]
   pseudo.2 <- motifs[[2]]["pseudocount"]
   pseudo.new <- mean(c(pseudo.1, pseudo.2))
@@ -99,7 +99,7 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                       numeric(1))
       nsites.1 <- motifs[[i]]["nsites"]
       nsites.2 <- mot.new["nsites"]
-      nsites.new <- nsites.1 + nsites.2
+      nsites.new <- max(c(nsites.1, nsites.2))
       pseudo.1 <- motifs[[i]]["pseudocount"]
       pseudo.2 <- mot.new["pseudocount"]
       pseudo.new <- mean(c(pseudo.1, pseudo.2))
@@ -116,8 +116,9 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
   if (nchar(new.family) == 0) new.family <- character(0) 
   new.organism <- paste(mot.orgs, collapse = "/")
   if (nchar(new.organism) == 0) new.organism <- character(0)
-  new.bkgsites <- sum(mot.bkgsites)
-  if (new.bkgsites == 0) new.bkgsites <- numeric(0)
+  if (length(mot.bkgsites) > 1) {
+    new.bkgsites <- max(mot.bkgsites)
+  } else new.bkgsites <- numeric(0)
   if (length(unique(mot.strands)) > 1) {
     new.strand <- "+-" 
   } else new.strand <- unique(mot.strands)

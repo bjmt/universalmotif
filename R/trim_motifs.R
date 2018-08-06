@@ -16,74 +16,94 @@
 #' @seealso \code{\link{create_motif}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-trim_motifs <- function(motifs, IC_cutoff = 0.25, BPPARAM = SerialParam()) {
+trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
 
-  # TODO: too slow. Need to implement in c++.
+  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  if (!is.list(motifs)) motifs <- list(motifs)
+  mot.names <- vapply(motifs, function(x) x["name"], character(1))
 
-  if (class(motifs) == "list") {
-    motifs <- bplapply(motifs, function(x) trim_motifs(x, IC_cutoff = IC_cutoff),
-                       BPPARAM = BPPARAM)
-    tokeep <- vapply(motifs, function(x) !is.null(x), logical(1))
-    if (FALSE %in% tokeep) {
-      num_gone <- length(which(tokeep == FALSE))
-      warning(num_gone, " motifs were completely trimmed and subsequently deleted")
+  motifs <- bplapply(motifs,
+                     function(x) {
+                       y <- x["nsites"]
+                       if (length(y) == 0) x["nsites"] <- 100
+                       x
+                     }, BPPARAM = BPPARAM)
+
+  mot.mats <- bplapply(motifs, function(x) x["motif"], BPPARAM = BPPARAM)
+
+  mot.mats.k <- bplapply(motifs, function(x) x["multifreq"], BPPARAM = BPPARAM)
+
+  mot.scores <- bplapply(motifs,
+                         function(x) {
+                          apply(x["motif"], 2, position_icscoreC,
+                                bkg = x["bkg"], type = x["type"],
+                                pseudocount = x["pseudocount"],
+                                nsites = x["nsites"])
+                         }, BPPARAM = BPPARAM)
+
+  new.mats <- bpmapply(function(x, y) trim_motif_internal(x, y, min.ic),
+                       mot.mats, mot.scores, BPPARAM = BPPARAM,
+                       SIMPLIFY = FALSE)
+
+  new.mats.k <- bpmapply(function(x, y) {
+                        if (length(x) > 0) {
+                          lapply(x, function(z) trim_motif_internal(z, y, min.ic))
+                        } else list()
+                       }, mot.mats.k, mot.scores, BPPARAM = BPPARAM,
+                       SIMPLIFY = FALSE)
+
+  motifs <- bpmapply(function(x, y, z) {
+                        if (length(x) == 0) return(NULL)
+                        z@motif <- x
+                        z@multifreq <- y
+                        z
+                       }, new.mats, new.mats.k, motifs, BPPARAM = BPPARAM,
+                       SIMPLIFY = FALSE)
+
+  dont_keep <- vapply(motifs, is.null, logical(1))
+  num_bar <- which(dont_keep)
+  if (length(num_bar) > 0) {
+    if (length(num_bar) == length(mot.names)) {
+      stop("All motifs were completely trimmed")
     }
-    return(motifs[tokeep])
+    message("The following motifs were completely trimmed: ",
+            mot.names[num_bar])
+    return(invisible(NULL))
   }
+  
+  motifs <- motifs[!dont_keep]
 
-  CLASS_IN <- .internal_convert(motifs)
-  motif <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- bplapply(motifs,
+                     function(x) {
+                       alph <- x@alphabet
+                       type <- x@type
+                       pseudo <- x@pseudocount
+                       mat <- x@motif
+                       bkg <- x@bkg
+                       nsites <- x@nsites
+                       ic <- sum(apply(mat, 2, position_icscoreC, bkg = bkg,
+                                 type = type, pseudocount = pseudo,
+                                 nsites = nsites))
+                       x@icscore <- ic
+                       if (alph %in% c("DNA", "RNA")) {
+                         consensus <- apply(mat, 2, get_consensusC,
+                                            alphabet = alph, type = type,
+                                            pseudocount = pseudo)
+                         colnames(mat) <- consensus
+                         x@motif <- mat
+                         x@consensus <- paste(consensus, collapse = "")
+                       } else if (alph == "AA") {
+                         consensus <- apply(mat, 2, get_consensusAAC,
+                                            type = type, pseudocount = pseudo)
+                         colnames(mat) <- consensus
+                         x@motif <- mat
+                         x@consensus <- paste(consensus, collapse = "")
+                       }
+                       msg <- validObject_universalmotif(x)
+                       if (length(msg) > 0) stop(msg)
+                       x
+                     }, BPPARAM = BPPARAM)
 
-  if (length(motif["nsites"]) == 0) nsites <- 100 else nsites <- motif["nsites"]
-
-  motif_scores <- apply(motif["motif"], 2, position_icscoreC,
-                        bkg = motif["bkg"], type = motif["type"],
-                        pseudocount = motif["pseudocount"],
-                        nsites = nsites)
-  to_cut <- rep(TRUE, length(motif_scores))
-  cut_left <- 0
-  for (i in seq_along(motif_scores)) {
-    if (motif_scores[i] < IC_cutoff) to_cut[i] <- FALSE else break
-    cut_left <- cut_left + 1
-  }
-  cut_right <- 0
-  for (i in rev(seq_along(motif_scores))) {
-    if (motif_scores[i] < IC_cutoff) to_cut[i] <- FALSE else break
-    cut_right <- cut_right + 1
-  }
-  motif_mat <- as.matrix(motif@motif[, to_cut])
-  if (ncol(motif_mat) == 0) return(NULL)
-
-  if (cut_right != 0) {
-    cut_right <- ncol(motif_mat) - cut_right + 1
-    if (cut_right != ncol(motif_mat)) cut_right <- cut_right:ncol(motif_mat)
-  }
-  multifreq <- motif@multifreq
-  if (length(multifreq) > 0) {
-    for (i in seq_along(multifreq)) {
-      multifreq[[i]] <- multifreq[[i]][, -seq_len(cut_left)]
-      multifreq[[i]] <- multifreq[[i]][, -cut_right]
-      colnames(multifreq[[i]]) <- seq_len(ncol(multifreq[[i]]))
-    }
-  }
-
-  if (!is.matrix(motif_mat)) motif_mat <- as.matrix(motif_mat)
-  motif <- universalmotif_cpp(name = motif["name"], altname = motif["altname"],
-                          family = motif["family"], motif = motif["motif"],
-                          alphabet = motif["alphabet"], type = motif["type"],
-                          organism = motif["organism"],
-                          nsites = motif["nsites"],
-                          pseudocount = motif["pseudocount"],
-                          bkg = motif["bkg"], bkgsites = motif["bkgsites"],
-                          strand = motif["strand"], pval = motif["pval"],
-                          qval = motif["qval"], eval = motif["eval"],
-                          extrainfo = motif["extrainfo"])
-  if (length(multifreq) > 0) motif@multifreq <- multifreq
-
-  msg <- validObject_universalmotif(motif)
-  if (length(msg) > 0) stop(msg)
-
-  motif <- .internal_convert(motif, CLASS_IN, BPPARAM = BPPARAM)
-  motif
+  if (length(motifs) == 1) motifs[[1]] else motifs
 
 }

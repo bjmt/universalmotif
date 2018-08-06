@@ -175,7 +175,7 @@ make_DBscores <- function(db.motifs, method = "Pearson", tries = 1000,
 
     res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
                                min.overlap = min.overlap, min.mean.ic = 0,
-                               BPPARAM = BPPARAM)$score
+                               BPPARAM = BPPARAM, max.e = Inf, max.p = Inf)$score
 
     totry$mean[i] <- mean(res[[i]])
     totry$sd[i] <- sd(res[[i]])

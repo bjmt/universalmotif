@@ -293,6 +293,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// trim_motif_internal
+NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores, double min_ic);
+RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type motif(motifSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic_scores(ic_scoresSEXP);
+    Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
+    rcpp_result_gen = Rcpp::wrap(trim_motif_internal(motif, ic_scores, min_ic));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pcm_to_ppmC
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount);
 RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP positionSEXP, SEXP pseudocountSEXP) {
@@ -494,6 +507,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 4},
     {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
     {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},
+    {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},
