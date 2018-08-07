@@ -107,7 +107,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // add_cols
-List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, NumericVector ic2, int overlap);
+List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, NumericVector ic2, double overlap);
 RcppExport SEXP _universalmotif_add_cols(SEXP mot1SEXP, SEXP mot2SEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP overlapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -116,13 +116,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
-    Rcpp::traits::input_parameter< int >::type overlap(overlapSEXP);
+    Rcpp::traits::input_parameter< double >::type overlap(overlapSEXP);
     rcpp_result_gen = Rcpp::wrap(add_cols(mot1, mot2, ic1, ic2, overlap));
     return rcpp_result_gen;
 END_RCPP
 }
 // motif_simil_internal
-double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, String method, int min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic);
+double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic);
 RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -130,7 +130,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< int >::type min_overlap(min_overlapSEXP);
+    Rcpp::traits::input_parameter< double >::type min_overlap(min_overlapSEXP);
     Rcpp::traits::input_parameter< bool >::type tryRC(tryRCSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
@@ -153,7 +153,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // merge_motifs_internal
-NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, String method, int min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, double weight1, double weight2);
+NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, double weight1, double weight2);
 RcppExport SEXP _universalmotif_merge_motifs_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP weight1SEXP, SEXP weight2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -161,7 +161,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< int >::type min_overlap(min_overlapSEXP);
+    Rcpp::traits::input_parameter< double >::type min_overlap(min_overlapSEXP);
     Rcpp::traits::input_parameter< bool >::type tryRC(tryRCSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);

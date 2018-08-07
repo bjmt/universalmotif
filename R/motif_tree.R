@@ -54,12 +54,14 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     tree <- as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-    tree <- as.phylo(hclust(as.dist(compare_motifs(motifs, db.scores = db.scores,
-                                                   method = method, tryRC = tryRC,
-                                                   min.overlap = min.overlap,
-                                                   min.mean.ic = min.mean.ic,
-                                                   relative_entropy = relative_entropy,
-                                                   BPPARAM = BPPARAM))))
+    tree <- compare_motifs(motifs, db.scores = db.scores,
+                           method = method, tryRC = tryRC,
+                           min.overlap = min.overlap,
+                           min.mean.ic = min.mean.ic,
+                           relative_entropy = relative_entropy,
+                           BPPARAM = BPPARAM)
+    if (method == "Pearson") tree <- 1 - tree
+    tree <- as.phylo(hclust(as.dist(tree)))
   }
 
   if (labels != "none") {

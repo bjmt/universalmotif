@@ -15,7 +15,8 @@
 #'    best score.
 #' @param min.overlap Numeric. Minimum overlap required when aligning the
 #'    motifs. Setting this to a number higher then the width of the motifs
-#'    will not allow any overhangs.
+#'    will not allow any overhangs. Can also be a number less than 1,
+#'    representing the minimum fraction that the motifs must overlap.
 #' @param min.mean.ic Numeric.
 #' @param relative_entropy Logical.
 #' @param max.p Numeric.

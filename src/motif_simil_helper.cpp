@@ -89,7 +89,7 @@ double motif_kl(NumericMatrix mot1, NumericMatrix mot2) {
 
 // [[Rcpp::export]]
 List add_cols(NumericMatrix mot1, NumericMatrix mot2,
-    NumericVector ic1, NumericVector ic2, int overlap) {
+    NumericVector ic1, NumericVector ic2, double overlap) {
 
   List out;
 
@@ -101,13 +101,23 @@ List add_cols(NumericMatrix mot1, NumericMatrix mot2,
   int nrow_2 = mot2.nrow();
   int total_2 = ncol_2 * nrow_2;
 
+  int overlap1 = overlap;
+  int overlap2 = overlap;
+  if (overlap < 1) {
+    overlap1 = overlap * ncol_1;
+    overlap2 = overlap * ncol_2;
+  } else {
+    overlap1 = overlap;
+    overlap2 = overlap;
+  }
+
   int ncol_1_toadd;
-  if (overlap > ncol_2) ncol_1_toadd = 0;
-  else ncol_1_toadd = ncol_2 - overlap;
+  if (overlap1 > ncol_2) ncol_1_toadd = 0;
+  else ncol_1_toadd = ncol_2 - overlap1;
 
   int ncol_2_toadd;
-  if (overlap > ncol_1) ncol_2_toadd = 0;
-  else ncol_2_toadd = ncol_1 - overlap;
+  if (overlap2 > ncol_1) ncol_2_toadd = 0;
+  else ncol_2_toadd = ncol_1 - overlap2;
 
   if (ncol_1_toadd == 0 || ncol_2_toadd == 0) {
     out = List::create(mot1, mot2, ic1, ic2);
@@ -176,11 +186,11 @@ NumericMatrix rev_motif(NumericMatrix motif) {
 }
 
 double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
-    String method, int min_overlap, bool tryRC, NumericVector ic1,
+    String method, double min_overlap, bool tryRC, NumericVector ic1,
     NumericVector ic2, double min_ic);
 
 double motif_simil_rc(NumericMatrix mot1, NumericMatrix mot2,
-    String method, int min_overlap, NumericVector ic1,
+    String method, double min_overlap, NumericVector ic1,
     NumericVector ic2, double min_ic) {
 
   NumericMatrix mot2_rc = rev_motif(mot2);
@@ -194,7 +204,7 @@ double motif_simil_rc(NumericMatrix mot1, NumericMatrix mot2,
 
 // [[Rcpp::export]]
 double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
-    String method, int min_overlap, bool tryRC, NumericVector ic1,
+    String method, double min_overlap, bool tryRC, NumericVector ic1,
     NumericVector ic2, double min_ic) {
 
   // Adapted from TFBSTools::PWMSimilarity
@@ -404,7 +414,7 @@ void merge_add_cols(List out) {
 }
 
 List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
-    String method, int min_overlap, NumericVector ic1,
+    String method, double min_overlap, NumericVector ic1,
     NumericVector ic2, double min_ic) {
 
   if (method == "KL") {
@@ -499,7 +509,7 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
 
 // [[Rcpp::export]]
 NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
-    String method, int min_overlap, bool tryRC, NumericVector ic1,
+    String method, double min_overlap, bool tryRC, NumericVector ic1,
     NumericVector ic2, double min_ic, double weight1, double weight2) {
 
   List out = merge_motifs_get_offset(mot1, mot2, method, min_overlap,
