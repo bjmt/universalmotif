@@ -9,6 +9,7 @@
 #' @param compare.to Numeric. If NULL, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
 #' @param db.scores data.frame.
+#' @param k Numeric.
 #' @param method One of 'Euclidean', 'Pearson', and 'KL'.
 #' @param tryRC Try the reverse complement of the motifs as well, report the
 #'    best score.
@@ -43,17 +44,21 @@
 #' @seealso \code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
 #'    \code{\link{motif_tree}}
 #' @export
-compare_motifs <- function(motifs, compare.to, db.scores, method = "Pearson",
-                           tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
-                           relative_entropy = FALSE, max.p = 0.05, max.e = 10,
-                           BPPARAM = SerialParam()) {
+compare_motifs <- function(motifs, compare.to, db.scores, k = 1,
+                           method = "Pearson", tryRC = TRUE, min.overlap = 6,
+                           min.mean.ic = 0.5, relative_entropy = FALSE,
+                           max.p = 0.05, max.e = 10, BPPARAM = SerialParam()) {
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
 
-  mot.mats <- lapply(motifs, function(x) x["motif"])
+  if (k == 1) {
+    mot.mats <- lapply(motifs, function(x) x["motif"])
+  } else {
+    mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(k)]])
+  }
   mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
                       motifs, mot.mats, BPPARAM = BPPARAM)
   if (missing(compare.to)) {

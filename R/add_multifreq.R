@@ -52,12 +52,13 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   
-  if (all(ncol(motif["motif"])) != unique(width(sequences))) {
+  if (all(ncol(motif["motif"]) != unique(width(sequences)))) {
 
     seq.names <- names(sequences)
     if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
     seq.res <- scan_sequences(motif, sequences, threshold = threshold, RC = RC,
-                              threshold.type = threshold.type, BPPARAM = BPPARAM)
+                              threshold.type = threshold.type, BPPARAM = BPPARAM,
+                              verbose = FALSE)
 
     seqs.out <- vector("list", length(sequences))
 
@@ -71,6 +72,10 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     seqs.out <- do.call(cbind, seqs.out)
     seqs.out <- seqs.out$match
     seqs.out <- levels(seqs.out)
+
+  } else {
+
+    seqs.out <- sequences
 
   }
 

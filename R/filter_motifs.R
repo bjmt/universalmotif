@@ -34,12 +34,11 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-filter_motifs <- function(motifs, name, altname, family, organism,
-                          width, alphabet,
-                          type, icscore, nsites, strand, pval, qval, eval,
-                          BPPARAM = SerialParam()) {
+filter_motifs <- function(motifs, name, altname, family, organism, width,
+                          alphabet, type, icscore, nsites, strand, pval, qval,
+                          eval, BPPARAM = SerialParam()) {
   
-  # CLASS_IN <- .internal_convert(motifs)
+  CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
   if (!missing(name)) {
@@ -107,7 +106,7 @@ filter_motifs <- function(motifs, name, altname, family, organism,
     motifs <- motifs[motif_evals <= eval]
   }
 
-  # motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
+  motifs <- .internal_convert(motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
 
   motifs
 

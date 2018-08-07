@@ -4,7 +4,7 @@
 \alias{compare_motifs}
 \title{Compare motifs.}
 \usage{
-compare_motifs(motifs, compare.to, db.scores, method = "Pearson",
+compare_motifs(motifs, compare.to, db.scores, k = 1, method = "Pearson",
   tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
   relative_entropy = FALSE, max.p = 0.05, max.e = 10,
   BPPARAM = SerialParam())
@@ -18,6 +18,8 @@ classes.}
 Otherwise compares all motifs to the specified motif(s).}
 
 \item{db.scores}{data.frame.}
+
+\item{k}{Numeric.}
 
 \item{method}{One of 'Euclidean', 'Pearson', and 'KL'.}
 

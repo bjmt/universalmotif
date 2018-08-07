@@ -650,14 +650,16 @@ StringVector validObject_universalmotif(S4 motif) {
   // consensus check
   
   if (m_consensus.length() > 0) {
-    if (m_consensus[0].size() != m_motif.ncol())
+    if (m_consensus[0].size() != m_motif.ncol()) {
       msg.push_back("consensus string must have the same number of letters as motif positions");
-    StringVector consensus_split;
-    StringVector motif_colnames = colnames(m_motif);
-    for (int i = 0; i < m_consensus[0].size(); ++i) {
-      consensus_split.push_back(m_consensus[0][i]);
-      if (consensus_split[i] != motif_colnames[i])
-        msg.push_back("consensus string must match colnames");
+    } else {
+      StringVector consensus_split;
+      StringVector motif_colnames = colnames(m_motif);
+      for (int i = 0; i < m_consensus[0].size(); ++i) {
+        consensus_split.push_back(m_consensus[0][i]);
+        if (consensus_split[i] != motif_colnames[i])
+          msg.push_back("consensus string must match colnames");
+      }
     }
   }
 
