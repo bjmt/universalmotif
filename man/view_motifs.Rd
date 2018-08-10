@@ -9,8 +9,7 @@ view_motifs(motifs, compare.type = "PPM", plot.type = "ICM",
   relative_entropy = FALSE, BPPARAM = SerialParam(), ...)
 }
 \arguments{
-\item{motifs}{Motifs. If more than one, motifs will be aligned with first
-motif in the list.}
+\item{motifs}{Single motif or a list of motifs.}
 
 \item{compare.type}{Character.}
 
@@ -28,10 +27,11 @@ motif in the list.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
-\item{...}{For geom_logo.}
+\item{...}{Addtional options for \code{\link[ggseqlogo]{geom_logo}}.}
 }
 \description{
-Plot motif logos.
+Show sequence logo. If given a list of more than one motif, then the motifs
+are aligned with the first in the list.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

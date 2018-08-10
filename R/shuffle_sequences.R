@@ -88,11 +88,16 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
 # this creates truly random k-lets; unfortunately this has the side effect of
 # leaving behind 'leftover'-lets smaller than k
-shuffle_random <- function(sequence, k, leftover.strat) {
+shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 
-  seq.len <- nchar(sequence)
+  if (mode == 1) {
+    seq.len <- nchar(sequence)
+    seqs1 <- strsplit(sequence, "")[[1]]
+  } else if (mode == 2) {
+    seq.len <- length(sequence)
+    seqs1 <- sequence
+  }
 
-  seqs1 <- strsplit(sequence, "")[[1]]
   seqs2 <- rep(TRUE, seq.len)
 
   seqs.k <- lapply(seq_len(k),
@@ -166,18 +171,23 @@ shuffle_random <- function(sequence, k, leftover.strat) {
     } else stop("unknown 'leftovers' arg")
   }
 
+  if (mode == 1) new.seq <- paste(new.seq, collapse = "")
 
-  paste(new.seq, collapse = "")
+  new.seq 
 
 }
 
 # this function won't leave any 'leftover' letters behind, but the k-lets are
 # predictable; the sequence is split up linearly every 'k'-letters
-shuffle_linear <- function(sequence, k) {
+shuffle_linear <- function(sequence, k, mode = 1) {
 
-  seq.len <- nchar(sequence)
-  
-  seq1 <- strsplit(sequence, "")[[1]]
+  if (mode == 1) {
+    seq.len <- nchar(sequence)
+    seq1 <- strsplit(sequence, "")[[1]]
+  } else if (mode == 2){
+    seq.len <- length(sequence)
+    seq1 <- sequence
+  }
 
   seq.mod <- seq.len %% k
   if (seq.mod == 1) {
@@ -215,7 +225,9 @@ shuffle_linear <- function(sequence, k) {
   seq.split <- as.character(seq.split)
 
   new.seq <- c(left.keep, seq.split, right.keep)
-  new.seq <- paste(new.seq, collapse = "")
+  if (mode == 1) {
+    new.seq <- paste(new.seq, collapse = "")
+  }
 
   new.seq
 

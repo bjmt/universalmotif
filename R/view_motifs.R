@@ -1,7 +1,9 @@
 #' Plot motif logos.
 #'
-#' @param motifs Motifs. If more than one, motifs will be aligned with first
-#'    motif in the list.
+#' Show sequence logo. If given a list of more than one motif, then the motifs
+#' are aligned with the first in the list.
+#'
+#' @param motifs Single motif or a list of motifs. 
 #' @param compare.type Character.
 #' @param plot.type Character.
 #' @param method Character.
@@ -10,7 +12,7 @@
 #' @param min.mean.ic Numeric.
 #' @param relative_entropy Logical.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
-#' @param ... For geom_logo.
+#' @param ... Addtional options for \code{\link[ggseqlogo]{geom_logo}}.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
