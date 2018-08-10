@@ -4,14 +4,16 @@
 \alias{merge_motifs}
 \title{Merge motifs.}
 \usage{
-merge_motifs(motifs, method = "Pearson", min.overlap = 6,
-  min.mean.ic = 0.5, tryRC = TRUE, relative_entropy = FALSE,
-  BPPARAM = SerialParam())
+merge_motifs(motifs, method = "Pearson", use.type = "PPM",
+  min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
+  relative_entropy = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs.}
 
 \item{method}{Character.}
+
+\item{use.type}{Character.}
 
 \item{min.overlap}{Numeric.}
 

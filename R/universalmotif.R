@@ -9,6 +9,7 @@
 #' @import methods
 #' @import ggplot2
 #' @import ggtree
+#' @import ggseqlogo
 #' @import msa
 #' @importFrom BiocParallel bplapply bpmapply SerialParam 
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd

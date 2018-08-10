@@ -1,0 +1,213 @@
+#' Plot motif logos.
+#'
+#' @param motifs Motifs. If more than one, motifs will be aligned with first
+#'    motif in the list.
+#' @param compare.type Character.
+#' @param plot.type Character.
+#' @param method Character.
+#' @param tryRC Logical.
+#' @param min.overlap Numeric.
+#' @param min.mean.ic Numeric.
+#' @param relative_entropy Logical.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param ... For geom_logo.
+#'
+#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @export
+view_motifs <- function(motifs, compare.type = "PPM", plot.type = "ICM",
+                        method = "Pearson", tryRC = TRUE, min.overlap = 6,
+                        min.mean.ic = 0.5, relative_entropy = FALSE,
+                        BPPARAM = SerialParam(), ...) {
+
+  if (!compare.type %in% c("PPM", "ICM") || !plot.type %in% c("PPM", "ICM")) {
+    stop("only supports type PPM or ICM")
+  }
+  plot.method <- "custom"
+  if (compare.type == "PPM" && plot.type == "ICM" && !relative_entropy) {
+    plot.method <- "bits"
+  }
+  else if (compare.type == "PPM" && plot.type == "PPM") plot.method <- "prob"
+  else if (compare.type == "ICM" && plot.type == "PPM") 
+    stop("cannot have compare.type = 'ICM' and plot.type = 'PPM'")
+
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, compare.type, relative_entropy = relative_entropy)
+  if (!is.list(motifs)) motifs <- list(motifs)
+  motifs.plot <- convert_type(motifs, plot.type, relative_entropy = relative_entropy)
+  mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  mot.mats <- lapply(motifs, function(x) x["motif"])
+  mot.alph <- unique(vapply(motifs, function(x) x["alphabet"], character(1)))
+  if (length(mot.alph) > 1) stop("can only have one alphabet")
+  use.custom <- FALSE
+  if (mot.alph == "DNA") {
+    alph <- DNA_BASES
+    seq_type <- "dna"
+  } else if (mot.alph == "RNA") {
+    alph <- RNA_BASES
+    seq_type <- "rna"
+  } else if (mot.alph == "AA") {
+    alph <- AA_STANDARD
+    seq_type <- "aa"
+  } else if (mot.alph != "custom"){
+    alph <- sort(strsplit(mot.alph, "")[[1]])
+    use.custom <- TRUE
+  } else{
+    alph <- rownames(mot.mats[[1]])
+    use.custom <- TRUE
+  }
+
+  yname <- ifelse(plot.type == "PPM", "probability", "bits")
+  if (length(motifs) == 1) {
+    if (use.custom) {
+      p <- ggseqlogo(motifs.plot[[1]]["motif"], method = plot.method,
+                     seq_type = seq_type, namespace = alph, ...) + ylab(yname)
+    } else {
+      p <- ggseqlogo(motifs.plot[[1]]["motif"], method = plot.method,
+                     seq_type = seq_type, ...) + ylab(yname)
+    }
+    return(p)
+  }
+
+  motifs.rc <- motif_rc(motifs)
+  mot.mats.rc <- lapply(motifs.rc, function(x) x["motif"])
+
+  mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
+                      motifs, mot.mats, BPPARAM = BPPARAM)
+  mot.ics.rc <- lapply(mot.ics, rev)
+
+  mot.alns <- bplapply(seq_along(mot.mats)[-1],
+                       function(x) {
+                         y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats[[x]],
+                                                      method, min.overlap,
+                                                      mot.ics[[1]], mot.ics[[x]],
+                                                      min.mean.ic)
+                         merge_add_cols(y)
+                         y},
+                       BPPARAM = BPPARAM)
+  if (tryRC) {
+    mot.alns.rc <- bplapply(seq_along(mot.mats)[-1],
+                         function(x) {
+                           y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats.rc[[x]],
+                                                        method, min.overlap,
+                                                        mot.ics[[1]], mot.ics.rc[[x]],
+                                                        min.mean.ic)
+                           merge_add_cols(y)
+                           y},
+                         BPPARAM = BPPARAM)
+  } else mot.alns.rc <- NULL
+
+  mot.alns <- lapply(mot.alns, function(x) {
+                       x[1:2] <- fix_blank_pos(x[[1]], x[[2]]); x
+                         })
+  mot.alns.rc <- lapply(mot.alns.rc, function(x) {
+                          x[1:2] <- fix_blank_pos(x[[1]], x[[2]]); x
+                            })
+
+  mots <- realign_all_mots(alph, mot.alns, mot.alns.rc)
+  if (!is.null(mot.alns.rc)) {
+    which.rc <- mots[[2]]
+    mots <- mots[[1]]
+    mot.names[which(which.rc) + 1] <- paste(mot.names[which(which.rc) + 1],
+                                            "[RC]")
+  }
+  names(mots) <- mot.names
+
+  if (use.custom) {
+    ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, 
+                         namespace = alph, ...) +
+      theme_logo() +
+      facet_wrap(~seq_group, ncol = 1) + ylab(yname)
+  } else {
+    ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, ...) +
+      theme_logo() +
+      facet_wrap(~seq_group, ncol = 1) + ylab(yname)
+  }
+
+}
+
+fix_blank_pos <- function(motif1, motif2) {
+
+  na1 <- vapply(motif1[1, ], is.na, logical(1))
+  na2 <- vapply(motif2[1, ], is.na, logical(1))
+
+  tokeep <- rep(TRUE, ncol(motif1))
+
+  for (i in seq_along(na1)) {
+    if (na1[i] && na2[i]) {
+      tokeep[i] <- FALSE
+    } else break
+  }
+  for (i in rev(seq_along(na1))) {
+    if (na1[i] && na2[i]) {
+      tokeep[i] <- FALSE
+    } else break
+  }
+
+  list(motif1[, tokeep], motif2[, tokeep])
+
+}
+
+realign_all_mots <- function(alph, mot.alns, mot.alns.rc) {
+
+  mots.1 <- lapply(mot.alns, function(x) x$mot1_new)
+  mots.2 <- lapply(mot.alns, function(x) x$mot2_new)
+  num.rows <- nrow(mots.1[[1]])
+
+  if (!is.null(mot.alns.rc)) {
+    mots.1.rc <- lapply(mot.alns.rc, function(x) x$mot1_new)
+    mots.2.rc <- lapply(mot.alns.rc, function(x) x$mot2_new)
+    scores <- vapply(mot.alns, function(x) x$score, numeric(1))
+    scores.rc <- vapply(mot.alns.rc, function(x) x$score, numeric(1))
+    which.rc <- rep(FALSE, length(scores))
+    for (i in seq_along(scores)) {
+      if (scores.rc[i] > scores[i]) {
+        mots.1[[i]] <- mots.1.rc[[i]]
+        mots.2[[i]] <- mots.2.rc[[i]]
+        which.rc[i] <- TRUE
+      }
+    }
+  }
+
+  mots.1.nas <- vapply(mots.1, count_leading_na, numeric(1))
+  mots.2.nas <- vapply(mots.2, count_leading_na, numeric(1))
+  mot1.highest <- order(mots.1.nas, decreasing = TRUE)[1]
+
+  mots.2 <- lapply(seq_along(mots.2),
+                   function(x) {
+                     if (x == mot1.highest) return(mots.2[[x]])
+                     cbind(matrix(rep(NA, num.rows * mots.1.nas[mot1.highest]),
+                                  nrow = num.rows),
+                           mots.2[[x]])
+                   })
+
+  mots <- c(mots.1[mot1.highest], mots.2)
+  mot.lens <- vapply(mots, ncol, numeric(1))
+  mots <- lapply(seq_along(mots),
+                 function(x) {
+                   if (ncol(mots[[x]]) == max(mot.lens)) return(mots[[x]])
+                   cbind(mots[[x]],
+                         matrix(rep(NA, num.rows * (max(mot.lens) - mot.lens[x])),
+                                nrow = num.rows))
+                 })
+  mots <- lapply(mots, function(x) {rownames(x) <- alph; x})
+
+  if (!is.null(mot.alns.rc)) {
+    list(mots, which.rc)
+  } else {
+    mots
+  }
+
+}
+
+count_leading_na <- function(mat) {
+
+  mat.nas <- vapply(mat[1, ], is.na, logical(1))
+  count.na <- 0
+  for (i in seq_along(mat.nas)) {
+    if (!mat.nas[i]) break
+    count.na <- count.na + 1
+  }
+
+  count.na
+
+}

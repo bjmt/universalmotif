@@ -152,6 +152,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// merge_add_cols
+void merge_add_cols(List out);
+RcppExport SEXP _universalmotif_merge_add_cols(SEXP outSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type out(outSEXP);
+    merge_add_cols(out);
+    return R_NilValue;
+END_RCPP
+}
+// merge_motifs_get_offset
+List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, NumericVector ic1, NumericVector ic2, double min_ic);
+RcppExport SEXP _universalmotif_merge_motifs_get_offset(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type min_overlap(min_overlapSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
+    Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_motifs_get_offset(mot1, mot2, method, min_overlap, ic1, ic2, min_ic));
+    return rcpp_result_gen;
+END_RCPP
+}
 // merge_motifs_internal
 NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, double weight1, double weight2);
 RcppExport SEXP _universalmotif_merge_motifs_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP weight1SEXP, SEXP weight2SEXP) {
@@ -497,6 +524,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 8},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},
+    {"_universalmotif_merge_add_cols", (DL_FUNC) &_universalmotif_merge_add_cols, 1},
+    {"_universalmotif_merge_motifs_get_offset", (DL_FUNC) &_universalmotif_merge_motifs_get_offset, 7},
     {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 10},
     {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},

@@ -9,6 +9,10 @@
 #' @param compare.to Numeric. If NULL, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
 #' @param db.scores data.frame.
+#' @param use.type Character. One of 'PCM' (Pearson only), 'PPM' (any method),
+#'    'PWM' (Pearson only), and 'ICM' (any method). The latter
+#'    two allow for taking into account the background frequencies 
+#'    (for ICM, only if \code{relative_entropy = TRUE}).
 #' @param k Numeric.
 #' @param method One of 'Euclidean', 'Pearson', and 'KL'.
 #' @param tryRC Try the reverse complement of the motifs as well, report the
@@ -45,13 +49,18 @@
 #' @seealso \code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
 #'    \code{\link{motif_tree}}
 #' @export
-compare_motifs <- function(motifs, compare.to, db.scores, k = 1,
+compare_motifs <- function(motifs, compare.to, db.scores, k = 1, use.type = "PPM",
                            method = "Pearson", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
                            max.p = 0.05, max.e = 10, BPPARAM = SerialParam()) {
 
+  if (use.type %in% c("PCM", "PWM") && method %in% c("Euclidean", "KL")) {
+    stop("Method '", method, "' is not supported for type '", use.type, "'")
+  }
+
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy,
+                         BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
 
@@ -115,6 +124,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, k = 1,
     comparisons <- comparisons[comparisons$Pval <= max.p &
                                comparisons$Eval <= max.e, ]
     comparisons <- comparisons[comparisons$subject != comparisons$target, ]
+    comparisons <- comparisons[!is.na(comparisons$subject), ]
 
     if (nrow(comparisons) == 0) {
       message("No significant hits")

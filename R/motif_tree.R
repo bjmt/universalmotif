@@ -15,6 +15,7 @@
 #' @param branch.length Character. If 'none', draw a cladogram.
 #' @param db.scores data.frame.
 #' @param method Character.
+#' @param use.type Character.
 #' @param min.overlap Numeric.
 #' @param tryRC Logical.
 #' @param min.mean.ic Numeric.
@@ -47,14 +48,16 @@
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
                        branch.length = "none", db.scores, method = "Pearson",
+                       use.type = "PPM",
                        min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
-                       relative_entropy = TRUE, BPPARAM = SerialParam(), ...){
+                       relative_entropy = FALSE, BPPARAM = SerialParam(), ...){
 
   if (class(motifs) == "dist") {
     tree <- as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
     tree <- compare_motifs(motifs, db.scores = db.scores,
+                           use.type = use.type,
                            method = method, tryRC = tryRC,
                            min.overlap = min.overlap,
                            min.mean.ic = min.mean.ic,

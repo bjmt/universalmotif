@@ -360,6 +360,7 @@ NumericMatrix merge_mats(NumericMatrix mat1, NumericMatrix mat2,
 
 }
 
+// [[Rcpp::export]]
 void merge_add_cols(List out) {
 
   NumericMatrix mot1 = out(0);
@@ -413,6 +414,7 @@ void merge_add_cols(List out) {
 
 }
 
+// [[Rcpp::export]]
 List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, NumericVector ic1,
     NumericVector ic2, double min_ic) {

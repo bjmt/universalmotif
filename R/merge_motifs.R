@@ -5,6 +5,7 @@
 #'
 #' @param motifs List of motifs.
 #' @param method Character.
+#' @param use.type Character.
 #' @param min.overlap Numeric.
 #' @param min.mean.ic Numeric.
 #' @param tryRC Logical.
@@ -24,13 +25,18 @@
 #' @seealso \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-merge_motifs <- function(motifs, method = "Pearson", min.overlap = 6,
-                         min.mean.ic = 0.5, tryRC = TRUE,
+merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
+                         min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
                          relative_entropy = FALSE, BPPARAM = SerialParam()) {
+
+  if (use.type %in% c("PCM", "PWM") && method %in% c("Euclidean", "KL")) {
+    stop("Method '", method, "' is not supported for type '", use.type, "'")
+  }
 
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy, 
+                         BPPARAM = BPPARAM)
 
   mot <- merge_mot_list(motifs, tryRC, min.overlap, min.mean.ic, method,
                         relative_entropy)
