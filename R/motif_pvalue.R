@@ -52,8 +52,12 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
 
 }
 
-motif_pval <- function(score.mat, score, bkg.probs, k = 6) {
+motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE) {
 
+  if (num2int) {
+    score <- as.integer(score * 1000)
+    score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
+  }
   total.max <- sum(apply(score.mat, 2, max))
   total.min <- sum(apply(score.mat, 2, min))
 
@@ -100,9 +104,9 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6) {
     alph.sort.split <- list(alph.sort)
   }
 
-  split.max <- vapply(mot.split, function(x) sum(apply(x, 2, max)), numeric(1))
+  split.max <- vapply(mot.split, function(x) sum(apply(x, 2, max)), integer(1))
 
-  split.min <- vector("numeric", length(split.max))
+  split.min <- vector("integer", length(split.max))
   for (i in seq_along(split.max)) {
     split.min[i] <- score - sum(split.max[-i])
   }
@@ -161,8 +165,9 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6) {
 
 motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
 
-  max.score <- sum(apply(score.mat, 2, max)) - 0.0001
-  min.score <- sum(apply(score.mat, 2, min)) + 0.0001
+  score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
+  max.score <- sum(apply(score.mat, 2, max)) - 1
+  min.score <- sum(apply(score.mat, 2, min)) + 1
   if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
   pv.refine <- motif_pval(score.mat, 0, bkg.probs, k)
@@ -179,10 +184,10 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
       if (pv.refine >= pval * tolerance && pv.refine <= pval) break
 
       pv.factor <- pval / pv.refine 
-      score <- score * pv.factor + 0.1
+      score <- as.integer(score * pv.factor + 1)
 
       if (score < min.score) score <- min.score
-      pv.refine <- motif_pval(score.mat, score, bkg.probs, k)
+      pv.refine <- motif_pval(score.mat, score, bkg.probs, k, num2int = FALSE)
 
       if (pv.old > pv.refine && pv.refine <= pval) break
       if (score == score.old) break
@@ -199,10 +204,10 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
       if (pv.refine >= pval * tolerance && pv.refine <= pval) break
 
       pv.factor <- pv.refine / pval
-      score <- score * pv.factor + 0.1
+      score <- as.integer(score * pv.factor + 1)
 
       if (score > max.score) score <- max.score
-      pv.refine <- motif_pval(score.mat, score, bkg.probs, k)
+      pv.refine <- motif_pval(score.mat, score, bkg.probs, k, num2int = FALSE)
     
       if (pv.old > pv.refine && pv.refine <= pval) break
       if (score == score.old) break
@@ -211,7 +216,7 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
   
   }
 
-  score
+  score / 1000.0
 
 }
 
@@ -219,9 +224,9 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
 
   max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0)
 
-  if (min.score > max.scores[1]) stop("input score '", min.score,
-                                  "' is higher than max possible score: ",
-                                  max.scores[1])
+  if (min.score > max.scores[1]) stop("input score '", min.score / 1000.0,
+                                  "' is higher than max possible score: '",
+                                  max.scores[1] / 1000.0, "'")
 
   mot_len <- ncol(score.mat)
 

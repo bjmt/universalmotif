@@ -101,7 +101,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   }
 
   for (i in seq_along(motifs)) {
-    if (motifs[[i]]["pseudocount"] == 0) motifs[[i]]["pseudocount"] <- 0.00001
+    if (motifs[[i]]["pseudocount"] == 0) motifs[[i]]["pseudocount"] <- 0.001
     if (length(motifs[[i]]["nsites"]) == 0) motifs[[i]]["nsites"] <- 100
   }
   

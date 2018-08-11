@@ -2,13 +2,13 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector calc_scores_cpp(NumericMatrix paths, NumericMatrix score_mat) {
+IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
 
-  NumericVector final_scores(paths.nrow());
-  double tmp_score;
+  IntegerVector final_scores(paths.nrow());
+  int tmp_score;
 
   for (int i = 0; i < paths.nrow(); ++i) {
-    tmp_score = 0.0;
+    tmp_score = 0;
     for (int j = 0; j < paths.ncol(); ++j) {
       tmp_score += score_mat(paths(i, j) - 1, j);
     } 
@@ -20,10 +20,10 @@ NumericVector calc_scores_cpp(NumericMatrix paths, NumericMatrix score_mat) {
 }
 
 // [[Rcpp::export]]
-NumericVector kmer_mat_to_probs_k1_cpp(NumericMatrix bb_mat, NumericVector bkg,
-    NumericMatrix alph_sort) {
+NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
+    IntegerMatrix alph_sort) {
 
-  NumericMatrix prob_mat(bb_mat.nrow(), bb_mat.ncol());
+  // NumericMatrix prob_mat(bb_mat.nrow(), bb_mat.ncol());
   NumericVector probs_out(bb_mat.nrow(), 1.0);
 
   for (int i = 0; i < bb_mat.nrow(); ++i) {
@@ -41,19 +41,19 @@ NumericVector kmer_mat_to_probs_k1_cpp(NumericMatrix bb_mat, NumericVector bkg,
 }
 
 // [[Rcpp::export]]
-NumericMatrix init_paths_cpp(NumericMatrix score_mat, double score, 
-    double max_score) {
+IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score, 
+    int max_score) {
 
   int alph_len = score_mat.nrow();
 
-  NumericVector path(alph_len);
+  IntegerVector path(alph_len);
   for (int i = 0; i < alph_len; ++i) {
     path(i) = i + 1;
   }
 
   LogicalVector tokeep(alph_len, false);
 
-  double tmp_score;
+  int tmp_score;
 
   for (int i = 0; i < alph_len; ++i) {
     tmp_score = score_mat(i, 0) + max_score;
@@ -62,7 +62,7 @@ NumericMatrix init_paths_cpp(NumericMatrix score_mat, double score,
 
   path = path[tokeep];
 
-  NumericMatrix out(path.length(), 1);
+  IntegerMatrix out(path.length(), 1);
   for (int i = 0; i < path.length(); ++i) {
     out(i, 0) = path(i);
   }
@@ -72,8 +72,8 @@ NumericMatrix init_paths_cpp(NumericMatrix score_mat, double score,
 }
 
 // [[Rcpp::export]]
-NumericMatrix calc_next_subworker_cpp(NumericMatrix paths_totry,
-    NumericVector scores_tmp, double score) {
+IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry,
+    IntegerVector scores_tmp, int score) {
 
   int numrows = 0;
 
@@ -81,7 +81,7 @@ NumericMatrix calc_next_subworker_cpp(NumericMatrix paths_totry,
     if (scores_tmp(i) >= score) numrows += 1;
   }
 
-  NumericMatrix new_mat(numrows, paths_totry.ncol());
+  IntegerMatrix new_mat(numrows, paths_totry.ncol());
 
   int currentrow = 0;
   for (int i = 0; i < paths_totry.nrow(); ++i) {
@@ -96,28 +96,28 @@ NumericMatrix calc_next_subworker_cpp(NumericMatrix paths_totry,
 }
 
 // [[Rcpp::export]]
-NumericMatrix list_to_matrix(List paths) {
+IntegerMatrix list_to_matrix(List paths) {
 
-  NumericMatrix tmp = paths[0];
+  IntegerMatrix tmp = paths[0];
 
   int num_mat(paths.length());
   int mat_ncols(tmp.ncol());
 
-  NumericVector path_nrows(num_mat);
+  IntegerVector path_nrows(num_mat);
 
   for (int i = 0; i < num_mat; ++i) {
-    NumericMatrix tmp = paths[i];
+    IntegerMatrix tmp = paths[i];
     path_nrows(i) = tmp.nrow();
   }
 
   int total_rows = sum(path_nrows);
 
-  NumericVector out_pre(total_rows * mat_ncols);
+  IntegerVector out_pre(total_rows * mat_ncols);
 
   int pre_index = 0;
 
   for (int i = 0; i < num_mat; ++i) {
-    NumericMatrix tmp = paths[i];
+    IntegerMatrix tmp = paths[i];
     for (int j = 0; j < tmp.nrow(); ++j) {
       for (int b = 0; b < tmp.ncol(); ++b) {
         out_pre(pre_index) = tmp(j, b);
@@ -127,7 +127,7 @@ NumericMatrix list_to_matrix(List paths) {
   }
 
   pre_index = 0;
-  NumericMatrix out(total_rows, mat_ncols);
+  IntegerMatrix out(total_rows, mat_ncols);
   for (int i = 0; i < out.nrow(); ++i) {
     for (int j = 0; j < out.ncol(); ++j) {
       out(i, j) = out_pre(pre_index);
@@ -140,20 +140,20 @@ NumericMatrix list_to_matrix(List paths) {
 }
 
 // [[Rcpp::export]]
-NumericMatrix calc_next_path_cpp(NumericMatrix score_mat, NumericMatrix paths,
-    double score, double max_score) {
+IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
+    int score, int max_score) {
 
   int alph_len = score_mat.nrow();
-  NumericMatrix next_paths(alph_len, 1);
+  IntegerMatrix next_paths(alph_len, 1);
   for (int i = 0; i < alph_len; ++i) {
     next_paths(i, 0) = i + 1;
   }
 
   List final_paths(paths.nrow());
 
-  NumericMatrix paths_totry(score_mat.nrow(), paths.ncol() + 1);
+  IntegerMatrix paths_totry(score_mat.nrow(), paths.ncol() + 1);
 
-  NumericVector scores_tmp;
+  IntegerVector scores_tmp;
 
   for (int i = 0; i < paths.nrow(); ++i) {
 
@@ -177,9 +177,9 @@ NumericMatrix calc_next_path_cpp(NumericMatrix score_mat, NumericMatrix paths,
 }
 
 // // [[Rcpp::export]]
-NumericMatrix branch_and_bound_cpp(NumericMatrix score_mat, double min_score) {
+IntegerMatrix branch_and_bound_cpp(IntegerMatrix score_mat, int min_score) {
 
-  NumericVector max_scores(score_mat.ncol() + 1);
+  IntegerVector max_scores(score_mat.ncol() + 1);
   for (int i = 0; i < max_scores.length() - 1; ++i) {
     max_scores(i) = max(score_mat(_, i));
   }
@@ -194,7 +194,7 @@ NumericMatrix branch_and_bound_cpp(NumericMatrix score_mat, double min_score) {
 
   int mot_len = score_mat.ncol();
 
-  NumericMatrix paths = init_paths_cpp(score_mat, min_score, max_scores(1));
+  IntegerMatrix paths = init_paths_cpp(score_mat, min_score, max_scores(1));
   if (mot_len == 1) return paths;
 
   for (int i = 1; i < mot_len; ++i) {
@@ -207,10 +207,10 @@ NumericMatrix branch_and_bound_cpp(NumericMatrix score_mat, double min_score) {
 
 // [[Rcpp::export]]
 NumericVector calc_final_probs_cpp(List all_probs, List all_scores,
-    double score) {
+    int score) {
 
-  NumericVector scores0 = all_scores(0);
-  NumericVector scores1 = all_scores(1);
+  IntegerVector scores0 = all_scores(0);
+  IntegerVector scores1 = all_scores(1);
   NumericVector probs0 = all_probs(0);
   NumericVector probs1 = all_probs(1);
   NumericVector final_probs(scores0.length());
