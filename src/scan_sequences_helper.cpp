@@ -11,12 +11,31 @@ double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
 }
 
 // [[Rcpp::export]]
-NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat,
-    double min_score) {
+int score_seq_int(IntegerVector tmp_seq, IntegerVector score_mat) {
+  int score = 0;
+  for (int i = 0; i < tmp_seq.length(); ++i) {
+    score += score_mat(tmp_seq(i), i);
+  }
+  return score;
+}
 
-  NumericVector to_keep(sequence.length());
+// [[Rcpp::export]]
+IntegerMatrix numeric_to_integer_matrix(NumericMatrix mat) {
+  IntegerMatrix out(mat.nrow(), mat.ncol());
+  for (int i = 0; i < mat.length(); ++i) {
+    out[i] = mat[i] * 1000;
+  }
+  return out;
+}
 
-  double tmp_score;
+// [[Rcpp::export]]
+IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
+    int min_score) {
+
+  IntegerVector to_keep(sequence.length());
+
+  // double tmp_score;
+  int tmp_score;
   int max_step = sequence.size() - score_mat.ncol() + 1;
 
   for (int i = 0; i < max_step; ++i) {
@@ -32,23 +51,6 @@ NumericVector scan_seq_internal(IntegerVector sequence, NumericMatrix score_mat,
   return to_keep;
 
 }
-
-/*  --> no speed increase
-List scan_seq_internal2(List seqs, NumericMatrix score_mat,
-    double min_score) {
-
-  List out = Rcpp::clone(seqs);
-  int n = seqs.length();
-
-  for (int i = 0; i < n; ++i) {
-    IntegerVector curr_seq = seqs(i);
-    out(i) = scan_seq_internal(curr_seq, score_mat, min_score);
-  }
-
-  return out;
-
-}
-*/
 
 // [[Rcpp::export]]
 IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
@@ -151,7 +153,7 @@ List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
 // [[Rcpp::export]]
 List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     int mot_lens, double min_scores, double max_scores, String mot_names,
-    StringVector seq_names, NumericMatrix score_mats, String strand,
+    StringVector seq_names, IntegerMatrix score_mats, String strand,
     IntegerVector seq_lens, int k) {
 
   int n = to_keep.length();
@@ -197,7 +199,8 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
         col_stop(j + row_offset) = to_keep_i(j);
       }
 
-      col_score(j + row_offset) = score_seq(hits_i(j), score_mats);
+      col_score(j + row_offset) = score_seq_int(hits_i(j), score_mats);
+      col_score(j + row_offset) /= 1000.0;
       col_score_pct(j + row_offset) = col_score(j + row_offset) /
                                       col_max_score(j + row_offset) * 100;
 

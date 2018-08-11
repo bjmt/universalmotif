@@ -176,10 +176,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
   if (progress_bar) BPPARAM$progressbar <- TRUE
 
+  score.mats <- bplapply(score.mats, numeric_to_integer_matrix,
+                         BPPARAM = BPPARAM)
+  thresholds.int <- as.integer(thresholds * 1000)
+
   if (RC && verbose) cat("   * Forward strand\n")
   to.keep <- bplapply(seq_along(score.mats),
                       function(x) .score_motif(seq.ints, score.mats[[x]],
-                                               thresholds[x]),
+                                               thresholds.int[x]),
                       BPPARAM = BPPARAM)
 
   if (RC) {
@@ -189,7 +193,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     if (verbose) cat("   * Reverse strand\n")
     to.keep.rc <- bplapply(seq_along(score.mats.rc),
                            function(x) .score_motif(seq.ints, score.mats.rc[[x]],
-                                                    thresholds[x]),
+                                                    thresholds.int[x]),
                            BPPARAM = BPPARAM)
   }
 
@@ -241,13 +245,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
   factor2string <- vapply(res, is.factor, logical(1))
   res[factor2string] <- lapply(res[factor2string], as.character)
-
-  # if (calc.pvals) {
-    # res.split <- .split_by_motif(motifs, res)
-    # pv.split <- mapply(function(x, y) motif_pvalue(x, y$score),
-                       # motifs, res.split)
-    # print(pv.split)
-  # }
 
   if (progress_bar) BPPARAM$progressbar <- pb_prev
 
