@@ -59,7 +59,7 @@
 #' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
 #'    \code{\link{enrich_motifs}}
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.01,
+scan_sequences <- function(motifs, sequences, threshold = 0.001,
                             threshold.type = "pvalue", RC = FALSE,
                             use.freq = 1, verbose = TRUE,
                             progress_bar = FALSE, BPPARAM = SerialParam()) {
@@ -176,8 +176,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
   if (progress_bar) BPPARAM$progressbar <- TRUE
 
-  score.mats <- bplapply(score.mats, numeric_to_integer_matrix,
-                         BPPARAM = BPPARAM)
+  score.mats <- lapply(score.mats, numeric_to_integer_matrix)
   thresholds.int <- as.integer(thresholds * 1000)
 
   if (RC && verbose) cat("   * Forward strand\n")

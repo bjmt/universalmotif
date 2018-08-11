@@ -71,7 +71,7 @@
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr",
-                          positional.test = "t.test", threshold = 0.01,
+                          positional.test = "t.test", threshold = 0.001,
                           threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
@@ -97,7 +97,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (threshold.type == "pvalue") {
     if (verbose > 0) cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              BPPARAM = BPPARAM)
+                              progress_bar = progress_bar, BPPARAM = BPPARAM)
     if (use.freq == 1) {
       max.scores <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
                            numeric(1))

@@ -61,6 +61,14 @@ score_seq <- function(tmp_seq, score_mat) {
     .Call('_universalmotif_score_seq', PACKAGE = 'universalmotif', tmp_seq, score_mat)
 }
 
+score_seq_int <- function(tmp_seq, score_mat) {
+    .Call('_universalmotif_score_seq_int', PACKAGE = 'universalmotif', tmp_seq, score_mat)
+}
+
+numeric_to_integer_matrix <- function(mat) {
+    .Call('_universalmotif_numeric_to_integer_matrix', PACKAGE = 'universalmotif', mat)
+}
+
 scan_seq_internal <- function(sequence, score_mat, min_score) {
     .Call('_universalmotif_scan_seq_internal', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
 }

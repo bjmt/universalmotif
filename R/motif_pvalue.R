@@ -170,9 +170,9 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
   min.score <- sum(apply(score.mat, 2, min)) + 1
   if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
-  pv.refine <- motif_pval(score.mat, 0, bkg.probs, k)
+  pv.refine <- motif_pval(score.mat, 0, bkg.probs, k, num2int = FALSE)
 
-  if (pv.refine > pval) score <- 1 else score <- -1
+  if (pv.refine > pval) score <- 100 else score <- -100
 
   if (score < 0) {
 
@@ -184,7 +184,7 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
       if (pv.refine >= pval * tolerance && pv.refine <= pval) break
 
       pv.factor <- pval / pv.refine 
-      score <- as.integer(score * pv.factor + 1)
+      score <- as.integer(score * pv.factor + 10)
 
       if (score < min.score) score <- min.score
       pv.refine <- motif_pval(score.mat, score, bkg.probs, k, num2int = FALSE)
@@ -204,7 +204,7 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
       if (pv.refine >= pval * tolerance && pv.refine <= pval) break
 
       pv.factor <- pv.refine / pval
-      score <- as.integer(score * pv.factor + 1)
+      score <- as.integer(score * pv.factor + 10)
 
       if (score > max.score) score <- max.score
       pv.refine <- motif_pval(score.mat, score, bkg.probs, k, num2int = FALSE)
