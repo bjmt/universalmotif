@@ -15,10 +15,13 @@ shuffle_motifs(motifs, shuffle.k = 2, shuffle.method = "linear",
 \item{shuffle.method}{Character.}
 
 \item{shuffle.leftovers}{Character.}
+
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \description{
 Given a set of motifs, shuffle the columns between them. Currently does not
-support keeping the 'multifreq' slot.
+support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
+and 'bkgsites' slots will be preserved.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

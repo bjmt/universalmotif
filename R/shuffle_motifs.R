@@ -8,6 +8,7 @@
 #' @param shuffle.k Numeric.
 #' @param shuffle.method Character.
 #' @param shuffle.leftovers Character.
+#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

@@ -10,7 +10,6 @@
 #' @import ggplot2
 #' @import ggtree
 #' @import ggseqlogo
-#' @import msa
 #' @importFrom BiocParallel bplapply bpmapply SerialParam 
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test
@@ -26,7 +25,7 @@
 #' @importFrom seqLogo seqLogo
 #' @importFrom motifStack mergeMotifs
 #' @importFrom MotIV makePWM
-#' @importFrom TFBSTools PWMSimilarity PFMatrix toPWM toICM
+#' @importFrom TFBSTools PFMatrix toPWM toICM
 #' @importFrom TFBSTools TFFMFirst getPosProb
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations

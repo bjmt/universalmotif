@@ -17,6 +17,9 @@
 #'    are accepted.
 #' @param db.motifs List. Database motifs.
 #' @param method Character. One of Pearson, Euclidean, KL.
+#' @param shuffle.k Numeric.
+#' @param shuffle.method Character.
+#' @param shuffle.leftovers Character.
 #' @param tries Numeric. Number of random motifs to use for calculating db scores.
 #' @param min.overlap Numeric. Minimum required motif overlap.
 #' @param progress_bar Logical. Show progress.

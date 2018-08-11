@@ -4,16 +4,14 @@
 \alias{view_motifs}
 \title{Plot motif logos.}
 \usage{
-view_motifs(motifs, compare.type = "PPM", plot.type = "ICM",
-  method = "Pearson", tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
-  relative_entropy = FALSE, BPPARAM = SerialParam(), ...)
+view_motifs(motifs, use.type = "ICM", method = "Pearson", tryRC = TRUE,
+  min.overlap = 6, min.mean.ic = 0.5, relative_entropy = FALSE,
+  BPPARAM = SerialParam(), ...)
 }
 \arguments{
 \item{motifs}{Single motif or a list of motifs.}
 
-\item{compare.type}{Character.}
-
-\item{plot.type}{Character.}
+\item{use.type}{Character.}
 
 \item{method}{Character.}
 
@@ -32,6 +30,16 @@ view_motifs(motifs, compare.type = "PPM", plot.type = "ICM",
 \description{
 Show sequence logo. If given a list of more than one motif, then the motifs
 are aligned with the first in the list.
+}
+\examples{
+## plotting multifreq motifs:
+if (requireNamespace(Logolas, quietly = TRUE)) {
+  motif <- create_motif()
+  motif <- add_multifreq(motif, sample_sites(motif))
+  logomaker(motif["multifreq"][[`2`]], type = "Logo",
+            color_type = "per_symbol")
+}
+
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -4,8 +4,7 @@
 #' are aligned with the first in the list.
 #'
 #' @param motifs Single motif or a list of motifs. 
-#' @param compare.type Character.
-#' @param plot.type Character.
+#' @param use.type Character.
 #' @param method Character.
 #' @param tryRC Logical.
 #' @param min.overlap Numeric.
@@ -14,30 +13,50 @@
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... Addtional options for \code{\link[ggseqlogo]{geom_logo}}.
 #'
+#' @examples
+#' ## plotting multifreq motifs:
+#' if (requireNamespace(Logolas, quietly = TRUE)) {
+#'   motif <- create_motif()
+#'   motif <- add_multifreq(motif, sample_sites(motif))
+#'   logomaker(motif["multifreq"][[`2`]], type = "Logo",
+#'             color_type = "per_symbol")
+#' }
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-view_motifs <- function(motifs, compare.type = "PPM", plot.type = "ICM",
-                        method = "Pearson", tryRC = TRUE, min.overlap = 6,
+view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
+                        tryRC = TRUE, min.overlap = 6,
                         min.mean.ic = 0.5, relative_entropy = FALSE,
                         BPPARAM = SerialParam(), ...) {
 
-  if (!compare.type %in% c("PPM", "ICM") || !plot.type %in% c("PPM", "ICM")) {
-    stop("only supports type PPM or ICM")
-  }
-  plot.method <- "custom"
-  if (compare.type == "PPM" && plot.type == "ICM" && !relative_entropy) {
-    plot.method <- "bits"
-  }
-  else if (compare.type == "PPM" && plot.type == "PPM") plot.method <- "prob"
-  else if (compare.type == "ICM" && plot.type == "PPM") 
-    stop("cannot have compare.type = 'ICM' and plot.type = 'PPM'")
-
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, compare.type, relative_entropy = relative_entropy)
+  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
   if (!is.list(motifs)) motifs <- list(motifs)
-  motifs.plot <- convert_type(motifs, plot.type, relative_entropy = relative_entropy)
+
+  if (use.type == "ICM" && !relative_entropy) {
+    plot.method <- "bits"
+    yname <- "bits"
+  } else if (use.type == "PPM") {
+    plot.method <- "prob"
+    yname <- "probability"
+  } else if (use.type == "ICM") {
+    plot.method <- "custom"
+    yname <- "bits"
+  } else if (use.type == "PWM") {
+    plot.method <- "custom"
+    yname <- "logodds"
+    if (length(motifs) > 1 && method == "KL") {
+      stop("cannot use method 'KL' with 'PWM' matrices")
+    }
+  } else if (use.type == "PCM") {
+    plot.method <- "custom"
+    yname <- "counts"
+  } else stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM'")
+
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
+
   mot.mats <- lapply(motifs, function(x) x["motif"])
+
   mot.alph <- unique(vapply(motifs, function(x) x["alphabet"], character(1)))
   if (length(mot.alph) > 1) stop("can only have one alphabet")
   use.custom <- FALSE
@@ -58,13 +77,13 @@ view_motifs <- function(motifs, compare.type = "PPM", plot.type = "ICM",
     use.custom <- TRUE
   }
 
-  yname <- ifelse(plot.type == "PPM", "probability", "bits")
   if (length(motifs) == 1) {
     if (use.custom) {
-      p <- ggseqlogo(motifs.plot[[1]]["motif"], method = plot.method,
-                     seq_type = seq_type, namespace = alph, ...) + ylab(yname)
+      p <- ggseqlogo(mot.mats[[1]], method = plot.method,
+                     seq_type = seq_type, namespace = alph, ...) +
+             ylab(yname)
     } else {
-      p <- ggseqlogo(motifs.plot[[1]]["motif"], method = plot.method,
+      p <- ggseqlogo(mot.mats[[1]], method = plot.method,
                      seq_type = seq_type, ...) + ylab(yname)
     }
     return(p)

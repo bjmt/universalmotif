@@ -16,8 +16,10 @@
 \alias{get_consensusAA}
 \title{Utility functions.}
 \usage{
-make_DBscores(db.motifs, method = "Pearson", tries = 1000,
-  min.overlap = 6, progress_bar = TRUE, BPPARAM = SerialParam())
+make_DBscores(db.motifs, method = "Pearson", shuffle.db = TRUE,
+  shuffle.k = 3, shuffle.method = "linear", shuffle.leftovers = "asis",
+  rand.tries = 1000, min.overlap = 6, min.mean.ic = 0,
+  progress_bar = TRUE, BPPARAM = SerialParam())
 
 ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites,
   relative_entropy = FALSE)
@@ -48,7 +50,11 @@ get_consensusAA(position, type, pseudocount)
 
 \item{method}{Character. One of Pearson, Euclidean, KL.}
 
-\item{tries}{Numeric. Number of random motifs to use for calculating db scores.}
+\item{shuffle.k}{Numeric.}
+
+\item{shuffle.method}{Character.}
+
+\item{shuffle.leftovers}{Character.}
 
 \item{min.overlap}{Numeric. Minimum required motif overlap.}
 
@@ -78,6 +84,8 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{letter}{Character. Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 are accepted.}
+
+\item{tries}{Numeric. Number of random motifs to use for calculating db scores.}
 }
 \value{
 For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},

@@ -63,6 +63,14 @@ compare_motifs <- function(motifs, compare.to, db.scores, k = 1, use.type = "PPM
                          BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  if (any(duplicated(mot.names))) {
+    mot.dup <- mot.names[duplicated(mot.names)]
+    mot.dup.suffix <- seq_along(mot.dup)
+    for (i in seq_along(mot.dup)) {
+      mot.dup[i] <- paste0(mot.dup, " [dup.name.", "]")
+    }
+    mot.names[duplicated(mot.names)] <- mot.dup
+  }
 
   if (k == 1) {
     mot.mats <- lapply(motifs, function(x) x["motif"])
@@ -165,14 +173,37 @@ compare_motifs <- function(motifs, compare.to, db.scores, k = 1, use.type = "PPM
 
 #' @rdname utilities
 #' @export
-make_DBscores <- function(db.motifs, method = "Pearson", tries = 1000,
-                          min.overlap = 6, progress_bar = TRUE,
+make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
+                          shuffle.k = 3, shuffle.method = "linear",
+                          shuffle.leftovers = "asis", rand.tries = 1000,
+                          min.overlap = 6, min.mean.ic = 0, progress_bar = TRUE,
                           BPPARAM = SerialParam()) {
 
   db.ncols <- vapply(db.motifs, function(x) ncol(x["motif"]), numeric(1))
 
-  rand.mots <- lapply(seq_len(tries),
-                      function(x) create_motif(sample(5:30, 1)))
+  if (shuffle.db) {
+    rand.mots <- shuffle_motifs(db.motifs, shuffle.k = shuffle.k,
+                                shuffle.method = shuffle.method,
+                                shuffle.leftovers = shuffle.leftovers,
+                                BPPARAM = BPPARAM) 
+    if (length(rand.mots) != rand.tries) {
+      if (length(rand.mots) < rand.tries) {
+        while (length(rand.mots) < rand.tries) {
+          more.rand.mots <- shuffle_motifs(db.motifs, shuffle.k = shuffle.k,
+                                           shuffle.method = shuffle.method,
+                                           shuffle.leftovers = shuffle.leftovers,
+                                           BPPARAM = BPPARAM) 
+          rand.mots <- c(rand.mots, more.rand.mots)
+        }
+      }
+      if (length(rand.mots) > rand.tries) {
+        rand.mots <- rand.mots[sample(seq_along(rand.mots), rand.tries)]
+      }
+    }
+  } else {
+    rand.mots <- lapply(seq_len(rand.tries),
+                        function(x) create_motif(sample(5:30, 1)))
+  }
   rand.ncols <- vapply(rand.mots, function(x) ncol(x["motif"]), numeric(1))
 
   totry <- expand.grid(list(subject = sort(unique(rand.ncols)),
@@ -190,7 +221,7 @@ make_DBscores <- function(db.motifs, method = "Pearson", tries = 1000,
     tmp2 <- rand.mots[totry[i, 1] == rand.ncols]
 
     res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
-                               min.overlap = min.overlap, min.mean.ic = 0,
+                               min.overlap = min.overlap, min.mean.ic = min.mean.ic,
                                BPPARAM = BPPARAM, max.e = Inf, max.p = Inf)$score
 
     totry$mean[i] <- mean(res[[i]])
@@ -213,17 +244,20 @@ pvals_from_db <- function(subject, target, db, scores, method) {
   if (method == "Pearson") ltail <- FALSE else ltail <- TRUE
   pvals <- vector("numeric", length(target))
   subject.ncol <- ncol(subject[[1]]["motif"])
-  if (subject.ncol < 5) subject.ncol <- 5
-  if (subject.ncol > 30) subject.ncol <- 30
+  if (subject.ncol < db$subject[1]) subject.ncol <- db$subject[1]
+  if (subject.ncol > db$subject[nrow(db)]) subject.ncol <- db$subject[nrow(db)]
   possible.ncols <- sort(unique(db$target))
+  possible.sub <- sort(unique(db$subject))
   for (i in seq_along(target)) {
     ncol2 <- ncol(target[[i]]["motif"])
-    if (ncol2 < 5) ncol2 <- 5
-    if (ncol2 > 30) ncol2 <- 30
+    if (ncol2 < db$target[1]) ncol2 <- db$target[1]
+    if (ncol2 > db$target[nrow(db)]) ncol2 <- db$target[nrow(db)]
     tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
     if (length(tmp.mean) == 0) {
-      ncol2 <- possible.ncols[possible.ncols < ncol2]
+      ncol2 <- sort(possible.ncols[possible.ncols <= ncol2])
       ncol2 <- ncol2[length(ncol2)]
+      subject.ncol <- sort(possible.sub[possible.sub <= subject.ncol])
+      subject.ncol <- subject.ncol[length(subject.ncol)]
       tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
     }
     tmp.sd <- db$sd[db$subject == subject.ncol & db$target == ncol2]
