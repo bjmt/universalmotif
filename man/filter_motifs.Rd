@@ -4,8 +4,9 @@
 \alias{filter_motifs}
 \title{Filter a list of \linkS4class{universalmotif} motifs.}
 \usage{
-filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
-  icscore, nsites, strand, pval, qval, eval, BPPARAM = SerialParam())
+filter_motifs(motifs, name, altname, family, organism, width, alphabet,
+  type, icscore, nsites, strand, pval, qval, eval,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs.}

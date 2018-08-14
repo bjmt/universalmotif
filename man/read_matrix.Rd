@@ -4,8 +4,9 @@
 \alias{read_matrix}
 \title{Import motifs from raw matrices.}
 \usage{
-read_matrix(file, skip = 0, type, positions = "columns", alphabet = "DNA",
-  sep = "", headers = FALSE, rownames = FALSE, BPPARAM = SerialParam())
+read_matrix(file, skip = 0, type, positions = "columns",
+  alphabet = "DNA", sep = "", headers = FALSE, rownames = FALSE,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{file}{Character.}
@@ -49,3 +50,4 @@ Other read_motifs: \code{\link{read_cisbp}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{read_motifs}

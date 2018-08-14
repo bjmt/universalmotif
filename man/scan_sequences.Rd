@@ -5,8 +5,8 @@
 \title{Find motif binding sites in a set of sequences.}
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.001,
-  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = TRUE,
-  progress_bar = FALSE, BPPARAM = SerialParam())
+  threshold.type = "pvalue", RC = FALSE, use.freq = 1,
+  verbose = TRUE, progress_bar = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{\linkS4class{universalmotif} objects.}

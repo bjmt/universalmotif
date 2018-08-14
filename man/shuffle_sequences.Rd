@@ -4,8 +4,8 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences.}
 \usage{
-shuffle_sequences(sequences, k = 1, method = "linear", leftovers = "asis",
-  BPPARAM = SerialParam())
+shuffle_sequences(sequences, k = 1, method = "linear",
+  leftovers = "asis", BPPARAM = SerialParam())
 }
 \arguments{
 \item{sequences}{XStringSet object. For \code{method = 'markov'}, DNAStringSet

@@ -9,7 +9,6 @@
 \alias{[,universalmotif-method}
 \alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{[<-,universalmotif-method}
-\alias{universalmotif}
 \alias{initialize,universalmotif-method}
 \alias{show,universalmotif-method}
 \title{universalmotif: Motif class.}
@@ -18,9 +17,10 @@
 
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
-\S4method{initialize}{universalmotif}(.Object, name, altname, family, organism,
-  motif, alphabet = "DNA", type, icscore, nsites, pseudocount = 0.8, bkg,
-  bkgsites, consensus, strand = "+-", pval, qval, eval, multifreq, extrainfo)
+\S4method{initialize}{universalmotif}(.Object, name, altname, family,
+  organism, motif, alphabet = "DNA", type, icscore, nsites,
+  pseudocount = 0.8, bkg, bkgsites, consensus, strand = "+-", pval,
+  qval, eval, multifreq, extrainfo)
 
 \S4method{show}{universalmotif}(object)
 }

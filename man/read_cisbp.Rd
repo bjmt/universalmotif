@@ -38,3 +38,4 @@ Other read_motifs: \code{\link{read_homer}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{read_motifs}

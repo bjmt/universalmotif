@@ -48,7 +48,7 @@ biocViews: MotifAnnotation,
     MotifDiscovery,
     DataImport,
     GeneRegulation
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Collate: 
     'RcppExports.R'
     'add_multifreq.R'

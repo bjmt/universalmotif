@@ -38,3 +38,4 @@ Other write_motifs: \code{\link{write_homer}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{write_motifs}

@@ -8,9 +8,9 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   max.p = 1e-05, max.q = 1e-05, max.e = 0.001, qval.method = "fdr",
   positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
-  shuffle.k = 2, shuffle.method = "linear", shuffle.leftovers = "asis",
-  progress_bar = FALSE, return.scan.results = FALSE,
-  BPPARAM = SerialParam())
+  shuffle.k = 2, shuffle.method = "linear",
+  shuffle.leftovers = "asis", progress_bar = FALSE,
+  return.scan.results = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{\linkS4class{universalmotif} objects.}

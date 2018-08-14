@@ -3,15 +3,29 @@
 #' Show sequence logo. If given a list of more than one motif, then the motifs
 #' are aligned with the first in the list.
 #'
-#' @param motifs Single motif or a list of motifs. 
-#' @param use.type Character.
-#' @param method Character.
-#' @param tryRC Logical.
-#' @param min.overlap Numeric.
-#' @param min.mean.ic Numeric.
-#' @param relative_entropy Logical.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
+#' @param use.type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+#' @param method \code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.
+#' @param tryRC \code{logical(1)} Check if motif reverse complement leads to a
+#'    better alignment.
+#' @param min.overlap \code{numeric(1)} Minimum alignment overlap between
+#'    motifs. If \code{min.overlap < 1}, this represents the minimum fraction
+#'    between the two motifs during alignment.
+#' @param min.mean.ic \code{numeric(1)} Minimum information content between the
+#'    two motifs for an alignment to be scored. This helps prevent scoring
+#'    alignments between low information content regions of two motifs.
+#' @param relative_entropy \code{logical(1)} For ICM calculation. See
+#'    \code{\link{convert_type}}.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... Addtional options for \code{\link[ggseqlogo]{geom_logo}}.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @details
+#' Since the \code{\link[ggseqlogo]{ggseqlogo}} package can only plot individual
+#' characters and not strings, plotting the \code{multifreq} slot is not
+#' supported. See the \code{examples} section for plotting the \code{multifreq}
+#' slot using the 'Logolas' package.
 #'
 #' @examples
 #' ## plotting multifreq motifs:
@@ -22,6 +36,12 @@
 #'             color_type = "per_symbol")
 #' }
 #'
+#' @references
+#' \insertRef{logolas}{universalmotif}
+#'
+#' \insertRef{ggseqlogo}{universalmotif}
+#'
+#' @seealso \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",

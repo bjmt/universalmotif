@@ -4,8 +4,8 @@
 \alias{create_sequences}
 \title{Create random sequences.}
 \usage{
-create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, monofreqs,
-  difreqs, trifreqs, BPPARAM = SerialParam())
+create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100,
+  monofreqs, difreqs, trifreqs, BPPARAM = SerialParam())
 }
 \arguments{
 \item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of

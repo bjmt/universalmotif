@@ -8,29 +8,80 @@ motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
   progress_bar = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{score}{Numeric.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{pvalue}{Numeric.}
+\item{score}{\code{numeric} Get a p-value for a motif from a logodds score.}
 
-\item{bkg.probs}{Numeric. If supplying individual background probabilities
-for each motif, a list.}
+\item{pvalue}{\code{numeric} Get a logodds score for a motif from a 
+p-value.}
 
-\item{use.freq}{Numeric.}
+\item{bkg.probs}{\code{numeric, list} If supplying individual background
+probabilities for each motif, a list. If missing, assumes a uniform
+background. Currently does not supported if \code{use.freq > 1}.}
 
-\item{k}{Numeric.}
+\item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
+otherwise uses the corresponding \code{multifreq} matrix.}
 
-\item{progress_bar}{Logical.}
+\item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after 
+subsetting the motif every \code{k} columns. If \code{k} is a value
+equal or higher to the size of input motif(s), then the calculations
+are exact.}
+
+\item{progress_bar}{\code{logical(1)} If given multiple motifs, show
+progress.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
-
-\item{motif}{Single motif or list of motifs.}
 }
 \value{
-Numeric.
+\code{numeric} A vector of scores/p-values.
 }
 \description{
-For calculating p-values/scores for any number of motifs. Vectorized;
-arguments are recycled.
+For calculating p-values/logodds scores for any number of motifs.
+}
+\details{
+Calculating p-values for motifs can be very computationally intensive. This
+is due to how p-values must be calculated: for a given score, all possible
+sequences which score equal or higher must be found, and the probability for
+each of these sequences (based on background probabilities) summed. For a DNA
+motif of length 10, the number of possible unique sequences is 4^10 = 1,048,576.
+Finding all possible sequences higher than a given score can be done
+very efficiently and quickly with a branch-and-bound algorithm, but as the
+motif length increases this calculation becomes impractical. To get
+around this, the p-value calculation can be approximated.
+
+In order to calculate p-values for longer motifs, this function uses the
+approximation proposed by \insertCite{pvalues;textual}{universalmotif}, where
+the motif is subset, p-values calculated for the subsets, and finally
+combined for a total p-value. The smaller the size of the subsets, the
+faster the calculation; but also, the bigger the approximation. This can be
+controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
+calculating exact p-values can be done in reasonable time by setting
+\code{k = 12}.
+
+To calculate a score based on a given p-value, the function simply guesses
+different scores until it finds one which when used to calculate a p-value,
+returns a p-value reasonably close to the given p-value.
+
+Note that as \code{k} increases (and thus the approximation increases) the
+resulting p-values increase; meaning the p-values will always be on the
+conservative side.
+}
+\examples{
+data(examplemotif)
+
+## p-value/score calculations are performed using the PWM version of the
+## motif; these calculations do not work if any -Inf values are present
+examplemotif["pseudocount"] <- 1
+
+## get a minimum score based on a p-value
+motif_pvalue(examplemotif, pvalue = 0.001)
+
+## get the probability of a particular sequence hit
+motif_pvalue(examplemotif, score = 0)
+
+}
+\references{
+\insertRef{pvalues}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

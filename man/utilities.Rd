@@ -17,9 +17,9 @@
 \title{Utility functions.}
 \usage{
 make_DBscores(db.motifs, method = "Pearson", shuffle.db = TRUE,
-  shuffle.k = 3, shuffle.method = "linear", shuffle.leftovers = "asis",
-  rand.tries = 1000, min.overlap = 6, min.mean.ic = 0,
-  progress_bar = TRUE, BPPARAM = SerialParam())
+  shuffle.k = 3, shuffle.method = "linear",
+  shuffle.leftovers = "asis", rand.tries = 1000, min.overlap = 6,
+  min.mean.ic = 0, progress_bar = TRUE, BPPARAM = SerialParam())
 
 ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites,
   relative_entropy = FALSE)
@@ -30,14 +30,16 @@ pcm_to_ppm(position, pseudocount = 0.8)
 
 ppm_to_pcm(position, nsites = 100)
 
-ppm_to_pwm(position, bkg, pseudocount = 0.8, nsites = 100, smooth = TRUE)
+ppm_to_pwm(position, bkg, pseudocount = 0.8, nsites = 100,
+  smooth = TRUE)
 
 pwm_to_ppm(position, bkg)
 
 position_icscore(position, bkg, type, pseudocount = 0.8, nsites = 100,
   relative_entropy = FALSE)
 
-get_consensus(position, alphabet = "DNA", type = "PPM", pseudocount = 0.8)
+get_consensus(position, alphabet = "DNA", type = "PPM",
+  pseudocount = 0.8)
 
 consensus_to_ppm(letter)
 

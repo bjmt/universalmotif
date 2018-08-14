@@ -4,7 +4,8 @@
 \alias{write_homer}
 \title{Export motifs in HOMER format.}
 \usage{
-write_homer(motifs, file, logodds_threshold = 0.6, BPPARAM = SerialParam())
+write_homer(motifs, file, logodds_threshold = 0.6,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a motif object.}
@@ -40,3 +41,4 @@ Other write_motifs: \code{\link{write_jaspar}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{write_motifs}

@@ -1,19 +1,69 @@
 #' Motif P-value and scoring utility
 #'
-#' For calculating p-values/scores for any number of motifs. Vectorized;
-#' arguments are recycled.
+#' For calculating p-values/logodds scores for any number of motifs.
 #'
-#' @param motif Single motif or list of motifs.
-#' @param score Numeric. 
-#' @param pvalue Numeric.
-#' @param bkg.probs Numeric. If supplying individual background probabilities
-#'    for each motif, a list.
-#' @param use.freq Numeric.
-#' @param k Numeric.
-#' @param progress_bar Logical.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
+#' @param score \code{numeric} Get a p-value for a motif from a logodds score.
+#' @param pvalue \code{numeric} Get a logodds score for a motif from a 
+#'    p-value.
+#' @param bkg.probs \code{numeric, list} If supplying individual background
+#'    probabilities for each motif, a list. If missing, assumes a uniform
+#'    background. Currently does not supported if \code{use.freq > 1}.
+#' @param use.freq \code{numeric(1)} By default uses the regular motif matrix;
+#'    otherwise uses the corresponding \code{multifreq} matrix.
+#' @param k \code{numeric(1)} For speed, scores/p-values can be approximated after 
+#'    subsetting the motif every \code{k} columns. If \code{k} is a value
+#'    equal or higher to the size of input motif(s), then the calculations
+#'    are exact.
+#' @param progress_bar \code{logical(1)} If given multiple motifs, show
+#'    progress.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return Numeric.
+#' @return \code{numeric} A vector of scores/p-values.
+#'
+#' @references
+#'    \insertRef{pvalues}{universalmotif}
+#'
+#' @details
+#' Calculating p-values for motifs can be very computationally intensive. This
+#' is due to how p-values must be calculated: for a given score, all possible
+#' sequences which score equal or higher must be found, and the probability for
+#' each of these sequences (based on background probabilities) summed. For a DNA
+#' motif of length 10, the number of possible unique sequences is 4^10 = 1,048,576.
+#' Finding all possible sequences higher than a given score can be done
+#' very efficiently and quickly with a branch-and-bound algorithm, but as the
+#' motif length increases this calculation becomes impractical. To get
+#' around this, the p-value calculation can be approximated.
+#'
+#' In order to calculate p-values for longer motifs, this function uses the
+#' approximation proposed by \insertCite{pvalues;textual}{universalmotif}, where
+#' the motif is subset, p-values calculated for the subsets, and finally
+#' combined for a total p-value. The smaller the size of the subsets, the
+#' faster the calculation; but also, the bigger the approximation. This can be
+#' controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
+#' calculating exact p-values can be done in reasonable time by setting
+#' \code{k = 12}.
+#'
+#' To calculate a score based on a given p-value, the function simply guesses
+#' different scores until it finds one which when used to calculate a p-value,
+#' returns a p-value reasonably close to the given p-value.
+#'
+#' Note that as \code{k} increases (and thus the approximation increases) the
+#' resulting p-values increase; meaning the p-values will always be on the
+#' conservative side.
+#'
+#' @examples
+#' data(examplemotif)
+#'
+#' ## p-value/score calculations are performed using the PWM version of the
+#' ## motif; these calculations do not work if any -Inf values are present
+#' examplemotif["pseudocount"] <- 1
+#'
+#' ## get a minimum score based on a p-value
+#' motif_pvalue(examplemotif, pvalue = 0.001)
+#'
+#' ## get the probability of a particular sequence hit
+#' motif_pvalue(examplemotif, score = 0)
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
@@ -22,15 +72,29 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, "PWM")
-
   if (!is.list(motifs)) motifs <- list(motifs)
+  anyinf <- vapply(motifs, function(x) any(is.infinite(x["motif"])), logical(1))
+  if (any(anyinf)) {
+    warning("Found -Inf values in motif PWM, adding a pseudocount of 1")
+    for (i in which(anyinf)) {
+      motifs[[i]] <- convert_type(motifs[[i]], "PPM")
+      motifs[[i]]["pseudocount"] <- 1
+      motifs[[i]] <- convert_type(motifs[[i]], "PWM")
+    }
+  }
+
   if (use.freq == 1) {
     motifs <- lapply(motifs, function(x) x["motif"])
   } else {
-    motifs <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
+    if (!missing(bkg.probs)) warning("'bkg.probs' not supported for 'use.freq' > 1")
+    mots <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
+    motifs <- bpmapply(function(x, y) apply(x, 2, ppm_to_pwmC, 
+                                            pseudocount = y["pseudocount"],
+                                            nsites = y["nsites"]),
+                       mots, motifs, BPPARAM = BPPARAM, SIMPLIFY = FALSE)
   }
 
-  if (missing(bkg.probs)) {
+  if (missing(bkg.probs) || use.freq > 1) {
     bkg.probs <- lapply(motifs, function(x) rep( 1 / nrow(x), nrow(x)))
   } else if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
 
@@ -43,7 +107,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
     out <- bpmapply(motif_pval, motifs, score, bkg.probs, k, BPPARAM = BPPARAM)
   } else if (missing(score) && !missing(pvalue)) {
     out <- bpmapply(motif_score, motifs, pvalue, bkg.probs, k,
-                    BPPARAM = BPPARAM)
+                    tolerance = 0.75, BPPARAM = BPPARAM)
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
 
   if (progress_bar) BPPARAM$progressbar <- pb_prev
@@ -52,14 +116,16 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
 
 }
 
-motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE) {
+motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
+                       return_scores = FALSE) {
 
   if (num2int) {
-    score <- as.integer(score * 1000)
+    if (!return_scores) score <- as.integer(score * 1000)
     score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
   }
   total.max <- sum(apply(score.mat, 2, max))
   total.min <- sum(apply(score.mat, 2, min))
+  if (return_scores) score <- total.min
 
   if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
@@ -159,20 +225,53 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE) {
     final.probs <- all.probs[[1]]
   }
 
-  sum(final.probs)
+  if (!return_scores) sum(final.probs) else all.scores
+
+}
+
+fast_fourier_transform <- function(all.scores, pvalue) {
+
+  # https://stats.stackexchange.com/questions/291549/calculate-all-possible-combinations-and-obtain-overall-distribution
+  # currently can't find a way to make this work for calculating p-values..
+
+  counts <- vapply(all.scores, length, integer(1))
+  n.bins <- 58000
+  range.sum <- rowSums(ranges <- vapply(all.scores, range, integer(2)))
+  dx <- diff(range.sum) / n.bins
+
+  x.hat <- rep(1, n.bins)
+
+  for (x in all.scores) {
+    i <- 1 + round((x - min(x) / dx))
+    y <- tabulate(i, nbins = n.bins)
+    x.hat <- fft(y / sum(y)) * x.hat
+  }
+
+  total.sum.ft <- zapsmall(Re(fft(x.hat, inverse = TRUE))) / n.bins
+
+  i.values <- (1:n.bins - 1/2) * dx + range.sum[1]
+
+  answer <- which(cumsum(total.sum.ft) >= 1 - pvalue)[1]
+  i.values[answer]
 
 }
 
 motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
 
   score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
-  max.score <- sum(apply(score.mat, 2, max)) - 1
-  min.score <- sum(apply(score.mat, 2, min)) + 1
+  max.score <- sum(apply(score.mat, 2, max)) - 1L
+  min.score <- sum(apply(score.mat, 2, min)) + 1L
   if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
+
+  if (ncol(score.mat) <= k) {  # for smaller motifs: exact calculation
+    all.scores <- motif_pval(score.mat, min.score, bkg.probs, k,
+                             num2int = FALSE, return_scores = TRUE)
+    return(quantile(all.scores[[1]], 1 - pval, names = FALSE) / 1000.0)
+  }
 
   pv.refine <- motif_pval(score.mat, 0, bkg.probs, k, num2int = FALSE)
 
-  if (pv.refine > pval) score <- 100 else score <- -100
+  if (pv.refine > pval) score <- 100L else score <- -100L
 
   if (score < 0) {
 
@@ -222,7 +321,7 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
 
 .branch_and_bound_kmers <- function(score.mat, min.score) {
 
-  max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0)
+  max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0L)
 
   if (min.score > max.scores[1]) stop("input score '", min.score / 1000.0,
                                   "' is higher than max possible score: '",

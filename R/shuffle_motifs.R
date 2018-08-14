@@ -15,6 +15,7 @@
 shuffle_motifs <- function(motifs, shuffle.k = 2, shuffle.method = "linear",
                            shuffle.leftovers = "asis", BPPARAM = SerialParam()) {
 
+  if (!is.list(motifs)) motifs <- list(motifs)
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)

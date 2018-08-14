@@ -127,7 +127,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     thresholds <- vector("numeric", length(motifs))
     if (progress_bar) BPPARAM$progressbar <- TRUE
     thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                               BPPARAM = BPPARAM)
+                               BPPARAM = BPPARAM, k = 5)
     if (progress_bar) BPPARAM$progressbar <- FALSE
     thresholds <- unlist(thresholds)
   } else stop("unknown 'threshold.type'")

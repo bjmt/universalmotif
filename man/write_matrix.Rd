@@ -4,8 +4,8 @@
 \alias{write_matrix}
 \title{Export motifs as raw matrices.}
 \usage{
-write_matrix(motifs, file, positions = "columns", rownames = FALSE, type,
-  sep = "", headers = TRUE, BPPARAM = SerialParam())
+write_matrix(motifs, file, positions = "columns", rownames = FALSE,
+  type, sep = "", headers = TRUE, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a single motif object.}
@@ -46,3 +46,4 @@ Other write_motifs: \code{\link{write_homer}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{write_motifs}

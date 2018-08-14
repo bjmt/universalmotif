@@ -39,3 +39,4 @@ Other read_motifs: \code{\link{read_cisbp}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{read_motifs}

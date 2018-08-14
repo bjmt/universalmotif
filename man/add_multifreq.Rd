@@ -4,8 +4,9 @@
 \alias{add_multifreq}
 \title{Add multi-nucleotide information to a motif.}
 \usage{
-add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE, threshold = 0.01,
-  threshold.type = "logodds", motifs.perseq = 1, BPPARAM = SerialParam())
+add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
+  threshold = 0.01, threshold.type = "logodds", motifs.perseq = 1,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motif}{Motif object. If not a \linkS4class{universalmotif} object,

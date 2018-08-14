@@ -1,55 +1,74 @@
 #' Compare motifs.
 #'
-#' TFBSTools implementation of motif comparison, rewritten in C++. See
-#' \code{\link[TFBSTools]{PWMSimilarity}} for details.
+#' Compare motifs using three metrics: Pearson correlation coefficient,
+#' Euclidean distance, and Kullback-Leibler divergence.
 #'
-#' @param motifs List of motifs. If not a \linkS4class{universalmotif} object,
-#'    they will be converted. See \code{\link{convert_motifs}} for supported
-#'    classes.
-#' @param compare.to Numeric. If NULL, compares all motifs to all other motifs.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
+#' @param compare.to \code{numeric} If NULL, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
-#' @param db.scores data.frame.
-#' @param use.type Character. One of 'PCM' (Pearson only), 'PPM' (any method),
-#'    'PWM' (Pearson only), and 'ICM' (any method). The latter
+#' @param db.scores \code{data.frame} See \code{details}.
+#' @param use.type \code{character(1)} One of \code{'PCM'} (Pearson only),
+#'    \code{'PPM'} (any method),
+#'    \code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
 #'    two allow for taking into account the background frequencies 
 #'    (for ICM, only if \code{relative_entropy = TRUE}).
-#' @param k Numeric.
-#' @param method One of 'Euclidean', 'Pearson', and 'KL'.
-#' @param tryRC Try the reverse complement of the motifs as well, report the
-#'    best score.
-#' @param min.overlap Numeric. Minimum overlap required when aligning the
+#' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
+#' @param method \code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.
+#' @param tryRC \code{logical} Try the reverse complement of the motifs as well,
+#'    report the best score.
+#' @param min.overlap \code{numeric(1)} Minimum overlap required when aligning the
 #'    motifs. Setting this to a number higher then the width of the motifs
 #'    will not allow any overhangs. Can also be a number less than 1,
 #'    representing the minimum fraction that the motifs must overlap.
-#' @param min.mean.ic Numeric.
-#' @param relative_entropy Logical.
-#' @param max.p Numeric.
-#' @param max.e Numeric.
+#' @param min.mean.ic \code{numeric(1)} Minimum information content between the
+#'    two motifs for an alignment to be scored. This helps prevent scoring
+#'    alignments between low information content regions of two motifs.
+#' @param relative_entropy \code{logical(1)} For ICM calculation. See
+#'    \code{\link{convert_type}}.
+#' @param max.p \code{numeric(1)} Maximum P-value allowed in reporting matches.
+#'    Only used if \code{compare.to != NULL}.
+#' @param max.e \code{numeric(1)} Maximum E-value allowed in reporting matches.
+#'    Only used if \code{compare.to != NULL}. The E-value is the P-value multiplied
+#'    by the number of input motifs times two.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return Distance matrix for Euclidean or KL; similarity matrix for Pearson.
+#' @return \code{matrix} if \code{compare.to = NULL}; \code{data.frame} otherwise.
+#'    If \code{method = c('Euclidean', 'KL')} then the resulting scores represent
+#'    distances; for \code{method = 'Pearson'}, similarities.
 #'
 #' @details
-#'    The implementations of this function are the exact same as that of the
-#'    \code{\link[TFBSTools]{PWMSimilarity}} function, except that this function
-#'    allows for more than two motifs to be compared as well as providing
-#'    significant performance gains.
+#' The comparison metrics are identical to those implemented by 
+#' \code{\link[TFBSTools]{PWMSimilarity}}, rewritten in C++.
+#'
+#' To note regarding p-values: p-values are pre-computed using the
+#' \code{make_DBscores} function. If not given, then uses a set of internal
+#' precomputed p-values from the JASPAR2018 CORE motifs. Furthermore, the
+#' comparison calculation does not take into account the difference in length
+#' between motifs; this leads to an increased likelihood in higher scores
+#' between small and large motifs. In order to overcome this limitation,
+#' the p-values are calculated with this in mind.
+#'
+#' The default p-values have been precalculated for regular DNA motifs; they
+#' are of little use for motifs with a different number of alphabet letters
+#' (or even the \code{multifreq} slot).
 #'
 #' @examples
 #' motif1 <- create_motif()
 #' motif2 <- create_motif()
-#' motif1vs2 <- compare_motifs(list(motif1, motif2))
-#' # to get a dist object:
-#' as.dist(motif1vs2)
+#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "Pearson")
+#' ## to get a dist object:
+#' as.dist(1 - motif1vs2)
 #'
 #' @references
+#'    \insertRef{jaspar}{universalmotif}
+#'
 #'    \insertRef{tfbstools}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso \code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
-#'    \code{\link{motif_tree}}
+#'    \code{\link{motif_tree}}, \code{\link{view_motifs}}
 #' @export
-compare_motifs <- function(motifs, compare.to, db.scores, k = 1, use.type = "PPM",
+compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
                            method = "Pearson", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
                            max.p = 0.05, max.e = 10, BPPARAM = SerialParam()) {
@@ -72,10 +91,10 @@ compare_motifs <- function(motifs, compare.to, db.scores, k = 1, use.type = "PPM
     mot.names[duplicated(mot.names)] <- mot.dup
   }
 
-  if (k == 1) {
+  if (use.freq == 1) {
     mot.mats <- lapply(motifs, function(x) x["motif"])
   } else {
-    mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(k)]])
+    mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
   }
   mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
                       motifs, mot.mats, BPPARAM = BPPARAM)

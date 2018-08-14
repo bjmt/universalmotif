@@ -43,19 +43,20 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites) {
 
 // [[Rcpp::export]]
 NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
-    double pseudocount=0, double nsites=0) {
+    double pseudocount=0, NumericVector nsites=NumericVector::create()) {
 
   int n_pos = position.size();
   int n_bkg = bkg.size();
 
-  if (nsites == 0) nsites = 100;
+  if (nsites.length() == 0) nsites = 100;
+  else if (nsites[0] == 0) nsites = 100;
 
   double n_pos2 = n_pos;
   NumericVector bkg2(n_pos, 1.0 / n_pos2);
   if (n_pos != n_bkg) bkg = bkg2;
 
   if (pseudocount != 0) {
-    position = ppm_to_pcmC(position, nsites);
+    position = ppm_to_pcmC(position, nsites[0]);
     position = pcm_to_ppmC(position, pseudocount);
   }
 

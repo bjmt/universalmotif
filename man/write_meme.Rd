@@ -4,7 +4,8 @@
 \alias{write_meme}
 \title{Export motifs in MEME format.}
 \usage{
-write_meme(motifs, file, version = 4, bkg, strand, BPPARAM = SerialParam())
+write_meme(motifs, file, version = 4, bkg, strand,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{List of motifs or a motif object.}
@@ -47,3 +48,4 @@ Other write_motifs: \code{\link{write_homer}},
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
+\concept{write_motifs}
