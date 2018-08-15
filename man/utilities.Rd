@@ -52,13 +52,19 @@ get_consensusAA(position, type, pseudocount)
 
 \item{method}{Character. One of Pearson, Euclidean, KL.}
 
+\item{shuffle.db}{\code{logical(1)}}
+
 \item{shuffle.k}{Numeric.}
 
 \item{shuffle.method}{Character.}
 
 \item{shuffle.leftovers}{Character.}
 
+\item{rand.tries}{\code{numeric(1)}}
+
 \item{min.overlap}{Numeric. Minimum required motif overlap.}
+
+\item{min.mean.ic}{\code{numeric(1)}}
 
 \item{progress_bar}{Logical. Show progress.}
 
@@ -86,8 +92,6 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{letter}{Character. Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 are accepted.}
-
-\item{tries}{Numeric. Number of random motifs to use for calculating db scores.}
 }
 \value{
 For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},

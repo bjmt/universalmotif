@@ -139,7 +139,7 @@ convert_type <- function(motifs, type, pseudocount,
   }
 
   motif <- motifs
-  if (class(motif) == "list") {
+  if (is.list(motif)) {
     margs <- list(type = type) 
     if (!missing(pseudocount)) margs <- c(margs, list(pseudocount = pseudocount))
     motif <- bplapply(motif, function(x) do.call(convert_type,

@@ -46,8 +46,10 @@ motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped.
 }
 \examples{
-library(MotifDb)
-merged.motif <- merge_motifs(MotifDb[1:5])
+if (requireNamespace("MotifDb", quietly = TRUE)) {
+  library(MotifDb)
+  merged.motif <- merge_motifs(MotifDb[1:5])
+}
 
 }
 \seealso{

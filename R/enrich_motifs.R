@@ -39,7 +39,7 @@
 #' @param shuffle.method \code{character(1)} See \code{\link{shuffle_sequences}}.
 #' @param shuffle.leftovers \code{character(1)} See \code{\link{shuffle_sequences}}.
 #' @param progress_bar \code{logical(1)} Show progress bar from
-#'    \code{\link{scans_sequences}}.
+#'    \code{\link{scan_sequences}}.
 #' @param return.scan.results \code{logical(1)} Return output from
 #'    \code{\link{scan_sequences}}.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.

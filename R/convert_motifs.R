@@ -297,7 +297,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
           
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{MotifList} motifs.
+#' @describeIn convert_motifs Convert MotifList motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "MotifList"),
           definition = function(motifs, class, BPPARAM) {
@@ -333,7 +333,7 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
                            strand = motifs@strand, bkg = motifs@bg,
                            motif = getPosProb(motifs),
                            multifreq = list(`2` = difreq))
-            convert_motifs(motifs_out, class = class, BPPARAM = BPPARAM)
+            convert_motifs(mot, class = class, BPPARAM = BPPARAM)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{PFMatrix} motifs.
@@ -349,8 +349,10 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
             } else {
               extrainfo <- character()
             }
+            nsites <- sum(motifs@profileMatrix[, 1])
             motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
                                      family = motifs@tags$family,
+                                     nsites = nsites,
                                      organism = motifs@tags$species,
                                      motif = motifs@profileMatrix,
                                      alphabet = alphabet, type = "PCM",

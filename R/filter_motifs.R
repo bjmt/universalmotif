@@ -28,9 +28,11 @@
 #' jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
 #'
 #' # By organism:
-#' library(MotifDb)
-#' motifs <- convert_motifs(MotifDb)
-#' motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))
+#' if (requireNamespace("MotifDb", quietly = TRUE)) {
+#'   library(MotifDb)
+#'   motifs <- convert_motifs(MotifDb)
+#'   motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))
+#' }
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export

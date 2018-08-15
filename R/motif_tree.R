@@ -52,7 +52,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
                        relative_entropy = FALSE, BPPARAM = SerialParam(), ...){
 
-  if (class(motifs) == "dist") {
+  if (is(motifs, "dist")) {
     tree <- as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)

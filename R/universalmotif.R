@@ -11,9 +11,9 @@
 #' @import ggtree
 #' @import ggseqlogo
 #' @importFrom BiocParallel bplapply bpmapply SerialParam 
-#' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd
-#' @importFrom stats p.adjust shapiro.test t.test wilcox.test
-#' @importFrom utils read.table
+#' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
+#' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
+#' @importFrom utils read.table setTxtProgressBar txtProgressBar
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
@@ -32,7 +32,6 @@
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib universalmotif
-#' @importClassesFrom MotifDb MotifList
 NULL
 
 data(JASPAR2018_CORE_DBSCORES, envir = environment())

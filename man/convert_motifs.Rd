@@ -123,7 +123,7 @@ The following packge-class combinations can be used as input:
 
 \item \code{universalmotif}: Convert a \linkS4class{universalmotif} object.
 
-\item \code{MotifList}: Convert \linkS4class{MotifList} motifs.
+\item \code{MotifList}: Convert MotifList motifs.
 
 \item \code{TFFMFirst}: Convert TFFMFirst motifs.
 

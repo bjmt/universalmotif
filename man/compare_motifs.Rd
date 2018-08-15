@@ -4,10 +4,10 @@
 \alias{compare_motifs}
 \title{Compare motifs.}
 \usage{
-compare_motifs(motifs, compare.to, db.scores, k = 1, use.type = "PPM",
-  method = "Pearson", tryRC = TRUE, min.overlap = 6,
-  min.mean.ic = 0.5, relative_entropy = FALSE, max.p = 0.05,
-  max.e = 10, BPPARAM = SerialParam())
+compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
+  use.type = "PPM", method = "Pearson", tryRC = TRUE,
+  min.overlap = 6, min.mean.ic = 0.5, relative_entropy = FALSE,
+  max.p = 0.05, max.e = 10, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -16,6 +16,8 @@ compare_motifs(motifs, compare.to, db.scores, k = 1, use.type = "PPM",
 Otherwise compares all motifs to the specified motif(s).}
 
 \item{db.scores}{\code{data.frame} See \code{details}.}
+
+\item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 
 \item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
 \code{'PPM'} (any method),
@@ -48,8 +50,6 @@ Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
-
-\item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.

@@ -65,7 +65,7 @@ sequences. Only used if no background sequences are input. See
 \item{shuffle.leftovers}{\code{character(1)} See \code{\link{shuffle_sequences}}.}
 
 \item{progress_bar}{\code{logical(1)} Show progress bar from
-\code{\link{scans_sequences}}.}
+\code{\link{scan_sequences}}.}
 
 \item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link{scan_sequences}}.}

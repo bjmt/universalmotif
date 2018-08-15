@@ -34,7 +34,6 @@ IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
 
   IntegerVector to_keep(sequence.length());
 
-  // double tmp_score;
   int tmp_score;
   int max_step = sequence.size() - score_mat.ncol() + 1;
 
@@ -55,24 +54,20 @@ IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
 // [[Rcpp::export]]
 IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
 
-  IntegerVector out(seqs.length() / k);
-  double out_i;
-  double l_;
-  double let_length = letters.length();
+  IntegerVector out(seqs.length() / k, 0);
+  int out_i;
+  int l_;
+  int let_length = letters.length();
 
   for (int i = 0; i < seqs.length(); ++i) {
     if (i % k == 0) {
 
       for (int l = 0; l < k; ++l) {
 
-        l_ = k - l;
-        l_ = pow(let_length, l_);
+        l_ = pow(let_length, k - l - 1);
         out_i = seqs(i + l);
-
-        l_ *= out_i / let_length;
-
-        if (l_ == 0) out[i / k] += out_i;
-        else out[i / k] += l_;
+        out_i *= l_;
+        out[i / k] += out_i;
 
       }
 
@@ -114,14 +109,14 @@ IntegerVector res_to_index(IntegerVector x) {
 
 // [[Rcpp::export]]
 List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep,
-    int mot_len) {
+    int mot_len, int k) {
 
   int n = to_keep.length();
   List out(n);
 
   for (int i = 0; i < n; ++i) {
-    IntegerVector tmp(mot_len);
-    for (int j = 0; j < mot_len; ++j) {
+    IntegerVector tmp(mot_len - k + 1);
+    for (int j = 0; j < mot_len - k + 1; ++j) {
       tmp(j) = seqs(to_keep(i) - 1 + j);
     }
     out(i) = tmp;
@@ -139,8 +134,8 @@ List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
   List out(n);
 
   for (int i = 0; i < n; ++i) {
-    StringVector tmp(mot_len + k - 1);
-    for (int j = 0; j < mot_len + k - 1; ++j) {
+    StringVector tmp(mot_len - k + 1);
+    for (int j = 0; j < mot_len - k + 1; ++j) {
       tmp(j) = sequence(to_keep(i) - 1 + j);
     }
     out(i) = tmp;
@@ -184,7 +179,7 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     StringVector seqs_aschar_i = seqs_aschar(i);
     IntegerVector seq_ints_i = seq_ints(i);
     String seq_names_i = seq_names(i);
-    List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens);
+    List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens, k);
     List matches_i = parse_k_res_helper_2(seqs_aschar_i, to_keep_i, mot_lens, k);
 
     for (int j = 0; j < n_rows(i); ++j) {

@@ -8,8 +8,10 @@
 #'    available formats.
 #'
 #' @examples
-#' library(MotifDb)
-#' merged.motif <- merge_motifs(MotifDb[1:5])
+#' if (requireNamespace("MotifDb", quietly = TRUE)) {
+#'   library(MotifDb)
+#'   merged.motif <- merge_motifs(MotifDb[1:5])
+#' }
 #'
 #' @seealso \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
@@ -51,9 +53,9 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                            relative_entropy) {
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.altnames <- do.call(c, sapply(motifs, function(x) x["altname"]))
-  mot.families <- do.call(c, sapply(motifs, function(x) x["family"]))
-  mot.orgs <- do.call(c, sapply(motifs, function(x) x["organism"]))
+  mot.altnames <- sapply(motifs, function(x) x["altname"])
+  mot.families <- sapply(motifs, function(x) x["family"])
+  mot.orgs <- sapply(motifs, function(x) x["organism"])
   mot.bkgsites <- do.call(c, sapply(motifs, function(x) x["bkgsites"]))
   mot.strands <- vapply(motifs, function(x) x["strand"], character(1))
   mot.extrainfo <- lapply(motifs, function(x) x["extrainfo"])
@@ -73,7 +75,9 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                     numeric(1))
   nsites.1 <- motifs[[1]]["nsites"]
   nsites.2 <- motifs[[2]]["nsites"]
-  nsites.new <- max(c(nsites.1, nsites.2))
+  if (length(nsites.1) == 0 && length(nsites.2) == 0) {
+    nsites.new <- numeric()
+  } else nsites.new <- max(c(nsites.1, nsites.2))
   pseudo.1 <- motifs[[1]]["pseudocount"]
   pseudo.2 <- motifs[[2]]["pseudocount"]
   pseudo.new <- mean(c(pseudo.1, pseudo.2))
@@ -95,7 +99,9 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                       numeric(1))
       nsites.1 <- motifs[[i]]["nsites"]
       nsites.2 <- mot.new["nsites"]
-      nsites.new <- max(c(nsites.1, nsites.2))
+      if (length(nsites.1) == 0 && length(nsites.2) == 0) {
+        nsites.new <- numeric()
+      } else nsites.new <- max(c(nsites.1, nsites.2))
       pseudo.1 <- motifs[[i]]["pseudocount"]
       pseudo.2 <- mot.new["pseudocount"]
       pseudo.new <- mean(c(pseudo.1, pseudo.2))

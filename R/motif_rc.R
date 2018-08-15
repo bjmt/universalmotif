@@ -18,7 +18,7 @@
 #' @export
 motif_rc <- function(motifs, BPPARAM = SerialParam()) {
 
-  if (class(motifs) == "list") {
+  if (is.list(motifs)) {
     motifs <- bplapply(motifs, motif_rc, BPPARAM = BPPARAM)
     return(motifs)
   }

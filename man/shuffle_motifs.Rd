@@ -4,21 +4,21 @@
 \alias{shuffle_motifs}
 \title{Shuffle motifs by column.}
 \usage{
-shuffle_motifs(motifs, shuffle.k = 2, shuffle.method = "linear",
-  shuffle.leftovers = "asis", BPPARAM = SerialParam())
+shuffle_motifs(motifs, k = 2, method = "linear", leftovers = "asis",
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
-
 \item{k}{\code{numeric(1)} K-let size.}
 
-\item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+\item{method}{\code{character(1)} One of \code{c('linear', 'random')}.
 See details.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
+
+\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Motifs. See \code{\link{convert_motifs}} for available output

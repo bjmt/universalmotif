@@ -535,8 +535,8 @@ motifs <- convert_motifs(MotifDb[1:5])
 
 ## Two merging methods are offered: via the 'msa' package, and via the 
 ## 'motifStack' package.
-merge_motifs(motifs, method = "msa")
-merge_motifs(motifs, method = "motifStack")
+# merge_motifs(motifs, method = "msa")
+# merge_motifs(motifs, method = "motifStack")
 ```
 
 ## Multi-letter information
@@ -760,24 +760,20 @@ motif <- convert_type(examplemotif, "PPM")
 motif <- motif["motif"]
 
 ## seqLogo:
-library(seqLogo)
 seqLogo::seqLogo(motif)
 
 ## motifStack: 
-suppressPackageStartupMessages(library(motifStack))
-plotMotifLogo(motif)
+motifStack::plotMotifLogo(motif)
 
 ## Logolas:
 if (requireNamespace("Logolas", quietly = TRUE)) {
-  library(Logolas)
   colnames(motif) <- seq_len(ncol(motif))
-  logomaker(motif, type = "Logo")
+  Logolas::logomaker(motif, type = "Logo")
 }
 
 ## ggseqlogo:
 if (requireNamespace("ggseqlogo", quietly = TRUE)) {
-  library(ggseqlogo)
-  ggseqlogo(motif)
+  ggseqlogo::ggseqlogo(motif)
 }
 ```
 
@@ -796,11 +792,10 @@ basic tree-like diagrams for comparing motifs.
 ```{r}
 library(universalmotif)
 library(MotifDb)
-suppressPackageStartupMessages(library(motifStack))
 
 ## A simple motifStack example:
 motifs <- convert_motifs(MotifDb[1:10], "motifStack-pfm")
-motifStack(motifs, layout = "phylog")
+motifStack::motifStack(motifs, layout = "phylog")
 
 ## motif_tree is much simpler, but also much faster and allows for
 ## bigger trees; done via the ggtree package

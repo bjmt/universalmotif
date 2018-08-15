@@ -48,11 +48,11 @@ slot using the 'Logolas' package.
 }
 \examples{
 ## plotting multifreq motifs:
-if (requireNamespace(Logolas, quietly = TRUE)) {
+if (requireNamespace("Logolas", quietly = TRUE)) {
   motif <- create_motif()
   motif <- add_multifreq(motif, sample_sites(motif))
-  logomaker(motif["multifreq"][[`2`]], type = "Logo",
-            color_type = "per_symbol")
+  Logolas::logomaker(motif["multifreq"][[as.character(2)]], type = "Logo",
+                     color_type = "per_symbol")
 }
 
 }

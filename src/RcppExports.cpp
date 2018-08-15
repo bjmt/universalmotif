@@ -284,15 +284,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // parse_k_res_helper_1
-List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep, int mot_len);
-RcppExport SEXP _universalmotif_parse_k_res_helper_1(SEXP seqsSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP) {
+List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep, int mot_len, int k);
+RcppExport SEXP _universalmotif_parse_k_res_helper_1(SEXP seqsSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type seqs(seqsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type to_keep(to_keepSEXP);
     Rcpp::traits::input_parameter< int >::type mot_len(mot_lenSEXP);
-    rcpp_result_gen = Rcpp::wrap(parse_k_res_helper_1(seqs, to_keep, mot_len));
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(parse_k_res_helper_1(seqs, to_keep, mot_len, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -381,7 +382,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // ppm_to_pwmC
-NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg, double pseudocount, double nsites);
+NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg, double pseudocount, NumericVector nsites);
 RcppExport SEXP _universalmotif_ppm_to_pwmC(SEXP positionSEXP, SEXP bkgSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -389,7 +390,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
-    Rcpp::traits::input_parameter< double >::type nsites(nsitesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nsites(nsitesSEXP);
     rcpp_result_gen = Rcpp::wrap(ppm_to_pwmC(position, bkg, pseudocount, nsites));
     return rcpp_result_gen;
 END_RCPP
@@ -557,7 +558,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},
     {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},
     {"_universalmotif_res_to_index", (DL_FUNC) &_universalmotif_res_to_index, 1},
-    {"_universalmotif_parse_k_res_helper_1", (DL_FUNC) &_universalmotif_parse_k_res_helper_1, 3},
+    {"_universalmotif_parse_k_res_helper_1", (DL_FUNC) &_universalmotif_parse_k_res_helper_1, 4},
     {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 4},
     {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
     {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},

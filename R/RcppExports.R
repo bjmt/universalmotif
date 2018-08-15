@@ -85,8 +85,8 @@ res_to_index <- function(x) {
     .Call('_universalmotif_res_to_index', PACKAGE = 'universalmotif', x)
 }
 
-parse_k_res_helper_1 <- function(seqs, to_keep, mot_len) {
-    .Call('_universalmotif_parse_k_res_helper_1', PACKAGE = 'universalmotif', seqs, to_keep, mot_len)
+parse_k_res_helper_1 <- function(seqs, to_keep, mot_len, k) {
+    .Call('_universalmotif_parse_k_res_helper_1', PACKAGE = 'universalmotif', seqs, to_keep, mot_len, k)
 }
 
 parse_k_res_helper_2 <- function(sequence, to_keep, mot_len, k) {
@@ -113,7 +113,7 @@ ppm_to_pcmC <- function(position, nsites) {
     .Call('_universalmotif_ppm_to_pcmC', PACKAGE = 'universalmotif', position, nsites)
 }
 
-ppm_to_pwmC <- function(position, bkg = 0L, pseudocount = 0, nsites = 0) {
+ppm_to_pwmC <- function(position, bkg = 0L, pseudocount = 0, nsites = as.numeric( c())) {
     .Call('_universalmotif_ppm_to_pwmC', PACKAGE = 'universalmotif', position, bkg, pseudocount, nsites)
 }
 

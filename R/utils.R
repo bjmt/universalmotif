@@ -17,11 +17,13 @@
 #'    are accepted.
 #' @param db.motifs List. Database motifs.
 #' @param method Character. One of Pearson, Euclidean, KL.
+#' @param shuffle.db \code{logical(1)}
 #' @param shuffle.k Numeric.
 #' @param shuffle.method Character.
 #' @param shuffle.leftovers Character.
-#' @param tries Numeric. Number of random motifs to use for calculating db scores.
+#' @param rand.tries \code{numeric(1)}
 #' @param min.overlap Numeric. Minimum required motif overlap.
+#' @param min.mean.ic \code{numeric(1)}
 #' @param progress_bar Logical. Show progress.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'

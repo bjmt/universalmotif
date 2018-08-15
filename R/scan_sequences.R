@@ -260,13 +260,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
 .process_seqs <- function(seq.matrix, seq.aschar, k) {
   for (i in seq_len(k)) {
-    to.remove <- k - 1
+    to.remove <- k - i
     if (to.remove == 0) {
-      seq.matrix[i, ] <- seq.aschar[seq_len(ncol(seq.matrix))]
+      seq.matrix[1, ] <- seq.aschar[seq_len(ncol(seq.matrix))]
       next
     }
     seq.i <- seq.aschar[-seq_len(to.remove)]
-    seq.matrix[i, ] <- seq.aschar[seq_len(ncol(seq.matrix))]
+    seq.matrix[k - i + 1, ] <- seq.i[seq_len(ncol(seq.matrix))]
   }
   seq.matrix
 }

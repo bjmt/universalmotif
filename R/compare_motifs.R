@@ -7,12 +7,12 @@
 #' @param compare.to \code{numeric} If missing, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
 #' @param db.scores \code{data.frame} See \code{details}.
+#' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
 #' @param use.type \code{character(1)} One of \code{'PCM'} (Pearson only),
 #'    \code{'PPM'} (any method),
 #'    \code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
 #'    two allow for taking into account the background frequencies 
 #'    (for ICM, only if \code{relative_entropy = TRUE}).
-#' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
 #' @param method \code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.
 #' @param tryRC \code{logical} Try the reverse complement of the motifs as well,
 #'    report the best score.
@@ -82,11 +82,12 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                          BPPARAM = BPPARAM)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  if (any(duplicated(mot.names))) {
-    mot.dup <- mot.names[duplicated(mot.names)]
+  mot.dup <- mot.names[duplicated(mot.names)]
+  if (length(mot.dup) > 0) {
     mot.dup.suffix <- seq_along(mot.dup)
     for (i in seq_along(mot.dup)) {
-      mot.dup[i] <- paste0(mot.dup, " [dup.name.", "]")
+      mot.dup[i] <- paste0(mot.dup[i], " [duplicated #",
+                           mot.dup.suffix[i], "]")
     }
     mot.names[duplicated(mot.names)] <- mot.dup
   }
@@ -201,16 +202,16 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
   db.ncols <- vapply(db.motifs, function(x) ncol(x["motif"]), numeric(1))
 
   if (shuffle.db) {
-    rand.mots <- shuffle_motifs(db.motifs, shuffle.k = shuffle.k,
-                                shuffle.method = shuffle.method,
-                                shuffle.leftovers = shuffle.leftovers,
+    rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
+                                method = shuffle.method,
+                                leftovers = shuffle.leftovers,
                                 BPPARAM = BPPARAM) 
     if (length(rand.mots) != rand.tries) {
       if (length(rand.mots) < rand.tries) {
         while (length(rand.mots) < rand.tries) {
-          more.rand.mots <- shuffle_motifs(db.motifs, shuffle.k = shuffle.k,
-                                           shuffle.method = shuffle.method,
-                                           shuffle.leftovers = shuffle.leftovers,
+          more.rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
+                                           method = shuffle.method,
+                                           leftovers = shuffle.leftovers,
                                            BPPARAM = BPPARAM) 
           rand.mots <- c(rand.mots, more.rand.mots)
         }

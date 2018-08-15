@@ -7,7 +7,7 @@
 #'
 #' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
 #' @param k \code{numeric(1)} K-let size.
-#' @param method \code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+#' @param method \code{character(1)} One of \code{c('linear', 'random')}.
 #'    See details.
 #' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
 #'    \code{c('asis', 'first', 'split', 'discard')}. See details.
