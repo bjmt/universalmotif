@@ -1,29 +1,29 @@
-#' Find motif binding sites in a set of sequences.
+#' Scan sequences for matches to input motifs.
 #'
-#' Find matches to motifs in a set of input sequences.
+#' For sequences of any alphabet, scan them using the PWM matrices of
+#' a set of input motifs.
 #'
-#' @param motifs \linkS4class{universalmotif} objects.
-#' @param sequences XStringSet object. Sequences to scan. Alphabet should
+#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
+#' @param sequences \code{XStringSet} Sequences to scan. Alphabet should
 #'    match motif.
-#' @param threshold Numeric. Between 0 and 1. See details.
-#' @param threshold.type Character. One of 'logodds' and 'pvalue'. See details.
-#' @param RC Logical. If \code{TRUE}, check reverse complement of input
+#' @param threshold \code{numeric(1)} Between 0 and 1. See details.
+#' @param threshold.type \code{character(1)} One of \code{c('logodds', 'pvalue')}.
+#'    See details.
+#' @param RC \code{logical(1)} If \code{TRUE}, check reverse complement of input
 #'    sequences.
-#' @param use.freq Numeric. The default, 1, uses the motif matrix (from
+#' @param use.freq \code{numeric(1)} The default, 1, uses the motif matrix (from
 #'    the \code{motif["motif"]} slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
 #'    \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.
-#' @param progress_bar Logical. Shoe progress bar.
+#' @param verbose \code{logical(1)} Describe progress.
+#' @param progress_bar \code{logical(1)} Show progress bar.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return Results as a data.frame object.
+#' @return \code{data.frame} with each row representing one hit; if the input
+#'    sequences are \code{DNAStringSet} or \code{RNAStringSet}, then an
+#'    additional column with the strand is included.
 #'
 #' @details
-#'    If \code{use.freq = 1} and the sequences are DNAStringSet or RNAStringSet
-#'    class, then the \code{\link[Biostrings]{matchPWM}} function from the
-#'    Biostrings package is used. Otherwise, a different (and less efficient)
-#'    scanning function is used.
-#'    
 #'    Similar to \code{\link[Biostrings]{matchPWM}}, the scanning method uses
 #'    logodds scoring. (To see the scoring matrix for any motif, simply
 #'    run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
@@ -38,10 +38,13 @@
 #'    possible score a motif (of type PWM), run
 #'    \code{sum(apply(motif['motif'], 2, max))}.
 #'
+#'    If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
+#'    generated using \code{\link{motif_pvalue}}.
+#'
 #'    Note: memory usage increases exponentially with k.
 #'
 #' @examples
-#' # any alphabet can be used
+#' ## any alphabet can be used
 #' \dontrun{
 #' set.seed(1)
 #' alphabet <- paste(c(letters), collapse = "")
@@ -53,11 +56,9 @@
 #' @references
 #'    \insertRef{biostrings}{universalmotif}
 #'
-#'    \insertRef{tfmpvalue}{universalmotif}
-#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
-#'    \code{\link{enrich_motifs}}
+#'    \code{\link{enrich_motifs}}, \code{\link{motif_pvalue}}
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                             threshold.type = "pvalue", RC = FALSE,

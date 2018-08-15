@@ -2,47 +2,48 @@
 % Please edit documentation in R/scan_sequences.R
 \name{scan_sequences}
 \alias{scan_sequences}
-\title{Find motif binding sites in a set of sequences.}
+\title{Scan sequences for matches to input motifs.}
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1,
   verbose = TRUE, progress_bar = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{\linkS4class{universalmotif} objects.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{sequences}{XStringSet object. Sequences to scan. Alphabet should
+\item{sequences}{\code{XStringSet} Sequences to scan. Alphabet should
 match motif.}
 
-\item{threshold}{Numeric. Between 0 and 1. See details.}
+\item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 
-\item{threshold.type}{Character. One of 'logodds' and 'pvalue'. See details.}
+\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}.
+See details.}
 
-\item{RC}{Logical. If \code{TRUE}, check reverse complement of input
+\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
 sequences.}
 
-\item{use.freq}{Numeric. The default, 1, uses the motif matrix (from
+\item{use.freq}{\code{numeric(1)} The default, 1, uses the motif matrix (from
 the \code{motif["motif"]} slot) to search for sequences. If a higher
 number is used, then the matching k-let matrix from the
 \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.}
 
-\item{progress_bar}{Logical. Shoe progress bar.}
+\item{verbose}{\code{logical(1)} Describe progress.}
+
+\item{progress_bar}{\code{logical(1)} Show progress bar.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-Results as a data.frame object.
+\code{data.frame} with each row representing one hit; if the input
+   sequences are \code{DNAStringSet} or \code{RNAStringSet}, then an
+   additional column with the strand is included.
 }
 \description{
-Find matches to motifs in a set of input sequences.
+For sequences of any alphabet, scan them using the PWM matrices of
+a set of input motifs.
 }
 \details{
-If \code{use.freq = 1} and the sequences are DNAStringSet or RNAStringSet
-   class, then the \code{\link[Biostrings]{matchPWM}} function from the
-   Biostrings package is used. Otherwise, a different (and less efficient)
-   scanning function is used.
-   
-   Similar to \code{\link[Biostrings]{matchPWM}}, the scanning method uses
+Similar to \code{\link[Biostrings]{matchPWM}}, the scanning method uses
    logodds scoring. (To see the scoring matrix for any motif, simply
    run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
    matrix: \code{apply(motif["multifreq"]$`2`, 2, ppm_to_pwm)}). In order
@@ -56,10 +57,13 @@ If \code{use.freq = 1} and the sequences are DNAStringSet or RNAStringSet
    possible score a motif (of type PWM), run
    \code{sum(apply(motif['motif'], 2, max))}.
 
+   If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
+   generated using \code{\link{motif_pvalue}}.
+
    Note: memory usage increases exponentially with k.
 }
 \examples{
-# any alphabet can be used
+## any alphabet can be used
 \dontrun{
 set.seed(1)
 alphabet <- paste(c(letters), collapse = "")
@@ -71,12 +75,10 @@ scan_sequences(motif, sequences)
 }
 \references{
 \insertRef{biostrings}{universalmotif}
-
-   \insertRef{tfmpvalue}{universalmotif}
 }
 \seealso{
 \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
-   \code{\link{enrich_motifs}}
+   \code{\link{enrich_motifs}}, \code{\link{motif_pvalue}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

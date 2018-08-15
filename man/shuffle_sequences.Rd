@@ -8,20 +8,22 @@ shuffle_sequences(sequences, k = 1, method = "linear",
   leftovers = "asis", BPPARAM = SerialParam())
 }
 \arguments{
-\item{sequences}{XStringSet object. For \code{method = 'markov'}, DNAStringSet
+\item{sequences}{\code{XStringSet} For \code{method = 'markov'}, DNAStringSet
 and RNAStringSet only.}
 
-\item{k}{Numeric. k-let size.}
+\item{k}{\code{numeric(1)} K-let size.}
 
-\item{method}{Character. One of 'markov', 'linear', and 'random'. See details.}
+\item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+See details.}
 
-\item{leftovers}{Character. For \code{method = 'random'}. One of 'asis',
-'first', 'split', and 'discard'. See details.}
+\item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
+\code{c('asis', 'first', 'split', 'discard')}. See details.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-XStringSet object.
+\code{XStringSet} The input sequences will be returned with 
+   identical names and lengths.
 }
 \description{
 Given a set of input sequences, shuffle the letters within those
@@ -48,7 +50,7 @@ If \code{method = 'markov'}, then the Markov model is used to
    letters at the beginning of the sequence; \code{leftovers = 'split'}
    will place half of the leftovers at the beginning and end of the 
    sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
-   Do note however, that the 'method' parameter is only relevant for k > 1.
+   Do note however, that the \code{method} parameter is only relevant for k > 1.
 }
 \examples{
 sequences <- create_sequences()
@@ -56,9 +58,9 @@ sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 
 }
 \references{
-\insertRef{markovmodel}{universalmotif}
+\insertRef{markovmodel2}{universalmotif}
 
-   \insertRef{markovmodel2}{universalmotif}
+   \insertRef{markovmodel}{universalmotif}
 }
 \seealso{
 \code{\link{create_sequences}}, \code{\link{scan_sequences}},

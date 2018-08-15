@@ -2,11 +2,12 @@
 #'
 #' Remove edges of a motif with low information content.
 #'
-#' @param motifs Motif object.
-#' @param min.ic Numeric. Minimum allowed information content.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param min.ic \code{numeric(1)} Minimum allowed information content.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return Motifs Motif object or list.
+#' @return Motifs See \code{\link{convert_motifs}} for available output
+#'    formats.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

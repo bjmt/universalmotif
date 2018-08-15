@@ -1,29 +1,19 @@
 #' Merge motifs.
 #'
-#' DNA/RNA only. The 'extrainfo' slot will be dropped, as well as any
-#' non-identical slots. 
+#' Aligns the motifs using \code{\link{compare_motifs}}, then averages the
+#' motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
+#' will be dropped.
 #'
-#' @param motifs List of motifs.
-#' @param method Character.
-#' @param use.type Character.
-#' @param min.overlap Numeric.
-#' @param min.mean.ic Numeric.
-#' @param tryRC Logical.
-#' @param relative_entropy Logical.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
-#'
-#' @return A single motif object.
+#' @return A single motif object. See \code{\link{convert_motifs}} for
+#'    available formats.
 #'
 #' @examples
-#' motifs <- read_jaspar(system.file("extdata", "jaspar.txt",
-#'                                   package = "universalmotif"))
-#'
-#' merged.motif <- merge_motifs(motifs)
-#' # compare with:
-#' merged.motif2 <- merge_motifs(motifs, method = "motifStack")
+#' library(MotifDb)
+#' merged.motif <- merge_motifs(MotifDb[1:5])
 #'
 #' @seealso \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams compare_motifs
 #' @export
 merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,

@@ -2,18 +2,25 @@
 #'
 #' Given a set of motifs, shuffle the columns between them. Currently does not
 #' support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
-#' and 'bkgsites' slots will be preserved.
+#' and 'bkgsites' slots will be preserved. Uses the same shuffling methods
+#' as \code{\link{shuffle_sequences}}.
 #'
-#' @param motifs Motifs.
-#' @param shuffle.k Numeric.
-#' @param shuffle.method Character.
-#' @param shuffle.leftovers Character.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param k \code{numeric(1)} K-let size.
+#' @param method \code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+#'    See details.
+#' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
+#'    \code{c('asis', 'first', 'split', 'discard')}. See details.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
+#' @return Motifs. See \code{\link{convert_motifs}} for available output
+#'    formats.
+#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso \code{\link{shuffle_sequences}}
 #' @export
-shuffle_motifs <- function(motifs, shuffle.k = 2, shuffle.method = "linear",
-                           shuffle.leftovers = "asis", BPPARAM = SerialParam()) {
+shuffle_motifs <- function(motifs, k = 2,method = "linear",
+                           leftovers = "asis", BPPARAM = SerialParam()) {
 
   if (!is.list(motifs)) motifs <- list(motifs)
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))
@@ -29,16 +36,16 @@ shuffle_motifs <- function(motifs, shuffle.k = 2, shuffle.method = "linear",
 
   mot.cols <- do.call(cbind, mot.mats)
   col.order <- seq_len(ncol(mot.cols))
-  if (shuffle.k == 1) {
+  if (k == 1) {
     new.order <- sample(col.order, ncol(mot.cols))
   } else {
-    if (shuffle.method == "linear") {
+    if (method == "linear") {
       mot.cols2 <- as.character(col.order)
-      new.order <- shuffle_linear(mot.cols2, shuffle.k, mode = 2)
+      new.order <- shuffle_linear(mot.cols2, k, mode = 2)
       new.order <- as.numeric(new.order)
-    } else if (shuffle.method == "random") {
+    } else if (method == "random") {
       mot.cols2 <- as.character(col.order)
-      new.order <- shuffle_random(mot.cols2, shuffle.k, shuffle.leftovers,
+      new.order <- shuffle_random(mot.cols2, k, leftovers,
                                   mode = 2)
       new.order <- as.numeric(new.order)
     } else stop("only 'linear' and 'random' are supported")

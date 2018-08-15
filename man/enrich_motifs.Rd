@@ -13,69 +13,95 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   return.scan.results = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{\linkS4class{universalmotif} objects.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{sequences}{XStringSet. Alphabet should match motif.}
+\item{sequences}{\code{XStringSet} Alphabet should match motif.}
 
-\item{bkg.sequences}{XStringSet. Optional; if missing,
+\item{bkg.sequences}{\code{XStringSet} Optional; if missing,
 \code{\link{shuffle_sequences}} is used to create background sequences from
 the input sequences.}
 
-\item{search.mode}{Character. One of 'hits', 'positional', and 'both'.
+\item{search.mode}{\code{character(1)} One of \code{c('hits', 'positional', 'both')}.
 See details.}
 
-\item{max.p}{Numeric. P-value threshold.}
+\item{max.p}{\code{numeric(1)} P-value threshold.}
 
-\item{max.q}{Numeric. Adjusted P-value threshold. This is only useful
-if more than one motif is being enriched for.}
+\item{max.q}{\code{numeric(1)} Adjusted P-value threshold. This is only useful
+if multiple motifs are being enriched for.}
 
-\item{max.e}{Numeric. The E-value is calculated by multiplying the adjusted
+\item{max.e}{\code{numeric(1)}. The E-value is calculated by multiplying the adjusted
 P-value with the number of input motifs \insertCite{meme2}{universalmotif}.}
 
-\item{qval.method}{Numeric. See \code{\link[stats]{p.adjust}}.}
+\item{qval.method}{\code{character(1)} See \code{\link[stats]{p.adjust}}.}
 
-\item{positional.test}{Character. One of 't.test', 'wilcox.test',
-'chisq.test', and 'shapiro.test'. If using the Shapiro test for
+\item{positional.test}{\code{character(1)} One of \code{c('t.test', 'wilcox.test',
+'chisq.test', 'shapiro.test')}. If using the Shapiro test for
 normality, then only the input sequences are tested for positionality;
 the background sequences are ignored. See \code{\link[stats]{t.test}},
 \code{\link[stats]{wilcox.test}}, \code{\link[stats]{chisq.test}},
 \code{\link[stats]{shapiro.test}}.}
 
-\item{threshold}{Numeric, between 1 and 0. See \code{\link{scan_sequences}}.}
+\item{threshold}{\code{numeric(1)} Between 1 and 0. See \code{\link{scan_sequences}}.}
 
-\item{threshold.type}{Character. One of 'logodds' and 'pvalue'. See
+\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}. See
 \code{\link{scan_sequences}}.}
 
-\item{verbose}{Numeric. 0 for no output, 2 for max verbosity.}
+\item{verbose}{\code{numeric(1)} 0 for no output, 2 for max verbosity.}
 
-\item{RC}{Logical. Whether to consider the reverse complement of the
+\item{RC}{\code{logical(1)} Whether to consider the reverse complement of the
+sequences. Only available for \code{DNAStringSet}, \code{RNAStringSet}
 sequences.}
 
-\item{use.freq}{Numeric. If the 'multifreq' slot of the motifs are filled,
+\item{use.freq}{\code{numeric(1)} If the \code{multifreq} slot of the motifs are filled,
 then they can be used to scan the sequences. See
 \code{\link{scan_sequences}}.}
 
-\item{shuffle.k}{Numeric. The k-let size to use when shuffling input
+\item{shuffle.k}{\code{numeric(1)} The k-let size to use when shuffling input
 sequences. Only used if no background sequences are input. See
 \code{\link{shuffle_sequences}}.}
 
-\item{shuffle.method}{Character. See \code{\link{shuffle_sequences}}.}
+\item{shuffle.method}{\code{character(1)} See \code{\link{shuffle_sequences}}.}
 
-\item{shuffle.leftovers}{Character. See \code{\link{shuffle_sequences}}.}
+\item{shuffle.leftovers}{\code{character(1)} See \code{\link{shuffle_sequences}}.}
 
-\item{progress_bar}{Logical. Show progress bar from
+\item{progress_bar}{\code{logical(1)} Show progress bar from
 \code{\link{scans_sequences}}.}
 
-\item{return.scan.results}{Logical. Return output from
+\item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link{scan_sequences}}.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-Motif enrichment results, as a data.frame.
+\code{data.frame} Motif enrichment results. The resulting 
+   \code{data.frame} contains the following columns:
+   \itemize{
+      \item \code{motif} Motif name.
+      \item \code{total.seq.hits} Total number of matches accross all target
+         sequences.
+      \item \code{num.seqs.hits} Number of target sequences which contain matches.
+      \item \code{num.seqs.total} Number of target sequences.
+      \item \code{total.bkg.hits} Total number of matches accross all background
+         sequences.
+      \item \code{num.bkg.hits} Number of background sequences which contain
+         matches.
+      \item \code{num.bkg.total} Number of background sequences.
+      \item \code{Pval.hits} P-value of enrichment. Only shown if
+         \code{search.mode = c('hits', 'both')}.
+      \item \code{Qval.hits} Q-val of enrichment. Only shown if
+         \code{search.mode = c('hits', 'both')}.
+      \item \code{Eval.hits} E-val of enrichment. Only shown if
+         \code{search.mode = c('hits', 'both')}.
+      \item \code{Pval.pos} P-value of positional comparison. Only
+         shown if \code{search.mode = c('positional', 'both'}).
+      \item \code{Qval.pos} Q-value of positional comparison. Only
+         shown if \code{search.mode = c('positional', 'both'}).
+      \item \code{Eval.pos} E-value of positional comparison. Only
+         shown if \code{search.mode = c('positional', 'both'}).
+   }
 }
 \description{
-Given a set of target and background sequences, test if the target motifs
+Given a set of target and background sequences, test if the input motifs
 are significantly enriched in the targets sequences relative to the
 background sequences.
 }
@@ -101,7 +127,7 @@ enrich_motifs(motif, target.sequences, bkg.sequences)
 }
 \seealso{
 \code{\link{scan_sequences}}, \code{\link{shuffle_sequences}},
-   \code{\link{add_multifreq}}
+   \code{\link{add_multifreq}}, \code{\link{motif_pvalue}}
 }
 \author{
 Benjamin Tremblay \email{b2tremblay@uwaterloo.ca}

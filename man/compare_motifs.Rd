@@ -12,7 +12,7 @@ compare_motifs(motifs, compare.to, db.scores, k = 1, use.type = "PPM",
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{compare.to}{\code{numeric} If NULL, compares all motifs to all other motifs.
+\item{compare.to}{\code{numeric} If missing, compares all motifs to all other motifs.
 Otherwise compares all motifs to the specified motif(s).}
 
 \item{db.scores}{\code{data.frame} See \code{details}.}
@@ -41,10 +41,10 @@ alignments between low information content regions of two motifs.}
 \code{\link{convert_type}}.}
 
 \item{max.p}{\code{numeric(1)} Maximum P-value allowed in reporting matches.
-Only used if \code{compare.to != NULL}.}
+Only used if \code{compare.to} is set.}
 
 \item{max.e}{\code{numeric(1)} Maximum E-value allowed in reporting matches.
-Only used if \code{compare.to != NULL}. The E-value is the P-value multiplied
+Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
@@ -52,7 +52,7 @@ by the number of input motifs times two.}
 \item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 }
 \value{
-\code{matrix} if \code{compare.to = NULL}; \code{data.frame} otherwise.
+\code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
    If \code{method = c('Euclidean', 'KL')} then the resulting scores represent
    distances; for \code{method = 'Pearson'}, similarities.
 }

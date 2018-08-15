@@ -9,36 +9,45 @@ merge_motifs(motifs, method = "Pearson", use.type = "PPM",
   relative_entropy = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{method}{Character.}
+\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.}
 
-\item{use.type}{Character.}
+\item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
+\code{'PPM'} (any method),
+\code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
+two allow for taking into account the background frequencies 
+(for ICM, only if \code{relative_entropy = TRUE}).}
 
-\item{min.overlap}{Numeric.}
+\item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
+motifs. Setting this to a number higher then the width of the motifs
+will not allow any overhangs. Can also be a number less than 1,
+representing the minimum fraction that the motifs must overlap.}
 
-\item{min.mean.ic}{Numeric.}
+\item{min.mean.ic}{\code{numeric(1)} Minimum information content between the
+two motifs for an alignment to be scored. This helps prevent scoring
+alignments between low information content regions of two motifs.}
 
-\item{tryRC}{Logical.}
+\item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
+report the best score.}
 
-\item{relative_entropy}{Logical.}
+\item{relative_entropy}{\code{logical(1)} For ICM calculation. See
+\code{\link{convert_type}}.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-A single motif object.
+A single motif object. See \code{\link{convert_motifs}} for
+   available formats.
 }
 \description{
-DNA/RNA only. The 'extrainfo' slot will be dropped, as well as any
-non-identical slots.
+Aligns the motifs using \code{\link{compare_motifs}}, then averages the
+motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
+will be dropped.
 }
 \examples{
-motifs <- read_jaspar(system.file("extdata", "jaspar.txt",
-                                  package = "universalmotif"))
-
-merged.motif <- merge_motifs(motifs)
-# compare with:
-merged.motif2 <- merge_motifs(motifs, method = "motifStack")
+library(MotifDb)
+merged.motif <- merge_motifs(MotifDb[1:5])
 
 }
 \seealso{

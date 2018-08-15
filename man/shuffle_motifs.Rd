@@ -8,20 +8,30 @@ shuffle_motifs(motifs, shuffle.k = 2, shuffle.method = "linear",
   shuffle.leftovers = "asis", BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{Motifs.}
-
-\item{shuffle.k}{Numeric.}
-
-\item{shuffle.method}{Character.}
-
-\item{shuffle.leftovers}{Character.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+
+\item{k}{\code{numeric(1)} K-let size.}
+
+\item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+See details.}
+
+\item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
+\code{c('asis', 'first', 'split', 'discard')}. See details.}
+}
+\value{
+Motifs. See \code{\link{convert_motifs}} for available output
+   formats.
 }
 \description{
 Given a set of motifs, shuffle the columns between them. Currently does not
 support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
-and 'bkgsites' slots will be preserved.
+and 'bkgsites' slots will be preserved. Uses the same shuffling methods
+as \code{\link{shuffle_sequences}}.
+}
+\seealso{
+\code{\link{shuffle_sequences}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

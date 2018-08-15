@@ -7,14 +7,15 @@
 trim_motifs(motifs, min.ic = 0.25, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{Motif object.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{min.ic}{Numeric. Minimum allowed information content.}
+\item{min.ic}{\code{numeric(1)} Minimum allowed information content.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-Motifs Motif object or list.
+Motifs See \code{\link{convert_motifs}} for available output
+   formats.
 }
 \description{
 Remove edges of a motif with low information content.

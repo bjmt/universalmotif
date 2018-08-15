@@ -3,15 +3,17 @@
 #' Given a set of input sequences, shuffle the letters within those
 #' sequences with any k-let size.
 #'
-#' @param sequences XStringSet object. For \code{method = 'markov'}, DNAStringSet
+#' @param sequences \code{XStringSet} For \code{method = 'markov'}, DNAStringSet
 #'    and RNAStringSet only.
-#' @param k Numeric. k-let size.
-#' @param method Character. One of 'markov', 'linear', and 'random'. See details.
-#' @param leftovers Character. For \code{method = 'random'}. One of 'asis',
-#'    'first', 'split', and 'discard'. See details.
+#' @param k \code{numeric(1)} K-let size.
+#' @param method \code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+#'    See details.
+#' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
+#'    \code{c('asis', 'first', 'split', 'discard')}. See details.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return XStringSet object.
+#' @return \code{XStringSet} The input sequences will be returned with 
+#'    identical names and lengths.
 #'
 #' @details
 #'    If \code{method = 'markov'}, then the Markov model is used to
@@ -34,12 +36,12 @@
 #'    letters at the beginning of the sequence; \code{leftovers = 'split'}
 #'    will place half of the leftovers at the beginning and end of the 
 #'    sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
-#'    Do note however, that the 'method' parameter is only relevant for k > 1.
+#'    Do note however, that the \code{method} parameter is only relevant for k > 1.
 #'
 #' @references
-#'    \insertRef{markovmodel}{universalmotif}
-#'
 #'    \insertRef{markovmodel2}{universalmotif}
+#'
+#'    \insertRef{markovmodel}{universalmotif}
 #'
 #' @examples
 #' sequences <- create_sequences()
