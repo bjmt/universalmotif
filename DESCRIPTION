@@ -4,6 +4,7 @@ Version: 0.99.0
 Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"),
                   email = "b2tremblay@uwaterloo.ca")
 URL: https://github.com/bjmt/universalmotif
+BugReports: https://github.com/bjmt/universalmotif/issues
 Description: Allows for importing most common motif types into R
     for use by functions provided by other Bioconductor motif-related packages.
     Motifs can be exported into most major motif formats from various classes 

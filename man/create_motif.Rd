@@ -50,44 +50,44 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
   organism, bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 }
 \arguments{
-\item{input}{A character vector, number, matrix (PCM, PPM, PWM, or ICM),
-\linkS4class{XStringSet}, or nothing.}
+\item{input}{\code{character}, \code{numberic}, \code{matrix},
+\linkS4class{XStringSet}, \code{missing}}
 
-\item{alphabet}{Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
-string representing the letters.}
+\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+or a combined string representing the letters.}
 
-\item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{name}{Character. Motif name.}
+\item{name}{\code{character(1)} Motif name.}
 
-\item{pseudocount}{Numeric. Correction to be applied to prevent \code{-Inf}
+\item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from apearing in PWM matrices.}
 
-\item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
+\item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
 length.}
 
-\item{nsites}{Numeric. Number of sites the motif was constructed from.}
+\item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from.}
 
-\item{altname}{Character. Alternate motif name.}
+\item{altname}{\code{character(1)} Alternate motif name.}
 
-\item{family}{Character. Transcription factor family.}
+\item{family}{\code{character(1)} Transcription factor family.}
 
-\item{organism}{Character. Species of origin.}
+\item{organism}{\code{character(1)} Species of origin.}
 
-\item{bkgsites}{Numeric. Total number of sites used to find the motif.}
+\item{bkgsites}{\code{numeric(1)} Total number of sites used to find the motif.}
 
-\item{strand}{Character. Whether the motif is specific to a certain strand.}
+\item{strand}{|code{character(1)} Whether the motif is specific to a certain strand.}
 
-\item{pval}{Numeric. P-value associated with motif.}
+\item{pval}{\code{numeric(1)} P-value associated with motif.}
 
-\item{qval}{Numeric. Adjusted P-value associated with motif.}
+\item{qval}{\code{numeric(1)} Adjusted P-value associated with motif.}
 
-\item{eval}{Numeric. E-value associated with motif.}
+\item{eval}{\code{numeric(1)} E-value associated with motif.}
 
-\item{extrainfo}{Character. Any other extra information, represented as
+\item{extrainfo}{\code{character} Any other extra information, represented as
 a named character vector.}
 
-\item{add.multifreq}{Numeric. If the motif is created from a set of
+\item{add.multifreq}{\code{numeric(1)} If the motif is created from a set of
 sequences, then the \code{\link{add_multifreq}} function can be
 run at the same type.}
 }
@@ -103,9 +103,6 @@ The aim of this function is provide an easy interface to creating
    \linkS4class{universalmotif} motifs, as an alternative to the
    default class constructor (i.e. \code{new('universalmotif', name=...)}).
    See examples for potential use cases.
-
-   See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
-   random motifs.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -242,7 +239,7 @@ DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 }
 \seealso{
 \code{\link{convert_type}}, \code{\link{add_multifreq}},
-\code{\link{create_sequences}}, \code{\link[TFBSTools]{rPWMDmm}}.
+\code{\link{create_sequences}}, \code{\link{shuffle_motifs}}.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

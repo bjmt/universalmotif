@@ -46,7 +46,7 @@ the background sequences are ignored. See \code{\link[stats]{t.test}},
 \item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}. See
 \code{\link{scan_sequences}}.}
 
-\item{verbose}{\code{numeric(1)} 0 for no output, 2 for max verbosity.}
+\item{verbose}{\code{numeric(1)} 0 for no output, 4 for max verbosity.}
 
 \item{RC}{\code{logical(1)} Whether to consider the reverse complement of the
 sequences. Only available for \code{DNAStringSet}, \code{RNAStringSet}

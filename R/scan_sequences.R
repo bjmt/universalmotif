@@ -15,7 +15,8 @@
 #'    the \code{motif["motif"]} slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
 #'    \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.
-#' @param verbose \code{logical(1)} Describe progress.
+#' @param verbose \code{numeric(1)} Describe progress, from none (0) to very
+#'    verbose (3).
 #' @param progress_bar \code{logical(1)} Show progress bar.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
@@ -62,8 +63,30 @@
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                             threshold.type = "pvalue", RC = FALSE,
-                            use.freq = 1, verbose = TRUE,
+                            use.freq = 1, verbose = 1,
                             progress_bar = FALSE, BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(threshold.type = args$threshold.type),
+                     num = list(threshold = args$threshold,
+                                use.freq = args$use.freq,
+                                verbose = args$verbose),
+                     logi = list(RC = args$RC,
+                                 progress_bar = args$progress_bar))
+
+  if (verbose > 2) {
+    cat(" * Input parameters\n")
+    cat("   * motifs:              ", deparse(substitute(motifs)), "\n")
+    cat("   * sequences:           ", deparse(substitute(sequences)), "\n")
+    cat("   * threshold:           ",
+        ifelse(length(threshold) > 1, "...", threshold), "\n")
+    cat("   * threshold.type:      ", threshold.type, "\n")
+    cat("   * RC:                  ", RC, "\n")
+    cat("   * use.freq:            ", use.freq, "\n")
+    cat("   * verbose:             ", verbose, "\n")
+    cat("   * progress_bar:        ", progress_bar, "\n")
+    cat("   * BPPARAM:             ", deparse(substitute(BPPARAM)), "\n")
+  }
 
   if (missing(motifs) || missing(sequences)) {
     stop("need both motifs and sequences")
@@ -71,9 +94,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (progress_bar) pb_prev <- BPPARAM$progressbar
 
-  if (verbose) cat(" * Processing motifs\n")
+  if (verbose > 0) cat(" * Processing motifs\n")
 
   if (!is.list(motifs)) motifs <- list(motifs)
+  if (verbose > 1) cat("   * Scanning", length(motifs),
+                       ifelse(length(motifs) > 1, "motifs\n", "motif\n"))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
 
@@ -84,6 +109,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
   if (length(unique(mot.alphs)) != 1) stop("can only scan using one alphabet")
   mot.alphs <- unique(mot.alphs)
+  if (verbose > 1) cat("   * Motif alphabet:", mot.alphs, "\n")
   alph <- unique(mot.alphs)
   mot.bkgs <- lapply(motifs, function(x) x["bkg"])
   seq.lens <- width(sequences)
@@ -102,8 +128,16 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   for (i in seq_along(motifs)) {
-    if (motifs[[i]]["pseudocount"] == 0) motifs[[i]]["pseudocount"] <- 0.001
-    if (length(motifs[[i]]["nsites"]) == 0) motifs[[i]]["nsites"] <- 100
+    if (motifs[[i]]["pseudocount"] == 0) {
+      if (verbose > 1)
+        cat("   * Setting 'pseudocount' to 0.001 for motif:", mot.names[i], "\n")
+      motifs[[i]]["pseudocount"] <- 0.001
+    }
+    if (length(motifs[[i]]["nsites"]) == 0) {
+      if (verbose > 1)
+        cat("   * Setting 'nsites' to 100 for motif:", mot.names[i], "\n")
+      motifs[[i]]["nsites"] <- 100
+    }
   }
   
   if (use.freq == 1) {
@@ -124,16 +158,30 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (threshold.type == "logodds") {
     thresholds <- max.scores * threshold
   } else if (threshold.type == "pvalue") {
-    if (verbose) cat(" * Converting P-values to logodds thresholds\n")
+    if (verbose > 0) cat(" * Converting P-values to logodds thresholds\n")
     thresholds <- vector("numeric", length(motifs))
     if (progress_bar) BPPARAM$progressbar <- TRUE
     thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                                BPPARAM = BPPARAM, k = 5)
     if (progress_bar) BPPARAM$progressbar <- FALSE
+    for (i in seq_along(thresholds)) {
+      if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
+    }
+    if (verbose > 2) {
+      for (i in seq_along(thresholds)) {
+        cat("   * Motif", mot.names[i], ": max.score = ", max.scores[i], ", threshold = ",
+            thresholds[i], "\n")
+      }
+    }
     thresholds <- unlist(thresholds)
   } else stop("unknown 'threshold.type'")
 
-  if (verbose) cat(" * Processing sequences\n")
+  if (verbose > 0) cat(" * Processing sequences\n")
+
+  if (verbose > 1) {
+    cat("   * Number of sequences:", length(sequences), "\n")
+    cat("   * Mean sequence width:", mean(width(sequences)), "\n")
+  }
 
   seqs.aschar <- as.character(sequences)
   seqs.aschar <- bplapply(seqs.aschar, function(x) strsplit(x, "")[[1]],
@@ -164,6 +212,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   alph.int <- as.integer(seq_len(length(mot.alphs)))
 
+  if (verbose > 2) cat("   * Converting sequences to integers\n")
   seq.matrices <- bplapply(seq.matrices,
                            function(x) string_to_factor(x, mot.alphs),
                            BPPARAM = BPPARAM)
@@ -173,35 +222,49 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                                  use.freq, alph.int),
                        BPPARAM = BPPARAM)
 
-  if (verbose) cat(" * Scanning sequences for motifs\n")
+  if (verbose > 1) cat(" * Scanning sequences for motifs\n")
 
   if (progress_bar) BPPARAM$progressbar <- TRUE
 
   score.mats <- lapply(score.mats, numeric_to_integer_matrix)
   thresholds.int <- as.integer(thresholds * 1000)
 
-  if (RC && verbose) cat("   * Forward strand\n")
+  if (RC && verbose > 0) cat("   * Forward strand\n")
   to.keep <- bplapply(seq_along(score.mats),
                       function(x) .score_motif(seq.ints, score.mats[[x]],
                                                thresholds.int[x]),
                       BPPARAM = BPPARAM)
+  if (verbose > 2) {
+    num.matches <- lapply(to.keep, function(x) do.call(c, x))
+    num.matches <- do.call(c, num.matches)
+    num.matches <- which(num.matches == 1)
+    cat("   * Found", length(num.matches), 
+        ifelse(length(num.matches) == 1, "match\n", "matches\n"))
+  }
 
   if (RC) {
     score.mats.rc <- lapply(score.mats,
                             function(x) matrix(rev(as.numeric(x)),
                                                ncol = ncol(x)))
-    if (verbose) cat("   * Reverse strand\n")
+    if (verbose > 0) cat("   * Reverse strand\n")
     to.keep.rc <- bplapply(seq_along(score.mats.rc),
                            function(x) .score_motif(seq.ints, score.mats.rc[[x]],
                                                     thresholds.int[x]),
                            BPPARAM = BPPARAM)
+    if (verbose > 2) {
+      num.matches.rc <- lapply(res.rc, function(x) do.call(c, x))
+      num.matches.rc <- do.call(c, num.matches.rc)
+      num.matches.rc <- which(num.matches.rc == 1)
+      cat("   * Found", length(num.matches.rc), 
+          ifelse(length(num.matches.rc) == 1, "match\n", "matches\n"))
+    }
   }
 
   if (progress_bar) BPPARAM$progressbar <- FALSE
 
-  if (verbose) cat(" * Processing results\n")
+  if (verbose > 0) cat(" * Processing results\n")
 
-  if (RC && verbose) cat("   * Forward strand\n")
+  if (RC && verbose > 0) cat("   * Forward strand\n")
 
   if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
   res <- vector("list", length(to.keep))
@@ -216,7 +279,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (progress_bar) close(pb)
 
   if (RC) {
-    if (verbose) cat("   * Reverse strand\n")
+    if (verbose > 0) cat("   * Reverse strand\n")
 
     if (progress_bar) pb <- txtProgressBar(max = length(to.keep), style = 3)
     res.rc <- vector("list", length(to.keep.rc))
@@ -233,7 +296,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     res <- c(res, res.rc)
   }
 
-  if (verbose) cat(" * Generating output\n")
+  if (verbose > 0) cat(" * Generating output\n")
   res <- res_list_to_df_cpp(res)
 
   if (nrow(res) == 0) {

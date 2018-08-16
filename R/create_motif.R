@@ -3,28 +3,28 @@
 #' Create a motif from a set of sequences, a matrix, or generate a random
 #' motif.
 #'
-#' @param input A character vector, number, matrix (PCM, PPM, PWM, or ICM),
-#'              \linkS4class{XStringSet}, or nothing.
-#' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
-#'                 string representing the letters.
-#' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
-#' @param name Character. Motif name.
-#' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
+#' @param input \code{character}, \code{numberic}, \code{matrix},
+#'              \linkS4class{XStringSet}, \code{missing}
+#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+#'    or a combined string representing the letters.
+#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+#' @param name \code{character(1)} Motif name.
+#' @param pseudocount \code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 #'                     from apearing in PWM matrices.
-#' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
+#' @param bkg \code{numeric} Must sum to 1 and be equal in length to the alphabet
 #'            length.
-#' @param nsites Numeric. Number of sites the motif was constructed from.
-#' @param altname Character. Alternate motif name.
-#' @param family Character. Transcription factor family.
-#' @param organism Character. Species of origin.
-#' @param bkgsites Numeric. Total number of sites used to find the motif.
-#' @param strand Character. Whether the motif is specific to a certain strand.
-#' @param pval Numeric. P-value associated with motif.
-#' @param qval Numeric. Adjusted P-value associated with motif.
-#' @param eval Numeric. E-value associated with motif.
-#' @param extrainfo Character. Any other extra information, represented as
+#' @param nsites \code{numeric(1)} Number of sites the motif was constructed from.
+#' @param altname \code{character(1)} Alternate motif name.
+#' @param family \code{character(1)} Transcription factor family.
+#' @param organism \code{character(1)} Species of origin.
+#' @param bkgsites \code{numeric(1)} Total number of sites used to find the motif.
+#' @param strand |code{character(1)} Whether the motif is specific to a certain strand.
+#' @param pval \code{numeric(1)} P-value associated with motif.
+#' @param qval \code{numeric(1)} Adjusted P-value associated with motif.
+#' @param eval \code{numeric(1)} E-value associated with motif.
+#' @param extrainfo \code{character} Any other extra information, represented as
 #'                  a named character vector.
-#' @param add.multifreq Numeric. If the motif is created from a set of
+#' @param add.multifreq \code{numeric(1)} If the motif is created from a set of
 #'    sequences, then the \code{\link{add_multifreq}} function can be
 #'    run at the same type.
 #'
@@ -36,11 +36,8 @@
 #'    default class constructor (i.e. \code{new('universalmotif', name=...)}).
 #'    See examples for potential use cases.
 #'
-#'    See \code{\link[TFBSTools]{rPWMDmm}} for more advanced generation of
-#'    random motifs.
-#'
 #' @seealso \code{\link{convert_type}}, \code{\link{add_multifreq}},
-#' \code{\link{create_sequences}}, \code{\link[TFBSTools]{rPWMDmm}}.
+#' \code{\link{create_sequences}}, \code{\link{shuffle_motifs}}.
 #'
 #' @examples
 #' ##### create motifs from a single string

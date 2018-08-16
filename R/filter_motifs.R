@@ -3,31 +3,32 @@
 #' Filter motifs based on the contents of available \linkS4class{universalmotif}
 #' slots.
 #'
-#' @param motifs List of motifs.
-#' @param name Keep motifs by names.
-#' @param altname Keep motifs by altnames.
-#' @param family Keep motifs by family.
-#' @param organism Keep motifs by organism.
-#' @param width Keep motifs with minimum width.
-#' @param alphabet Keep motifs by alphabet.
-#' @param type Keep motifs by type.
-#' @param icscore Keep motifs with minimum total IC.
-#' @param nsites Keep motifs with minimum number of target sites.
-#' @param strand Keeps motifs by strand.
-#' @param pval Keep motifs by max P-value.
-#' @param qval Keep motifs by max Q-value.
-#' @param eval Keep motifs by max E-val.
+#' @param motifs \code{list} See \code{\link{convert_motifs}} for acceptable
+#'    formats.
+#' @param name \code{character} Keep motifs by names.
+#' @param altname \code{altname} Keep motifs by altnames.
+#' @param family \code{family} Keep motifs by family.
+#' @param organism \code{organism} Keep motifs by organism.
+#' @param width \code{numeric(1)} Keep motifs with minimum width.
+#' @param alphabet \code{character} Keep motifs by alphabet.
+#' @param type \code{character} Keep motifs by type.
+#' @param icscore \code{numeric(1)} Keep motifs with minimum total IC.
+#' @param nsites \code{numeric(1)} Keep motifs with minimum number of target sites.
+#' @param strand \code{character} Keeps motifs by strand.
+#' @param pval \code{numeric(1)} Keep motifs by max P-value.
+#' @param qval \code{numeric(1)} Keep motifs by max Q-value.
+#' @param eval \code{numeric(1)} Keep motifs by max E-val.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return List of motifs.
+#' @return \code{list} Motifs.
 #'
 #' @examples
-#' # By minimum IC:
+#' ## By minimum IC:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
 #'
-#' # By organism:
+#' ## By organism:
 #' if (requireNamespace("MotifDb", quietly = TRUE)) {
 #'   library(MotifDb)
 #'   motifs <- convert_motifs(MotifDb)

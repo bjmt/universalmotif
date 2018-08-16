@@ -9,24 +9,24 @@ add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{motif}{Motif object. If not a \linkS4class{universalmotif} object,
-it will be converted. See \code{\link{convert_motifs}} for supported
-classes.}
+\item{motif}{See \code{\link{convert_motifs}} for acceptable formats. If the
+motif is not a \linkS4class{universalmotif} motif, then it will be
+converted.}
 
-\item{sequences}{XStringSet. The alphabet must match that of the motif. If
+\item{sequences}{\code{XStringSet} The alphabet must match that of the motif. If
 these sequences are all the same length as the motif, then they are all
 used to generate the multi-freq matrices. Otherwise
 \code{\link{scan_sequences}} is first run to find the right sequence.}
 
-\item{add.k}{Numeric. The k-let lengths to add.}
+\item{add.k}{\code{numeric(1)} The k-let lengths to add.}
 
-\item{RC}{Logical. See \code{link{scan_sequences}}.}
+\item{RC}{\code{logical(1)} See \code{link{scan_sequences}}.}
 
-\item{threshold}{Numeric. See \code{\link{scan_sequences}}.}
+\item{threshold}{\code{numeric(1)} See \code{\link{scan_sequences}}.}
 
-\item{threshold.type}{Character. See \code{link{scan_sequences}}.}
+\item{threshold.type}{\code{character(1)} See \code{link{scan_sequences}}.}
 
-\item{motifs.perseq}{Numeric. If \code{\link{scan_sequences}} is run, 
+\item{motifs.perseq}{\code{numeric(1)} If \code{\link{scan_sequences}} is run, 
 then this indicates how many hits from each sequence is to be used.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
@@ -55,11 +55,11 @@ At each position in the motif, then the probability of each k-let
    this would require a matrix with 1,048,576 rows.
 }
 \examples{
-   sequences <- create_sequences(seqlen = 10)
-   motif <- create_motif()
-   motif.trained <- add_multifreq(motif, sequences, add.k = 2:4)
-   # peak at the 2-let matrix:
-   motif.trained["multifreq"]$`2`
+sequences <- create_sequences(seqlen = 10)
+motif <- create_motif()
+motif.trained <- add_multifreq(motif, sequences, add.k = 2:4)
+## peak at the 2-let matrix:
+motif.trained["multifreq"]$`2`
 
 }
 \seealso{

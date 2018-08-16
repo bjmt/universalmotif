@@ -8,37 +8,37 @@ create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100,
   monofreqs, difreqs, trifreqs, BPPARAM = SerialParam())
 }
 \arguments{
-\item{alphabet}{Character. One of 'DNA', 'RNA', 'AA', or a string of
+\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of
 letters/characters to be used as the alphabet.}
 
-\item{seqnum}{Numeric. Number of sequences to generate.}
+\item{seqnum}{\code{numeric(1)} Number of sequences to generate.}
 
-\item{seqlen}{Numeric. Length of random sequences.}
+\item{seqlen}{\code{numeric(1)} Length of random sequences.}
 
-\item{monofreqs}{Numeric. Alphabet frequencies to use. If missing assumes uniform
+\item{monofreqs}{\code{numeric} Alphabet frequencies to use. If missing assumes uniform
 frequencies. Not used if \code{difreq} or \code{trifreq} are
 input.}
 
-\item{difreqs}{Numeric. Dinucleotide frequencies. DNA/RNA only. Must be a
+\item{difreqs}{\code{numeric} Dinucleotide frequencies. DNA/RNA only. Must be a
 named numeric vector of length 16.}
 
-\item{trifreqs}{Numeric. Trinucleotide frequencies. DNA/RNA only. Must be a 
+\item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-XStringSet object.
+\linkS4class{XStringSet}
 }
 \description{
 Generate random sequences from any set of characters.
 }
 \examples{
-# create DNA sequences with slightly increased AT content:
+## create DNA sequences with slightly increased AT content:
 sequences <- create_sequences(monofreqs = c(0.3, 0.2, 0.2, 0.3))
-# create custom sequences:
+## create custom sequences:
 sequences.QWER <- create_sequences("QWER")
-# you can include non-alphabet characters are well, even spaces:
+## you can include non-alphabet characters are well, even spaces:
 sequences.custom <- create_sequences("!@#$ ")
 
 }
@@ -46,7 +46,7 @@ sequences.custom <- create_sequences("!@#$ ")
 \insertRef{biostrings}{universalmotif}
 }
 \seealso{
-\code{\link{create_motif}}
+\code{\link{create_motif}}, \code{\link{shuffle_sequences}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

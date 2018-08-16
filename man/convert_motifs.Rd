@@ -67,8 +67,9 @@ convert_motifs(motifs, class = "universalmotif-universalmotif",
 \arguments{
 \item{motifs}{Single motif object or list.}
 
-\item{class}{Desired motif class. Input as 'package-class'. If left empty,
-defaults to 'universalmotif-universalmotif'. (See details.)}
+\item{class}{\code{character(1)} Desired motif class. Input as
+'package-class'. If left empty, defaults to
+'universalmotif-universalmotif'. (See details.)}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -170,23 +171,23 @@ MA0003.2.trimmed <- trim_motifs(MA0003.2)
 
 }
 \references{
-\insertRef{motiv}{universalmotif}
-
-   \insertRef{motifdb}{universalmotif}
-
-   \insertRef{tfbstools}{universalmotif}
-
-   \insertRef{seqlogo}{universalmotif}
-
-   \insertRef{motifstack}{universalmotif}
-
-   \insertRef{pwmenrich}{universalmotif}
-
-   \insertRef{motifrg}{universalmotif}
+\insertRef{seqlogo}{universalmotif}
 
    \insertRef{rgadem}{universalmotif}
 
+   \insertRef{motiv}{universalmotif}
+
+   \insertRef{motifstack}{universalmotif}
+
    \insertRef{biostrings}{universalmotif}
+
+   \insertRef{motifdb}{universalmotif}
+
+   \insertRef{pwmenrich}{universalmotif}
+
+   \insertRef{tfbstools}{universalmotif}
+
+   \insertRef{motifrg}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -8,24 +8,24 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
   relative_entropy = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{\linkS4class{universalmotif} objects.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{pseudocount}{Numeric. Correction to be applied to prevent \code{-Inf}
+\item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from apearing in PWM matrices. If missing,
 the pseudocount stored in the
 \linkS4class{universalmotif} 'pseudocount' slot will be
 used, which defaults to 0.8 (the suggested value from
 \insertCite{pseudo;textual}{universalmotif}).}
 
-\item{nsize_correction}{Logical. If true, the ICM
+\item{nsize_correction}{\code{logical(1)} If true, the ICM
 at each position will be corrected to account
 for small sample sizes. Only used if 
 \code{relative_entropy = FALSE}.}
 
-\item{relative_entropy}{Logical. If true, the ICM will be
-calculated as relative entropy. (See details.)}
+\item{relative_entropy}{\code{logical(1)} If true, the ICM will be
+calculated as relative entropy. See details.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
@@ -109,30 +109,33 @@ Position count matrix (PCM), also known as position frequency matrix
 jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
                                       package = "universalmotif"))
 
-# pseudocounts default to 0.8
+## pseudocounts default to 0.8
 jaspar.pwm <- convert_type(jaspar.pcm, type = "PPM")
 
-# setting pseudocounts to 0 will prevent any correction from being
-# applied to PPM/PWM matrices
+## setting pseudocounts to 0 will prevent any correction from being
+## applied to PPM/PWM matrices
 jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 
 }
 \references{
-\insertRef{pseudo}{universalmotif}
+\insertRef{kl}{universalmotif}
 
-   \insertRef{pwm}{universalmotif}
+   \insertRef{pseudo}{universalmotif}
+
+   \insertRef{correction}{universalmotif}
 
    \insertRef{icm}{universalmotif}
 
    \insertRef{bits}{universalmotif}
 
-   \insertRef{correction}{universalmotif}
+   \insertRef{shannon}{universalmotif}
+
+   \insertRef{pwm}{universalmotif}
 
    \insertRef{tfbstools}{universalmotif}
-
-   \insertRef{kl}{universalmotif}
-
-   \insertRef{shannon}{universalmotif}
+}
+\seealso{
+\code{\link{convert_motifs}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

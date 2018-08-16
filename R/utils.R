@@ -2,29 +2,30 @@
 #'
 #' Various small functions used for motif creation.
 #'
-#' @param position Numeric. A numeric vector representing the frequency or
+#' @param position \code{numeric} A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
-#' @param bkg Numeric. Should be the same length as the alphabet length.
-#' @param nsites Numeric. Number of sites motif originated from.
-#' @param schneider_correction Logical. Apply sample size correction.
-#' @param relative_entropy Logical. Calculate information content as
+#' @param bkg \code{Numeric} Should be the same length as the alphabet length.
+#' @param nsites \code{numeric(1)} Number of sites motif originated from.
+#' @param schneider_correction \code{logical(1)} Apply sample size correction.
+#' @param relative_entropy \code{logical(1)} Calculate information content as
 #'    relative entropy or Kullback-Leibler divergence.
-#' @param pseudocount Numeric. Used to prevent zeroes in motif matrix.
-#' @param smooth Logical. Apply pseudocount correction.
-#' @param type Character. 'PCM', 'PPM', 'PWM' or 'ICM'.
-#' @param alphabet Character. 'DNA' or 'RNA'.
-#' @param letter Character. Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
+#' @param pseudocount \code{numeric(1)} Used to prevent zeroes in motif matrix.
+#' @param smooth \code{logical(1)} Apply pseudocount correction.
+#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM' 'ICM')}.
+#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA')}.
+#' @param letter \code{character(1)} Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
-#' @param db.motifs List. Database motifs.
-#' @param method Character. One of Pearson, Euclidean, KL.
-#' @param shuffle.db \code{logical(1)}
-#' @param shuffle.k Numeric.
-#' @param shuffle.method Character.
-#' @param shuffle.leftovers Character.
+#' @param db.motifs \code{list} Database motifs.
+#' @param method \code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.
+#' @param shuffle.db \code{logical(1)} Shuffle \code{db.motifs} rather than
+#'    generate random motifs with \code{\link{create_motif}}
+#' @param shuffle.k \code{numeric(1)}
+#' @param shuffle.method \code{character(1)}
+#' @param shuffle.leftovers \code{character(1)}
 #' @param rand.tries \code{numeric(1)}
-#' @param min.overlap Numeric. Minimum required motif overlap.
+#' @param min.overlap \code{numeric(1)} Minimum required motif overlap.
 #' @param min.mean.ic \code{numeric(1)}
-#' @param progress_bar Logical. Show progress.
+#' @param progress_bar \code{logical(1)} Show progress.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return 
@@ -466,3 +467,107 @@ add_multi_ANY <- function(sequences, k, alph) {
 # pos2    0    0    0    1    0
 # pos3    0    0    0    0    1
 # pos4    1    0    0    0    0
+
+check_input_params <- function(char, charlen, num, numlen, logi, logilen) {
+
+  fails <- c()
+
+  if (!missing(char)) {
+
+    if (missing(charlen)) charlen <- rep(1, length(char))
+
+    char.check1 <- vapply(char, is.character, logical(1))
+    char.check2 <- mapply(function(x, y) {
+                            if (y == 0) TRUE else length(x) == y
+                     }, char, charlen)
+
+    if (any(!char.check1)) {
+      j <- length(fails) + 1
+      for (i in which(!char.check1)) {
+        fails[j] <- paste0(" * Incorrect type for: `", names(char)[i],
+                          "`; expected `character`, got `",
+                          mode(char[[i]]), "`\n")
+        j <- j + 1
+      }
+    }
+
+    if (any(!char.check2)) {
+      j <- length(fails) + 1
+      for (i in which(!char.check2)) {
+        fails[j] <- paste0(" * Incorrect vector length for: `", names(char)[i],
+                          "`; expected length ", charlen[i], ", got ",
+                          length(char[[i]]), "\n")
+        j <- j + 1
+      }
+    }
+
+  }
+
+  if (!missing(num)) {
+
+    if (missing(numlen)) numlen <- rep(1, length(num))
+
+    num.check1 <- vapply(num, is.numeric, logical(1))
+    num.check2 <- mapply(function(x, y) {
+                            if (y == 0) TRUE else length(x) == y
+                     }, num, numlen)
+
+    if (any(!num.check1)) {
+      j <- length(fails) + 1
+      for (i in which(!num.check1)) {
+        fails[j] <- paste0(" * Incorrect type for: `", names(num)[i],
+                          "`; expected `numeric`, got `",
+                          mode(num[[i]]), "`\n")
+        j <- j + 1
+      }
+    }
+
+    if (any(!num.check2)) {
+      j <- length(fails) + 1
+      for (i in which(!num.check2)) {
+        fails[j] <- paste0(" * Incorrect vector length for: `", names(num)[i],
+                          "`; expected length ", numlen[i], ", got ",
+                          length(num[[i]]), "\n")
+        j <- j + 1
+      }
+    }
+
+  }
+
+  if (!missing(logi)) {
+
+    if (missing(logilen)) logilen <- rep(1, length(logi))
+
+    logi.check1 <- vapply(logi, is.logical, logical(1))
+    logi.check2 <- mapply(function(x, y) {
+                            if (y == 0) TRUE else length(x) == y
+                     }, logi, logilen)
+
+    if (any(!logi.check1)) {
+      j <- length(fails) + 1
+      for (i in which(!logi.check1)) {
+        fails[j] <- paste0(" * Incorrect type for: `", names(logi)[i],
+                          "`; expected `logical`, got `",
+                          mode(logi[[i]]), "`\n")
+        j <- j + 1
+      }
+    }
+
+    if (any(!logi.check2)) {
+      j <- length(fails) + 1
+      for (i in which(!logi.check2)) {
+        fails[j] <- paste0(" * Incorrect vector length for: `", names(logi)[i],
+                          "`; expected length ", logilen[i], ", got ",
+                          length(logi[[i]]), "\n")
+        j <- j + 1
+      }
+    }
+
+  }
+
+  if (length(fails) > 0) {
+    fails <- c("\n", fails)
+    stop(fails, call. = FALSE) 
+  } else return()
+
+}

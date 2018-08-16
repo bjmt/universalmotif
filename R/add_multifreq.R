@@ -3,18 +3,18 @@
 #' If the original sequences are available for a particular motif, then they
 #' can be used to generate higher-order PPM matrices.
 #'
-#' @param motif Motif object. If not a \linkS4class{universalmotif} object,
-#'    it will be converted. See \code{\link{convert_motifs}} for supported
-#'    classes.
-#' @param sequences XStringSet. The alphabet must match that of the motif. If
+#' @param motif See \code{\link{convert_motifs}} for acceptable formats. If the
+#'    motif is not a \linkS4class{universalmotif} motif, then it will be
+#'    converted.
+#' @param sequences \code{XStringSet} The alphabet must match that of the motif. If
 #'    these sequences are all the same length as the motif, then they are all
 #'    used to generate the multi-freq matrices. Otherwise
 #'    \code{\link{scan_sequences}} is first run to find the right sequence.
-#' @param add.k Numeric. The k-let lengths to add.
-#' @param threshold Numeric. See \code{\link{scan_sequences}}.
-#' @param threshold.type Character. See \code{link{scan_sequences}}.
-#' @param RC Logical. See \code{link{scan_sequences}}.
-#' @param motifs.perseq Numeric. If \code{\link{scan_sequences}} is run, 
+#' @param add.k \code{numeric(1)} The k-let lengths to add.
+#' @param threshold \code{numeric(1)} See \code{\link{scan_sequences}}.
+#' @param threshold.type \code{character(1)} See \code{link{scan_sequences}}.
+#' @param RC \code{logical(1)} See \code{link{scan_sequences}}.
+#' @param motifs.perseq \code{numeric(1)} If \code{\link{scan_sequences}} is run, 
 #'    then this indicates how many hits from each sequence is to be used.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
@@ -37,11 +37,11 @@
 #' @return A \linkS4class{universalmotif} object with filled 'multifreq' slot.
 #'
 #' @examples
-#'    sequences <- create_sequences(seqlen = 10)
-#'    motif <- create_motif()
-#'    motif.trained <- add_multifreq(motif, sequences, add.k = 2:4)
-#'    # peak at the 2-let matrix:
-#'    motif.trained["multifreq"]$`2`
+#' sequences <- create_sequences(seqlen = 10)
+#' motif <- create_motif()
+#' motif.trained <- add_multifreq(motif, sequences, add.k = 2:4)
+#' ## peak at the 2-let matrix:
+#' motif.trained["multifreq"]$`2`
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso \code{\link{scan_sequences}}, \code{link{convert_motifs}} 
@@ -49,6 +49,14 @@
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0.01, threshold.type = "logodds",
                           motifs.perseq = 1, BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(threshold.type = args$threshold.type),
+                     num = list(add.k = args$add.k,
+                                threshold = args$threshold,
+                                motifs.perseq = args$motifs.perseq),
+                     numlen = c(0, 1, 1),
+                     logi = list(RC = args$RC))
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   
@@ -93,6 +101,21 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   }
 
   names(multifreq) <- add.k
+  prev.multifreq <- motif["multifreq"]
+  if (length(prev.multifreq) > 0) {
+    if (any(names(prev.multifreq) %in% names(multifreq))) {
+      warning("Overwriting previous `multifreq`: ",
+              names(prev.multifreq)[names(prev.multifreq) %in% names(multifreq)])
+      prev.multifreq <- prev.multifreq[!names(prev.multifreq) %in% names(multifreq)]
+      if (length(prev.multifreq) > 0) {
+        multifreq <- c(prev.multifreq, multifreq)
+        multifreq <- multifreq[sort(names(multifreq))]
+      }
+    } else {
+      multifreq <- c(prev.multifreq, multifreq)
+      multifreq <- multifreq[sort(names(multifreq))]
+    }
+  }
   motif@multifreq <- multifreq
 
   motif

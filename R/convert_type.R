@@ -4,20 +4,20 @@
 #' (PPM), position weight matrix (PWM), and information count matrix (ICM)
 #' types.
 #'
-#' @param motifs \linkS4class{universalmotif} objects.
-#' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
-#' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+#' @param pseudocount \code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 #'                    from apearing in PWM matrices. If missing,
 #'                    the pseudocount stored in the
 #'                    \linkS4class{universalmotif} 'pseudocount' slot will be
 #'                    used, which defaults to 0.8 (the suggested value from
 #'                    \insertCite{pseudo;textual}{universalmotif}).
-#' @param nsize_correction Logical. If true, the ICM
+#' @param nsize_correction \code{logical(1)} If true, the ICM
 #'                          at each position will be corrected to account
 #'                          for small sample sizes. Only used if 
 #'                          \code{relative_entropy = FALSE}.
-#' @param relative_entropy Logical. If true, the ICM will be
-#'                         calculated as relative entropy. (See details.)
+#' @param relative_entropy \code{logical(1)} If true, the ICM will be
+#'                         calculated as relative entropy. See details.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{universalmotif} objects.
@@ -94,36 +94,35 @@
 #' jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                       package = "universalmotif"))
 #'
-#' # pseudocounts default to 0.8
+#' ## pseudocounts default to 0.8
 #' jaspar.pwm <- convert_type(jaspar.pcm, type = "PPM")
 #' 
-#' # setting pseudocounts to 0 will prevent any correction from being
-#' # applied to PPM/PWM matrices
+#' ## setting pseudocounts to 0 will prevent any correction from being
+#' ## applied to PPM/PWM matrices
 #' jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 #'
 #' @references
+#'    \insertRef{kl}{universalmotif}
+#'
 #'    \insertRef{pseudo}{universalmotif}
 #'
-#'    \insertRef{pwm}{universalmotif}
+#'    \insertRef{correction}{universalmotif}
 #'
 #'    \insertRef{icm}{universalmotif}
 #'
 #'    \insertRef{bits}{universalmotif}
 #'
-#'    \insertRef{correction}{universalmotif}
+#'    \insertRef{shannon}{universalmotif}
+#'
+#'    \insertRef{pwm}{universalmotif}
 #'
 #'    \insertRef{tfbstools}{universalmotif}
 #'
-#'    \insertRef{kl}{universalmotif}
-#'
-#'    \insertRef{shannon}{universalmotif}
-#'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso \code{\link{convert_motifs}}
 #' @export
-convert_type <- function(motifs, type, pseudocount,
-                         nsize_correction = FALSE, 
-                         relative_entropy = FALSE,
-                         BPPARAM = SerialParam()) {
+convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 
+                         relative_entropy = FALSE, BPPARAM = SerialParam()) {
 
   if (!missing(pseudocount)) {
     if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")

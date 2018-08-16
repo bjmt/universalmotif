@@ -54,6 +54,11 @@
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
                                leftovers = "asis", BPPARAM = SerialParam()) {
 
+  args <- as.list(environment())
+  check_input_params(char = list(method = args$method,
+                                 leftovers = args$leftovers),
+                     num = list(k = args$k))
+
   alph <- class(sequences)
 
   seq.names <- names(sequences)

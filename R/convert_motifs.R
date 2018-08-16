@@ -6,8 +6,9 @@
 #' class can be used without needed to convert beforehand.
 #'
 #' @param motifs Single motif object or list.
-#' @param class Desired motif class. Input as 'package-class'. If left empty,
-#'              defaults to 'universalmotif-universalmotif'. (See details.)
+#' @param class \code{character(1)} Desired motif class. Input as
+#'    'package-class'. If left empty, defaults to
+#'    'universalmotif-universalmotif'. (See details.)
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Single motif object or list.
@@ -69,23 +70,23 @@
 #' # 'universalmotif' class can't hold, it will be lost
 #'
 #' @references
-#'    \insertRef{motiv}{universalmotif}
-#'
-#'    \insertRef{motifdb}{universalmotif}
-#'
-#'    \insertRef{tfbstools}{universalmotif}
-#'
 #'    \insertRef{seqlogo}{universalmotif}
-#'
-#'    \insertRef{motifstack}{universalmotif}
-#'
-#'    \insertRef{pwmenrich}{universalmotif}
-#'
-#'    \insertRef{motifrg}{universalmotif}
 #'
 #'    \insertRef{rgadem}{universalmotif}
 #'
+#'    \insertRef{motiv}{universalmotif}
+#'
+#'    \insertRef{motifstack}{universalmotif}
+#'
 #'    \insertRef{biostrings}{universalmotif}
+#'
+#'    \insertRef{motifdb}{universalmotif}
+#'
+#'    \insertRef{pwmenrich}{universalmotif}
+#'
+#'    \insertRef{tfbstools}{universalmotif}
+#'
+#'    \insertRef{motifrg}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @include universalmotif-class.R

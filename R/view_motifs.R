@@ -49,6 +49,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
                         min.mean.ic = 0.5, relative_entropy = FALSE,
                         BPPARAM = SerialParam(), ...) {
 
+
+  args <- as.list(environment())
+  check_input_params(char = list(use.type = args$use.type, method = args$method),
+                     logi = list(tryRC = args$tryRC,
+                                 relative_entropy = args$relative_entropy),
+                     num = list(min.overlap = args$min.overlap,
+                                min.mean.ic = args$min.mean.ic))
+
   motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
   if (!is.list(motifs)) motifs <- list(motifs)

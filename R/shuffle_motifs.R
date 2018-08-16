@@ -19,8 +19,13 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso \code{\link{shuffle_sequences}}
 #' @export
-shuffle_motifs <- function(motifs, k = 2,method = "linear",
+shuffle_motifs <- function(motifs, k = 2, method = "linear",
                            leftovers = "asis", BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(method = args$method,
+                                 leftovers = args$leftovers),
+                     num = list(k = args$k))
 
   if (!is.list(motifs)) motifs <- list(motifs)
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))

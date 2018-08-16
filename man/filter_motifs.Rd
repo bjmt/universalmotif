@@ -9,50 +9,51 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet,
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs.}
+\item{motifs}{\code{list} See \code{\link{convert_motifs}} for acceptable
+formats.}
 
-\item{name}{Keep motifs by names.}
+\item{name}{\code{character} Keep motifs by names.}
 
-\item{altname}{Keep motifs by altnames.}
+\item{altname}{\code{altname} Keep motifs by altnames.}
 
-\item{family}{Keep motifs by family.}
+\item{family}{\code{family} Keep motifs by family.}
 
-\item{organism}{Keep motifs by organism.}
+\item{organism}{\code{organism} Keep motifs by organism.}
 
-\item{width}{Keep motifs with minimum width.}
+\item{width}{\code{numeric(1)} Keep motifs with minimum width.}
 
-\item{alphabet}{Keep motifs by alphabet.}
+\item{alphabet}{\code{character} Keep motifs by alphabet.}
 
-\item{type}{Keep motifs by type.}
+\item{type}{\code{character} Keep motifs by type.}
 
-\item{icscore}{Keep motifs with minimum total IC.}
+\item{icscore}{\code{numeric(1)} Keep motifs with minimum total IC.}
 
-\item{nsites}{Keep motifs with minimum number of target sites.}
+\item{nsites}{\code{numeric(1)} Keep motifs with minimum number of target sites.}
 
-\item{strand}{Keeps motifs by strand.}
+\item{strand}{\code{character} Keeps motifs by strand.}
 
-\item{pval}{Keep motifs by max P-value.}
+\item{pval}{\code{numeric(1)} Keep motifs by max P-value.}
 
-\item{qval}{Keep motifs by max Q-value.}
+\item{qval}{\code{numeric(1)} Keep motifs by max Q-value.}
 
-\item{eval}{Keep motifs by max E-val.}
+\item{eval}{\code{numeric(1)} Keep motifs by max E-val.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-List of motifs.
+\code{list} Motifs.
 }
 \description{
 Filter motifs based on the contents of available \linkS4class{universalmotif}
 slots.
 }
 \examples{
-# By minimum IC:
+## By minimum IC:
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
 
-# By organism:
+## By organism:
 if (requireNamespace("MotifDb", quietly = TRUE)) {
   library(MotifDb)
   motifs <- convert_motifs(MotifDb)
