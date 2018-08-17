@@ -7,12 +7,12 @@
 motif_rc(motifs, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs or a single motif.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-List of motifs or single motif object.
+See \code{\link{convert_motifs}} for available output formats.
 }
 \description{
 For any motif, change the 'motif' slot to it's reverse complement. If the

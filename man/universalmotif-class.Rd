@@ -25,58 +25,58 @@
 \S4method{show}{universalmotif}(object)
 }
 \arguments{
-\item{x}{universalmotif object.}
+\item{x}{\linkS4class{universalmotif} Motif.}
 
-\item{i}{Slot.}
+\item{i}{\code{character} Slot.}
 
 \item{value}{Object to replace slot with.}
 
-\item{.Object}{universalmotif object.}
+\item{.Object}{\linkS4class{universalmotif} Final motif.}
 
-\item{name}{Character. Motif name.}
+\item{name}{\code{character} Motif name.}
 
-\item{altname}{Character. Alternate motif name.}
+\item{altname}{\code{character} Alternate motif name.}
 
-\item{family}{Character. Transcription factor family.}
+\item{family}{\code{character} Transcription factor family.}
 
-\item{organism}{Character. Species of origin.}
+\item{organism}{\code{character} Species of origin.}
 
-\item{motif}{Matrix.}
+\item{motif}{\code{matrix} Each column represents a position in the motif.}
 
-\item{alphabet}{Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
-string representing the letters.}
+\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+or a combined string representing the letters.}
 
-\item{type}{Character. 'PCM', 'PPM', 'PWM', or 'ICM'.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{icscore}{Numeric. Total information content. Automatically generated.}
+\item{icscore}{\code{numeric} Total information content. Automatically generated.}
 
-\item{nsites}{Numeric. Number of sites the motif was constructed from.}
+\item{nsites}{\code{numeric} Number of sites the motif was constructed from.}
 
-\item{pseudocount}{Numeric. Correction to be applied to prevent \code{-Inf}
+\item{pseudocount}{\code{pseudocount(1)} Correction to be applied to prevent \code{-Inf}
 from apearing in PWM matrices.}
 
-\item{bkg}{Numeric. Must sum to 1 and be equal in length to the alphabet
+\item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
 length. If missing, assumes a uniform background.}
 
-\item{bkgsites}{Numeric. Total number of sites used to find the motif.}
+\item{bkgsites}{\code{numeric} Total number of sites used to find the motif.}
 
-\item{consensus}{Character. Consensus string. Automatically generated for 
+\item{consensus}{\code{character} Consensus string. Automatically generated for 
 'DNA', 'RNA', and 'AA' alphabets.}
 
-\item{strand}{Character. Whether the motif is specific to a certain strand.}
+\item{strand}{\code{character(1)} Whether the motif is specific to a certain strand.}
 
-\item{pval}{Numeric. P-value associated with motif.}
+\item{pval}{\code{numeric} P-value associated with motif.}
 
-\item{qval}{Numeric. Adjusted P-value associated with motif.}
+\item{qval}{\code{numeric} Adjusted P-value associated with motif.}
 
-\item{eval}{Numeric. E-value associated with motif.}
+\item{eval}{\code{numeric} E-value associated with motif.}
 
-\item{multifreq}{List.}
+\item{multifreq}{\code{list} See \code{\link{add_multifreq}}.}
 
-\item{extrainfo}{Character. Any other extra information, represented as
+\item{extrainfo}{\code{character} Any other extra information, represented as
 a named character vector.}
 
-\item{object}{\linkS4class{universalmotif} object.}
+\item{object}{\linkS4class{universalmotif} Motif.}
 }
 \value{
 A motif object of class \linkS4class{universalmotif}.
@@ -88,43 +88,43 @@ motifs.
 \section{Slots}{
 
 \describe{
-\item{\code{name}}{Character. Length 1.}
+\item{\code{name}}{\code{character(1)}}
 
-\item{\code{altname}}{Character. Length 0 or 1.}
+\item{\code{altname}}{\code{character}}
 
-\item{\code{family}}{Character. Length 0 or 1.}
+\item{\code{family}}{\code{character}}
 
-\item{\code{organism}}{Character. Length 0 or 1.}
+\item{\code{organism}}{\code{character}}
 
-\item{\code{motif}}{Matrix.}
+\item{\code{motif}}{\code{matrix}}
 
-\item{\code{alphabet}}{Character. Length 1.}
+\item{\code{alphabet}}{\code{character(1)}}
 
-\item{\code{type}}{Character. Length 1.}
+\item{\code{type}}{\code{character(1)}}
 
-\item{\code{icscore}}{Numeric. Length 1. Generated automatically.}
+\item{\code{icscore}}{\code{numeric(1)} Generated automatically.}
 
-\item{\code{nsites}}{Numeric. Length 0 or 1.}
+\item{\code{nsites}}{\code{numeric}}
 
-\item{\code{pseudocount}}{Numeric. Length 1.}
+\item{\code{pseudocount}}{\code{numeric(1)}}
 
-\item{\code{bkg}}{Numeric. Length equal to number of letters in alphabet.}
+\item{\code{bkg}}{\code{numeric} Length equal to number of letters in alphabet.}
 
-\item{\code{bkgsites}}{Numeric. Lenght 0 or 1.}
+\item{\code{bkgsites}}{\code{numeric}}
 
-\item{\code{consensus}}{Character. Length 0 or 1. Generated automatically.}
+\item{\code{consensus}}{\code{character} Generated automatically.}
 
-\item{\code{strand}}{Character. Length 1.}
+\item{\code{strand}}{\code{character(1)}}
 
-\item{\code{pval}}{Numeric. Length 0 or 1.}
+\item{\code{pval}}{\code{numeric}}
 
-\item{\code{qval}}{Numeric. Length 0 or 1.}
+\item{\code{qval}}{\code{numeric}}
 
-\item{\code{eval}}{Numeric. Length 0 or 1.}
+\item{\code{eval}}{\code{numeric}}
 
-\item{\code{multifreq}}{List.}
+\item{\code{multifreq}}{\code{list}}
 
-\item{\code{extrainfo}}{Named character vector. Length 0 or more.}
+\item{\code{extrainfo}}{\code{character}}
 }}
 
 \author{

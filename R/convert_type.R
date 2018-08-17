@@ -124,6 +124,12 @@
 convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 
                          relative_entropy = FALSE, BPPARAM = SerialParam()) {
 
+  if (missing(type)) stop("Missing 'type'")
+  args <- as.list(environment())
+  check_input_params(char = list(type = args$type),
+                     logi = list(nsize_correction = args$nsize_correction,
+                                 relative_entropy = args$relative_entropy))
+
   if (!missing(pseudocount)) {
     if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")
     if (length(pseudocount) > 1) stop("pseudocount must a length one vector")

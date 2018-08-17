@@ -2,28 +2,39 @@
 #'
 #' For more powerful motif tree functions, see the motifStack package.
 #'
-#' @param motifs List of \linkS4class{universalmotif} objects or 'dist' object.
-#' @param layout Character. One of 'rectangular', 'slanted', 'fan', 'circular',
-#'    'radial', 'equal_angle', and 'daylight'.
-#' @param linecol Character. \linkS4class{universalmotif} slot to use to
+#' @param motifs \code{list}, \code{dist} See \code{\link{convert_motifs}} for
+#'    available formats. 
+#' @param layout \code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular',
+#'    'radial', 'equal_angle', 'daylight')}.
+#' @param linecol \code{character(1)} \linkS4class{universalmotif} slot to use to
 #'    colour lines (e.g. 'family').
-#' @param labels Character. \linkS4class{universalmotif} slot to use to label
+#' @param labels \code{character(1)} \linkS4class{universalmotif} slot to use to label
 #'    tips (e.g. 'name').
-#' @param tipsize Character. \linkS4class{universalmotif} slot to use to
+#' @param tipsize \code{character(1)} \linkS4class{universalmotif} slot to use to
 #'    control tip size (e.g. 'icscore').
-#' @param legend Logical. Show legend for line colour and tip size.
-#' @param branch.length Character. If 'none', draw a cladogram.
-#' @param db.scores data.frame.
-#' @param method Character.
-#' @param use.type Character.
-#' @param min.overlap Numeric.
-#' @param tryRC Logical.
-#' @param min.mean.ic Numeric.
-#' @param relative_entropy Logical.
+#' @param legend \code{logical(1)} Show legend for line colour and tip size.
+#' @param branch.length \code{character(1)} If 'none', draw a cladogram.
+#' @param db.scores \code{data.frame} See \code{\link{compare_motifs}}.
+#' @param method \code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.
+#' @param use.type \code{character(1)} One of \code{'PCM'} (Pearson only),
+#'    \code{'PPM'} (any method), \code{'PWM'} (Pearson only), and \code{'ICM'}
+#'    (any method). The two allow for taking into account the background
+#'    frequencies (for ICM, only if \code{relative_entropy = TRUE}).
+#' @param min.overlap \code{numeric(1)} Minimum overlap required when aligning the
+#'    motifs. Setting this to a number higher then the width of the motifs
+#'    will not allow any overhangs. Can also be a number less than 1,
+#'    representing the minimum fraction that the motifs must overlap.
+#' @param tryRC \code{logical(1)} Try the reverse complement of the motifs as well,
+#'    report the best score.
+#' @param min.mean.ic \code{numeric(1)} Minimum information content between the
+#'    two motifs for an alignment to be scored. This helps prevent scoring
+#'    alignments between low information content regions of two motifs.
+#' @param relative_entropy \code{logical(1)} For ICM calculation. See
+#'    \code{\link{convert_type}}.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
-#' @param ... ggtree params.
+#' @param ... \pkg{ggtree} params.
 #'
-#' @return ggplot2 object.
+#' @return \code{ggplot} object.
 #'
 #' @details
 #'    See \code{\link[ggtree]{ggtree}} for more detailed descriptions of
@@ -36,10 +47,9 @@
 #'                           layout = "rectangular")
 #'
 #' @references
-#'    \insertRef{ggtree}{universalmotif}
-#'
 #'    \insertRef{ggplot2}{universalmotif}
-
+#'
+#'    \insertRef{ggtree}{universalmotif}
 #'
 #' @seealso \code{\link[motifStack]{motifStack}}, \code{\link{compare_motifs}},
 #'    \code{\link[ggtree]{ggtree}}
@@ -51,6 +61,16 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        use.type = "PPM",
                        min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
                        relative_entropy = FALSE, BPPARAM = SerialParam(), ...){
+
+  args <- as.list(environment())
+  check_input_params(char = list(layout = args$layout, linecol = args$linecol,
+                                 labels = args$labels, tipsize = args$tipsize,
+                                 branch.length = args$branch.length,
+                                 method = args$method, use.type = args$use.type),
+                     num = list(min.overlap = args$min.overlap,
+                                min.mean.ic = args$min.mean.ic),
+                     logi = list(legend = args$legend, tryRC = args$tryRC,
+                                 relative_entropy = args$relative_entropy))
 
   if (is(motifs, "dist")) {
     tree <- as.phylo(hclust(motifs))

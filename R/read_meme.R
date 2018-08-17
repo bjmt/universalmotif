@@ -4,14 +4,15 @@
 #' \url{http://meme-suite.org/}. Both 'full' and 'minimal' formats are
 #' supported.
 #'
-#' @param file Character.
-#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#' @param file \code{character(1)} File name.
+#' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
 #'    file before starting to read.
-#' @param readsites Logical. If \code{TRUE}, the motif sites will be read
+#' @param readsites \code{logical(1)} If \code{TRUE}, the motif sites will be read
 #'                  as well.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return List of universalmotif objects. If \code{readsites = TRUE}, a list
+#' @return \code{list} \linkS4class{universalmotif} objects. If
+#'    \code{readsites = TRUE}, a list
 #'         comprising of a sub-list of motif objects and a sub-list of 
 #'         motif sites will be returned.
 #'
@@ -95,6 +96,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
                          }, motif_names, motif_meta, motif_list,
                          SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
+  if (length(motif_list) == 1) motif_list <- motif_list[[1]]
+
   if (readsites) {
     mot.names <- vapply(motif_list, function(x) x["name"], character(1))
     block.starts <- sapply(mot.names,
@@ -127,6 +130,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
       sites <- bpmapply(function(x, y) {names(x) <- y; x},
                         sites, site.names, BPPARAM = BPPARAM,
                         SIMPLIFY = FALSE)
+      if (length(sites) == 1) sites <- sites[[1]]
       motif_list <- list(motifs = motif_list, sites = sites)
     }
   }

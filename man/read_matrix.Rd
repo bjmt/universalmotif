@@ -9,29 +9,31 @@ read_matrix(file, skip = 0, type, positions = "columns",
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
-\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+\item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
 
-\item{type}{Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing will
-try and guess which one.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+If missing will try and guess which one.}
 
-\item{positions}{Character. One of 'columns' or 'rows'. Indicate whether each
+\item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}.
+Indicate whether each
 position within a motif is represented as a row or a column in the file.}
 
-\item{alphabet}{Character. 'DNA', 'RNA', 'AA', or a string of letters.}
+\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
+or a string of letters.}
 
-\item{sep}{Character. Indicates how individual motifs are seperated.}
+\item{sep}{\code{character(1)} Indicates how individual motifs are seperated.}
 
-\item{headers}{Logical or character, indicating if and how to read names.}
+\item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to read names.}
 
-\item{rownames}{Logical. Are there alphabet letters present as rownames?}
+\item{rownames}{\code{logical(1)} Are there alphabet letters present as rownames?}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-List of universalmotif objects.
+\code{list} \linkS4class{universalmotif} objects.
 }
 \description{
 Import motifs formatted simply, as matrices.

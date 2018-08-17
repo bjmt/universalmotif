@@ -21,6 +21,13 @@ merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
                          relative_entropy = FALSE, BPPARAM = SerialParam()) {
 
+  args <- as.list(environment())
+  check_input_params(char = list(method = args$method, use.type = args$use.type),
+                     num = list(min.overlap = args$min.overlap,
+                                min.mean.ic = args$min.mean.ic),
+                     logi = list(tryRC = args$tryRC,
+                                 relative_entropy = args$relative_entropy))
+
   if (use.type %in% c("PCM", "PWM") && method %in% c("Euclidean", "KL")) {
     stop("Method '", method, "' is not supported for type '", use.type, "'")
   }

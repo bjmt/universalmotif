@@ -7,9 +7,9 @@
 write_transfac(motifs, file, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs or a motif object.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

@@ -48,49 +48,50 @@ consensus_to_ppmAA(letter)
 get_consensusAA(position, type, pseudocount)
 }
 \arguments{
-\item{db.motifs}{List. Database motifs.}
+\item{db.motifs}{\code{list} Database motifs.}
 
-\item{method}{Character. One of Pearson, Euclidean, KL.}
+\item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.}
 
-\item{shuffle.db}{\code{logical(1)}}
+\item{shuffle.db}{\code{logical(1)} Shuffle \code{db.motifs} rather than
+generate random motifs with \code{\link{create_motif}}}
 
-\item{shuffle.k}{Numeric.}
+\item{shuffle.k}{\code{numeric(1)}}
 
-\item{shuffle.method}{Character.}
+\item{shuffle.method}{\code{character(1)}}
 
-\item{shuffle.leftovers}{Character.}
+\item{shuffle.leftovers}{\code{character(1)}}
 
 \item{rand.tries}{\code{numeric(1)}}
 
-\item{min.overlap}{Numeric. Minimum required motif overlap.}
+\item{min.overlap}{\code{numeric(1)} Minimum required motif overlap.}
 
 \item{min.mean.ic}{\code{numeric(1)}}
 
-\item{progress_bar}{Logical. Show progress.}
+\item{progress_bar}{\code{logical(1)} Show progress.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
-\item{position}{Numeric. A numeric vector representing the frequency or
+\item{position}{\code{numeric} A numeric vector representing the frequency or
 probability for each alphabet letter at a specific position.}
 
-\item{bkg}{Numeric. Should be the same length as the alphabet length.}
+\item{bkg}{\code{Numeric} Should be the same length as the alphabet length.}
 
-\item{schneider_correction}{Logical. Apply sample size correction.}
+\item{schneider_correction}{\code{logical(1)} Apply sample size correction.}
 
-\item{nsites}{Numeric. Number of sites motif originated from.}
+\item{nsites}{\code{numeric(1)} Number of sites motif originated from.}
 
-\item{relative_entropy}{Logical. Calculate information content as
+\item{relative_entropy}{\code{logical(1)} Calculate information content as
 relative entropy or Kullback-Leibler divergence.}
 
-\item{pseudocount}{Numeric. Used to prevent zeroes in motif matrix.}
+\item{pseudocount}{\code{numeric(1)} Used to prevent zeroes in motif matrix.}
 
-\item{smooth}{Logical. Apply pseudocount correction.}
+\item{smooth}{\code{logical(1)} Apply pseudocount correction.}
 
-\item{type}{Character. 'PCM', 'PPM', 'PWM' or 'ICM'.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM' 'ICM')}.}
 
-\item{alphabet}{Character. 'DNA' or 'RNA'.}
+\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA')}.}
 
-\item{letter}{Character. Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
+\item{letter}{\code{character(1)} Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 are accepted.}
 }
 \value{
@@ -113,7 +114,7 @@ For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
 Various small functions used for motif creation.
 }
 \seealso{
-\code{\link{create_motif}}
+\code{\link{create_motif}}, \code{\link{compare_motifs}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

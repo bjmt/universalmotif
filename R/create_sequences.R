@@ -35,6 +35,11 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                              monofreqs, difreqs, trifreqs,
                              BPPARAM = SerialParam()) {
 
+  args <- as.list(environment())
+  check_input_params(char = list(alphabet = args$alphabet),
+                     num = list(seqnum = args$seqnum,
+                                seqlen = args$seqlen))
+
   if (alphabet == "DNA") {
     alph.letters <- DNA_BASES
   } else if (alphabet == "RNA") {

@@ -8,20 +8,20 @@ write_matrix(motifs, file, positions = "columns", rownames = FALSE,
   type, sep = "", headers = TRUE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs or a single motif object.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
-\item{positions}{Character. One of 'columns' or 'rows'.}
+\item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}.}
 
-\item{rownames}{Logical. Include alphabet letters as rownames.}
+\item{rownames}{\code{logical(1)} Include alphabet letters as rownames.}
 
-\item{type}{Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}. If missing
 will use whatever type the motif is currently stored as.}
 
-\item{sep}{Character. Indicates how to separate individual motifs.}
+\item{sep}{\code{character(1)} Indicates how to separate individual motifs.}
 
-\item{headers}{Logical or character, indicating if and how to write names.}
+\item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to write names.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

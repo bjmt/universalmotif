@@ -4,12 +4,7 @@
 #' See \code{system.file("extdata", "transfac.txt", pacakge="universalmotif")}
 #' for an example motif.
 #'
-#' @param file Character.
-#' @param skip Numeric. If not zero, will skip however many desired lines in the
-#'    file before starting to read.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
-#'
-#' @return List of universalmotif objects.
+#' @return \code{list} \linkS4class{universalmotif} objects.
 #'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
@@ -20,8 +15,11 @@
 #'
 #' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams read_cisbp
 #' @export
 read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
+
+  check_input_params(num = list(skip = skip), char = list(file = file))
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -130,6 +128,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
                       if (length(msg) > 0) stop(msg) else mot
                      }, motif_matrix, motif_meta, BPPARAM = BPPARAM)
 
+  if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
 
 }

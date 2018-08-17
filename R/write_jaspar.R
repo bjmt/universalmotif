@@ -2,8 +2,8 @@
 #'
 #' Convert motifs to JASPAR format and write to file.
 #'
-#' @param motifs List of motifs or a motif object.
-#' @param file Character.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param file \code{character(1)} File name.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.

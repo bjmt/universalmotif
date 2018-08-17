@@ -3,8 +3,8 @@
 #' Given probabilities for a sequence as represented by a motif, generate
 #' random sequences with the same length as the motif.
 #'
-#' @param motif Motif object.
-#' @param n Numeric. Number of sites to generate.
+#' @param motif See \code{\link{convert_motifs}} for acceptable formats.
+#' @param n \code{numeric(1)} Number of sites to generate.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{XStringSet} object.
@@ -18,6 +18,8 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 sample_sites <- function(motif, n = 100, BPPARAM = SerialParam()) {
+
+  check_input_params(num = list(n = n))
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)
   motif <- convert_type(motif, "PPM", BPPARAM = BPPARAM)

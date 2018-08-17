@@ -1,5 +1,5 @@
-#' @param x universalmotif object.
-#' @param i Slot.
+#' @param x \linkS4class{universalmotif} Motif.
+#' @param i \code{character} Slot.
 #' @include universalmotif-class.R
 #' @rdname universalmotif-class
 #' @aliases [,universalmotif-method
@@ -48,30 +48,30 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
   if (validObject(x)) return(x)
 })
 
-#' @param .Object universalmotif object.
-#' @param name Character. Motif name.
-#' @param altname Character. Alternate motif name.
-#' @param family Character. Transcription factor family.
-#' @param organism Character. Species of origin.
-#' @param motif Matrix.
-#' @param alphabet Character. 'DNA', 'RNA', 'AA', 'custom', or a combined 
-#'                 string representing the letters.
-#' @param type Character. 'PCM', 'PPM', 'PWM', or 'ICM'.
-#' @param icscore Numeric. Total information content. Automatically generated.
-#' @param nsites Numeric. Number of sites the motif was constructed from.
-#' @param pseudocount Numeric. Correction to be applied to prevent \code{-Inf}
+#' @param .Object \linkS4class{universalmotif} Final motif.
+#' @param name \code{character} Motif name.
+#' @param altname \code{character} Alternate motif name.
+#' @param family \code{character} Transcription factor family.
+#' @param organism \code{character} Species of origin.
+#' @param motif \code{matrix} Each column represents a position in the motif.
+#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+#'    or a combined string representing the letters.
+#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+#' @param icscore \code{numeric} Total information content. Automatically generated.
+#' @param nsites \code{numeric} Number of sites the motif was constructed from.
+#' @param pseudocount \code{pseudocount(1)} Correction to be applied to prevent \code{-Inf}
 #'                     from apearing in PWM matrices.
-#' @param bkg Numeric. Must sum to 1 and be equal in length to the alphabet
+#' @param bkg \code{numeric} Must sum to 1 and be equal in length to the alphabet
 #'            length. If missing, assumes a uniform background.
-#' @param bkgsites Numeric. Total number of sites used to find the motif.
-#' @param consensus Character. Consensus string. Automatically generated for 
+#' @param bkgsites \code{numeric} Total number of sites used to find the motif.
+#' @param consensus \code{character} Consensus string. Automatically generated for 
 #'                  'DNA', 'RNA', and 'AA' alphabets.
-#' @param strand Character. Whether the motif is specific to a certain strand.
-#' @param pval Numeric. P-value associated with motif.
-#' @param qval Numeric. Adjusted P-value associated with motif.
-#' @param eval Numeric. E-value associated with motif.
-#' @param multifreq List.
-#' @param extrainfo Character. Any other extra information, represented as
+#' @param strand \code{character(1)} Whether the motif is specific to a certain strand.
+#' @param pval \code{numeric} P-value associated with motif.
+#' @param qval \code{numeric} Adjusted P-value associated with motif.
+#' @param eval \code{numeric} E-value associated with motif.
+#' @param multifreq \code{list} See \code{\link{add_multifreq}}.
+#' @param extrainfo \code{character} Any other extra information, represented as
 #'                  a named character vector.
 #' @name universalmotif
 #' @rdname universalmotif-class
@@ -250,7 +250,7 @@ setMethod("initialize", signature = "universalmotif",
 
           })
 
-#' @param object \linkS4class{universalmotif} object.
+#' @param object \linkS4class{universalmotif} Motif.
 #' @rdname universalmotif-class
 #' @aliases show,universalmotif-method
 setMethod("show", signature = "universalmotif",

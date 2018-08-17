@@ -12,44 +12,55 @@ motif_tree(motifs, layout = "circular", linecol = "family",
   BPPARAM = SerialParam(), ...)
 }
 \arguments{
-\item{motifs}{List of \linkS4class{universalmotif} objects or 'dist' object.}
+\item{motifs}{\code{list}, \code{dist} See \code{\link{convert_motifs}} for
+available formats.}
 
-\item{layout}{Character. One of 'rectangular', 'slanted', 'fan', 'circular',
-'radial', 'equal_angle', and 'daylight'.}
+\item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular',
+'radial', 'equal_angle', 'daylight')}.}
 
-\item{linecol}{Character. \linkS4class{universalmotif} slot to use to
+\item{linecol}{\code{character(1)} \linkS4class{universalmotif} slot to use to
 colour lines (e.g. 'family').}
 
-\item{labels}{Character. \linkS4class{universalmotif} slot to use to label
+\item{labels}{\code{character(1)} \linkS4class{universalmotif} slot to use to label
 tips (e.g. 'name').}
 
-\item{tipsize}{Character. \linkS4class{universalmotif} slot to use to
+\item{tipsize}{\code{character(1)} \linkS4class{universalmotif} slot to use to
 control tip size (e.g. 'icscore').}
 
-\item{legend}{Logical. Show legend for line colour and tip size.}
+\item{legend}{\code{logical(1)} Show legend for line colour and tip size.}
 
-\item{branch.length}{Character. If 'none', draw a cladogram.}
+\item{branch.length}{\code{character(1)} If 'none', draw a cladogram.}
 
-\item{db.scores}{data.frame.}
+\item{db.scores}{\code{data.frame} See \code{\link{compare_motifs}}.}
 
-\item{method}{Character.}
+\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.}
 
-\item{use.type}{Character.}
+\item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
+\code{'PPM'} (any method), \code{'PWM'} (Pearson only), and \code{'ICM'}
+(any method). The two allow for taking into account the background
+frequencies (for ICM, only if \code{relative_entropy = TRUE}).}
 
-\item{min.overlap}{Numeric.}
+\item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
+motifs. Setting this to a number higher then the width of the motifs
+will not allow any overhangs. Can also be a number less than 1,
+representing the minimum fraction that the motifs must overlap.}
 
-\item{tryRC}{Logical.}
+\item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
+report the best score.}
 
-\item{min.mean.ic}{Numeric.}
+\item{min.mean.ic}{\code{numeric(1)} Minimum information content between the
+two motifs for an alignment to be scored. This helps prevent scoring
+alignments between low information content regions of two motifs.}
 
-\item{relative_entropy}{Logical.}
+\item{relative_entropy}{\code{logical(1)} For ICM calculation. See
+\code{\link{convert_type}}.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
-\item{...}{ggtree params.}
+\item{...}{\pkg{ggtree} params.}
 }
 \value{
-ggplot2 object.
+\code{ggplot} object.
 }
 \description{
 For more powerful motif tree functions, see the motifStack package.
@@ -66,9 +77,9 @@ jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 
 }
 \references{
-\insertRef{ggtree}{universalmotif}
+\insertRef{ggplot2}{universalmotif}
 
-   \insertRef{ggplot2}{universalmotif}
+   \insertRef{ggtree}{universalmotif}
 }
 \seealso{
 \code{\link[motifStack]{motifStack}}, \code{\link{compare_motifs}},

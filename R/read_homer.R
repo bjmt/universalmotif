@@ -3,12 +3,7 @@
 #' Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
 #' Assumed to be DNA motifs.
 #'
-#' @param file Character.
-#' @param skip Numeric. If not zero, will skip however many desired lines in the
-#'    file before starting to read.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
-#'
-#' @return List of universalmotif objects.
+#' @return \code{list} \linkS4class{universalmotif} objects.
 #'
 #' @examples
 #' homer <- read_homer(system.file("extdata", "homer.txt",
@@ -19,8 +14,11 @@
 #'
 #' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams read_cisbp
 #' @export
 read_homer <- function(file, skip = 0, BPPARAM = SerialParam()) {
+
+  check_input_params(num = list(skip = skip), char = list(file = file))
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -82,6 +80,7 @@ read_homer <- function(file, skip = 0, BPPARAM = SerialParam()) {
   motifs <- bpmapply(homer2umot, motif_meta, motif_list,
                      SIMPLIFY = FALSE, BPPARAM = BPPARAM)
 
+  if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
 
 }

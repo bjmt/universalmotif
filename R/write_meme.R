@@ -2,13 +2,13 @@
 #'
 #' Convert motifs to minimal MEME format and write to file.
 #'
-#' @param motifs List of motifs or a motif object.
-#' @param file Character.
-#' @param version MEME version.
-#' @param bkg Background letter frequencies. If missing, will use background
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param file \code{character(1)} File name.
+#' @param version \code{numeric(1)} MEME version.
+#' @param bkg \code{numeric} Background letter frequencies. If missing, will use background
 #'            frequencies from motif objects (if they are identical); else
 #'            background frequencies will be set to freq = 1/length(alphabet)
-#' @param strand If missing, will use strand from motif objects (if identical);
+#' @param strand \code{character} If missing, will use strand from motif objects (if identical);
 #'               otherwise will default to "+ -"
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
@@ -28,6 +28,10 @@
 #' @export
 write_meme <- function(motifs, file, version = 4, bkg, strand,
                        BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(file = args$file),
+                     num = list(version = args$version))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)

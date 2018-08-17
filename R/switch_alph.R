@@ -2,7 +2,7 @@
 #'
 #' Convert a motif from DNA to RNA, or RNA to DNA.
 #'
-#' @param motifs Motif object or list of.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return The DNA/RNA version of the motifs.

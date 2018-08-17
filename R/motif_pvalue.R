@@ -70,6 +70,10 @@
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
                          progress_bar = FALSE, BPPARAM = SerialParam()) {
 
+  args <- as.list(environment())
+  check_input_params(num = list(use.freq = args$use.freq, k = args$k),
+                     logi = list(progress_bar = args$progress_bar))
+
   motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)

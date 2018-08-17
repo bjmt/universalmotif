@@ -1,6 +1,6 @@
 ---
 title: "Introduction to motif manipulation with the \"universalmotif\" package"
-shorttitle: "Motif manipulation with \"universalmotif\""
+shorttitle: "Intro to \"universalmotif\""
 author:
 - name: Benjamin Tremblay
   affiliation: University of Waterloo, Waterloo, Canada
@@ -13,12 +13,21 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::pdf_document
+  BiocStyle::html_document
 ---
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment="#>")
 ```
+
+# Installation
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("universalmotif")
+```
+
 
 # Introduction to sequence motifs
 
@@ -401,7 +410,7 @@ library(universalmotif)
 data(examplemotif)
 suppressPackageStartupMessages(library(TFBSTools))
 data(MA0003.2)
-library(MotifDb)
+suppressPackageStartupMessages(library(MotifDb))
 
 ## convert from a universalmotif to another
 convert_motifs(examplemotif, "TFBSTools-PWMatrix")
@@ -735,10 +744,10 @@ sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif.k2 <- add_multifreq(motif.k2, sequences.k2, add.k = 2)
 
 ## Regular scanning:
-scan_sequences(motif.k2, sequences, RC = TRUE)
+head(scan_sequences(motif.k2, sequences, RC = TRUE, verbose = 0))
 
 ## Using 2-letter information to scan:
-scan_sequences(motif.k2, sequences, use.freq = 2, RC = TRUE)
+head(scan_sequences(motif.k2, sequences, use.freq = 2, RC = TRUE, verbose = 0))
 ```
 
 # Motif visualization

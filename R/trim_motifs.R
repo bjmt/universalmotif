@@ -19,6 +19,8 @@
 #' @export
 trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
 
+  check_input_params(num = list(min.ic = min.ic))
+
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)
   mot.names <- vapply(motifs, function(x) x["name"], character(1))

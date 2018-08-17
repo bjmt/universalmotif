@@ -28,6 +28,7 @@ Imports: methods,
     Rdpack (>= 0.7),
     Biostrings,
     PWMEnrich,
+    MotifDb,
     Rcpp
 Suggests: knitr,
     BiocStyle,
@@ -39,7 +40,6 @@ Suggests: knitr,
     RcisTarget,
     motifcounter,
     Logolas,
-    MotifDb,
     BCRANK
 LinkingTo: Rcpp
 RdMacros: Rdpack
@@ -87,3 +87,4 @@ Collate:
     'write_matrix.R'
     'write_meme.R'
     'write_transfac.R'
+    'zzz.R'

@@ -4,10 +4,10 @@
 #' 'multifreq' slot is filled, then it is also applied. No other slots are
 #' affected.
 #'
-#' @param motifs List of motifs or a single motif.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return List of motifs or single motif object.
+#' @return See \code{\link{convert_motifs}} for available output formats.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

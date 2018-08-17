@@ -2,14 +2,14 @@
 #'
 #' Write motifs as simple matrices with optional headers to file.
 #'
-#' @param motifs List of motifs or a single motif object.
-#' @param file Character.
-#' @param positions Character. One of 'columns' or 'rows'.
-#' @param rownames Logical. Include alphabet letters as rownames.
-#' @param type Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param file \code{character(1)} File name.
+#' @param positions \code{character(1)} One of \code{c('columns', 'rows')}.
+#' @param rownames \code{logical(1)} Include alphabet letters as rownames.
+#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}. If missing
 #'             will use whatever type the motif is currently stored as.
-#' @param sep Character. Indicates how to separate individual motifs.
-#' @param headers Logical or character, indicating if and how to write names.
+#' @param sep \code{character(1)} Indicates how to separate individual motifs.
+#' @param headers \code{logical(1)}, \code{character(1)} Indicating if and how to write names.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
@@ -24,6 +24,11 @@
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                          type, sep = "", headers = TRUE, BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(file = args$file, positions = args$positions,
+                                 sep = args$sep),
+                     logi = list(rownames = args$rownames))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!missing(type)) motifs <- convert_type(motifs, type, BPPARAM = BPPARAM)

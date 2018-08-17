@@ -7,15 +7,15 @@
 read_jaspar(file, skip = 0, BPPARAM = SerialParam())
 }
 \arguments{
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
-\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+\item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-List of universalmotif objects.
+\code{list} \linkS4class{universalmotif} objects.
 }
 \description{
 Import JASPAR formatted motifs. See \url{http://jaspar.genereg.net/}.

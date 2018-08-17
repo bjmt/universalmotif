@@ -7,18 +7,19 @@
 read_meme(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam())
 }
 \arguments{
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
-\item{skip}{Numeric. If not zero, will skip however many desired lines in the
+\item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
 
-\item{readsites}{Logical. If \code{TRUE}, the motif sites will be read
+\item{readsites}{\code{logical(1)} If \code{TRUE}, the motif sites will be read
 as well.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
-List of universalmotif objects. If \code{readsites = TRUE}, a list
+\code{list} \linkS4class{universalmotif} objects. If
+   \code{readsites = TRUE}, a list
         comprising of a sub-list of motif objects and a sub-list of 
         motif sites will be returned.
 }

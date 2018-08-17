@@ -2,9 +2,9 @@
 #'
 #' Convert motifs to HOMER format and write to file.
 #'
-#' @param motifs List of motifs or a motif object.
-#' @param file Character.
-#' @param logodds_threshold Stringency required for HOMER to match a motif.
+#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param file \code{character(1)} File name.
+#' @param logodds_threshold \code{numeric} Stringency required for HOMER to match a motif.
 #'    See \code{\link{scan_sequences}}.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
@@ -23,6 +23,10 @@
 #' @export
 write_homer <- function(motifs, file, logodds_threshold = 0.6,
                         BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(file = args$file),
+                     num = list(logodds_threshold = args$logodds_threshold))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)

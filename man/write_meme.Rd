@@ -8,17 +8,17 @@ write_meme(motifs, file, version = 4, bkg, strand,
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs or a motif object.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
-\item{version}{MEME version.}
+\item{version}{\code{numeric(1)} MEME version.}
 
-\item{bkg}{Background letter frequencies. If missing, will use background
+\item{bkg}{\code{numeric} Background letter frequencies. If missing, will use background
 frequencies from motif objects (if they are identical); else
 background frequencies will be set to freq = 1/length(alphabet)}
 
-\item{strand}{If missing, will use strand from motif objects (if identical);
+\item{strand}{\code{character} If missing, will use strand from motif objects (if identical);
 otherwise will default to "+ -"}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}

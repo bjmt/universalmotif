@@ -7,7 +7,7 @@
 switch_alph(motifs, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{Motif object or list of.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

@@ -2,12 +2,7 @@
 #'
 #' Import UNIPROBE formatted motifs. Assumed DNA.
 #'
-#' @param file Character.
-#' @param skip Numeric. If not zero, will skip however many desired lines in the
-#'    file before starting to read.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
-#'
-#' @return List of universalmotif objects.
+#' @return \code{list} \linkS4class{universalmotif} objects.
 #'
 #' @examples
 #' uniprobe.minimal <- read_uniprobe(system.file("extdata", "uniprobe_minimal.txt",
@@ -20,8 +15,11 @@
 #'
 #' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams read_cisbp
 #' @export
 read_uniprobe <- function(file, skip = 0, BPPARAM = SerialParam()) {
+
+  check_input_params(num = list(skip = skip), char = list(file = file))
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -89,6 +87,7 @@ read_uniprobe <- function(file, skip = 0, BPPARAM = SerialParam()) {
 
   }
 
+  if (length(motif_list) == 1) motif_list <- motif_list[[1]]
   motif_list
 
 }

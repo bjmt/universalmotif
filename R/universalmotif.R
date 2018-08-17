@@ -31,7 +31,6 @@
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
+#' @importClassesFrom MotifDb MotifList
 #' @useDynLib universalmotif
 NULL
-
-data(JASPAR2018_CORE_DBSCORES, envir = environment())

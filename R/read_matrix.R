@@ -2,20 +2,22 @@
 #'
 #' Import motifs formatted simply, as matrices.
 #'
-#' @param file Character.
-#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#' @param file \code{character(1)} File name.
+#' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
 #'    file before starting to read.
-#' @param positions Character. One of 'columns' or 'rows'. Indicate whether each
+#' @param positions \code{character(1)} One of \code{c('columns', 'rows')}.
+#'    Indicate whether each
 #'    position within a motif is represented as a row or a column in the file.
-#' @param alphabet Character. 'DNA', 'RNA', 'AA', or a string of letters.
-#' @param type Character. One of 'PCM', 'PPM', 'PWM', and 'ICM'. If missing will
-#'             try and guess which one.
-#' @param sep Character. Indicates how individual motifs are seperated.
-#' @param headers Logical or character, indicating if and how to read names. 
-#' @param rownames Logical. Are there alphabet letters present as rownames?
+#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
+#'    or a string of letters.
+#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+#'    If missing will try and guess which one.
+#' @param sep \code{character(1)} Indicates how individual motifs are seperated.
+#' @param headers \code{logical(1)}, \code{character(1)} Indicating if and how to read names. 
+#' @param rownames \code{logical(1)} Are there alphabet letters present as rownames?
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return List of universalmotif objects.
+#' @return \code{list} \linkS4class{universalmotif} objects.
 #'
 #' @examples
 #'    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
@@ -27,6 +29,12 @@
 read_matrix <- function(file, skip = 0, type, positions = "columns",
                         alphabet = "DNA", sep = "", headers = FALSE,
                         rownames = FALSE, BPPARAM = SerialParam()) {
+
+  args <- as.list(environment())
+  check_input_params(char = list(positions = args$positions, file = args$file,
+                                 alphabet = args$alphabet, sep = args$sep),
+                     num = list(skip = args$skip),
+                     logi = list(rownames = args$rownames))
 
   raw_lines <- readLines(con <- file(file))
   close(con)

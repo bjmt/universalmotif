@@ -44,7 +44,7 @@
 #'    For \code{make_DBscores}: a data.frame with score distributions for the
 #'    input database.
 #'
-#' @seealso \code{\link{create_motif}}
+#' @seealso \code{\link{create_motif}}, \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utilities
 NULL

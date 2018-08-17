@@ -3,25 +3,25 @@
 #' Container for motif objects. See \code{\link{create_motif}} for creating
 #' motifs.
 #'
-#' @slot name Character. Length 1.
-#' @slot altname Character. Length 0 or 1.
-#' @slot family Character. Length 0 or 1.
-#' @slot organism Character. Length 0 or 1.
-#' @slot motif Matrix.
-#' @slot alphabet Character. Length 1.
-#' @slot type Character. Length 1.
-#' @slot icscore Numeric. Length 1. Generated automatically.
-#' @slot nsites Numeric. Length 0 or 1.
-#' @slot pseudocount Numeric. Length 1.
-#' @slot bkg Numeric. Length equal to number of letters in alphabet.
-#' @slot bkgsites Numeric. Lenght 0 or 1.
-#' @slot consensus Character. Length 0 or 1. Generated automatically.
-#' @slot strand Character. Length 1.
-#' @slot pval Numeric. Length 0 or 1.
-#' @slot qval Numeric. Length 0 or 1.
-#' @slot eval Numeric. Length 0 or 1.
-#' @slot multifreq List.
-#' @slot extrainfo Named character vector. Length 0 or more.
+#' @slot name \code{character(1)}
+#' @slot altname \code{character}
+#' @slot family \code{character}
+#' @slot organism \code{character}
+#' @slot motif \code{matrix}
+#' @slot alphabet \code{character(1)}
+#' @slot type \code{character(1)}
+#' @slot icscore \code{numeric(1)} Generated automatically.
+#' @slot nsites \code{numeric}
+#' @slot pseudocount \code{numeric(1)}
+#' @slot bkg \code{numeric} Length equal to number of letters in alphabet.
+#' @slot bkgsites \code{numeric}
+#' @slot consensus \code{character} Generated automatically.
+#' @slot strand \code{character(1)}
+#' @slot pval \code{numeric}
+#' @slot qval \code{numeric}
+#' @slot eval \code{numeric}
+#' @slot multifreq \code{list}
+#' @slot extrainfo \code{character}
 #'
 #' @return A motif object of class \linkS4class{universalmotif}.
 #'

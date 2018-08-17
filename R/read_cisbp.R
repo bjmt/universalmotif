@@ -3,12 +3,12 @@
 #' Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
 #' Assumed to be DNA motifs.
 #'
-#' @param file Character.
-#' @param skip Numeric. If not zero, will skip however many desired lines in the
+#' @param file \code{character(1)} File name.
+#' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
 #'    file before starting to read.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
-#' @return List of universalmotif objects.
+#' @return \code{list} \linkS4class{universalmotif} objects.
 #'
 #' @references
 #'    \insertRef{cisbp}{universalmotif}
@@ -21,6 +21,8 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
+
+  check_input_params(num = list(skip = skip), char = list(file = file))
 
   raw_lines <- readLines(con <- file(file))
   close(con)
@@ -88,6 +90,7 @@ read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
   motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,
                           logical(1))]
 
+  if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
 
 }

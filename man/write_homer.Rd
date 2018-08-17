@@ -8,11 +8,11 @@ write_homer(motifs, file, logodds_threshold = 0.6,
   BPPARAM = SerialParam())
 }
 \arguments{
-\item{motifs}{List of motifs or a motif object.}
+\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{file}{Character.}
+\item{file}{\code{character(1)} File name.}
 
-\item{logodds_threshold}{Stringency required for HOMER to match a motif.
+\item{logodds_threshold}{\code{numeric} Stringency required for HOMER to match a motif.
 See \code{\link{scan_sequences}}.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}

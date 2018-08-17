@@ -7,9 +7,9 @@
 sample_sites(motif, n = 100, BPPARAM = SerialParam())
 }
 \arguments{
-\item{motif}{Motif object.}
+\item{motif}{See \code{\link{convert_motifs}} for acceptable formats.}
 
-\item{n}{Numeric. Number of sites to generate.}
+\item{n}{\code{numeric(1)} Number of sites to generate.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
