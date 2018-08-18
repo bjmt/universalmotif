@@ -535,6 +535,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// clean_up_check
+StringVector clean_up_check(StringVector fails);
+RcppExport SEXP _universalmotif_clean_up_check(SEXP failsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type fails(failsSEXP);
+    rcpp_result_gen = Rcpp::wrap(clean_up_check(fails));
+    return rcpp_result_gen;
+END_RCPP
+}
+// check_fun_params
+StringVector check_fun_params(List param_args, IntegerVector param_len, LogicalVector param_null, String expected_type_string);
+RcppExport SEXP _universalmotif_check_fun_params(SEXP param_argsSEXP, SEXP param_lenSEXP, SEXP param_nullSEXP, SEXP expected_type_stringSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type param_args(param_argsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type param_len(param_lenSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type param_null(param_nullSEXP);
+    Rcpp::traits::input_parameter< String >::type expected_type_string(expected_type_stringSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_fun_params(param_args, param_len, param_null, expected_type_string));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
@@ -576,6 +601,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_consensus_to_ppmC", (DL_FUNC) &_universalmotif_consensus_to_ppmC, 1},
     {"_universalmotif_consensus_to_ppmAAC", (DL_FUNC) &_universalmotif_consensus_to_ppmAAC, 1},
     {"_universalmotif_get_consensusAAC", (DL_FUNC) &_universalmotif_get_consensusAAC, 3},
+    {"_universalmotif_clean_up_check", (DL_FUNC) &_universalmotif_clean_up_check, 1},
+    {"_universalmotif_check_fun_params", (DL_FUNC) &_universalmotif_check_fun_params, 4},
     {NULL, NULL, 0}
 };
 

@@ -70,9 +70,20 @@
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
                          progress_bar = FALSE, BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(num = list(use.freq = args$use.freq, k = args$k),
-                     logi = list(progress_bar = args$progress_bar))
+  num_check <- check_fun_params(list(score = args$score, pvalue = args$pvalue,
+                                     bkg.probs = args$bkg.probs,
+                                     use.freq = args$use.freq, k = args$k),
+                                c(1, 1, 0, 1, 1), c(TRUE, TRUE, TRUE, FALSE, FALSE),
+                                "numeric")
+  logi_check <- check_fun_params(list(progress_bar = args$progress_bar),
+                                 1, FALSE, "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
+  all_checks <- c(num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, "PWM")

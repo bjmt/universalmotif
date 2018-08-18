@@ -358,3 +358,142 @@ String get_consensusAAC(NumericVector position, String type="PPM",
   return lets[which_max(position)];
 
 }
+
+String cpp_paste(std::string s1, std::string s2, std::string s3,
+    std::string s4, std::string s5, std::string s6) {
+
+  return wrap(s1 + s2 + s3 + s4 + s5 + s6);
+
+}
+
+// [[Rcpp::export]]
+StringVector clean_up_check(StringVector fails) {
+
+  int fails_len = fails.length();
+  LogicalVector fails_keep(fails_len, true);
+
+  for (int i = 0; i < fails_len; ++i) {
+    if (fails[i] == "") fails_keep[i] = false;
+  }
+
+  return fails[fails_keep];
+
+}
+
+// [[Rcpp::export]]
+StringVector check_fun_params(List param_args, IntegerVector param_len,
+    LogicalVector param_null, String expected_type_string) {
+
+  // This function WILL fail if param_args is not a NAMED list
+
+  int expected_type;
+  if (expected_type_string == "character") expected_type = 16;
+  else if (expected_type_string == "numeric") expected_type = 14;
+  else if (expected_type_string == "logical") expected_type = 10;
+  else if (expected_type_string == "S4") expected_type = 25;
+  else stop("Unknown 'expected_type_string'");
+  int arg_len = param_args.length();
+  StringVector fails(arg_len * 2);
+  StringVector param_names = param_args.names();
+
+  IntegerVector param_len2;
+  LogicalVector param_null2;
+
+  if (param_len.length() == 0) {
+    param_len2 = rep(1, arg_len);
+  } else param_len2 = param_len;
+
+  if (param_null.length() == 0) {
+    param_null2 = rep(false, arg_len);
+  } else param_null2 = param_null;
+
+  std::string arg_name;
+  std::string exp_type;
+  std::string obs_type;
+  std::string exp_len_c;
+  std::string obs_len_c;
+  std::string fail_string1_1 = " * Incorrect type for '";
+  std::string fail_string1_2 = " * Incorrect vector length for: '";
+  std::string fail_string2 = "': expected ";
+  std::string fail_string3 = "; got ";
+    
+  for (int i = 0; i < arg_len; ++i) {
+
+    RObject arg = param_args[i];
+    int arg_type = arg.sexp_type();
+    if (arg_type == 13) arg_type = 14; // May change this in future
+    bool null_check = param_null2[i];
+    bool arg_fail = false;
+    arg_name = as<std::string>(param_names[i]);
+
+    if (expected_type == 16) {
+      exp_type = "`character`";
+    } else if (expected_type == 14) {
+      exp_type = "`numeric`";
+    } else if (expected_type == 10) {
+      exp_type = "`logical`";
+    } else if (expected_type == 25) {
+      exp_type = "`S4`";
+    }
+
+    if (arg_type == 16) {
+      obs_type = "`character`";
+    } else if (arg_type == 14) {
+      obs_type = "`numeric`";
+    } else if (arg_type == 10) {
+      obs_type = "`logical`";
+    } else if (arg_type == 0) {
+      obs_type = "`NULL`";
+    } else if (arg_type == 1) {
+      obs_type = "`missing`";
+    } else if (arg_type == 25) {
+      obs_type = "`S4`";
+    } else {
+      obs_type = "`unknown`";
+    }
+
+    if (null_check) {
+      if (arg_type != 0 && arg_type != 1 && arg_type != expected_type) {
+        fails[i] = cpp_paste(fail_string1_1, arg_name, fail_string2, 
+            exp_type, fail_string3, obs_type);
+        arg_fail = true;
+      }
+    } else if (arg_type != expected_type) {
+        fails[i] = cpp_paste(fail_string1_1, arg_name, fail_string2, 
+            exp_type, fail_string3, obs_type);
+        arg_fail = true;
+    }
+
+    // S4 objects can't be length checked
+    if (!arg_fail && arg_type != 0 && !null_check && arg_type != 25) {
+
+      int arg_len;
+
+      if (arg_type == 16) {
+        StringVector arg_ = as<StringVector>(arg);
+        arg_len = arg_.length();
+      } else if (arg_type == 14) {
+        NumericVector arg_ = as<NumericVector>(arg);
+        arg_len = arg_.length();
+      } else if (arg_type == 10) {
+        LogicalVector arg_ = as<LogicalVector>(arg);
+        arg_len = arg_.length();
+      } else stop("Unrecognised param type [INTERNAL ERROR]");
+
+      int exp_len = param_len2[i];
+      exp_len_c = std::to_string(exp_len);
+      obs_len_c = std::to_string(arg_len);
+
+      if (arg_len != exp_len && exp_len != 0) {
+        fails[((i + 1) * 2) - 1] = cpp_paste(fail_string1_2, arg_name,
+            fail_string2, exp_len_c, fail_string3, obs_len_c);
+      }
+
+    }
+
+  }
+
+  fails = clean_up_check(fails);
+  return fails;
+
+}

@@ -19,7 +19,16 @@
 #' @export
 read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
 
-  check_input_params(num = list(skip = skip), char = list(file = file))
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  char_check <- check_fun_params(list(file = args$file),
+                                 1, FALSE, "character")
+  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
+  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   raw_lines <- readLines(con <- file(file))
   close(con)

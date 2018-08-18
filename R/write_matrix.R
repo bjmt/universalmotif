@@ -25,10 +25,20 @@
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                          type, sep = "", headers = TRUE, BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(file = args$file, positions = args$positions,
-                                 sep = args$sep),
-                     logi = list(rownames = args$rownames))
+  char_check <- check_fun_params(list(file = args$file, positions = args$positions,
+                                      type = args$type, sep = args$sep),
+                                 numeric(), c(FALSE, FALSE, TRUE, FALSE),
+                                 "character")
+  logi_check <- check_fun_params(list(rownames = args$rownames), 1, FALSE,
+                                 "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
+                               numeric(), FALSE, "S4")
+  all_checks <- c(char_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!missing(type)) motifs <- convert_type(motifs, type, BPPARAM = BPPARAM)

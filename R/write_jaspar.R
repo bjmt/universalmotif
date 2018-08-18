@@ -22,6 +22,17 @@
 #' @export
 write_jaspar <- function(motifs, file, BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  char_check <- check_fun_params(list(file = args$file),
+                                 1, FALSE, "character")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
+                               numeric(), FALSE, "S4")
+  all_checks <- c(char_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
+
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PCM", BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)

@@ -124,11 +124,21 @@
 convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 
                          relative_entropy = FALSE, BPPARAM = SerialParam()) {
 
-  if (missing(type)) stop("Missing 'type'")
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(type = args$type),
-                     logi = list(nsize_correction = args$nsize_correction,
-                                 relative_entropy = args$relative_entropy))
+  char_check <- check_fun_params(list(type = args$type), 1, FALSE, "character")
+  num_check <- check_fun_params(list(pseudocount = args$pseudocount),
+                                1, TRUE, "numeric")
+  logi_check <- check_fun_params(list(nsize_correction = args$nsize_correction,
+                                      relative_entropy = args$relative_entropy),
+                                 c(1, 1), c(FALSE, FALSE), "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), 1, FALSE, "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
+
+  if (missing(type)) stop("Missing 'type'")
 
   if (!missing(pseudocount)) {
     if (!is.numeric(pseudocount)) stop("pseudocount must be a numeric vector")

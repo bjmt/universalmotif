@@ -49,13 +49,23 @@ view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
                         min.mean.ic = 0.5, relative_entropy = FALSE,
                         BPPARAM = SerialParam(), ...) {
 
-
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(use.type = args$use.type, method = args$method),
-                     logi = list(tryRC = args$tryRC,
-                                 relative_entropy = args$relative_entropy),
-                     num = list(min.overlap = args$min.overlap,
-                                min.mean.ic = args$min.mean.ic))
+  char_check <- check_fun_params(list(use.type = args$use.type,
+                                      method = args$method),
+                                 numeric(), logical(), "character")
+  num_check <- check_fun_params(list(min.overlap = args$min.overlap,
+                                     min.mean.ic = args$min.mean.ic),
+                                numeric(), logical(), "numeric")
+  logi_check <- check_fun_params(list(tryRC = args$tryRC,
+                                      relative_entropy = args$relative_entropy),
+                                 numeric(), logical(), "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
+                               numeric(), FALSE, "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)

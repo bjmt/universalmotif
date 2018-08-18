@@ -73,6 +73,32 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                            min.mean.ic = 0.5, relative_entropy = FALSE,
                            max.p = 0.05, max.e = 10, BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  char_check <- check_fun_params(list(use.type = args$use.type, method = args$method),
+                                 c(1, 1), c(FALSE, FALSE), "character")
+  num_check <- check_fun_params(list(compare.to = args$compare.to,
+                                     use.freq = args$use.freq,
+                                     min.overlap = args$min.overlap,
+                                     min.mean.ic = args$min.mean.ic,
+                                     max.p = args$max.p, max.e = args$max.e),
+                                c(0, rep(1, 5)), c(TRUE, rep(FALSE, 5)),
+                                "numeric")
+  logi_check <- check_fun_params(list(tryRC = args$tryRC,
+                                      relative_entropy = args$relative_entropy),
+                                 c(1, 1), c(FALSE, FALSE), "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  if (!missing(db.scores) && !is.data.frame(db.scores)) {
+    dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
+                             "`data.frame`; got `", class(db.scores), "`")
+    all_checks <- c(all_checks, dbscores_check)
+  }
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
+
+
   if (use.type %in% c("PCM", "PWM") && method %in% c("Euclidean", "KL")) {
     stop("Method '", method, "' is not supported for type '", use.type, "'")
   }

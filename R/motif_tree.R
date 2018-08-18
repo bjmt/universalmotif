@@ -62,27 +62,46 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
                        relative_entropy = FALSE, BPPARAM = SerialParam(), ...){
 
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(layout = args$layout, linecol = args$linecol,
-                                 labels = args$labels, tipsize = args$tipsize,
-                                 branch.length = args$branch.length,
-                                 method = args$method, use.type = args$use.type),
-                     num = list(min.overlap = args$min.overlap,
-                                min.mean.ic = args$min.mean.ic),
-                     logi = list(legend = args$legend, tryRC = args$tryRC,
-                                 relative_entropy = args$relative_entropy))
+  char_check <- check_fun_params(list(layout = args$layout, linecol = args$linecol,
+                                      labels = args$labels, tipesize = args$tipsize,
+                                      branch.length = args$branch.length,
+                                      method = args$method, use.type = args$use.type),
+                                 numeric(), logical(), "character")
+  num_check <- check_fun_params(list(min.overlap = args$min.overlap,
+                                     min.mean.ic = args$min.mean.ic),
+                                numeric(), logical(), "numeric")
+  logi_check <- check_fun_params(list(legend = args$legend, tryRC = args$tryRC,
+                                      relative_entropy = args$relative_entropy),
+                                 numeric(), logical(), "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   if (is(motifs, "dist")) {
     tree <- as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-    tree <- compare_motifs(motifs, db.scores = db.scores,
-                           use.type = use.type,
-                           method = method, tryRC = tryRC,
-                           min.overlap = min.overlap,
-                           min.mean.ic = min.mean.ic,
-                           relative_entropy = relative_entropy,
-                           BPPARAM = BPPARAM)
+    if (!missing(db.scores)) {
+      tree <- compare_motifs(motifs, db.scores = db.scores,
+                             use.type = use.type,
+                             method = method, tryRC = tryRC,
+                             min.overlap = min.overlap,
+                             min.mean.ic = min.mean.ic,
+                             relative_entropy = relative_entropy,
+                             BPPARAM = BPPARAM)
+    } else {
+      tree <- compare_motifs(motifs,
+                             use.type = use.type,
+                             method = method, tryRC = tryRC,
+                             min.overlap = min.overlap,
+                             min.mean.ic = min.mean.ic,
+                             relative_entropy = relative_entropy,
+                             BPPARAM = BPPARAM)
+    }
     if (method == "Pearson") tree <- 1 - tree
     tree <- as.phylo(hclust(as.dist(tree)))
   }

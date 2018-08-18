@@ -106,18 +106,33 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           return.scan.results = FALSE,
                           BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(search.mode = args$search.mode,
-                                 qval.method = args$qval.method,
-                                 positional.test = args$positional.test,
-                                 threshold.type = args$threshold.type,
-                                 shuffle.method = args$shuffle.method,
-                                 shuffle.leftovers = args$shuffle.leftovers),
-                     num = list(max.p = args$max.p, max.q = args$max.q,
-                                max.e = args$max.e, threshold = args$threshold,
-                                verbose = args$verbose, use.freq = args$use.freq),
-                     logi = list(RC = args$RC, progress_bar = args$progress_bar,
-                                 return.scan.results = args$return.scan.results))
+  char_check <- check_fun_params(list(search.mode = args$search.mode,
+                                      qval.method = args$qval.method,
+                                      positional.test = args$positional.test,
+                                      threshold.type = args$threshold.type,
+                                      shuffle.method = args$shuffle.method,
+                                      shuffle.leftovers = args$shuffle.leftovers),
+                                 numeric(), logical(), "character")
+  num_check <- check_fun_params(list(max.p = args$max.p, max.q = args$max.q,
+                                     max.e = args$max.e,
+                                     threshold = args$threshold,
+                                     verbose = args$verbose, use.freq = args$use.freq,
+                                     shuffle.k = args$shuffle.k),
+                                numeric(), logical(), "numeric")
+  logi_check <- check_fun_params(list(RC = args$RC,
+                                      progress_bar = args$progress_bar,
+                                      return.scan.results = args$return.scan.results),
+                                 numeric(), logical(), "logical")
+  s4_check <- check_fun_params(list(sequences = args$sequences,
+                                    bkg.sequences = args$bkg.sequences,
+                                    BPPARAM = args$BPPARAM),
+                               numeric(), c(FALSE, TRUE, FALSE), "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   if (verbose > 2) {
     cat(" > Input parameters\n")

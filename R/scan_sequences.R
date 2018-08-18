@@ -66,13 +66,24 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                             use.freq = 1, verbose = 1,
                             progress_bar = FALSE, BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(threshold.type = args$threshold.type),
-                     num = list(threshold = args$threshold,
-                                use.freq = args$use.freq,
-                                verbose = args$verbose),
-                     logi = list(RC = args$RC,
-                                 progress_bar = args$progress_bar))
+  char_check <- check_fun_params(list(threshold.type = args$threshold.type),
+                                 1, FALSE, "character")
+  num_check <- check_fun_params(list(threshold = args$threshold,
+                                     use.freq = args$use.freq,
+                                     verbose = args$verbose),
+                                numeric(), logical(), "numeric")
+  logi_check <- check_fun_params(list(RC = args$RC,
+                                      progress_bar = args$progress_bar),
+                                 numeric(), logical(), "logical")
+  s4_check <- check_fun_params(list(sequences = args$sequences,
+                                    BPPARAM = args$BPPARAM), numeric(),
+                               logical(), "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   if (verbose > 2) {
     cat(" * Input parameters\n")

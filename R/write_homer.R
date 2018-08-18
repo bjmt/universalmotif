@@ -24,9 +24,17 @@
 write_homer <- function(motifs, file, logodds_threshold = 0.6,
                         BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
   args <- as.list(environment())
-  check_input_params(char = list(file = args$file),
-                     num = list(logodds_threshold = args$logodds_threshold))
+  char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
+  num_check <- check_fun_params(list(logodds_threshold = args$logodds_threshold),
+                                1, FALSE, "numeric")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
+                               numeric(), FALSE, "S4")
+  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)

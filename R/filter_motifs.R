@@ -40,6 +40,23 @@
 filter_motifs <- function(motifs, name, altname, family, organism, width,
                           alphabet, type, icscore, nsites, strand, pval, qval,
                           eval, BPPARAM = SerialParam()) {
+
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  char_check <- check_fun_params(list(name = args$name, altname = args$altname,
+                                      family = args$family, organism = args$organism,
+                                      alphabet = args$alphabet, type = args$type,
+                                      strand = args$strand),
+                                 rep(0, 7), rep(TRUE, 7), "character")
+  num_check <- check_fun_params(list(width = args$width, icscore = args$icscore,
+                                     nsites = args$nsites, pval = args$pval,
+                                     qval = args$qval, eval = args$eval),
+                                rep(0, 6), rep(TRUE, 6), "numeric")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
+  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
   
   CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
