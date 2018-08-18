@@ -12,6 +12,26 @@ StringVector strsplit_cpp(std::string x) {  // slightly slower than
 }
 
 // [[Rcpp::export]]
+String all_checks_collapse(StringVector checks) {
+
+  int n = checks.length();
+
+  StringVector out_pre(n * 2);
+  int i_ = 0;
+  for (int i = 0; i < n * 2; ++i) {
+    if (i % 2 == 0) {
+      out_pre[i] = "\n";
+    } else {
+      out_pre[i] = checks[i_];
+      i_ += 1;
+    }
+  }
+
+  return collapse(out_pre);
+
+}
+
+// [[Rcpp::export]]
 String collapse_cpp(StringVector x) {
   return collapse(x);
 }

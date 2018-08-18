@@ -24,8 +24,7 @@ sample_sites <- function(motif, n = 100, BPPARAM = SerialParam()) {
   num_check <- check_fun_params(list(n = args$n), 1, FALSE, "numeric")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
   all_checks <- c(num_check, s4_check)
-  all_checks <- paste(all_checks, collapse = "\n")
-  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   motif <- convert_motifs(motif, BPPARAM = BPPARAM)

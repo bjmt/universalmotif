@@ -77,8 +77,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                                  numeric(), logical(), "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
-  all_checks <- paste(all_checks, collapse = "\n")
-  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   if (is(motifs, "dist")) {

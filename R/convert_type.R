@@ -134,8 +134,7 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
                                  c(1, 1), c(FALSE, FALSE), "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), 1, FALSE, "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
-  all_checks <- paste(all_checks, collapse = "\n")
-  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
    if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {

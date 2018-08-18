@@ -45,8 +45,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                            "expected 1; got ", length(headers))
   }
   all_checks <- c(char_check, logi_check, s4_check, header_check)
-  all_checks <- paste(all_checks, collapse = "\n")
-  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)

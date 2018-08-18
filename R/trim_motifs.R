@@ -26,8 +26,7 @@ trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
                                numeric(), FALSE, "S4")
   all_checks <- c(num_check, s4_check)
-  all_checks <- paste(all_checks, collapse = "\n")
-  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, "character")

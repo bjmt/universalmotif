@@ -130,8 +130,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                     BPPARAM = args$BPPARAM),
                                numeric(), c(FALSE, TRUE, FALSE), "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
-  all_checks <- paste(all_checks, collapse = "\n")
-  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   if (verbose > 2) {

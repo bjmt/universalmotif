@@ -113,6 +113,14 @@ validObject_universalmotif <- function(motif) {
     .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
 }
 
+strsplit_cpp <- function(x) {
+    .Call('_universalmotif_strsplit_cpp', PACKAGE = 'universalmotif', x)
+}
+
+all_checks_collapse <- function(checks) {
+    .Call('_universalmotif_all_checks_collapse', PACKAGE = 'universalmotif', checks)
+}
+
 collapse_cpp <- function(x) {
     .Call('_universalmotif_collapse_cpp', PACKAGE = 'universalmotif', x)
 }
