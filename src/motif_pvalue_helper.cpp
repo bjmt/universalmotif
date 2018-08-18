@@ -71,7 +71,6 @@ IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score,
 
 }
 
-// [[Rcpp::export]]
 IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry,
     IntegerVector scores_tmp, int score) {
 

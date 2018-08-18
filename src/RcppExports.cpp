@@ -55,19 +55,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_next_subworker_cpp
-IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry, IntegerVector scores_tmp, int score);
-RcppExport SEXP _universalmotif_calc_next_subworker_cpp(SEXP paths_totrySEXP, SEXP scores_tmpSEXP, SEXP scoreSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerMatrix >::type paths_totry(paths_totrySEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type scores_tmp(scores_tmpSEXP);
-    Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_next_subworker_cpp(paths_totry, scores_tmp, score));
-    return rcpp_result_gen;
-END_RCPP
-}
 // list_to_matrix
 IntegerMatrix list_to_matrix(List paths);
 RcppExport SEXP _universalmotif_list_to_matrix(SEXP pathsSEXP) {
@@ -196,30 +183,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type weight1(weight1SEXP);
     Rcpp::traits::input_parameter< double >::type weight2(weight2SEXP);
     rcpp_result_gen = Rcpp::wrap(merge_motifs_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2));
-    return rcpp_result_gen;
-END_RCPP
-}
-// score_seq
-double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat);
-RcppExport SEXP _universalmotif_score_seq(SEXP tmp_seqSEXP, SEXP score_matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type tmp_seq(tmp_seqSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type score_mat(score_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(score_seq(tmp_seq, score_mat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// score_seq_int
-int score_seq_int(IntegerVector tmp_seq, IntegerMatrix score_mat);
-RcppExport SEXP _universalmotif_score_seq_int(SEXP tmp_seqSEXP, SEXP score_matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type tmp_seq(tmp_seqSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(score_seq_int(tmp_seq, score_mat));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -598,7 +561,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_calc_scores_cpp", (DL_FUNC) &_universalmotif_calc_scores_cpp, 2},
     {"_universalmotif_kmer_mat_to_probs_k1_cpp", (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k1_cpp, 3},
     {"_universalmotif_init_paths_cpp", (DL_FUNC) &_universalmotif_init_paths_cpp, 3},
-    {"_universalmotif_calc_next_subworker_cpp", (DL_FUNC) &_universalmotif_calc_next_subworker_cpp, 3},
     {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
     {"_universalmotif_calc_final_probs_cpp", (DL_FUNC) &_universalmotif_calc_final_probs_cpp, 3},
@@ -608,8 +570,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_merge_add_cols", (DL_FUNC) &_universalmotif_merge_add_cols, 1},
     {"_universalmotif_merge_motifs_get_offset", (DL_FUNC) &_universalmotif_merge_motifs_get_offset, 7},
     {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 10},
-    {"_universalmotif_score_seq", (DL_FUNC) &_universalmotif_score_seq, 2},
-    {"_universalmotif_score_seq_int", (DL_FUNC) &_universalmotif_score_seq_int, 2},
     {"_universalmotif_numeric_to_integer_matrix", (DL_FUNC) &_universalmotif_numeric_to_integer_matrix, 1},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},

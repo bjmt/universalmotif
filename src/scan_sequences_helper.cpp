@@ -1,7 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
 double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
   double score = 0;
   for (int i = 0; i < tmp_seq.length(); ++i) {
@@ -10,7 +9,6 @@ double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
   return score;
 }
 
-// [[Rcpp::export]]
 int score_seq_int(IntegerVector tmp_seq, IntegerMatrix score_mat) {
   int score = 0;
   for (int i = 0; i < tmp_seq.length(); ++i) {

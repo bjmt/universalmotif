@@ -17,10 +17,6 @@ init_paths_cpp <- function(score_mat, score, max_score) {
     .Call('_universalmotif_init_paths_cpp', PACKAGE = 'universalmotif', score_mat, score, max_score)
 }
 
-calc_next_subworker_cpp <- function(paths_totry, scores_tmp, score) {
-    .Call('_universalmotif_calc_next_subworker_cpp', PACKAGE = 'universalmotif', paths_totry, scores_tmp, score)
-}
-
 list_to_matrix <- function(paths) {
     .Call('_universalmotif_list_to_matrix', PACKAGE = 'universalmotif', paths)
 }
@@ -55,14 +51,6 @@ merge_motifs_get_offset <- function(mot1, mot2, method, min_overlap, ic1, ic2, m
 
 merge_motifs_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2) {
     .Call('_universalmotif_merge_motifs_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2)
-}
-
-score_seq <- function(tmp_seq, score_mat) {
-    .Call('_universalmotif_score_seq', PACKAGE = 'universalmotif', tmp_seq, score_mat)
-}
-
-score_seq_int <- function(tmp_seq, score_mat) {
-    .Call('_universalmotif_score_seq_int', PACKAGE = 'universalmotif', tmp_seq, score_mat)
 }
 
 numeric_to_integer_matrix <- function(mat) {
