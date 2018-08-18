@@ -371,10 +371,10 @@ get_consensusAA <- function(position, type, pseudocount) {
     CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
     return(CLASS_IN)
   } else {
-    if (length(class) == 1 && class != "universalmotif-universalmotif") {
+    if (length(class) == 1 && class[1] != "universalmotif-universalmotif") {
       tryCatch(motifs <- convert_motifs(motifs, class, BPPARAM = BPPARAM),
                error = function(e) message("motifs converted to class 'universalmotif'"))
-    }
+    } else if (length(class) > 1) message("motifs converted to class 'universalmotif'")
     return(motifs)
   }
   
@@ -467,107 +467,3 @@ add_multi_ANY <- function(sequences, k, alph) {
 # pos2    0    0    0    1    0
 # pos3    0    0    0    0    1
 # pos4    1    0    0    0    0
-
-check_input_params <- function(char, charlen, num, numlen, logi, logilen) {
-
-  fails <- c()
-
-  if (!missing(char)) {
-
-    if (missing(charlen)) charlen <- rep(1, length(char))
-
-    char.check1 <- vapply(char, is.character, logical(1))
-    char.check2 <- mapply(function(x, y) {
-                            if (y == 0) TRUE else length(x) == y
-                     }, char, charlen)
-
-    if (any(!char.check1)) {
-      j <- length(fails) + 1
-      for (i in which(!char.check1)) {
-        fails[j] <- paste0(" * Incorrect type for: `", names(char)[i],
-                          "`; expected `character`, got `",
-                          mode(char[[i]]), "`\n")
-        j <- j + 1
-      }
-    }
-
-    if (any(!char.check2)) {
-      j <- length(fails) + 1
-      for (i in which(!char.check2)) {
-        fails[j] <- paste0(" * Incorrect vector length for: `", names(char)[i],
-                          "`; expected length ", charlen[i], ", got ",
-                          length(char[[i]]), "\n")
-        j <- j + 1
-      }
-    }
-
-  }
-
-  if (!missing(num)) {
-
-    if (missing(numlen)) numlen <- rep(1, length(num))
-
-    num.check1 <- vapply(num, is.numeric, logical(1))
-    num.check2 <- mapply(function(x, y) {
-                            if (y == 0) TRUE else length(x) == y
-                     }, num, numlen)
-
-    if (any(!num.check1)) {
-      j <- length(fails) + 1
-      for (i in which(!num.check1)) {
-        fails[j] <- paste0(" * Incorrect type for: `", names(num)[i],
-                          "`; expected `numeric`, got `",
-                          mode(num[[i]]), "`\n")
-        j <- j + 1
-      }
-    }
-
-    if (any(!num.check2)) {
-      j <- length(fails) + 1
-      for (i in which(!num.check2)) {
-        fails[j] <- paste0(" * Incorrect vector length for: `", names(num)[i],
-                          "`; expected length ", numlen[i], ", got ",
-                          length(num[[i]]), "\n")
-        j <- j + 1
-      }
-    }
-
-  }
-
-  if (!missing(logi)) {
-
-    if (missing(logilen)) logilen <- rep(1, length(logi))
-
-    logi.check1 <- vapply(logi, is.logical, logical(1))
-    logi.check2 <- mapply(function(x, y) {
-                            if (y == 0) TRUE else length(x) == y
-                     }, logi, logilen)
-
-    if (any(!logi.check1)) {
-      j <- length(fails) + 1
-      for (i in which(!logi.check1)) {
-        fails[j] <- paste0(" * Incorrect type for: `", names(logi)[i],
-                          "`; expected `logical`, got `",
-                          mode(logi[[i]]), "`\n")
-        j <- j + 1
-      }
-    }
-
-    if (any(!logi.check2)) {
-      j <- length(fails) + 1
-      for (i in which(!logi.check2)) {
-        fails[j] <- paste0(" * Incorrect vector length for: `", names(logi)[i],
-                          "`; expected length ", logilen[i], ", got ",
-                          length(logi[[i]]), "\n")
-        j <- j + 1
-      }
-    }
-
-  }
-
-  if (length(fails) > 0) {
-    fails <- c("\n", fails)
-    stop(fails, call. = FALSE) 
-  } else return()
-
-}

@@ -89,8 +89,8 @@ parse_k_res_helper_1 <- function(seqs, to_keep, mot_len, k) {
     .Call('_universalmotif_parse_k_res_helper_1', PACKAGE = 'universalmotif', seqs, to_keep, mot_len, k)
 }
 
-parse_k_res_helper_2 <- function(sequence, to_keep, mot_len, k) {
-    .Call('_universalmotif_parse_k_res_helper_2', PACKAGE = 'universalmotif', sequence, to_keep, mot_len, k)
+parse_k_res_helper_2 <- function(sequence, to_keep, mot_len) {
+    .Call('_universalmotif_parse_k_res_helper_2', PACKAGE = 'universalmotif', sequence, to_keep, mot_len)
 }
 
 get_res_cpp <- function(to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, max_scores, mot_names, seq_names, score_mats, strand, seq_lens, k) {
@@ -111,6 +111,10 @@ universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character
 
 validObject_universalmotif <- function(motif) {
     .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
+}
+
+collapse_cpp <- function(x) {
+    .Call('_universalmotif_collapse_cpp', PACKAGE = 'universalmotif', x)
 }
 
 pcm_to_ppmC <- function(position, pseudocount = 0) {

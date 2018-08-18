@@ -61,7 +61,8 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
                                  numeric(), logical(), "character")
   num_check <- check_fun_params(list(k = args$k), 1, FALSE, "numeric")
   s4_check <- check_fun_params(list(sequences = args$sequences,
-                                    BPPARAM = args$BPPARAM))
+                                    BPPARAM = args$BPPARAM),
+                               numeric(), logical(), "S4")
   all_checks <- c(char_check, num_check, s4_check)
   all_checks <- paste(all_checks, collapse = "\n")
   if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
@@ -186,7 +187,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
     } else stop("unknown 'leftovers' arg")
   }
 
-  if (mode == 1) new.seq <- paste(new.seq, collapse = "")
+  if (mode == 1) new.seq <- collapse_cpp(new.seq)
 
   new.seq 
 
@@ -241,7 +242,7 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 
   new.seq <- c(left.keep, seq.split, right.keep)
   if (mode == 1) {
-    new.seq <- paste(new.seq, collapse = "")
+    new.seq <- collapse_cpp(new.seq)
   }
 
   new.seq
@@ -265,7 +266,7 @@ shuffle_markov <- function(sequence, k) {
     curr.prob[is.na(curr.prob)] <- 0.0001
     seqout[i] <- sample(DNA_BASES, 1, prob = curr.prob)
   }
-  seqout <- paste(seqout, collapse = "")
+  seqout <- collapse_cpp(seqout)
   seqout
 
 }
@@ -275,7 +276,7 @@ shuffle_k1 <- function(sequence) {
   sequence <- as.character(sequence)
   sequence <- strsplit(sequence, "")[[1]]
   sequence <- sample(sequence, length(sequence))
-  sequence <- paste(sequence, collapse = "")
+  sequence <- collapse_cpp(sequence)
   sequence
 
 }

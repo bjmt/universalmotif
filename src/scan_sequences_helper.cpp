@@ -55,23 +55,30 @@ IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
 IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
 
   IntegerVector out(seqs.length() / k, 0);
-  int out_i;
-  int l_;
+  int out_i, l_;
   int let_length = letters.length();
 
-  for (int i = 0; i < seqs.length(); ++i) {
-    if (i % k == 0) {
+  if (k == 1) {
 
-      for (int l = 0; l < k; ++l) {
+    out = seqs;
 
-        l_ = pow(let_length, k - l - 1);
-        out_i = seqs[i + l];
-        out_i *= l_;
-        out[i / k] += out_i;
+  } else {
+
+    for (int i = 0; i < seqs.length(); ++i) {
+      if (i % k == 0) {
+
+        for (int l = 0; l < k; ++l) {
+
+          l_ = pow(let_length, k - l - 1);
+          out_i = seqs[i + l];
+          out_i *= l_;
+          out[i / k] += out_i;
+
+        }
 
       }
-
     }
+
   }
 
   return out;
@@ -128,14 +135,14 @@ List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep,
 
 // [[Rcpp::export]]
 List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
-    int mot_len, int k) {
+    int mot_len) {
 
   int n = to_keep.length();
   List out(n);
 
   for (int i = 0; i < n; ++i) {
-    StringVector tmp(mot_len - k + 1);
-    for (int j = 0; j < mot_len - k + 1; ++j) {
+    StringVector tmp(mot_len);
+    for (int j = 0; j < mot_len; ++j) {
       tmp[j] = sequence[to_keep[i] - 1 + j];
     }
     out[i] = tmp;
@@ -180,7 +187,7 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     IntegerVector seq_ints_i = seq_ints[i];
     String seq_names_i = seq_names[i];
     List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens, k);
-    List matches_i = parse_k_res_helper_2(seqs_aschar_i, to_keep_i, mot_lens, k);
+    List matches_i = parse_k_res_helper_2(seqs_aschar_i, to_keep_i, mot_lens);
 
     for (int j = 0; j < n_rows[i]; ++j) {
 
@@ -200,8 +207,7 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
                                       col_max_score[j + row_offset] * 100;
 
       StringVector tmp = matches_i[j];
-      std::string tmp2 = collapse(tmp);
-      col_match[j + row_offset] = tmp2;
+      col_match[j + row_offset] = collapse(tmp);
 
     }
 

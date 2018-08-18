@@ -120,7 +120,8 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
 
 create_k1 <- function(alph.letters, seqlen, bkg) {
   seqout <- sample(alph.letters, seqlen, replace = TRUE, prob = bkg)
-  seqout <- paste(seqout, collapse = "")
+  seqout <- collapse_cpp(seqout)
+  seqout
 }
 
 create_k2 <- function(alph.letters, seqlen, difreq) {
@@ -141,7 +142,7 @@ create_k2 <- function(alph.letters, seqlen, difreq) {
     curr.prob[is.na(curr.prob)] <- 0.00001
     seqout[i] <- sample(alph.letters, 1, prob = curr.prob)
   }
-  seqout <- paste(seqout, collapse = "")
+  seqout <- collapse_cpp(seqout)
 }
 
 create_k3 <- function(alph.letters, seqlen, trifreq) {
@@ -163,5 +164,5 @@ create_k3 <- function(alph.letters, seqlen, trifreq) {
     curr.prob[is.na(curr.prob)] <- 0.00001
     seqout[i] <- sample(alph.letters, 1, prob = curr.prob)
   }
-  seqout <- paste(seqout, collapse = "")
+  seqout <- collapse_cpp(seqout)
 }

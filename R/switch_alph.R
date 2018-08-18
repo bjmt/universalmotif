@@ -16,6 +16,8 @@
 #' @export
 switch_alph <- function(motifs, BPPARAM = SerialParam()) {
 
+  if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)
 
@@ -53,6 +55,7 @@ switch_alph <- function(motifs, BPPARAM = SerialParam()) {
   motifs <- bplapply(motifs, .switch_alph, BPPARAM = BPPARAM)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
+  motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
   motifs
 
 }

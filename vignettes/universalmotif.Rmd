@@ -741,7 +741,7 @@ sequences <- create_sequences()
 ## Let us revisit our 2-letter motif example:
 motif.k2 <- create_motif("CWWWWCC", nsites = 6)
 sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
-motif.k2 <- add_multifreq(motif.k2, sequences.k2, add.k = 2)
+motif.k2 <- add_multifreq(motif.k2, sequences.k2)
 
 ## Regular scanning:
 head(scan_sequences(motif.k2, sequences, RC = TRUE, verbose = 0,

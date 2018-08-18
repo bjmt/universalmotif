@@ -225,6 +225,27 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
                           min.overlap = 6, min.mean.ic = 0, progress_bar = TRUE,
                           BPPARAM = SerialParam()) {
 
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  char_check <- check_fun_params(list(method = args$method,
+                                      shuffle.method = args$shuffle.method,
+                                      shuffle.leftovers = args$shuffle.leftovers),
+                                 numeric(), logical(), "character")
+  num_check <- check_fun_params(list(shuffle.k = args$shuffle.k,
+                                     rand.tries = args$rand.tries,
+                                     min.overlap = args$min.overlap,
+                                     min.mean.ic = args$min.mean.ic),
+                                numeric(), logical(), "numeric")
+  logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
+                                      progress_bar = args$progress_bar),
+                                 numeric(), logical(), "logical")
+  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
+                               numeric(), logical(), "S4")
+  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- paste(all_checks, collapse = "\n")
+  if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
+  #---------------------------------------------------------
+
   db.ncols <- vapply(db.motifs, function(x) ncol(x["motif"]), numeric(1))
 
   if (shuffle.db) {

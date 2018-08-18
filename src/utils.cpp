@@ -2,6 +2,21 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+StringVector strsplit_cpp(std::string x) {  // slightly slower than
+  int n = x.size();                         // strsplit(x, "")[[1]]
+  StringVector out(n);
+  for (int i = 0; i < n; ++i) {
+    out[i] = x.substr(i, 1);
+  }
+  return out;
+}
+
+// [[Rcpp::export]]
+String collapse_cpp(StringVector x) {
+  return collapse(x);
+}
+
+// [[Rcpp::export]]
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
   double possum = sum(position);
@@ -359,13 +374,6 @@ String get_consensusAAC(NumericVector position, String type="PPM",
 
 }
 
-String cpp_paste(std::string s1, std::string s2, std::string s3,
-    std::string s4, std::string s5, std::string s6) {
-
-  return wrap(s1 + s2 + s3 + s4 + s5 + s6);
-
-}
-
 // [[Rcpp::export]]
 StringVector clean_up_check(StringVector fails) {
 
@@ -407,24 +415,21 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
     param_null2 = rep(false, arg_len);
   } else param_null2 = param_null;
 
-  std::string arg_name;
-  std::string exp_type;
-  std::string obs_type;
-  std::string exp_len_c;
-  std::string obs_len_c;
-  std::string fail_string1_1 = " * Incorrect type for '";
-  std::string fail_string1_2 = " * Incorrect vector length for: '";
-  std::string fail_string2 = "': expected ";
-  std::string fail_string3 = "; got ";
+  StringVector fail_i;
+  String arg_name, exp_type, obs_type, exp_len_c, obs_len_c;
+  String fail_string1_1 = " * Incorrect type for '";
+  String fail_string1_2 = " * Incorrect vector length for: '";
+  String fail_string2 = "': expected ";
+  String fail_string3 = "; got ";
     
   for (int i = 0; i < arg_len; ++i) {
 
     RObject arg = param_args[i];
     int arg_type = arg.sexp_type();
-    if (arg_type == 13) arg_type = 14; // May change this in future
+    if (arg_type == 13) arg_type = 14;  // May change this in future
     bool null_check = param_null2[i];
     bool arg_fail = false;
-    arg_name = as<std::string>(param_names[i]);
+    arg_name = param_names[i];
 
     if (expected_type == 16) {
       exp_type = "`character`";
@@ -454,13 +459,15 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
 
     if (null_check) {
       if (arg_type != 0 && arg_type != 1 && arg_type != expected_type) {
-        fails[i] = cpp_paste(fail_string1_1, arg_name, fail_string2, 
+        fail_i = StringVector::create(fail_string1_1, arg_name, fail_string2,
             exp_type, fail_string3, obs_type);
+        fails[i] = collapse(fail_i);
         arg_fail = true;
       }
     } else if (arg_type != expected_type) {
-        fails[i] = cpp_paste(fail_string1_1, arg_name, fail_string2, 
+        fail_i = StringVector::create(fail_string1_1, arg_name, fail_string2,
             exp_type, fail_string3, obs_type);
+        fails[i] = collapse(fail_i);
         arg_fail = true;
     }
 
@@ -478,15 +485,16 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
       } else if (arg_type == 10) {
         LogicalVector arg_ = as<LogicalVector>(arg);
         arg_len = arg_.length();
-      } else stop("Unrecognised param type [INTERNAL ERROR]");
+      } else stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
 
       int exp_len = param_len2[i];
       exp_len_c = std::to_string(exp_len);
       obs_len_c = std::to_string(arg_len);
 
       if (arg_len != exp_len && exp_len != 0) {
-        fails[((i + 1) * 2) - 1] = cpp_paste(fail_string1_2, arg_name,
-            fail_string2, exp_len_c, fail_string3, obs_len_c);
+        fail_i = StringVector::create(fail_string1_2, arg_name, fail_string2,
+            exp_type, fail_string3, obs_type);
+        fails[((i + 1) * 2) - 1] = collapse(fail_i);
       }
 
     }

@@ -73,14 +73,21 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
   # param check --------------------------------------------
   args <- as.list(environment())
   num_check <- check_fun_params(list(score = args$score, pvalue = args$pvalue,
-                                     bkg.probs = args$bkg.probs,
                                      use.freq = args$use.freq, k = args$k),
-                                c(0, 0, 0, 1, 1), c(TRUE, TRUE, TRUE, FALSE, FALSE),
+                                c(0, 0, 1, 1), c(TRUE, TRUE, FALSE, FALSE),
                                 "numeric")
+  bkg_check <- character()
+  if (!missing(bkg.probs)) {
+    if (!is.list(bkg.probs) && !is.numeric(bkg.probs)) {
+      bkg_check <- paste0(" * Incorrect type for 'bkg.probs': ",
+                          "expected 'list' or 'numeric'; got `",
+                          class(bkg.probs), "`")
+    }
+  }
   logi_check <- check_fun_params(list(progress_bar = args$progress_bar),
                                  1, FALSE, "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(num_check, logi_check, s4_check)
+  all_checks <- c(num_check, logi_check, s4_check, bkg_check)
   all_checks <- paste(all_checks, collapse = "\n")
   if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
   #---------------------------------------------------------

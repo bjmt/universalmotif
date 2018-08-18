@@ -298,16 +298,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // parse_k_res_helper_2
-List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep, int mot_len, int k);
-RcppExport SEXP _universalmotif_parse_k_res_helper_2(SEXP sequenceSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP, SEXP kSEXP) {
+List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep, int mot_len);
+RcppExport SEXP _universalmotif_parse_k_res_helper_2(SEXP sequenceSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type sequence(sequenceSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type to_keep(to_keepSEXP);
     Rcpp::traits::input_parameter< int >::type mot_len(mot_lenSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(parse_k_res_helper_2(sequence, to_keep, mot_len, k));
+    rcpp_result_gen = Rcpp::wrap(parse_k_res_helper_2(sequence, to_keep, mot_len));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -393,6 +392,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type motif(motifSEXP);
     rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif));
+    return rcpp_result_gen;
+END_RCPP
+}
+// collapse_cpp
+String collapse_cpp(StringVector x);
+RcppExport SEXP _universalmotif_collapse_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapse_cpp(x));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -584,12 +594,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},
     {"_universalmotif_res_to_index", (DL_FUNC) &_universalmotif_res_to_index, 1},
     {"_universalmotif_parse_k_res_helper_1", (DL_FUNC) &_universalmotif_parse_k_res_helper_1, 4},
-    {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 4},
+    {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 3},
     {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
     {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
+    {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},

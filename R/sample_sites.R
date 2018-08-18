@@ -36,7 +36,7 @@ sample_sites <- function(motif, n = 100, BPPARAM = SerialParam()) {
 
   .get_sites <- function(x) {
     site <- apply(mot.mat, 2, function(x) sample(rownames(mot.mat), 1, TRUE, x))
-    site <- paste(site, collapse = "")
+    sites <- collapse_cpp(site)
     site
   }
 

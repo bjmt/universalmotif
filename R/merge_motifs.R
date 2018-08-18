@@ -41,8 +41,11 @@ merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
     stop("Method '", method, "' is not supported for type '", use.type, "'")
   }
 
-  CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  if (!is.list(motifs)) motifs <- list(motifs)
+
   motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy, 
                          BPPARAM = BPPARAM)
 

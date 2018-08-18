@@ -34,10 +34,11 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
   #---------------------------------------------------------
 
-  if (!is.list(motifs)) motifs <- list(motifs)
-  CLASS_IN <- vapply(motifs, .internal_convert, character(1))
-
+  if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  if (!is.list(motifs)) motifs <- list(motifs)
+
   motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
   mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
   if (length(unique(mot.alphs)) > 1)

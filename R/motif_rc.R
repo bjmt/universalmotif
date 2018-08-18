@@ -18,13 +18,19 @@
 #' @export
 motif_rc <- function(motifs, BPPARAM = SerialParam()) {
 
-  if (is.list(motifs)) {
-    motifs <- bplapply(motifs, motif_rc, BPPARAM = BPPARAM)
-    return(motifs)
-  }
-
-  CLASS_IN <- .internal_convert(motifs)
+  if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  if (!is.list(motifs)) motifs <- list(motifs)
+
+  motifs <- bplapply(motifs, motif_rc_internal, BPPARAM = BPPARAM)
+
+  motifs <- .internal_convert(motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
+  motifs
+
+}
+
+motif_rc_internal <- function(motifs) {
 
   multifreq <- motifs@multifreq
   if (length(multifreq) > 0) {
@@ -54,7 +60,6 @@ motif_rc <- function(motifs, BPPARAM = SerialParam()) {
   msg <- validObject_universalmotif(motifs)
   if (length(msg) > 0) stop(msg)
 
-  motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
   motifs
 
 }

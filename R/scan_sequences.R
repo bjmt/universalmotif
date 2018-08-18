@@ -107,11 +107,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   if (verbose > 0) cat(" * Processing motifs\n")
 
-  if (!is.list(motifs)) motifs <- list(motifs)
   if (verbose > 1) cat("   * Scanning", length(motifs),
                        ifelse(length(motifs) > 1, "motifs\n", "motif\n"))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  if (!is.list(motifs)) motifs <- list(motifs)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
   mot.pwms <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
@@ -249,7 +249,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     num.matches <- lapply(to.keep, function(x) do.call(c, x))
     num.matches <- do.call(c, num.matches)
     num.matches <- which(num.matches == 1)
-    cat("   * Found", length(num.matches), 
+    cat("     * Found", length(num.matches), 
         ifelse(length(num.matches) == 1, "match\n", "matches\n"))
   }
 
@@ -266,7 +266,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
       num.matches.rc <- lapply(to.keep.rc, function(x) do.call(c, x))
       num.matches.rc <- do.call(c, num.matches.rc)
       num.matches.rc <- which(num.matches.rc == 1)
-      cat("   * Found", length(num.matches.rc), 
+      cat("     * Found", length(num.matches.rc), 
           ifelse(length(num.matches.rc) == 1, "match\n", "matches\n"))
     }
   }

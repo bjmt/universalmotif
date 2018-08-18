@@ -58,8 +58,10 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
   if (length(all_checks) > 0 && all_checks[1] != "") stop(c("\n", all_checks))
   #---------------------------------------------------------
   
-  CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
+  else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  if (!is.list(motifs)) motifs <- list(motifs)
 
   if (!missing(name)) {
     motif_names <- vapply(motifs, function(x) x["name"], character(1))
