@@ -212,13 +212,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // score_seq_int
-int score_seq_int(IntegerVector tmp_seq, IntegerVector score_mat);
+int score_seq_int(IntegerVector tmp_seq, IntegerMatrix score_mat);
 RcppExport SEXP _universalmotif_score_seq_int(SEXP tmp_seqSEXP, SEXP score_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type tmp_seq(tmp_seqSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type score_mat(score_matSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
     rcpp_result_gen = Rcpp::wrap(score_seq_int(tmp_seq, score_mat));
     return rcpp_result_gen;
 END_RCPP

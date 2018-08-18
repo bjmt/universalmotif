@@ -61,7 +61,7 @@
 #' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
 #'    \code{\link{enrich_motifs}}, \code{\link{motif_pvalue}}
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.001,
+scan_sequences <- function(motifs, sequences, threshold = 0.0001,
                             threshold.type = "pvalue", RC = FALSE,
                             use.freq = 1, verbose = 1,
                             progress_bar = FALSE, BPPARAM = SerialParam()) {
@@ -263,7 +263,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                                     thresholds.int[x]),
                            BPPARAM = BPPARAM)
     if (verbose > 2) {
-      num.matches.rc <- lapply(res.rc, function(x) do.call(c, x))
+      num.matches.rc <- lapply(to.keep.rc, function(x) do.call(c, x))
       num.matches.rc <- do.call(c, num.matches.rc)
       num.matches.rc <- which(num.matches.rc == 1)
       cat("   * Found", length(num.matches.rc), 
