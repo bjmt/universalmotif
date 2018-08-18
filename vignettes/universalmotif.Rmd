@@ -744,7 +744,8 @@ sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif.k2 <- add_multifreq(motif.k2, sequences.k2, add.k = 2)
 
 ## Regular scanning:
-head(scan_sequences(motif.k2, sequences, RC = TRUE, verbose = 0))
+head(scan_sequences(motif.k2, sequences, RC = TRUE, verbose = 0,
+                    threshold = 0.0001))
 
 ## Using 2-letter information to scan:
 head(scan_sequences(motif.k2, sequences, use.freq = 2, RC = TRUE, verbose = 0))

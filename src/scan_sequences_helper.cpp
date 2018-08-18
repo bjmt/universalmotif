@@ -5,16 +5,16 @@ using namespace Rcpp;
 double score_seq(IntegerVector tmp_seq, NumericMatrix score_mat) {
   double score = 0;
   for (int i = 0; i < tmp_seq.length(); ++i) {
-    score += score_mat(tmp_seq(i), i);
+    score += score_mat(tmp_seq[i], i);
   }
   return score;
 }
 
 // [[Rcpp::export]]
-int score_seq_int(IntegerVector tmp_seq, IntegerVector score_mat) {
+int score_seq_int(IntegerVector tmp_seq, IntegerMatrix score_mat) {
   int score = 0;
   for (int i = 0; i < tmp_seq.length(); ++i) {
-    score += score_mat(tmp_seq(i), i);
+    score += score_mat(tmp_seq[i], i);
   }
   return score;
 }
@@ -41,7 +41,7 @@ IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
 
     tmp_score = 0;
     for (int j = 0; j < score_mat.ncol(); ++j) {
-      tmp_score += score_mat(sequence(i + j), j);
+      tmp_score += score_mat(sequence[i + j], j);
     }
     if (tmp_score >= min_score) to_keep[i] = 1;
 
@@ -65,7 +65,7 @@ IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
       for (int l = 0; l < k; ++l) {
 
         l_ = pow(let_length, k - l - 1);
-        out_i = seqs(i + l);
+        out_i = seqs[i + l];
         out_i *= l_;
         out[i / k] += out_i;
 
@@ -117,9 +117,9 @@ List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep,
   for (int i = 0; i < n; ++i) {
     IntegerVector tmp(mot_len - k + 1);
     for (int j = 0; j < mot_len - k + 1; ++j) {
-      tmp(j) = seqs(to_keep(i) - 1 + j);
+      tmp[j] = seqs[to_keep[i] - 1 + j];
     }
-    out(i) = tmp;
+    out[i] = tmp;
   }
 
   return out;
@@ -136,9 +136,9 @@ List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
   for (int i = 0; i < n; ++i) {
     StringVector tmp(mot_len - k + 1);
     for (int j = 0; j < mot_len - k + 1; ++j) {
-      tmp(j) = sequence(to_keep(i) - 1 + j);
+      tmp[j] = sequence[to_keep[i] - 1 + j];
     }
-    out(i) = tmp;
+    out[i] = tmp;
   }
 
   return out;
@@ -155,7 +155,7 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
   IntegerVector n_rows(n);
   for (int i = 0; i < n; ++i) {
     IntegerVector tmp = to_keep(i);
-    n_rows(i) = tmp.length();
+    n_rows[i] = tmp.length();
   }
   int rows_all = sum(n_rows);
 
@@ -173,39 +173,39 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
   int row_offset = 0;
   for (int i = 0; i < n; ++i) {
 
-    if (n_rows(i) == 0) continue;
+    if (n_rows[i] == 0) continue;
 
-    IntegerVector to_keep_i = to_keep(i);
-    StringVector seqs_aschar_i = seqs_aschar(i);
-    IntegerVector seq_ints_i = seq_ints(i);
-    String seq_names_i = seq_names(i);
+    IntegerVector to_keep_i = to_keep[i];
+    StringVector seqs_aschar_i = seqs_aschar[i];
+    IntegerVector seq_ints_i = seq_ints[i];
+    String seq_names_i = seq_names[i];
     List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens, k);
     List matches_i = parse_k_res_helper_2(seqs_aschar_i, to_keep_i, mot_lens, k);
 
-    for (int j = 0; j < n_rows(i); ++j) {
+    for (int j = 0; j < n_rows[i]; ++j) {
 
-      col_sequence(j + row_offset) = seq_names_i;
+      col_sequence[j + row_offset] = seq_names_i;
 
       if (strand == "+") {
-        col_start(j + row_offset) = to_keep_i(j);
-        col_stop(j + row_offset) = col_start(j + row_offset) + mot_lens + k - 2;
+        col_start[j + row_offset] = to_keep_i[j];
+        col_stop[j + row_offset] = col_start[j + row_offset] + mot_lens + k - 2;
       } else if (strand == "-") {
-        col_start(j + row_offset) = to_keep_i(j) + mot_lens + k - 2;
-        col_stop(j + row_offset) = to_keep_i(j);
+        col_start[j + row_offset] = to_keep_i[j] + mot_lens + k - 2;
+        col_stop[j + row_offset] = to_keep_i[j];
       }
 
-      col_score(j + row_offset) = score_seq_int(hits_i(j), score_mats);
-      col_score(j + row_offset) /= 1000.0;
-      col_score_pct(j + row_offset) = col_score(j + row_offset) /
-                                      col_max_score(j + row_offset) * 100;
+      col_score[j + row_offset] = score_seq_int(hits_i[j], score_mats);
+      col_score[j + row_offset] /= 1000.0;
+      col_score_pct[j + row_offset] = col_score[j + row_offset] /
+                                      col_max_score[j + row_offset] * 100;
 
-      StringVector tmp = matches_i(j);
+      StringVector tmp = matches_i[j];
       std::string tmp2 = collapse(tmp);
-      col_match(j + row_offset) = tmp2;
+      col_match[j + row_offset] = tmp2;
 
     }
 
-    row_offset += n_rows(i);
+    row_offset += n_rows[i];
 
   }
   
@@ -226,9 +226,9 @@ DataFrame res_list_to_df_cpp(List res) {
   IntegerVector n_per(n);
   List tmp, tmp2;
   for (int i = 0; i < n; ++i) {
-    tmp = res(i);
+    tmp = res[i];
     tmp2 = tmp["motif"];
-    n_per(i) = tmp2.length();
+    n_per[i] = tmp2.length();
   }
 
   int n_all = sum(n_per);
@@ -247,7 +247,7 @@ DataFrame res_list_to_df_cpp(List res) {
 
   for (int i = 0; i < n; ++i) {
 
-    List res_ = res(i);
+    List res_ = res[i];
 
     StringVector col_motif_ = res_["motif"];
     StringVector col_sequence_ = res_["sequence"];
@@ -261,19 +261,19 @@ DataFrame res_list_to_df_cpp(List res) {
 
     for (int j = 0; j < n_per(i); ++j) {
 
-      col_motif(j + row_offset) = col_motif_[j];
-      col_sequence(j + row_offset) = col_sequence_[j];
-      col_start(j + row_offset) = col_start_[j];
-      col_stop(j + row_offset) = col_stop_[j];
-      col_score(j + row_offset) = col_score_[j];
-      col_max_score(j + row_offset) = col_max_score_[j];
-      col_score_pct(j + row_offset) = col_score_pct_[j];
-      col_match(j + row_offset) = col_match_[j];
-      col_strand(j + row_offset) = col_strand_[j];
+      col_motif[j + row_offset] = col_motif_[j];
+      col_sequence[j + row_offset] = col_sequence_[j];
+      col_start[j + row_offset] = col_start_[j];
+      col_stop[j + row_offset] = col_stop_[j];
+      col_score[j + row_offset] = col_score_[j];
+      col_max_score[j + row_offset] = col_max_score_[j];
+      col_score_pct[j + row_offset] = col_score_pct_[j];
+      col_match[j + row_offset] = col_match_[j];
+      col_strand[j + row_offset] = col_strand_[j];
     
     }
 
-    row_offset += n_per(i);
+    row_offset += n_per[i];
 
   }
 
