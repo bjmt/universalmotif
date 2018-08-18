@@ -75,7 +75,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
   num_check <- check_fun_params(list(score = args$score, pvalue = args$pvalue,
                                      bkg.probs = args$bkg.probs,
                                      use.freq = args$use.freq, k = args$k),
-                                c(1, 1, 0, 1, 1), c(TRUE, TRUE, TRUE, FALSE, FALSE),
+                                c(0, 0, 0, 1, 1), c(TRUE, TRUE, TRUE, FALSE, FALSE),
                                 "numeric")
   logi_check <- check_fun_params(list(progress_bar = args$progress_bar),
                                  1, FALSE, "logical")

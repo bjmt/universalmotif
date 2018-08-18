@@ -73,7 +73,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
                                      verbose = args$verbose),
-                                numeric(), logical(), "numeric")
+                                c(0, 1, 1), logical(), "numeric")
   logi_check <- check_fun_params(list(RC = args$RC,
                                       progress_bar = args$progress_bar),
                                  numeric(), logical(), "logical")

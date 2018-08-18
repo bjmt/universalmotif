@@ -120,7 +120,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                      threshold = args$threshold,
                                      verbose = args$verbose, use.freq = args$use.freq,
                                      shuffle.k = args$shuffle.k),
-                                numeric(), logical(), "numeric")
+                                c(1, 1, 1, 0, 1, 1, 1), logical(), "numeric")
   logi_check <- check_fun_params(list(RC = args$RC,
                                       progress_bar = args$progress_bar,
                                       return.scan.results = args$return.scan.results),
