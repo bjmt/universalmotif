@@ -315,7 +315,47 @@ setMethod("show", signature = "universalmotif",
 # names
 
 #' @param x \linkS4class{universalmotif} Single motif.
-#' @param select adsf
+#' @rdname universalmotif-class
+#' @aliases as.data.frame,universalmotif-method
+setMethod("as.data.frame", signature(x = "universalmotif"),
+          definition = function(x) {
+            name <- x@name
+            altname <- x@altname
+            if (length(altname) == 0) altname <- as.character(NA)
+            family <- x@family
+            if (length(family) == 0) family <- as.character(NA)
+            organism <- x@organism
+            if (length(organism) == 0) organism <- as.character(NA)
+            alphabet <- x@alphabet
+            type <- x@type
+            icscore <- x@icscore
+            nsites <- x@nsites
+            if (length(nsites) == 0) nsites <- as.numeric(NA)
+            pseudocount <- x@pseudocount
+            bkgsites <- x@bkgsites
+            if (length(bkgsites) == 0) bkgsites <- as.numeric(NA)
+            consensus <- x@consensus
+            if (length(consensus) == 0) consensus <- as.character(NA)
+            strand <- x@strand
+            pval <- x@pval
+            if (length(pval) == 0) pval <- as.numeric(NA)
+            qval <- x@qval
+            if (length(qval) == 0) qval <- as.numeric(NA)
+            eval <- x@eval
+            if (length(eval) == 0) eval <- as.numeric(NA)
+            df <- data.frame(name = name, altname = altname, family = family,
+                             organism = organism, alphabet = alphabet,
+                             type = type, icscore = icscore, nsites = nsites,
+                             pseudocount = pseudocount, bkgsites = bkgsites,
+                             consensus = consensus, strand = strand,
+                             pval = pval, qval = qval, eval = eval,
+                             stringsAsFactors = FALSE)
+            rownames(df) <- NULL
+            df
+          })
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @param select \code{numeric} Columns to keep.
 #' @rdname universalmotif-class
 #' @aliases subset,universalmotif-method
 setMethod("subset", signature(x = "universalmotif"),

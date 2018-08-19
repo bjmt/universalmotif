@@ -32,7 +32,8 @@
 #' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
 #' @importClassesFrom MotifDb MotifList
-#' @importMethodsFrom BiocGenerics cbind rownames ncol nrow rowSums colSums
-#' @importMethodsFrom BiocGenerics colmeans rowMeans normalize subset
+#' @importMethodsFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
+#' @importMethodsFrom BiocGenerics colMeans rowMeans normalize subset colSums
+#' @importMethodsFrom BiocGenerics as.data.frame
 #' @useDynLib universalmotif
 NULL

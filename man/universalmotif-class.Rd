@@ -11,6 +11,7 @@
 \alias{[<-,universalmotif-method}
 \alias{initialize,universalmotif-method}
 \alias{show,universalmotif-method}
+\alias{as.data.frame,universalmotif-method}
 \alias{subset,universalmotif-method}
 \alias{normalize,universalmotif-method}
 \alias{rowMeans,universalmotif-method}
@@ -34,6 +35,8 @@
   qval, eval, multifreq, extrainfo)
 
 \S4method{show}{universalmotif}(object)
+
+\S4method{as.data.frame}{universalmotif}(x)
 
 \S4method{subset}{universalmotif}(x, select)
 
@@ -111,9 +114,11 @@ a named character vector.}
 
 \item{object}{\linkS4class{universalmotif} Motif.}
 
-\item{select}{adsf}
+\item{select}{\code{numeric} Columns to keep.}
 
 \item{...}{\linkS4class{universalmotif} Motifs.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
 
 \item{x}{\linkS4class{universalmotif} Single motif.}
 
