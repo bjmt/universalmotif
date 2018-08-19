@@ -95,6 +95,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
   }
 
+  seqs.out <- seqs.out[!is.na(seqs.out)]
+
   if (length(seqs.out) == 0)
     stop("No motif matches found in sequences; consider lowering the minimum threshold")
 
@@ -118,7 +120,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   if (length(prev.multifreq) > 0) {
     if (any(names(prev.multifreq) %in% names(multifreq))) {
       warning("Overwriting previous `multifreq`: ",
-              names(prev.multifreq)[names(prev.multifreq) %in% names(multifreq)])
+              paste(names(prev.multifreq)[names(prev.multifreq) %in% names(multifreq)],
+                    collapse = ", "))
       prev.multifreq <- prev.multifreq[!names(prev.multifreq) %in% names(multifreq)]
       if (length(prev.multifreq) > 0) {
         multifreq <- c(prev.multifreq, multifreq)

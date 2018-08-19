@@ -1,5 +1,5 @@
 ---
-title: "Scanning sequences for motifs with the \"universalmotif\" package"
+title: "Sequence creation, manipulation, and scanning"
 shorttitle: "Sequence scanning"
 author:
 - name: Benjamin Tremblay
@@ -9,7 +9,7 @@ abstract: >
   Introducing sequence motif types.
 bibliography: universalmotif.bib
 vignette: >
-  %\VignetteIndexEntry{Scanning sequences for motifs wtih the "universalmotif" package}
+  %\VignetteIndexEntry{Sequence creation, manipulation, and scanning}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:

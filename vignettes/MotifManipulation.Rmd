@@ -1,5 +1,5 @@
 ---
-title: "Motif manipulation with the \"universalmotif\" package"
+title: "Motif import, export, visualization, and manipulation"
 shorttitle: "Motif manipulation"
 author:
 - name: Benjamin Tremblay
@@ -9,7 +9,7 @@ abstract: >
   Introducing sequence motif types.
 bibliography: universalmotif.bib
 vignette: >
-  %\VignetteIndexEntry{Motif manipulation wtih the "universalmotif" package}
+  %\VignetteIndexEntry{Motif import, export, visualization, and manipulation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:

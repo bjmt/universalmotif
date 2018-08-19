@@ -1,0 +1,37 @@
+---
+title: "Introduction to the \"universalmotif\" package"
+shorttitle: "Intro to \"universalmotif\""
+author:
+- name: Benjamin Tremblay
+  affiliation: University of Waterloo, Waterloo, Canada
+  email: b2tremblay@uwaterloo.ca
+abstract: >
+  Introducing sequence motif types.
+bibliography: universalmotif.bib
+vignette: >
+  %\VignetteIndexEntry{Introduction to the "universalmotif" package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+```
+
+# Installation
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("universalmotif")
+```
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References {.unnumbered}
