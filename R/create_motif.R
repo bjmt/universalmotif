@@ -206,8 +206,8 @@ setMethod("create_motif", signature(input = "numeric"),
                                 extrainfo, add.multifreq) {
 
             if (length(input) != 1) stop("input must be a single number")
-            if (round(input) != input) stop("input must be a whole number")
-            if (input == 0 ) stop("input must be greater than 0")
+            input <- as.integer(input)
+            if (input <= 0 ) stop("input must be greater than 0")
 
             if (missing(alphabet)) alphabet <- "DNA"
             if (alphabet %in% c("DNA", "RNA")) {
@@ -278,7 +278,11 @@ setMethod("create_motif", signature(input = "character"),
             consensus.all <- consensus
             if (length(consensus) > 1) {
               consensus <- consensus[1]
+              if (length(unique(nchar(input))) != 1)
+                stop("all sequences must have the same number of characters")
             }
+            if (nchar(consensus) <= 1)
+              stop("sequence must be longer than one character")
             consensus <- strsplit(consensus, split = "")[[1]]
             if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 1) {
               motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
@@ -303,17 +307,19 @@ setMethod("create_motif", signature(input = "character"),
             }
             if (alphabet == "missing") {
               if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z")) &&
-                  !any(consensus %in% c("O", "U"))) {
+                  !any(consensus %in% c("O", "U", letters, as.character(0:9)))) {
                 motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
                 alphabet <- "AA"
               } else if (any(consensus == "U") &&
                          !any(consensus %in% c("E", "F", "I", "J", "L", "O",
-                                               "P", "Q", "T", "X", "Z"))) {
+                                               "P", "Q", "T", "X", "Z",
+                                               letters, as.character(0:9)))) {
                 alphabet <- "RNA" 
                 motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
               } else if (any(consensus %in% DNA_ALPHABET[-c(16:18)]) &&
                          !any(consensus %in% c("E", "F", "I", "J", "L", "O",
-                                               "P", "Q", "X", "Z", "U"))) {
+                                               "P", "Q", "X", "Z", "U",
+                                               letters, as.character(0:9)))) {
                 alphabet <- "DNA"
                 motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
               } else if (length(consensus.all) == 1) {
@@ -382,6 +388,8 @@ setMethod("create_motif", signature(input = "character"),
               return(motif)
             }
             motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+            if (nchar(alphabet) == 1)
+              stop("alphabet must be longer than 1 character")
             motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(alphabet = alphabet),
                                                list(type = "PPM"),
@@ -460,6 +468,8 @@ setMethod("create_motif", signature(input = "matrix"),
                                 altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo, add.multifreq) {
+            if (nrow(input) == 1 || ncol(input) == 1)
+              stop("matrix must have more than one row/column")
             matrix <- input
             if (!missing(alphabet) &&
                 !alphabet %in% c("DNA", "RNA", "AA", "custom")) {

@@ -314,7 +314,6 @@ setMethod("show", signature = "universalmotif",
 # as.character
 # names
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases as.data.frame,universalmotif-method
 setMethod("as.data.frame", signature(x = "universalmotif"),
@@ -423,10 +422,11 @@ setMethod("rownames", signature(x = "universalmotif"),
           definition = function(x) rownames(x["motif"]))
 
 #' @param ... \linkS4class{universalmotif} Motifs.
+#' @param deparse.level Unused.
 #' @rdname universalmotif-class
 #' @aliases cbind,universalmotif-method
 setMethod("cbind", signature = "universalmotif",
-          definition = function(...) {
+          definition = function(..., deparse.level = 0) {
 
             mots <- list(...)
             if (length(mots) == 1) return(mots[[1]])
