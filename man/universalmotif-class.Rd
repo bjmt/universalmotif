@@ -119,26 +119,6 @@ a named character vector.}
 \item{...}{\linkS4class{universalmotif} Motifs.}
 
 \item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{object}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
-
-\item{x}{\linkS4class{universalmotif} Single motif.}
 }
 \value{
 A motif object of class \linkS4class{universalmotif}.

@@ -327,11 +327,9 @@ setMethod("as.data.frame", signature(x = "universalmotif"),
             organism <- x@organism
             if (length(organism) == 0) organism <- as.character(NA)
             alphabet <- x@alphabet
-            type <- x@type
             icscore <- x@icscore
             nsites <- x@nsites
             if (length(nsites) == 0) nsites <- as.numeric(NA)
-            pseudocount <- x@pseudocount
             bkgsites <- x@bkgsites
             if (length(bkgsites) == 0) bkgsites <- as.numeric(NA)
             consensus <- x@consensus
@@ -345,8 +343,8 @@ setMethod("as.data.frame", signature(x = "universalmotif"),
             if (length(eval) == 0) eval <- as.numeric(NA)
             df <- data.frame(name = name, altname = altname, family = family,
                              organism = organism, alphabet = alphabet,
-                             type = type, icscore = icscore, nsites = nsites,
-                             pseudocount = pseudocount, bkgsites = bkgsites,
+                             icscore = icscore, nsites = nsites,
+                             bkgsites = bkgsites,
                              consensus = consensus, strand = strand,
                              pval = pval, qval = qval, eval = eval,
                              stringsAsFactors = FALSE)
@@ -354,7 +352,6 @@ setMethod("as.data.frame", signature(x = "universalmotif"),
             df
           })
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @param select \code{numeric} Columns to keep.
 #' @rdname universalmotif-class
 #' @aliases subset,universalmotif-method
@@ -374,7 +371,6 @@ setMethod("subset", signature(x = "universalmotif"),
             motif
           })
 
-#' @param object \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases normalize,universalmotif-method
 setMethod("normalize", signature(object = "universalmotif"),
@@ -386,49 +382,41 @@ setMethod("normalize", signature(object = "universalmotif"),
             convert_type(object, type, pseudocount = pseudo)
           })
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases rowMeans,universalmotif-method
 setMethod("rowMeans", signature(x = "universalmotif"),
           definition = function(x) rowMeans(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases colMeans,universalmotif-method
 setMethod("colMeans", signature(x = "universalmotif"),
           definition = function(x) colMeans(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases colSums,universalmotif-method
 setMethod("colSums", signature(x = "universalmotif"),
           definition = function(x) colSums(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases rowSums,universalmotif-method
 setMethod("rowSums", signature(x = "universalmotif"),
           definition = function(x) rowSums(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases nrow,universalmotif-method
 setMethod("nrow", signature = "universalmotif",
           definition = function(x) nrow(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases ncol,universalmotif-method
 setMethod("ncol", signature = "universalmotif",
           definition = function(x) ncol(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases colnames,universalmotif-method
 setMethod("colnames", signature(x = "universalmotif"),
           definition = function(x) colnames(x["motif"]))
 
-#' @param x \linkS4class{universalmotif} Single motif.
 #' @rdname universalmotif-class
 #' @aliases rownames,universalmotif-method
 setMethod("rownames", signature(x = "universalmotif"),

@@ -27,22 +27,26 @@
 #' @param min.mean.ic \code{numeric(1)}
 #' @param progress_bar \code{logical(1)} Show progress.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
+#' @param motifs \code{list} A list of \linkS4class{universalmotif} motifs.
 #'
 #' @return 
 #'    For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
-#'    \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a numeric
-#'    vector with length equal to input numeric vector.
+#'    \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a \code{numeric}
+#'    vector with length equal to input \code{numeric} vector.
 #'
 #'    For \code{consensus_to_ppm} and \code{consensus_to_ppmAA}: a numeric
 #'    vector of length 4 and 20, respectively.
 #'
-#'    For \code{position_icscore}: a numeric vector of length 1.
+#'    For \code{position_icscore}: a \code{numeric} vector of length 1.
 #'
 #'    For \code{get_consensus} and \code{get_consensusAA}: a character vector
 #'    of length 1.
 #'
-#'    For \code{make_DBscores}: a data.frame with score distributions for the
+#'    For \code{make_DBscores}: a \code{data.frame} with score distributions for the
 #'    input database.
+#'
+#'    For \code{summarise_motifs}: a \code{data.frame} with columns representing
+#'    the \linkS4class{universalmotif} slots.
 #'
 #' @seealso \code{\link{create_motif}}, \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
@@ -361,6 +365,14 @@ get_consensusAA <- function(position, type, pseudocount) {
   if (motif[.aa[1]] == motif[.aa[2]]) return("X")
   if (motif[.aa[1]] > 0.2) return(AA_STANDARD[.aa[1]])
   "X"
+}
+
+#' @rdname utilities
+#' @export
+summarise_motifs <- function(motifs) {
+  classcheck <- vapply(motifs, function(x) !is(x, "universalmotif"), logical(1))
+  if (any(classcheck)) stop("all motifs must be 'universalmotif'")
+  do.call(rbind, lapply(motifs, as.data.frame))
 }
 
 .internal_convert <- function(motifs, class = NULL, BPPARAM = SerialParam()) {

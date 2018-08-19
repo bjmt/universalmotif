@@ -14,6 +14,7 @@
 \alias{consensus_to_ppm}
 \alias{consensus_to_ppmAA}
 \alias{get_consensusAA}
+\alias{summarise_motifs}
 \title{Utility functions.}
 \usage{
 make_DBscores(db.motifs, method = "Pearson", shuffle.db = TRUE,
@@ -46,6 +47,8 @@ consensus_to_ppm(letter)
 consensus_to_ppmAA(letter)
 
 get_consensusAA(position, type, pseudocount)
+
+summarise_motifs(motifs)
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
@@ -93,22 +96,27 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{letter}{\code{character(1)} Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 are accepted.}
+
+\item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
 }
 \value{
 For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
-   \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a numeric
-   vector with length equal to input numeric vector.
+   \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a \code{numeric}
+   vector with length equal to input \code{numeric} vector.
 
    For \code{consensus_to_ppm} and \code{consensus_to_ppmAA}: a numeric
    vector of length 4 and 20, respectively.
 
-   For \code{position_icscore}: a numeric vector of length 1.
+   For \code{position_icscore}: a \code{numeric} vector of length 1.
 
    For \code{get_consensus} and \code{get_consensusAA}: a character vector
    of length 1.
 
-   For \code{make_DBscores}: a data.frame with score distributions for the
+   For \code{make_DBscores}: a \code{data.frame} with score distributions for the
    input database.
+
+   For \code{summarise_motifs}: a \code{data.frame} with columns representing
+   the \linkS4class{universalmotif} slots.
 }
 \description{
 Various small functions used for motif creation.
