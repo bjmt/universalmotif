@@ -11,6 +11,17 @@
 \alias{[<-,universalmotif-method}
 \alias{initialize,universalmotif-method}
 \alias{show,universalmotif-method}
+\alias{subset,universalmotif-method}
+\alias{normalize,universalmotif-method}
+\alias{rowMeans,universalmotif-method}
+\alias{colMeans,universalmotif-method}
+\alias{colSums,universalmotif-method}
+\alias{rowSums,universalmotif-method}
+\alias{nrow,universalmotif-method}
+\alias{ncol,universalmotif-method}
+\alias{colnames,universalmotif-method}
+\alias{rownames,universalmotif-method}
+\alias{cbind,universalmotif-method}
 \title{universalmotif: Motif class.}
 \usage{
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i)
@@ -23,6 +34,28 @@
   qval, eval, multifreq, extrainfo)
 
 \S4method{show}{universalmotif}(object)
+
+\S4method{subset}{universalmotif}(x, select)
+
+\S4method{normalize}{universalmotif}(object)
+
+\S4method{rowMeans}{universalmotif}(x)
+
+\S4method{colMeans}{universalmotif}(x)
+
+\S4method{colSums}{universalmotif}(x)
+
+\S4method{rowSums}{universalmotif}(x)
+
+\S4method{nrow}{universalmotif}(x)
+
+\S4method{ncol}{universalmotif}(x)
+
+\S4method{colnames}{universalmotif}(x)
+
+\S4method{rownames}{universalmotif}(x)
+
+\S4method{cbind}{universalmotif}(..., deparse.level = 1)
 }
 \arguments{
 \item{x}{\linkS4class{universalmotif} Motif.}
@@ -77,6 +110,30 @@ length. If missing, assumes a uniform background.}
 a named character vector.}
 
 \item{object}{\linkS4class{universalmotif} Motif.}
+
+\item{select}{adsf}
+
+\item{...}{\linkS4class{universalmotif} Motifs.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{object}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
+
+\item{x}{\linkS4class{universalmotif} Single motif.}
 }
 \value{
 A motif object of class \linkS4class{universalmotif}.

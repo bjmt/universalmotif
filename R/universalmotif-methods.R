@@ -267,7 +267,9 @@ setMethod("show", signature = "universalmotif",
             }
             cat("         Alphabet:   ", object@alphabet, "\n", sep = "")
             cat("             Type:   ", object@type, "\n", sep = "")
-            cat("          Strands:   ", object@strand, "\n", sep = "")
+            if (object@alphabet %in% c("DNA", "RNA")) {
+              cat("          Strands:   ", object@strand, "\n", sep = "")
+            }
             cat("         Total IC:   ", object@icscore, "\n", sep = "")
             if (length(object@consensus) > 0) {
               cat("        Consensus:   ", object@consensus, "\n", sep = "")
@@ -306,4 +308,142 @@ setMethod("show", signature = "universalmotif",
             cat("\n")
             print(object@motif, digits = 3)
             invisible(NULL)
+          })
+
+# as.matrix
+# as.character
+# names
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @param select adsf
+#' @rdname universalmotif-class
+#' @aliases subset,universalmotif-method
+setMethod("subset", signature(x = "universalmotif"),
+          definition = function(x, select) {
+            mot <- x["motif"][, select]
+            motif <- universalmotif_cpp(motif = mot, name = x@name,
+                                        altname = x@altname, family = x@family,
+                                        organism = x@organism,
+                                        alphabet = x@alphabet, nsites = x@nsites,
+                                        pseudocount = x@pseudocount, bkg = x@bkg,
+                                        bkgsites = x@bkgsites, strand = x@strand,
+                                        pval = x@pval, qval = x@qval, eval = x@eval,
+                                        extrainfo = x@extrainfo)
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
+            motif
+          })
+
+#' @param object \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases normalize,universalmotif-method
+setMethod("normalize", signature(object = "universalmotif"),
+          definition = function(object) {
+            type <- object["type"]
+            pseudo <- object["pseudocount"]
+            if (pseudo == 0) pseudo <- 1
+            object <- convert_type(object, "PCM")
+            convert_type(object, type, pseudocount = pseudo)
+          })
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases rowMeans,universalmotif-method
+setMethod("rowMeans", signature(x = "universalmotif"),
+          definition = function(x) rowMeans(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases colMeans,universalmotif-method
+setMethod("colMeans", signature(x = "universalmotif"),
+          definition = function(x) colMeans(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases colSums,universalmotif-method
+setMethod("colSums", signature(x = "universalmotif"),
+          definition = function(x) colSums(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases rowSums,universalmotif-method
+setMethod("rowSums", signature(x = "universalmotif"),
+          definition = function(x) rowSums(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases nrow,universalmotif-method
+setMethod("nrow", signature = "universalmotif",
+          definition = function(x) nrow(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases ncol,universalmotif-method
+setMethod("ncol", signature = "universalmotif",
+          definition = function(x) ncol(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases colnames,universalmotif-method
+setMethod("colnames", signature(x = "universalmotif"),
+          definition = function(x) colnames(x["motif"]))
+
+#' @param x \linkS4class{universalmotif} Single motif.
+#' @rdname universalmotif-class
+#' @aliases rownames,universalmotif-method
+setMethod("rownames", signature(x = "universalmotif"),
+          definition = function(x) rownames(x["motif"]))
+
+#' @param ... \linkS4class{universalmotif} Motifs.
+#' @rdname universalmotif-class
+#' @aliases cbind,universalmotif-method
+setMethod("cbind", signature = "universalmotif",
+          definition = function(...) {
+
+            mots <- list(...)
+            if (length(mots) == 1) return(mots[[1]])
+            mot.alphabet <- unique(vapply(mots, function(x) x["alphabet"], character(1)))
+            if (length(mot.alphabet) != 1)
+              stop("all motifs must have the same alphabet")
+            mots <- convert_type(mots, "PPM")
+            mot.name <- vapply(mots, function(x) x["name"], character(1))
+            mot.altname <- do.call(c, lapply(mots, function(x) x["altname"]))
+            mot.family <- do.call(c, lapply(mots, function(x) x["family"]))
+            mot.organism <- do.call(c, lapply(mots, function(x) x["organism"]))
+            mot.motif <- lapply(mots, function(x) x["motif"])
+            mot.nsites <- do.call(c, lapply(mots, function(x) x["nsites"]))
+            mot.bkg <- lapply(mots, function(x) x["bkg"])
+            mot.bkgsites <- lapply(mots, function(x) x["bkgsites"])
+            mot.bkgsites <- do.call(c, mot.bkgsites)
+            mot.strand <- unique(vapply(mots, function(x) x["strand"], character(1)))
+            mot.pval <- do.call(c, lapply(mots, function(x) x["pval"]))
+            mot.qval <- do.call(c, lapply(mots, function(x) x["qval"]))
+            mot.eval <- do.call(c, lapply(mots, function(x) x["eval"]))
+            mot.extrainfo <- lapply(mots, function(x) x["extrainfo"])
+            mot.extrainfo <- do.call(c, mot.extrainfo)
+
+            mot.motif <- do.call(cbind, mot.motif)
+            mot.name <- paste(mot.name, collapse = "/")
+            if (length(mot.altname) > 0) mot.altname <- paste(mot.altname, collapse = "/")
+            if (length(mot.family) > 0) mot.family <- paste(mot.family, collapse = "/")
+            if (length(mot.organism) > 0) mot.organism <- paste(mot.organism, collapse = "/")
+            if (length(mot.nsites) > 1) mot.nsites <- max(mot.nsites)
+            mot.bkg <- colMeans(do.call(rbind, mot.bkg))
+            if (length(mot.bkgsites) > 1) mot.bkgsites <- max(mot.bkgsites)
+            if (length(mot.strand) > 1) mot.strand <- "+-"
+            if (length(mot.pval) > 1) mot.pval <- min(mot.pval)
+            if (length(mot.qval) > 1) mot.qval <- min(mot.qval)
+            if (length(mot.eval) > 1) mot.eval <- min(mot.eval)
+
+            motif <- universalmotif_cpp(motif = mot.motif, name = mot.name,
+                                        altname = mot.altname, family = mot.family,
+                                        organism = mot.organism, nsites = mot.nsites,
+                                        alphabet = mot.alphabet, bkg = mot.bkg,
+                                        bkgsites = mot.bkgsites, strand = mot.strand,
+                                        pval = mot.pval, qval = mot.qval, eval = mot.eval,
+                                        extrainfo = mot.extrainfo)
+            msg <- validObject_universalmotif(motif)
+            if (length(msg) > 0) stop(msg)
+            motif
+
           })

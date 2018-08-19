@@ -29,6 +29,7 @@ Imports: methods,
     Biostrings,
     PWMEnrich,
     MotifDb,
+    BiocGenerics,
     Rcpp
 Suggests: knitr,
     BiocStyle,
