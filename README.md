@@ -8,8 +8,8 @@ Bioconductor packages.
 ## Installation ##
 
 ```r
-if (!requireNamespace("devtools", quietly=TRUE)) install.packages("devtools")
-devtools::install_github("bjmt/universalmotif", build_vignettes = TRUE,
-                         dependencies = TRUE)
+if (!requireNamespace("BiocManager", quietly=TRUE))
+  install.packages("BiocManager")
+BiocManager::install("bjmt/universalmotif")
 ```
 
