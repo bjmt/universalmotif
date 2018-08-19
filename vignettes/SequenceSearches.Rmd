@@ -1,0 +1,95 @@
+---
+title: "Scanning sequences for motifs with the \"universalmotif\" package"
+shorttitle: "Sequence scanning"
+author:
+- name: Benjamin Tremblay
+  affiliation: University of Waterloo, Waterloo, Canada
+  email: b2tremblay@uwaterloo.ca
+abstract: >
+  Introducing sequence motif types.
+bibliography: universalmotif.bib
+vignette: >
+  %\VignetteIndexEntry{Scanning sequences for motifs wtih the "universalmotif" package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+```
+
+# Sequence-related functions
+
+## Sequence shuffling and creation
+
+The `r Biocpkg("Biostrings")` package offers an excellent suite of functions for
+dealing with biological sequences. The `r Biocpkg("universalmotif")` package
+hopes to help extend these by providing the `create_sequences` and
+`shuffle_sequences` functions.
+
+```{r}
+library(universalmotif)
+## library(Biostrings)
+## Create some DNA sequences for use with an external program:
+sequences <- create_sequences(seqnum = 500, monofreqs = c(0.3, 0.2, 0.2, 0.3))
+## writeXStringSet(sequences, "bkg.fasta")
+
+## Shuffle sequences:
+## sequences <- readDNAStringSet("sequences.fasta")
+sequences <- shuffle_sequences(sequences)
+
+## Maintain dinucleotide frequencies:
+sequences <- shuffle_sequences(sequences, k = 2)
+
+## Create sequences from any starting alphabet:
+sequences <- create_sequences(alphabet = "QWERTY")
+sequences <- shuffle_sequences(sequences, k = 6)
+```
+
+## Searching for motifs in sequences
+
+There are many fantastic motif scanning and enrichment programs available, such
+as [HOMER](http://homer.ucsd.edu/homer/index.html) and the
+[MEME suite](http://meme-suite.org/) to name a couple. The
+`r Biocpkg("universalmotif")` package does not aim to supplant these, but
+rather provide convenience functions for quickly scanning a few sequences
+without needing to leave the R environment. Furthermore, these functions
+allow for taking advantage of the k-letter motif format described earlier.
+
+Two functions are provided: `scan_sequences` and `enrich_motifs`. Given a motif
+of length n, `scan_sequences` considers every n-length subset in a sequence and
+scores it using the PWM format. If it surpasses the minimum threshold, it is
+reported. This is case regardless of whether one is scanning with a regular
+motif, or using the k-letter motif format (the k-letter PPM is converted to
+a k-letter PWM). The second function, `enrich_motifs`,
+simply scans a set of target sequences, then a set of background sequences, and
+checks for significant enrichment.
+
+```{r}
+library(universalmotif)
+library(Biostrings)
+
+sequences <- create_sequences()
+
+## Let us revisit our 2-letter motif example:
+motif.k2 <- create_motif("CWWWWCC", nsites = 6)
+sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
+motif.k2 <- add_multifreq(motif.k2, sequences.k2)
+
+## Regular scanning:
+head(scan_sequences(motif.k2, sequences, RC = TRUE, verbose = 0,
+                    threshold = 0.0001))
+
+## Using 2-letter information to scan:
+head(scan_sequences(motif.k2, sequences, use.freq = 2, RC = TRUE, verbose = 0))
+```
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References {.unnumbered}

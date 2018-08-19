@@ -1,0 +1,346 @@
+---
+title: "Motif manipulation with the \"universalmotif\" package"
+shorttitle: "Motif manipulation"
+author:
+- name: Benjamin Tremblay
+  affiliation: University of Waterloo, Waterloo, Canada
+  email: b2tremblay@uwaterloo.ca
+abstract: >
+  Introducing sequence motif types.
+bibliography: universalmotif.bib
+vignette: >
+  %\VignetteIndexEntry{Motif manipulation wtih the "universalmotif" package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+```
+
+# The universalmotif class and conversion utilities
+
+## The universalmotif class
+
+The `r Biocpkg("universalmotif")` package stores motifs using the
+`universalmotif` class. The most basic `universalmotif` object exposes the 'name',
+'alphabet', 'type', 'type', 'strand', 'icscore', 'consensus', and 'motif'
+slots; furthermore, the 'pseudocount' and 'bkg' slots are also stored but not
+shown. `universalmotif` class motifs can be PCM, PPM, PWM, or ICM type.
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+examplemotif
+```
+
+Exposing the motif class with `str` shows the other available slots:
+
+```{r showslots,echo=FALSE}
+library(universalmotif)
+data(examplemotif)
+str(examplemotif)
+```
+
+The other slots will be shown once filled:
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+
+## The various slots can be accessed individually using `[`
+examplemotif["consensus"]
+
+## To change a slot, use `[<-`
+examplemotif["family"] <- "My motif family"
+examplemotif
+```
+
+Though the slots can easily be changed manually with `[<-`, a number of
+safeguards have been put in place for some of the slots which will prevent
+incorrect values from being introduced.
+
+```{r,error=TRUE}
+library(universalmotif)
+data(examplemotif)
+
+## The consensus slot is dependent on the motif matrix
+examplemotif["consensus"]
+
+## Changing this would mean it no longer matches the motif
+examplemotif["consensus"] <- "GGGAGAG"
+
+## Another example:
+examplemotif["strand"] <- "x"
+
+## Of course, this can be circumvented by simply using `@`; do this at your
+## own risk. Trying to use a motif with an incorrectly filled slot will likely
+## cause other universalmotif functions to fail.
+examplemotif@strand <- "x"
+examplemotif
+```
+
+Below the exposed metadata slots, the actual 'motif' matrix is shown. Each
+position is its' own column; row names showing the alphabet letters, and 
+the column names showing the consensus letter at each position.
+
+## Converting to and from another package's class
+
+The `r Biocpkg("universalmotif")` package aims to unify most of the
+motif-related Bioconductor packages by providing the `convert_motif` function.
+This allows for easy transition between supported packages (see
+`?convert_motif` for a complete list of supported packages).
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+suppressPackageStartupMessages(library(TFBSTools))
+data(MA0003.2)
+suppressPackageStartupMessages(library(MotifDb))
+
+## convert from a universalmotif to another
+convert_motifs(examplemotif, "TFBSTools-PWMatrix")
+
+## convert to universalmotif
+convert_motifs(MA0003.2)
+
+## convert between two packages
+convert_motifs(MotifDb[1], "TFBSTools-ICMatrix")
+```
+
+The `convert_motifs` function is embedded in most of the
+`r Biocpkg("universalmotif")` functions, meaning that compatible motif classes
+from other packages can be used without needed to convert them first.
+
+# Importing and exporting motifs
+
+## Importing
+
+The `r Biocpkg("universalmotif")` package offers a number of `read_` functions
+to allow for easy import of various motif formats. These include:
+
+* `read_cisbp`: CIS-BP [@cisbp]
+* `read_homer`: HOMER [@homer]
+* `read_jaspar`: JASPAR [@jaspar]
+* `read_meme`: MEME [@meme]
+* `read_transfac`: TRANSFAC [@transfac]
+* `read_uniprobe`: UniPROBE [@uniprobe]
+
+These functions should work natively with these formats, but if you are
+generating your own motifs in one of these formats than it must adhere quite
+strictly to the format. An example of each of these is included in this package;
+see `system.file("extdata", package="universalmotif")`.
+
+Additionally, the generic `read_matrix` function can read simply-formatted
+motif files; each motif can have a header and a motif matrix.
+
+## Exporting
+
+Compatible motif classes can be written to disk using:
+
+* `write_homer`
+* `write_jaspar`
+* `write_matrix`
+* `write_meme`
+* `write_transfac`
+
+The `write_matrix` function, similar to its' `read_matrix` counterpart, can
+write motifs as simple matrices with an optional header.
+
+# Modifying motifs and related functions
+
+## Converting motif type
+
+Any `universalmotif` object can transition between PCM, PPM, PWM, and ICM types
+seamlessly using the `convert_type` function. The only exception to this is if
+the ICM calculation is performed with sample correction, or as relative
+entropy. If this occurs, then back conversion to another type will be
+inaccurate. 
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+
+## This motif is currently a PPM:
+examplemotif["type"]
+
+## When converting to PCM, the 'nsites' slot is needed to tell it how
+## many sequences it originated from. If empty, 100 is used.
+convert_type(examplemotif, "PCM")
+
+## For converting to PWM, the 'pseudocount' slot is used to determine if any
+## correction should be applied:
+examplemotif["pseudocount"]
+convert_type(examplemotif, "PWM")
+
+## You can either change the 'pseudocount' slot manually beforehand, or pass
+## one to 'convert_type'
+convert_type(examplemotif, "PWM", pseudocount = 1)
+
+## There are a couple of additional options for ICM conversion:
+## 'nsize_correction' and 'relative_entropy'. The former uses the
+## TFBSTools:::schneider_correction function for sample size correction.
+## The latter uses the 'bkg' slot to calculate information content.
+examplemotif["nsites"] = 10
+convert_type(examplemotif, "ICM", nsize_correction = FALSE)
+convert_type(examplemotif, "ICM", nsize_correction = TRUE)
+examplemotif["bkg"] = c(0.4, 0.1, 0.1, 0.4)
+convert_type(examplemotif, "ICM", relative_entropy = TRUE)
+```
+
+## Comparing and merging motifs
+
+There a few functions available in other Bioconductor packages which allow for
+motif comparison. These include `PWMSimlarity` (`r Biocpkg("TFBSTools")`),
+`motifDistances` (`r Biocpkg("MotIV")`), and `motifSimilarity`
+(`r Biocpkg("PWMEnrich")`). Unfortunately these functions are not designed for
+comparing large numbers of motifs, and can result in long run times.
+The `r Biocpkg("universalmotif")` package
+aims to fix this by providing the `compare_motifs` function. Using the
+`r Biocpkg("TFBSTools")` implementation as a source, the function has been
+rewritten in C++ and allows for comparing thousands of motifs in seconds.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+## No need to convert class, most universalmotif functions will do it
+## automatically
+motifs.dist <- compare_motifs(MotifDb[1:5])
+as.dist(motifs.dist)
+
+## If comparing thousands of motifs, multicore usage is made available via
+## the 'BiocParallel' package
+
+library(BiocParallel)
+parallel.opt <- bpparam()
+## To add a progress bar:
+# parallel.opt$progressBar <- TRUE
+motifs.dist <- compare_motifs(MotifDb[1:5], BPPARAM = parallel.opt)
+```
+
+Additionally, `r Biocpkg("universalmotif")` provides the `merge_motifs`
+function. This first finds the best alignment of input motifs before merging.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+motifs <- convert_motifs(MotifDb[1:5])
+
+## Two merging methods are offered: via the 'msa' package, and via the 
+## 'motifStack' package.
+# merge_motifs(motifs, method = "msa")
+# merge_motifs(motifs, method = "motifStack")
+```
+
+# Motif creation
+
+Though `universalmotif` class motifs can be created using the `new`
+constructor, the `r Biocpkg("universalmotif")` package provides the
+`create_motif` function which aims to provide a simpler interface to motif
+creation. The `universalmotif` class was designed to work natively with DNA,
+RNA, and amino acid motifs. Despite this, it can handle any custom alphabet
+just as easily.
+
+The `create_motif` function will be introduced briefly here; see `?create_motif`
+for details.
+
+## From a PCM/PPM/PWM/ICM matrix
+
+Should you wish to make use of the `r Biocpkg("universalmotif")` functions
+starting from a unsupported motif class, you can instead create
+`universalmotif` class motifs using the `create_motif` function.
+
+```{r}
+motif.matrix <- matrix(c(0.7, 0.1, 0.1, 0.1,
+                         0.7, 0.1, 0.1, 0.1,
+                         0.1, 0.7, 0.1, 0.1,
+                         0.1, 0.7, 0.1, 0.1,
+                         0.1, 0.1, 0.7, 0.1,
+                         0.1, 0.1, 0.7, 0.1,
+                         0.1, 0.1, 0.1, 0.7,
+                         0.1, 0.1, 0.1, 0.7), nrow = 4)
+motif <- create_motif(motif.matrix, alphabet = "RNA", name = "My motif",
+                      pseudocount = 1, nsites = 20, strand = "+")
+## The 'type', 'icscore' and 'consensus' slots will be filled for you
+motif
+```
+
+## From sequences or character strings
+
+If all you have is a particular consensus sequence in mind, you can easily
+create a full motif using `create_motif`. This can be convenient if you'd like
+to create a motif to use with an external program such as MEME or HOMER.
+
+```{r}
+motif <- create_motif("CCNSNGG", nsites = 50, pseudocount = 1)
+## write_meme(motif, "meme_motif.txt")
+
+motif
+```
+
+## Generating random motifs
+
+If you wish, it's easy to generate random motifs:
+
+```{r}
+create_motif()
+
+## You can change the probabilities:
+create_motif(bkg = c(0.2, 0.4, 0.2, 0.2))
+
+## With a custom alphabet:
+create_motif(alphabet = "QWERTY")
+```
+
+# Motif visualization
+
+## Motif logos
+
+There are several packages which offer motif visualization capabilities,
+such as `r Biocpkg("seqLogo")`, `r Biocpkg("Logolas")`,
+`r Biocpkg("motifStack")`, and `r CRANpkg("ggseqlogo")`. Here I will briefly
+show how to use these to visualize `universalmotif` class motifs.
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+
+## For all the examples, simply passing the functions a PPM is sufficient
+motif <- convert_type(examplemotif, "PPM")
+## Only need the matrix itself
+motif <- motif["motif"]
+
+## seqLogo:
+seqLogo::seqLogo(motif)
+
+## motifStack: 
+motifStack::plotMotifLogo(motif)
+
+## Logolas:
+if (requireNamespace("Logolas", quietly = TRUE)) {
+  colnames(motif) <- seq_len(ncol(motif))
+  Logolas::logomaker(motif, type = "Logo")
+}
+
+## ggseqlogo:
+if (requireNamespace("ggseqlogo", quietly = TRUE)) {
+  ggseqlogo::ggseqlogo(motif)
+}
+```
+
+The `r Biocpkg("Logolas")` and `r CRANpkg("ggseqlogo")` offer many additional
+options for logo customization, including custom alphabets as well as manually
+determining the heights of each letter, via the
+`r Rpackage("grid")` and `r CRANpkg("ggplot2")` packages respectively.
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References {.unnumbered}
