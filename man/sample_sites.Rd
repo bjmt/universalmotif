@@ -4,12 +4,15 @@
 \alias{sample_sites}
 \title{Generate binding sites from a motif.}
 \usage{
-sample_sites(motif, n = 100, BPPARAM = SerialParam())
+sample_sites(motif, n = 100, use.freq = 1, BPPARAM = SerialParam())
 }
 \arguments{
 \item{motif}{See \code{\link{convert_motifs}} for acceptable formats.}
 
 \item{n}{\code{numeric(1)} Number of sites to generate.}
+
+\item{use.freq}{\code{numeric(1)} If one, use regular motif matrix. Otherwise,
+use respective \code{multifreq} matrix.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

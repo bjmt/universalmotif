@@ -110,11 +110,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
                        ifelse(length(motifs) > 1, "motifs\n", "motif\n"))
 
   motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.pwms <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
-  mot.pwms <- lapply(mot.pwms, function(x) x["motif"])
+  mot.pwms <- lapply(motifs, function(x) x["motif"])
   mot.lens <- vapply(mot.pwms, ncol, numeric(1))
   mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
   if (length(unique(mot.alphs)) != 1) stop("can only scan using one alphabet")

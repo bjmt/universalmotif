@@ -89,6 +89,18 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
   all_checks <- c(num_check, logi_check, s4_check, bkg_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  if (use.freq > 2 && interactive()) {
+    cat(paste0(" * Using motif_pvalue with use.freq > 2 is ",
+               "NOT recommended.\n * Do you wish to continue? (y/n) "))
+    answer <- readLines(con = stdin(), n = 1)
+    if (answer %in% c("n", "N", "no", "No", "NO")) {
+      message("Exiting")
+      return(invisible(NULL))
+    } else if (!answer %in% c("y", "Y", "Yes", "yes", "YES", "YEs", "YeS")) 
+      stop("unknown answer")
+  } else if (use.freq > 2 && !interactive()) {
+    warning("Using motif_pvalue with use.freq > 2 is NOT recommended")
+  }
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
