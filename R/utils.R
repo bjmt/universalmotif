@@ -23,6 +23,7 @@
 #' @param shuffle.method \code{character(1)}
 #' @param shuffle.leftovers \code{character(1)}
 #' @param rand.tries \code{numeric(1)}
+#' @param normalise.scores \code{logical(1)}
 #' @param min.overlap \code{numeric(1)} Minimum required motif overlap.
 #' @param min.mean.ic \code{numeric(1)}
 #' @param progress_bar \code{logical(1)} Show progress.

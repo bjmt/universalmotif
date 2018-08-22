@@ -99,6 +99,8 @@ are accepted.}
 
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
 
+\item{normalise.scores}{\code{logical(1)}}
+
 \item{na.rm}{\code{logical} Remove columns where all values are \code{NA}.}
 }
 \value{

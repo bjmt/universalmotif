@@ -19,7 +19,8 @@
 #' @export
 merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
-                         relative_entropy = FALSE, BPPARAM = SerialParam()) {
+                         relative_entropy = FALSE, normalise.scores = TRUE,
+                         BPPARAM = SerialParam()) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -29,7 +30,8 @@ merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
                                      min.mean.ic = args$min.mean.ic),
                                 numeric(), logical(), "numeric")
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
-                                      relative_entropy = args$relative_entropy),
+                                      relative_entropy = args$relative_entropy,
+                                      normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
@@ -49,7 +51,7 @@ merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
                          BPPARAM = BPPARAM)
 
   mot <- merge_mot_list(motifs, tryRC, min.overlap, min.mean.ic, method,
-                        relative_entropy)
+                        relative_entropy, normalise.scores)
 
   mot <- .internal_convert(mot, unique(CLASS_IN), BPPARAM = BPPARAM)
   mot
@@ -57,10 +59,11 @@ merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
 }
 
 merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
-                           min.overlap, min.mean.ic, method, relative_entropy) {
+                           min.overlap, min.mean.ic, method, relative_entropy,
+                           normalise.scores) {
 
   out <- merge_motifs_internal(mot1, mot2, method, min.overlap, tryRC, ic1, ic2,
-                               min.mean.ic, weight1, weight2)
+                               min.mean.ic, weight1, weight2, normalise.scores)
   
   matrix(out[!is.na(out)], nrow = nrow(out))
 
@@ -68,12 +71,12 @@ merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
 }
 
 merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
-                           relative_entropy) {
+                           relative_entropy, normalise.scores) {
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.altnames <- sapply(motifs, function(x) x["altname"])
-  mot.families <- sapply(motifs, function(x) x["family"])
-  mot.orgs <- sapply(motifs, function(x) x["organism"])
+  mot.altnames <- do.call(c, sapply(motifs, function(x) x["altname"]))
+  mot.families <- do.call(c, sapply(motifs, function(x) x["family"]))
+  mot.orgs <- do.call(c, sapply(motifs, function(x) x["organism"]))
   mot.bkgsites <- do.call(c, sapply(motifs, function(x) x["bkgsites"]))
   mot.strands <- vapply(motifs, function(x) x["strand"], character(1))
   mot.extrainfo <- lapply(motifs, function(x) x["extrainfo"])
@@ -86,7 +89,7 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
   mot.ic2 <- .pos_iscscores(motifs[[2]], mot.mats[[2]], relative_entropy)
   new.mat <- merge_mot_pair(mot.mats[[1]], mot.mats[[2]], 1, 1, mot.ic1,
                             mot.ic2, tryRC, min.overlap, min.mean.ic, method,
-                            relative_entropy)
+                            relative_entropy, normalise.scores)
   bkg.1 <- motifs[[1]]["bkg"]
   bkg.2 <- motifs[[2]]["bkg"]
   bkg.new <- vapply(seq_along(bkg.1), function(x) mean(c(bkg.1[x], bkg.2[x])),
@@ -110,7 +113,8 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
       new.ic <- .pos_iscscores(mot.new, mot.new["motif"], relative_entropy)
       new.mat <- merge_mot_pair(new.mat, mot.mats[[i]], add.weight, 1,
                                 new.ic, mot.ic, tryRC, min.overlap,
-                                min.mean.ic, method, relative_entropy)
+                                min.mean.ic, method, relative_entropy,
+                                normalise.scores)
       bkg.1 <- motifs[[i]]["bkg"]
       bkg.2 <- mot.new["bkg"]
       bkg.new <- vapply(seq_along(bkg.1), function(x) mean(c(bkg.1[x], bkg.2[x])),

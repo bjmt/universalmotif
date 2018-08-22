@@ -185,18 +185,34 @@ NumericMatrix rev_motif(NumericMatrix motif) {
 
 }
 
+int get_align_len(NumericMatrix mot1, NumericMatrix mot2) {
+
+  NumericVector mot1_ = mot1(1, _);
+  NumericVector mot2_ = mot2(1, _);
+
+  int out = 0;
+
+  for (int i = 0; i < mot1.ncol(); ++i) {
+    if (!NumericVector::is_na(mot1_[i]) &&
+        !NumericVector::is_na(mot2_[i])) out += 1;
+  }
+
+  return out;
+
+}
+
 double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, bool tryRC, NumericVector ic1,
-    NumericVector ic2, double min_ic);
+    NumericVector ic2, double min_ic, bool norm);
 
 double motif_simil_rc(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, NumericVector ic1,
-    NumericVector ic2, double min_ic) {
+    NumericVector ic2, double min_ic, bool norm) {
 
   NumericMatrix mot2_rc = rev_motif(mot2);
   NumericVector ic2_rc = rev(ic2);
   double ans = motif_simil_internal(mot1, mot2_rc, method, min_overlap, false,
-      ic1, ic2_rc, min_ic);
+      ic1, ic2_rc, min_ic, norm);
 
   return ans;
 
@@ -205,7 +221,7 @@ double motif_simil_rc(NumericMatrix mot1, NumericMatrix mot2,
 // [[Rcpp::export]]
 double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, bool tryRC, NumericVector ic1,
-    NumericVector ic2, double min_ic) {
+    NumericVector ic2, double min_ic, bool norm) {
 
   // Adapted from TFBSTools::PWMSimilarity
 
@@ -214,9 +230,13 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
     mot2 = mot2 + 0.0001;
   }
 
+  double len_total;
+  if (mot1.ncol() >= mot2.ncol()) len_total = mot1.ncol();
+  else len_total = mot2.ncol();
+
   NumericVector ans_rc;
   if (tryRC) ans_rc = motif_simil_rc(mot1, mot2, method, min_overlap,
-      ic1, ic2, min_ic);
+      ic1, ic2, min_ic, norm);
   
   List new_mots = add_cols(mot1, mot2, ic1, ic2, min_overlap);
   NumericMatrix mot1_new = new_mots(0);
@@ -235,6 +255,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector ic1_tmp(min_width);
   NumericVector ic2_tmp(min_width);
   NumericVector ans(for_i + for_j - 1);
+  double align_len;
 
   int method_i = 0;
   double ic1_mean;
@@ -255,6 +276,9 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
         ic2_tmp[k] = ic2_new[k + j];
       }
 
+      if (norm) align_len = get_align_len(mot1_tmp, mot2_tmp);
+      else align_len = len_total;
+
       ic1_mean = mean(na_omit(ic1_tmp));
       ic2_mean = mean(na_omit(ic2_tmp));
       if (ic1_mean < min_ic || ic2_mean < min_ic) low_ic = true;
@@ -262,13 +286,16 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
       switch(method_i) {
 
         case 1: if (low_ic) ans(i + j) = 1;
-                else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp);
+                else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp) *
+                                  (len_total / align_len);
                 break;
         case 2: if (low_ic) ans(i + j) = 0;
-                else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp);
+                else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
                 break;
         case 3: if (low_ic) ans(i + j) = 10;
-                else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp);
+                else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp) *
+                                  (len_total / align_len);
                 break;
 
       }
@@ -417,12 +444,16 @@ void merge_add_cols(List out) {
 // [[Rcpp::export]]
 List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, NumericVector ic1,
-    NumericVector ic2, double min_ic) {
+    NumericVector ic2, double min_ic, bool norm) {
 
   if (method == "KL") {
     mot1 = mot1 + 0.0001;
     mot2 = mot2 + 0.0001;
   }
+
+  double len_total;
+  if (mot1.ncol() >= mot2.ncol()) len_total = mot1.ncol();
+  else len_total = mot2.ncol();
 
   List new_mots = add_cols(mot1, mot2, ic1, ic2, min_overlap);
   NumericMatrix mot1_new = new_mots(0);
@@ -441,6 +472,7 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector ic1_tmp(min_width);
   NumericVector ic2_tmp(min_width);
   NumericVector ans(for_i + for_j - 1);
+  double align_len;
 
   int method_i = 0;
   double ic1_mean;
@@ -461,6 +493,9 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
         ic2_tmp[k] = ic2_new[k + j];
       }
 
+      if (norm) align_len = get_align_len(mot1_tmp, mot2_tmp);
+      else align_len = len_total;
+
       ic1_mean = mean(na_omit(ic1_tmp));
       ic2_mean = mean(na_omit(ic2_tmp));
       if (ic1_mean < min_ic || ic2_mean < min_ic) low_ic = true;
@@ -468,13 +503,16 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
       switch(method_i) {
 
         case 1: if (low_ic) ans(i + j) = 1;
-                else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp);
+                else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp) *
+                                  (len_total / align_len);
                 break;
         case 2: if (low_ic) ans(i + j) = 0;
-                else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp);
+                else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
                 break;
         case 3: if (low_ic) ans(i + j) = 10;
-                else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp);
+                else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp) *
+                                  (len_total / align_len);
                 break;
 
       }
@@ -512,10 +550,11 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
 // [[Rcpp::export]]
 NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, bool tryRC, NumericVector ic1,
-    NumericVector ic2, double min_ic, double weight1, double weight2) {
+    NumericVector ic2, double min_ic, double weight1, double weight2,
+    bool norm) {
 
   List out = merge_motifs_get_offset(mot1, mot2, method, min_overlap,
-      ic1, ic2, min_ic);
+      ic1, ic2, min_ic, norm);
 
   NumericMatrix mot1_;
   NumericMatrix mot2_;
@@ -527,7 +566,7 @@ NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
     NumericMatrix mot2_rc = rev_motif(mot2);
     NumericVector ic2_rc = rev(ic2);
     List out_rc = merge_motifs_get_offset(mot1, mot2_rc, method, min_overlap,
-        ic1, ic2_rc, min_ic);
+        ic1, ic2_rc, min_ic, norm);
     score = out(3);
     score_rc = out_rc(3);
 

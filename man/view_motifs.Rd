@@ -32,6 +32,9 @@ alignments between low information content regions of two motifs.}
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{Addtional options for \code{\link[ggseqlogo]{geom_logo}}.}
+
+\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
+unaligned positions.}
 }
 \value{
 A \code{ggplot} object.

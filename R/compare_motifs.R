@@ -25,6 +25,8 @@
 #'    alignments between low information content regions of two motifs.
 #' @param relative_entropy \code{logical(1)} For ICM calculation. See
 #'    \code{\link{convert_type}}.
+#' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
+#'    unaligned positions.
 #' @param max.p \code{numeric(1)} Maximum P-value allowed in reporting matches.
 #'    Only used if \code{compare.to} is set.
 #' @param max.e \code{numeric(1)} Maximum E-value allowed in reporting matches.
@@ -71,7 +73,8 @@
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
                            method = "Pearson", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
-                           max.p = 0.05, max.e = 10, BPPARAM = SerialParam()) {
+                           normalise.scores = TRUE, max.p = 0.05, max.e = 10,
+                           BPPARAM = SerialParam()) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -85,8 +88,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                 c(0, rep(1, 5)), c(TRUE, rep(FALSE, 5)),
                                 "numeric")
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
-                                      relative_entropy = args$relative_entropy),
-                                 c(1, 1), c(FALSE, FALSE), "logical")
+                                      relative_entropy = args$relative_entropy,
+                                      normalise.scores = args$normalise.scores),
+                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
   if (!missing(db.scores) && !is.data.frame(db.scores)) {
@@ -129,7 +133,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     comparisons <- bplapply(seq_along(motifs)[-length(motifs)],
                             function(x) .compare(x, mot.mats, method,
                                                  min.overlap, tryRC,
-                                                 min.mean.ic, mot.ics),
+                                                 min.mean.ic, mot.ics,
+                                                 normalise.scores),
                             BPPARAM = BPPARAM)
 
   } else {
@@ -142,15 +147,16 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     pvals <- vector("list", length(compare.to))
 
     for (i in compare.to) {
-      comparisons[[i]] <- bplapply(seq_along(motifs)[-compare.to],
-              function(x) motif_simil_internal(mot.mats[[compare.to[i]]],
+      comparisons[[i]] <- bplapply(seq_along(motifs)[-i],
+              function(x) motif_simil_internal(mot.mats[[i]],
                                                mot.mats[[x]], method,
                                                min.overlap, tryRC,
-                                               mot.ics[[compare.to[i]]],
-                                               mot.ics[[x]], min.mean.ic),
+                                               mot.ics[[i]],
+                                               mot.ics[[x]], min.mean.ic,
+                                               normalise.scores),
                                    BPPARAM = BPPARAM)
       comparisons[[i]] <- do.call(c, comparisons[[i]])
-      pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-compare.to],
+      pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
                              db.scores, comparisons[[i]], method)
     }
 
@@ -162,12 +168,11 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 
   } else {
 
-    names(comparisons) <- mot.names[compare.to]
     comparisons <- bplapply(seq_along(compare.to),
                             function(i) {
                          data.frame(subject = rep(mot.names[compare.to[i]],
-                                    length(comparisons[[i]])),
-                                    target = mot.names[-compare.to],
+                                                  length(comparisons[[i]])),
+                                    target = mot.names[-compare.to[i]],
                                     score = comparisons[[i]], Pval = pvals[[i]],
                                     Eval = pvals[[i]] * length(motifs) * 2,
                                     stringsAsFactors = FALSE)
@@ -178,6 +183,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                comparisons$Eval <= max.e, ]
     comparisons <- comparisons[comparisons$subject != comparisons$target, ]
     comparisons <- comparisons[!is.na(comparisons$subject), ]
+    comparisons <- get_rid_of_dupes(comparisons)
 
     if (nrow(comparisons) == 0) {
       message("No significant hits")
@@ -191,15 +197,23 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 
 }
 
+# potential bottleneck
+get_rid_of_dupes <- function(comparisons) {
+  comparisons.sorted <- apply(comparisons[, 1:2], 1,
+                              function(x) paste(sort(x), collapse = " "))
+  comparisons[!duplicated(comparisons.sorted), ]
+} 
+
 .compare <- function(x, mot.mats, method, min.overlap, tryRC, min.mean.ic,
-                     mot.ics) {
+                     mot.ics, normalise.scores) {
   if (x < length(mot.mats)) x2 <- x + 1 else x2 <- x
   y <- vector("numeric", length = length(mot.mats) - x2)
   index <- 1
   for (j in seq(x2, length(mot.mats))) {
     y[index] <- motif_simil_internal(mot.mats[[x]], mot.mats[[j]], method,
                                  min.overlap, tryRC, mot.ics[[x]],
-                                 mot.ics[[j]], min.mean.ic)
+                                 mot.ics[[j]], min.mean.ic,
+                                 normalise.scores)
     index <- index + 1
   }
   y
@@ -221,6 +235,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           shuffle.leftovers = "asis", rand.tries = 1000,
+                          normalise.scores = TRUE,
                           min.overlap = 6, min.mean.ic = 0, progress_bar = TRUE,
                           BPPARAM = SerialParam()) {
 
@@ -236,7 +251,8 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
                                      min.mean.ic = args$min.mean.ic),
                                 numeric(), logical(), "numeric")
   logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
-                                      progress_bar = args$progress_bar),
+                                      progress_bar = args$progress_bar,
+                                      normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
                                numeric(), logical(), "S4")
@@ -287,7 +303,8 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
 
     res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
                                min.overlap = min.overlap, min.mean.ic = min.mean.ic,
-                               BPPARAM = BPPARAM, max.e = Inf, max.p = Inf)$score
+                               BPPARAM = BPPARAM, max.e = Inf, max.p = Inf,
+                               normalise.scores = normalise.scores)$score
 
     totry$mean[i] <- mean(res[[i]])
     totry$sd[i] <- sd(res[[i]])

@@ -50,6 +50,9 @@ Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+
+\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
+unaligned positions.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.

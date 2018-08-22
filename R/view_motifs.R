@@ -16,6 +16,8 @@
 #'    alignments between low information content regions of two motifs.
 #' @param relative_entropy \code{logical(1)} For ICM calculation. See
 #'    \code{\link{convert_type}}.
+#' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
+#'    unaligned positions.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... Addtional options for \code{\link[ggseqlogo]{geom_logo}}.
 #'
@@ -47,6 +49,7 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
                         tryRC = TRUE, min.overlap = 6,
                         min.mean.ic = 0.5, relative_entropy = FALSE,
+                        normalise.scores = TRUE,
                         BPPARAM = SerialParam(), ...) {
 
   # param check --------------------------------------------
@@ -58,7 +61,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
                                      min.mean.ic = args$min.mean.ic),
                                 numeric(), logical(), "numeric")
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
-                                      relative_entropy = args$relative_entropy),
+                                      relative_entropy = args$relative_entropy,
+                                      normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
   s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
                                numeric(), FALSE, "S4")
@@ -138,7 +142,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
                          y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats[[x]],
                                                       method, min.overlap,
                                                       mot.ics[[1]], mot.ics[[x]],
-                                                      min.mean.ic)
+                                                      min.mean.ic, normalise.scores)
                          merge_add_cols(y)
                          y},
                        BPPARAM = BPPARAM)
@@ -148,7 +152,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
                            y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats.rc[[x]],
                                                         method, min.overlap,
                                                         mot.ics[[1]], mot.ics.rc[[x]],
-                                                        min.mean.ic)
+                                                        min.mean.ic, normalise.scores)
                            merge_add_cols(y)
                            y},
                          BPPARAM = BPPARAM)
