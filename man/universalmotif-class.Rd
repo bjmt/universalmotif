@@ -58,7 +58,7 @@
 
 \S4method{rownames}{universalmotif}(x)
 
-\S4method{cbind}{universalmotif}(..., deparse.level = 1)
+\S4method{cbind}{universalmotif}(..., deparse.level = 0)
 }
 \arguments{
 \item{x}{\linkS4class{universalmotif} Motif.}

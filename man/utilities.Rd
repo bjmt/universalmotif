@@ -98,6 +98,8 @@ relative entropy or Kullback-Leibler divergence.}
 are accepted.}
 
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
+
+\item{na.rm}{\code{logical} Remove columns where all values are \code{NA}.}
 }
 \value{
 For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},

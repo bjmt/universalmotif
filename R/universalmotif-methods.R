@@ -255,24 +255,48 @@ setMethod("initialize", signature = "universalmotif",
 #' @aliases show,universalmotif-method
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
-            cat("\n       Motif name:   ", object@name, "\n", sep = "")
+            name <- object@name
+            if (nchar(name) > 40) {
+              name <- paste0(substr(name, 1, 40), "...")
+            }
+            cat("\n       Motif name:   ", name, "\n", sep = "")
             if (length(object@altname) > 0) {
-              cat("   Alternate name:   ", object@altname, "\n", sep = "")
+              altname <- object@altname
+              if (nchar(altname) > 40) {
+                altname <- paste0(substr(name, 1, 40), "...")
+              }
+              cat("   Alternate name:   ", altname, "\n", sep = "")
             }
             if (length(object@family)) {
-              cat("           Family:   ", object@family, "\n", sep = "")
+              family <- object@family
+              if (nchar(family) > 40) {
+                family <- paste0(substr(family, 1, 40), "...")
+              }
+              cat("           Family:   ", family, "\n", sep = "")
             }
             if (length(object@organism)) {
-              cat("         Organism:   ", object@organism, "\n", sep = "")
+              organism <- object@organism
+              if (nchar(organism) > 40) {
+                organism <- paste0(substr(organism, 1, 40), "...")
+              } 
+              cat("         Organism:   ", organism, "\n", sep = "")
             }
-            cat("         Alphabet:   ", object@alphabet, "\n", sep = "")
+            alphabet <- object@alphabet
+            if (nchar(alphabet) > 40) {
+              alphabet <- paste0(substr(alphabet, 1, 40), "...")
+            }
+            cat("         Alphabet:   ", alphabet, "\n", sep = "")
             cat("             Type:   ", object@type, "\n", sep = "")
             if (object@alphabet %in% c("DNA", "RNA")) {
               cat("          Strands:   ", object@strand, "\n", sep = "")
             }
             cat("         Total IC:   ", object@icscore, "\n", sep = "")
             if (length(object@consensus) > 0) {
-              cat("        Consensus:   ", object@consensus, "\n", sep = "")
+              consensus <- object@consensus
+              if (nchar(consensus) > 40) {
+                consensus <- paste0(substr(consensus, 1, 40), "...")
+              }
+              cat("        Consensus:   ", consensus, "\n", sep = "")
             }
             if (length(object@nsites) > 0) {
               cat("     Target sites:   ", object@nsites, "\n", sep = "")
@@ -294,12 +318,16 @@ setMethod("show", signature = "universalmotif",
               cat("   k-letter freqs:  ", toprint, "\n")
             }
             if (length(object@extrainfo) > 0 ) {
+              extrainfo <- object@extrainfo
               cat("       Extra info:   ")
-              for (i in seq_len(length(object@extrainfo))) {
-                if (!is.null(names(object@extrainfo))) {
-                  to_show <- paste0(names(object@extrainfo[i]), ": ",
-                                    object@extrainfo[i])
-                } else to_show <- object@extrainfo[i]
+              for (i in seq_len(length(extrainfo))) {
+                if (!is.null(names(extrainfo))) {
+                  to_show <- paste0(names(extrainfo[i]), ": ",
+                                    extrainfo[i])
+                } else to_show <- extrainfo[i]
+                if (nchar(to_show) > 40) {
+                  to_show <- paste0(substr(to_show, 1, 40), "...")
+                }
                 if (i == 1) {cat(to_show, "\n"); next}
                 cat("                     ", to_show,
                     "\n", sep = "")

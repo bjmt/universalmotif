@@ -28,6 +28,7 @@
 #' @param progress_bar \code{logical(1)} Show progress.
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param motifs \code{list} A list of \linkS4class{universalmotif} motifs.
+#' @param na.rm \code{logical} Remove columns where all values are \code{NA}.
 #'
 #' @return 
 #'    For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
@@ -369,10 +370,14 @@ get_consensusAA <- function(position, type, pseudocount) {
 
 #' @rdname utilities
 #' @export
-summarise_motifs <- function(motifs) {
+summarise_motifs <- function(motifs, na.rm = TRUE) {
   classcheck <- vapply(motifs, function(x) !is(x, "universalmotif"), logical(1))
   if (any(classcheck)) stop("all motifs must be 'universalmotif'")
-  do.call(rbind, lapply(motifs, as.data.frame))
+  out <- do.call(rbind, lapply(motifs, as.data.frame))
+  out <- out[, c("name", "altname", "family", "organism", "consensus", "alphabet",
+                 "strand", "icscore", "nsites", "bkgsites", "pval", "qval", "eval")]
+  if (na.rm) out <- Filter(function(x) !all(is.na(x)), out)
+  out
 }
 
 .internal_convert <- function(motifs, class = NULL, BPPARAM = SerialParam()) {

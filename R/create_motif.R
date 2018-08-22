@@ -161,6 +161,9 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
                                     eval, extrainfo, add.multifreq)
            standardGeneric("create_motif"))
 
+# TODO: Organise the methods better, lots of repeat code (debugging is a pain).
+#       (also get rid of all the '!missing' lines to check for params)
+  
 #' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R
 #' @export
