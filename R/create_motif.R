@@ -224,9 +224,10 @@ setMethod("create_motif", signature(input = "numeric"),
             mot <- matrix(rep(NA, alph_len * input), nrow = alph_len)
 
             if (missing(bkg)) {
+              bkg <- rpois(alph_len, 1000 / alph_len) / 1000
+              bkg <- bkg / sum(bkg)
               for (i in seq_len(input)) {
-                mot[, i] <- runif(alph_len)
-                mot[, i] <- mot[, i] / sum(mot[, i])
+                mot[, i] <- rdirichlet(1, bkg)
               }
             } else {
               if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
@@ -237,7 +238,7 @@ setMethod("create_motif", signature(input = "numeric"),
 
             if (missing(type) && missing(nsites)) {
               type <- "PPM"
-              nsites <- numeric(0)
+              nsites <- sample(50:250, 1)
             } else if (missing(type)) {
               type <- "PPM"
             } else if (missing(nsites) && type == "PCM") {

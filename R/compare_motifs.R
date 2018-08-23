@@ -73,7 +73,7 @@
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
                            method = "Pearson", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
-                           normalise.scores = TRUE, max.p = 0.05, max.e = 10,
+                           normalise.scores = TRUE, max.p = 0.01, max.e = 10,
                            BPPARAM = SerialParam()) {
 
   # param check --------------------------------------------
@@ -200,8 +200,10 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 
 # potential bottleneck
 get_rid_of_dupes <- function(comparisons) {
-  comparisons.sorted <- apply(comparisons[, 1:2], 1,
-                              function(x) paste(sort(x), collapse = " "))
+  comparisons.sorted <- character(nrow(comparisons))
+  for (i in seq_len(nrow(comparisons))) {
+    comparisons.sorted[i] <- paste(sort(comparisons[i, 1:2]), collapse = " ")
+  }
   comparisons[!duplicated(comparisons.sorted), ]
 } 
 
