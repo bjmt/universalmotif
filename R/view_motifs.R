@@ -133,8 +133,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
   motifs.rc <- motif_rc(motifs)
   mot.mats.rc <- lapply(motifs.rc, function(x) x["motif"])
 
-  mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
-                      motifs, mot.mats, BPPARAM = BPPARAM)
+  mot.ics <- bpmapply(function(x, y) as.numeric(.pos_iscscores(x, y, relative_entropy)),
+                      motifs, mot.mats, BPPARAM = BPPARAM, SIMPLIFY = FALSE)
   mot.ics.rc <- lapply(mot.ics, rev)
 
   mot.alns <- bplapply(seq_along(mot.mats)[-1],

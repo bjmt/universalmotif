@@ -127,7 +127,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
   }
   mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
-                      motifs, mot.mats, BPPARAM = BPPARAM)
+                      motifs, mot.mats, BPPARAM = BPPARAM, SIMPLIFY = FALSE)
   if (missing(compare.to)) {
 
     comparisons <- bplapply(seq_along(motifs)[-length(motifs)],
