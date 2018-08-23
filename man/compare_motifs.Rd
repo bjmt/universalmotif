@@ -7,7 +7,8 @@
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   use.type = "PPM", method = "Pearson", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.5, relative_entropy = FALSE,
-  max.p = 0.05, max.e = 10, BPPARAM = SerialParam())
+  normalise.scores = TRUE, max.p = 0.05, max.e = 10,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -42,6 +43,9 @@ alignments between low information content regions of two motifs.}
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link{convert_type}}.}
 
+\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
+unaligned positions.}
+
 \item{max.p}{\code{numeric(1)} Maximum P-value allowed in reporting matches.
 Only used if \code{compare.to} is set.}
 
@@ -50,9 +54,6 @@ Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
-
-\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.

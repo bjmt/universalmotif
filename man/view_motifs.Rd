@@ -6,7 +6,8 @@
 \usage{
 view_motifs(motifs, use.type = "ICM", method = "Pearson",
   tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
-  relative_entropy = FALSE, BPPARAM = SerialParam(), ...)
+  relative_entropy = FALSE, normalise.scores = TRUE,
+  BPPARAM = SerialParam(), ...)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -29,12 +30,12 @@ alignments between low information content regions of two motifs.}
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link{convert_type}}.}
 
+\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
+unaligned positions.}
+
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{Addtional options for \code{\link[ggseqlogo]{geom_logo}}.}
-
-\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions.}
 }
 \value{
 A \code{ggplot} object.

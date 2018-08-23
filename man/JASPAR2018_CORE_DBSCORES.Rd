@@ -4,11 +4,11 @@
 \name{JASPAR2018_CORE_DBSCORES}
 \alias{JASPAR2018_CORE_DBSCORES}
 \title{JASPAR2018 CORE database scores.}
-\format{List with three data.frames.}
+\format{\code{list} with three \code{data.frames}}
 \usage{
 JASPAR2018_CORE_DBSCORES
 }
 \description{
-For use with \code{\link{compare_motifs}}.
+For use with \code{\link{compare_motifs}}. Unormalised.
 }
 \keyword{datasets}

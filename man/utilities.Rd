@@ -19,8 +19,9 @@
 \usage{
 make_DBscores(db.motifs, method = "Pearson", shuffle.db = TRUE,
   shuffle.k = 3, shuffle.method = "linear",
-  shuffle.leftovers = "asis", rand.tries = 1000, min.overlap = 6,
-  min.mean.ic = 0, progress_bar = TRUE, BPPARAM = SerialParam())
+  shuffle.leftovers = "asis", rand.tries = 1000,
+  normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0,
+  progress_bar = TRUE, BPPARAM = SerialParam())
 
 ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites,
   relative_entropy = FALSE)
@@ -48,7 +49,7 @@ consensus_to_ppmAA(letter)
 
 get_consensusAA(position, type, pseudocount)
 
-summarise_motifs(motifs)
+summarise_motifs(motifs, na.rm = TRUE)
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
@@ -65,6 +66,8 @@ generate random motifs with \code{\link{create_motif}}}
 \item{shuffle.leftovers}{\code{character(1)}}
 
 \item{rand.tries}{\code{numeric(1)}}
+
+\item{normalise.scores}{\code{logical(1)}}
 
 \item{min.overlap}{\code{numeric(1)} Minimum required motif overlap.}
 
@@ -98,8 +101,6 @@ relative entropy or Kullback-Leibler divergence.}
 are accepted.}
 
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
-
-\item{normalise.scores}{\code{logical(1)}}
 
 \item{na.rm}{\code{logical} Remove columns where all values are \code{NA}.}
 }

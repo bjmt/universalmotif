@@ -109,8 +109,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // motif_simil_internal
-double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic);
-RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP) {
+double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, bool norm);
+RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP normSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -122,7 +122,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
     Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
-    rcpp_result_gen = Rcpp::wrap(motif_simil_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic));
+    Rcpp::traits::input_parameter< bool >::type norm(normSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_simil_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, norm));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -150,8 +151,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // merge_motifs_get_offset
-List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, NumericVector ic1, NumericVector ic2, double min_ic);
-RcppExport SEXP _universalmotif_merge_motifs_get_offset(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP) {
+List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, NumericVector ic1, NumericVector ic2, double min_ic, bool norm);
+RcppExport SEXP _universalmotif_merge_motifs_get_offset(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP normSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -162,13 +163,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic2(ic2SEXP);
     Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
-    rcpp_result_gen = Rcpp::wrap(merge_motifs_get_offset(mot1, mot2, method, min_overlap, ic1, ic2, min_ic));
+    Rcpp::traits::input_parameter< bool >::type norm(normSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_motifs_get_offset(mot1, mot2, method, min_overlap, ic1, ic2, min_ic, norm));
     return rcpp_result_gen;
 END_RCPP
 }
 // merge_motifs_internal
-NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, double weight1, double weight2);
-RcppExport SEXP _universalmotif_merge_motifs_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP weight1SEXP, SEXP weight2SEXP) {
+NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, String method, double min_overlap, bool tryRC, NumericVector ic1, NumericVector ic2, double min_ic, double weight1, double weight2, bool norm);
+RcppExport SEXP _universalmotif_merge_motifs_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP weight1SEXP, SEXP weight2SEXP, SEXP normSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -182,7 +184,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
     Rcpp::traits::input_parameter< double >::type weight1(weight1SEXP);
     Rcpp::traits::input_parameter< double >::type weight2(weight2SEXP);
-    rcpp_result_gen = Rcpp::wrap(merge_motifs_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2));
+    Rcpp::traits::input_parameter< bool >::type norm(normSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_motifs_internal(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2, norm));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -565,11 +568,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
     {"_universalmotif_calc_final_probs_cpp", (DL_FUNC) &_universalmotif_calc_final_probs_cpp, 3},
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
-    {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 8},
+    {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 9},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},
     {"_universalmotif_merge_add_cols", (DL_FUNC) &_universalmotif_merge_add_cols, 1},
-    {"_universalmotif_merge_motifs_get_offset", (DL_FUNC) &_universalmotif_merge_motifs_get_offset, 7},
-    {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 10},
+    {"_universalmotif_merge_motifs_get_offset", (DL_FUNC) &_universalmotif_merge_motifs_get_offset, 8},
+    {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 11},
     {"_universalmotif_numeric_to_integer_matrix", (DL_FUNC) &_universalmotif_numeric_to_integer_matrix, 1},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},

@@ -6,7 +6,8 @@
 \usage{
 merge_motifs(motifs, method = "Pearson", use.type = "PPM",
   min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
-  relative_entropy = FALSE, BPPARAM = SerialParam())
+  relative_entropy = FALSE, normalise.scores = TRUE,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -33,6 +34,9 @@ report the best score.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link{convert_type}}.}
+
+\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
+unaligned positions.}
 
 \item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }

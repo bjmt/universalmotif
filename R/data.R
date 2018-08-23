@@ -14,10 +14,17 @@
 
 #' JASPAR2018 CORE database scores.
 #'
-#' For use with \code{\link{compare_motifs}}.
+#' For use with \code{\link{compare_motifs}}. Unormalised.
 #'
-#' @format List with three data.frames.
+#' @format \code{list} with three \code{data.frames}
 "JASPAR2018_CORE_DBSCORES"
+
+#' JASPAR2018 CORE databse scores [normalised].
+#'
+#' For use with \code{\link{compare_motifs}}. Normalised.
+#'
+#' @format \code{list} with three \code{data.frames}
+"JASPAR2018_CORE_DBSCORES_NORM"
 
 #' Arabidopsis promoters.
 #'

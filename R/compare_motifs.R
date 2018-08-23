@@ -140,7 +140,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
   } else {
 
     if (missing(db.scores)) {
-      db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
+      if (!normalise.scores) db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
+      else db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
     }
 
     comparisons <- vector("list", length(compare.to))
@@ -317,6 +318,7 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
 
   totry$method <- rep(method, nrow(totry))
   totry$db <- rep(deparse(substitute(db.motifs)), nrow(totry))
+  totry$normalised <- rep(normalise.scores, nrow(totry))
   totry
 
 }
