@@ -83,8 +83,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     cat(" * Input parameters\n")
     cat("   * motifs:              ", deparse(substitute(motifs)), "\n")
     cat("   * sequences:           ", deparse(substitute(sequences)), "\n")
-    cat("   * threshold:           ",
-        ifelse(length(threshold) > 1, "...", threshold), "\n")
+    cat("   * threshold:           ", ifelse(length(threshold) > 1, "...",
+                                             threshold), "\n")
     cat("   * threshold.type:      ", threshold.type, "\n")
     cat("   * RC:                  ", RC, "\n")
     cat("   * use.freq:            ", use.freq, "\n")
@@ -100,7 +100,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   if (verbose > 1) cat("   * Scanning", length(motifs),
                        ifelse(length(motifs) > 1, "motifs\n", "motif\n"))
 
-  motifs <- convert_motifs(motifsM)
+  motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
@@ -308,6 +308,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   lapply(seqs, function(x) scan_seq_internal(x, score.1, thresh))
 }
 
+# perhaps implement this in cpp
 .process_seqs <- function(seq.matrix, seq.aschar, k) {
   for (i in seq_len(k)) {
     to.remove <- k - i

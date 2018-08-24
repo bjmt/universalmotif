@@ -34,6 +34,7 @@
 #' @param max.e \code{numeric(1)} Maximum E-value allowed in reporting matches.
 #'    Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
+#' @param progress_bar \code{logical(1)} Show progress.
 #'
 #' @return \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
 #'    * PCC: 0 represents complete distance, >0 similarity.
@@ -84,7 +85,8 @@
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
                            method = "NPCC", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
-                           normalise.scores = FALSE, max.p = 0.01, max.e = 10) {
+                           normalise.scores = FALSE, max.p = 0.01, max.e = 10,
+                           progress_bar = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -99,8 +101,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                 "numeric")
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
-                                      normalise.scores = args$normalise.scores),
-                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), "logical")
+                                      normalise.scores = args$normalise.scores,
+                                      progress_bar = args$progress_bar),
+                                 numeric(), logical(), "logical")
   all_checks <- c(char_check, num_check, logi_check)
   if (!missing(db.scores) && !is.data.frame(db.scores)) {
     dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
@@ -129,6 +132,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     mot.names[duplicated(mot.names)] <- mot.dup
   }
 
+
   if (use.freq == 1) {
     mot.mats <- lapply(motifs, function(x) x["motif"])
   } else {
@@ -136,13 +140,18 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
   }
   mot.ics <- mapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
                       motifs, mot.mats, SIMPLIFY = FALSE)
+
   if (missing(compare.to)) {
 
+    BPPARAM <- bpparam()
+    if (progress_bar) BPPARAM$progressbar <- TRUE
     comparisons <- bplapply(seq_along(motifs)[-length(motifs)],
                             function(x) .compare(x, mot.mats, method,
                                                  min.overlap, tryRC,
                                                  min.mean.ic, mot.ics,
-                                                 normalise.scores))
+                                                 normalise.scores),
+                            BPPARAM = BPPARAM)
+    if (progress_bar) BPPARAM$progressbar <- FALSE
 
   } else {
 
@@ -154,6 +163,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     comparisons <- vector("list", length(compare.to))
     pvals <- vector("list", length(compare.to))
 
+    if (progress_bar) pb <- txtProgressBar(max = length(compare.to), style = 3)
     for (i in compare.to) {
       comparisons[[i]] <- bplapply(seq_along(motifs)[-i],
               function(x) motif_simil_internal(mot.mats[[i]],
@@ -169,9 +179,12 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
       } else {
         pvals[[i]] <- rep(NA, length(motifs[-i]))
       }
+      if (progress_bar) setTxtProgressBar(pb, i)
     }
+    if (progress_bar) close(pb)
 
   }
+
 
   if (missing(compare.to)) {
 
@@ -378,7 +391,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 #' @noRd
 pvals_from_db <- function(subject, target, db, scores, method) {
 
-  if (method == "Pearson") ltail <- FALSE else ltail <- TRUE
+  if (method %in% c("PCC", "NPCC", "SW", "NSW")) ltail <- FALSE else ltail <- TRUE
   pvals <- vector("numeric", length(target))
   subject.ncol <- ncol(subject[[1]]["motif"])
   if (subject.ncol < db$subject[1]) subject.ncol <- db$subject[1]

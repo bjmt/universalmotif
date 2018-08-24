@@ -53,6 +53,8 @@ Only used if \code{compare.to} is set.}
 \item{max.e}{\code{numeric(1)} Maximum E-value allowed in reporting matches.
 Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
+
+\item{progress_bar}{\code{logical(1)} Show progress.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
