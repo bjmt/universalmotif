@@ -51,7 +51,7 @@ switch_alph <- function(motifs) {
     motif
   }
 
-  motifs <- bplapply(motifs, .switch_alph)
+  motifs <- lapply(motifs, .switch_alph)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs <- .internal_convert(motifs, CLASS_IN)

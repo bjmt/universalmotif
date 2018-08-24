@@ -74,38 +74,38 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
     motif_starts <- c(1, seperators + 1)
   }
 
-  motifs <- bpmapply(function(x, y) raw_lines[x:y],
+  motifs <- mapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops, SIMPLIFY = FALSE)
   if (rownames && positions == "columns") {
-    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x,
+    motifs <- lapply(motifs, function(x) as.matrix(read.table(text = x,
                                                                 row.names = 1)))
   } else if (rownames && positions == "rows") {
-    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x,
+    motifs <- lapply(motifs, function(x) as.matrix(read.table(text = x,
                                                                 header = TRUE)))
   } else {
-    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x)))
+    motifs <- lapply(motifs, function(x) as.matrix(read.table(text = x)))
   }
 
   if (positions == "rows") {
-    motifs <- bplapply(motifs, t)
+    motifs <- lapply(motifs, t)
   }
 
-  motifs <- bplapply(motifs, function(x) {rownames(x) <- NULL; x})
+  motifs <- lapply(motifs, function(x) {rownames(x) <- NULL; x})
   if (!missing(type)) {
-    motifs <- bplapply(motifs, function(x) {
+    motifs <- lapply(motifs, function(x) {
                       universalmotif_cpp(motif = x, type = type, alphabet = alphabet)
                      })
   } else {
-    motifs <- bplapply(motifs, function(x) universalmotif_cpp(motif = x,
+    motifs <- lapply(motifs, function(x) universalmotif_cpp(motif = x,
                                                           alphabet = alphabet))
   }
 
   if (!isFALSE(headers)) {
-    motifs <- bpmapply(function(x, y) {x@name <- y; x}, motifs, headers,
+    motifs <- mapply(function(x, y) {x@name <- y; x}, motifs, headers,
                        SIMPLIFY = FALSE)
   }
 
-  motifs <- bplapply(motifs, function(x) {
+  motifs <- lapply(motifs, function(x) {
                          msg <- validObject_universalmotif(x)
                          if (length(msg) > 0) stop(msg) else x
                        })

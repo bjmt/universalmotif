@@ -147,7 +147,7 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   if (!is.list(motifs)) motifs <- list(motifs)
   if (missing(pseudocount)) pseudocount <- NULL
 
-  motifs <- bplapply(motifs, function(x) convert_type_single(x, type, pseudocount,
+  motifs <- lapply(motifs, function(x) convert_type_single(x, type, pseudocount,
                                                              nsize_correction,
                                                              relative_entropy)) 
 

@@ -69,7 +69,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
     new.mats[[i]] <- mot.cols[, seq_len(mot.lens[i]) + mot.offsets[i]]
   }
 
-  new.motifs <- bpmapply(shuffle_new_mot, new.mats, motifs,
+  new.motifs <- mapply(shuffle_new_mot, new.mats, motifs,
                          SIMPLIFY = FALSE)
 
   new.motifs <- .internal_convert(new.motifs, unique(CLASS_IN))

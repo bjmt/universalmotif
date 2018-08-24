@@ -104,7 +104,7 @@ setMethod("convert_motifs", signature(motifs = "list"),
               classin <- strsplit(class, "-")[[1]][2]
               if (mot_classes == classin) return(motifs)
             }
-            bplapply(motifs, function(x) convert_motifs(x, class = class))
+            lapply(motifs, function(x) convert_motifs(x, class = class))
           })
 
 #' @describeIn convert_motifs Convert a \linkS4class{universalmotif} object.
@@ -313,7 +313,7 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
               mot
             }
             motifs_out <- vector("list", length(motifs))
-            motifs_out <- bplapply(seq_len(length(motifs)), motifdb_fun)
+            motifs_out <- lapply(seq_len(length(motifs)), motifdb_fun)
             convert_motifs(motifs_out, class = class)
           })
 
@@ -419,11 +419,11 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
 setMethod("convert_motifs", signature(motifs = "XMatrixList"),
           definition = function(motifs, class) {
             motif_num <- length(motifs@listData)
-            motifs_out <- bplapply(seq_len(motif_num),
+            motifs_out <- lapply(seq_len(motif_num),
                                    function(i) {
                                      motifs@listData[[i]]
                                    })
-            motif_names <- unlist(bplapply(seq_len(motif_num),
+            motif_names <- unlist(lapply(seq_len(motif_num),
                                            function(i) {
                                             motifs@listData[[i]]@name
                                            }))

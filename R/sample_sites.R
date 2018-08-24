@@ -44,7 +44,7 @@ sample_sites <- function(motif, n = 100, use.freq = 1) {
     sites
   }
 
-  sites <- bplapply(seq_len(n), .get_sites)
+  sites <- lapply(seq_len(n), .get_sites)
   sites <- unlist(sites)
 
   if (alph == "DNA") {

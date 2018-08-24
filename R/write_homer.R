@@ -59,7 +59,7 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6) {
   }
   print(motifs);print(logodds_thresholds)
 
-  lines_out <- bpmapply(.write_homer, motifs, logodds_thresholds,
+  lines_out <- mapply(.write_homer, motifs, logodds_thresholds,
                         SIMPLIFY = FALSE)
   lines_out <- unlist(lines_out)
 

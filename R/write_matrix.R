@@ -86,7 +86,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
 
   }
 
-  lines_final <- bplapply(motifs, .write_matrix, positions = positions,
+  lines_final <- lapply(motifs, .write_matrix, positions = positions,
                           rownames = rownames, sep = sep,
                           headers = headers)  # not working??
   lines_final <- unlist(lines_final)

@@ -43,7 +43,7 @@ read_transfac <- function(file, skip = 0) {
   motif_starts <- c(1, motif_stops[-length(motif_stops)] + 1)
   motif_stops <- motif_stops - 1
 
-  motifs <- bpmapply(function(x, y) raw_lines[x:y],
+  motifs <- mapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops,
                      SIMPLIFY = FALSE)
 
@@ -64,7 +64,7 @@ read_transfac <- function(file, skip = 0) {
     matrix(mot, ncol = 4, byrow = TRUE)
   }
 
-  motif_matrix <- bplapply(motifs, get_matrix)
+  motif_matrix <- lapply(motifs, get_matrix)
 
   parse_meta <- function(x) {
     metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
@@ -117,9 +117,9 @@ read_transfac <- function(file, skip = 0) {
     metas_correct
   }
 
-  motif_meta <- bplapply(motifs, parse_meta)
+  motif_meta <- lapply(motifs, parse_meta)
 
-  motifs <- bpmapply(function(x, y) {
+  motifs <- mapply(function(x, y) {
                       mot <- universalmotif_cpp(name = as.character(y[names(y) == 
                                                          "name"]),
                                      altname = as.character(y[names(y) == 

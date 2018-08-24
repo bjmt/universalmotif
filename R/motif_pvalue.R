@@ -115,7 +115,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) 
   } else {
     if (!missing(bkg.probs)) warning("'bkg.probs' not supported for 'use.freq' > 1")
     mots <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
-    motifs <- bpmapply(function(x, y) apply(x, 2, ppm_to_pwmC, 
+    motifs <- mapply(function(x, y) apply(x, 2, ppm_to_pwmC, 
                                             pseudocount = y["pseudocount"],
                                             nsites = y["nsites"]),
                        mots, motifs, SIMPLIFY = FALSE)

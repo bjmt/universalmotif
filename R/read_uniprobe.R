@@ -54,9 +54,9 @@ read_uniprobe <- function(file, skip = 0) {
       as.numeric(c(motif_A, motif_C, motif_G, motif_T))
     }
 
-    motif_list <- bpmapply(parse_motifs, motif_starts, motif_stops,
+    motif_list <- mapply(parse_motifs, motif_starts, motif_stops,
                            SIMPLIFY = FALSE)
-    motif_list <- bpmapply(function(meta, motif) {
+    motif_list <- mapply(function(meta, motif) {
                             universalmotif(name = meta[1],
                                            motif = matrix(motif, nrow = 4,
                                                           byrow = TRUE),
@@ -79,7 +79,7 @@ read_uniprobe <- function(file, skip = 0) {
     motif_names <- grep("^A:", raw_lines) - 1
     motif_names <- raw_lines[motif_names]
 
-    motif_list <- bpmapply(function(name, a, c, g, t) {
+    motif_list <- mapply(function(name, a, c, g, t) {
                              motif <- matrix(c(a, c, g, t), nrow = 4,
                                              byrow = TRUE)
                              mot <- universalmotif_cpp(name = name,

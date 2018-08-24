@@ -82,7 +82,7 @@ write_jaspar <- function(motifs, file) {
 
   }
 
-  lines_out <- bplapply(motifs, .write_jaspar)
+  lines_out <- lapply(motifs, .write_jaspar)
   lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))

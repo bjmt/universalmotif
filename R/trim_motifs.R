@@ -33,18 +33,18 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
   if (!is.list(motifs)) motifs <- list(motifs)
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
 
-  motifs <- bplapply(motifs,
+  motifs <- lapply(motifs,
                      function(x) {
                        y <- x["nsites"]
                        if (length(y) == 0) x["nsites"] <- 100
                        x
                      }M)
 
-  mot.mats <- bplapply(motifs, function(x) x["motif"])
+  mot.mats <- lapply(motifs, function(x) x["motif"])
 
-  mot.mats.k <- bplapply(motifs, function(x) x["multifreq"])
+  mot.mats.k <- lapply(motifs, function(x) x["multifreq"])
 
-  mot.scores <- bplapply(motifs,
+  mot.scores <- lapply(motifs,
                          function(x) {
                           apply(x["motif"], 2, position_icscoreC,
                                 bkg = x["bkg"], type = x["type"],
@@ -52,18 +52,18 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
                                 nsites = x["nsites"])
                          })
 
-  new.mats <- bpmapply(function(x, y) trim_motif_internal(x, y, min.ic),
+  new.mats <- mapply(function(x, y) trim_motif_internal(x, y, min.ic),
                        mot.mats, mot.scores,
                        SIMPLIFY = FALSE)
 
-  new.mats.k <- bpmapply(function(x, y) {
+  new.mats.k <- mapply(function(x, y) {
                         if (length(x) > 0) {
                           lapply(x, function(z) trim_motif_internal(z, y, min.ic))
                         } else list()
                        }, mot.mats.k, mot.scores,
                        SIMPLIFY = FALSE)
 
-  motifs <- bpmapply(function(x, y, z) {
+  motifs <- mapply(function(x, y, z) {
                         if (length(x) == 0) return(NULL)
                         z@motif <- x
                         z@multifreq <- y
@@ -84,7 +84,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
   
   motifs <- motifs[!dont_keep]
 
-  motifs <- bplapply(motifs,
+  motifs <- lapply(motifs,
                      function(x) {
                        alph <- x@alphabet
                        type <- x@type

@@ -48,10 +48,10 @@ read_cisbp <- function(file, skip = 0) {
   motif_starts <- which(grepl("^Pos", raw_lines))
   meta_stops <- motif_starts - 1
 
-  meta_list <- bpmapply(function(x, y) raw_lines[x:y],
+  meta_list <- mapply(function(x, y) raw_lines[x:y],
                         meta_starts, meta_stops,
                         SIMPLIFY = FALSE)
-  motif_list <- bpmapply(function(x, y) raw_lines[x:y],
+  motif_list <- mapply(function(x, y) raw_lines[x:y],
                          motif_starts, motif_stops,
                          SIMPLIFY = FALSE)
 
@@ -73,10 +73,10 @@ read_cisbp <- function(file, skip = 0) {
     x
   }
 
-  meta_list <- bplapply(meta_list, parse_meta)
-  motif_list <- bplapply(motif_list, parse_motifs)
+  meta_list <- lapply(meta_list, parse_meta)
+  motif_list <- lapply(motif_list, parse_motifs)
 
-  motifs <- bpmapply(function(x, y) {
+  motifs <- mapply(function(x, y) {
                     if (all(colnames(x) %in% c("A", "C", "G", "U"))) {
                       alph <- "RNA"
                     } else if (all(colnames(x) %in% c("A", "C", "G", "T"))) {

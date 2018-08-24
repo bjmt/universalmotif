@@ -129,11 +129,11 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
   motifs.rc <- motif_rc(motifs)
   mot.mats.rc <- lapply(motifs.rc, function(x) x["motif"])
 
-  mot.ics <- bpmapply(function(x, y) as.numeric(.pos_iscscores(x, y, relative_entropy)),
+  mot.ics <- mapply(function(x, y) as.numeric(.pos_iscscores(x, y, relative_entropy)),
                       motifs, mot.mats, SIMPLIFY = FALSE)
   mot.ics.rc <- lapply(mot.ics, rev)
 
-  mot.alns <- bplapply(seq_along(mot.mats)[-1],
+  mot.alns <- lapply(seq_along(mot.mats)[-1],
                        function(x) {
                          y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats[[x]],
                                                       method, min.overlap,
@@ -142,7 +142,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
                          merge_add_cols(y)
                          y})
   if (tryRC) {
-    mot.alns.rc <- bplapply(seq_along(mot.mats)[-1],
+    mot.alns.rc <- lapply(seq_along(mot.mats)[-1],
                          function(x) {
                            y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats.rc[[x]],
                                                         method, min.overlap,

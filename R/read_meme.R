@@ -68,7 +68,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names <- grep("^MOTIF ", raw_lines)
   # motif_names <- motif_meta - 1
-  motif_names <- bplapply(raw_lines[motif_names], function(x) {
+  motif_names <- lapply(raw_lines[motif_names], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]
                           })
@@ -77,20 +77,20 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
                         function(x) strsplit(x, "\\s+")[[1]][6])
   motif_stops <- motif_meta + as.numeric(motif_stops)
 
-  motif_meta <- bplapply(raw_lines[motif_meta],
+  motif_meta <- lapply(raw_lines[motif_meta],
                          function(x) {
                            x <- strsplit(x, "\\s+")[[1]]
                            c(nsites = as.numeric(x[8]),
                              eval = as.numeric(x[10]))
                          })
-  motif_list <- bpmapply(function(x, y) {
+  motif_list <- mapply(function(x, y) {
                            z <- raw_lines[x:y]
                            z <- sapply(z, function(x) strsplit(x, "\\s+")[[1]])
                            z <- suppressWarnings(as.numeric(z))
                            z <- z[!is.na(z)]
                          }, motif_starts, motif_stops, SIMPLIFY = FALSE)
 
-  motif_list <- bpmapply(function(x, y, z) {
+  motif_list <- mapply(function(x, y, z) {
                           mot <- universalmotif_cpp(name = x,
                                          type = "PPM",
                                          nsites = y[1],
@@ -121,22 +121,22 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
       block.len <- as.numeric(block.len)
       block.starts <- block.starts + 2
       block.stops <- block.starts +  block.len - 1
-      blocks <- bpmapply(function(x, y) read.table(text = raw_lines[x:y],
+      blocks <- mapply(function(x, y) read.table(text = raw_lines[x:y],
                                                   stringsAsFactors = FALSE),
                         block.starts, block.stops,
                         SIMPLIFY = FALSE)
-      sites <- bplapply(blocks, function(x) x$V4)
-      site.names <- bplapply(blocks, function(x) x$V1)
+      sites <- lapply(blocks, function(x) x$V4)
+      site.names <- lapply(blocks, function(x) x$V1)
       if (alph == "DNA") {
-        sites <- bplapply(sites, DNAStringSet)
+        sites <- lapply(sites, DNAStringSet)
       } else if (alph == "RNA") {
-        sites <- bplapply(sites, RNAStringSet)
+        sites <- lapply(sites, RNAStringSet)
       } else if (alph == "AA") {
-        sites <- bplapply(sites, AAStringSet)
+        sites <- lapply(sites, AAStringSet)
       } else {
-        sites <- bplapply(sites, BStringSet)
+        sites <- lapply(sites, BStringSet)
       }
-      sites <- bpmapply(function(x, y) {names(x) <- y; x},
+      sites <- mapply(function(x, y) {names(x) <- y; x},
                         sites, site.names,
                         SIMPLIFY = FALSE)
       if (length(sites) == 1) sites <- sites[[1]]

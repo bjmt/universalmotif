@@ -100,7 +100,7 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
   
   }
 
-  lines_out <- c(lines_out, unlist(bplapply(motifs, .write_meme)))
+  lines_out <- c(lines_out, unlist(lapply(motifs, .write_meme)))
 
   writeLines(lines_out, con <- file(file))
   close(con)

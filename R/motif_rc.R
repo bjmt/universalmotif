@@ -22,7 +22,7 @@ motif_rc <- function(motifs) {
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  motifs <- bplapply(motifs, motif_rc_internal)
+  motifs <- lapply(motifs, motif_rc_internal)
 
   motifs <- .internal_convert(motifs, unique(CLASS_IN))
   motifs

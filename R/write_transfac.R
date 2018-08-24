@@ -56,7 +56,7 @@ write_transfac <- function(motifs, file) {
     lines_out <- c(lines_out, "XX", "//")
   }
 
-  lines_out <- bplapply(motifs, .write_transfac)
+  lines_out <- lapply(motifs, .write_transfac)
   lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))
