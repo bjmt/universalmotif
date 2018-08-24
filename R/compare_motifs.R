@@ -8,12 +8,13 @@
 #'    Otherwise compares all motifs to the specified motif(s).
 #' @param db.scores \code{data.frame} See \code{details}.
 #' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
-#' @param use.type \code{character(1)} One of \code{'PCM'} (Pearson only),
+#' @param use.type \code{character(1)} One of \code{'PCM'} (PCC/NPCC only),
 #'    \code{'PPM'} (any method),
 #'    \code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
 #'    two allow for taking into account the background frequencies 
 #'    (for ICM, only if \code{relative_entropy = TRUE}).
-#' @param method \code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.
+#' @param method \code{character(1)} One of \code{'PCC', 'NPCC', 'EUCL', 'NEUCL',
+#'    'SW', 'NSW', 'KL'}. See details.
 #' @param tryRC \code{logical} Try the reverse complement of the motifs as well,
 #'    report the best score.
 #' @param min.overlap \code{numeric(1)} Minimum overlap required when aligning the
@@ -35,12 +36,22 @@
 #' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
-#'    If \code{method = c('Euclidean', 'KL')} then the resulting scores represent
-#'    distances; for \code{method = 'Pearson'}, similarities.
+#'    * PCC: 0 represents complete distance, >0 similarity.
+#'    * NPCC: 0 represents complete distance, 1 complete similarity.
+#'    * EUCL: 0 represents complete similarity, >0 distance.
+#'    * NEUCL: 0 represents complete similarity, sqrt(2) complete distance.
+#'    * SW: 0 represents complete distance, >0 similarity.
+#'    * NSW: 0 represents complete distance, 2 complete similarity.
+#'    * KL: 0 represents complete similarity, >0 distance.
 #'
 #' @details
-#' The comparison metrics are identical to those implemented by 
-#' \code{\link[TFBSTools]{PWMSimilarity}}, rewritten in C++.
+#' * PCC: Pearson correlation coefficient
+#' * NPCC: Normalised PCC
+#' * EUCL: Euclidian distance
+#' * NEUCL: Normalised EUCL
+#' * SW: Sandelin-Wasserman similarity
+#' * NSW: Normalised SW
+#' * KL: Kullback-Leibler divergence
 #'
 #' To note regarding p-values: p-values are pre-computed using the
 #' \code{make_DBscores} function. If not given, then uses a set of internal
@@ -57,7 +68,7 @@
 #' @examples
 #' motif1 <- create_motif()
 #' motif2 <- create_motif()
-#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "Pearson")
+#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "PCC")
 #' ## to get a dist object:
 #' as.dist(1 - motif1vs2)
 #'
@@ -71,9 +82,9 @@
 #'    \code{\link{motif_tree}}, \code{\link{view_motifs}}
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
-                           method = "Pearson", tryRC = TRUE, min.overlap = 6,
+                           method = "NPCC", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
-                           normalise.scores = TRUE, max.p = 0.01, max.e = 10,
+                           normalise.scores = FALSE, max.p = 0.01, max.e = 10,
                            BPPARAM = SerialParam()) {
 
   # param check --------------------------------------------
@@ -102,7 +113,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
   #---------------------------------------------------------
 
 
-  if (use.type %in% c("PCM", "PWM") && method %in% c("Euclidean", "KL")) {
+  if (use.type %in% c("PCM", "PWM") && !method %in% c("PCC", "NPCC")) {
     stop("Method '", method, "' is not supported for type '", use.type, "'")
   }
 
@@ -157,8 +168,12 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                                normalise.scores),
                                    BPPARAM = BPPARAM)
       comparisons[[i]] <- do.call(c, comparisons[[i]])
-      pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
-                             db.scores, comparisons[[i]], method)
+      if (!is.null(db.scores)) {
+        pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
+                               db.scores, comparisons[[i]], method)
+      } else {
+        pvals[[i]] <- rep(NA, length(motifs[-i]))
+      }
     }
 
   }
@@ -179,11 +194,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                     stringsAsFactors = FALSE)
                             }, BPPARAM = BPPARAM)
     comparisons <- do.call(rbind, comparisons)
-    comparisons <- comparisons[order(comparisons$Pval, decreasing = FALSE), ]
-    comparisons <- comparisons[comparisons$Pval <= max.p &
-                               comparisons$Eval <= max.e, ]
-    comparisons <- comparisons[comparisons$subject != comparisons$target, ]
-    comparisons <- comparisons[!is.na(comparisons$subject), ]
+    if (!is.null(db.scores)) {
+      comparisons <- comparisons[order(comparisons$Pval, decreasing = FALSE), ]
+      comparisons <- comparisons[comparisons$Pval <= max.p &
+                                 comparisons$Eval <= max.e, ]
+      comparisons <- comparisons[comparisons$subject != comparisons$target, ]
+      comparisons <- comparisons[!is.na(comparisons$subject), ]
+    }
     comparisons <- get_rid_of_dupes(comparisons)
 
     if (nrow(comparisons) == 0) {
@@ -198,7 +215,14 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 
 }
 
-# potential bottleneck
+#' get_rid_of_dupes
+#'
+#' Get rid of entries where comparison is an inverted repeat of a
+#' previous comparison. [potential bottleneck]
+#'
+#' @param comparisons Data frame of results.
+#'
+#' @noRd
 get_rid_of_dupes <- function(comparisons) {
   comparisons.sorted <- character(nrow(comparisons))
   for (i in seq_len(nrow(comparisons))) {
@@ -207,6 +231,21 @@ get_rid_of_dupes <- function(comparisons) {
   comparisons[!duplicated(comparisons.sorted), ]
 } 
 
+#' compare
+#'
+#' Compare motifs for matrix output. Avoids repeat comparisons.
+#'
+#' @param x Index to start comparison.
+#' @param mot.mats Motif matrices.
+#' @param min.overlap Minimum allowed overlap.
+#' @param tryRC Compare RC as well.
+#' @param min.mean.ic Minimum mean IC for comparison.
+#' @param mot.ics Vector of ICs for each position in motifs.
+#' @param normalise.scores Normalise scores, logical.
+#'
+#' @return 1d vector of scores.
+#'
+#' @noRd
 .compare <- function(x, mot.mats, method, min.overlap, tryRC, min.mean.ic,
                      mot.ics, normalise.scores) {
   if (x < length(mot.mats)) x2 <- x + 1 else x2 <- x
@@ -222,6 +261,15 @@ get_rid_of_dupes <- function(comparisons) {
   y
 }
 
+#' pos_icscores
+#'
+#' Calculate IC for each postion in the motif.
+#'
+#' @param motif universalmotif class motif.
+#' @param mot.mats Motif matrix.
+#' @param relative Calculate IC as KL divergence.
+#'
+#' @noRd
 .pos_iscscores <- function(motif, mot.mats, relative = FALSE) {
 
   bkg <- motif["bkg"]
@@ -235,7 +283,7 @@ get_rid_of_dupes <- function(comparisons) {
 
 #' @rdname utilities
 #' @export
-make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
+make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           shuffle.leftovers = "asis", rand.tries = 1000,
                           normalise.scores = TRUE,
@@ -263,6 +311,7 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  db.motifs <- convert_motifs(db.motifs)
   db.ncols <- vapply(db.motifs, function(x) ncol(x["motif"]), numeric(1))
 
   if (shuffle.db) {
@@ -319,12 +368,24 @@ make_DBscores <- function(db.motifs, method = "Pearson", shuffle.db = TRUE,
   if (progress_bar) close(pb)
 
   totry$method <- rep(method, nrow(totry))
-  totry$db <- rep(deparse(substitute(db.motifs)), nrow(totry))
   totry$normalised <- rep(normalise.scores, nrow(totry))
   totry
 
 }
 
+#' pvals_from_db
+#'
+#' Calculate pval for a match from database scores.
+#'
+#' @param subject Subject motif.
+#' @param target Target motifs.
+#' @param db DB scores in a data frame.
+#' @param scores Scores between subject motif and target motifs.
+#' @param method Comparison metric.
+#'
+#' @return Vector of pvals.
+#'
+#' @noRd
 pvals_from_db <- function(subject, target, db, scores, method) {
 
   if (method == "Pearson") ltail <- FALSE else ltail <- TRUE

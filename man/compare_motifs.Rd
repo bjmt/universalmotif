@@ -7,7 +7,7 @@
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   use.type = "PPM", method = "Pearson", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.5, relative_entropy = FALSE,
-  normalise.scores = TRUE, max.p = 0.05, max.e = 10,
+  normalise.scores = TRUE, max.p = 0.01, max.e = 10,
   BPPARAM = SerialParam())
 }
 \arguments{
@@ -26,7 +26,8 @@ Otherwise compares all motifs to the specified motif(s).}
 two allow for taking into account the background frequencies 
 (for ICM, only if \code{relative_entropy = TRUE}).}
 
-\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.}
+\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL',
+'SW', 'NSW'}.}
 
 \item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
 report the best score.}

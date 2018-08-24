@@ -46,10 +46,10 @@
 #' @seealso \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-view_motifs <- function(motifs, use.type = "ICM", method = "Pearson",
+view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
                         tryRC = TRUE, min.overlap = 6,
                         min.mean.ic = 0.5, relative_entropy = FALSE,
-                        normalise.scores = TRUE,
+                        normalise.scores = FALSE,
                         BPPARAM = SerialParam(), ...) {
 
   # param check --------------------------------------------

@@ -229,9 +229,10 @@ custom.motif <- create_motif(alphabet = "QWER")
 
 DNA.motif <- create_motif(5)
 
-# if the background frequencies are not provided, they are assumed to be
-# uniform; if different background frequencies are used, then at each
-# position \\code{rdirichlet(1, bkg)} is used 
+# If the background frequencies are not provided, they are generated
+# using `rpois`; positions are created using `rdirichlet(1, bkg)`.
+# (calling `create_motif()` creates motifs with an average
+# positional IC of 1)
 
 DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
 DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))

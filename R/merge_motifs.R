@@ -17,9 +17,9 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
-merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
+merge_motifs <- function(motifs, method = "NPCC", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
-                         relative_entropy = FALSE, normalise.scores = TRUE,
+                         relative_entropy = FALSE, normalise.scores = FALSE,
                          BPPARAM = SerialParam()) {
 
   # param check --------------------------------------------
@@ -38,7 +38,7 @@ merge_motifs <- function(motifs, method = "Pearson", use.type = "PPM",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (use.type %in% c("PCM", "PWM") && method %in% c("Euclidean", "KL")) {
+  if (use.type %in% c("PCM", "PWM") && method %in% c("EUCL", "NEUCL", "KL")) {
     stop("Method '", method, "' is not supported for type '", use.type, "'")
   }
 

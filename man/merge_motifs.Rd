@@ -12,7 +12,8 @@ merge_motifs(motifs, method = "Pearson", use.type = "PPM",
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.}
+\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL',
+'SW', 'NSW'}.}
 
 \item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
 \code{'PPM'} (any method),

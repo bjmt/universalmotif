@@ -22,10 +22,78 @@ double motif_euclidean(NumericMatrix mot1, NumericMatrix mot2) {
   diff_mat_colsums = diff_mat_colsums[to_keep];
 
   double k = sum(diff_mat_colsums);
-  return k / sqrt(2.0) / diff_mat_colsums.length();
+  return k / sqrt(2.0);
+
+}
+
+double motif_euclidean_norm(NumericMatrix mot1, NumericMatrix mot2) {
+
+  // Adapted from TFBSTools:::PWMEuclidean
+
+  int mat_size = mot1.nrow() * mot1.ncol();
+  NumericMatrix diff_mat(mot1.nrow(), mot1.ncol());
+
+  for (int i = 0; i < mat_size; ++i) {
+    diff_mat[i] = mot1[i] - mot2[i];
+    diff_mat[i] = pow(diff_mat[i], 2.0);
+  }
+
+  NumericVector diff_mat_colsums = colSums(diff_mat);
+  for (int i = 0; i < diff_mat_colsums.length(); ++i) {
+    diff_mat_colsums[i] = sqrt(diff_mat_colsums[i]);
+  }
+
+  LogicalVector to_keep = !is_na(diff_mat_colsums);
+  diff_mat_colsums = diff_mat_colsums[to_keep];
+
+  double k = sum(diff_mat_colsums);
+  return k / diff_mat_colsums.length() / sqrt(2.0);
+
 }
 
 double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
+
+  // Adapted from TFBSTools:::PWMPearson
+
+  int mat_size = mot1.nrow() * mot1.ncol();
+  
+  for (int i = 0; i < mat_size; ++i) {
+    mot1[i] -= 1.0 / mot1.nrow();
+    mot2[i] -= 1.0 / mot1.nrow();
+  }
+
+  NumericMatrix mult_mat(mot1.nrow(), mot1.ncol());
+  for (int i = 0; i < mat_size; ++i) {
+    mult_mat[i] = mot1[i] * mot2[i];
+  }
+
+  NumericVector top = colSums(mult_mat);
+
+  for (int i = 0; i < mat_size; ++i) {
+    mot1[i] = pow(mot1[i], 2.0);
+    mot2[i] = pow(mot2[i], 2.0);
+  }
+
+  NumericVector mot1_colsums = colSums(mot1);
+  NumericVector mot2_colsums = colSums(mot2);
+  NumericVector bottom(mot1.ncol());
+  for (int i = 0; i < mot1_colsums.length(); ++i) {
+    bottom[i] = mot1_colsums[i] * mot2_colsums[i];
+    bottom[i] = sqrt(bottom[i]);
+  }
+
+  NumericVector top_bot(mot1.ncol());
+  for (int i = 0; i < mot1.ncol(); ++i) {
+    top_bot[i] = top[i] / bottom[i];
+  }
+
+  LogicalVector to_keep = !is_na(top_bot);
+  top_bot = top_bot[to_keep];
+
+  return top_bot.length() * sum(top_bot);
+}
+
+double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
   // Adapted from TFBSTools:::PWMPearson
 
@@ -85,6 +153,48 @@ double motif_kl(NumericMatrix mot1, NumericMatrix mot2) {
   mat_colsums = mat_colsums[to_keep];
 
   return 0.5 / mat_colsums.length() * sum(mat_colsums);
+}
+
+double motif_sw(NumericMatrix mot1, NumericMatrix mot2) {
+
+  // Adapter from RSAT compare-matrices
+
+  int mat_size = mot1.nrow() * mot1.ncol();
+  NumericMatrix res_mat(mot1.nrow(), mot1.ncol());
+
+  for (int i = 0; i < mat_size; ++i) {
+    res_mat[i] = pow(mot1[i] - mot2[i], 2);
+  }
+
+  NumericVector mat_colsums = colSums(res_mat);
+  mat_colsums = 2 - mat_colsums;
+
+  LogicalVector to_keep = !is_na(mat_colsums);
+  mat_colsums = mat_colsums[to_keep];
+
+  return sum(mat_colsums);
+
+}
+
+double motif_sw_norm(NumericMatrix mot1, NumericMatrix mot2) {
+
+  // Adapter from RSAT compare-matrices
+
+  int mat_size = mot1.nrow() * mot1.ncol();
+  NumericMatrix res_mat(mot1.nrow(), mot1.ncol());
+
+  for (int i = 0; i < mat_size; ++i) {
+    res_mat[i] = pow(mot1[i] - mot2[i], 2);
+  }
+
+  NumericVector mat_colsums = colSums(res_mat);
+  mat_colsums = 2 - mat_colsums;
+
+  LogicalVector to_keep = !is_na(mat_colsums);
+  mat_colsums = mat_colsums[to_keep];
+
+  return sum(mat_colsums) / mat_colsums.length();
+
 }
 
 // [[Rcpp::export]]
@@ -226,8 +336,8 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   // Adapted from TFBSTools::PWMSimilarity
 
   if (method == "KL") {
-    mot1 = mot1 + 0.0001;
-    mot2 = mot2 + 0.0001;
+    mot1 = mot1 + 0.001;
+    mot2 = mot2 + 0.001;
   }
 
   double len_total;
@@ -262,9 +372,13 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   double ic2_mean;
   bool low_ic = false;
 
-       if (method == "Euclidean") method_i = 1;
-  else if (method == "Pearson")   method_i = 2;
-  else if (method == "KL")        method_i = 3;
+       if (method == "EUCL")  method_i = 1;
+  else if (method == "NEUCL") method_i = 2;
+  else if (method == "PCC")   method_i = 3;
+  else if (method == "NPCC")  method_i = 4;
+  else if (method == "KL")    method_i = 5;
+  else if (method == "NSW")   method_i = 6;
+  else if (method == "SW")    method_i = 7;
 
   for (int i = 0; i < for_i; ++i) {
     for (int j = 0; j < for_j; ++j) {
@@ -285,17 +399,33 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
 
       switch(method_i) {
 
-        case 1: if (low_ic) ans(i + j) = 1;
+        case 1: if (low_ic) ans(i + j) = sqrt(2.0);
                 else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp) *
                                   (len_total / align_len);
                 break;
-        case 2: if (low_ic) ans(i + j) = 0;
+        case 2: if (low_ic) ans(i + j) = sqrt(2.0) * align_len;
+                else ans(i + j) = motif_euclidean_norm(mot1_tmp, mot2_tmp) *
+                                  (len_total / align_len);
+                break;
+        case 3: if (low_ic) ans(i + j) = 0;
                 else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp) *
                                   (align_len / len_total);
                 break;
-        case 3: if (low_ic) ans(i + j) = 10;
+        case 4: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_pearson_norm(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
+                break;
+        case 5: if (low_ic) ans(i + j) = 10;
                 else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp) *
                                   (len_total / align_len);
+                break;
+        case 6: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_sw_norm(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
+                break;
+        case 7: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_sw(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
                 break;
 
       }
@@ -314,12 +444,24 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
       case 1: final_ans(0) = min(ans);
               final_ans(1) = min(ans_rc);
               return min(na_omit(final_ans));
-      case 2: final_ans(0) = max(ans);
+      case 2: final_ans(0) = min(ans);
+              final_ans(1) = min(ans_rc);
+              return min(na_omit(final_ans));
+      case 3: final_ans(0) = max(ans);
               final_ans(1) = max(ans_rc);
               return max(final_ans);
-      case 3: final_ans(0) = min(ans);
+      case 4: final_ans(0) = max(ans);
+              final_ans(1) = max(ans_rc);
+              return max(final_ans);
+      case 5: final_ans(0) = min(ans);
               final_ans(1) = min(ans_rc);
               return min(final_ans);
+      case 6: final_ans(0) = max(ans);
+              final_ans(1) = max(ans_rc);
+              return max(final_ans);
+      case 7: final_ans(0) = max(ans);
+              final_ans(1) = max(ans_rc);
+              return max(final_ans);
 
     }
   
@@ -328,12 +470,16 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   switch(method_i) {
 
     case 1: return min(ans);
-    case 2: return max(ans);
-    case 3: return min(ans);
+    case 2: return min(ans);
+    case 3: return max(ans);
+    case 4: return max(ans);
+    case 5: return min(ans);
+    case 6: return max(ans);
+    case 7: return max(ans);
 
   }
 
-  return 999.0;
+  return NA_REAL;
 
 }
 
@@ -343,8 +489,11 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
 
   NumericMatrix out(mot_names.length(), mot_names.length());
 
-  if (method == "Euclidean" || method == "KL") out.fill_diag(0.0);
-  else if (method == "Pearson") out.fill_diag(1.0);
+  if (method == "EUCL" || method == "NEUCL" ||
+      method == "SW" || method == "PCC" ||
+      method == "KL") out.fill_diag(0.0);
+  else if (method == "NPCC") out.fill_diag(1.0);
+  else if (method == "NSW") out.fill_diag(2.0);
 
   int n = comparisons.length();
   for (int i = 0; i < n; ++i) {
@@ -447,8 +596,8 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
     NumericVector ic2, double min_ic, bool norm) {
 
   if (method == "KL") {
-    mot1 = mot1 + 0.0001;
-    mot2 = mot2 + 0.0001;
+    mot1 = mot1 + 0.001;
+    mot2 = mot2 + 0.001;
   }
 
   double len_total;
@@ -479,9 +628,13 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
   double ic2_mean;
   bool low_ic = false;
 
-       if (method == "Euclidean") method_i = 1;
-  else if (method == "Pearson")   method_i = 2;
-  else if (method == "KL")        method_i = 3;
+       if (method == "EUCL")  method_i = 1;
+  else if (method == "NEUCL") method_i = 2;
+  else if (method == "PCC")   method_i = 3;
+  else if (method == "NPCC")  method_i = 4;
+  else if (method == "KL")    method_i = 5;
+  else if (method == "NSW")   method_i = 6;
+  else if (method == "SW")    method_i = 7;
 
   for (int i = 0; i < for_i; ++i) {
     for (int j = 0; j < for_j; ++j) {
@@ -502,17 +655,33 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
 
       switch(method_i) {
 
-        case 1: if (low_ic) ans(i + j) = 1;
+        case 1: if (low_ic) ans(i + j) = sqrt(2.0);
                 else ans(i + j) = motif_euclidean(mot1_tmp, mot2_tmp) *
                                   (len_total / align_len);
                 break;
-        case 2: if (low_ic) ans(i + j) = 0;
+        case 2: if (low_ic) ans(i + j) = sqrt(2.0) * align_len;
+                else ans(i + j) = motif_euclidean_norm(mot1_tmp, mot2_tmp) *
+                                  (len_total / align_len);
+                break;
+        case 3: if (low_ic) ans(i + j) = 0;
                 else ans(i + j) = motif_pearson(mot1_tmp, mot2_tmp) *
                                   (align_len / len_total);
                 break;
-        case 3: if (low_ic) ans(i + j) = 10;
+        case 4: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_pearson_norm(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
+                break;
+        case 5: if (low_ic) ans(i + j) = 10;
                 else ans(i + j) = motif_kl(mot1_tmp, mot2_tmp) *
                                   (len_total / align_len);
+                break;
+        case 6: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_sw_norm(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
+                break;
+        case 7: if (low_ic) ans(i + j) = 0;
+                else ans(i + j) = motif_sw(mot1_tmp, mot2_tmp) *
+                                  (align_len / len_total);
                 break;
 
       }
@@ -529,11 +698,23 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
     case 1: offset = which_min(ans);
             score = min(ans);
             break;
-    case 2: offset = which_max(ans);
+    case 2: offset = which_min(ans);
+            score = min(ans);
+            break;
+    case 3: offset = which_max(ans);
             score = max(ans);
             break;
-    case 3: offset = which_min(ans);
+    case 4: offset = which_max(ans);
+            score = max(ans);
+            break;
+    case 5: offset = which_min(ans);
             score = min(ans);
+            break;
+    case 6: offset = which_max(ans);
+            score = max(ans);
+            break;
+    case 7: offset = which_max(ans);
+            score = max(ans);
             break;
 
   }

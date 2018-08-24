@@ -145,9 +145,10 @@
 #'
 #' DNA.motif <- create_motif(5)
 #'
-#' # if the background frequencies are not provided, they are assumed to be
-#' # uniform; if different background frequencies are used, then at each
-#' # position \code{rdirichlet(1, bkg)} is used 
+#' # If the background frequencies are not provided, they are generated
+#' # using `rpois`; positions are created using `rdirichlet(1, bkg)`.
+#' # (calling `create_motif()` creates motifs with an average
+#' # positional IC of 1)
 #'
 #' DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
 #' DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
@@ -162,7 +163,7 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
            standardGeneric("create_motif"))
 
 # TODO: Organise the methods better, lots of repeat code (debugging is a pain).
-#       (also get rid of all the '!missing' lines to check for params)
+#       (also get rid of all the '!missing' lines to check for params, use 'args')
   
 #' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R
@@ -189,6 +190,7 @@ setMethod("create_motif", signature(input = "missing"),
             if (!missing(qval)) margs <- c(margs, list(qval = qval))
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
+            if (!missing(add.multifreq)) margs <- c(margs, list(add.multifreq = add.multifreq))
             
             motif <- do.call(create_motif, c(list(input = 10), margs))
             if (!is.null(motif@motif)) {
@@ -266,6 +268,12 @@ setMethod("create_motif", signature(input = "numeric"),
             }
             msg <- validObject_universalmotif(motif)
             if (length(msg) > 0) stop(msg)
+
+            if (!missing(add.multifreq)) {
+              motif <- add_multifreq(motif, sample_sites(motif, motif@nsites),
+                                     add.multifreq)
+            }
+
             motif
 
           })
