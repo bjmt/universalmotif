@@ -4,10 +4,9 @@
 \alias{view_motifs}
 \title{Plot motif logos.}
 \usage{
-view_motifs(motifs, use.type = "ICM", method = "Pearson",
-  tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
-  relative_entropy = FALSE, normalise.scores = TRUE,
-  BPPARAM = SerialParam(), ...)
+view_motifs(motifs, use.type = "ICM", method = "NPCC", tryRC = TRUE,
+  min.overlap = 6, min.mean.ic = 0.5, relative_entropy = FALSE,
+  normalise.scores = FALSE, ...)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -32,8 +31,6 @@ alignments between low information content regions of two motifs.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{Addtional options for \code{\link[ggseqlogo]{geom_logo}}.}
 }

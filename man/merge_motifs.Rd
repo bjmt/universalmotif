@@ -4,22 +4,20 @@
 \alias{merge_motifs}
 \title{Merge motifs.}
 \usage{
-merge_motifs(motifs, method = "Pearson", use.type = "PPM",
+merge_motifs(motifs, method = "NPCC", use.type = "PPM",
   min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
-  relative_entropy = FALSE, normalise.scores = TRUE,
-  BPPARAM = SerialParam())
+  relative_entropy = FALSE, normalise.scores = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
 
-\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL',
-'SW', 'NSW'}.}
+\item{method}{\code{character(1)} One of \code{'PCC', 'NPCC', 'EUCL', 'NEUCL',
+'SW', 'NSW', 'KL'}. See details.}
 
-\item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
-\code{'PPM'} (any method),
-\code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
-two allow for taking into account the background frequencies 
-(for ICM, only if \code{relative_entropy = TRUE}).}
+\item{use.type}{\code{character(1)} One of \code{'PCM'} (PCC/NPCC only),
+\code{'PPM'} (any method), \code{'PWM'} (PCC/PWM only), and \code{'ICM'}
+(any method). The latter two allow for taking into account the background
+frequencies (for ICM, only if \code{relative_entropy = TRUE}).}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
@@ -37,9 +35,9 @@ report the best score.}
 \code{\link{convert_type}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
+unaligned positions. Similarity scores are multiplied by the ratio of
+aligned positions to the total number of positions in the larger motif,
+and the inverse for distance scores.}
 }
 \value{
 A single motif object. See \code{\link{convert_motifs}} for

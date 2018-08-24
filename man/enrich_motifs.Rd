@@ -9,8 +9,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   positional.test = "t.test", threshold = 1e-04,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "linear",
-  shuffle.leftovers = "asis", progress_bar = FALSE,
-  return.scan.results = FALSE, BPPARAM = SerialParam())
+  shuffle.leftovers = "asis", return.scan.results = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -64,13 +63,8 @@ sequences. Only used if no background sequences are input. See
 
 \item{shuffle.leftovers}{\code{character(1)} See \code{\link{shuffle_sequences}}.}
 
-\item{progress_bar}{\code{logical(1)} Show progress bar from
-\code{\link{scan_sequences}}.}
-
 \item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link{scan_sequences}}.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting 

@@ -5,7 +5,7 @@
 \title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, k = 1, method = "linear",
-  leftovers = "asis", BPPARAM = SerialParam())
+  leftovers = "asis")
 }
 \arguments{
 \item{sequences}{\code{XStringSet} For \code{method = 'markov'}, DNAStringSet
@@ -18,8 +18,6 @@ See details.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{XStringSet} The input sequences will be returned with 

@@ -5,7 +5,7 @@
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
 convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
-  relative_entropy = FALSE, BPPARAM = SerialParam())
+  relative_entropy = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
@@ -26,8 +26,6 @@ for small sample sizes. Only used if
 
 \item{relative_entropy}{\code{logical(1)} If true, the ICM will be
 calculated as relative entropy. See details.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \linkS4class{universalmotif} objects.

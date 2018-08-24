@@ -38,7 +38,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
                        y <- x["nsites"]
                        if (length(y) == 0) x["nsites"] <- 100
                        x
-                     }M)
+                     })
 
   mot.mats <- lapply(motifs, function(x) x["motif"])
 

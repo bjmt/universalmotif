@@ -4,15 +4,13 @@
 \alias{read_jaspar}
 \title{Import JASPAR motifs.}
 \usage{
-read_jaspar(file, skip = 0, BPPARAM = SerialParam())
+read_jaspar(file, skip = 0)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
 
 \item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects.

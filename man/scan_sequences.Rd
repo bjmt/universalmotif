@@ -5,8 +5,7 @@
 \title{Scan sequences for matches to input motifs.}
 \usage{
 scan_sequences(motifs, sequences, threshold = 1e-04,
-  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 1,
-  progress_bar = FALSE, BPPARAM = SerialParam())
+  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 1)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -29,10 +28,6 @@ number is used, then the matching k-let matrix from the
 
 \item{verbose}{\code{numeric(1)} Describe progress, from none (0) to very
 verbose (3).}
-
-\item{progress_bar}{\code{logical(1)} Show progress bar.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input

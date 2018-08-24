@@ -5,8 +5,7 @@
 \title{Import motifs from raw matrices.}
 \usage{
 read_matrix(file, skip = 0, type, positions = "columns",
-  alphabet = "DNA", sep = "", headers = FALSE, rownames = FALSE,
-  BPPARAM = SerialParam())
+  alphabet = "DNA", sep = "", headers = FALSE, rownames = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
@@ -29,8 +28,6 @@ or a string of letters.}
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to read names.}
 
 \item{rownames}{\code{logical(1)} Are there alphabet letters present as rownames?}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects.

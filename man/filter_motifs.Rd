@@ -5,8 +5,7 @@
 \title{Filter a list of \linkS4class{universalmotif} motifs.}
 \usage{
 filter_motifs(motifs, name, altname, family, organism, width, alphabet,
-  type, icscore, nsites, strand, pval, qval, eval,
-  BPPARAM = SerialParam())
+  type, icscore, nsites, strand, pval, qval, eval)
 }
 \arguments{
 \item{motifs}{\code{list} See \code{\link{convert_motifs}} for acceptable
@@ -37,8 +36,6 @@ formats.}
 \item{qval}{\code{numeric(1)} Keep motifs by max Q-value.}
 
 \item{eval}{\code{numeric(1)} Keep motifs by max E-val.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{list} Motifs.

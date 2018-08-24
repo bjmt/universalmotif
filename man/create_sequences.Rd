@@ -5,7 +5,7 @@
 \title{Create random sequences.}
 \usage{
 create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100,
-  monofreqs, difreqs, trifreqs, BPPARAM = SerialParam())
+  monofreqs, difreqs, trifreqs)
 }
 \arguments{
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of
@@ -24,8 +24,6 @@ named numeric vector of length 16.}
 
 \item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \linkS4class{XStringSet}

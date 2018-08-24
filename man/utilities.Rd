@@ -17,11 +17,10 @@
 \alias{summarise_motifs}
 \title{Utility functions.}
 \usage{
-make_DBscores(db.motifs, method = "Pearson", shuffle.db = TRUE,
-  shuffle.k = 3, shuffle.method = "linear",
-  shuffle.leftovers = "asis", rand.tries = 1000,
-  normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0,
-  progress_bar = TRUE, BPPARAM = SerialParam())
+make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
+  shuffle.method = "linear", shuffle.leftovers = "asis",
+  rand.tries = 1000, normalise.scores = TRUE, min.overlap = 6,
+  min.mean.ic = 0, progress_bar = TRUE)
 
 ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites,
   relative_entropy = FALSE)
@@ -74,8 +73,6 @@ generate random motifs with \code{\link{create_motif}}}
 \item{min.mean.ic}{\code{numeric(1)}}
 
 \item{progress_bar}{\code{logical(1)} Show progress.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{position}{\code{numeric} A numeric vector representing the frequency or
 probability for each alphabet letter at a specific position.}

@@ -5,8 +5,7 @@
 \title{Add multi-nucleotide information to a motif.}
 \usage{
 add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
-  threshold = 0.01, threshold.type = "logodds", motifs.perseq = 1,
-  BPPARAM = SerialParam())
+  threshold = 0.01, threshold.type = "logodds", motifs.perseq = 1)
 }
 \arguments{
 \item{motif}{See \code{\link{convert_motifs}} for acceptable formats. If the
@@ -28,8 +27,6 @@ used to generate the multi-freq matrices. Otherwise
 
 \item{motifs.perseq}{\code{numeric(1)} If \code{\link{scan_sequences}} is run, 
 then this indicates how many hits from each sequence is to be used.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 A \linkS4class{universalmotif} object with filled 'multifreq' slot.

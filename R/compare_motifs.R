@@ -134,7 +134,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
   } else {
     mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
   }
-  mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
+  mot.ics <- mapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
                       motifs, mot.mats, SIMPLIFY = FALSE)
   if (missing(compare.to)) {
 
@@ -179,7 +179,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 
   } else {
 
-    comparisons <- bplapply(seq_along(compare.to),
+    comparisons <- lapply(seq_along(compare.to),
                             function(i) {
                          data.frame(subject = rep(mot.names[compare.to[i]],
                                                   length(comparisons[[i]])),

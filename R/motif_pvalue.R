@@ -80,7 +80,6 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) 
                           class(bkg.probs), "`")
     }
   }
-                                 1, FALSE, "logical")
   all_checks <- c(num_check, bkg_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   if (use.freq > 2 && interactive()) {

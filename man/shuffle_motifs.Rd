@@ -4,8 +4,7 @@
 \alias{shuffle_motifs}
 \title{Shuffle motifs by column.}
 \usage{
-shuffle_motifs(motifs, k = 2, method = "linear", leftovers = "asis",
-  BPPARAM = SerialParam())
+shuffle_motifs(motifs, k = 2, method = "linear", leftovers = "asis")
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
@@ -17,8 +16,6 @@ See details.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 Motifs. See \code{\link{convert_motifs}} for available output

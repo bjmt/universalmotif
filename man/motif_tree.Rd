@@ -8,8 +8,7 @@ motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
   branch.length = "none", db.scores, method = "Pearson",
   use.type = "PPM", min.overlap = 6, tryRC = TRUE,
-  min.mean.ic = 0.5, relative_entropy = FALSE,
-  BPPARAM = SerialParam(), ...)
+  min.mean.ic = 0.5, relative_entropy = FALSE, ...)
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link{convert_motifs}} for
@@ -54,8 +53,6 @@ alignments between low information content regions of two motifs.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link{convert_type}}.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 
 \item{...}{\pkg{ggtree} params.}
 }

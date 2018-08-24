@@ -4,7 +4,7 @@
 \alias{read_meme}
 \title{Import MEME motifs.}
 \usage{
-read_meme(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam())
+read_meme(file, skip = 0, readsites = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
@@ -14,8 +14,6 @@ file before starting to read.}
 
 \item{readsites}{\code{logical(1)} If \code{TRUE}, the motif sites will be read
 as well.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects. If

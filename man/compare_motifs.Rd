@@ -5,10 +5,9 @@
 \title{Compare motifs.}
 \usage{
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
-  use.type = "PPM", method = "Pearson", tryRC = TRUE,
-  min.overlap = 6, min.mean.ic = 0.5, relative_entropy = FALSE,
-  normalise.scores = TRUE, max.p = 0.01, max.e = 10,
-  BPPARAM = SerialParam())
+  use.type = "PPM", method = "NPCC", tryRC = TRUE, min.overlap = 6,
+  min.mean.ic = 0.5, relative_entropy = FALSE,
+  normalise.scores = FALSE, max.p = 0.01, max.e = 10)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -20,14 +19,13 @@ Otherwise compares all motifs to the specified motif(s).}
 
 \item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 
-\item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
-\code{'PPM'} (any method),
-\code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
-two allow for taking into account the background frequencies 
-(for ICM, only if \code{relative_entropy = TRUE}).}
+\item{use.type}{\code{character(1)} One of \code{'PCM'} (PCC/NPCC only),
+\code{'PPM'} (any method), \code{'PWM'} (PCC/PWM only), and \code{'ICM'}
+(any method). The latter two allow for taking into account the background
+frequencies (for ICM, only if \code{relative_entropy = TRUE}).}
 
-\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL',
-'SW', 'NSW'}.}
+\item{method}{\code{character(1)} One of \code{'PCC', 'NPCC', 'EUCL', 'NEUCL',
+'SW', 'NSW', 'KL'}. See details.}
 
 \item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -45,7 +43,9 @@ alignments between low information content regions of two motifs.}
 \code{\link{convert_type}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions.}
+unaligned positions. Similarity scores are multiplied by the ratio of
+aligned positions to the total number of positions in the larger motif,
+and the inverse for distance scores.}
 
 \item{max.p}{\code{numeric(1)} Maximum P-value allowed in reporting matches.
 Only used if \code{compare.to} is set.}
@@ -53,21 +53,29 @@ Only used if \code{compare.to} is set.}
 \item{max.e}{\code{numeric(1)} Maximum E-value allowed in reporting matches.
 Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
-   If \code{method = c('Euclidean', 'KL')} then the resulting scores represent
-   distances; for \code{method = 'Pearson'}, similarities.
+   * PCC: 0 represents complete distance, >0 similarity.
+   * NPCC: 0 represents complete distance, 1 complete similarity.
+   * EUCL: 0 represents complete similarity, >0 distance.
+   * NEUCL: 0 represents complete similarity, sqrt(2) complete distance.
+   * SW: 0 represents complete distance, >0 similarity.
+   * NSW: 0 represents complete distance, 2 complete similarity.
+   * KL: 0 represents complete similarity, >0 distance.
 }
 \description{
 Compare motifs using three metrics: Pearson correlation coefficient,
 Euclidean distance, and Kullback-Leibler divergence.
 }
 \details{
-The comparison metrics are identical to those implemented by 
-\code{\link[TFBSTools]{PWMSimilarity}}, rewritten in C++.
+* PCC: Pearson correlation coefficient
+* NPCC: Normalised PCC
+* EUCL: Euclidian distance
+* NEUCL: Normalised EUCL
+* SW: Sandelin-Wasserman similarity
+* NSW: Normalised SW
+* KL: Kullback-Leibler divergence
 
 To note regarding p-values: p-values are pre-computed using the
 \code{make_DBscores} function. If not given, then uses a set of internal
@@ -84,7 +92,7 @@ are of little use for motifs with a different number of alphabet letters
 \examples{
 motif1 <- create_motif()
 motif2 <- create_motif()
-motif1vs2 <- compare_motifs(list(motif1, motif2), method = "Pearson")
+motif1vs2 <- compare_motifs(list(motif1, motif2), method = "PCC")
 ## to get a dist object:
 as.dist(1 - motif1vs2)
 

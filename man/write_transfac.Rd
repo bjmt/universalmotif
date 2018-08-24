@@ -4,14 +4,12 @@
 \alias{write_transfac}
 \title{Export motifs in TRANSFAC format.}
 \usage{
-write_transfac(motifs, file, BPPARAM = SerialParam())
+write_transfac(motifs, file)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
-
-\item{BPPARAM}{See \code{\link[BiocParallel]{bpparam}}.}
 }
 \value{
 NULL, invisibly.
