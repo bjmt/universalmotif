@@ -18,7 +18,6 @@
 #'    \code{\link{convert_type}}.
 #' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
 #'    unaligned positions.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... Addtional options for \code{\link[ggseqlogo]{geom_logo}}.
 #'
 #' @return A \code{ggplot} object.
@@ -49,8 +48,7 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
                         tryRC = TRUE, min.overlap = 6,
                         min.mean.ic = 0.5, relative_entropy = FALSE,
-                        normalise.scores = FALSE,
-                        BPPARAM = SerialParam(), ...) {
+                        normalise.scores = FALSE, ...) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -64,9 +62,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -134,7 +130,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
   mot.mats.rc <- lapply(motifs.rc, function(x) x["motif"])
 
   mot.ics <- bpmapply(function(x, y) as.numeric(.pos_iscscores(x, y, relative_entropy)),
-                      motifs, mot.mats, BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+                      motifs, mot.mats, SIMPLIFY = FALSE)
   mot.ics.rc <- lapply(mot.ics, rev)
 
   mot.alns <- bplapply(seq_along(mot.mats)[-1],
@@ -144,8 +140,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
                                                       mot.ics[[1]], mot.ics[[x]],
                                                       min.mean.ic, normalise.scores)
                          merge_add_cols(y)
-                         y},
-                       BPPARAM = BPPARAM)
+                         y})
   if (tryRC) {
     mot.alns.rc <- bplapply(seq_along(mot.mats)[-1],
                          function(x) {
@@ -154,8 +149,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
                                                         mot.ics[[1]], mot.ics.rc[[x]],
                                                         min.mean.ic, normalise.scores)
                            merge_add_cols(y)
-                           y},
-                         BPPARAM = BPPARAM)
+                           y})
   } else mot.alns.rc <- NULL
 
   mot.alns <- lapply(mot.alns, function(x) {
@@ -187,6 +181,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
 
 }
 
+#' fix_blank_pos
+#'
+#' Get rid of columns with NAs.
+#'
+#' @param motif1 Matrix of motif 1.
+#' @param motif2 Matrix of motif 2.
+#'
+#' @noRd
 fix_blank_pos <- function(motif1, motif2) {
 
   na1 <- vapply(motif1[1, ], is.na, logical(1))
@@ -209,6 +211,15 @@ fix_blank_pos <- function(motif1, motif2) {
 
 }
 
+#' realign_all_motifs
+#'
+#' Add columns to motifs so that they align properly.
+#'
+#' @param alph Individual letters for motif alphabet.
+#' @param mot.alns List result.
+#' @param mot.alns.rc List result for tryRC, can be NULL.
+#'
+#' @noRd
 realign_all_mots <- function(alph, mot.alns, mot.alns.rc) {
 
   mots.1 <- lapply(mot.alns, function(x) x$mot1_new)
@@ -261,6 +272,13 @@ realign_all_mots <- function(alph, mot.alns, mot.alns.rc) {
 
 }
 
+#' count_leading_na
+#'
+#' Count left offset.
+#'
+#' @param mat Motif matrix.
+#'
+#' @noRd
 count_leading_na <- function(mat) {
 
   mat.nas <- vapply(mat[1, ], is.na, logical(1))

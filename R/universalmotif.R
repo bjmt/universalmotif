@@ -10,7 +10,7 @@
 #' @import ggplot2
 #' @import ggtree
 #' @import ggseqlogo
-#' @importFrom BiocParallel bplapply bpmapply SerialParam 
+#' @importFrom BiocParallel bplapply bpmapply 
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
 #' @importFrom stats rpois

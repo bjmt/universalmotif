@@ -9,7 +9,6 @@
 #'    file before starting to read.
 #' @param readsites \code{logical(1)} If \code{TRUE}, the motif sites will be read
 #'                  as well.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{list} \linkS4class{universalmotif} objects. If
 #'    \code{readsites = TRUE}, a list
@@ -28,7 +27,7 @@
 #' @family read_motifs
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()) {
+read_meme <- function(file, skip = 0, readsites = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -37,8 +36,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
   logi_check <- check_fun_params(list(readsites = args$readsites),
                                  1, FALSE, "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -73,7 +71,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
   motif_names <- bplapply(raw_lines[motif_names], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]
-                          }, BPPARAM = BPPARAM)
+                          })
   motif_starts <- motif_meta + 1
   motif_stops <- sapply(raw_lines[motif_meta],
                         function(x) strsplit(x, "\\s+")[[1]][6])
@@ -84,14 +82,13 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
                            x <- strsplit(x, "\\s+")[[1]]
                            c(nsites = as.numeric(x[8]),
                              eval = as.numeric(x[10]))
-                         }, BPPARAM = BPPARAM)
+                         })
   motif_list <- bpmapply(function(x, y) {
                            z <- raw_lines[x:y]
                            z <- sapply(z, function(x) strsplit(x, "\\s+")[[1]])
                            z <- suppressWarnings(as.numeric(z))
                            z <- z[!is.na(z)]
-                         }, motif_starts, motif_stops, SIMPLIFY = FALSE,
-                         BPPARAM = BPPARAM)
+                         }, motif_starts, motif_stops, SIMPLIFY = FALSE)
 
   motif_list <- bpmapply(function(x, y, z) {
                           mot <- universalmotif_cpp(name = x,
@@ -106,7 +103,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
                           msg <- validObject_universalmotif(mot)
                           if (length(msg) > 0) stop(msg) else mot
                          }, motif_names, motif_meta, motif_list,
-                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+                         SIMPLIFY = FALSE)
 
   if (length(motif_list) == 1) motif_list <- motif_list[[1]]
 
@@ -126,21 +123,21 @@ read_meme <- function(file, skip = 0, readsites = FALSE, BPPARAM = SerialParam()
       block.stops <- block.starts +  block.len - 1
       blocks <- bpmapply(function(x, y) read.table(text = raw_lines[x:y],
                                                   stringsAsFactors = FALSE),
-                        block.starts, block.stops, BPPARAM = BPPARAM,
+                        block.starts, block.stops,
                         SIMPLIFY = FALSE)
-      sites <- bplapply(blocks, function(x) x$V4, BPPARAM = BPPARAM)
-      site.names <- bplapply(blocks, function(x) x$V1, BPPARAM = BPPARAM)
+      sites <- bplapply(blocks, function(x) x$V4)
+      site.names <- bplapply(blocks, function(x) x$V1)
       if (alph == "DNA") {
-        sites <- bplapply(sites, DNAStringSet, BPPARAM = BPPARAM)
+        sites <- bplapply(sites, DNAStringSet)
       } else if (alph == "RNA") {
-        sites <- bplapply(sites, RNAStringSet, BPPARAM = BPPARAM)
+        sites <- bplapply(sites, RNAStringSet)
       } else if (alph == "AA") {
-        sites <- bplapply(sites, AAStringSet, BPPARAM = BPPARAM)
+        sites <- bplapply(sites, AAStringSet)
       } else {
-        sites <- bplapply(sites, BStringSet, BPPARAM = BPPARAM)
+        sites <- bplapply(sites, BStringSet)
       }
       sites <- bpmapply(function(x, y) {names(x) <- y; x},
-                        sites, site.names, BPPARAM = BPPARAM,
+                        sites, site.names,
                         SIMPLIFY = FALSE)
       if (length(sites) == 1) sites <- sites[[1]]
       motif_list <- list(motifs = motif_list, sites = sites)

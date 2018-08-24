@@ -9,7 +9,6 @@
 #' @param class \code{character(1)} Desired motif class. Input as
 #'    'package-class'. If left empty, defaults to
 #'    'universalmotif-universalmotif'. (See details.)
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Single motif object or list.
 #'
@@ -92,28 +91,26 @@
 #' @include universalmotif-class.R
 #' @export
 setGeneric("convert_motifs", function(motifs,
-                                      class = "universalmotif-universalmotif",
-                                      BPPARAM = SerialParam())
+                                      class = "universalmotif-universalmotif")
            standardGeneric("convert_motifs"))
 
 #' @describeIn convert_motifs Convert a list of motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "list"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             mot_classes <- vapply(motifs, function(x) class(x), character(1))
             mot_classes <- unique(mot_classes)
             if (length(mot_classes) == 1) {
               classin <- strsplit(class, "-")[[1]][2]
               if (mot_classes == classin) return(motifs)
             }
-            bplapply(motifs, function(x) convert_motifs(x, class = class,
-                                                        BPPARAM = BPPARAM))
+            bplapply(motifs, function(x) convert_motifs(x, class = class))
           })
 
 #' @describeIn convert_motifs Convert a \linkS4class{universalmotif} object.
 #' @export
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             
             out_class <- strsplit(class, "-")[[1]][2]
             out_class_pkg <- strsplit(class, "-")[[1]][1]
@@ -124,7 +121,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # MotIV-pwm2
             if (out_class_pkg == "MotIV" && out_class == "pwm2") {
-              motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+              motifs <- convert_type(motifs, "PPM")
               motifs <- makePWM(motifs["motif"],
                                 alphabet = motifs["alphabet"])
               return(motifs)
@@ -301,7 +298,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 #' @describeIn convert_motifs Convert MotifList motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "MotifList"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motifdb_fun <- function(i) {
               x <- motifs
               mot <- universalmotif_cpp(
@@ -316,15 +313,14 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
               mot
             }
             motifs_out <- vector("list", length(motifs))
-            motifs_out <- bplapply(seq_len(length(motifs)), motifdb_fun,
-                                   BPPARAM = BPPARAM)
-            convert_motifs(motifs_out, class = class, BPPARAM = BPPARAM)
+            motifs_out <- bplapply(seq_len(length(motifs)), motifdb_fun)
+            convert_motifs(motifs_out, class = class)
           })
 
 #' @describeIn convert_motifs Convert TFFMFirst motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             difreq <- motifs@emission[-1]
             difreq <- do.call(c, difreq)
             difreq <- matrix(difreq, nrow = 16) / 4
@@ -334,13 +330,13 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
                            strand = motifs@strand, bkg = motifs@bg,
                            motif = getPosProb(motifs),
                            multifreq = list(`2` = difreq))
-            convert_motifs(mot, class = class, BPPARAM = BPPARAM)
+            convert_motifs(mot, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{PFMatrix} motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "PFMatrix"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
               alphabet <- "DNA"
             } else alphabet  <- "RNA"
@@ -363,12 +359,12 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
                                      extrainfo = extrainfo)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{PWMatrix} motifs.
 setMethod("convert_motifs", signature(motifs = "PWMatrix"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
               alphabet <- "DNA"
             } else alphabet  <- "RNA"
@@ -389,12 +385,12 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
                                      extrainfo = extrainfo)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{ICMatrix} motifs.
 setMethod("convert_motifs", signature(motifs = "ICMatrix"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
               alphabet <- "DNA"
             } else alphabet  <- "RNA"
@@ -415,43 +411,42 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
                                      extrainfo = extrainfo)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert XMatrixList motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "XMatrixList"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motif_num <- length(motifs@listData)
             motifs_out <- bplapply(seq_len(motif_num),
                                    function(i) {
                                      motifs@listData[[i]]
-                                   }, BPPARAM = BPPARAM)
+                                   })
             motif_names <- unlist(bplapply(seq_len(motif_num),
                                            function(i) {
                                             motifs@listData[[i]]@name
-                                           }, BPPARAM = BPPARAM))
+                                           }))
             names(motifs_out) <- motif_names
-            motifs <- convert_motifs(motifs_out, class = "universalmotif",
-                                     BPPARAM = BPPARAM)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            motifs <- convert_motifs(motifs_out, class = "universalmotif")
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{pwm} motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pwm"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motifs <- universalmotif_cpp(motif = motifs@pwm, type = "PPM",
                                      alphabet = motifs@alphabet)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{pcm} motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
                                      nsites = unique(colSums(motifs@mat))[1],
                                      alphabet = motifs@alphabet,
@@ -459,26 +454,26 @@ setMethod("convert_motifs", signature(motifs = "pcm"),
                                      type = "PCM")
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{pfm} motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pfm"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
                                      alphabet = motifs@alphabet,
                                      bkg = motifs@background,
                                      type = "PPM")
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert \linkS4class{PWM} motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "PWM"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             if (all(names(motifs@pwm) %in% DNA_BASES)) {
               alphabet <- "DNA"
             } else alphabet <- "RNA"
@@ -488,13 +483,13 @@ setMethod("convert_motifs", signature(motifs = "PWM"),
                                      altname = motifs@id)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Convert Motif motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "Motif"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motifs <- universalmotif_cpp(name = motifs@pattern,
                                      nsites = sum(motifs@count),
                                      alphabet = "DNA",
@@ -505,21 +500,21 @@ setMethod("convert_motifs", signature(motifs = "Motif"),
             motif <- create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
             msg <- validObject_universalmotif(motifs)
             if (length(msg) > 0) stop(msg)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 #' @describeIn convert_motifs Create motif from matrices.
 #' @export
 setMethod("convert_motifs", signature(motifs = "matrix"),
-          definition = function(motifs, class, BPPARAM) {
+          definition = function(motifs, class) {
             motifs <- create_motif(motifs)
-            convert_motifs(motifs, class = class, BPPARAM = BPPARAM)
+            convert_motifs(motifs, class = class)
           })
 
 # @describeIn convert_motifs Convert non-\linkS4class{universalmotif} class motifs.
 # @export
 # setMethod("convert_motifs", signature(motifs = "ANY"),
-          # definition = function(motifs, class, BPPARAM) {
+          # definition = function(motifs, class) {
 
             # success <- FALSE
 

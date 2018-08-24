@@ -6,7 +6,6 @@
 #' @param file \code{character(1)} File name.
 #' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
 #'    file before starting to read.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{list} \linkS4class{universalmotif} objects.
 #'
@@ -20,15 +19,14 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
+read_cisbp <- function(file, skip = 0) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -52,10 +50,10 @@ read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
 
   meta_list <- bpmapply(function(x, y) raw_lines[x:y],
                         meta_starts, meta_stops,
-                        SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+                        SIMPLIFY = FALSE)
   motif_list <- bpmapply(function(x, y) raw_lines[x:y],
                          motif_starts, motif_stops,
-                         SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+                         SIMPLIFY = FALSE)
 
   parse_meta <- function(x) {
     metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
@@ -75,8 +73,8 @@ read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
     x
   }
 
-  meta_list <- bplapply(meta_list, parse_meta, BPPARAM = BPPARAM)
-  motif_list <- bplapply(motif_list, parse_motifs, BPPARAM = BPPARAM)
+  meta_list <- bplapply(meta_list, parse_meta)
+  motif_list <- bplapply(motif_list, parse_motifs)
 
   motifs <- bpmapply(function(x, y) {
                     if (all(colnames(x) %in% c("A", "C", "G", "U"))) {
@@ -93,7 +91,7 @@ read_cisbp <- function(file, skip = 0, BPPARAM = SerialParam()) {
                                    type = "PPM")
                     msg <- validObject_universalmotif(mot)
                     if (length(msg) > 0) stop(msg) else mot
-                  }, motif_list, meta_list, BPPARAM = BPPARAM)
+                  }, motif_list, meta_list)
 
   motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,
                           logical(1))]

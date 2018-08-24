@@ -4,7 +4,6 @@
 #'
 #' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
 #' @param file \code{character(1)} File name.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -20,20 +19,18 @@
 #' @seealso \code{\link{read_jaspar}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_jaspar <- function(motifs, file, BPPARAM = SerialParam()) {
+write_jaspar <- function(motifs, file) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), FALSE, "S4")
-  all_checks <- c(char_check, s4_check)
+  all_checks <- c(char_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, "PCM", BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_jaspar <- function(motifs) {
@@ -85,7 +82,7 @@ write_jaspar <- function(motifs, file, BPPARAM = SerialParam()) {
 
   }
 
-  lines_out <- bplapply(motifs, .write_jaspar, BPPARAM = BPPARAM)
+  lines_out <- bplapply(motifs, .write_jaspar)
   lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))

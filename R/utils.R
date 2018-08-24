@@ -27,7 +27,6 @@
 #' @param min.overlap \code{numeric(1)} Minimum required motif overlap.
 #' @param min.mean.ic \code{numeric(1)}
 #' @param progress_bar \code{logical(1)} Show progress.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param motifs \code{list} A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm \code{logical} Remove columns where all values are \code{NA}.
 #'
@@ -381,7 +380,7 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
   out
 }
 
-.internal_convert <- function(motifs, class = NULL, BPPARAM = SerialParam()) {
+.internal_convert <- function(motifs, class = NULL) {
 
   if (is.null(class)) {
     CLASS_PKG <- attributes(class(motifs))$package
@@ -390,7 +389,7 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
     return(CLASS_IN)
   } else {
     if (length(class) == 1 && class[1] != "universalmotif-universalmotif") {
-      tryCatch(motifs <- convert_motifs(motifs, class, BPPARAM = BPPARAM),
+      tryCatch(motifs <- convert_motifs(motifs, class),
                error = function(e) message("motifs converted to class 'universalmotif'"))
     } else if (length(class) > 1) message("motifs converted to class 'universalmotif'")
     return(motifs)

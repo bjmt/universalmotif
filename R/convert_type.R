@@ -18,7 +18,6 @@
 #'                          \code{relative_entropy = FALSE}.
 #' @param relative_entropy \code{logical(1)} If true, the ICM will be
 #'                         calculated as relative entropy. See details.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{universalmotif} objects.
 #'
@@ -122,7 +121,7 @@
 #' @seealso \code{\link{convert_motifs}}
 #' @export
 convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 
-                         relative_entropy = FALSE, BPPARAM = SerialParam()) {
+                         relative_entropy = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -132,8 +131,7 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   logi_check <- check_fun_params(list(nsize_correction = args$nsize_correction,
                                       relative_entropy = args$relative_entropy),
                                  c(1, 1), c(FALSE, FALSE), "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), 1, FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -145,16 +143,15 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, "character")
   else CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   if (missing(pseudocount)) pseudocount <- NULL
 
   motifs <- bplapply(motifs, function(x) convert_type_single(x, type, pseudocount,
                                                              nsize_correction,
-                                                             relative_entropy),
-                     BPPARAM = BPPARAM) 
+                                                             relative_entropy)) 
 
-  motifs <- .internal_convert(motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
+  motifs <- .internal_convert(motifs, unique(CLASS_IN))
   if (length(motifs) == 1 && !was_list) motifs <- motifs[[1]]
   motifs
 

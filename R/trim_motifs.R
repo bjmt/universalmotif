@@ -4,7 +4,6 @@
 #'
 #' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
 #' @param min.ic \code{numeric(1)} Minimum allowed information content.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motifs See \code{\link{convert_motifs}} for available output
 #'    formats.
@@ -17,22 +16,20 @@
 #' @seealso \code{\link{create_motif}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
+trim_motifs <- function(motifs, min.ic = 0.25) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   num_check <- check_fun_params(list(min.ic = args$min.ic),
                                 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), FALSE, "S4")
-  all_checks <- c(num_check, s4_check)
+  all_checks <- c(num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, "character")
   else CLASS_IN <- .internal_convert(motifs)
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
 
@@ -41,11 +38,11 @@ trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
                        y <- x["nsites"]
                        if (length(y) == 0) x["nsites"] <- 100
                        x
-                     }, BPPARAM = BPPARAM)
+                     }M)
 
-  mot.mats <- bplapply(motifs, function(x) x["motif"], BPPARAM = BPPARAM)
+  mot.mats <- bplapply(motifs, function(x) x["motif"])
 
-  mot.mats.k <- bplapply(motifs, function(x) x["multifreq"], BPPARAM = BPPARAM)
+  mot.mats.k <- bplapply(motifs, function(x) x["multifreq"])
 
   mot.scores <- bplapply(motifs,
                          function(x) {
@@ -53,17 +50,17 @@ trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
                                 bkg = x["bkg"], type = x["type"],
                                 pseudocount = x["pseudocount"],
                                 nsites = x["nsites"])
-                         }, BPPARAM = BPPARAM)
+                         })
 
   new.mats <- bpmapply(function(x, y) trim_motif_internal(x, y, min.ic),
-                       mot.mats, mot.scores, BPPARAM = BPPARAM,
+                       mot.mats, mot.scores,
                        SIMPLIFY = FALSE)
 
   new.mats.k <- bpmapply(function(x, y) {
                         if (length(x) > 0) {
                           lapply(x, function(z) trim_motif_internal(z, y, min.ic))
                         } else list()
-                       }, mot.mats.k, mot.scores, BPPARAM = BPPARAM,
+                       }, mot.mats.k, mot.scores,
                        SIMPLIFY = FALSE)
 
   motifs <- bpmapply(function(x, y, z) {
@@ -71,7 +68,7 @@ trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
                         z@motif <- x
                         z@multifreq <- y
                         z
-                       }, new.mats, new.mats.k, motifs, BPPARAM = BPPARAM,
+                       }, new.mats, new.mats.k, motifs,
                        SIMPLIFY = FALSE)
 
   dont_keep <- vapply(motifs, is.null, logical(1))
@@ -116,10 +113,10 @@ trim_motifs <- function(motifs, min.ic = 0.25, BPPARAM = SerialParam()) {
                        msg <- validObject_universalmotif(x)
                        if (length(msg) > 0) stop(msg)
                        x
-                     }, BPPARAM = BPPARAM)
+                     })
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
-  motifs <- .internal_convert(motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
+  motifs <- .internal_convert(motifs, unique(CLASS_IN))
   motifs
 
 }

@@ -6,7 +6,6 @@
 #' @param file \code{character(1)} File name.
 #' @param logodds_threshold \code{numeric} Stringency required for HOMER to match a motif.
 #'    See \code{\link{scan_sequences}}.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -21,29 +20,26 @@
 #' @seealso \code{\link{read_homer}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_homer <- function(motifs, file, logodds_threshold = 0.6,
-                        BPPARAM = SerialParam()) {
+write_homer <- function(motifs, file, logodds_threshold = 0.6) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
   num_check <- check_fun_params(list(logodds_threshold = args$logodds_threshold),
                                 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, "PWM", BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   max_logodds <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
                         numeric(1))
   logodds_thresholds <- max_logodds * logodds_threshold
 
-  motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, "PPM")
 
   .write_homer <- function(motifs, logodds_thresholds) {
     motif <- motifs
@@ -64,7 +60,7 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6,
   print(motifs);print(logodds_thresholds)
 
   lines_out <- bpmapply(.write_homer, motifs, logodds_thresholds,
-                        BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+                        SIMPLIFY = FALSE)
   lines_out <- unlist(lines_out)
 
   writeLines(lines_out, con <- file(file))

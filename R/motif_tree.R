@@ -31,7 +31,6 @@
 #'    alignments between low information content regions of two motifs.
 #' @param relative_entropy \code{logical(1)} For ICM calculation. See
 #'    \code{\link{convert_type}}.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #' @param ... \pkg{ggtree} params.
 #'
 #' @return \code{ggplot} object.
@@ -60,7 +59,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        branch.length = "none", db.scores, method = "Pearson",
                        use.type = "PPM",
                        min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
-                       relative_entropy = FALSE, BPPARAM = SerialParam(), ...){
+                       relative_entropy = FALSE, ...){
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -75,31 +74,28 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   logi_check <- check_fun_params(list(legend = args$legend, tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy),
                                  numeric(), logical(), "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   if (is(motifs, "dist")) {
     tree <- as.phylo(hclust(motifs))
   } else {
-    motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+    motifs <- convert_motifs(motifs)
     if (!missing(db.scores)) {
       tree <- compare_motifs(motifs, db.scores = db.scores,
                              use.type = use.type,
                              method = method, tryRC = tryRC,
                              min.overlap = min.overlap,
                              min.mean.ic = min.mean.ic,
-                             relative_entropy = relative_entropy,
-                             BPPARAM = BPPARAM)
+                             relative_entropy = relative_entropy)
     } else {
       tree <- compare_motifs(motifs,
                              use.type = use.type,
                              method = method, tryRC = tryRC,
                              min.overlap = min.overlap,
                              min.mean.ic = min.mean.ic,
-                             relative_entropy = relative_entropy,
-                             BPPARAM = BPPARAM)
+                             relative_entropy = relative_entropy)
     }
     if (method == "Pearson") tree <- 1 - tree
     tree <- as.phylo(hclust(as.dist(tree)))

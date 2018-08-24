@@ -38,11 +38,8 @@
 #'    \code{\link{shuffle_sequences}}.
 #' @param shuffle.method \code{character(1)} See \code{\link{shuffle_sequences}}.
 #' @param shuffle.leftovers \code{character(1)} See \code{\link{shuffle_sequences}}.
-#' @param progress_bar \code{logical(1)} Show progress bar from
-#'    \code{\link{scan_sequences}}.
 #' @param return.scan.results \code{logical(1)} Return output from
 #'    \code{\link{scan_sequences}}.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{data.frame} Motif enrichment results. The resulting 
 #'    \code{data.frame} contains the following columns:
@@ -102,9 +99,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
                           shuffle.leftovers = "asis",
-                          progress_bar = FALSE,
-                          return.scan.results = FALSE,
-                          BPPARAM = SerialParam()) {
+                          return.scan.results = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -122,12 +117,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                      shuffle.k = args$shuffle.k),
                                 c(1, 1, 1, 0, 1, 1, 1), logical(), "numeric")
   logi_check <- check_fun_params(list(RC = args$RC,
-                                      progress_bar = args$progress_bar,
                                       return.scan.results = args$return.scan.results),
                                  numeric(), logical(), "logical")
   s4_check <- check_fun_params(list(sequences = args$sequences,
-                                    bkg.sequences = args$bkg.sequences,
-                                    BPPARAM = args$BPPARAM),
+                                    bkg.sequences = args$bkg.sequences),
                                numeric(), c(FALSE, TRUE, FALSE), "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -154,17 +147,15 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     cat("   > shuffle.k:           ", shuffle.k, "\n")
     cat("   > shuffle.method:      ", shuffle.method, "\n")
     cat("   > shuffle.leftovers:   ", shuffle.leftovers, "\n")
-    cat("   > progress_bar:        ", progress_bar, "\n")
     cat("   > return.scan.results: ", return.scan.results, "\n")
-    cat("   > BPPARAM:             ", deparse(substitute(BPPARAM)), "\n")
   }
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
 
   if (missing(bkg.sequences)) {
     if (verbose > 0) cat(" > Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
-                                       shuffle.leftovers, BPPARAM)
+                                       shuffle.leftovers)
   } 
 
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -173,7 +164,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (threshold.type == "pvalue") {
     if (verbose > 0) cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              progress_bar = progress_bar, BPPARAM = BPPARAM,
                               k = 5)
     if (use.freq == 1) {
       max.scores <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
@@ -196,8 +186,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   res.all <- .enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                            verbose, RC, use.freq, positional.test,
-                           BPPARAM, search.mode, threshold.type,
-                           motcount, progress_bar,
+                           search.mode, threshold.type,
+                           motcount, 
                            return.scan.results)
 
   if (return.scan.results) {
@@ -268,20 +258,19 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
 .enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
-                          BPPARAM, search.mode, threshold.type,
-                          motcount, progress_bar,
+                          search.mode, threshold.type,
+                          motcount, 
                           return.scan.results) {
 
   if (verbose > 0) cat(" > Scanning input sequences\n")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                            RC, use.freq, progress_bar = progress_bar,
-                            BPPARAM = BPPARAM, verbose = verbose - 1)
+                            RC, use.freq, 
+                            verbose = verbose - 1)
 
   if (verbose > 0) cat(" > Scanning background sequences\n")
   results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
                                 threshold.type, RC, use.freq,
-                                progress_bar = progress_bar,
-                                verbose = verbose - 1, BPPARAM = BPPARAM)
+                                verbose = verbose - 1)
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -307,7 +296,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, verbose),
                           results2, results.bkg2, motifs,
-                          SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+                          SIMPLIFY = FALSE)
 
   results.all <- do.call(rbind, results.all)
 

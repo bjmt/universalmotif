@@ -9,10 +9,9 @@
 #' @param db.scores \code{data.frame} See \code{details}.
 #' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
 #' @param use.type \code{character(1)} One of \code{'PCM'} (PCC/NPCC only),
-#'    \code{'PPM'} (any method),
-#'    \code{'PWM'} (Pearson only), and \code{'ICM'} (any method). The latter
-#'    two allow for taking into account the background frequencies 
-#'    (for ICM, only if \code{relative_entropy = TRUE}).
+#'    \code{'PPM'} (any method), \code{'PWM'} (PCC/PWM only), and \code{'ICM'}
+#'    (any method). The latter two allow for taking into account the background
+#'    frequencies (for ICM, only if \code{relative_entropy = TRUE}).
 #' @param method \code{character(1)} One of \code{'PCC', 'NPCC', 'EUCL', 'NEUCL',
 #'    'SW', 'NSW', 'KL'}. See details.
 #' @param tryRC \code{logical} Try the reverse complement of the motifs as well,
@@ -27,13 +26,14 @@
 #' @param relative_entropy \code{logical(1)} For ICM calculation. See
 #'    \code{\link{convert_type}}.
 #' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
-#'    unaligned positions.
+#'    unaligned positions. Similarity scores are multiplied by the ratio of
+#'    aligned positions to the total number of positions in the larger motif,
+#'    and the inverse for distance scores.
 #' @param max.p \code{numeric(1)} Maximum P-value allowed in reporting matches.
 #'    Only used if \code{compare.to} is set.
 #' @param max.e \code{numeric(1)} Maximum E-value allowed in reporting matches.
 #'    Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
 #'    * PCC: 0 represents complete distance, >0 similarity.
@@ -84,8 +84,7 @@
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
                            method = "NPCC", tryRC = TRUE, min.overlap = 6,
                            min.mean.ic = 0.5, relative_entropy = FALSE,
-                           normalise.scores = FALSE, max.p = 0.01, max.e = 10,
-                           BPPARAM = SerialParam()) {
+                           normalise.scores = FALSE, max.p = 0.01, max.e = 10) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -102,8 +101,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores),
                                  c(1, 1, 1), c(FALSE, FALSE, FALSE), "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (!missing(db.scores) && !is.data.frame(db.scores)) {
     dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
                              "`data.frame`; got `", class(db.scores), "`")
@@ -117,9 +115,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     stop("Method '", method, "' is not supported for type '", use.type, "'")
   }
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy,
-                         BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
   mot.dup <- mot.names[duplicated(mot.names)]
@@ -138,15 +135,14 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
   }
   mot.ics <- bpmapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
-                      motifs, mot.mats, BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+                      motifs, mot.mats, SIMPLIFY = FALSE)
   if (missing(compare.to)) {
 
     comparisons <- bplapply(seq_along(motifs)[-length(motifs)],
                             function(x) .compare(x, mot.mats, method,
                                                  min.overlap, tryRC,
                                                  min.mean.ic, mot.ics,
-                                                 normalise.scores),
-                            BPPARAM = BPPARAM)
+                                                 normalise.scores))
 
   } else {
 
@@ -165,8 +161,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                                min.overlap, tryRC,
                                                mot.ics[[i]],
                                                mot.ics[[x]], min.mean.ic,
-                                               normalise.scores),
-                                   BPPARAM = BPPARAM)
+                                               normalise.scores))
       comparisons[[i]] <- do.call(c, comparisons[[i]])
       if (!is.null(db.scores)) {
         pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
@@ -192,7 +187,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                     score = comparisons[[i]], Pval = pvals[[i]],
                                     Eval = pvals[[i]] * length(motifs) * 2,
                                     stringsAsFactors = FALSE)
-                            }, BPPARAM = BPPARAM)
+                            })
     comparisons <- do.call(rbind, comparisons)
     if (!is.null(db.scores)) {
       comparisons <- comparisons[order(comparisons$Pval, decreasing = FALSE), ]
@@ -286,9 +281,8 @@ get_rid_of_dupes <- function(comparisons) {
 make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           shuffle.leftovers = "asis", rand.tries = 1000,
-                          normalise.scores = TRUE,
-                          min.overlap = 6, min.mean.ic = 0, progress_bar = TRUE,
-                          BPPARAM = SerialParam()) {
+                          normalise.scores = TRUE, min.overlap = 6,
+                          min.mean.ic = 0, progress_bar = TRUE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -305,9 +299,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                                       progress_bar = args$progress_bar,
                                       normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), logical(), "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -317,15 +309,13 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
   if (shuffle.db) {
     rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
                                 method = shuffle.method,
-                                leftovers = shuffle.leftovers,
-                                BPPARAM = BPPARAM) 
+                                leftovers = shuffle.leftovers) 
     if (length(rand.mots) != rand.tries) {
       if (length(rand.mots) < rand.tries) {
         while (length(rand.mots) < rand.tries) {
           more.rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
                                            method = shuffle.method,
-                                           leftovers = shuffle.leftovers,
-                                           BPPARAM = BPPARAM) 
+                                           leftovers = shuffle.leftovers) 
           rand.mots <- c(rand.mots, more.rand.mots)
         }
       }
@@ -355,7 +345,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 
     res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
                                min.overlap = min.overlap, min.mean.ic = min.mean.ic,
-                               BPPARAM = BPPARAM, max.e = Inf, max.p = Inf,
+                               max.e = Inf, max.p = Inf,
                                normalise.scores = normalise.scores)$score
 
     totry$mean[i] <- mean(res[[i]])

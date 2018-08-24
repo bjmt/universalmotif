@@ -16,7 +16,6 @@
 #' @param RC \code{logical(1)} See \code{link{scan_sequences}}.
 #' @param motifs.perseq \code{numeric(1)} If \code{\link{scan_sequences}} is run, 
 #'    then this indicates how many hits from each sequence is to be used.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @details
 #'    At each position in the motif, then the probability of each k-let 
@@ -48,7 +47,7 @@
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0.01, threshold.type = "logodds",
-                          motifs.perseq = 1, BPPARAM = SerialParam()) {
+                          motifs.perseq = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -59,8 +58,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                                 c(0, 1, 1), c(FALSE, FALSE, FALSE),
                                 "numeric")
   logi_check <- check_fun_params(list(RC = args$RC), 1, FALSE, "logical")
-  s4_check <- check_fun_params(list(sequences = args$sequences,
-                                    BPPARAM = args$BPPARAM),
+  s4_check <- check_fun_params(list(sequences = args$sequences),
                                c(1, 1), c(FALSE, FALSE), "S4")
   all_checks <- c(char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -74,7 +72,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     seq.names <- names(sequences)
     if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
     seq.res <- scan_sequences(motif, sequences, threshold = threshold, RC = RC,
-                              threshold.type = threshold.type, BPPARAM = BPPARAM,
+                              threshold.type = threshold.type,
                               verbose = 0)
 
     seqs.out <- vector("list", length(sequences))

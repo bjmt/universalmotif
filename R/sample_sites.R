@@ -7,7 +7,6 @@
 #' @param n \code{numeric(1)} Number of sites to generate.
 #' @param use.freq \code{numeric(1)} If one, use regular motif matrix. Otherwise,
 #'    use respective \code{multifreq} matrix.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{XStringSet} object.
 #'
@@ -19,18 +18,17 @@
 #'    \code{\link{add_multifreq}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-sample_sites <- function(motif, n = 100, use.freq = 1, BPPARAM = SerialParam()) {
+sample_sites <- function(motif, n = 100, use.freq = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   num_check <- check_fun_params(list(n = args$n), 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(num_check, s4_check)
+  all_checks <- c(num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  motif <- convert_motifs(motif, BPPARAM = BPPARAM)
-  motif <- convert_type(motif, "PPM", BPPARAM = BPPARAM)
+  motif <- convert_motifs(motif)
+  motif <- convert_type(motif, "PPM")
 
   if (use.freq == 1) {
     mot.mat <- motif["motif"]
@@ -46,7 +44,7 @@ sample_sites <- function(motif, n = 100, use.freq = 1, BPPARAM = SerialParam()) 
     sites
   }
 
-  sites <- bplapply(seq_len(n), .get_sites, BPPARAM = BPPARAM)
+  sites <- bplapply(seq_len(n), .get_sites)
   sites <- unlist(sites)
 
   if (alph == "DNA") {

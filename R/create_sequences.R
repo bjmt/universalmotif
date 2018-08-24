@@ -13,7 +13,6 @@
 #'               named numeric vector of length 16.
 #' @param trifreqs \code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
 #'                named numeric vector of length 64.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \linkS4class{XStringSet}
 #'
@@ -32,8 +31,7 @@
 #' @seealso \code{\link{create_motif}}, \code{\link{shuffle_sequences}}
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
-                             monofreqs, difreqs, trifreqs,
-                             BPPARAM = SerialParam()) {
+                             monofreqs, difreqs, trifreqs) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -45,8 +43,7 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                                      trifreqs = args$trifreqs),
                                 c(1, 1, rep(0, 3)), c(FALSE, FALSE, rep(TRUE, 3)),
                                 "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), 1, FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -85,22 +82,19 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
     seqs <- bplapply(seq_len(seqnum),
                      function(x) create_k1(alph.letters = alph.letters,
                                            seqlen = seqlen,
-                                           bkg = monofreqs),
-                     BPPARAM = BPPARAM)
+                                           bkg = monofreqs))
   } else if (!missing(difreqs)) {
     difreqs <- gsub("U", "T", difreqs)
     seqs <- bplapply(seq_len(seqnum),
                      function(x) create_k2(alph.letters = alph.letters,
                                            seqlen = seqlen,
-                                           difreq = difreqs),
-                     BPPARAM = BPPARAM)
+                                           difreq = difreqs))
   } else if (!missing(trifreqs)) {
     trifreqs <- gsub("U", "T", trifreqs)
     seqs <- bplapply(seq_len(seqnum),
                      function(x) create_k3(alph.letters = alph.letters,
                                            seqlen = seqlen,
-                                           trifreq = trifreqs),
-                     BPPARAM = BPPARAM)
+                                           trifreq = trifreqs))
   }
 
   seqs <- unlist(seqs)

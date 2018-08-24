@@ -10,7 +10,6 @@
 #'             will use whatever type the motif is currently stored as.
 #' @param sep \code{character(1)} Indicates how to separate individual motifs.
 #' @param headers \code{logical(1)}, \code{character(1)} Indicating if and how to write names.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -23,7 +22,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
-                         type, sep = "", headers = TRUE, BPPARAM = SerialParam()) {
+                         type, sep = "", headers = TRUE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -33,8 +32,6 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                                  "character")
   logi_check <- check_fun_params(list(rownames = args$rownames), 1, FALSE,
                                  "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), FALSE, "S4")
   header_check <- character()
   if (!is.logical(headers) && !is.character(headers)) {
     header_check <- paste0(" * Incorrect type for 'headers': ",
@@ -44,12 +41,12 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
     header_check <- paste0(" * Incorrect vector length for 'headers': ",
                            "expected 1; got ", length(headers))
   }
-  all_checks <- c(char_check, logi_check, s4_check, header_check)
+  all_checks <- c(char_check, logi_check, header_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  if (!missing(type)) motifs <- convert_type(motifs, type, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
+  if (!missing(type)) motifs <- convert_type(motifs, type)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_matrix <- function(motifs, positions, rownames, sep, headers) {
@@ -91,7 +88,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
 
   lines_final <- bplapply(motifs, .write_matrix, positions = positions,
                           rownames = rownames, sep = sep,
-                          headers = headers, BPPARAM = BPPARAM)  # not working??
+                          headers = headers)  # not working??
   lines_final <- unlist(lines_final)
 
   writeLines(lines_final, con <- file(file))

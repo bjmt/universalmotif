@@ -15,7 +15,6 @@
 #' @param sep \code{character(1)} Indicates how individual motifs are seperated.
 #' @param headers \code{logical(1)}, \code{character(1)} Indicating if and how to read names. 
 #' @param rownames \code{logical(1)} Are there alphabet letters present as rownames?
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{list} \linkS4class{universalmotif} objects.
 #'
@@ -28,7 +27,7 @@
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
                         alphabet = "DNA", sep = "", headers = FALSE,
-                        rownames = FALSE, BPPARAM = SerialParam()) {
+                        rownames = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -40,8 +39,7 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
   logi_check <- check_fun_params(list(rownames = args$rownames),
                                  1, FALSE, "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -77,45 +75,40 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   }
 
   motifs <- bpmapply(function(x, y) raw_lines[x:y],
-                     motif_starts, motif_stops, SIMPLIFY = FALSE,
-                     BPPARAM = BPPARAM)
+                     motif_starts, motif_stops, SIMPLIFY = FALSE)
   if (rownames && positions == "columns") {
     motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x,
-                                                                row.names = 1)),
-                      BPPARAM = BPPARAM)
+                                                                row.names = 1)))
   } else if (rownames && positions == "rows") {
     motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x,
-                                                                header = TRUE)),
-                      BPPARAM = BPPARAM)
+                                                                header = TRUE)))
   } else {
-    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x)),
-                      BPPARAM = BPPARAM)
+    motifs <- bplapply(motifs, function(x) as.matrix(read.table(text = x)))
   }
 
   if (positions == "rows") {
-    motifs <- bplapply(motifs, t, BPPARAM = BPPARAM)
+    motifs <- bplapply(motifs, t)
   }
 
-  motifs <- bplapply(motifs, function(x) {rownames(x) <- NULL; x}, BPPARAM = BPPARAM)
+  motifs <- bplapply(motifs, function(x) {rownames(x) <- NULL; x})
   if (!missing(type)) {
     motifs <- bplapply(motifs, function(x) {
                       universalmotif_cpp(motif = x, type = type, alphabet = alphabet)
-                     }, BPPARAM = BPPARAM)
+                     })
   } else {
     motifs <- bplapply(motifs, function(x) universalmotif_cpp(motif = x,
-                                                          alphabet = alphabet),
-                       BPPARAM = BPPARAM)
+                                                          alphabet = alphabet))
   }
 
   if (!isFALSE(headers)) {
     motifs <- bpmapply(function(x, y) {x@name <- y; x}, motifs, headers,
-                       BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+                       SIMPLIFY = FALSE)
   }
 
   motifs <- bplapply(motifs, function(x) {
                          msg <- validObject_universalmotif(x)
                          if (length(msg) > 0) stop(msg) else x
-                       }, BPPARAM = BPPARAM)
+                       })
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
 

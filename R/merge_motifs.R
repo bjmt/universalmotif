@@ -19,8 +19,7 @@
 #' @export
 merge_motifs <- function(motifs, method = "NPCC", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
-                         relative_entropy = FALSE, normalise.scores = FALSE,
-                         BPPARAM = SerialParam()) {
+                         relative_entropy = FALSE, normalise.scores = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -33,8 +32,7 @@ merge_motifs <- function(motifs, method = "NPCC", use.type = "PPM",
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -44,20 +42,37 @@ merge_motifs <- function(motifs, method = "NPCC", use.type = "PPM",
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy, 
-                         BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
 
   mot <- merge_mot_list(motifs, tryRC, min.overlap, min.mean.ic, method,
                         relative_entropy, normalise.scores)
 
-  mot <- .internal_convert(mot, unique(CLASS_IN), BPPARAM = BPPARAM)
+  mot <- .internal_convert(mot, unique(CLASS_IN))
   mot
 
 }
 
+#' merge_mot_pair
+#'
+#' Merge two motifs.
+#'
+#' @param mot1 Motif matrix 1.
+#' @param mot2 Motif matrix 2.
+#' @param weight1 Weighing factor for motif 1.
+#' @param weight2 Weighing factor for motif 2.
+#' @param ic1 Positional ICs for motif 1.
+#' @param ic2 Positional ICs for motif 2.
+#' @param tryRC Logical.
+#' @param min.overlap Minimum overlap.
+#' @param min.mean.ic Minimum mean IC of alignment.
+#' @param method Comparison metric.
+#' @param relative_entropy Logical.
+#' @param normalise.scores Logical.
+#'
+#' @noRd
 merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
                            min.overlap, min.mean.ic, method, relative_entropy,
                            normalise.scores) {
@@ -70,6 +85,19 @@ merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
 
 }
 
+#' merge_mot_list
+#'
+#' Merge a list of motifs, pairwise.
+#'
+#' @param motifs List of universalmotif motifs.
+#' @param tryRC Logical.
+#' @param min.overlap Minimum overlap.
+#' @param min.mean.ic Minimum mean IC for alignment.
+#' @param method Comparison metric.
+#' @param relative_entropy Logical.
+#' @param normalise.scores Logical.
+#'
+#' @noRd
 merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                            relative_entropy, normalise.scores) {
 

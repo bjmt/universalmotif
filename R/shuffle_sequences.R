@@ -10,7 +10,6 @@
 #'    See details.
 #' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
 #'    \code{c('asis', 'first', 'split', 'discard')}. See details.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{XStringSet} The input sequences will be returned with 
 #'    identical names and lengths.
@@ -52,7 +51,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
-                               leftovers = "asis", BPPARAM = SerialParam()) {
+                               leftovers = "asis") {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -60,8 +59,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
                                       leftovers = args$leftovers),
                                  numeric(), logical(), "character")
   num_check <- check_fun_params(list(k = args$k), 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(sequences = args$sequences,
-                                    BPPARAM = args$BPPARAM),
+  s4_check <- check_fun_params(list(sequences = args$sequences),
                                numeric(), logical(), "S4")
   all_checks <- c(char_check, num_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -73,16 +71,15 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
   if (k == 1) {
     sequences <- as.character(sequences)
-    sequences <- bplapply(sequences, shuffle_k1, BPPARAM = BPPARAM)
+    sequences <- bplapply(sequences, shuffle_k1)
   } else if (method == "markov") {
-    sequences <- bplapply(sequences, shuffle_markov, k = k, BPPARAM = BPPARAM)
+    sequences <- bplapply(sequences, shuffle_markov, k = k)
   } else if (method == "random") {
     sequences <- as.character(sequences)
-    sequences <- bplapply(sequences, shuffle_random, k = k, leftover = leftovers,
-                          BPPARAM = BPPARAM)
+    sequences <- bplapply(sequences, shuffle_random, k = k, leftover = leftoversM)
   } else if (method == "linear") {
     sequences <- as.character(sequences)
-    sequences <- bplapply(sequences, shuffle_linear, k = k, BPPARAM = BPPARAM)
+    sequences <- bplapply(sequences, shuffle_linear, k = k)
   } else stop("incorrect 'k' and 'method' combo")
 
   sequences <- unlist(sequences)

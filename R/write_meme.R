@@ -10,7 +10,6 @@
 #'            background frequencies will be set to freq = 1/length(alphabet)
 #' @param strand \code{character} If missing, will use strand from motif objects (if identical);
 #'               otherwise will default to "+ -"
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return NULL, invisibly.
 #'
@@ -26,22 +25,19 @@
 #' @seealso \code{\link{read_meme}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_meme <- function(motifs, file, version = 4, bkg, strand,
-                       BPPARAM = SerialParam()) {
+write_meme <- function(motifs, file, version = 4, bkg, strand) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file, strand = args$strand),
                                  numeric(), c(FALSE, TRUE), "character")
   num_check <- check_fun_params(list(version = args$version), 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM),
-                               numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
-  motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   if (missing(strand)) {
@@ -104,8 +100,7 @@ write_meme <- function(motifs, file, version = 4, bkg, strand,
   
   }
 
-  lines_out <- c(lines_out, unlist(bplapply(motifs, .write_meme,
-                                            BPPARAM = BPPARAM)))
+  lines_out <- c(lines_out, unlist(bplapply(motifs, .write_meme)))
 
   writeLines(lines_out, con <- file(file))
   close(con)

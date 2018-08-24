@@ -18,7 +18,6 @@
 #' @param pval \code{numeric(1)} Keep motifs by max P-value.
 #' @param qval \code{numeric(1)} Keep motifs by max Q-value.
 #' @param eval \code{numeric(1)} Keep motifs by max E-val.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{list} Motifs.
 #'
@@ -39,7 +38,7 @@
 #' @export
 filter_motifs <- function(motifs, name, altname, family, organism, width,
                           alphabet, type, icscore, nsites, strand, pval, qval,
-                          eval, BPPARAM = SerialParam()) {
+                          eval) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -52,14 +51,13 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
                                      nsites = args$nsites, pval = args$pval,
                                      qval = args$qval, eval = args$eval),
                                 rep(0, 6), rep(TRUE, 6), "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
   
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   if (!missing(name)) {
@@ -127,7 +125,7 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
     motifs <- motifs[motif_evals <= eval]
   }
 
-  motifs <- .internal_convert(motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
+  motifs <- .internal_convert(motifs, unique(CLASS_IN))
 
   motifs
 

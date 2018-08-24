@@ -11,7 +11,6 @@
 #'    See details.
 #' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
 #'    \code{c('asis', 'first', 'split', 'discard')}. See details.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return Motifs. See \code{\link{convert_motifs}} for available output
 #'    formats.
@@ -20,7 +19,7 @@
 #' @seealso \code{\link{shuffle_sequences}}
 #' @export
 shuffle_motifs <- function(motifs, k = 2, method = "linear",
-                           leftovers = "asis", BPPARAM = SerialParam()) {
+                           leftovers = "asis") {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -28,17 +27,16 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
                                       leftovers = args$leftovers),
                                  numeric(), logical(), "character")
   num_check <- check_fun_params(list(k = args$k), 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  motifs <- convert_type(motifs, "PPM", BPPARAM = BPPARAM)
+  motifs <- convert_type(motifs, "PPM")
   mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
   if (length(unique(mot.alphs)) > 1)
     stop("all motifs must share the same alphabet")
@@ -72,9 +70,9 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   }
 
   new.motifs <- bpmapply(shuffle_new_mot, new.mats, motifs,
-                         BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+                         SIMPLIFY = FALSE)
 
-  new.motifs <- .internal_convert(new.motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
+  new.motifs <- .internal_convert(new.motifs, unique(CLASS_IN))
   new.motifs
 
 }

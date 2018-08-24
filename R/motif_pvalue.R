@@ -15,9 +15,6 @@
 #'    subsetting the motif every \code{k} columns. If \code{k} is a value
 #'    equal or higher to the size of input motif(s), then the calculations
 #'    are exact.
-#' @param progress_bar \code{logical(1)} If given multiple motifs, show
-#'    progress.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return \code{numeric} A vector of scores/p-values.
 #'
@@ -67,8 +64,7 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
-                         progress_bar = FALSE, BPPARAM = SerialParam()) {
+motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -84,10 +80,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
                           class(bkg.probs), "`")
     }
   }
-  logi_check <- check_fun_params(list(progress_bar = args$progress_bar),
                                  1, FALSE, "logical")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(num_check, logi_check, s4_check, bkg_check)
+  all_checks <- c(num_check, bkg_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   if (use.freq > 2 && interactive()) {
     cat(paste0(" * Using motif_pvalue with use.freq > 2 is ",
@@ -124,26 +118,19 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
     motifs <- bpmapply(function(x, y) apply(x, 2, ppm_to_pwmC, 
                                             pseudocount = y["pseudocount"],
                                             nsites = y["nsites"]),
-                       mots, motifs, BPPARAM = BPPARAM, SIMPLIFY = FALSE)
+                       mots, motifs, SIMPLIFY = FALSE)
   }
 
   if (missing(bkg.probs) || use.freq > 1) {
     bkg.probs <- lapply(motifs, function(x) rep( 1 / nrow(x), nrow(x)))
   } else if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
 
-  if (progress_bar) {
-    pb_prev <- BPPARAM$progressbar
-    BPPARAM$progressbar <- TRUE
-  }
-
   if (!missing(score) && missing(pvalue)) {
-    out <- bpmapply(motif_pval, motifs, score, bkg.probs, k, BPPARAM = BPPARAM)
+    out <- bpmapply(motif_pval, motifs, score, bkg.probs, k)
   } else if (missing(score) && !missing(pvalue)) {
     out <- bpmapply(motif_score, motifs, pvalue, bkg.probs, k,
-                    tolerance = 0.75, BPPARAM = BPPARAM)
+                    tolerance = 0.75)
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
-
-  if (progress_bar) BPPARAM$progressbar <- pb_prev
 
   out
 

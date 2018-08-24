@@ -3,7 +3,6 @@
 #' Convert a motif from DNA to RNA, or RNA to DNA.
 #'
 #' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return The DNA/RNA version of the motifs.
 #'
@@ -14,11 +13,11 @@
 #' @seealso \code{\link{create_motif}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-switch_alph <- function(motifs, BPPARAM = SerialParam()) {
+switch_alph <- function(motifs) {
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .switch_alph <- function(motif) {
@@ -52,10 +51,10 @@ switch_alph <- function(motifs, BPPARAM = SerialParam()) {
     motif
   }
 
-  motifs <- bplapply(motifs, .switch_alph, BPPARAM = BPPARAM)
+  motifs <- bplapply(motifs, .switch_alph)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
-  motifs <- .internal_convert(motifs, CLASS_IN, BPPARAM = BPPARAM)
+  motifs <- .internal_convert(motifs, CLASS_IN)
   motifs
 
 }

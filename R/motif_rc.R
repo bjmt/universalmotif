@@ -5,7 +5,6 @@
 #' affected.
 #'
 #' @param motifs See \code{\link{convert_motifs}} for acceptable formats
-#' @param BPPARAM See \code{\link[BiocParallel]{bpparam}}.
 #'
 #' @return See \code{\link{convert_motifs}} for available output formats.
 #'
@@ -16,16 +15,16 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_rc <- function(motifs, BPPARAM = SerialParam()) {
+motif_rc <- function(motifs) {
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
-  motifs <- convert_motifs(motifs, BPPARAM = BPPARAM)
+  motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  motifs <- bplapply(motifs, motif_rc_internal, BPPARAM = BPPARAM)
+  motifs <- bplapply(motifs, motif_rc_internal)
 
-  motifs <- .internal_convert(motifs, unique(CLASS_IN), BPPARAM = BPPARAM)
+  motifs <- .internal_convert(motifs, unique(CLASS_IN))
   motifs
 
 }

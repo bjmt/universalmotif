@@ -17,15 +17,14 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp
 #' @export
-read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
+read_transfac <- function(file, skip = 0) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
-  s4_check <- check_fun_params(list(BPPARAM = args$BPPARAM), numeric(), FALSE, "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -46,7 +45,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
 
   motifs <- bpmapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops,
-                     SIMPLIFY = FALSE, BPPARAM = BPPARAM)
+                     SIMPLIFY = FALSE)
 
   get_matrix <- function(x) {
     mot_start <- which(grepl("^P0", x) | grepl("^PO", x)) + 1
@@ -65,7 +64,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
     matrix(mot, ncol = 4, byrow = TRUE)
   }
 
-  motif_matrix <- bplapply(motifs, get_matrix, BPPARAM = BPPARAM)
+  motif_matrix <- bplapply(motifs, get_matrix)
 
   parse_meta <- function(x) {
     metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
@@ -118,7 +117,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
     metas_correct
   }
 
-  motif_meta <- bplapply(motifs, parse_meta, BPPARAM = BPPARAM)
+  motif_meta <- bplapply(motifs, parse_meta)
 
   motifs <- bpmapply(function(x, y) {
                       mot <- universalmotif_cpp(name = as.character(y[names(y) == 
@@ -134,7 +133,7 @@ read_transfac <- function(file, skip = 0, BPPARAM = SerialParam()) {
                                      type = "PCM")
                       msg <- validObject_universalmotif(mot)
                       if (length(msg) > 0) stop(msg) else mot
-                     }, motif_matrix, motif_meta, BPPARAM = BPPARAM)
+                     }, motif_matrix, motif_meta)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
