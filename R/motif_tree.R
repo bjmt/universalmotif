@@ -78,7 +78,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   #---------------------------------------------------------
 
   if (is(motifs, "dist")) {
-    tree <- as.phylo(hclust(motifs))
+    tree <- ape::as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs)
     if (!missing(db.scores)) {
@@ -96,8 +96,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                              min.mean.ic = min.mean.ic,
                              relative_entropy = relative_entropy)
     }
-    if (method == "Pearson") tree <- 1 - tree
-    tree <- as.phylo(hclust(as.dist(tree)))
+    if (method %in% c("MPCC", "PCC", "SW", "MSW")) tree <- 1 / tree  # !!!!
+    tree <- ape::as.phylo(hclust(as.dist(tree)))
   }
 
   if (labels != "none") {
@@ -118,7 +118,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     }
     names(anno_list) <- anno_unique
 
-    tree <- groupOTU(tree, anno_list)
+    tree <- ggtree::groupOTU(tree, anno_list)
 
     if (labels != "none") {
 

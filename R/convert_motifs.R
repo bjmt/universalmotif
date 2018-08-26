@@ -52,7 +52,9 @@
 #' # convert from universalmotif:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
-#' jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
+#' if (requireNamespace("motifStack", quietly = TRUE)) {
+#'   jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
+#' }
 #'
 #' # convert from another class to universalmotif:
 #' library(TFBSTools)
@@ -60,7 +62,9 @@
 #' motif <- convert_motifs(MA0003.2)
 #'
 #' # convert from another class to another class
-#' motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+#' if (requireNamespace("PWMEnrich", quietly = TRUE)) {
+#'   motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+#' }
 #'
 #' # the 'convert_motifs' function is embedded in the rest of the universalmotif
 #' # functions; non-universalmotif class motifs can be used
@@ -122,8 +126,11 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
             # MotIV-pwm2
             if (out_class_pkg == "MotIV" && out_class == "pwm2") {
               motifs <- convert_type(motifs, "PPM")
-              motifs <- makePWM(motifs["motif"],
-                                alphabet = motifs["alphabet"])
+              if (!requireNamespace("MotIV", quietly = TRUE)) {
+                stop("package 'MotIV' is not installed") 
+              }
+              motifs <- MotIV::makePWM(motifs["motif"],
+                                       alphabet = motifs["alphabet"])
               return(motifs)
             }
 
@@ -203,9 +210,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # seqLogo-pwm
             if (out_class_pkg == "seqLogo" && out_class == "pwm") {
-              # if (!requireNamespace("seqLogo", quietly = TRUE)) {
-                # stop("'seqLogo' package not installed")
-              # }
+              if (!requireNamespace("seqLogo", quietly = TRUE)) {
+                stop("'seqLogo' package not installed")
+              }
               motifs <- convert_type(motifs, "PPM")
               motifs <- seqLogo::makePWM(motifs["motif"])
               return(motifs)
@@ -213,6 +220,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # motifStack-pcm
             if (out_class_pkg == "motifStack" && out_class == "pcm") {
+              if (!requireNamespace("motifStack", quietly = TRUE)) {
+                stop("'motifStack' package not installed")
+              }
               pcm_class <- getClass("pcm", where = "motifStack")
               motifs <- convert_type(motifs, "PCM")
               motifs <- new(pcm_class, mat = motifs["motif"],
@@ -226,6 +236,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # motifStack-pfm
             if (out_class_pkg == "motifStack" && out_class == "pfm") {
+              if (!requireNamespace("motifStack", quietly = TRUE)) {
+                stop("'motifStack' package not installed")
+              }
               pfm_class <- getClass("pfm", where = "motifStack")
               motifs <- convert_type(motifs, "PPM")
               motifs <- new(pfm_class, mat = motifs["motif"],
@@ -239,6 +252,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # PWMEnrich-PWM
             if (out_class_pkg == "PWMEnrich" && out_class == "PWM") {
+              if (!requireNamespace("PWMEnrich", quietly = TRUE)) {
+                stop("package 'PWMEnrich' not installed")
+              }
               motifs <- convert_type(motifs, "PCM")
               PWM_class <- getClass("PWM", where = "PWMEnrich")
               bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
@@ -246,7 +262,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               rownames(bio_mat) <- DNA_BASES
               bio_priors <- motifs["bkg"]
               names(bio_priors) <- DNA_BASES
-              bio_mat <- PFMtoPWM(bio_mat, type = "log2probratio",
+              bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
                                   prior.params = bio_priors,
                                   pseudo.count = motifs["pseudocount"])
               motifs <- new(PWM_class, name = motifs["name"],
@@ -282,19 +298,11 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               return(motifs)
             }
 
-            # custom convert function
-            # custom_convert <- NULL
-            # tryCatch({custom_convert <- get(class)}, error = function(e) {})
-            # if (is.function(custom_convert)) {
-              # message("attempting to convert using custom function")
-              # motifs <- custom_convert(motifs)
-              # return(motifs)
-            # }
-
             stop("unknown 'class'")
           
           })
 
+# setClass("MotifList")
 #' @describeIn convert_motifs Convert MotifList motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "MotifList"),
@@ -333,7 +341,7 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
             convert_motifs(mot, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{PFMatrix} motifs.
+#' @describeIn convert_motifs Convert PFMatrix motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "PFMatrix"),
           definition = function(motifs, class) {
@@ -362,7 +370,7 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{PWMatrix} motifs.
+#' @describeIn convert_motifs Convert PWMatrix motifs.
 setMethod("convert_motifs", signature(motifs = "PWMatrix"),
           definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
@@ -388,7 +396,7 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{ICMatrix} motifs.
+#' @describeIn convert_motifs Convert ICMatrix motifs.
 setMethod("convert_motifs", signature(motifs = "ICMatrix"),
           definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
@@ -432,7 +440,7 @@ setMethod("convert_motifs", signature(motifs = "XMatrixList"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{pwm} motifs.
+#' @describeIn convert_motifs Convert pwm motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pwm"),
           definition = function(motifs, class) {
@@ -443,7 +451,7 @@ setMethod("convert_motifs", signature(motifs = "pwm"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{pcm} motifs.
+#' @describeIn convert_motifs Convert pcm motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
           definition = function(motifs, class) {
@@ -457,7 +465,7 @@ setMethod("convert_motifs", signature(motifs = "pcm"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{pfm} motifs.
+#' @describeIn convert_motifs Convert pfm motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pfm"),
           definition = function(motifs, class) {
@@ -470,7 +478,7 @@ setMethod("convert_motifs", signature(motifs = "pfm"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert \linkS4class{PWM} motifs.
+#' @describeIn convert_motifs Convert PWM motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "PWM"),
           definition = function(motifs, class) {

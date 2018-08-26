@@ -125,21 +125,21 @@ The following packge-class combinations can be used as input:
 
 \item \code{TFFMFirst}: Convert TFFMFirst motifs.
 
-\item \code{PFMatrix}: Convert \linkS4class{PFMatrix} motifs.
+\item \code{PFMatrix}: Convert PFMatrix motifs.
 
-\item \code{PWMatrix}: Convert \linkS4class{PWMatrix} motifs.
+\item \code{PWMatrix}: Convert PWMatrix motifs.
 
-\item \code{ICMatrix}: Convert \linkS4class{ICMatrix} motifs.
+\item \code{ICMatrix}: Convert ICMatrix motifs.
 
 \item \code{XMatrixList}: Convert XMatrixList motifs.
 
-\item \code{pwm}: Convert \linkS4class{pwm} motifs.
+\item \code{pwm}: Convert pwm motifs.
 
-\item \code{pcm}: Convert \linkS4class{pcm} motifs.
+\item \code{pcm}: Convert pcm motifs.
 
-\item \code{pfm}: Convert \linkS4class{pfm} motifs.
+\item \code{pfm}: Convert pfm motifs.
 
-\item \code{PWM}: Convert \linkS4class{PWM} motifs.
+\item \code{PWM}: Convert PWM motifs.
 
 \item \code{Motif}: Convert Motif motifs.
 
@@ -150,7 +150,9 @@ The following packge-class combinations can be used as input:
 # convert from universalmotif:
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
-jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
+if (requireNamespace("motifStack", quietly = TRUE)) {
+  jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
+}
 
 # convert from another class to universalmotif:
 library(TFBSTools)
@@ -158,7 +160,9 @@ data(MA0003.2)
 motif <- convert_motifs(MA0003.2)
 
 # convert from another class to another class
-motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+if (requireNamespace("PWMEnrich", quietly = TRUE)) {
+  motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
+}
 
 # the 'convert_motifs' function is embedded in the rest of the universalmotif
 # functions; non-universalmotif class motifs can be used

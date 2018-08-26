@@ -8,8 +8,9 @@
 #'
 #' @import methods
 #' @import ggplot2
-#' @import ggtree
-#' @import ggseqlogo
+#' @importFrom ggseqlogo ggseqlogo geom_logo
+#' @importFrom ggtree ggtree geom_tiplab geom_tiplab2 groupOTU %<+%
+#' @importFrom ggtree geom_tippoint
 #' @importFrom BiocParallel bplapply bpmapply bpparam
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
@@ -23,16 +24,11 @@
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
 #' @importFrom Biostrings reverseComplement
 #' @importFrom ape as.phylo
-#' @importFrom seqLogo seqLogo
-#' @importFrom motifStack mergeMotifs
-#' @importFrom MotIV makePWM
 #' @importFrom TFBSTools PFMatrix toPWM toICM
 #' @importFrom TFBSTools TFFMFirst getPosProb
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
-#' @importFrom PWMEnrich PFMtoPWM
 #' @importFrom Rcpp sourceCpp
-#' @importClassesFrom MotifDb MotifList
 #' @importMethodsFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
 #' @importMethodsFrom BiocGenerics colMeans rowMeans normalize subset colSums
 #' @importMethodsFrom BiocGenerics as.data.frame

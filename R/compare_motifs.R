@@ -84,7 +84,7 @@
 #' @examples
 #' motif1 <- create_motif()
 #' motif2 <- create_motif()
-#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "PCC")
+#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "MPCC")
 #' ## to get a dist object:
 #' as.dist(1 - motif1vs2)
 #'
