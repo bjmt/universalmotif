@@ -302,7 +302,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
           
           })
 
-# setClass("MotifList")
+# Don't want to import MotifDb!! But not sure can get around 'missing class def'
+# message..
+suppressMessages(
 #' @describeIn convert_motifs Convert MotifList motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "MotifList"),
@@ -324,6 +326,7 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
             motifs_out <- lapply(seq_len(length(motifs)), motifdb_fun)
             convert_motifs(motifs_out, class = class)
           })
+)
 
 #' @describeIn convert_motifs Convert TFFMFirst motifs.
 #' @export
@@ -440,6 +443,7 @@ setMethod("convert_motifs", signature(motifs = "XMatrixList"),
             convert_motifs(motifs, class = class)
           })
 
+suppressMessages(
 #' @describeIn convert_motifs Convert pwm motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pwm"),
@@ -450,7 +454,9 @@ setMethod("convert_motifs", signature(motifs = "pwm"),
             if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class)
           })
+)
 
+suppressMessages(
 #' @describeIn convert_motifs Convert pcm motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
@@ -464,7 +470,9 @@ setMethod("convert_motifs", signature(motifs = "pcm"),
             if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class)
           })
+)
 
+suppressMessages(
 #' @describeIn convert_motifs Convert pfm motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "pfm"),
@@ -477,7 +485,9 @@ setMethod("convert_motifs", signature(motifs = "pfm"),
             if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class)
           })
+)
 
+suppressMessages(
 #' @describeIn convert_motifs Convert PWM motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "PWM"),
@@ -493,7 +503,9 @@ setMethod("convert_motifs", signature(motifs = "PWM"),
             if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class)
           })
+)
 
+suppressMessages(
 #' @describeIn convert_motifs Convert Motif motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "Motif"),
@@ -510,6 +522,7 @@ setMethod("convert_motifs", signature(motifs = "Motif"),
             if (length(msg) > 0) stop(msg)
             convert_motifs(motifs, class = class)
           })
+)
 
 #' @describeIn convert_motifs Create motif from matrices.
 #' @export
