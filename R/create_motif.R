@@ -211,6 +211,9 @@ setMethod("create_motif", signature(input = "numeric"),
                                 extrainfo, add.multifreq) {
 
             if (length(input) != 1) stop("input must be a single number")
+            if (as.integer(input) != input) {
+              stop("'input' must be a whole number")
+            }
             input <- as.integer(input)
             if (input <= 0 ) stop("input must be greater than 0")
 

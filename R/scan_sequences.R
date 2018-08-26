@@ -217,7 +217,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
                        function(x) LETTER_to_int(as.integer(x) - 1,
                                                  use.freq, alph.int))
 
-  if (verbose > 1) cat(" * Scanning sequences for motifs\n")
+  if (verbose > 0) cat(" * Scanning sequences for motifs\n")
 
   score.mats <- lapply(score.mats, numeric_to_integer_matrix)
   thresholds.int <- as.integer(thresholds * 1000)

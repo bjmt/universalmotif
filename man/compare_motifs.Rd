@@ -5,9 +5,10 @@
 \title{Compare motifs.}
 \usage{
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
-  use.type = "PPM", method = "NPCC", tryRC = TRUE, min.overlap = 6,
+  use.type = "PPM", method = "MPCC", tryRC = TRUE, min.overlap = 6,
   min.mean.ic = 0.5, relative_entropy = FALSE,
-  normalise.scores = FALSE, max.p = 0.01, max.e = 10)
+  normalise.scores = FALSE, max.p = 0.01, max.e = 10,
+  progress_bar = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -19,13 +20,12 @@ Otherwise compares all motifs to the specified motif(s).}
 
 \item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 
-\item{use.type}{\code{character(1)} One of \code{'PCM'} (PCC/NPCC only),
-\code{'PPM'} (any method), \code{'PWM'} (PCC/PWM only), and \code{'ICM'}
-(any method). The latter two allow for taking into account the background
-frequencies (for ICM, only if \code{relative_entropy = TRUE}).}
+\item{use.type}{\code{character(1)} One of code{'PPM'} and \code{'ICM'}.
+The latter allows for taking into account the background
+frequencies if \code{relative_entropy = TRUE}.}
 
-\item{method}{\code{character(1)} One of \code{'PCC', 'NPCC', 'EUCL', 'NEUCL',
-'SW', 'NSW', 'KL'}. See details.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL',
+'SW', 'MSW', 'KL', 'MKL')}. See details.}
 
 \item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -43,7 +43,8 @@ alignments between low information content regions of two motifs.}
 \code{\link{convert_type}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions. Similarity scores are multiplied by the ratio of
+unaligned positions, as well as alignments between motifs of similar length.
+Similarity scores are multiplied by the ratio of
 aligned positions to the total number of positions in the larger motif,
 and the inverse for distance scores.}
 
@@ -58,34 +59,49 @@ by the number of input motifs times two.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
-   * PCC: 0 represents complete distance, >0 similarity.
-   * NPCC: 0 represents complete distance, 1 complete similarity.
-   * EUCL: 0 represents complete similarity, >0 distance.
-   * NEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-   * SW: 0 represents complete distance, >0 similarity.
-   * NSW: 0 represents complete distance, 2 complete similarity.
-   * KL: 0 represents complete similarity, >0 distance.
+ \itemize{
+   \item PCC: 0 represents complete distance, >0 similarity.
+   \item MPCC: 0 represents complete distance, 1 complete similarity.
+   \item EUCL: 0 represents complete similarity, >0 distance.
+   \item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
+   \item SW: 0 represents complete distance, >0 similarity.
+   \item MSW: 0 represents complete distance, 2 complete similarity.
+   \item KL: 0 represents complete similarity, >0 distance.
+   \item MKL: 0 represents complete similarity, 4.62 complete distance.
+ }
 }
 \description{
-Compare motifs using three metrics: Pearson correlation coefficient,
-Euclidean distance, and Kullback-Leibler divergence.
+Compare motifs using four metrics: Pearson correlation coefficient,
+Euclidean distance, Sandelin-Wasserman similarity, and Kullback-Leibler
+divergence.
 }
 \details{
-* PCC: Pearson correlation coefficient
-* NPCC: Normalised PCC
-* EUCL: Euclidian distance
-* NEUCL: Normalised EUCL
-* SW: Sandelin-Wasserman similarity
-* NSW: Normalised SW
-* KL: Kullback-Leibler divergence
+Comparisons are calculated between two motifs at a time. All possible alignments
+are scored, and the best score is reported. Scores are calculated per position
+and summed, unless the 'mean' version of the specific metric is chosen. If using
+a similarity metric, then the sum of scores will favour comparisons between
+longer motifs; and for distance metrics, the sum of scores will favour
+comparisons between short motifs. This can be avoided by using the 'mean' of
+scores.
+
+\itemize{
+  \item PCC: Pearson correlation coefficient
+  \item MPCC: Mean PCC
+  \item EUCL: Euclidian distance
+  \item MEUCL: Mean EUCL
+  \item SW: Sandelin-Wasserman similarity
+  \item MSW: Mean SW
+  \item KL: Kullback-Leibler divergence
+  \item MKL: Mean Kullback-Leibler divergence
+}
 
 To note regarding p-values: p-values are pre-computed using the
 \code{make_DBscores} function. If not given, then uses a set of internal
-precomputed p-values from the JASPAR2018 CORE motifs. Furthermore, the
-comparison calculation does not take into account the difference in length
-between motifs; this leads to an increased likelihood in higher scores
-between small and large motifs. In order to overcome this limitation,
-the p-values are calculated with this in mind.
+precomputed p-values from the JASPAR2018 CORE motifs. These precalculated
+scores are dependent on the length of the motifs being compared; this takes
+into account that comparing small motifs with larger motifs leads to higher
+scores, since the probability of finding a higher scoring alignment is
+higher.
 
 The default p-values have been precalculated for regular DNA motifs; they
 are of little use for motifs with a different number of alphabet letters

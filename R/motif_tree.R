@@ -56,10 +56,9 @@
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
-                       branch.length = "none", db.scores, method = "Pearson",
-                       use.type = "PPM",
-                       min.overlap = 6, tryRC = TRUE, min.mean.ic = 0.5,
-                       relative_entropy = FALSE, ...){
+                       branch.length = "none", db.scores, method = "MPCC",
+                       use.type = "PPM", min.overlap = 6, tryRC = TRUE,
+                       min.mean.ic = 0.5, relative_entropy = FALSE, ...){
 
   # param check --------------------------------------------
   args <- as.list(environment())

@@ -22,8 +22,6 @@ test_that("motif creation for missing or from numeric input works", {
   expect_equal(rownames(motif1["motif"]), c("A", "C", "G", "T"))
   expect_equal(motif1["pseudocount"], c(pseudocount = 0))
   expect_equal(sum(motif3["motif"]), 1000)
-  expect_equal(motif1["bkg"], c(bkg1 = 0.25, bkg2 = 0.25,
-                                bkg3 = 0.25, bkg4 = 0.25))
   expect_true(all(motif1["motif"] != motif2["motif"]))
 
   expect_true(any(motif4["motif"] < 0))

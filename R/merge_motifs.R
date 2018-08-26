@@ -17,7 +17,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
-merge_motifs <- function(motifs, method = "NPCC", use.type = "PPM",
+merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
                          relative_entropy = FALSE, normalise.scores = FALSE) {
 

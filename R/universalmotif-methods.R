@@ -334,7 +334,7 @@ setMethod("show", signature = "universalmotif",
               }
             }
             cat("\n")
-            print(object@motif, digits = 3)
+            print(round(object@motif * 100) / 100)
             invisible(NULL)
           })
 

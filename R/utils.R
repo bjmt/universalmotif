@@ -371,6 +371,7 @@ get_consensusAA <- function(position, type, pseudocount) {
 #' @rdname utilities
 #' @export
 summarise_motifs <- function(motifs, na.rm = TRUE) {
+  if (!is.list(motifs) || !is(motifs, "MotifList")) motifs <- list(motifs)
   classcheck <- vapply(motifs, function(x) !is(x, "universalmotif"), logical(1))
   if (any(classcheck)) stop("all motifs must be 'universalmotif'")
   out <- do.call(rbind, lapply(motifs, as.data.frame))

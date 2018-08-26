@@ -6,7 +6,7 @@
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", db.scores, method = "Pearson",
+  branch.length = "none", db.scores, method = "MPCC",
   use.type = "PPM", min.overlap = 6, tryRC = TRUE,
   min.mean.ic = 0.5, relative_entropy = FALSE, ...)
 }

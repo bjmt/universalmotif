@@ -1,19 +1,19 @@
 #' Compare motifs.
 #'
-#' Compare motifs using three metrics: Pearson correlation coefficient,
-#' Euclidean distance, and Kullback-Leibler divergence.
+#' Compare motifs using four metrics: Pearson correlation coefficient,
+#' Euclidean distance, Sandelin-Wasserman similarity, and Kullback-Leibler
+#' divergence.
 #'
 #' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
 #' @param compare.to \code{numeric} If missing, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
 #' @param db.scores \code{data.frame} See \code{details}.
 #' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
-#' @param use.type \code{character(1)} One of \code{'PCM'} (PCC/NPCC only),
-#'    \code{'PPM'} (any method), \code{'PWM'} (PCC/PWM only), and \code{'ICM'}
-#'    (any method). The latter two allow for taking into account the background
-#'    frequencies (for ICM, only if \code{relative_entropy = TRUE}).
-#' @param method \code{character(1)} One of \code{'PCC', 'NPCC', 'EUCL', 'NEUCL',
-#'    'SW', 'NSW', 'KL'}. See details.
+#' @param use.type \code{character(1)} One of code{'PPM'} and \code{'ICM'}.
+#'    The latter allows for taking into account the background
+#'    frequencies if \code{relative_entropy = TRUE}.
+#' @param method \code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL',
+#'    'SW', 'MSW', 'KL', 'MKL')}. See details.
 #' @param tryRC \code{logical} Try the reverse complement of the motifs as well,
 #'    report the best score.
 #' @param min.overlap \code{numeric(1)} Minimum overlap required when aligning the
@@ -26,7 +26,8 @@
 #' @param relative_entropy \code{logical(1)} For ICM calculation. See
 #'    \code{\link{convert_type}}.
 #' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
-#'    unaligned positions. Similarity scores are multiplied by the ratio of
+#'    unaligned positions, as well as alignments between motifs of similar length.
+#'    Similarity scores are multiplied by the ratio of
 #'    aligned positions to the total number of positions in the larger motif,
 #'    and the inverse for distance scores.
 #' @param max.p \code{numeric(1)} Maximum P-value allowed in reporting matches.
@@ -37,30 +38,44 @@
 #' @param progress_bar \code{logical(1)} Show progress.
 #'
 #' @return \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
-#'    * PCC: 0 represents complete distance, >0 similarity.
-#'    * NPCC: 0 represents complete distance, 1 complete similarity.
-#'    * EUCL: 0 represents complete similarity, >0 distance.
-#'    * NEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-#'    * SW: 0 represents complete distance, >0 similarity.
-#'    * NSW: 0 represents complete distance, 2 complete similarity.
-#'    * KL: 0 represents complete similarity, >0 distance.
+#'  \itemize{
+#'    \item PCC: 0 represents complete distance, >0 similarity.
+#'    \item MPCC: 0 represents complete distance, 1 complete similarity.
+#'    \item EUCL: 0 represents complete similarity, >0 distance.
+#'    \item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
+#'    \item SW: 0 represents complete distance, >0 similarity.
+#'    \item MSW: 0 represents complete distance, 2 complete similarity.
+#'    \item KL: 0 represents complete similarity, >0 distance.
+#'    \item MKL: 0 represents complete similarity, 4.62 complete distance.
+#'  }
 #'
 #' @details
-#' * PCC: Pearson correlation coefficient
-#' * NPCC: Normalised PCC
-#' * EUCL: Euclidian distance
-#' * NEUCL: Normalised EUCL
-#' * SW: Sandelin-Wasserman similarity
-#' * NSW: Normalised SW
-#' * KL: Kullback-Leibler divergence
+#' Comparisons are calculated between two motifs at a time. All possible alignments
+#' are scored, and the best score is reported. Scores are calculated per position
+#' and summed, unless the 'mean' version of the specific metric is chosen. If using
+#' a similarity metric, then the sum of scores will favour comparisons between
+#' longer motifs; and for distance metrics, the sum of scores will favour
+#' comparisons between short motifs. This can be avoided by using the 'mean' of
+#' scores.
+#'
+#' \itemize{
+#'   \item PCC: Pearson correlation coefficient
+#'   \item MPCC: Mean PCC
+#'   \item EUCL: Euclidian distance
+#'   \item MEUCL: Mean EUCL
+#'   \item SW: Sandelin-Wasserman similarity
+#'   \item MSW: Mean SW
+#'   \item KL: Kullback-Leibler divergence
+#'   \item MKL: Mean Kullback-Leibler divergence
+#' }
 #'
 #' To note regarding p-values: p-values are pre-computed using the
 #' \code{make_DBscores} function. If not given, then uses a set of internal
-#' precomputed p-values from the JASPAR2018 CORE motifs. Furthermore, the
-#' comparison calculation does not take into account the difference in length
-#' between motifs; this leads to an increased likelihood in higher scores
-#' between small and large motifs. In order to overcome this limitation,
-#' the p-values are calculated with this in mind.
+#' precomputed p-values from the JASPAR2018 CORE motifs. These precalculated
+#' scores are dependent on the length of the motifs being compared; this takes
+#' into account that comparing small motifs with larger motifs leads to higher
+#' scores, since the probability of finding a higher scoring alignment is
+#' higher.
 #'
 #' The default p-values have been precalculated for regular DNA motifs; they
 #' are of little use for motifs with a different number of alphabet letters
@@ -82,16 +97,17 @@
 #' @seealso \code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
 #'    \code{\link{motif_tree}}, \code{\link{view_motifs}}
 #' @export
-compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type = "PPM",
-                           method = "NPCC", tryRC = TRUE, min.overlap = 6,
-                           min.mean.ic = 0.5, relative_entropy = FALSE,
-                           normalise.scores = FALSE, max.p = 0.01, max.e = 10,
-                           progress_bar = FALSE) {
+compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
+                           use.type = "PPM", method = "MPCC", tryRC = TRUE,
+                           min.overlap = 6, min.mean.ic = 0.5,
+                           relative_entropy = FALSE, normalise.scores = FALSE,
+                           max.p = 0.01, max.e = 10, progress_bar = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
-  char_check <- check_fun_params(list(use.type = args$use.type, method = args$method),
-                                 c(1, 1), c(FALSE, FALSE), "character")
+  char_check <- check_fun_params(list(use.type = args$use.type,
+                                      method = args$method), c(1, 1),
+                                 c(FALSE, FALSE), "character")
   num_check <- check_fun_params(list(compare.to = args$compare.to,
                                      use.freq = args$use.freq,
                                      min.overlap = args$min.overlap,
@@ -104,6 +120,16 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
                                       normalise.scores = args$normalise.scores,
                                       progress_bar = args$progress_bar),
                                  numeric(), logical(), "logical")
+  if (!use.type %in% c("PPM", "ICM")) {
+    type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; ",
+                         "got `", use.type, "`")
+    all_checks <- c(all_checks, type_check)
+  }
+  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")) {
+    method_check <- paste0(" * 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
+                           ", `SW`, `MSW`, `KL`, or `MKL`; got `", method, "`")
+    all_checks <- c(all_checks, method_check)
+  }
   all_checks <- c(char_check, num_check, logi_check)
   if (!missing(db.scores) && !is.data.frame(db.scores)) {
     dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
@@ -112,11 +138,6 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
   }
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-
-  if (use.type %in% c("PCM", "PWM") && !method %in% c("PCC", "NPCC")) {
-    stop("Method '", method, "' is not supported for type '", use.type, "'")
-  }
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
@@ -158,6 +179,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
     if (missing(db.scores)) {
       if (!normalise.scores) db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
       else db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
+    } else {
+      db.scores <- check_db_scores(db.scores, method, normalise.scores)
     }
 
     comparisons <- vector("list", length(compare.to))
@@ -189,6 +212,10 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
   if (missing(compare.to)) {
 
     comparisons <- list_to_matrix_simil(comparisons, mot.names, method)
+    
+    if (method == "PCC") {
+      comparisons <- fix_pcc_diag(comparisons, mot.mats)
+    }
 
   } else {
 
@@ -223,10 +250,58 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1, use.type
 
 }
 
+check_db_scores <- function(db.scores, method, normalise.scores) {
+
+  if (!is.data.frame(db.scores)) {
+    stop("'db.scores' must be a data.frame")
+  }
+
+  db_coltypes <- vapply(db.scores, class, character(1))
+  db_coltypes_exp <- c("numeric", "numeric", "numeric", "numeric",
+                       "character", "logical")
+  if (any(db_coltypes != db_coltypes_exp)) {
+    stop("'db.scores' must have column types: ",
+         paste(db_coltypes_exp, collapse = ", "))
+  }
+
+  db_colnames <- colnames(db.scores)
+  db_colnames_exp <- c("subject", "target", "mean", "sd", "method", "normalised")
+  if (!all(db_colnames_exp %in% db_colnames)) {
+    stop(paste0("'db.scores' must have columns: ",
+               paste(db_colnames_exp, collapse = ", ")))
+  }
+
+  if (!any(method %in% db.scores$method)) {
+    stop("could not find method '", method, "' in 'db.scores$method'")
+  } else {
+    db.scores <- db.scores[db.scores$method == method, ]
+  }
+
+  if (!any(normalise.scores %in% db.scores$normalised)) {
+    stop("'db.scores' column 'normalised' does not match 'normalise.scores'")
+  } else {
+    db.scores <- db.scores[db.scores$normalised == normalise.scores, ]
+  }
+
+  db.scores
+
+}
+
+fix_pcc_diag <- function(comparisons, mot.mats) {
+
+  mot.lens <- vapply(mot.mats, ncol, numeric(1))
+  for (i in seq_along(mot.lens)) {
+    comparisons[i, i] <- mot.lens[i]^2
+  }
+
+  comparisons
+
+}
+
 #' get_rid_of_dupes
 #'
 #' Get rid of entries where comparison is an inverted repeat of a
-#' previous comparison. [potential bottleneck]
+#' previous comparison. [potential bottleneck?]
 #'
 #' @param comparisons Data frame of results.
 #'
@@ -391,7 +466,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 #' @noRd
 pvals_from_db <- function(subject, target, db, scores, method) {
 
-  if (method %in% c("PCC", "NPCC", "SW", "NSW")) ltail <- FALSE else ltail <- TRUE
+  if (method %in% c("PCC", "MPCC", "SW", "MSW")) ltail <- FALSE else ltail <- TRUE
   pvals <- vector("numeric", length(target))
   subject.ncol <- ncol(subject[[1]]["motif"])
   if (subject.ncol < db$subject[1]) subject.ncol <- db$subject[1]

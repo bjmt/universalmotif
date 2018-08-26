@@ -45,10 +45,10 @@
 #' @seealso \code{\link{compare_motifs}}
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-view_motifs <- function(motifs, use.type = "ICM", method = "NPCC",
-                        tryRC = TRUE, min.overlap = 6,
-                        min.mean.ic = 0.5, relative_entropy = FALSE,
-                        normalise.scores = FALSE, ...) {
+view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
+                        tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
+                        relative_entropy = FALSE, normalise.scores = FALSE,
+                        ...) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
