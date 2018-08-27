@@ -35,7 +35,8 @@
 #' @param max.e \code{numeric(1)} Maximum E-value allowed in reporting matches.
 #'    Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
-#' @param progress_bar \code{logical(1)} Show progress.
+#' @param progress \code{logical(1)} Show progress.
+#' @param BP \code{logical(1)} Use BiocParallel.
 #'
 #' @return \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
 #'  \itemize{
@@ -101,7 +102,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "MPCC", tryRC = TRUE,
                            min.overlap = 6, min.mean.ic = 0.5,
                            relative_entropy = FALSE, normalise.scores = FALSE,
-                           max.p = 0.01, max.e = 10, progress_bar = FALSE) {
+                           max.p = 0.01, max.e = 10, progress = TRUE,
+                           BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -118,7 +120,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores,
-                                      progress_bar = args$progress_bar),
+                                      progress = args$progress, BP = args$BP),
                                  numeric(), logical(), "logical")
   if (!use.type %in% c("PPM", "ICM")) {
     type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; ",
@@ -164,15 +166,12 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
   if (missing(compare.to)) {
 
-    BPPARAM <- bpparam()
-    if (progress_bar) BPPARAM$progressbar <- TRUE
-    comparisons <- bplapply(seq_along(motifs)[-length(motifs)],
+    comparisons <- lapply_(seq_along(motifs)[-length(motifs)],
                             function(x) .compare(x, mot.mats, method,
                                                  min.overlap, tryRC,
                                                  min.mean.ic, mot.ics,
                                                  normalise.scores),
-                            BPPARAM = BPPARAM)
-    if (progress_bar) BPPARAM$progressbar <- FALSE
+                            PB = progress, BP = BP)
 
   } else {
 
@@ -186,15 +185,15 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     comparisons <- vector("list", length(compare.to))
     pvals <- vector("list", length(compare.to))
 
-    if (progress_bar) pb <- txtProgressBar(max = length(compare.to), style = 3)
+    if (progress) print_pb(0)
     for (i in compare.to) {
-      comparisons[[i]] <- bplapply(seq_along(motifs)[-i],
+      comparisons[[i]] <- lapply_(seq_along(motifs)[-i],
               function(x) motif_simil_internal(mot.mats[[i]],
                                                mot.mats[[x]], method,
                                                min.overlap, tryRC,
                                                mot.ics[[i]],
                                                mot.ics[[x]], min.mean.ic,
-                                               normalise.scores))
+                                               normalise.scores), BP = BP)
       comparisons[[i]] <- do.call(c, comparisons[[i]])
       if (!is.null(db.scores)) {
         pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
@@ -202,9 +201,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       } else {
         pvals[[i]] <- rep(NA, length(motifs[-i]))
       }
-      if (progress_bar) setTxtProgressBar(pb, i)
+      if (progress) update_pb(i, length(compare.to))
     }
-    if (progress_bar) close(pb)
 
   }
 
@@ -370,7 +368,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           shuffle.leftovers = "asis", rand.tries = 1000,
                           normalise.scores = TRUE, min.overlap = 6,
-                          min.mean.ic = 0, progress_bar = TRUE) {
+                          min.mean.ic = 0, progress = TRUE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -384,7 +382,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                                      min.mean.ic = args$min.mean.ic),
                                 numeric(), logical(), "numeric")
   logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
-                                      progress_bar = args$progress_bar,
+                                      progress = args$progress, BP = args$BP,
                                       normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
   all_checks <- c(char_check, num_check, logi_check)
@@ -424,7 +422,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 
   res <- vector("list", nrow(totry))
 
-  if (progress_bar) pb <- txtProgressBar(max = length(res), style = 3)
+  if (progress) print_pb(0)
 
   for (i in seq_len(nrow(totry))) {
 
@@ -433,17 +431,15 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 
     res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
                                min.overlap = min.overlap, min.mean.ic = min.mean.ic,
-                               max.e = Inf, max.p = Inf,
+                               max.e = Inf, max.p = Inf, BP = BP, progress = FALSE,
                                normalise.scores = normalise.scores)$score
 
     totry$mean[i] <- mean(res[[i]])
     totry$sd[i] <- sd(res[[i]])
 
-    if (progress_bar) setTxtProgressBar(pb, i)
+    if (progress) update_pb(i, nrow(totry))
 
   }
-
-  if (progress_bar) close(pb)
 
   totry$method <- rep(method, nrow(totry))
   totry$normalised <- rep(normalise.scores, nrow(totry))

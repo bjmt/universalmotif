@@ -20,7 +20,7 @@
 make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
   shuffle.method = "linear", shuffle.leftovers = "asis",
   rand.tries = 1000, normalise.scores = TRUE, min.overlap = 6,
-  min.mean.ic = 0, progress_bar = TRUE)
+  min.mean.ic = 0, progress = TRUE, BP = FALSE)
 
 ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites,
   relative_entropy = FALSE)
@@ -72,7 +72,9 @@ generate random motifs with \code{\link{create_motif}}}
 
 \item{min.mean.ic}{\code{numeric(1)}}
 
-\item{progress_bar}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel.}
 
 \item{position}{\code{numeric} A numeric vector representing the frequency or
 probability for each alphabet letter at a specific position.}

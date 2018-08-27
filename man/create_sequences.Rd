@@ -5,7 +5,7 @@
 \title{Create random sequences.}
 \usage{
 create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100,
-  monofreqs, difreqs, trifreqs)
+  monofreqs, difreqs, trifreqs, progress = FALSE, BP = FALSE)
 }
 \arguments{
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of
@@ -24,6 +24,10 @@ named numeric vector of length 16.}
 
 \item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
 named numeric vector of length 64.}
+
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel.}
 }
 \value{
 \linkS4class{XStringSet}

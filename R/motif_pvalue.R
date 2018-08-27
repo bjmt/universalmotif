@@ -15,6 +15,8 @@
 #'    subsetting the motif every \code{k} columns. If \code{k} is a value
 #'    equal or higher to the size of input motif(s), then the calculations
 #'    are exact.
+#' @param progress \code{logical(1)} Show progress.
+#' @param BP \code{logical(1)} Use BiocParallel.
 #'
 #' @return \code{numeric} A vector of scores/p-values.
 #'
@@ -64,7 +66,8 @@
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) {
+motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
+                         k = 6, progress = TRUE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -72,6 +75,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) 
                                      use.freq = args$use.freq, k = args$k),
                                 c(0, 0, 1, 1), c(TRUE, TRUE, FALSE, FALSE),
                                 "numeric")
+  logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
+                                 numeric(), logical(), "logical")
   bkg_check <- character()
   if (!missing(bkg.probs)) {
     if (!is.list(bkg.probs) && !is.numeric(bkg.probs)) {
@@ -80,7 +85,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) 
                           class(bkg.probs), "`")
     }
   }
-  all_checks <- c(num_check, bkg_check)
+  all_checks <- c(num_check, bkg_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   if (use.freq > 2 && interactive()) {
     cat(paste0(" * Using motif_pvalue with use.freq > 2 is ",
@@ -123,10 +128,15 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6) 
   } else if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
 
   if (!missing(score) && missing(pvalue)) {
-    out <- bpmapply(motif_pval, motifs, score, bkg.probs, k)
+
+    out <- mapply_(motif_pval, motifs, score, bkg.probs, k, PB = progress,
+                   BP = BP)
+
   } else if (missing(score) && !missing(pvalue)) {
-    out <- bpmapply(motif_score, motifs, pvalue, bkg.probs, k,
-                    tolerance = 0.75)
+
+    out <- mapply_(motif_score, motifs, pvalue, bkg.probs, k,
+                    tolerance = 0.75, PB = progress, BP = BP)
+
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
 
   out

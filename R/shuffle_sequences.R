@@ -51,7 +51,8 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
-                               leftovers = "asis") {
+                               leftovers = "asis", progress = FALSE,
+                               BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -61,7 +62,9 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   num_check <- check_fun_params(list(k = args$k), 1, FALSE, "numeric")
   s4_check <- check_fun_params(list(sequences = args$sequences),
                                numeric(), logical(), "S4")
-  all_checks <- c(char_check, num_check, s4_check)
+  logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
+                                 numeric(), logical(), "logical")
+  all_checks <- c(char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -71,15 +74,17 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
   if (k == 1) {
     sequences <- as.character(sequences)
-    sequences <- bplapply(sequences, shuffle_k1)
+    sequences <- lapply_(sequences, shuffle_k1, PB = progress, BP = BP)
   } else if (method == "markov") {
-    sequences <- bplapply(sequences, shuffle_markov, k = k)
+    sequences <- lapply_(sequences, shuffle_markov, k = k, PB = progress, BP = BP)
   } else if (method == "random") {
     sequences <- as.character(sequences)
-    sequences <- bplapply(sequences, shuffle_random, k = k, leftover = leftoversM)
+    sequences <- lapply_(sequences, shuffle_random, k = k, leftover = leftovers,
+                         PB = progress, BP = BP)
   } else if (method == "linear") {
     sequences <- as.character(sequences)
-    sequences <- bplapply(sequences, shuffle_linear, k = k)
+    sequences <- lapply_(sequences, shuffle_linear, k = k, PB = progress,
+                         BP = BP)
   } else stop("incorrect 'k' and 'method' combo")
 
   sequences <- unlist(sequences)

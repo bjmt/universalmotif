@@ -5,7 +5,7 @@
 \title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, k = 1, method = "linear",
-  leftovers = "asis")
+  leftovers = "asis", progress = FALSE, BP = FALSE)
 }
 \arguments{
 \item{sequences}{\code{XStringSet} For \code{method = 'markov'}, DNAStringSet

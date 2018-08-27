@@ -26,7 +26,8 @@
 #' @param normalise.scores \code{logical(1)}
 #' @param min.overlap \code{numeric(1)} Minimum required motif overlap.
 #' @param min.mean.ic \code{numeric(1)}
-#' @param progress_bar \code{logical(1)} Show progress.
+#' @param progress \code{logical(1)} Show progress.
+#' @param BP \code{logical(1)} Use BiocParallel.
 #' @param motifs \code{list} A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm \code{logical} Remove columns where all values are \code{NA}.
 #'
@@ -68,8 +69,7 @@ DNA_DI <- c("AA", "AC", "AG", "AT",
 
 #' @rdname utilities
 #' @export
-ppm_to_icm <- function(position, bkg,
-                       schneider_correction = FALSE, nsites,
+ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
                        relative_entropy = FALSE) {
   # NOTE: Basic IC computation assumes uniform bkg frequencies!
   #       For different bkg frequencies: Relative entropy or Kullback-Leibler
@@ -167,8 +167,7 @@ pwm_to_ppm <- function(position, bkg) {
 
 #' @rdname utilities
 #' @export
-position_icscore <- function(position, bkg, type,
-                             pseudocount = 0.8, nsites = 100,
+position_icscore <- function(position, bkg, type, pseudocount = 0.8, nsites = 100,
                              relative_entropy = FALSE) {
 
   motif <- position
@@ -406,3 +405,93 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
 # pos2    0    0    0    1    0
 # pos3    0    0    0    0    1
 # pos4    1    0    0    0    0
+
+lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
+
+  FUN <- match.fun(FUN)
+
+  if (!BP) {
+  
+    if (!PB) {
+    
+      out <- lapply(X, FUN, ...)
+    
+    } else {
+
+      out <- vector("list", length(X))
+      max <- length(X)
+      print_pb(0)
+      if (is.list(X)) {
+        for (i in seq_along(X)) {
+          out[[i]] <- do.call(FUN, list(X[[i]], ...))
+          update_pb(i, max)
+        }
+      } else {
+        for (i in seq_along(X)) {
+          out[[i]] <- do.call(FUN, list(X[i], ...))
+          update_pb(i, max)
+        }
+      }
+    
+    }
+    
+  } else {
+  
+    BPPARAM <- bpparam()
+    if (PB) BPPARAM$progressbar <- TRUE
+    out <- bplapply(X, FUN, ..., BPPARAM = BPPARAM)
+  
+  }
+
+  out
+  
+}
+
+mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
+                    USE.NAMES = TRUE, BP = FALSE, PB = FALSE) {
+
+  FUN <- match.fun(FUN)
+
+  if (!BP) {
+  
+    if (!PB) {
+    
+      out <- mapply(FUN, ..., MoreArgs = MoreArgs, SIMPLIFY = SIMPLIFY,
+                    USE.NAMES = USE.NAMES)
+    
+    } else {
+
+      # not sure how to implement use.names here, get error sometimes
+      dots <- list(...)
+      dots.len <- vapply(dots, length, numeric(1))
+      dots.len.max <- max(dots.len)
+      dots <- lapply(dots, rep, length.out = dots.len.max)
+      out <- vector("list", dots.len.max)
+
+      print_pb(0)
+      for (i in seq_len(dots.len.max)) {
+        dots.i <- mapply(function(dots, i) {
+                           if (is.list(dots)) dots[[i]]
+                           else dots[i]
+                    }, dots, i, SIMPLIFY = FALSE)
+        out[[i]] <- do.call(FUN, c(dots.i, MoreArgs))
+        update_pb(i, dots.len.max)
+      }
+      
+      if (SIMPLIFY && length(dots))
+        out <- simplify2array(out, higher = (SIMPLIFY == "array"))
+    
+    }
+    
+  } else {
+  
+    BPPARAM <- bpparam()
+    if (PB) BPPARAM$progressbar <- TRUE
+    out <- bpmapply(FUN, ..., MoreArgs = MoreArgs, SIMPLIFY = SIMPLIFY,
+                    USE.NAMES = USE.NAMES, BPPARAM = BPPARAM)
+  
+  }
+
+  out
+  
+}

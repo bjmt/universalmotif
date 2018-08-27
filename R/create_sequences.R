@@ -13,6 +13,8 @@
 #'               named numeric vector of length 16.
 #' @param trifreqs \code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
 #'                named numeric vector of length 64.
+#' @param progress \code{logical(1)} Show progress.
+#' @param BP \code{logical(1)} Use BiocParallel.
 #'
 #' @return \linkS4class{XStringSet}
 #'
@@ -31,7 +33,8 @@
 #' @seealso \code{\link{create_motif}}, \code{\link{shuffle_sequences}}
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
-                             monofreqs, difreqs, trifreqs) {
+                             monofreqs, difreqs, trifreqs, progress = FALSE,
+                             BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -43,7 +46,9 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                                      trifreqs = args$trifreqs),
                                 c(1, 1, rep(0, 3)), c(FALSE, FALSE, rep(TRUE, 3)),
                                 "numeric")
-  all_checks <- c(char_check, num_check)
+  logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
+                                 numeric(), logical(), "logical")
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
@@ -79,22 +84,25 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
 
   seqs <- vector("list", seqnum)
   if (!missing(monofreqs)) {
-    seqs <- bplapply(seq_len(seqnum),
+    seqs <- lapply_(seq_len(seqnum),
                      function(x) create_k1(alph.letters = alph.letters,
                                            seqlen = seqlen,
-                                           bkg = monofreqs))
+                                           bkg = monofreqs),
+                    BP = BP, PB = progress)
   } else if (!missing(difreqs)) {
     difreqs <- gsub("U", "T", difreqs)
-    seqs <- bplapply(seq_len(seqnum),
+    seqs <- lapply_(seq_len(seqnum),
                      function(x) create_k2(alph.letters = alph.letters,
                                            seqlen = seqlen,
-                                           difreq = difreqs))
+                                           difreq = difreqs),
+                    BP = BP, PB = progress)
   } else if (!missing(trifreqs)) {
     trifreqs <- gsub("U", "T", trifreqs)
-    seqs <- bplapply(seq_len(seqnum),
+    seqs <- lapply_(seq_len(seqnum),
                      function(x) create_k3(alph.letters = alph.letters,
                                            seqlen = seqlen,
-                                           trifreq = trifreqs))
+                                           trifreq = trifreqs),
+                    BP = BP, PB = progress)
   }
 
   seqs <- unlist(seqs)

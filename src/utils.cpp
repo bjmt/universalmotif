@@ -2,6 +2,31 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+void print_pb(int out) {
+  if (out >= 0 && out < 10) Rcout << "\r   [  " << out << "%]";
+  else if (out >= 10 && out < 100) Rcout << "\r   [ " << out << "%]";
+  else if (out == 100) Rcout << "\r   [" << out << "%]";
+  else if (out == -1) Rcout << "\r   [100%]\n";
+
+}
+
+// [[Rcpp::export]]
+void update_pb(int i, int max) {
+
+  int prev = i - 1;
+  int out = 100 * i / max;
+  if (i == max) out = -1;
+
+  if (prev > 0 && out != -1) {
+    prev = 100 * prev / max;
+    if (prev != out) print_pb(out);
+  } else {
+    print_pb(out);
+  }
+
+}
+
+// [[Rcpp::export]]
 StringVector strsplit_cpp(std::string x) {  // slightly slower than
   int n = x.size();                         // strsplit(x, "")[[1]]
   StringVector out(n);

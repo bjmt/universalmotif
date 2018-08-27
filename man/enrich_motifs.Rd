@@ -9,7 +9,8 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "linear",
-  shuffle.leftovers = "asis", return.scan.results = FALSE)
+  shuffle.leftovers = "asis", return.scan.results = FALSE,
+  progress = TRUE, BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -65,6 +66,10 @@ sequences. Only used if no background sequences are input. See
 
 \item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link{scan_sequences}}.}
+
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel.}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting 

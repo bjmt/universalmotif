@@ -40,6 +40,8 @@
 #' @param shuffle.leftovers \code{character(1)} See \code{\link{shuffle_sequences}}.
 #' @param return.scan.results \code{logical(1)} Return output from
 #'    \code{\link{scan_sequences}}.
+#' @param progress \code{logical(1)} Show progress.
+#' @param BP \code{logical(1)} Use BiocParallel.
 #'
 #' @return \code{data.frame} Motif enrichment results. The resulting 
 #'    \code{data.frame} contains the following columns:
@@ -97,7 +99,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
                           shuffle.leftovers = "asis",
-                          return.scan.results = FALSE) {
+                          return.scan.results = FALSE, progress = TRUE,
+                          BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -114,8 +117,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                      verbose = args$verbose, use.freq = args$use.freq,
                                      shuffle.k = args$shuffle.k),
                                 c(1, 1, 1, 0, 1, 1, 1), logical(), "numeric")
-  logi_check <- check_fun_params(list(RC = args$RC,
-                                      return.scan.results = args$return.scan.results),
+  logi_check <- check_fun_params(list(RC = args$RC, progress = args$progress,
+                                      return.scan.results = args$return.scan.results,
+                                      BP = args$BP),
                                  numeric(), logical(), "logical")
   s4_check <- check_fun_params(list(sequences = args$sequences,
                                     bkg.sequences = args$bkg.sequences),
@@ -153,7 +157,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (missing(bkg.sequences)) {
     if (verbose > 0) cat(" > Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
-                                       shuffle.leftovers)
+                                       shuffle.leftovers, progress = progress,
+                                       BP = BP)
   } 
 
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -162,7 +167,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (threshold.type == "pvalue") {
     if (verbose > 0) cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              k = 5)
+                              k = 5, progress = progress, BP = BP)
     if (use.freq == 1) {
       max.scores <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
                            numeric(1))
@@ -173,7 +178,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     }
     threshold <- threshold / max.scores
     threshold.type <- "logodds"
-    if (verbose > 2) {
+    if (verbose > 3) {
       mot.names <- vapply(motifs, function(x) x["name"], character(1))
       for (i in seq_along(threshold)) {
         cat("   > Motif", mot.names[i], ": max.score = ", max.scores[i], ", threshold = ",
@@ -184,9 +189,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   res.all <- .enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                            verbose, RC, use.freq, positional.test,
-                           search.mode, threshold.type,
-                           motcount, 
-                           return.scan.results)
+                           search.mode, threshold.type, motcount,
+                           return.scan.results, progress = progress, BP = BP)
 
   if (return.scan.results) {
     res.scan <- res.all[2:3]
@@ -256,19 +260,20 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
 .enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
-                          search.mode, threshold.type,
-                          motcount, 
-                          return.scan.results) {
+                          search.mode, threshold.type, motcount,
+                          return.scan.results, progress = progress,
+                          BP = BP) {
 
   if (verbose > 0) cat(" > Scanning input sequences\n")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                            RC, use.freq, 
-                            verbose = verbose - 1)
+                            RC, use.freq, progress = progress,
+                            verbose = verbose - 1, BP = BP)
 
   if (verbose > 0) cat(" > Scanning background sequences\n")
   results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
                                 threshold.type, RC, use.freq,
-                                verbose = verbose - 1)
+                                verbose = verbose - 1, progress = progress,
+                                BP = BP)
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -288,13 +293,13 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   if (verbose > 0) cat(" > Testing motifs for enrichment\n")
 
-  results.all <- bpmapply(function(x, y, z)
+  results.all <- mapply_(function(x, y, z)
                           .enrich_mots2_subworker(x, y, z, seq.widths,
                                                   bkg.widths, search.mode,
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, verbose),
                           results2, results.bkg2, motifs,
-                          SIMPLIFY = FALSE)
+                          SIMPLIFY = FALSE, BP = BP, PB = progress)
 
   results.all <- do.call(rbind, results.all)
 
@@ -350,7 +355,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                             length(bkg.hits) * bkg.norm, bkg.no * bkg.norm),
                           nrow = 2, byrow = TRUE)
 
-  if (verbose > 2) cat(" > Testing motif for enrichment:", motifs["name"], "\n")
+  if (verbose > 3) cat(" > Testing motif for enrichment:", motifs["name"], "\n")
 
   hits.p <- fisher.test(results.table, alternative = "greater")$p.value
 
@@ -358,35 +363,35 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   if (search.mode %in% c("both", "positional") && length(seq.hits) > 0) {
     if (positional.test == "t.test" && length(bkg.hits) > 0) {
-      if (verbose > 2) cat("   > Running t.test\n")
+      if (verbose > 3) cat("   > Running t.test\n")
       tryCatch({
         pos.p <- t.test(seq.hits / mean(seq.widths),
                         bkg.hits / mean(bkg.widths))$p.value
       }, error = function(e) warning("t.test failed"))
     } else if (positional.test == "wilcox.test" && length(bkg.hits) > 0) {
-      if (verbose > 2) cat("   > Running wilcox.test\n")
+      if (verbose > 3) cat("   > Running wilcox.test\n")
       tryCatch({
         pos.p <- wilcox.test(seq.hits / mean(seq.widths),
                              bkg.hits / mean(bkg.widths))$p.value
       }, error = function(e) warning("wilcox.test failed"))
     } else if (positional.test == "chisq.test" && length(bkg.hits) > 0) {
-      if (verbose > 2) cat("   > Running chisq.test\n")
+      if (verbose > 3) cat("   > Running chisq.test\n")
       tryCatch({
         pos.p <- chisq.test(seq.hits / mean(seq.widths),
                             bkg.hits / mean(bkg.widths))$p.value
       }, error = function(e) warning("chisq.test failed"))
     } else if (positional.test == "shapiro.test") {
-      if (verbose > 2) cat("   > Running shapiro.test\n")
+      if (verbose > 3) cat("   > Running shapiro.test\n")
       tryCatch({
       pos.p <- shapiro.test(seq.hits)$p.value
       }, error = function(e) warning("shapiro.test failed"))
     } 
   }
 
-  if (verbose > 2 && search.mode %in% c("hits", "both")) {
+  if (verbose > 3 && search.mode %in% c("hits", "both")) {
     cat("       occurrences p-value:", hits.p, "\n")
   }
-  if (verbose > 2 && search.mode %in% c("positional", "both")) {
+  if (verbose > 3 && search.mode %in% c("positional", "both")) {
     cat("       positional bias p-value:", pos.p, "\n")
   } 
 

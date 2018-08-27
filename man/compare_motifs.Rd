@@ -8,7 +8,7 @@ compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   use.type = "PPM", method = "MPCC", tryRC = TRUE, min.overlap = 6,
   min.mean.ic = 0.5, relative_entropy = FALSE,
   normalise.scores = FALSE, max.p = 0.01, max.e = 10,
-  progress_bar = FALSE)
+  progress = TRUE, BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -55,7 +55,9 @@ Only used if \code{compare.to} is set.}
 Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
-\item{progress_bar}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.

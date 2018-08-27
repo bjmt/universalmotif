@@ -361,6 +361,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// print_pb
+void print_pb(int out);
+RcppExport SEXP _universalmotif_print_pb(SEXP outSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type out(outSEXP);
+    print_pb(out);
+    return R_NilValue;
+END_RCPP
+}
+// update_pb
+void update_pb(int i, int max);
+RcppExport SEXP _universalmotif_update_pb(SEXP iSEXP, SEXP maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type max(maxSEXP);
+    update_pb(i, max);
+    return R_NilValue;
+END_RCPP
+}
 // strsplit_cpp
 StringVector strsplit_cpp(std::string x);
 RcppExport SEXP _universalmotif_strsplit_cpp(SEXP xSEXP) {
@@ -585,6 +606,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
+    {"_universalmotif_print_pb", (DL_FUNC) &_universalmotif_print_pb, 1},
+    {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 2},
     {"_universalmotif_strsplit_cpp", (DL_FUNC) &_universalmotif_strsplit_cpp, 1},
     {"_universalmotif_all_checks_collapse", (DL_FUNC) &_universalmotif_all_checks_collapse, 1},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},

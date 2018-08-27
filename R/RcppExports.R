@@ -101,6 +101,14 @@ validObject_universalmotif <- function(motif) {
     .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
 }
 
+print_pb <- function(out) {
+    invisible(.Call('_universalmotif_print_pb', PACKAGE = 'universalmotif', out))
+}
+
+update_pb <- function(i, max) {
+    invisible(.Call('_universalmotif_update_pb', PACKAGE = 'universalmotif', i, max))
+}
+
 strsplit_cpp <- function(x) {
     .Call('_universalmotif_strsplit_cpp', PACKAGE = 'universalmotif', x)
 }

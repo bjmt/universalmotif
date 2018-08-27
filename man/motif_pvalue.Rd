@@ -4,7 +4,8 @@
 \alias{motif_pvalue}
 \title{Motif P-value and scoring utility}
 \usage{
-motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6)
+motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
+  progress = TRUE, BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
@@ -25,6 +26,10 @@ otherwise uses the corresponding \code{multifreq} matrix.}
 subsetting the motif every \code{k} columns. If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
 are exact.}
+
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel.}
 }
 \value{
 \code{numeric} A vector of scores/p-values.
