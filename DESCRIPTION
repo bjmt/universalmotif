@@ -21,7 +21,6 @@ Imports: methods,
     stats,
     utils,
     gtools,
-    BiocParallel,
     Rdpack (>= 0.7),
     Biostrings,
     BiocGenerics,
@@ -41,6 +40,7 @@ Suggests: knitr,
     RcisTarget,
     motifcounter,
     Logolas,
+    BiocParallel,
     BCRANK
 LinkingTo: Rcpp
 RdMacros: Rdpack

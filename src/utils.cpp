@@ -20,7 +20,7 @@ void update_pb(int i, int max) {
   if (prev > 0 && out != -1) {
     prev = 100 * prev / max;
     if (prev != out) print_pb(out);
-  } else {
+  } else if (out == -1) {
     print_pb(out);
   }
 

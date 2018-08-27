@@ -11,7 +11,6 @@
 #' @importFrom ggseqlogo ggseqlogo geom_logo theme_logo
 #' @importFrom ggtree ggtree geom_tiplab geom_tiplab2 groupOTU %<+%
 #' @importFrom ggtree geom_tippoint
-#' @importFrom BiocParallel bplapply bpmapply bpparam
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
 #' @importFrom stats rpois

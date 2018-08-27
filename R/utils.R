@@ -437,9 +437,12 @@ lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
     
   } else {
   
-    BPPARAM <- bpparam()
+    if (!requireNamespace("BiocParallel", quietly = TRUE)) {
+      stop("'BiocParallel' is not installed")
+    }
+    BPPARAM <- BiocParallel::bpparam()
     if (PB) BPPARAM$progressbar <- TRUE
-    out <- bplapply(X, FUN, ..., BPPARAM = BPPARAM)
+    out <- BiocParallel::bplapply(X, FUN, ..., BPPARAM = BPPARAM)
   
   }
 
@@ -485,10 +488,14 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
     
   } else {
   
-    BPPARAM <- bpparam()
+    if (!requireNamespace("BiocParallel", quietly = TRUE)) {
+      stop("'BiocParallel' is not installed")
+    }
+    BPPARAM <- BiocParallel::bpparam()
     if (PB) BPPARAM$progressbar <- TRUE
-    out <- bpmapply(FUN, ..., MoreArgs = MoreArgs, SIMPLIFY = SIMPLIFY,
-                    USE.NAMES = USE.NAMES, BPPARAM = BPPARAM)
+    out <- BiocParallel::bpmapply(FUN, ..., MoreArgs = MoreArgs,
+                                  SIMPLIFY = SIMPLIFY, USE.NAMES = USE.NAMES,
+                                  BPPARAM = BPPARAM)
   
   }
 
