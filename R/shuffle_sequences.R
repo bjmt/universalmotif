@@ -10,6 +10,8 @@
 #'    See details.
 #' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
 #'    \code{c('asis', 'first', 'split', 'discard')}. See details.
+#' @param progress \code{logical(1)} Show progress.
+#' @param BP \code{logical(1)} Use BiocParallel.
 #'
 #' @return \code{XStringSet} The input sequences will be returned with 
 #'    identical names and lengths.
@@ -233,7 +235,7 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 
   tosplit.i <- vapply(0:tosplit, function(x) 1 + k * x, numeric(1))
 
-  seq.split <- lapply(tosplit.i, function(x) matrix(seq2[x:(x + k -1)]))
+  seq.split <- lapply(tosplit.i, function(x) matrix(seq2[x:(x + k - 1)]))
   seq.split <- do.call(cbind, seq.split)
 
   new.i <- sample(seq_len(ncol(seq.split)), ncol(seq.split))

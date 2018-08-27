@@ -18,6 +18,10 @@ See details.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
+
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel.}
 }
 \value{
 \code{XStringSet} The input sequences will be returned with 
