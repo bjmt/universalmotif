@@ -461,7 +461,7 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
     
     } else {
 
-      # not sure how to implement use.names here, get error sometimes
+      # not sure how to implement USE.NAMES here, get error sometimes
       dots <- list(...)
       dots.len <- vapply(dots, length, numeric(1))
       dots.len.max <- max(dots.len)

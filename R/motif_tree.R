@@ -31,6 +31,8 @@
 #'    alignments between low information content regions of two motifs.
 #' @param relative_entropy \code{logical(1)} For ICM calculation. See
 #'    \code{\link{convert_type}}.
+#' @param progress \code{logical(1)} Show progress of \code{compare_motifs}.
+#' @param BP \code{logical(1)} Use BiocParallel in \code{compare_motifs}.
 #' @param ... \pkg{ggtree} params.
 #'
 #' @return \code{ggplot} object.
@@ -58,7 +60,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
                        branch.length = "none", db.scores, method = "MPCC",
                        use.type = "PPM", min.overlap = 6, tryRC = TRUE,
-                       min.mean.ic = 0.5, relative_entropy = FALSE, ...){
+                       min.mean.ic = 0.5, relative_entropy = FALSE,
+                       progress = TRUE, BP = FALSE, ...){
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -71,7 +74,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                                      min.mean.ic = args$min.mean.ic),
                                 numeric(), logical(), "numeric")
   logi_check <- check_fun_params(list(legend = args$legend, tryRC = args$tryRC,
-                                      relative_entropy = args$relative_entropy),
+                                      relative_entropy = args$relative_entropy,
+                                      progress = args$progress, BP = args$BP),
                                  numeric(), logical(), "logical")
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -83,12 +87,14 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     tree <- ape::as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs)
+    if (progress) cat("Comparing motifs...\n")
     tree <- compare_motifs(motifs,
                            use.type = use.type,
                            method = method, tryRC = tryRC,
                            min.overlap = min.overlap,
                            min.mean.ic = min.mean.ic,
-                           relative_entropy = relative_entropy)
+                           relative_entropy = relative_entropy,
+                           BP = BP, progress = progress)
     if (method == "MPCC") tree <- 1 - tree
     else if (method == "MSW") tree <- 2 - tree
     tree <- ape::as.phylo(hclust(as.dist(tree)))

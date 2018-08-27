@@ -55,6 +55,10 @@ alignments between low information content regions of two motifs.}
 \code{\link{convert_type}}.}
 
 \item{...}{\pkg{ggtree} params.}
+
+\item{progress}{\code{logical(1)} Show progress of \code{compare_motifs}.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel in \code{compare_motifs}.}
 }
 \value{
 \code{ggplot} object.
