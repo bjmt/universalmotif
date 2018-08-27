@@ -6,7 +6,7 @@
 \usage{
 enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   max.p = 1e-05, max.q = 1e-05, max.e = 0.001, qval.method = "fdr",
-  positional.test = "t.test", threshold = 1e-04,
+  positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "linear",
   shuffle.leftovers = "asis", return.scan.results = FALSE)
@@ -110,10 +110,9 @@ between target and background sequences. However if
 hits are considered.
 }
 \examples{
-target.sequences <- create_sequences(monofreqs = c(0.7, 0.1, 0.1, 0.1))
-bkg.sequences <- create_sequences()
-motif <- create_motif(bkg = c(0.7, 0.1, 0.1, 0.1))
-enrich_motifs(motif, target.sequences, bkg.sequences)
+data(ArabidopsisPromoters)
+data(ArabidopsisMotif)
+enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
 
 }
 \references{

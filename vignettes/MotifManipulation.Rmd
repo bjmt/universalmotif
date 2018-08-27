@@ -214,11 +214,9 @@ as.dist(motifs.dist)
 ## If comparing thousands of motifs, multicore usage is made available via
 ## the 'BiocParallel' package
 
-library(BiocParallel)
-parallel.opt <- bpparam()
+# library(BiocParallel)
 ## To add a progress bar:
-# parallel.opt$progressBar <- TRUE
-motifs.dist <- compare_motifs(MotifDb[1:5], BPPARAM = parallel.opt)
+motifs.dist <- compare_motifs(MotifDb[1:5])
 ```
 
 Additionally, `r Biocpkg("universalmotif")` provides the `merge_motifs`

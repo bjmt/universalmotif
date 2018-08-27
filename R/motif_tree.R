@@ -77,26 +77,20 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (method %in% c("PCC", "SW")) stop("'PCC', 'SW' are not allowed")
+
   if (is(motifs, "dist")) {
     tree <- ape::as.phylo(hclust(motifs))
   } else {
     motifs <- convert_motifs(motifs)
-    if (!missing(db.scores)) {
-      tree <- compare_motifs(motifs, db.scores = db.scores,
-                             use.type = use.type,
-                             method = method, tryRC = tryRC,
-                             min.overlap = min.overlap,
-                             min.mean.ic = min.mean.ic,
-                             relative_entropy = relative_entropy)
-    } else {
-      tree <- compare_motifs(motifs,
-                             use.type = use.type,
-                             method = method, tryRC = tryRC,
-                             min.overlap = min.overlap,
-                             min.mean.ic = min.mean.ic,
-                             relative_entropy = relative_entropy)
-    }
-    if (method %in% c("MPCC", "PCC", "SW", "MSW")) tree <- 1 / tree  # !!!!
+    tree <- compare_motifs(motifs,
+                           use.type = use.type,
+                           method = method, tryRC = tryRC,
+                           min.overlap = min.overlap,
+                           min.mean.ic = min.mean.ic,
+                           relative_entropy = relative_entropy)
+    if (method == "MPCC") tree <- 1 - tree
+    else if (method == "MSW") tree <- 2 - tree
     tree <- ape::as.phylo(hclust(as.dist(tree)))
   }
 

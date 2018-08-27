@@ -102,10 +102,10 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                            relative_entropy, normalise.scores) {
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.altnames <- do.call(c, sapply(motifs, function(x) x["altname"]))
-  mot.families <- do.call(c, sapply(motifs, function(x) x["family"]))
-  mot.orgs <- do.call(c, sapply(motifs, function(x) x["organism"]))
-  mot.bkgsites <- do.call(c, sapply(motifs, function(x) x["bkgsites"]))
+  mot.altnames <- do.call(c, sapply(motifs, function(x) x["altname"], simplify = FALSE))
+  mot.families <- do.call(c, sapply(motifs, function(x) x["family"], simplify = FALSE))
+  mot.orgs <- do.call(c, sapply(motifs, function(x) x["organism"], simplify = FALSE))
+  mot.bkgsites <- do.call(c, sapply(motifs, function(x) x["bkgsites"], simplify = FALSE))
   mot.strands <- vapply(motifs, function(x) x["strand"], character(1))
   mot.extrainfo <- lapply(motifs, function(x) x["extrainfo"])
 
