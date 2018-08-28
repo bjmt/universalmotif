@@ -4,80 +4,76 @@
 #' are significantly enriched in the targets sequences relative to the
 #' background sequences.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
-#' @param sequences \code{XStringSet} Alphabet should match motif.
-#' @param bkg.sequences \code{XStringSet} Optional; if missing,
-#'    \code{\link{shuffle_sequences}} is used to create background sequences from
+#' @param motifs See [convert_motifs()] for acceptable motif formats.
+#' @param sequences [Biostrings::XStringSet-class] Alphabet should match motif.
+#' @param bkg.sequences [Biostrings::XStringSet-class] Optional; if missing,
+#'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
-#' @param search.mode \code{character(1)} One of \code{c('hits', 'positional', 'both')}.
+#' @param search.mode `character(1)` One of `c('hits', 'positional', 'both')`.
 #'    See details.
-#' @param max.p \code{numeric(1)} P-value threshold.
-#' @param max.q \code{numeric(1)} Adjusted P-value threshold. This is only useful
+#' @param max.p `numeric(1)` P-value threshold.
+#' @param max.q `numeric(1)` Adjusted P-value threshold. This is only useful
 #'    if multiple motifs are being enriched for.
-#' @param max.e \code{numeric(1)}. The E-value is calculated by multiplying the adjusted
+#' @param max.e `numeric(1)`. The E-value is calculated by multiplying the adjusted
 #'    P-value with the number of input motifs \insertCite{meme2}{universalmotif}.
-#' @param qval.method \code{character(1)} See \code{\link[stats]{p.adjust}}.
-#' @param positional.test \code{character(1)} One of \code{c('t.test', 'wilcox.test',
-#'    'chisq.test', 'shapiro.test')}. If using the Shapiro test for
+#' @param qval.method `character(1)` See [stats::p.adjust()].
+#' @param positional.test `character(1)` One of `c('t.test', 'wilcox.test',
+#'    'chisq.test', 'shapiro.test')`. If using the Shapiro test for
 #'    normality, then only the input sequences are tested for positionality;
-#'    the background sequences are ignored. See \code{\link[stats]{t.test}},
-#'    \code{\link[stats]{wilcox.test}}, \code{\link[stats]{chisq.test}},
-#'    \code{\link[stats]{shapiro.test}}.
-#' @param threshold \code{numeric(1)} Between 1 and 0. See \code{\link{scan_sequences}}.
-#' @param threshold.type \code{character(1)} One of \code{c('logodds', 'pvalue')}. See
-#'    \code{\link{scan_sequences}}.
-#' @param verbose \code{numeric(1)} 0 for no output, 4 for max verbosity.
-#' @param RC \code{logical(1)} Whether to consider the reverse complement of the
-#'    sequences. Only available for \code{DNAStringSet}, \code{RNAStringSet}
-#'    sequences.
-#' @param use.freq \code{numeric(1)} If the \code{multifreq} slot of the motifs are filled,
-#'    then they can be used to scan the sequences. See
-#'    \code{\link{scan_sequences}}.
-#' @param shuffle.k \code{numeric(1)} The k-let size to use when shuffling input
+#'    the background sequences are ignored. See [stats::t.test()],
+#'    [stats::wilcox.test()], [stats::chisq.test()], [stats::shapiro.test()].
+#' @param threshold `numeric(1)` Between 1 and 0. See [scan_sequences()].
+#' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`. See
+#'    [scan_sequences()].
+#' @param verbose `numeric(1)` 0 for no output, 4 for max verbosity.
+#' @param RC `logical(1)` Whether to consider the reverse complement of the
+#'    sequences. Only available for [Biostrings::DNAStringSet-class],
+#'    [Biostrings::RNAStringSet-class] sequences.
+#' @param use.freq `numeric(1)` If the `multifreq` slot of the motifs are filled,
+#'    then they can be used to scan the sequences. See [scan_sequences()].
+#' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
-#'    \code{\link{shuffle_sequences}}.
-#' @param shuffle.method \code{character(1)} See \code{\link{shuffle_sequences}}.
-#' @param shuffle.leftovers \code{character(1)} See \code{\link{shuffle_sequences}}.
-#' @param return.scan.results \code{logical(1)} Return output from
-#'    \code{\link{scan_sequences}}.
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
+#'    [shuffle_sequences()].
+#' @param shuffle.method `character(1)` See [shuffle_sequences()].
+#' @param shuffle.leftovers `character(1)` See [shuffle_sequences()].
+#' @param return.scan.results `logical(1)` Return output from
+#'    [scan_sequences()].
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
 #'
-#' @return \code{data.frame} Motif enrichment results. The resulting 
-#'    \code{data.frame} contains the following columns:
-#'    \itemize{
-#'       \item \code{motif} Motif name.
-#'       \item \code{total.seq.hits} Total number of matches accross all target
-#'          sequences.
-#'       \item \code{num.seqs.hits} Number of target sequences which contain matches.
-#'       \item \code{num.seqs.total} Number of target sequences.
-#'       \item \code{total.bkg.hits} Total number of matches accross all background
-#'          sequences.
-#'       \item \code{num.bkg.hits} Number of background sequences which contain
-#'          matches.
-#'       \item \code{num.bkg.total} Number of background sequences.
-#'       \item \code{Pval.hits} P-value of enrichment. Only shown if
-#'          \code{search.mode = c('hits', 'both')}.
-#'       \item \code{Qval.hits} Q-val of enrichment. Only shown if
-#'          \code{search.mode = c('hits', 'both')}.
-#'       \item \code{Eval.hits} E-val of enrichment. Only shown if
-#'          \code{search.mode = c('hits', 'both')}.
-#'       \item \code{Pval.pos} P-value of positional comparison. Only
-#'          shown if \code{search.mode = c('positional', 'both'}).
-#'       \item \code{Qval.pos} Q-value of positional comparison. Only
-#'          shown if \code{search.mode = c('positional', 'both'}).
-#'       \item \code{Eval.pos} E-value of positional comparison. Only
-#'          shown if \code{search.mode = c('positional', 'both'}).
-#'    }
+#' @return `data.frame` Motif enrichment results. The resulting 
+#'    `data.frame` contains the following columns:
+#'     * `motif` Motif name.
+#'     * `total.seq.hits` Total number of matches accross all target
+#'       sequences.
+#'     * `num.seqs.hits` Number of target sequences which contain matches.
+#'     * `num.seqs.total` Number of target sequences.
+#'     * `total.bkg.hits` Total number of matches accross all background
+#'       sequences.
+#'     * `num.bkg.hits` Number of background sequences which contain
+#'       matches.
+#'     * `num.bkg.total` Number of background sequences.
+#'     * `Pval.hits` P-value of enrichment. Only shown if
+#'       `search.mode = c('hits', 'both')`.
+#'     * `Qval.hits` Q-val of enrichment. Only shown if
+#'       `search.mode = c('hits', 'both')`.
+#'     * `Eval.hits` E-val of enrichment. Only shown if
+#'       `search.mode = c('hits', 'both')`.
+#'     * `Pval.pos` P-value of positional comparison. Only
+#'       shown if `search.mode = c('positional', 'both')`.
+#'     * `Qval.pos` Q-value of positional comparison. Only
+#'       shown if `search.mode = c('positional', 'both')`.
+#'     * `Eval.pos` E-value of positional comparison. Only
+#'       shown if `search.mode = c('positional', 'both')`.
 #'
 #' @details
-#' To find enriched motifs, \code{\link{scan_sequences}} is run on both 
-#' target and background sequences. If \code{search.mode = 'hits'},
-#' \code{\link[stats]{fisher.test}} is run to test for enrichment. If
-#' \code{search.mode = 'positional'}, then the test as set by
-#' \code{positional.test} is run to check for positional differences
+#' To find enriched motifs, [scan_sequences()] is run on both 
+#' target and background sequences. If `search.mode = 'hits'`,
+#' [stats::fisher.test()] is run to test for enrichment. If
+#' `search.mode = 'positional'`, then the test as set by
+#' `positional.test` is run to check for positional differences
 #' between target and background sequences. However if
-#' \code{positional.test = 'shapiro.test'}, then only target sequence
+#' `positional.test = 'shapiro.test'`, then only target sequence
 #' hits are considered.
 #'
 #' @examples
@@ -89,8 +85,8 @@
 #'    \insertRef{meme2}{universalmotif}
 #'
 #' @author Benjamin Tremblay \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{scan_sequences}}, \code{\link{shuffle_sequences}},
-#'    \code{\link{add_multifreq}}, \code{\link{motif_pvalue}}
+#' @seealso [scan_sequences()], [shuffle_sequences()],
+#'    [add_multifreq()], [motif_pvalue()]
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
@@ -155,7 +151,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   motifs <- convert_motifs(motifs)
 
   if (missing(bkg.sequences)) {
-    if (verbose > 0) cat(" > Shuffling input sequences\n")
+    if (progress && !BP) cat(" > Shuffling input sequences ...")
+    else if ((progress && BP) || verbose > 0) cat(" > Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
                                        shuffle.leftovers, progress = progress,
                                        BP = BP)
@@ -165,7 +162,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   motcount <- length(motifs)
 
   if (threshold.type == "pvalue") {
-    if (verbose > 0) cat(" > Converting P-values to logodds thresholds\n")
+    if (progress && !BP)
+      cat(" > Converting P-values to logodds thresholds ...")
+    else if ((progress && BP) || verbose > 0)
+      cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                               k = 5, progress = progress, BP = BP)
     if (use.freq == 1) {
@@ -286,12 +286,12 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   results2 <- .split_by_motif(motifs, results)
   results.bkg2 <- .split_by_motif(motifs, results.bkg)
   if (length(results2) == 0) {
-    message(" ! No matches to motifs found")
     return(data.frame())
   }
   if (length(results.bkg2) == 0) results.bkg2 <- data.frame()
 
-  if (verbose > 0) cat(" > Testing motifs for enrichment\n")
+  if (progress && !BP) cat(" > Testing motifs for enrichment ...")
+  else if ((progress && BP) || verbose > 0) cat(" > Testing motifs for enrichment\n")
 
   results.all <- mapply_(function(x, y, z)
                           .enrich_mots2_subworker(x, y, z, seq.widths,

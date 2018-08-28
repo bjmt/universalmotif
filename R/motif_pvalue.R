@@ -2,23 +2,23 @@
 #'
 #' For calculating p-values/logodds scores for any number of motifs.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
-#' @param score \code{numeric} Get a p-value for a motif from a logodds score.
-#' @param pvalue \code{numeric} Get a logodds score for a motif from a 
+#' @param motifs See [convert_motifs()] for acceptable motif formats.
+#' @param score `numeric` Get a p-value for a motif from a logodds score.
+#' @param pvalue `numeric` Get a logodds score for a motif from a 
 #'    p-value.
-#' @param bkg.probs \code{numeric, list} If supplying individual background
+#' @param bkg.probs `numeric`, `list` If supplying individual background
 #'    probabilities for each motif, a list. If missing, assumes a uniform
-#'    background. Currently does not supported if \code{use.freq > 1}.
-#' @param use.freq \code{numeric(1)} By default uses the regular motif matrix;
-#'    otherwise uses the corresponding \code{multifreq} matrix.
-#' @param k \code{numeric(1)} For speed, scores/p-values can be approximated after 
-#'    subsetting the motif every \code{k} columns. If \code{k} is a value
+#'    background. Currently does not supported if `use.freq > 1`.
+#' @param use.freq `numeric(1)` By default uses the regular motif matrix;
+#'    otherwise uses the corresponding `multifreq` matrix.
+#' @param k `numeric(1)c` For speed, scores/p-values can be approximated after 
+#'    subsetting the motif every `k` columns. If `k` is a value
 #'    equal or higher to the size of input motif(s), then the calculations
 #'    are exact.
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
 #'
-#' @return \code{numeric} A vector of scores/p-values.
+#' @return `numeric` A vector of scores/p-values.
 #'
 #' @references
 #'    \insertRef{pvalues}{universalmotif}
@@ -39,15 +39,15 @@
 #' the motif is subset, p-values calculated for the subsets, and finally
 #' combined for a total p-value. The smaller the size of the subsets, the
 #' faster the calculation; but also, the bigger the approximation. This can be
-#' controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
+#' controlled by setting `k`. In fact, for smaller motifs (< 13 positions)
 #' calculating exact p-values can be done in reasonable time by setting
-#' \code{k = 12}.
+#' `k = 12`.
 #'
 #' To calculate a score based on a given p-value, the function simply guesses
 #' different scores until it finds one which when used to calculate a p-value,
 #' returns a p-value reasonably close to the given p-value.
 #'
-#' Note that as \code{k} increases (and thus the approximation increases) the
+#' Note that as `k` increases (and thus the approximation increases) the
 #' resulting p-values increase; meaning the p-values will always be on the
 #' conservative side.
 #'

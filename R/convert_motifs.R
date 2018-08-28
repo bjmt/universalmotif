@@ -5,48 +5,44 @@
 #' nearly all other functions in this package; so any motifs of a compatible
 #' class can be used without needed to convert beforehand.
 #'
-#' @param motifs Single motif object or list.
-#' @param class \code{character(1)} Desired motif class. Input as
+#' @param motifs Single motif object or list. See details.
+#' @param class `character(1)` Desired motif class. Input as
 #'    'package-class'. If left empty, defaults to
 #'    'universalmotif-universalmotif'. (See details.)
 #'
 #' @return Single motif object or list.
 #'
 #' @details
-#'    The following packge-class combinations can be used as input:
-#'    \itemize{
-#'       \item MotifDb-MotifList
-#'       \item TFBSTools-PFMatrix
-#'       \item TFBSTools-PWMatrix
-#'       \item TFBSTools-ICMatrix
-#'       \item TFBSTools-PFMatrixList
-#'       \item TFBSTools-PWMatrixList
-#'       \item TFBSTools-ICMatrixList
-#'       \item TFBSTools-TFFMFirst
-#'       \item seqLogo-pwm
-#'       \item motifStack-pcm
-#'       \item motifStack-pfm
-#'       \item PWMEnrich-PWM
-#'       \item motifRG-Motif
-#'       \item universalmotif-universalmotif
-#'       \item matrix
-#'    }
+#' The following packge-class combinations can be used as input:
+#' * MotifDb-MotifList
+#' * TFBSTools-PFMatrix
+#' * TFBSTools-PWMatrix
+#' * TFBSTools-ICMatrix
+#' * TFBSTools-PFMatrixList
+#' * TFBSTools-PWMatrixList
+#' * TFBSTools-ICMatrixList
+#' * TFBSTools-TFFMFirst
+#' * seqLogo-pwm
+#' * motifStack-pcm
+#' * motifStack-pfm
+#' * PWMEnrich-PWM
+#' * motifRG-Motif
+#' * universalmotif-universalmotif
+#' * matrix
 #'
-#'    The following package-class combinations can be output:
-#'    \itemize{
-#'       \item MotIV-pwm2
-#'       \item TFBSTools-PFMatrix
-#'       \item TFBSTools-PWMatrix
-#'       \item TFBSTools-ICMatrix
-#'       \item TFBSTools-TFFMFirst
-#'       \item seqLogo-pwm
-#'       \item motifStack-pcm
-#'       \item motifStack-pfm
-#'       \item PWMEnrich-PWM
-#'       \item Biostrings-PWM (\code{type = 'log2prob'})
-#'       \item rGADEM-motif
-#'       \item universalmotif-universalmotif
-#'    }
+#' The following package-class combinations can be output:
+#' * MotIV-pwm2
+#' * TFBSTools-PFMatrix
+#' * TFBSTools-PWMatrix
+#' * TFBSTools-ICMatrix
+#' * TFBSTools-TFFMFirst
+#' * seqLogo-pwm
+#' * motifStack-pcm
+#' * motifStack-pfm
+#' * PWMEnrich-PWM
+#' * Biostrings-PWM (\code{type = 'log2prob'})
+#' * rGADEM-motif
+#' * universalmotif-universalmotif
 #'
 #' @examples
 #' # convert from universalmotif:
@@ -137,6 +133,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
             # TFBSTools- PFMatrix, PWMatrix, and ICMatrix
             if (out_class_pkg == "TFBSTools" && out_class %in% 
                 c("PFMatrix", "PWMatrix", "ICMatrix")) {
+              if (!requireNamespace("TFBSTools", quietly = TRUE)) {
+                stop("package 'TFBSTools' is not installed") 
+              }
               motifs <- convert_type(motifs, "PCM")
               bkg <- motifs["bkg"]
               names(bkg) <- DNA_BASES
@@ -148,7 +147,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               if (strand %in% c("+-", "-+")) {
                 strand <- "*"
               }
-              motifs <- PFMatrix(name = motifs["name"],
+              motifs <- TFBSTools::PFMatrix(name = motifs["name"],
                                  ID = motifs["altname"],
                                  strand = strand,
                                  bg = bkg,
@@ -156,11 +155,11 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               if (out_class == "PFMatrix") {
                 motifs <- motifs
               } else if (out_class == "PWMatrix") {
-                motifs <- toPWM(motifs, type = "log2probratio",
+                motifs <- TFBSTools::toPWM(motifs, type = "log2probratio",
                                 pseudocounts = 0.8,
                                 bg = bkg)
               } else if (out_class == "ICMatrix") {
-                motifs <- toICM(motifs, pseudocounts = 0.8,
+                motifs <- TFBSTools::toICM(motifs, pseudocounts = 0.8,
                                 bg = bkg)
               }
               if (length(extrainfo) > 0) {
@@ -171,6 +170,9 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
             # TFBSTools-TFFMFirst
             if (out_class_pkg == "TFBSTools" && out_class == "TFFMFirst") {
+              if (!requireNamespace("TFBSTools", quietly = TRUE)) {
+                stop("package 'TFBSTools' is not installed") 
+              }
               motifs <- convert_type(motifs, "PPM")
               if (!`2` %in% names(motifs@multifreq)) {
                 stop("cannot convert without filled multifreq slot")
@@ -199,7 +201,8 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
               if (strand %in% c("+-", "-+")) strand <- "*"
               family <- motifs["family"]
               if (length(family) < 1) family <- "Unknown"
-              motifs <- TFFMFirst(ID = motifs["altname"], name = motifs["name"],
+              motifs <- TFBSTools::TFFMFirst(ID = motifs["altname"],
+                                  name = motifs["name"],
                                   strand = strand, type = "First",
                                   bg = bkg, matrixClass = family,
                                   profileMatrix = motifs["motif"],
@@ -328,6 +331,9 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
           definition = function(motifs, class) {
+            if (!requireNamespace("TFBSTools", quietly = TRUE)) {
+              stop("package 'TFBSTools' is not installed") 
+            }
             difreq <- motifs@emission[-1]
             difreq <- do.call(c, difreq)
             difreq <- matrix(difreq, nrow = 16) / 4
@@ -335,7 +341,7 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
             colnames(difreq) <- seq_len(ncol(difreq))
             mot <- universalmotif(name = motifs@name, altname = motifs@ID,
                            strand = motifs@strand, bkg = motifs@bg,
-                           motif = getPosProb(motifs),
+                           motif = TFBSTools::getPosProb(motifs),
                            multifreq = list(`2` = difreq))
             convert_motifs(mot, class = class)
           })

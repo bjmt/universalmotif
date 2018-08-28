@@ -3,20 +3,20 @@
 #' Given a set of motifs, shuffle the columns between them. Currently does not
 #' support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
 #' and 'bkgsites' slots will be preserved. Uses the same shuffling methods
-#' as \code{\link{shuffle_sequences}}.
+#' as [shuffle_sequences()].
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param k \code{numeric(1)} K-let size.
-#' @param method \code{character(1)} One of \code{c('linear', 'random')}.
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param k `numeric(1)` K-let size.
+#' @param method `character(1)` One of `c('linear', 'random')`.
 #'    See details.
-#' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
-#'    \code{c('asis', 'first', 'split', 'discard')}. See details.
+#' @param leftovers `character(1)` For \code{method = 'random'}. One of
+#'    `c('asis', 'first', 'split', 'discard')`. See details.
 #'
-#' @return Motifs. See \code{\link{convert_motifs}} for available output
+#' @return Motifs. See [convert_motifs()] for available output
 #'    formats.
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{shuffle_sequences}}
+#' @seealso [shuffle_sequences()]
 #' @export
 shuffle_motifs <- function(motifs, k = 2, method = "linear",
                            leftovers = "asis") {

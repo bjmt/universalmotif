@@ -8,7 +8,7 @@ filter_motifs(motifs, name, altname, family, organism, width, alphabet,
   type, icscore, nsites, strand, pval, qval, eval)
 }
 \arguments{
-\item{motifs}{\code{list} See \code{\link{convert_motifs}} for acceptable
+\item{motifs}{\code{list} See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable
 formats.}
 
 \item{name}{\code{character} Keep motifs by names.}

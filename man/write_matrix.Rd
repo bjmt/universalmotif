@@ -8,7 +8,7 @@ write_matrix(motifs, file, positions = "columns", rownames = FALSE,
   type, sep = "", headers = TRUE)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
 
@@ -24,7 +24,7 @@ will use whatever type the motif is currently stored as.}
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to write names.}
 }
 \value{
-NULL, invisibly.
+\code{NULL}, invisibly.
 }
 \description{
 Write motifs as simple matrices with optional headers to file.
@@ -35,7 +35,7 @@ write_matrix(motif, tempfile(), headers = ">")
 
 }
 \seealso{
-\code{\link{read_matrix}}
+\code{\link[=read_matrix]{read_matrix()}}
 
 Other write_motifs: \code{\link{write_homer}},
   \code{\link{write_jaspar}}, \code{\link{write_meme}},

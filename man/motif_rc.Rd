@@ -7,14 +7,14 @@
 motif_rc(motifs)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats}
 }
 \value{
-See \code{\link{convert_motifs}} for available output formats.
+See \code{\link[=convert_motifs]{convert_motifs()}} for available output formats.
 }
 \description{
-For any motif, change the 'motif' slot to it's reverse complement. If the
-'multifreq' slot is filled, then it is also applied. No other slots are
+For any motif, change the \code{motif} slot to it's reverse complement. If the
+\code{multifreq} slot is filled, then it is also applied. No other slots are
 affected.
 }
 \examples{

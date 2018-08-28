@@ -12,14 +12,12 @@ read_meme(file, skip = 0, readsites = FALSE)
 \item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
 
-\item{readsites}{\code{logical(1)} If \code{TRUE}, the motif sites will be read
-as well.}
+\item{readsites}{\code{logical(1)} If \code{TRUE}, the motif sites will be read as well.}
 }
 \value{
-\code{list} \linkS4class{universalmotif} objects. If
-   \code{readsites = TRUE}, a list
-        comprising of a sub-list of motif objects and a sub-list of 
-        motif sites will be returned.
+\code{list} \linkS4class{universalmotif} objects. If \code{readsites = TRUE}, a list
+comprising of a sub-list of motif objects and a sub-list of
+motif sites will be returned.
 }
 \description{
 Import MEME formatted motifs, as well as original motif sequences. See

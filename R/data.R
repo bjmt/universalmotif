@@ -2,41 +2,41 @@
 #'
 #' A simple DNA motif.
 #'
-#' @format \linkS4class{universalmotif}
+#' @format [universalmotif-class]
 "examplemotif"
 
 #' Another example motif.
 #'
-#' A simple DNA motif with a non-empty \code{multifreq} slot.
+#' A simple DNA motif with a non-empty `multifreq` slot.
 #'
-#' @format \linkS4class{universalmotif}
+#' @format [universalmotif-class]
 "examplemotif2"
 
 #' JASPAR2018 CORE database scores.
 #'
-#' For use with \code{\link{compare_motifs}}. Unormalised.
+#' For use with [compare_motifs()]. Unormalised.
 #'
-#' @format \code{list} with three \code{data.frames}
+#' @format `list` with three `data.frames`
 "JASPAR2018_CORE_DBSCORES"
 
 #' JASPAR2018 CORE databse scores [normalised].
 #'
-#' For use with \code{\link{compare_motifs}}. Normalised.
+#' For use with [compare_motifs()]. Normalised.
 #'
-#' @format \code{list} with three \code{data.frames}
+#' @format `list` with three `data.frames`
 "JASPAR2018_CORE_DBSCORES_NORM"
 
 #' Arabidopsis promoters.
 #'
 #' 50 Arabidopsis promoters, each 1000 bases long.
 #'
-#' @format \linkS4class{DNAStringSet}
+#' @format [Biostrings::DNAStringSet]
 "ArabidopsisPromoters"
 
 #' Arabidopsis motif.
 #'
-#' Arabidopsis motif trained from \code{\link{ArabidopsisPromoters}} using
+#' Arabidopsis motif trained from [`ArabidopsisPromoters`] using
 #' MEME v4.
 #'
-#' @format \linkS4class{universalmotif}
+#' @format [universalmotif-class]
 "ArabidopsisMotif"

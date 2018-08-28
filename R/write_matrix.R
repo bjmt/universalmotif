@@ -2,23 +2,23 @@
 #'
 #' Write motifs as simple matrices with optional headers to file.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param file \code{character(1)} File name.
-#' @param positions \code{character(1)} One of \code{c('columns', 'rows')}.
-#' @param rownames \code{logical(1)} Include alphabet letters as rownames.
-#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}. If missing
-#'             will use whatever type the motif is currently stored as.
-#' @param sep \code{character(1)} Indicates how to separate individual motifs.
-#' @param headers \code{logical(1)}, \code{character(1)} Indicating if and how to write names.
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param file `character(1)` File name.
+#' @param positions `character(1)` One of `c('columns', 'rows')`.
+#' @param rownames `logical(1)` Include alphabet letters as rownames.
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`. If missing
+#'   will use whatever type the motif is currently stored as.
+#' @param sep `character(1)` Indicates how to separate individual motifs.
+#' @param headers `logical(1)`, `character(1)` Indicating if and how to write names.
 #'
-#' @return NULL, invisibly.
+#' @return `NULL`, invisibly.
 #'
 #' @examples
 #' motif <- create_motif()
 #' write_matrix(motif, tempfile(), headers = ">")
 #'
 #' @family write_motifs
-#' @seealso \code{\link{read_matrix}}
+#' @seealso [read_matrix()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,

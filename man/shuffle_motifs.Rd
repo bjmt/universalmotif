@@ -7,7 +7,7 @@
 shuffle_motifs(motifs, k = 2, method = "linear", leftovers = "asis")
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{k}{\code{numeric(1)} K-let size.}
 
@@ -18,17 +18,17 @@ See details.}
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
 }
 \value{
-Motifs. See \code{\link{convert_motifs}} for available output
-   formats.
+Motifs. See \code{\link[=convert_motifs]{convert_motifs()}} for available output
+formats.
 }
 \description{
 Given a set of motifs, shuffle the columns between them. Currently does not
 support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
 and 'bkgsites' slots will be preserved. Uses the same shuffling methods
-as \code{\link{shuffle_sequences}}.
+as \code{\link[=shuffle_sequences]{shuffle_sequences()}}.
 }
 \seealso{
-\code{\link{shuffle_sequences}}
+\code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

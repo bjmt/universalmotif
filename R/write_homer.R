@@ -2,10 +2,10 @@
 #'
 #' Convert motifs to HOMER format and write to file.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param file \code{character(1)} File name.
-#' @param logodds_threshold \code{numeric} Stringency required for HOMER to match a motif.
-#'    See \code{\link{scan_sequences}}.
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param file `character(1)` File name.
+#' @param logodds_threshold `numeric` Stringency required for HOMER to match a motif.
+#'    See [scan_sequences()].
 #'
 #' @return NULL, invisibly.
 #'
@@ -17,7 +17,7 @@
 #' write_homer(motif, tempfile())
 #'
 #' @family write_motifs
-#' @seealso \code{\link{read_homer}}
+#' @seealso [read_homer()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_homer <- function(motifs, file, logodds_threshold = 0.6) {

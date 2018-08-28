@@ -1,5 +1,5 @@
-#' @param x \linkS4class{universalmotif} Motif.
-#' @param i \code{character} Slot.
+#' @param x [universalmotif-class] Motif.
+#' @param i `character` Slot.
 #' @include universalmotif-class.R
 #' @rdname universalmotif-class
 #' @aliases [,universalmotif-method
@@ -48,31 +48,31 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
   if (validObject(x)) return(x)
 })
 
-#' @param .Object \linkS4class{universalmotif} Final motif.
-#' @param name \code{character} Motif name.
-#' @param altname \code{character} Alternate motif name.
-#' @param family \code{character} Transcription factor family.
-#' @param organism \code{character} Species of origin.
-#' @param motif \code{matrix} Each column represents a position in the motif.
-#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+#' @param .Object [universalmotif-class] Final motif.
+#' @param name `character` Motif name.
+#' @param altname `character` Alternate motif name.
+#' @param family `character` Transcription factor family.
+#' @param organism `character` Species of origin.
+#' @param motif `matrix` Each column represents a position in the motif.
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
 #'    or a combined string representing the letters.
-#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
-#' @param icscore \code{numeric} Total information content. Automatically generated.
-#' @param nsites \code{numeric} Number of sites the motif was constructed from.
-#' @param pseudocount \code{pseudocount(1)} Correction to be applied to prevent \code{-Inf}
-#'                     from apearing in PWM matrices.
-#' @param bkg \code{numeric} Must sum to 1 and be equal in length to the alphabet
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
+#' @param icscore `numeric` Total information content. Automatically generated.
+#' @param nsites `numeric` Number of sites the motif was constructed from.
+#' @param pseudocount `pseudocount(1)` Correction to be applied to prevent `-Inf`
+#'   from apearing in PWM matrices.
+#' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
 #'            length. If missing, assumes a uniform background.
-#' @param bkgsites \code{numeric} Total number of sites used to find the motif.
-#' @param consensus \code{character} Consensus string. Automatically generated for 
-#'                  'DNA', 'RNA', and 'AA' alphabets.
-#' @param strand \code{character(1)} Whether the motif is specific to a certain strand.
-#' @param pval \code{numeric} P-value associated with motif.
-#' @param qval \code{numeric} Adjusted P-value associated with motif.
-#' @param eval \code{numeric} E-value associated with motif.
-#' @param multifreq \code{list} See \code{\link{add_multifreq}}.
-#' @param extrainfo \code{character} Any other extra information, represented as
-#'                  a named character vector.
+#' @param bkgsites `numeric` Total number of sites used to find the motif.
+#' @param consensus `character` Consensus string. Automatically generated for 
+#'    'DNA', 'RNA', and 'AA' alphabets.
+#' @param strand `character(1)` Whether the motif is specific to a certain strand.
+#' @param pval `numeric` P-value associated with motif.
+#' @param qval `numeric` Adjusted P-value associated with motif.
+#' @param eval `numeric` E-value associated with motif.
+#' @param multifreq `list` See [add_multifreq()].
+#' @param extrainfo `character` Any other extra information, represented as
+#'    a named character vector.
 #' @name universalmotif
 #' @rdname universalmotif-class
 #' @aliases initialize,universalmotif-method
@@ -250,7 +250,7 @@ setMethod("initialize", signature = "universalmotif",
 
           })
 
-#' @param object \linkS4class{universalmotif} Motif.
+#' @param object [universalmotif-class] Motif.
 #' @rdname universalmotif-class
 #' @aliases show,universalmotif-method
 setMethod("show", signature = "universalmotif",
@@ -379,7 +379,7 @@ setMethod("as.data.frame", signature(x = "universalmotif"),
             df
           })
 
-#' @param select \code{numeric} Columns to keep.
+#' @param select `numeric` Columns to keep.
 #' @rdname universalmotif-class
 #' @aliases subset,universalmotif-method
 setMethod("subset", signature(x = "universalmotif"),
@@ -449,7 +449,7 @@ setMethod("colnames", signature(x = "universalmotif"),
 setMethod("rownames", signature(x = "universalmotif"),
           definition = function(x) rownames(x["motif"]))
 
-#' @param ... \linkS4class{universalmotif} Motifs.
+#' @param ... [universalmotif-class] Motifs.
 #' @param deparse.level Unused.
 #' @rdname universalmotif-class
 #' @aliases cbind,universalmotif-method

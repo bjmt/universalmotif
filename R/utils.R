@@ -2,55 +2,55 @@
 #'
 #' Various small functions used for motif creation.
 #'
-#' @param position \code{numeric} A numeric vector representing the frequency or
+#' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
-#' @param bkg \code{Numeric} Should be the same length as the alphabet length.
-#' @param nsites \code{numeric(1)} Number of sites motif originated from.
-#' @param schneider_correction \code{logical(1)} Apply sample size correction.
-#' @param relative_entropy \code{logical(1)} Calculate information content as
+#' @param bkg `Numeric` Should be the same length as the alphabet length.
+#' @param nsites `numeric(1)` Number of sites motif originated from.
+#' @param schneider_correction `logical(1)` Apply sample size correction.
+#' @param relative_entropy `logical(1)` Calculate information content as
 #'    relative entropy or Kullback-Leibler divergence.
-#' @param pseudocount \code{numeric(1)} Used to prevent zeroes in motif matrix.
-#' @param smooth \code{logical(1)} Apply pseudocount correction.
-#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM' 'ICM')}.
-#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA')}.
-#' @param letter \code{character(1)} Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
+#' @param pseudocount `numeric(1)` Used to prevent zeroes in motif matrix.
+#' @param smooth `logical(1)` Apply pseudocount correction.
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM' 'ICM')`.
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA')`.
+#' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
-#' @param db.motifs \code{list} Database motifs.
-#' @param method \code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.
-#' @param shuffle.db \code{logical(1)} Shuffle \code{db.motifs} rather than
-#'    generate random motifs with \code{\link{create_motif}}
-#' @param shuffle.k \code{numeric(1)}
-#' @param shuffle.method \code{character(1)}
-#' @param shuffle.leftovers \code{character(1)}
-#' @param rand.tries \code{numeric(1)}
-#' @param normalise.scores \code{logical(1)}
-#' @param min.overlap \code{numeric(1)} Minimum required motif overlap.
-#' @param min.mean.ic \code{numeric(1)}
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
-#' @param motifs \code{list} A list of \linkS4class{universalmotif} motifs.
-#' @param na.rm \code{logical} Remove columns where all values are \code{NA}.
+#' @param db.motifs `list` Database motifs.
+#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`.
+#' @param shuffle.db `logical(1)` Shuffle `db.motifs` rather than
+#'    generate random motifs with [create_motif()].
+#' @param shuffle.k `numeric(1)`
+#' @param shuffle.method `character(1)`
+#' @param shuffle.leftovers `character(1)`
+#' @param rand.tries `numeric(1)`
+#' @param normalise.scores `logical(1)`
+#' @param min.overlap `numeric(1)` Minimum required motif overlap.
+#' @param min.mean.ic `numeric(1)`
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
+#' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
+#' @param na.rm `logical` Remove columns where all values are \code{NA}.
 #'
 #' @return 
-#'    For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
-#'    \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a \code{numeric}
-#'    vector with length equal to input \code{numeric} vector.
+#'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
+#'    [ppm_to_pcm()], [ppm_to_pwm()], and [pwm_to_ppm()]: a `numeric`
+#'    vector with length equal to input `numeric` vector.
 #'
-#'    For \code{consensus_to_ppm} and \code{consensus_to_ppmAA}: a numeric
+#'    For [consensus_to_ppm()] and [consensus_to_ppmAA()]: a numeric
 #'    vector of length 4 and 20, respectively.
 #'
-#'    For \code{position_icscore}: a \code{numeric} vector of length 1.
+#'    For [position_icscore()]: a `numeric` vector of length 1.
 #'
-#'    For \code{get_consensus} and \code{get_consensusAA}: a character vector
+#'    For [get_consensus()] and [get_consensusAA()]: a character vector
 #'    of length 1.
 #'
-#'    For \code{make_DBscores}: a \code{data.frame} with score distributions for the
+#'    For [make_DBscores()]: a `data.frame` with score distributions for the
 #'    input database.
 #'
-#'    For \code{summarise_motifs}: a \code{data.frame} with columns representing
-#'    the \linkS4class{universalmotif} slots.
+#'    For [summarise_motifs()]: a `data.frame` with columns representing
+#'    the [universalmotif-class] slots.
 #'
-#' @seealso \code{\link{create_motif}}, \code{\link{compare_motifs}}
+#' @seealso [create_motif()], [compare_motifs()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utilities
 NULL
@@ -91,6 +91,9 @@ ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
                                           }, numeric(1)))
     total_ic <- log2(length(position)) - height_after
     if (schneider_correction && !missing(nsites)) {
+      if (!requireNamespace("TFBSTools", quietly = TRUE)) {
+        stop("The 'TFBSTools' package is required for 'schneider_correction'") 
+      }
       correction <- ppm_to_pcm(position, nsites = nsites)
       correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
       total_ic <- total_ic + correction

@@ -1,13 +1,13 @@
 #' Import CIS-BP motifs.
 #' 
-#' Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
+#' Import CIS-BP formatted motifs. See <http://cisbp.ccbr.utoronto.ca/index.php>.
 #' Assumed to be DNA motifs.
 #'
-#' @param file \code{character(1)} File name.
-#' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
+#' @param file `character(1)` File name.
+#' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
 #'    file before starting to read.
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects.
+#' @return `list` [universalmotif-class] objects.
 #'
 #' @references
 #'    \insertRef{cisbp}{universalmotif}

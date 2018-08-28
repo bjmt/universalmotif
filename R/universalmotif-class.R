@@ -1,29 +1,29 @@
 #' universalmotif: Motif class.
 #'
-#' Container for motif objects. See \code{\link{create_motif}} for creating
+#' Container for motif objects. See [create_motif()] for creating
 #' motifs.
 #'
-#' @slot name \code{character(1)}
-#' @slot altname \code{character}
-#' @slot family \code{character}
-#' @slot organism \code{character}
-#' @slot motif \code{matrix}
-#' @slot alphabet \code{character(1)}
-#' @slot type \code{character(1)}
-#' @slot icscore \code{numeric(1)} Generated automatically.
-#' @slot nsites \code{numeric}
-#' @slot pseudocount \code{numeric(1)}
-#' @slot bkg \code{numeric} Length equal to number of letters in alphabet.
-#' @slot bkgsites \code{numeric}
-#' @slot consensus \code{character} Generated automatically.
-#' @slot strand \code{character(1)}
-#' @slot pval \code{numeric}
-#' @slot qval \code{numeric}
-#' @slot eval \code{numeric}
-#' @slot multifreq \code{list}
-#' @slot extrainfo \code{character}
+#' @slot name `character(1)`
+#' @slot altname `character`
+#' @slot family `character`
+#' @slot organism `character`
+#' @slot motif `matrix`
+#' @slot alphabet `character(1)`
+#' @slot type `character(1)`
+#' @slot icscore `numeric(1)` Generated automatically.
+#' @slot nsites `numeric`
+#' @slot pseudocount `numeric(1)`
+#' @slot bkg `numeric` Length equal to number of letters in alphabet.
+#' @slot bkgsites `numeric`
+#' @slot consensus `character` Generated automatically.
+#' @slot strand `character(1)`
+#' @slot pval `numeric`
+#' @slot qval `numeric`
+#' @slot eval `numeric`
+#' @slot multifreq `list`
+#' @slot extrainfo `character`
 #'
-#' @return A motif object of class \linkS4class{universalmotif}.
+#' @return A motif object of class [universalmotif-class].
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name universalmotif-class

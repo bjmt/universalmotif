@@ -1,10 +1,10 @@
 #' Merge motifs.
 #'
-#' Aligns the motifs using \code{\link{compare_motifs}}, then averages the
-#' motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
+#' Aligns the motifs using [compare_motifs()], then averages the
+#' motif PPMs. Currently the `multifreq` slot, if filled in any of the motifs,
 #' will be dropped.
 #'
-#' @return A single motif object. See \code{\link{convert_motifs}} for
+#' @return A single motif object. See [convert_motifs()] for
 #'    available formats.
 #'
 #' @examples
@@ -13,7 +13,7 @@
 #'   merged.motif <- merge_motifs(MotifDb[1:5])
 #' }
 #'
-#' @seealso \code{\link{compare_motifs}}
+#' @seealso [compare_motifs()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export

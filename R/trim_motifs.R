@@ -2,10 +2,10 @@
 #'
 #' Remove edges of a motif with low information content.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param min.ic \code{numeric(1)} Minimum allowed information content.
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param min.ic `numeric(1)` Minimum allowed information content.
 #'
-#' @return Motifs See \code{\link{convert_motifs}} for available output
+#' @return Motifs See [convert_motifs()] for available output
 #'    formats.
 #'
 #' @examples
@@ -13,7 +13,7 @@
 #'                                   package = "universalmotif"))
 #' jaspar.trimmed <- trim_motifs(jaspar)
 #'
-#' @seealso \code{\link{create_motif}}
+#' @seealso [create_motif()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 trim_motifs <- function(motifs, min.ic = 0.25) {

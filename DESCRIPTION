@@ -13,7 +13,6 @@ Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
 Imports: methods,
-    TFBSTools,
     ggplot2,
     ape,
     ggtree,
@@ -27,6 +26,7 @@ Imports: methods,
     Rcpp
 Suggests: knitr,
     BiocStyle,
+    TFBSTools,
     MotIV,
     PWMEnrich,
     motifStack,
@@ -50,6 +50,7 @@ biocViews: MotifAnnotation,
     DataImport,
     GeneRegulation
 RoxygenNote: 6.1.0
+Roxygen: list(markdown = TRUE)
 Collate: 
     'RcppExports.R'
     'add_multifreq.R'

@@ -4,51 +4,49 @@
 #' Euclidean distance, Sandelin-Wasserman similarity, and Kullback-Leibler
 #' divergence.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
-#' @param compare.to \code{numeric} If missing, compares all motifs to all other motifs.
+#' @param motifs See [convert_motifs()] for acceptable motif formats.
+#' @param compare.to `numeric` If missing, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
-#' @param db.scores \code{data.frame} See \code{details}.
-#' @param use.freq \code{numeric(1)}. For comparing the \code{multifreq} slot.
-#' @param use.type \code{character(1)} One of code{'PPM'} and \code{'ICM'}.
+#' @param db.scores `data.frame` See `details`.
+#' @param use.freq `numeric(1)`. For comparing the `multifreq` slot.
+#' @param use.type `character(1) One of `'PPM'` and `'ICM'`.
 #'    The latter allows for taking into account the background
-#'    frequencies if \code{relative_entropy = TRUE}.
-#' @param method \code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-#'    'SW', 'MSW', 'KL', 'MKL')}. See details.
-#' @param tryRC \code{logical} Try the reverse complement of the motifs as well,
+#'    frequencies if `relative_entropy = TRUE`.
+#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
+#'    'SW', 'MSW', 'KL', 'MKL')`. See details.
+#' @param tryRC `logical` Try the reverse complement of the motifs as well,
 #'    report the best score.
-#' @param min.overlap \code{numeric(1)} Minimum overlap required when aligning the
+#' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
 #'    motifs. Setting this to a number higher then the width of the motifs
 #'    will not allow any overhangs. Can also be a number less than 1,
 #'    representing the minimum fraction that the motifs must overlap.
-#' @param min.mean.ic \code{numeric(1)} Minimum information content between the
+#' @param min.mean.ic `numeric(1)` Minimum information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
 #'    alignments between low information content regions of two motifs.
-#' @param relative_entropy \code{logical(1)} For ICM calculation. See
-#'    \code{\link{convert_type}}.
-#' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
+#' @param relative_entropy `logical(1)` For ICM calculation. See
+#'    [convert_type()].
+#' @param normalise.scores `logical(1)` Favour alignments which leave fewer
 #'    unaligned positions, as well as alignments between motifs of similar length.
 #'    Similarity scores are multiplied by the ratio of
 #'    aligned positions to the total number of positions in the larger motif,
 #'    and the inverse for distance scores.
-#' @param max.p \code{numeric(1)} Maximum P-value allowed in reporting matches.
-#'    Only used if \code{compare.to} is set.
-#' @param max.e \code{numeric(1)} Maximum E-value allowed in reporting matches.
-#'    Only used if \code{compare.to} is set. The E-value is the P-value multiplied
+#' @param max.p `numeric(1)` Maximum P-value allowed in reporting matches.
+#'    Only used if `compare.to` is set.
+#' @param max.e `numeric(1)` Maximum E-value allowed in reporting matches.
+#'    Only used if `compare.to` is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
 #'
-#' @return \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
-#'  \itemize{
-#'    \item PCC: 0 represents complete distance, >0 similarity.
-#'    \item MPCC: 0 represents complete distance, 1 complete similarity.
-#'    \item EUCL: 0 represents complete similarity, >0 distance.
-#'    \item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-#'    \item SW: 0 represents complete distance, >0 similarity.
-#'    \item MSW: 0 represents complete distance, 2 complete similarity.
-#'    \item KL: 0 represents complete similarity, >0 distance.
-#'    \item MKL: 0 represents complete similarity, 4.62 complete distance.
-#'  }
+#' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
+#' * PCC: 0 represents complete distance, >0 similarity.
+#' * MPCC: 0 represents complete distance, 1 complete similarity.
+#' * EUCL: 0 represents complete similarity, >0 distance.
+#' * MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
+#' * SW: 0 represents complete distance, >0 similarity.
+#' * MSW: 0 represents complete distance, 2 complete similarity.
+#' * KL: 0 represents complete similarity, >0 distance.
+#' * MKL: 0 represents complete similarity, 4.62 complete distance.
 #'
 #' @details
 #' Comparisons are calculated between two motifs at a time. All possible alignments
@@ -59,19 +57,17 @@
 #' comparisons between short motifs. This can be avoided by using the 'mean' of
 #' scores.
 #'
-#' \itemize{
-#'   \item PCC: Pearson correlation coefficient
-#'   \item MPCC: Mean PCC
-#'   \item EUCL: Euclidian distance
-#'   \item MEUCL: Mean EUCL
-#'   \item SW: Sandelin-Wasserman similarity
-#'   \item MSW: Mean SW
-#'   \item KL: Kullback-Leibler divergence
-#'   \item MKL: Mean Kullback-Leibler divergence
-#' }
+#' * PCC: Pearson correlation coefficient
+#' * MPCC: Mean PCC
+#' * EUCL: Euclidian distance
+#' * MEUCL: Mean EUCL
+#' * SW: Sandelin-Wasserman similarity
+#' * MSW: Mean SW
+#' * KL: Kullback-Leibler divergence
+#' * MKL: Mean Kullback-Leibler divergence
 #'
 #' To note regarding p-values: p-values are pre-computed using the
-#' \code{make_DBscores} function. If not given, then uses a set of internal
+#' `make_DBscores` function. If not given, then uses a set of internal
 #' precomputed p-values from the JASPAR2018 CORE motifs. These precalculated
 #' scores are dependent on the length of the motifs being compared; this takes
 #' into account that comparing small motifs with larger motifs leads to higher
@@ -80,7 +76,7 @@
 #'
 #' The default p-values have been precalculated for regular DNA motifs; they
 #' are of little use for motifs with a different number of alphabet letters
-#' (or even the \code{multifreq} slot).
+#' (or even the `multifreq` slot).
 #'
 #' @examples
 #' motif1 <- create_motif()
@@ -95,8 +91,8 @@
 #'    \insertRef{tfbstools}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
-#'    \code{\link{motif_tree}}, \code{\link{view_motifs}}
+#' @seealso [convert_motifs()], [TFBSTools::PWMSimilarity()],
+#'    [motif_tree()], [view_motifs()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "MPCC", tryRC = TRUE,

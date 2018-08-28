@@ -2,7 +2,7 @@
 #'
 #' Import UNIPROBE formatted motifs. Assumed DNA.
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects.
+#' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
 #' uniprobe.minimal <- read_uniprobe(system.file("extdata", "uniprobe_minimal.txt",

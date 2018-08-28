@@ -5,7 +5,6 @@
 \name{universalmotif-class}
 \alias{universalmotif-class}
 \alias{universalmotif}
-\alias{[,universalmotif,ANY,ANY,ANY-method}
 \alias{[,universalmotif-method}
 \alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{[<-,universalmotif-method}
@@ -25,7 +24,7 @@
 \alias{cbind,universalmotif-method}
 \title{universalmotif: Motif class.}
 \usage{
-\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i)
+\S4method{[}{universalmotif}(x, i)
 
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
@@ -96,7 +95,7 @@ length. If missing, assumes a uniform background.}
 
 \item{bkgsites}{\code{numeric} Total number of sites used to find the motif.}
 
-\item{consensus}{\code{character} Consensus string. Automatically generated for 
+\item{consensus}{\code{character} Consensus string. Automatically generated for
 'DNA', 'RNA', and 'AA' alphabets.}
 
 \item{strand}{\code{character(1)} Whether the motif is specific to a certain strand.}
@@ -107,7 +106,7 @@ length. If missing, assumes a uniform background.}
 
 \item{eval}{\code{numeric} E-value associated with motif.}
 
-\item{multifreq}{\code{list} See \code{\link{add_multifreq}}.}
+\item{multifreq}{\code{list} See \code{\link[=add_multifreq]{add_multifreq()}}.}
 
 \item{extrainfo}{\code{character} Any other extra information, represented as
 a named character vector.}
@@ -124,7 +123,7 @@ a named character vector.}
 A motif object of class \linkS4class{universalmotif}.
 }
 \description{
-Container for motif objects. See \code{\link{create_motif}} for creating
+Container for motif objects. See \code{\link[=create_motif]{create_motif()}} for creating
 motifs.
 }
 \section{Slots}{

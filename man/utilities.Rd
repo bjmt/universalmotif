@@ -56,7 +56,7 @@ summarise_motifs(motifs, na.rm = TRUE)
 \item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.}
 
 \item{shuffle.db}{\code{logical(1)} Shuffle \code{db.motifs} rather than
-generate random motifs with \code{\link{create_motif}}}
+generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
 
 \item{shuffle.k}{\code{numeric(1)}}
 
@@ -104,29 +104,29 @@ are accepted.}
 \item{na.rm}{\code{logical} Remove columns where all values are \code{NA}.}
 }
 \value{
-For \code{ppm_to_icm}, \code{icm_to_ppm}, \code{pcm_to_ppm},
-   \code{ppm_to_pcm}, \code{ppm_to_pwm}, and \code{pwm_to_ppm}: a \code{numeric}
-   vector with length equal to input \code{numeric} vector.
+For \code{\link[=ppm_to_icm]{ppm_to_icm()}}, \code{\link[=icm_to_ppm]{icm_to_ppm()}}, \code{\link[=pcm_to_ppm]{pcm_to_ppm()}},
+\code{\link[=ppm_to_pcm]{ppm_to_pcm()}}, \code{\link[=ppm_to_pwm]{ppm_to_pwm()}}, and \code{\link[=pwm_to_ppm]{pwm_to_ppm()}}: a \code{numeric}
+vector with length equal to input \code{numeric} vector.
 
-   For \code{consensus_to_ppm} and \code{consensus_to_ppmAA}: a numeric
-   vector of length 4 and 20, respectively.
+For \code{\link[=consensus_to_ppm]{consensus_to_ppm()}} and \code{\link[=consensus_to_ppmAA]{consensus_to_ppmAA()}}: a numeric
+vector of length 4 and 20, respectively.
 
-   For \code{position_icscore}: a \code{numeric} vector of length 1.
+For \code{\link[=position_icscore]{position_icscore()}}: a \code{numeric} vector of length 1.
 
-   For \code{get_consensus} and \code{get_consensusAA}: a character vector
-   of length 1.
+For \code{\link[=get_consensus]{get_consensus()}} and \code{\link[=get_consensusAA]{get_consensusAA()}}: a character vector
+of length 1.
 
-   For \code{make_DBscores}: a \code{data.frame} with score distributions for the
-   input database.
+For \code{\link[=make_DBscores]{make_DBscores()}}: a \code{data.frame} with score distributions for the
+input database.
 
-   For \code{summarise_motifs}: a \code{data.frame} with columns representing
-   the \linkS4class{universalmotif} slots.
+For \code{\link[=summarise_motifs]{summarise_motifs()}}: a \code{data.frame} with columns representing
+the \linkS4class{universalmotif} slots.
 }
 \description{
 Various small functions used for motif creation.
 }
 \seealso{
-\code{\link{create_motif}}, \code{\link{compare_motifs}}
+\code{\link[=create_motif]{create_motif()}}, \code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

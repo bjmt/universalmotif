@@ -2,21 +2,21 @@
 #'
 #' Generate random sequences from any set of characters.
 #'
-#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of
-#'                 letters/characters to be used as the alphabet.
-#' @param monofreqs \code{numeric} Alphabet frequencies to use. If missing assumes uniform
-#'            frequencies. Not used if \code{difreq} or \code{trifreq} are
-#'            input.
-#' @param seqnum \code{numeric(1)} Number of sequences to generate.
-#' @param seqlen \code{numeric(1)} Length of random sequences.
-#' @param difreqs \code{numeric} Dinucleotide frequencies. DNA/RNA only. Must be a
-#'               named numeric vector of length 16.
-#' @param trifreqs \code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
-#'                named numeric vector of length 64.
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`, or a string of
+#'    letters/characters to be used as the alphabet.
+#' @param monofreqs `numeric` Alphabet frequencies to use. If missing assumes uniform
+#'   frequencies. Not used if `difreq` or `trifreq` are
+#'   input.
+#' @param seqnum `numeric(1)` Number of sequences to generate.
+#' @param seqlen `numeric(1)` Length of random sequences.
+#' @param difreqs `numeric` Dinucleotide frequencies. DNA/RNA only. Must be a
+#'   named numeric vector of length 16.
+#' @param trifreqs `numeric` Trinucleotide frequencies. DNA/RNA only. Must be a 
+#'   named numeric vector of length 64.
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
 #'
-#' @return \linkS4class{XStringSet}
+#' @return [Biostrings::XStringSet-class]
 #'
 #' @examples
 #' ## create DNA sequences with slightly increased AT content:
@@ -30,7 +30,7 @@
 #'    \insertRef{biostrings}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{create_motif}}, \code{\link{shuffle_sequences}}
+#' @seealso [create_motif()], [shuffle_sequences()]
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                              monofreqs, difreqs, trifreqs, progress = FALSE,

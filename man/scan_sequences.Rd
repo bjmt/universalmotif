@@ -9,9 +9,9 @@ scan_sequences(motifs, sequences, threshold = 0.001,
   progress = TRUE, BP = FALSE)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
+\item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
 
-\item{sequences}{\code{XStringSet} Sequences to scan. Alphabet should
+\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} Sequences to scan. Alphabet should
 match motif.}
 
 \item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
@@ -25,7 +25,7 @@ sequences.}
 \item{use.freq}{\code{numeric(1)} The default, 1, uses the motif matrix (from
 the \code{motif["motif"]} slot) to search for sequences. If a higher
 number is used, then the matching k-let matrix from the
-\code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.}
+\code{motif["multifreq"]} slot is used. See \code{\link[=add_multifreq]{add_multifreq()}}.}
 
 \item{verbose}{\code{numeric(1)} Describe progress, from none (0) to very
 verbose (3).}
@@ -36,32 +36,33 @@ verbose (3).}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input
-   sequences are \code{DNAStringSet} or \code{RNAStringSet}, then an
-   additional column with the strand is included.
+sequences are [Biostrings::DNAStringSet-class or
+\link[Biostrings:RNAStringSet-class]{Biostrings::RNAStringSet}, then an
+additional column with the strand is included.
 }
 \description{
 For sequences of any alphabet, scan them using the PWM matrices of
 a set of input motifs.
 }
 \details{
-Similar to \code{\link[Biostrings]{matchPWM}}, the scanning method uses
-   logodds scoring. (To see the scoring matrix for any motif, simply
-   run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
-   matrix: \code{apply(motif["multifreq"]$`2`, 2, ppm_to_pwm)}). In order
-   to score a sequence, at each position within a sequence of length equal
-   to the length of the motif, the scores for each base are summed. If the
-   score sum is above the desired threshold, it is kept.
+Similar to \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}}, the scanning method uses
+logodds scoring. (To see the scoring matrix for any motif, simply
+run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
+matrix: \code{apply(motif["multifreq"]$}2\code{, 2, ppm_to_pwm)}). In order
+to score a sequence, at each position within a sequence of length equal
+to the length of the motif, the scores for each base are summed. If the
+score sum is above the desired threshold, it is kept.
 
-   If \code{threshold.type = 'logodds'}, then to calculate the minimum
-   allowed score the maximum possible score for a motif is multiplied
-   by the value set by \code{threshold}. To determine the maximum
-   possible score a motif (of type PWM), run
-   \code{sum(apply(motif['motif'], 2, max))}.
+If \code{threshold.type = 'logodds'}, then to calculate the minimum
+allowed score the maximum possible score for a motif is multiplied
+by the value set by \code{threshold}. To determine the maximum
+possible score a motif (of type PWM), run
+\code{sum(apply(motif['motif'], 2, max))}.
 
-   If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
-   generated using \code{\link{motif_pvalue}}.
+If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
+generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
 
-   Note: memory usage increases exponentially with k.
+Note: memory usage increases exponentially with k.
 }
 \examples{
 ## any alphabet can be used
@@ -78,8 +79,8 @@ scan_sequences(motif, sequences)
 \insertRef{biostrings}{universalmotif}
 }
 \seealso{
-\code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
-   \code{\link{enrich_motifs}}, \code{\link{motif_pvalue}}
+\code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}},
+\code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

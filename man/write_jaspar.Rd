@@ -7,12 +7,12 @@
 write_jaspar(motifs, file)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
 }
 \value{
-NULL, invisibly.
+\code{NULL}, invisibly.
 }
 \description{
 Convert motifs to JASPAR format and write to file.
@@ -27,7 +27,7 @@ write_jaspar(transfac, tempfile())
 \insertRef{jaspar}{universalmotif}
 }
 \seealso{
-\code{\link{read_jaspar}}
+\code{\link[=read_jaspar]{read_jaspar()}}
 
 Other write_motifs: \code{\link{write_homer}},
   \code{\link{write_matrix}}, \code{\link{write_meme}},

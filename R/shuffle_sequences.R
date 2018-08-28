@@ -3,21 +3,21 @@
 #' Given a set of input sequences, shuffle the letters within those
 #' sequences with any k-let size.
 #'
-#' @param sequences \code{XStringSet} For \code{method = 'markov'}, DNAStringSet
-#'    and RNAStringSet only.
-#' @param k \code{numeric(1)} K-let size.
-#' @param method \code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+#' @param sequences [Biostrings::XStringSet-class] For `method = 'markov'`,
+#'    [Biostrings::DNAStringSet-class] and [Biostrings::RNAStringSet-class] only.
+#' @param k `numeric(1)` K-let size.
+#' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
 #'    See details.
-#' @param leftovers \code{character(1)} For \code{method = 'random'}. One of
-#'    \code{c('asis', 'first', 'split', 'discard')}. See details.
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
+#' @param leftovers `character(1)` For `method = 'random'`. One of
+#'    `c('asis', 'first', 'split', 'discard')`. See details.
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
 #'
-#' @return \code{XStringSet} The input sequences will be returned with 
+#' @return [Biostrings::XStringSet-class] The input sequences will be returned with 
 #'    identical names and lengths.
 #'
 #' @details
-#'    If \code{method = 'markov'}, then the Markov model is used to
+#'    If `method = 'markov'`, then the Markov model is used to
 #'    generate sequences which will maintain (on average) the k-let
 #'    frequencies. Please note that this method is not a 'true' shuffling, and
 #'    for short sequences (e.g. <100bp) this can result in slightly more
@@ -26,18 +26,18 @@
 #'    \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
 #'    topic.
 #'
-#'    If \code{method = 'linear'}, then the input sequences are split linearly
+#'    If `method = 'linear'`, then the input sequences are split linearly
 #'    every k letters; for example, for k = 3 'ACAGATAGACCC' becomes
 #'    'ACA GAT AGA CCC'; afterwhich these 3-lets are shuffled randomly. If
-#'    \code{method = 'random'}, then k-lets are picked from the sequence
+#'    `method = 'random'`, then k-lets are picked from the sequence
 #'    completely randomly. This however can leave 'leftover' letters, where
 #'    lone letter islands smaller than k are left. There are a few options
-#'    provided to deal with these: \code{leftovers = 'asis'} will leave these
-#'    letter islands in place; \code{leftovers = 'first'} will place these
-#'    letters at the beginning of the sequence; \code{leftovers = 'split'}
+#'    provided to deal with these: `leftovers = 'asis'` will leave these
+#'    letter islands in place; `leftovers = 'first'` will place these
+#'    letters at the beginning of the sequence; `leftovers = 'split'`
 #'    will place half of the leftovers at the beginning and end of the 
-#'    sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
-#'    Do note however, that the \code{method} parameter is only relevant for k > 1.
+#'    sequence; `leftovers = 'discard'` simply gets rid of the leftovers.
+#'    Do note however, that the `method` parameter is only relevant for k > 1.
 #'
 #' @references
 #'    \insertRef{markovmodel2}{universalmotif}
@@ -48,8 +48,7 @@
 #' sequences <- create_sequences()
 #' sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 #'
-#' @seealso \code{\link{create_sequences}}, \code{\link{scan_sequences}},
-#'    \code{\link{enrich_motifs}}
+#' @seealso [create_sequences()], [scan_sequences()], [enrich_motifs()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",

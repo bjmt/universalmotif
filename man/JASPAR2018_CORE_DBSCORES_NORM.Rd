@@ -3,12 +3,12 @@
 \docType{data}
 \name{JASPAR2018_CORE_DBSCORES_NORM}
 \alias{JASPAR2018_CORE_DBSCORES_NORM}
-\title{JASPAR2018 CORE databse scores [normalised].}
+\title{JASPAR2018 CORE databse scores \link{normalised}.}
 \format{\code{list} with three \code{data.frames}}
 \usage{
 JASPAR2018_CORE_DBSCORES_NORM
 }
 \description{
-For use with \code{\link{compare_motifs}}. Normalised.
+For use with \code{\link[=compare_motifs]{compare_motifs()}}. Normalised.
 }
 \keyword{datasets}

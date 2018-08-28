@@ -8,14 +8,14 @@ motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
   branch.length = "none", db.scores, method = "MPCC",
   use.type = "PPM", min.overlap = 6, tryRC = TRUE,
-  min.mean.ic = 0.5, relative_entropy = FALSE, ...)
+  min.mean.ic = 0.5, relative_entropy = FALSE, progress = TRUE,
+  BP = FALSE, ...)
 }
 \arguments{
-\item{motifs}{\code{list}, \code{dist} See \code{\link{convert_motifs}} for
+\item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
 available formats.}
 
-\item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular',
-'radial', 'equal_angle', 'daylight')}.}
+\item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular', 'radial', 'equal_angle', 'daylight')}.}
 
 \item{linecol}{\code{character(1)} \linkS4class{universalmotif} slot to use to
 colour lines (e.g. 'family').}
@@ -30,14 +30,11 @@ control tip size (e.g. 'icscore').}
 
 \item{branch.length}{\code{character(1)} If 'none', draw a cladogram.}
 
-\item{db.scores}{\code{data.frame} See \code{\link{compare_motifs}}.}
+\item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{method}{\code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.}
+\item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.}
 
-\item{use.type}{\code{character(1)} One of \code{'PCM'} (Pearson only),
-\code{'PPM'} (any method), \code{'PWM'} (Pearson only), and \code{'ICM'}
-(any method). The two allow for taking into account the background
-frequencies (for ICM, only if \code{relative_entropy = TRUE}).}
+\item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if}relative_entropy = TRUE`).}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
@@ -52,23 +49,23 @@ two motifs for an alignment to be scored. This helps prevent scoring
 alignments between low information content regions of two motifs.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link{convert_type}}.}
+\code{\link[=convert_type]{convert_type()}}.}
+
+\item{progress}{\code{logical(1)} Show progress of \code{\link[=compare_motifs]{compare_motifs()}}.}
+
+\item{BP}{\code{logical(1)} Use BiocParallel in \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{...}{\pkg{ggtree} params.}
-
-\item{progress}{\code{logical(1)} Show progress of \code{compare_motifs}.}
-
-\item{BP}{\code{logical(1)} Use BiocParallel in \code{compare_motifs}.}
 }
 \value{
-\code{ggplot} object.
+\link[ggplot2:ggplot-class]{ggplot2::ggplot} object.
 }
 \description{
 For more powerful motif tree functions, see the motifStack package.
 }
 \details{
-See \code{\link[ggtree]{ggtree}} for more detailed descriptions of
-   parameters.
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}} for more detailed descriptions of
+parameters.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -80,11 +77,11 @@ jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 \references{
 \insertRef{ggplot2}{universalmotif}
 
-   \insertRef{ggtree}{universalmotif}
+\insertRef{ggtree}{universalmotif}
 }
 \seealso{
-\code{\link[motifStack]{motifStack}}, \code{\link{compare_motifs}},
-   \code{\link[ggtree]{ggtree}}
+\code{\link[motifStack:motifStack]{motifStack::motifStack()}}, \code{\link[=compare_motifs]{compare_motifs()}},
+\code{\link[ggtree:ggtree]{ggtree::ggtree()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

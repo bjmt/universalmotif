@@ -3,18 +3,19 @@
 #' If the original sequences are available for a particular motif, then they
 #' can be used to generate higher-order PPM matrices.
 #'
-#' @param motif See \code{\link{convert_motifs}} for acceptable formats. If the
-#'    motif is not a \linkS4class{universalmotif} motif, then it will be
+#' @param motif See [convert_motifs()] for acceptable formats. If the
+#'    motif is not a [universalmotif-class] motif, then it will be
 #'    converted.
-#' @param sequences \code{XStringSet} The alphabet must match that of the motif. If
+#' @param sequences [Biostrings::XStringSet-class] The alphabet must match
+#'    that of the motif. If
 #'    these sequences are all the same length as the motif, then they are all
 #'    used to generate the multi-freq matrices. Otherwise
-#'    \code{\link{scan_sequences}} is first run to find the right sequence.
-#' @param add.k \code{numeric(1)} The k-let lengths to add.
-#' @param threshold \code{numeric(1)} See \code{\link{scan_sequences}}.
-#' @param threshold.type \code{character(1)} See \code{link{scan_sequences}}.
-#' @param RC \code{logical(1)} See \code{link{scan_sequences}}.
-#' @param motifs.perseq \code{numeric(1)} If \code{\link{scan_sequences}} is run, 
+#'    [scan_sequences()] is first run to find the right sequence.
+#' @param add.k `numeric(1)` The k-let lengths to add.
+#' @param threshold `numeric(1)` See [scan_sequences()].
+#' @param threshold.type `character(1)` See [scan_sequences()].
+#' @param RC `logical(1)` See [scan_sequences()].
+#' @param motifs.perseq `numeric(1)` If [scan_sequences()] is run, 
 #'    then this indicates how many hits from each sequence is to be used.
 #'
 #' @details
@@ -24,7 +25,7 @@
 #'    final k-let probability matrix will have k - 1 fewer columns.
 #'    Calculating k-let probabilities for the missing columns would be
 #'    trivial however, as you would only need the background frequencies.
-#'    Since these would not be useful for \code{\link{scan_sequences}}
+#'    Since these would not be useful for [scan_sequences()]
 #'    though, they are not calculated.
 #'
 #'    Note: the number of rows for each k-let matrix is n^k, with n being the
@@ -33,7 +34,7 @@
 #'    if one were to wish to represent a DNA motif of length 10 as a 10-let,
 #'    this would require a matrix with 1,048,576 rows.
 #'
-#' @return A \linkS4class{universalmotif} object with filled 'multifreq' slot.
+#' @return A [universalmotif-class] object with filled `multifreq` slot.
 #'
 #' @examples
 #' sequences <- create_sequences(seqlen = 10)
@@ -43,7 +44,7 @@
 #' motif.trained["multifreq"]$`2`
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{scan_sequences}}, \code{link{convert_motifs}} 
+#' @seealso [scan_sequences()], [convert_motifs()] 
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0.01, threshold.type = "logodds",

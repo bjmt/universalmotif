@@ -1,9 +1,9 @@
 #' Import HOMER motifs.
 #'
-#' Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
+#' Import HOMER formatted motifs. See <http://homer.ucsd.edu/homer/motif/>.
 #' Assumed to be DNA motifs.
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects.
+#' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
 #' homer <- read_homer(system.file("extdata", "homer.txt",

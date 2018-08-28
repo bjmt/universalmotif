@@ -8,48 +8,49 @@ add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
   threshold = 0.01, threshold.type = "logodds", motifs.perseq = 1)
 }
 \arguments{
-\item{motif}{See \code{\link{convert_motifs}} for acceptable formats. If the
+\item{motif}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats. If the
 motif is not a \linkS4class{universalmotif} motif, then it will be
 converted.}
 
-\item{sequences}{\code{XStringSet} The alphabet must match that of the motif. If
+\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} The alphabet must match
+that of the motif. If
 these sequences are all the same length as the motif, then they are all
 used to generate the multi-freq matrices. Otherwise
-\code{\link{scan_sequences}} is first run to find the right sequence.}
+\code{\link[=scan_sequences]{scan_sequences()}} is first run to find the right sequence.}
 
 \item{add.k}{\code{numeric(1)} The k-let lengths to add.}
 
-\item{RC}{\code{logical(1)} See \code{link{scan_sequences}}.}
+\item{RC}{\code{logical(1)} See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{threshold}{\code{numeric(1)} See \code{\link{scan_sequences}}.}
+\item{threshold}{\code{numeric(1)} See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{threshold.type}{\code{character(1)} See \code{link{scan_sequences}}.}
+\item{threshold.type}{\code{character(1)} See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{motifs.perseq}{\code{numeric(1)} If \code{\link{scan_sequences}} is run, 
+\item{motifs.perseq}{\code{numeric(1)} If \code{\link[=scan_sequences]{scan_sequences()}} is run,
 then this indicates how many hits from each sequence is to be used.}
 }
 \value{
-A \linkS4class{universalmotif} object with filled 'multifreq' slot.
+A \linkS4class{universalmotif} object with filled \code{multifreq} slot.
 }
 \description{
 If the original sequences are available for a particular motif, then they
 can be used to generate higher-order PPM matrices.
 }
 \details{
-At each position in the motif, then the probability of each k-let 
-   covering from the initial position to k - 1 is calculated. Only
-   positions within the motif are considered; this means that the
-   final k-let probability matrix will have k - 1 fewer columns.
-   Calculating k-let probabilities for the missing columns would be
-   trivial however, as you would only need the background frequencies.
-   Since these would not be useful for \code{\link{scan_sequences}}
-   though, they are not calculated.
+At each position in the motif, then the probability of each k-let
+covering from the initial position to k - 1 is calculated. Only
+positions within the motif are considered; this means that the
+final k-let probability matrix will have k - 1 fewer columns.
+Calculating k-let probabilities for the missing columns would be
+trivial however, as you would only need the background frequencies.
+Since these would not be useful for \code{\link[=scan_sequences]{scan_sequences()}}
+though, they are not calculated.
 
-   Note: the number of rows for each k-let matrix is n^k, with n being the
-   number of letters in the alphabet being used. This means that the size
-   of the k-let matrix can become quite large as k increases. For example,
-   if one were to wish to represent a DNA motif of length 10 as a 10-let,
-   this would require a matrix with 1,048,576 rows.
+Note: the number of rows for each k-let matrix is n^k, with n being the
+number of letters in the alphabet being used. This means that the size
+of the k-let matrix can become quite large as k increases. For example,
+if one were to wish to represent a DNA motif of length 10 as a 10-let,
+this would require a matrix with 1,048,576 rows.
 }
 \examples{
 sequences <- create_sequences(seqlen = 10)
@@ -60,7 +61,7 @@ motif.trained["multifreq"]$`2`
 
 }
 \seealso{
-\code{\link{scan_sequences}}, \code{link{convert_motifs}}
+\code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=convert_motifs]{convert_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

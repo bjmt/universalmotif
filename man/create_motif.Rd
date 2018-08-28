@@ -51,7 +51,7 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
 }
 \arguments{
 \item{input}{\code{character}, \code{numberic}, \code{matrix},
-\linkS4class{XStringSet}, \code{missing}}
+\link[Biostrings:XStringSet-class]{Biostrings::XStringSet}, or \code{missing}}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
 or a combined string representing the letters.}
@@ -76,7 +76,7 @@ length.}
 
 \item{bkgsites}{\code{numeric(1)} Total number of sites used to find the motif.}
 
-\item{strand}{|code{character(1)} Whether the motif is specific to a certain strand.}
+\item{strand}{\code{character(1)} Whether the motif is specific to a certain strand.}
 
 \item{pval}{\code{numeric(1)} P-value associated with motif.}
 
@@ -88,7 +88,7 @@ length.}
 a named character vector.}
 
 \item{add.multifreq}{\code{numeric(1)} If the motif is created from a set of
-sequences, then the \code{\link{add_multifreq}} function can be
+sequences, then the \code{\link[=add_multifreq]{add_multifreq()}} function can be
 run at the same type.}
 }
 \value{
@@ -100,9 +100,9 @@ motif.
 }
 \details{
 The aim of this function is provide an easy interface to creating
-   \linkS4class{universalmotif} motifs, as an alternative to the
-   default class constructor (i.e. \code{new('universalmotif', name=...)}).
-   See examples for potential use cases.
+\linkS4class{universalmotif} motifs, as an alternative to the
+default class constructor (i.e. \code{new('universalmotif', name=...)}).
+See examples for potential use cases.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -239,8 +239,8 @@ DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 
 }
 \seealso{
-\code{\link{convert_type}}, \code{\link{add_multifreq}},
-\code{\link{create_sequences}}, \code{\link{shuffle_motifs}}.
+\code{\link[=convert_type]{convert_type()}}, \code{\link[=add_multifreq]{add_multifreq()}},
+\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_motifs]{shuffle_motifs()}}.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -4,22 +4,20 @@
 #' (PPM), position weight matrix (PWM), and information count matrix (ICM)
 #' types.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
-#' @param pseudocount \code{numeric(1)} Correction to be applied to prevent \code{-Inf}
-#'                    from apearing in PWM matrices. If missing,
-#'                    the pseudocount stored in the
-#'                    \linkS4class{universalmotif} 'pseudocount' slot will be
-#'                    used, which defaults to 0.8 (the suggested value from
-#'                    \insertCite{pseudo;textual}{universalmotif}).
-#' @param nsize_correction \code{logical(1)} If true, the ICM
-#'                          at each position will be corrected to account
-#'                          for small sample sizes. Only used if 
-#'                          \code{relative_entropy = FALSE}.
-#' @param relative_entropy \code{logical(1)} If true, the ICM will be
-#'                         calculated as relative entropy. See details.
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
+#' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
+#'   from apearing in PWM matrices. If missing, the pseudocount stored in the
+#'   \linkS4class{universalmotif} 'pseudocount' slot will be
+#'   used, which defaults to 0.8 (the suggested value from
+#'   \insertCite{pseudo;textual}{universalmotif}).
+#' @param nsize_correction `logical(1)` If true, the ICM
+#'   at each position will be corrected to account
+#'   for small sample sizes. Only used if `relative_entropy = FALSE`.
+#' @param relative_entropy `logical(1)` If true, the ICM will be
+#'   calculated as relative entropy. See details.
 #'
-#' @return \linkS4class{universalmotif} objects.
+#' @return See [convert_motifs()] for possible output motif objects.
 #'
 #' @details
 #'    Position count matrix (PCM), also known as position frequency matrix
@@ -32,34 +30,33 @@
 #'    Position probability matrix (PPM), also known as position frequency
 #'    matrix (PFM). At each position, the probability of individual letters
 #'    is calculated by dividing the count for that letter by the total sum of
-#'    counts at that position (\code{letter_count / position_total}). 
+#'    counts at that position (`letter_count / position_total`). 
 #'    As a result, each position will sum to 1. Letters with counts of 0 will
 #'    thus have a probability of 0, which can be undesirable when searching for
 #'    motifs in a set of sequences. To avoid this a pseudocount can be added 
-#'    (\code{(letter_count + pseudocount) / (position_total + pseudocount)}).
+#'    (`(letter_count + pseudocount) / (position_total + pseudocount)`).
 #'
 #'    Position weight matrix (PWM; \insertCite{pwm;textual}{universalmotif}),
 #'    also known as position-specific weight
 #'    matrix (PSWM), position-specific scoring matrix (PSSM), or
 #'    log-odds matrix. At each position, each letter is represented by it's
-#'    log-likelihood (\code{log2(letter_probability / background_probility)}),
+#'    log-likelihood (`log2(letter_probability / background_probility)`),
 #'    which is normalized using the background letter frequencies. A PWM matrix
 #'    is constructed from a PPM; if any position has 0-probability letters to
 #'    which pseudocounts were not added, then the final log-likelihodd of these
-#'    letters will be \code{-Inf}.
+#'    letters will be `-Inf`.
 #'
 #'    Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).
 #'    An ICM is a PPM where each letter probability is multiplied by the total
 #'    information content at that position. The information content of each
-#'    position is determined as: \code{totalIC - Hi}, where the total information
+#'    position is determined as: `totalIC - Hi`, where the total information
 #'    totalIC
 #'    
-#'    \code{totalIC <- log2(alphabet_length)}, and the Shannon entropy 
+#'    `totalIC <- log2(alphabet_length)`, and the Shannon entropy 
 #'    \insertCite{shannon}{universalmotif} for a specific 
 #'    position (Hi)
 #'
-#'    \code{Hi <- -sum(sapply(alphabet_frequencies,
-#'                            function(x) x * log(2))}.
+#'    `Hi <- -sum(sapply(alphabet_frequencies, function(x) x * log(2))`.
 #'
 #'    As a result, the total sum or height of each position is representative of
 #'    it's sequence conservation, measured in the unit 'bits', which is a unit
@@ -69,9 +66,9 @@
 #'    information content the same; some will 'correct' the total information
 #'    content at each position using a correction factor as described by
 #'    \insertCite{correction;textual}{universalmotif}. This correction can
-#'    applied by setting \code{nsize_correction = TRUE}, however it will only
+#'    applied by setting `nsize_correction = TRUE`, however it will only
 #'    be applied if the 'nsites' slot is not empty. This is done using
-#'    \code{TFBSTools:::schneider_correction}
+#'    `TFBSTools:::schneider_correction`
 #'    \insertCite{tfbstools}{universalmotif}. As such, converting from an ICM to
 #'    which some form of correction has been applied will result in a
 #'    PCM/PPM/PWM with slight inaccuracies.
@@ -82,9 +79,9 @@
 #'    frequencies, which
 #'    can be useful for genomes with a heavy imbalance in letter frequencies.
 #'    For each position, the individual letter frequencies are calculated as
-#'    \code{letter_freq * log2(letter_freq / bkg_freq)}. When calculating 
+#'    `letter_freq * log2(letter_freq / bkg_freq)`. When calculating 
 #'    information content using Shannon entropy, the maximum content for
-#'    each position will always be \code{log2(alphabet_length)}; this does
+#'    each position will always be `log2(alphabet_length)`; this does
 #'    not hold for information content calculated as relative entropy.
 #'    Please note that conversion from ICM assumes the information content
 #'    was _not_ calculated as relative entropy.
@@ -118,7 +115,7 @@
 #'    \insertRef{tfbstools}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{convert_motifs}}
+#' @seealso [convert_motifs()]
 #' @export
 convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 
                          relative_entropy = FALSE) {

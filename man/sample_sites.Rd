@@ -7,7 +7,7 @@
 sample_sites(motif, n = 100, use.freq = 1)
 }
 \arguments{
-\item{motif}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motif}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{n}{\code{numeric(1)} Number of sites to generate.}
 
@@ -15,7 +15,7 @@ sample_sites(motif, n = 100, use.freq = 1)
 use respective \code{multifreq} matrix.}
 }
 \value{
-\linkS4class{XStringSet} object.
+\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} object.
 }
 \description{
 Given probabilities for a sequence as represented by a motif, generate
@@ -27,8 +27,7 @@ sites <- sample_sites(motif)
 
 }
 \seealso{
-\code{\link{create_sequences}}, \code{\link{create_motif}},
-   \code{\link{add_multifreq}}
+\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=create_motif]{create_motif()}}, \code{\link[=add_multifreq]{add_multifreq()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

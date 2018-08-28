@@ -64,7 +64,7 @@ convert_motifs(motifs, class = "universalmotif-universalmotif")
   class = "universalmotif-universalmotif")
 }
 \arguments{
-\item{motifs}{Single motif object or list.}
+\item{motifs}{Single motif object or list. See details.}
 
 \item{class}{\code{character(1)} Desired motif class. Input as
 'package-class'. If left empty, defaults to
@@ -81,39 +81,39 @@ class can be used without needed to convert beforehand.
 }
 \details{
 The following packge-class combinations can be used as input:
-   \itemize{
-      \item MotifDb-MotifList
-      \item TFBSTools-PFMatrix
-      \item TFBSTools-PWMatrix
-      \item TFBSTools-ICMatrix
-      \item TFBSTools-PFMatrixList
-      \item TFBSTools-PWMatrixList
-      \item TFBSTools-ICMatrixList
-      \item TFBSTools-TFFMFirst
-      \item seqLogo-pwm
-      \item motifStack-pcm
-      \item motifStack-pfm
-      \item PWMEnrich-PWM
-      \item motifRG-Motif
-      \item universalmotif-universalmotif
-      \item matrix
-   }
+\itemize{
+\item MotifDb-MotifList
+\item TFBSTools-PFMatrix
+\item TFBSTools-PWMatrix
+\item TFBSTools-ICMatrix
+\item TFBSTools-PFMatrixList
+\item TFBSTools-PWMatrixList
+\item TFBSTools-ICMatrixList
+\item TFBSTools-TFFMFirst
+\item seqLogo-pwm
+\item motifStack-pcm
+\item motifStack-pfm
+\item PWMEnrich-PWM
+\item motifRG-Motif
+\item universalmotif-universalmotif
+\item matrix
+}
 
-   The following package-class combinations can be output:
-   \itemize{
-      \item MotIV-pwm2
-      \item TFBSTools-PFMatrix
-      \item TFBSTools-PWMatrix
-      \item TFBSTools-ICMatrix
-      \item TFBSTools-TFFMFirst
-      \item seqLogo-pwm
-      \item motifStack-pcm
-      \item motifStack-pfm
-      \item PWMEnrich-PWM
-      \item Biostrings-PWM (\code{type = 'log2prob'})
-      \item rGADEM-motif
-      \item universalmotif-universalmotif
-   }
+The following package-class combinations can be output:
+\itemize{
+\item MotIV-pwm2
+\item TFBSTools-PFMatrix
+\item TFBSTools-PWMatrix
+\item TFBSTools-ICMatrix
+\item TFBSTools-TFFMFirst
+\item seqLogo-pwm
+\item motifStack-pcm
+\item motifStack-pfm
+\item PWMEnrich-PWM
+\item Biostrings-PWM (\code{type = 'log2prob'})
+\item rGADEM-motif
+\item universalmotif-universalmotif
+}
 }
 \section{Methods (by class)}{
 \itemize{
@@ -174,21 +174,21 @@ MA0003.2.trimmed <- trim_motifs(MA0003.2)
 \references{
 \insertRef{seqlogo}{universalmotif}
 
-   \insertRef{rgadem}{universalmotif}
+\insertRef{rgadem}{universalmotif}
 
-   \insertRef{motiv}{universalmotif}
+\insertRef{motiv}{universalmotif}
 
-   \insertRef{motifstack}{universalmotif}
+\insertRef{motifstack}{universalmotif}
 
-   \insertRef{biostrings}{universalmotif}
+\insertRef{biostrings}{universalmotif}
 
-   \insertRef{motifdb}{universalmotif}
+\insertRef{motifdb}{universalmotif}
 
-   \insertRef{pwmenrich}{universalmotif}
+\insertRef{pwmenrich}{universalmotif}
 
-   \insertRef{tfbstools}{universalmotif}
+\insertRef{tfbstools}{universalmotif}
 
-   \insertRef{motifrg}{universalmotif}
+\insertRef{motifrg}{universalmotif}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

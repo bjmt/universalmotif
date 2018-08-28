@@ -8,21 +8,21 @@ motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
   progress = TRUE, BP = FALSE)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
 \item{score}{\code{numeric} Get a p-value for a motif from a logodds score.}
 
-\item{pvalue}{\code{numeric} Get a logodds score for a motif from a 
+\item{pvalue}{\code{numeric} Get a logodds score for a motif from a
 p-value.}
 
-\item{bkg.probs}{\code{numeric, list} If supplying individual background
+\item{bkg.probs}{\code{numeric}, \code{list} If supplying individual background
 probabilities for each motif, a list. If missing, assumes a uniform
 background. Currently does not supported if \code{use.freq > 1}.}
 
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
 otherwise uses the corresponding \code{multifreq} matrix.}
 
-\item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after 
+\item{k}{\code{numeric(1)c} For speed, scores/p-values can be approximated after
 subsetting the motif every \code{k} columns. If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
 are exact.}

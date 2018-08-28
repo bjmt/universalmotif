@@ -11,7 +11,7 @@ compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   progress = TRUE, BP = FALSE)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
 \item{compare.to}{\code{numeric} If missing, compares all motifs to all other motifs.
 Otherwise compares all motifs to the specified motif(s).}
@@ -20,12 +20,9 @@ Otherwise compares all motifs to the specified motif(s).}
 
 \item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 
-\item{use.type}{\code{character(1)} One of code{'PPM'} and \code{'ICM'}.
-The latter allows for taking into account the background
-frequencies if \code{relative_entropy = TRUE}.}
+\item{use.type}{\code{character(1) One of}'PPM'\code{and}'ICM'\code{. The latter allows for taking into account the background frequencies if}relative_entropy = TRUE`.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-'SW', 'MSW', 'KL', 'MKL')}. See details.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See details.}
 
 \item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -40,7 +37,7 @@ two motifs for an alignment to be scored. This helps prevent scoring
 alignments between low information content regions of two motifs.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link{convert_type}}.}
+\code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions, as well as alignments between motifs of similar length.
@@ -61,16 +58,16 @@ by the number of input motifs times two.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
- \itemize{
-   \item PCC: 0 represents complete distance, >0 similarity.
-   \item MPCC: 0 represents complete distance, 1 complete similarity.
-   \item EUCL: 0 represents complete similarity, >0 distance.
-   \item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-   \item SW: 0 represents complete distance, >0 similarity.
-   \item MSW: 0 represents complete distance, 2 complete similarity.
-   \item KL: 0 represents complete similarity, >0 distance.
-   \item MKL: 0 represents complete similarity, 4.62 complete distance.
- }
+\itemize{
+\item PCC: 0 represents complete distance, >0 similarity.
+\item MPCC: 0 represents complete distance, 1 complete similarity.
+\item EUCL: 0 represents complete similarity, >0 distance.
+\item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
+\item SW: 0 represents complete distance, >0 similarity.
+\item MSW: 0 represents complete distance, 2 complete similarity.
+\item KL: 0 represents complete similarity, >0 distance.
+\item MKL: 0 represents complete similarity, 4.62 complete distance.
+}
 }
 \description{
 Compare motifs using four metrics: Pearson correlation coefficient,
@@ -85,16 +82,15 @@ a similarity metric, then the sum of scores will favour comparisons between
 longer motifs; and for distance metrics, the sum of scores will favour
 comparisons between short motifs. This can be avoided by using the 'mean' of
 scores.
-
 \itemize{
-  \item PCC: Pearson correlation coefficient
-  \item MPCC: Mean PCC
-  \item EUCL: Euclidian distance
-  \item MEUCL: Mean EUCL
-  \item SW: Sandelin-Wasserman similarity
-  \item MSW: Mean SW
-  \item KL: Kullback-Leibler divergence
-  \item MKL: Mean Kullback-Leibler divergence
+\item PCC: Pearson correlation coefficient
+\item MPCC: Mean PCC
+\item EUCL: Euclidian distance
+\item MEUCL: Mean EUCL
+\item SW: Sandelin-Wasserman similarity
+\item MSW: Mean SW
+\item KL: Kullback-Leibler divergence
+\item MKL: Mean Kullback-Leibler divergence
 }
 
 To note regarding p-values: p-values are pre-computed using the
@@ -120,11 +116,11 @@ as.dist(1 - motif1vs2)
 \references{
 \insertRef{jaspar}{universalmotif}
 
-   \insertRef{tfbstools}{universalmotif}
+\insertRef{tfbstools}{universalmotif}
 }
 \seealso{
-\code{\link{convert_motifs}}, \code{\link[TFBSTools]{PWMSimilarity}},
-   \code{\link{motif_tree}}, \code{\link{view_motifs}}
+\code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[TFBSTools:PWMSimilarity]{TFBSTools::PWMSimilarity()}},
+\code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

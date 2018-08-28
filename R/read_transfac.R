@@ -1,10 +1,10 @@
 #' Import TRANSFAC motifs.
 #'
 #' Import TRANSFAC formatted motifs. Assumed to be DNA motifs, type PCM.
-#' See \code{system.file("extdata", "transfac.txt", pacakge="universalmotif")}
+#' See `system.file("extdata", "transfac.txt", pacakge="universalmotif")`
 #' for an example motif.
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects.
+#' @return `list` [universalmotif-class objects.
 #'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",

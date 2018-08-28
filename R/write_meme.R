@@ -2,16 +2,16 @@
 #'
 #' Convert motifs to minimal MEME format and write to file.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param file \code{character(1)} File name.
-#' @param version \code{numeric(1)} MEME version.
-#' @param bkg \code{numeric} Background letter frequencies. If missing, will use background
-#'            frequencies from motif objects (if they are identical); else
-#'            background frequencies will be set to freq = 1/length(alphabet)
-#' @param strand \code{character} If missing, will use strand from motif objects (if identical);
-#'               otherwise will default to "+ -"
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param file `character(1)` File name.
+#' @param version `numeric(1)` MEME version.
+#' @param bkg `numeric` Background letter frequencies. If missing, will use background
+#'   frequencies from motif objects (if they are identical); else
+#'   background frequencies will be set to freq = 1/length(alphabet)
+#' @param strand `character` If missing, will use strand from motif objects (if identical);
+#'   otherwise will default to "+ -"
 #'
-#' @return NULL, invisibly.
+#' @return `NULL`, invisibly.
 #'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
@@ -22,7 +22,7 @@
 #'    \insertRef{meme}{universalmotif}
 #'
 #' @family write_motifs
-#' @seealso \code{\link{read_meme}}
+#' @seealso [read_meme()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_meme <- function(motifs, file, version = 4, bkg, strand) {

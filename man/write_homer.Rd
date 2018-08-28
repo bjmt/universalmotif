@@ -7,12 +7,12 @@
 write_homer(motifs, file, logodds_threshold = 0.6)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
 
 \item{logodds_threshold}{\code{numeric} Stringency required for HOMER to match a motif.
-See \code{\link{scan_sequences}}.}
+See \code{\link[=scan_sequences]{scan_sequences()}}.}
 }
 \value{
 NULL, invisibly.
@@ -29,7 +29,7 @@ write_homer(motif, tempfile())
 \insertRef{homer}{universalmotif}
 }
 \seealso{
-\code{\link{read_homer}}
+\code{\link[=read_homer]{read_homer()}}
 
 Other write_motifs: \code{\link{write_jaspar}},
   \code{\link{write_matrix}}, \code{\link{write_meme}},

@@ -1,25 +1,25 @@
 #' Filter a list of \linkS4class{universalmotif} motifs.
 #'
-#' Filter motifs based on the contents of available \linkS4class{universalmotif}
+#' Filter motifs based on the contents of available [universalmotif-class]
 #' slots.
 #'
-#' @param motifs \code{list} See \code{\link{convert_motifs}} for acceptable
+#' @param motifs `list` See [convert_motifs()] for acceptable
 #'    formats.
-#' @param name \code{character} Keep motifs by names.
-#' @param altname \code{altname} Keep motifs by altnames.
-#' @param family \code{family} Keep motifs by family.
-#' @param organism \code{organism} Keep motifs by organism.
-#' @param width \code{numeric(1)} Keep motifs with minimum width.
-#' @param alphabet \code{character} Keep motifs by alphabet.
-#' @param type \code{character} Keep motifs by type.
-#' @param icscore \code{numeric(1)} Keep motifs with minimum total IC.
-#' @param nsites \code{numeric(1)} Keep motifs with minimum number of target sites.
-#' @param strand \code{character} Keeps motifs by strand.
-#' @param pval \code{numeric(1)} Keep motifs by max P-value.
-#' @param qval \code{numeric(1)} Keep motifs by max Q-value.
-#' @param eval \code{numeric(1)} Keep motifs by max E-val.
+#' @param name `character` Keep motifs by names.
+#' @param altname `altname` Keep motifs by altnames.
+#' @param family `family` Keep motifs by family.
+#' @param organism `organism` Keep motifs by organism.
+#' @param width `numeric(1)` Keep motifs with minimum width.
+#' @param alphabet `character` Keep motifs by alphabet.
+#' @param type `character` Keep motifs by type.
+#' @param icscore `numeric(1)` Keep motifs with minimum total IC.
+#' @param nsites `numeric(1)` Keep motifs with minimum number of target sites.
+#' @param strand `character` Keeps motifs by strand.
+#' @param pval `numeric(1)` Keep motifs by max P-value.
+#' @param qval `numeric(1)` Keep motifs by max Q-value.
+#' @param eval `numeric(1)` Keep motifs by max E-val.
 #'
-#' @return \code{list} Motifs.
+#' @return `list` Motifs.
 #'
 #' @examples
 #' ## By minimum IC:

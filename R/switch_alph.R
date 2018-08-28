@@ -2,7 +2,7 @@
 #'
 #' Convert a motif from DNA to RNA, or RNA to DNA.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
+#' @param motifs See [convert_motifs()] for acceptable formats.
 #'
 #' @return The DNA/RNA version of the motifs.
 #'
@@ -10,7 +10,7 @@
 #' DNA.motif <- create_motif()
 #' RNA.motif <- switch_alph(DNA.motif)
 #'
-#' @seealso \code{\link{create_motif}}
+#' @seealso [create_motif()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 switch_alph <- function(motifs) {

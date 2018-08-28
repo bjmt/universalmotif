@@ -2,43 +2,42 @@
 #'
 #' For more powerful motif tree functions, see the motifStack package.
 #'
-#' @param motifs \code{list}, \code{dist} See \code{\link{convert_motifs}} for
+#' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. 
-#' @param layout \code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular',
-#'    'radial', 'equal_angle', 'daylight')}.
-#' @param linecol \code{character(1)} \linkS4class{universalmotif} slot to use to
+#' @param layout `character(1)` One of `c('rectangular', 'slanted', 'fan', 'circular',
+#'    'radial', 'equal_angle', 'daylight')`.
+#' @param linecol `character(1)` [universalmotif-class] slot to use to
 #'    colour lines (e.g. 'family').
-#' @param labels \code{character(1)} \linkS4class{universalmotif} slot to use to label
+#' @param labels `character(1)` [universalmotif-class] slot to use to label
 #'    tips (e.g. 'name').
-#' @param tipsize \code{character(1)} \linkS4class{universalmotif} slot to use to
+#' @param tipsize `character(1)` [universalmotif-class] slot to use to
 #'    control tip size (e.g. 'icscore').
-#' @param legend \code{logical(1)} Show legend for line colour and tip size.
-#' @param branch.length \code{character(1)} If 'none', draw a cladogram.
-#' @param db.scores \code{data.frame} See \code{\link{compare_motifs}}.
-#' @param method \code{character(1)} One of \code{'Pearson', 'Euclidean', 'KL'}.
-#' @param use.type \code{character(1)} One of \code{'PCM'} (Pearson only),
-#'    \code{'PPM'} (any method), \code{'PWM'} (Pearson only), and \code{'ICM'}
-#'    (any method). The two allow for taking into account the background
-#'    frequencies (for ICM, only if \code{relative_entropy = TRUE}).
-#' @param min.overlap \code{numeric(1)} Minimum overlap required when aligning the
+#' @param legend `logical(1)` Show legend for line colour and tip size.
+#' @param branch.length `character(1)` If 'none', draw a cladogram.
+#' @param db.scores `data.frame` See [compare_motifs()].
+#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`.
+#' @param use.type `character(1)`c('PPM', 'ICM')`. The latter allows for taking
+#'    into account the background
+#'    frequencies (only if `relative_entropy = TRUE`).
+#' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
 #'    motifs. Setting this to a number higher then the width of the motifs
 #'    will not allow any overhangs. Can also be a number less than 1,
 #'    representing the minimum fraction that the motifs must overlap.
-#' @param tryRC \code{logical(1)} Try the reverse complement of the motifs as well,
+#' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
 #'    report the best score.
-#' @param min.mean.ic \code{numeric(1)} Minimum information content between the
+#' @param min.mean.ic `numeric(1)` Minimum information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
 #'    alignments between low information content regions of two motifs.
-#' @param relative_entropy \code{logical(1)} For ICM calculation. See
-#'    \code{\link{convert_type}}.
-#' @param progress \code{logical(1)} Show progress of \code{compare_motifs}.
-#' @param BP \code{logical(1)} Use BiocParallel in \code{compare_motifs}.
+#' @param relative_entropy `logical(1)` For ICM calculation. See
+#'    [convert_type()].
+#' @param progress `logical(1)` Show progress of [compare_motifs()].
+#' @param BP `logical(1)` Use BiocParallel in [compare_motifs()].
 #' @param ... \pkg{ggtree} params.
 #'
-#' @return \code{ggplot} object.
+#' @return [ggplot2::ggplot-class] object.
 #'
 #' @details
-#'    See \code{\link[ggtree]{ggtree}} for more detailed descriptions of
+#'    See [ggtree::ggtree()] for more detailed descriptions of
 #'    parameters.
 #'
 #' @examples
@@ -52,8 +51,8 @@
 #'
 #'    \insertRef{ggtree}{universalmotif}
 #'
-#' @seealso \code{\link[motifStack]{motifStack}}, \code{\link{compare_motifs}},
-#'    \code{\link[ggtree]{ggtree}}
+#' @seealso [motifStack::motifStack()], [compare_motifs()],
+#'    [ggtree::ggtree()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",

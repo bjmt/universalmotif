@@ -7,7 +7,7 @@
 write_meme(motifs, file, version = 4, bkg, strand)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
 
@@ -21,7 +21,7 @@ background frequencies will be set to freq = 1/length(alphabet)}
 otherwise will default to "+ -"}
 }
 \value{
-NULL, invisibly.
+\code{NULL}, invisibly.
 }
 \description{
 Convert motifs to minimal MEME format and write to file.
@@ -36,7 +36,7 @@ write_meme(transfac, tempfile())
 \insertRef{meme}{universalmotif}
 }
 \seealso{
-\code{\link{read_meme}}
+\code{\link[=read_meme]{read_meme()}}
 
 Other write_motifs: \code{\link{write_homer}},
   \code{\link{write_jaspar}}, \code{\link{write_matrix}},

@@ -13,7 +13,7 @@ read_transfac(file, skip = 0)
 file before starting to read.}
 }
 \value{
-\code{list} \linkS4class{universalmotif} objects.
+\code{list} [universalmotif-class objects.
 }
 \description{
 Import TRANSFAC formatted motifs. Assumed to be DNA motifs, type PCM.

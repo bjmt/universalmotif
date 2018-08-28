@@ -9,6 +9,6 @@
 JASPAR2018_CORE_DBSCORES
 }
 \description{
-For use with \code{\link{compare_motifs}}. Unormalised.
+For use with \code{\link[=compare_motifs]{compare_motifs()}}. Unormalised.
 }
 \keyword{datasets}

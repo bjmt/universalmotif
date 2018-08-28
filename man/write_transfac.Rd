@@ -7,12 +7,12 @@
 write_transfac(motifs, file)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
 }
 \value{
-NULL, invisibly.
+\code{NULL}, invisibly.
 }
 \description{
 Convert motifs to TRANSFAC format and write to file.
@@ -27,7 +27,7 @@ write_transfac(jaspar, tempfile())
 \insertRef{transfac}{universalmotif}
 }
 \seealso{
-\code{\link{read_transfac}}
+\code{\link[=read_transfac]{read_transfac()}}
 
 Other write_motifs: \code{\link{write_homer}},
   \code{\link{write_jaspar}}, \code{\link{write_matrix}},

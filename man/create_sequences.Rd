@@ -22,7 +22,7 @@ input.}
 \item{difreqs}{\code{numeric} Dinucleotide frequencies. DNA/RNA only. Must be a
 named numeric vector of length 16.}
 
-\item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a 
+\item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a
 named numeric vector of length 64.}
 
 \item{progress}{\code{logical(1)} Show progress.}
@@ -30,7 +30,7 @@ named numeric vector of length 64.}
 \item{BP}{\code{logical(1)} Use BiocParallel.}
 }
 \value{
-\linkS4class{XStringSet}
+\link[Biostrings:XStringSet-class]{Biostrings::XStringSet}
 }
 \description{
 Generate random sequences from any set of characters.
@@ -48,7 +48,7 @@ sequences.custom <- create_sequences("!@#$ ")
 \insertRef{biostrings}{universalmotif}
 }
 \seealso{
-\code{\link{create_motif}}, \code{\link{shuffle_sequences}}
+\code{\link[=create_motif]{create_motif()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

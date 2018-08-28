@@ -14,7 +14,7 @@
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
 #' @importFrom stats rpois
-#' @importFrom utils read.table setTxtProgressBar txtProgressBar menu
+#' @importFrom utils read.table menu
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD
@@ -23,8 +23,6 @@
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
 #' @importFrom Biostrings reverseComplement
 #' @importFrom ape as.phylo
-#' @importFrom TFBSTools PFMatrix toPWM toICM
-#' @importFrom TFBSTools TFFMFirst getPosProb
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom Rcpp sourceCpp

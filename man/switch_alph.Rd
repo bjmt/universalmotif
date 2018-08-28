@@ -7,7 +7,7 @@
 switch_alph(motifs)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 }
 \value{
 The DNA/RNA version of the motifs.
@@ -21,7 +21,7 @@ RNA.motif <- switch_alph(DNA.motif)
 
 }
 \seealso{
-\code{\link{create_motif}}
+\code{\link[=create_motif]{create_motif()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

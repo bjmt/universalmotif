@@ -9,7 +9,7 @@ view_motifs(motifs, use.type = "ICM", method = "MPCC", tryRC = TRUE,
   normalise.scores = FALSE, ...)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
 \item{use.type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
@@ -27,25 +27,25 @@ two motifs for an alignment to be scored. This helps prevent scoring
 alignments between low information content regions of two motifs.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link{convert_type}}.}
+\code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions.}
 
-\item{...}{Addtional options for \code{\link[ggseqlogo]{geom_logo}}.}
+\item{...}{Addtional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }
 \value{
-A \code{ggplot} object.
+A \link[ggplot2:ggplot-class]{ggplot2::ggplot} object.
 }
 \description{
 Show sequence logo. If given a list of more than one motif, then the motifs
 are aligned with the first in the list.
 }
 \details{
-Since the \code{\link[ggseqlogo]{ggseqlogo}} package can only plot individual
+Since the \pkg{ggseqlogo} package can only plot individual
 characters and not strings, plotting the \code{multifreq} slot is not
 supported. See the \code{examples} section for plotting the \code{multifreq}
-slot using the 'Logolas' package.
+slot using the \pkg{Logolas} package.
 }
 \examples{
 ## plotting multifreq motifs:
@@ -63,7 +63,7 @@ if (requireNamespace("Logolas", quietly = TRUE)) {
 \insertRef{ggseqlogo}{universalmotif}
 }
 \seealso{
-\code{\link{compare_motifs}}
+\code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

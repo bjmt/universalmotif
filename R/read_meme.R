@@ -1,19 +1,17 @@
 #' Import MEME motifs.
 #'
 #' Import MEME formatted motifs, as well as original motif sequences. See
-#' \url{http://meme-suite.org/}. Both 'full' and 'minimal' formats are
+#' <http://meme-suite.org/>. Both 'full' and 'minimal' formats are
 #' supported.
 #'
-#' @param file \code{character(1)} File name.
-#' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
+#' @param file `character(1)` File name.
+#' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
 #'    file before starting to read.
-#' @param readsites \code{logical(1)} If \code{TRUE}, the motif sites will be read
-#'                  as well.
+#' @param readsites `logical(1)` If `TRUE`, the motif sites will be read as well.
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects. If
-#'    \code{readsites = TRUE}, a list
-#'         comprising of a sub-list of motif objects and a sub-list of 
-#'         motif sites will be returned.
+#' @return `list` [universalmotif-class] objects. If `readsites = TRUE`, a list
+#'    comprising of a sub-list of motif objects and a sub-list of 
+#'    motif sites will be returned.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",

@@ -7,13 +7,13 @@
 trim_motifs(motifs, min.ic = 0.25)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{min.ic}{\code{numeric(1)} Minimum allowed information content.}
 }
 \value{
-Motifs See \code{\link{convert_motifs}} for available output
-   formats.
+Motifs See \code{\link[=convert_motifs]{convert_motifs()}} for available output
+formats.
 }
 \description{
 Remove edges of a motif with low information content.
@@ -25,7 +25,7 @@ jaspar.trimmed <- trim_motifs(jaspar)
 
 }
 \seealso{
-\code{\link{create_motif}}
+\code{\link[=create_motif]{create_motif()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

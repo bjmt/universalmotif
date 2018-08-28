@@ -2,10 +2,10 @@
 #'
 #' Convert motifs to JASPAR format and write to file.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats.
-#' @param file \code{character(1)} File name.
+#' @param motifs See [convert_motifs()] for acceptable formats.
+#' @param file `character(1)` File name.
 #'
-#' @return NULL, invisibly.
+#' @return `NULL`, invisibly.
 #'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
@@ -16,7 +16,7 @@
 #'    \insertRef{jaspar}{universalmotif}
 #'
 #' @family write_motifs
-#' @seealso \code{\link{read_jaspar}}
+#' @seealso [read_jaspar()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_jaspar <- function(motifs, file) {

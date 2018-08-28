@@ -2,21 +2,21 @@
 #'
 #' Import motifs formatted simply, as matrices.
 #'
-#' @param file \code{character(1)} File name.
-#' @param skip \code{numeric(1)} If not zero, will skip however many desired lines in the
+#' @param file `character(1)` File name.
+#' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
 #'    file before starting to read.
-#' @param positions \code{character(1)} One of \code{c('columns', 'rows')}.
+#' @param positions `character(1)` One of `c('columns', 'rows')`.
 #'    Indicate whether each
 #'    position within a motif is represented as a row or a column in the file.
-#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
 #'    or a string of letters.
-#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #'    If missing will try and guess which one.
-#' @param sep \code{character(1)} Indicates how individual motifs are seperated.
-#' @param headers \code{logical(1)}, \code{character(1)} Indicating if and how to read names. 
-#' @param rownames \code{logical(1)} Are there alphabet letters present as rownames?
+#' @param sep `character(1)` Indicates how individual motifs are seperated.
+#' @param headers `logical(1)`, \code{character(1)} Indicating if and how to read names. 
+#' @param rownames `logical(1)` Are there alphabet letters present as rownames?
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects.
+#' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
 #'    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")

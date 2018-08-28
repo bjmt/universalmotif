@@ -3,44 +3,45 @@
 #' For sequences of any alphabet, scan them using the PWM matrices of
 #' a set of input motifs.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
-#' @param sequences \code{XStringSet} Sequences to scan. Alphabet should
+#' @param motifs See `convert_motifs()` for acceptable motif formats.
+#' @param sequences [Biostrings::XStringSet-class] Sequences to scan. Alphabet should
 #'    match motif.
-#' @param threshold \code{numeric(1)} Between 0 and 1. See details.
-#' @param threshold.type \code{character(1)} One of \code{c('logodds', 'pvalue')}.
+#' @param threshold `numeric(1)` Between 0 and 1. See details.
+#' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`.
 #'    See details.
-#' @param RC \code{logical(1)} If \code{TRUE}, check reverse complement of input
+#' @param RC `logical(1)` If `TRUE`, check reverse complement of input
 #'    sequences.
-#' @param use.freq \code{numeric(1)} The default, 1, uses the motif matrix (from
-#'    the \code{motif["motif"]} slot) to search for sequences. If a higher
+#' @param use.freq `numeric(1)` The default, 1, uses the motif matrix (from
+#'    the `motif["motif"]` slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
-#'    \code{motif["multifreq"]} slot is used. See \code{\link{add_multifreq}}.
-#' @param verbose \code{numeric(1)} Describe progress, from none (0) to very
+#'    `motif["multifreq"]` slot is used. See [add_multifreq()].
+#' @param verbose `numeric(1)` Describe progress, from none (0) to very
 #'    verbose (3).
-#' @param progress \code{logical(1)} Show progress.
-#' @param BP \code{logical(1)} Use BiocParallel.
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Use BiocParallel.
 #'
-#' @return \code{data.frame} with each row representing one hit; if the input
-#'    sequences are \code{DNAStringSet} or \code{RNAStringSet}, then an
+#' @return `data.frame` with each row representing one hit; if the input
+#'    sequences are [Biostrings::DNAStringSet-class or
+#'    [Biostrings::RNAStringSet-class], then an
 #'    additional column with the strand is included.
 #'
 #' @details
-#'    Similar to \code{\link[Biostrings]{matchPWM}}, the scanning method uses
+#'    Similar to [Biostrings::matchPWM()], the scanning method uses
 #'    logodds scoring. (To see the scoring matrix for any motif, simply
-#'    run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
-#'    matrix: \code{apply(motif["multifreq"]$`2`, 2, ppm_to_pwm)}). In order
+#'    run `convert_type(motif, "PWM")`; for a `multifreq` scoring
+#'    matrix: `apply(motif["multifreq"]$`2`, 2, ppm_to_pwm)`). In order
 #'    to score a sequence, at each position within a sequence of length equal
 #'    to the length of the motif, the scores for each base are summed. If the
 #'    score sum is above the desired threshold, it is kept.
 #'
-#'    If \code{threshold.type = 'logodds'}, then to calculate the minimum
+#'    If `threshold.type = 'logodds'`, then to calculate the minimum
 #'    allowed score the maximum possible score for a motif is multiplied
-#'    by the value set by \code{threshold}. To determine the maximum
+#'    by the value set by `threshold`. To determine the maximum
 #'    possible score a motif (of type PWM), run
-#'    \code{sum(apply(motif['motif'], 2, max))}.
+#'    `sum(apply(motif['motif'], 2, max))`.
 #'
 #'    If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
-#'    generated using \code{\link{motif_pvalue}}.
+#'    generated using [motif_pvalue()].
 #'
 #'    Note: memory usage increases exponentially with k.
 #'
@@ -58,8 +59,8 @@
 #'    \insertRef{biostrings}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso \code{\link{add_multifreq}}, \code{\link[Biostrings]{matchPWM}},
-#'    \code{\link{enrich_motifs}}, \code{\link{motif_pvalue}}
+#' @seealso [add_multifreq()], [Biostrings::matchPWM()],
+#'    [enrich_motifs()], [motif_pvalue()]
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                             threshold.type = "pvalue", RC = FALSE,
@@ -162,7 +163,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (threshold.type == "logodds") {
     thresholds <- max.scores * threshold
   } else if (threshold.type == "pvalue") {
-    if (verbose > 0 || progress) cat(" * Converting P-values to logodds thresholds\n")
+    if (progress && !BP)
+      cat(" * Converting P-values to logodds thresholds ...")
+    else if ((progress && BP) || verbose > 0)
+      cat(" * Converting P-values to logodds thresholds\n")
     thresholds <- vector("numeric", length(motifs))
     thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                                k = 5, progress = progress, BP = BP)
@@ -186,7 +190,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   seqs.aschar <- as.character(sequences)
-  if (progress || verbose > 1) cat("   * Splitting up sequences\n")
+  if (progress && !BP) cat("   * Splitting up sequences ...")
+  else if ((progress && BP) || verbose > 1) cat("   * Splitting up sequences\n")
   seqs.aschar <- lapply_(seqs.aschar, function(x) strsplit(x, "")[[1]],
                          BP = BP, PB = progress)
 
@@ -194,7 +199,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   seq.matrices <- lapply(seq.lens, function(x) matrix(ncol = x - use.freq + 1,
                                                       nrow = use.freq))
 
-  if (progress || verbose > 1) cat("   * Creating sequence matrices\n")
+  if ((progress && BP) || verbose > 1) cat("   * Creating sequence matrices\n")
+  else if (progress && !BP) cat("   * Creating sequence matrices ...")
   seq.matrices <- mapply_(.process_seqs, seq.matrices, seqs.aschar, BP = BP,
                            MoreArgs = list(k = use.freq), SIMPLIFY = FALSE,
                            PB = progress)
@@ -216,23 +222,27 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   alph.int <- as.integer(seq_len(length(mot.alphs)))
 
-  if (progress || verbose > 1) cat("   * Converting sequences to factors\n")
+  if (progress && !BP) cat("   * Converting sequences to factors ...")
+  else if ((progress && BP) || verbose > 1) cat("   * Converting sequences to factors\n")
   seq.matrices <- lapply_(seq.matrices,
                            function(x) string_to_factor(x, mot.alphs),
                            BP = BP, PB = progress)
 
-  if (progress || verbose > 1) cat("   * Converting sequences to integers\n")
+  if (progress && !BP) cat("   * Converting sequences to integers ...")
+  else if ((progress && BP) || verbose > 1) cat("   * Converting sequences to integers\n")
   seq.ints <- lapply_(seq.matrices,
                        function(x) LETTER_to_int(as.integer(x) - 1,
                                                  use.freq, alph.int),
                       BP = BP, PB = progress)
 
-  if (verbose > 0 || progress) cat(" * Scanning sequences for motifs\n")
+  if (progress && !RC && !BP) cat(" * Scanning sequences for motifs ...")
+  else if ((progress && RC) || verbose > 0) cat(" * Scanning sequences for motifs\n")
 
   score.mats <- lapply(score.mats, numeric_to_integer_matrix)
   thresholds.int <- as.integer(thresholds * 1000)
 
-  if (RC && (verbose > 0 || progress)) cat("   * Forward strand\n")
+  if (RC && progress && !BP) cat("   * Forward strand ...")
+  else if (RC && verbose > 0) cat("   * Forward strand\n")
   to.keep <- lapply_(seq_along(score.mats),
                       function(x) .score_motif(seq.ints, score.mats[[x]],
                                                thresholds.int[x]),
@@ -249,7 +259,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     score.mats.rc <- lapply(score.mats,
                             function(x) matrix(rev(as.numeric(x)),
                                                ncol = ncol(x)))
-    if (verbose > 0) cat("   * Reverse strand\n")
+    if (progress && !BP) cat("   * Reverse strand ...")
+    else if ((progress && BP) || verbose > 0) cat("   * Reverse strand\n")
     to.keep.rc <- lapply_(seq_along(score.mats.rc),
                            function(x) .score_motif(seq.ints, score.mats.rc[[x]],
                                                     thresholds.int[x]),
@@ -263,9 +274,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     }
   }
 
-  if (verbose > 0 || progress) cat(" * Processing results\n")
+  if (progress && !RC && !BP) cat(" * Processing results ...")
+  else if ((progress && RC) || verbose > 0) cat(" * Processing results\n")
 
-  if (RC && (verbose > 0 || progress)) cat("   * Forward strand\n")
+  if (RC && progress && !BP) cat("   * Forward strand ...")
+  else if (RC && verbose > 0) cat("   * Forward strand\n")
 
   if (progress) print_pb(0)
   res <- vector("list", length(to.keep))
@@ -279,7 +292,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   if (RC) {
-    if (verbose > 0 || progress) cat("   * Reverse strand\n")
+    if (progress && !BP) cat("   * Reverse strand ...")
+    else if (verbose > 0 || progress) cat("   * Reverse strand\n")
 
     if (progress) print_pb(0)
     res.rc <- vector("list", length(to.keep.rc))
@@ -299,7 +313,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   res <- res_list_to_df_cpp(res)
 
   if (nrow(res) == 0) {
-    message("no matches found")
+    message(" ! No matches to motifs found")
     return(invisible(NULL))
   }
 

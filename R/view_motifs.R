@@ -3,30 +3,30 @@
 #' Show sequence logo. If given a list of more than one motif, then the motifs
 #' are aligned with the first in the list.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable motif formats.
-#' @param use.type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
-#' @param method \code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.
-#' @param tryRC \code{logical(1)} Check if motif reverse complement leads to a
+#' @param motifs See [convert_motifs()] for acceptable motif formats.
+#' @param use.type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
+#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`.
+#' @param tryRC `logical(1)` Check if motif reverse complement leads to a
 #'    better alignment.
-#' @param min.overlap \code{numeric(1)} Minimum alignment overlap between
-#'    motifs. If \code{min.overlap < 1}, this represents the minimum fraction
+#' @param min.overlap `numeric(1)` Minimum alignment overlap between
+#'    motifs. If `min.overlap < 1`, this represents the minimum fraction
 #'    between the two motifs during alignment.
-#' @param min.mean.ic \code{numeric(1)} Minimum information content between the
+#' @param min.mean.ic `numeric(1)` Minimum information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
 #'    alignments between low information content regions of two motifs.
-#' @param relative_entropy \code{logical(1)} For ICM calculation. See
-#'    \code{\link{convert_type}}.
-#' @param normalise.scores \code{logical(1)} Favour alignments which leave fewer
+#' @param relative_entropy `logical(1)` For ICM calculation. See
+#'    [convert_type()].
+#' @param normalise.scores `logical(1)` Favour alignments which leave fewer
 #'    unaligned positions.
-#' @param ... Addtional options for \code{\link[ggseqlogo]{geom_logo}}.
+#' @param ... Addtional options for [ggseqlogo::geom_logo()].
 #'
-#' @return A \code{ggplot} object.
+#' @return A [ggplot2::ggplot-class] object.
 #'
 #' @details
-#' Since the \code{\link[ggseqlogo]{ggseqlogo}} package can only plot individual
-#' characters and not strings, plotting the \code{multifreq} slot is not
-#' supported. See the \code{examples} section for plotting the \code{multifreq}
-#' slot using the 'Logolas' package.
+#' Since the \pkg{ggseqlogo} package can only plot individual
+#' characters and not strings, plotting the `multifreq` slot is not
+#' supported. See the `examples` section for plotting the `multifreq`
+#' slot using the \pkg{Logolas} package.
 #'
 #' @examples
 #' ## plotting multifreq motifs:
@@ -42,7 +42,7 @@
 #'
 #' \insertRef{ggseqlogo}{universalmotif}
 #'
-#' @seealso \code{\link{compare_motifs}}
+#' @seealso [compare_motifs()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",

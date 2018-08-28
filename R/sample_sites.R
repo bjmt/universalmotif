@@ -3,19 +3,18 @@
 #' Given probabilities for a sequence as represented by a motif, generate
 #' random sequences with the same length as the motif.
 #'
-#' @param motif See \code{\link{convert_motifs}} for acceptable formats.
-#' @param n \code{numeric(1)} Number of sites to generate.
-#' @param use.freq \code{numeric(1)} If one, use regular motif matrix. Otherwise,
-#'    use respective \code{multifreq} matrix.
+#' @param motif See [convert_motifs()] for acceptable formats.
+#' @param n `numeric(1)` Number of sites to generate.
+#' @param use.freq `numeric(1)` If one, use regular motif matrix. Otherwise,
+#'    use respective `multifreq` matrix.
 #'
-#' @return \linkS4class{XStringSet} object.
+#' @return [Biostrings::XStringSet-class] object.
 #'
 #' @examples
 #' motif <- create_motif()
 #' sites <- sample_sites(motif)
 #'
-#' @seealso \code{\link{create_sequences}}, \code{\link{create_motif}},
-#'    \code{\link{add_multifreq}}
+#' @seealso [create_sequences()], [create_motif()], [add_multifreq()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 sample_sites <- function(motif, n = 100, use.freq = 1) {

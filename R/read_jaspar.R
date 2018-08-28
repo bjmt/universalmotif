@@ -1,9 +1,9 @@
 #' Import JASPAR motifs.
 #'
-#' Import JASPAR formatted motifs. See \url{http://jaspar.genereg.net/}.
+#' Import JASPAR formatted motifs. See <http://jaspar.genereg.net/>.
 #' Can be either DNA, RNA, or AA motifs.
 #'
-#' @return \code{list} \linkS4class{universalmotif} objects.
+#' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

@@ -3,41 +3,41 @@
 #' Create a motif from a set of sequences, a matrix, or generate a random
 #' motif.
 #'
-#' @param input \code{character}, \code{numberic}, \code{matrix},
-#'              \linkS4class{XStringSet}, \code{missing}
-#' @param alphabet \code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+#' @param input `character`, `numberic`, `matrix`,
+#'    [Biostrings::XStringSet-class], or `missing`
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
 #'    or a combined string representing the letters.
-#' @param type \code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
-#' @param name \code{character(1)} Motif name.
-#' @param pseudocount \code{numeric(1)} Correction to be applied to prevent \code{-Inf}
-#'                     from apearing in PWM matrices.
-#' @param bkg \code{numeric} Must sum to 1 and be equal in length to the alphabet
-#'            length.
-#' @param nsites \code{numeric(1)} Number of sites the motif was constructed from.
-#' @param altname \code{character(1)} Alternate motif name.
-#' @param family \code{character(1)} Transcription factor family.
-#' @param organism \code{character(1)} Species of origin.
-#' @param bkgsites \code{numeric(1)} Total number of sites used to find the motif.
-#' @param strand |code{character(1)} Whether the motif is specific to a certain strand.
-#' @param pval \code{numeric(1)} P-value associated with motif.
-#' @param qval \code{numeric(1)} Adjusted P-value associated with motif.
-#' @param eval \code{numeric(1)} E-value associated with motif.
-#' @param extrainfo \code{character} Any other extra information, represented as
-#'                  a named character vector.
-#' @param add.multifreq \code{numeric(1)} If the motif is created from a set of
-#'    sequences, then the \code{\link{add_multifreq}} function can be
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
+#' @param name `character(1)` Motif name.
+#' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
+#'   from apearing in PWM matrices.
+#' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
+#'   length.
+#' @param nsites `numeric(1)` Number of sites the motif was constructed from.
+#' @param altname `character(1)` Alternate motif name.
+#' @param family `character(1)` Transcription factor family.
+#' @param organism `character(1)` Species of origin.
+#' @param bkgsites `numeric(1)` Total number of sites used to find the motif.
+#' @param strand `character(1)` Whether the motif is specific to a certain strand.
+#' @param pval `numeric(1)` P-value associated with motif.
+#' @param qval `numeric(1)` Adjusted P-value associated with motif.
+#' @param eval `numeric(1)` E-value associated with motif.
+#' @param extrainfo `character` Any other extra information, represented as
+#'    a named character vector.
+#' @param add.multifreq `numeric(1)` If the motif is created from a set of
+#'    sequences, then the [add_multifreq()] function can be
 #'    run at the same type.
 #'
-#' @return \linkS4class{universalmotif} object.
+#' @return [universalmotif-class] object.
 #'
 #' @details
 #'    The aim of this function is provide an easy interface to creating
-#'    \linkS4class{universalmotif} motifs, as an alternative to the
-#'    default class constructor (i.e. \code{new('universalmotif', name=...)}).
+#'    [universalmotif-class] motifs, as an alternative to the
+#'    default class constructor (i.e. `new('universalmotif', name=...)`).
 #'    See examples for potential use cases.
 #'
-#' @seealso \code{\link{convert_type}}, \code{\link{add_multifreq}},
-#' \code{\link{create_sequences}}, \code{\link{shuffle_motifs}}.
+#' @seealso [convert_type()], [add_multifreq()],
+#'   [create_sequences()], [shuffle_motifs()].
 #'
 #' @examples
 #' ##### create motifs from a single string

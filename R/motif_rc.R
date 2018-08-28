@@ -1,12 +1,12 @@
 #' Get the reverse complement of a motif.
 #'
-#' For any motif, change the 'motif' slot to it's reverse complement. If the
-#' 'multifreq' slot is filled, then it is also applied. No other slots are
+#' For any motif, change the `motif` slot to it's reverse complement. If the
+#' `multifreq` slot is filled, then it is also applied. No other slots are
 #' affected.
 #'
-#' @param motifs See \code{\link{convert_motifs}} for acceptable formats
+#' @param motifs See [convert_motifs()] for acceptable formats
 #'
-#' @return See \code{\link{convert_motifs}} for available output formats.
+#' @return See [convert_motifs()] for available output formats.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

@@ -9,14 +9,11 @@ merge_motifs(motifs, method = "MPCC", use.type = "PPM",
   relative_entropy = FALSE, normalise.scores = FALSE)
 }
 \arguments{
-\item{motifs}{See \code{\link{convert_motifs}} for acceptable motif formats.}
+\item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-'SW', 'MSW', 'KL', 'MKL')}. See details.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See details.}
 
-\item{use.type}{\code{character(1)} One of code{'PPM'} and \code{'ICM'}.
-The latter allows for taking into account the background
-frequencies if \code{relative_entropy = TRUE}.}
+\item{use.type}{\code{character(1) One of}'PPM'\code{and}'ICM'\code{. The latter allows for taking into account the background frequencies if}relative_entropy = TRUE`.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
@@ -31,7 +28,7 @@ alignments between low information content regions of two motifs.}
 report the best score.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link{convert_type}}.}
+\code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions, as well as alignments between motifs of similar length.
@@ -40,11 +37,11 @@ aligned positions to the total number of positions in the larger motif,
 and the inverse for distance scores.}
 }
 \value{
-A single motif object. See \code{\link{convert_motifs}} for
-   available formats.
+A single motif object. See \code{\link[=convert_motifs]{convert_motifs()}} for
+available formats.
 }
 \description{
-Aligns the motifs using \code{\link{compare_motifs}}, then averages the
+Aligns the motifs using \code{\link[=compare_motifs]{compare_motifs()}}, then averages the
 motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped.
 }
@@ -56,7 +53,7 @@ if (requireNamespace("MotifDb", quietly = TRUE)) {
 
 }
 \seealso{
-\code{\link{compare_motifs}}
+\code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
