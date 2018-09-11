@@ -3,8 +3,8 @@ cache: packages
 sudo: required
 
 r:
-  - bioc-devel
-  # - bioc-release
+  - bioc-release
+  # - bioc-devel
 
 r_packages:
   - covr
@@ -13,10 +13,6 @@ bioc_required: true
 
 bioc_packages:
   - BiocCheck
-  - TFBSTools
-  - MotIV
-  - motifStack
-  - motifbreakR
 
 bioc_check: true
 
