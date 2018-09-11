@@ -31,7 +31,7 @@
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are \code{NA}.
 #'
-#' @return 
+#' @return
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
 #'    [ppm_to_pcm()], [ppm_to_pwm()], and [pwm_to_ppm()]: a `numeric`
 #'    vector with length equal to input `numeric` vector.
@@ -92,7 +92,7 @@ ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
     total_ic <- log2(length(position)) - height_after
     if (schneider_correction && !missing(nsites)) {
       if (!requireNamespace("TFBSTools", quietly = TRUE)) {
-        stop("The 'TFBSTools' package is required for 'schneider_correction'") 
+        stop("The 'TFBSTools' package is required for 'schneider_correction'")
       }
       correction <- ppm_to_pcm(position, nsites = nsites)
       correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
@@ -301,7 +301,7 @@ get_consensus <- function(position, alphabet = "DNA", type = "PPM",
     if (all(pos[c(1, 2, 3)] > 0.25)) return("V")
     if (all(pos[c(1, 3, 4)] > 0.25)) return("D")
 
-    # no consensus: 
+    # no consensus:
 
     return("N")
 
@@ -397,12 +397,12 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
     } else if (length(class) > 1) message("motifs converted to class 'universalmotif'")
     return(motifs)
   }
-  
+
 }
 
 # for a motif of length 4, the transition matrix is something like this:
 
-#       bkg pos1 pos2 pos3 pos4 
+#       bkg pos1 pos2 pos3 pos4
 #  bkg    0    1    0    0    0
 # pos1    0    0    1    0    0
 # pos2    0    0    0    1    0
@@ -414,11 +414,11 @@ lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
   FUN <- match.fun(FUN)
 
   if (!BP) {
-  
+
     if (!PB) {
-    
+
       out <- lapply(X, FUN, ...)
-    
+
     } else {
 
       out <- vector("list", length(X))
@@ -435,22 +435,23 @@ lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
           update_pb(i, max)
         }
       }
-    
+
     }
-    
+
   } else {
-  
+
     if (!requireNamespace("BiocParallel", quietly = TRUE)) {
       stop("'BiocParallel' is not installed")
     }
-    BPPARAM <- BiocParallel::bpparam()
-    if (PB) BPPARAM$progressbar <- TRUE
-    out <- BiocParallel::bplapply(X, FUN, ..., BPPARAM = BPPARAM)
-  
+    # BPPARAM <- BiocParallel::bpparam()
+    # if (PB) BPPARAM$progressbar <- TRUE
+    # out <- BiocParallel::bplapply(X, FUN, ..., BPPARAM = BPPARAM)
+    out <- BiocParallel::bplapply(X, FUN, ...)
+
   }
 
   out
-  
+
 }
 
 mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
@@ -459,12 +460,12 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
   FUN <- match.fun(FUN)
 
   if (!BP) {
-  
+
     if (!PB) {
-    
+
       out <- mapply(FUN, ..., MoreArgs = MoreArgs, SIMPLIFY = SIMPLIFY,
                     USE.NAMES = USE.NAMES)
-    
+
     } else {
 
       # not sure how to implement USE.NAMES here, get error sometimes
@@ -483,14 +484,14 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
         out[[i]] <- do.call(FUN, c(dots.i, MoreArgs))
         update_pb(i, dots.len.max)
       }
-      
+
       if (SIMPLIFY && length(dots))
         out <- simplify2array(out, higher = (SIMPLIFY == "array"))
-    
+
     }
-    
+
   } else {
-  
+
     if (!requireNamespace("BiocParallel", quietly = TRUE)) {
       stop("'BiocParallel' is not installed")
     }
@@ -499,9 +500,9 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
     out <- BiocParallel::bpmapply(FUN, ..., MoreArgs = MoreArgs,
                                   SIMPLIFY = SIMPLIFY, USE.NAMES = USE.NAMES,
                                   BPPARAM = BPPARAM)
-  
+
   }
 
   out
-  
+
 }

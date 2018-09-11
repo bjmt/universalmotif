@@ -4,8 +4,8 @@
 #' a set of input motifs.
 #'
 #' @param motifs See `convert_motifs()` for acceptable motif formats.
-#' @param sequences [Biostrings::XStringSet-class] Sequences to scan. Alphabet should
-#'    match motif.
+#' @param sequences [Biostrings::XStringSet-class] Sequences to scan. Alphabet
+#'    should match motif.
 #' @param threshold `numeric(1)` Between 0 and 1. See details.
 #' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`.
 #'    See details.
@@ -63,9 +63,9 @@
 #'    [enrich_motifs()], [motif_pvalue()]
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
-                            threshold.type = "pvalue", RC = FALSE,
-                            use.freq = 1, verbose = 1, progress = TRUE,
-                            BP = FALSE) {
+                           threshold.type = "pvalue", RC = FALSE,
+                           use.freq = 1, verbose = 1, progress = TRUE,
+                           BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -144,12 +144,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       motifs[[i]]["nsites"] <- 100
     }
   }
-  
+
   if (use.freq == 1) {
     score.mats <- mot.pwms
   } else {
     score.mats <- lapply(motifs,
-                         function(x) x["multifreq"][[as.character(use.freq)]]) 
+                         function(x) x["multifreq"][[as.character(use.freq)]])
     for (i in seq_along(score.mats)) {
       score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
                                nsites = motifs[[i]]["nsites"],
@@ -251,7 +251,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     num.matches <- lapply(to.keep, function(x) do.call(c, x))
     num.matches <- do.call(c, num.matches)
     num.matches <- which(num.matches == 1)
-    cat("     * Found", length(num.matches), 
+    cat("     * Found", length(num.matches),
         ifelse(length(num.matches) == 1, "match\n", "matches\n"))
   }
 
@@ -269,7 +269,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       num.matches.rc <- lapply(to.keep.rc, function(x) do.call(c, x))
       num.matches.rc <- do.call(c, num.matches.rc)
       num.matches.rc <- which(num.matches.rc == 1)
-      cat("     * Found", length(num.matches.rc), 
+      cat("     * Found", length(num.matches.rc),
           ifelse(length(num.matches.rc) == 1, "match\n", "matches\n"))
     }
   }
