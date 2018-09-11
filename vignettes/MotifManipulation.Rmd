@@ -299,7 +299,7 @@ create_motif(alphabet = "QWERTY")
 
 There are several packages which offer motif visualization capabilities,
 such as `r Biocpkg("seqLogo")`, `r Biocpkg("Logolas")`,
-`r Biocpkg("motifStack")`, and `r CRANpkg("ggseqlogo")`. Here I will briefly
+`Biocpkg("motifStack")`, and `r CRANpkg("ggseqlogo")`. Here I will briefly
 show how to use these to visualize `universalmotif` class motifs.
 
 ```{r}
@@ -315,7 +315,7 @@ motif <- motif["motif"]
 seqLogo::seqLogo(motif)
 
 ## motifStack: 
-motifStack::plotMotifLogo(motif)
+# motifStack::plotMotifLogo(motif)
 
 ## Logolas:
 if (requireNamespace("Logolas", quietly = TRUE)) {
