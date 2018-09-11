@@ -96,17 +96,17 @@ This allows for easy transition between supported packages (see
 ```{r}
 library(universalmotif)
 data(examplemotif)
-data(MA0003.2)
+# data(MA0003.2)
 suppressPackageStartupMessages(library(MotifDb))
 
 ## convert from a universalmotif to another
-convert_motifs(examplemotif, "TFBSTools-PWMatrix")
+# convert_motifs(examplemotif, "TFBSTools-PWMatrix")
 
 ## convert to universalmotif
-convert_motifs(MA0003.2)
+# convert_motifs(MA0003.2)
 
 ## convert between two packages
-convert_motifs(MotifDb[1], "TFBSTools-ICMatrix")
+# convert_motifs(MotifDb[1], "TFBSTools-ICMatrix")
 ```
 
 The `convert_motifs` function is embedded in most of the
@@ -192,13 +192,13 @@ convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 ## Comparing and merging motifs
 
 There a few functions available in other Bioconductor packages which allow for
-motif comparison. These include `PWMSimlarity` (`r Biocpkg("TFBSTools")`),
+motif comparison. These include `PWMSimlarity` (`Biocpkg("TFBSTools")`),
 `motifDistances` (`r Biocpkg("MotIV")`), and `motifSimilarity`
 (`r Biocpkg("PWMEnrich")`). Unfortunately these functions are not designed for
 comparing large numbers of motifs, and can result in long run times.
 The `r Biocpkg("universalmotif")` package
 aims to fix this by providing the `compare_motifs` function. Using the
-`r Biocpkg("TFBSTools")` implementation as a source, the function has been
+`Biocpkg("TFBSTools")` implementation as a source, the function has been
 rewritten in C++ and allows for comparing thousands of motifs in seconds.
 
 ```{r}
