@@ -91,12 +91,14 @@ ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
                                           }, numeric(1)))
     total_ic <- log2(length(position)) - height_after
     if (schneider_correction && !missing(nsites)) {
-      if (!requireNamespace("TFBSTools", quietly = TRUE)) {
+      correction <- ppm_to_pcm(position, nsites = nsites)
+      if (requireNamespace("TFBSTools", quietly = TRUE)) {
+        correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
+      } else {
         stop("The 'TFBSTools' package is required for 'schneider_correction'")
       }
-      correction <- ppm_to_pcm(position, nsites = nsites)
-      correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
       total_ic <- total_ic + correction
+      }
     }
     ic <- position * total_ic
     ic
@@ -440,13 +442,14 @@ lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
 
   } else {
 
-    if (!requireNamespace("BiocParallel", quietly = TRUE)) {
+    if (requireNamespace("BiocParallel", quietly = TRUE)) {
+      out <- BiocParallel::bplapply(X, FUN, ...)
+    } else {
       stop("'BiocParallel' is not installed")
     }
     # BPPARAM <- BiocParallel::bpparam()
     # if (PB) BPPARAM$progressbar <- TRUE
     # out <- BiocParallel::bplapply(X, FUN, ..., BPPARAM = BPPARAM)
-    out <- BiocParallel::bplapply(X, FUN, ...)
 
   }
 
@@ -492,14 +495,15 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
 
   } else {
 
-    if (!requireNamespace("BiocParallel", quietly = TRUE)) {
+    if (requireNamespace("BiocParallel", quietly = TRUE)) {
+      BPPARAM <- BiocParallel::bpparam()
+      if (PB) BPPARAM$progressbar <- TRUE
+      out <- BiocParallel::bpmapply(FUN, ..., MoreArgs = MoreArgs,
+                                    SIMPLIFY = SIMPLIFY, USE.NAMES = USE.NAMES,
+                                    BPPARAM = BPPARAM)
+    } else {
       stop("'BiocParallel' is not installed")
     }
-    BPPARAM <- BiocParallel::bpparam()
-    if (PB) BPPARAM$progressbar <- TRUE
-    out <- BiocParallel::bpmapply(FUN, ..., MoreArgs = MoreArgs,
-                                  SIMPLIFY = SIMPLIFY, USE.NAMES = USE.NAMES,
-                                  BPPARAM = BPPARAM)
 
   }
 
