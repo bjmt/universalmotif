@@ -35,7 +35,7 @@ unaligned positions.}
 \item{...}{Addtional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }
 \value{
-A \link[ggplot2:ggplot-class]{ggplot2::ggplot} object.
+A ggplot object.
 }
 \description{
 Show sequence logo. If given a list of more than one motif, then the motifs

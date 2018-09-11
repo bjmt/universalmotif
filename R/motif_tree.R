@@ -34,7 +34,7 @@
 #' @param BP `logical(1)` Use BiocParallel in [compare_motifs()].
 #' @param ... \pkg{ggtree} params.
 #'
-#' @return [ggplot2::ggplot-class] object.
+#' @return ggplot object.
 #'
 #' @details
 #'    See [ggtree::ggtree()] for more detailed descriptions of

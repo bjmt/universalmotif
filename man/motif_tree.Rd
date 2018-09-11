@@ -58,7 +58,7 @@ alignments between low information content regions of two motifs.}
 \item{...}{\pkg{ggtree} params.}
 }
 \value{
-\link[ggplot2:ggplot-class]{ggplot2::ggplot} object.
+ggplot object.
 }
 \description{
 For more powerful motif tree functions, see the motifStack package.

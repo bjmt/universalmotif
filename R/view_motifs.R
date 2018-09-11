@@ -20,7 +20,7 @@
 #'    unaligned positions.
 #' @param ... Addtional options for [ggseqlogo::geom_logo()].
 #'
-#' @return A [ggplot2::ggplot-class] object.
+#' @return A ggplot object.
 #'
 #' @details
 #' Since the \pkg{ggseqlogo} package can only plot individual

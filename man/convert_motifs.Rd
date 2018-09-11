@@ -155,6 +155,7 @@ if (requireNamespace("motifStack", quietly = TRUE)) {
 }
 
 # convert from another class to universalmotif:
+if (requireNamespace("TFBSTools", quietly = TRUE)) {
 library(TFBSTools)
 data(MA0003.2)
 motif <- convert_motifs(MA0003.2)
@@ -169,6 +170,7 @@ if (requireNamespace("PWMEnrich", quietly = TRUE)) {
 MA0003.2.trimmed <- trim_motifs(MA0003.2)
 # note: if the motif object going in has information that the
 # 'universalmotif' class can't hold, it will be lost
+}
 
 }
 \references{
