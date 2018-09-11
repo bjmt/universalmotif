@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/bjmt/universalmotif.svg?branch=master)](https://travis-ci.org/bjmt/universalmotif)
 # universalmotif #
 
 This package allows for importing most common motif types into R for use by

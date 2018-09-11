@@ -3,4 +3,4 @@
 ^data-raw$
 ^tmp-stuff$
 ^builds$
-.travis.yml
+^.travis.yml$
