@@ -1,5 +1,15 @@
 #include <Rcpp.h>
+#include <sstream>
 using namespace Rcpp;
+
+template <typename T>
+std::string to_string(T val) {
+  // This is required to get around to_string compiler error
+  // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
+  std::stringstream stream;
+  stream << val;
+  return stream.str();
+}
 
 // [[Rcpp::export]]
 void print_pb(int out) {
@@ -533,6 +543,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
       } else stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
 
       int exp_len = param_len2[i];
+      // compiler error with to_string!
       exp_len_c = std::to_string(exp_len);
       obs_len_c = std::to_string(arg_len);
 

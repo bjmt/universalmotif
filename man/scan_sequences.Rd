@@ -11,8 +11,8 @@ scan_sequences(motifs, sequences, threshold = 0.001,
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
 
-\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} Sequences to scan. Alphabet should
-match motif.}
+\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} Sequences to scan. Alphabet
+should match motif.}
 
 \item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 
