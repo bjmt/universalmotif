@@ -3,7 +3,7 @@
 \docType{data}
 \name{JASPAR2018_CORE_DBSCORES_NORM}
 \alias{JASPAR2018_CORE_DBSCORES_NORM}
-\title{JASPAR2018 CORE databse scores \link{normalised}.}
+\title{JASPAR2018 CORE databse scores (normalised).}
 \format{\code{list} with three \code{data.frames}}
 \usage{
 JASPAR2018_CORE_DBSCORES_NORM

@@ -19,7 +19,7 @@
 #' @format `list` with three `data.frames`
 "JASPAR2018_CORE_DBSCORES"
 
-#' JASPAR2018 CORE databse scores [normalised].
+#' JASPAR2018 CORE databse scores (normalised).
 #'
 #' For use with [compare_motifs()]. Normalised.
 #'
