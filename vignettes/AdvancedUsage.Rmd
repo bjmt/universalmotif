@@ -97,20 +97,14 @@ motif.k2 <- add_multifreq(motif, sequences, add.k = 2)
 motif.k2
 ```
 
-## Motif trees with ggtree and motifStack
+## Motif trees with ggtree
 
-The `r Biocpkg("motifStack")` offers a number of excellent functions for
-comparing motifs. Any of them can be used after using `convert_motifs`.
 Additionally, this package introduces the `motif_tree` function for generating
 basic tree-like diagrams for comparing motifs.
 
 ```{r}
 library(universalmotif)
 library(MotifDb)
-
-## A simple motifStack example:
-motifs <- convert_motifs(MotifDb[1:10], "motifStack-pfm")
-motifStack::motifStack(motifs, layout = "phylog")
 
 ## motif_tree is much simpler, but also much faster and allows for
 ## bigger trees; done via the ggtree package
