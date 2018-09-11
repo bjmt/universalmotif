@@ -1,15 +1,36 @@
 #include <Rcpp.h>
-#include <sstream>
+#include <sstream>  // needed for `to_string` work around
 using namespace Rcpp;
 
-template <typename T>
-std::string to_string(T val) {
-  // This is required to get around to_string compiler error
-  // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
-  std::stringstream stream;
-  stream << val;
-  return stream.str();
+////////////////////////////////////////////////////////////////////////////////
+// This is required to get around `to_string` travis compiler error
+
+// template <typename T>
+// std::string to_string(T val) {
+  // // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
+  // std::stringstream stream;
+  // stream << val;
+  // return stream.str();
+// }
+
+// namespace std {
+// https://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-g-mingw
+    // std::string to_string(size_t n) {
+            // std::ostringstream s;
+            // s << n;
+            // return s.str();
+        // }
+// }
+
+namespace std {
+    template<typename T>
+    std::string to_string(const T &n) {
+            std::ostringstream s;
+            s << n;
+            return s.str();
+        }
 }
+////////////////////////////////////////////////////////////////////////////////
 
 // [[Rcpp::export]]
 void print_pb(int out) {
