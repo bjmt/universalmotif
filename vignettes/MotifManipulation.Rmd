@@ -96,7 +96,6 @@ This allows for easy transition between supported packages (see
 ```{r}
 library(universalmotif)
 data(examplemotif)
-suppressPackageStartupMessages(library(TFBSTools))
 data(MA0003.2)
 suppressPackageStartupMessages(library(MotifDb))
 
@@ -185,7 +184,7 @@ convert_type(examplemotif, "PWM", pseudocount = 1)
 ## The latter uses the 'bkg' slot to calculate information content.
 examplemotif["nsites"] = 10
 convert_type(examplemotif, "ICM", nsize_correction = FALSE)
-convert_type(examplemotif, "ICM", nsize_correction = TRUE)
+# convert_type(examplemotif, "ICM", nsize_correction = TRUE)
 examplemotif["bkg"] = c(0.4, 0.1, 0.1, 0.4)
 convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 ```
