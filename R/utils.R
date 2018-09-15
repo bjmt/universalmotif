@@ -98,7 +98,6 @@ ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
         stop("The 'TFBSTools' package is required for 'schneider_correction'")
       }
       total_ic <- total_ic + correction
-      }
     }
     ic <- position * total_ic
     ic
