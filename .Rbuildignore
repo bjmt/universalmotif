@@ -1,0 +1,9 @@
+^tic\.R$
+tic.R
+.travis.yml
+appveyor.yml
+^appveyor\.yml$
+^\.travis\.yml$
+tmp-stuff/*
+R/tags
+.gitattributes
