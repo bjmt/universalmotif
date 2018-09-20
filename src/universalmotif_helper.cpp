@@ -75,7 +75,7 @@ S4 universalmotif_cpp(
   LogicalVector mat_1_check = m_motif >= 1;
   LogicalVector mat_0_check = m_motif == 0;
   LogicalVector mat_1_0_check = mat_1_check | mat_0_check;
-  LogicalVector mat_099_101_check = motif_colsums > 0.99 & motif_colsums < 1.01;
+  LogicalVector mat_099_101_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
   LogicalVector mat_pos_check = m_motif >= 0;
   if (StringVector::is_na(type[0]) || type.length() == 0) {
     if (is_true(all(mat_1_0_check)))
@@ -243,7 +243,7 @@ StringVector validObject_universalmotif(S4 motif) {
     NumericVector colsums_unique = unique(m_nsites);
     if (colsums_unique.length() > 1) msg.push_back("motif colSums must equal nsites");
   } else if (m_type[0] == "PPM") {
-    LogicalVector colsums_1_check = motif_colsums > 0.99 & motif_colsums < 1.01;
+    LogicalVector colsums_1_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
     if (is_false(all(colsums_1_check)))
       msg.push_back("for type PPM colSums must equal 1");
     LogicalVector motif_pos_check = m_motif >= 0;
