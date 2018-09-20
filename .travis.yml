@@ -29,6 +29,9 @@ dist: trusty
 cache: packages
 latex: false
 
+r:
+  - release
+
 #env
 env:
   global:

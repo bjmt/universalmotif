@@ -13,3 +13,8 @@ if (Sys.getenv("id_rsa") != "") {
     add_step(step_build_pkgdown()) %>%
     add_step(step_push_deploy(path = "docs", branch = "gh-pages"))
 }
+
+if (Sys.getenv("TRAVIS_R_VERSION") == "release") {
+  get_stage("after_success") %>%
+  add_step(covr::codecov())
+}
