@@ -32,6 +32,11 @@ latex: false
 r:
   - release
 
+addons:
+  apt:
+    packages:
+      - libgsl0-dev
+
 #env
 env:
   global:
