@@ -190,8 +190,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   seqs.aschar <- as.character(sequences)
-  if (progress && !BP && verbose > 0) cat("   * Splitting up sequences ...")
-  else if ((progress && BP && verbose > 0) || verbose > 1) cat("   * Splitting up sequences\n")
+  if (progress && !BP && verbose > 0)
+    cat("   * Splitting up sequences ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Splitting up sequences\n")
   seqs.aschar <- lapply_(seqs.aschar, function(x) strsplit(x, "")[[1]],
                          BP = BP, PB = progress)
 
@@ -199,8 +201,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   seq.matrices <- lapply(seq.lens, function(x) matrix(ncol = x - use.freq + 1,
                                                       nrow = use.freq))
 
-  if ((progress && BP && verbose > 0) || verbose > 1) cat("   * Creating sequence matrices\n")
-  else if (progress && !BP && verbose > 0) cat("   * Creating sequence matrices ...")
+  if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Creating sequence matrices\n")
+  else if (progress && !BP && verbose > 0)
+    cat("   * Creating sequence matrices ...")
   seq.matrices <- mapply_(.process_seqs, seq.matrices, seqs.aschar, BP = BP,
                            MoreArgs = list(k = use.freq), SIMPLIFY = FALSE,
                            PB = progress)
@@ -222,21 +226,27 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   alph.int <- as.integer(seq_len(length(mot.alphs)))
 
-  if (progress && !BP && verbose > 0) cat("   * Converting sequences to factors ...")
-  else if ((progress && BP && verbose > 0) || verbose > 1) cat("   * Converting sequences to factors\n")
+  if (progress && !BP && verbose > 0)
+    cat("   * Converting sequences to factors ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Converting sequences to factors\n")
   seq.matrices <- lapply_(seq.matrices,
                            function(x) string_to_factor(x, mot.alphs),
                            BP = BP, PB = progress)
 
-  if (progress && !BP && verbose > 0) cat("   * Converting sequences to integers ...")
-  else if ((progress && BP && verbose > 0) || verbose > 1) cat("   * Converting sequences to integers\n")
+  if (progress && !BP && verbose > 0)
+    cat("   * Converting sequences to integers ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Converting sequences to integers\n")
   seq.ints <- lapply_(seq.matrices,
                        function(x) LETTER_to_int(as.integer(x) - 1,
                                                  use.freq, alph.int),
                       BP = BP, PB = progress)
 
-  if (progress && !RC && !BP && verbose > 0) cat(" * Scanning sequences for motifs ...")
-  else if ((progress && RC && verbose > 0) || verbose > 0) cat(" * Scanning sequences for motifs\n")
+  if (progress && !RC && !BP && verbose > 0)
+    cat(" * Scanning sequences for motifs ...")
+  else if ((progress && RC && verbose > 0) || verbose > 0)
+    cat(" * Scanning sequences for motifs\n")
 
   score.mats <- lapply(score.mats, numeric_to_integer_matrix)
   thresholds.int <- as.integer(thresholds * 1000)
@@ -259,8 +269,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     score.mats.rc <- lapply(score.mats,
                             function(x) matrix(rev(as.numeric(x)),
                                                ncol = ncol(x)))
-    if (progress && !BP && verbose > 0) cat("   * Reverse strand ...")
-    else if ((progress && BP && verbose > 0) || verbose > 0) cat("   * Reverse strand\n")
+    if (progress && !BP && verbose > 0)
+      cat("   * Reverse strand ...")
+    else if ((progress && BP && verbose > 0) || verbose > 0)
+      cat("   * Reverse strand\n")
     to.keep.rc <- lapply_(seq_along(score.mats.rc),
                            function(x) .score_motif(seq.ints, score.mats.rc[[x]],
                                                     thresholds.int[x]),
@@ -274,8 +286,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     }
   }
 
-  if (progress && !RC && !BP && verbose > 0) cat(" * Processing results ...")
-  else if ((progress && RC && verbose > 0) || verbose > 0) cat(" * Processing results\n")
+  if (progress && !RC && !BP && verbose > 0)
+    cat(" * Processing results ...")
+  else if ((progress && RC && verbose > 0) || verbose > 0)
+    cat(" * Processing results\n")
 
   if (RC && progress && !BP && verbose > 0) cat("   * Forward strand ...")
   else if (RC && verbose > 0) cat("   * Forward strand\n")
@@ -292,8 +306,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   if (RC) {
-    if (progress && !BP && verbose > 0) cat("   * Reverse strand ...")
-    else if (verbose > 0 || (progress && verbose > 0)) cat("   * Reverse strand\n")
+    if (progress && !BP && verbose > 0)
+      cat("   * Reverse strand ...")
+    else if (verbose > 0 || (progress && verbose > 0))
+      cat("   * Reverse strand\n")
 
     if (progress) print_pb(0)
     res.rc <- vector("list", length(to.keep.rc))

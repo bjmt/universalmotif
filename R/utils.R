@@ -86,8 +86,8 @@ ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
     position
   } else {
     height_after <- -sum(vapply(position, function(x) {
-                                          y <- x * log2(x)
-                                          ifelse(is.na(y), 0, y)
+                                            y <- x * log2(x)
+                                            ifelse(is.na(y), 0, y)
                                           }, numeric(1)))
     total_ic <- log2(length(position)) - height_after
     if (schneider_correction && !missing(nsites)) {
