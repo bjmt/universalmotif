@@ -2,6 +2,9 @@
 #'
 #' Write motifs as universalmotif objects to file.
 #'
+#' @param minimal `logical(1)` Only write essential motif information.
+#' @param multifreq `logical(1)` Write `multifreq` slot, if present.
+#'
 #' @return `NULL`, invisibly.
 #'
 #' @family write_motifs

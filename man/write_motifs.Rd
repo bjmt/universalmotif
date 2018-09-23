@@ -10,6 +10,10 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE)
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
+
+\item{minimal}{\code{logical(1)} Only write essential motif information.}
+
+\item{multifreq}{\code{logical(1)} Write \code{multifreq} slot, if present.}
 }
 \value{
 \code{NULL}, invisibly.
