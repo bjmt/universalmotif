@@ -31,7 +31,7 @@ write_transfac(jaspar, tempfile())
 
 Other write_motifs: \code{\link{write_homer}},
   \code{\link{write_jaspar}}, \code{\link{write_matrix}},
-  \code{\link{write_meme}}
+  \code{\link{write_meme}}, \code{\link{write_motifs}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

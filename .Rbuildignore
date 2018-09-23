@@ -7,3 +7,5 @@ appveyor.yml
 tmp-stuff/*
 R/tags
 .gitattributes
+todo
+^todo$

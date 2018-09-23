@@ -30,8 +30,8 @@ cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
 \seealso{
 Other read_motifs: \code{\link{read_homer}},
   \code{\link{read_jaspar}}, \code{\link{read_matrix}},
-  \code{\link{read_meme}}, \code{\link{read_transfac}},
-  \code{\link{read_uniprobe}}
+  \code{\link{read_meme}}, \code{\link{read_motifs}},
+  \code{\link{read_transfac}}, \code{\link{read_uniprobe}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

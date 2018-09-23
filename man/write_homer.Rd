@@ -33,7 +33,7 @@ write_homer(motif, tempfile())
 
 Other write_motifs: \code{\link{write_jaspar}},
   \code{\link{write_matrix}}, \code{\link{write_meme}},
-  \code{\link{write_transfac}}
+  \code{\link{write_motifs}}, \code{\link{write_transfac}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
