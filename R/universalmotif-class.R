@@ -49,7 +49,7 @@ universalmotif <- setClass("universalmotif",
 
 setValidity("universalmotif",
             function(object) {
-            
+
             msg <- vector()
             valid <- TRUE
 
@@ -77,7 +77,7 @@ setValidity("universalmotif",
                                      "' must be a character vector of length 1"))
               }
             }
-            
+
             ## character slot specific checks
 
             # alphabets <- c("DNA", "RNA", "AA", "custom")

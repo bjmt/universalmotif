@@ -40,7 +40,7 @@ S4 universalmotif_cpp(
   if (StringVector::is_na(organism[0]) || organism.length() == 0)
     organism = StringVector::create();
   x.slot("organism") = organism;
-  
+
   if (alphabet[0] == "DNA")
     rownames(m_motif) = CharacterVector::create("A", "C", "G", "T");
   else if (alphabet[0] == "RNA")
@@ -95,7 +95,7 @@ S4 universalmotif_cpp(
     }
   }
   x.slot("type") = type;
-  
+
   if (NumericVector::is_na(nsites[0]) || nsites.length() == 0) {
     if (type[0] == "PCM") nsites[0] = sum(m_motif(_, 1));
     else nsites = NumericVector::create();
@@ -116,14 +116,14 @@ S4 universalmotif_cpp(
     }
   }
   x.slot("nsites") = nsites;
-  
+
   x.slot("pseudocount") = pseudocount;
-  
+
   if (NumericVector::is_na(bkg[0]) || bkg.length() == 0) {
     bkg = rep(1.0 / m_motif.nrow(), m_motif.nrow());
   }
   x.slot("bkg") = bkg;
-  
+
   if (NumericVector::is_na(icscore[0]) || icscore.length() == 0) {
     double tmp_nsites = 0;
     if (nsites.length() != 0) tmp_nsites = nsites[0];
@@ -138,7 +138,7 @@ S4 universalmotif_cpp(
 
   if (NumericVector::is_na(bkgsites[0])) bkgsites = NumericVector::create();
   x.slot("bkgsites") = bkgsites;
-  
+
   StringVector consensus_tmp(m_motif.ncol());
   if (alphabet[0] == "DNA") {
     for (int i = 0; i < m_motif.ncol(); ++i) {
@@ -164,20 +164,20 @@ S4 universalmotif_cpp(
     rownames(m_motif) = mot_rownames;
     x.slot("consensus") = StringVector::create();
   }
-  
+
   x.slot("motif") = m_motif;
-  
+
   x.slot("strand") = strand;
-  
+
   if (NumericVector::is_na(pval[0])) pval = NumericVector::create();
   x.slot("pval") = pval;
-  
+
   if (NumericVector::is_na(qval[0])) qval = NumericVector::create();
   x.slot("qval") = qval;
-  
+
   if (NumericVector::is_na(eval[0])) eval = NumericVector::create();
   x.slot("eval") = eval;
-  
+
   if (StringVector::is_na(extrainfo[0])) extrainfo = StringVector::create();
   x.slot("extrainfo") = extrainfo;
 
@@ -209,7 +209,7 @@ StringVector validObject_universalmotif(S4 motif) {
   NumericVector m_eval = motif.slot("eval");
 
   // slot length checks
-  
+
   if (m_name.length() != 1) msg.push_back("name must be length 1");
   if (m_altname.length() > 1) msg.push_back("altname cannot be longer than 1");
   if (m_family.length() > 1) msg.push_back("family cannot be longer than 1");
@@ -292,7 +292,7 @@ StringVector validObject_universalmotif(S4 motif) {
   }
 
   // consensus check
-  
+
   if (m_consensus.length() > 0) {
     if (m_consensus[0].size() != m_motif.ncol()) {
       msg.push_back("consensus string must have the same number of letters as motif positions");

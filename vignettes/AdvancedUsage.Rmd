@@ -18,6 +18,9 @@ output:
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+library(universalmotif)
+library(Biostrings)
+library(MotifDb)
 ```
 
 ## Multi-letter information
@@ -88,11 +91,8 @@ CAAAACC. This information is kept in the `multifreq` slot of `universalmotif`
 class motifs. To add this information, use the `add_multifreq` function.
 
 ```{r}
-library(universalmotif)
-library(Biostrings)
-
 motif <- create_motif("CWWWWCC", nsites = 6)  ## -> see next section
-sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
+sequences <- Biostrings::DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif.k2 <- add_multifreq(motif, sequences, add.k = 2)
 motif.k2
 ```
@@ -103,8 +103,7 @@ Additionally, this package introduces the `motif_tree` function for generating
 basic tree-like diagrams for comparing motifs.
 
 ```{r}
-library(universalmotif)
-library(MotifDb)
+# library(MotifDb)
 
 ## motif_tree is much simpler, but also much faster and allows for
 ## bigger trees; done via the ggtree package

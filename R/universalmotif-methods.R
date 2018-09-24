@@ -45,7 +45,8 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
     stop("consensus string for ", x@alphabet, " motifs is generated automatically")
   }
   slot(x, i) <- value
-  if (validObject(x)) return(x)
+  msg <- validObject_universalmotif(x)
+  if (length(msg) > 0) stop(msg) else x
 })
 
 #' @param .Object [universalmotif-class] Final motif.
@@ -121,7 +122,7 @@ setMethod("initialize", signature = "universalmotif",
               alphabet <- paste(sort(alphabet), collapse = "")
             }
             .Object@alphabet <- alphabet
-            
+
             if (missing(alphabet) || length(alphabet) == 0 ||
                 is.na(alphabet)) {
               if (nrow(motif) == 4) alphabet <- "DNA" else {
