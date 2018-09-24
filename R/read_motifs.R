@@ -1,6 +1,8 @@
 #' Import universalmotif formatted motifs.
 #'
-#' Import motifs created from [write_motifs()].
+#' Import motifs created from [write_motifs()]. For optimal storage of
+#' `universalmotif` class motifs, consider using [saveRDS()] and
+#' [readRDS()].
 #'
 #' @return `list` [universalmotif-class] objects.
 #'

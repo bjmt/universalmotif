@@ -19,7 +19,9 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE)
 \code{NULL}, invisibly.
 }
 \description{
-Write motifs as universalmotif objects to file.
+Write motifs as universalmotif objects to file. For optimal storage of
+\code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
+\code{\link[=readRDS]{readRDS()}}.
 }
 \seealso{
 Other write_motifs: \code{\link{write_homer}},

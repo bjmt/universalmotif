@@ -29,8 +29,11 @@ dist: trusty
 cache: packages
 latex: false
 
-r:
-  - release
+r: bioc-devel
+bioc_packages:
+  - BiocCheck
+
+bioc_check: true
 
 addons:
   apt:

@@ -1,6 +1,8 @@
 #' Export motifs in universalmotif format.
 #'
-#' Write motifs as universalmotif objects to file.
+#' Write motifs as universalmotif objects to file. For optimal storage of
+#' `universalmotif` class motifs, consider using [saveRDS()] and
+#' [readRDS()].
 #'
 #' @param minimal `logical(1)` Only write essential motif information.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.
@@ -96,7 +98,7 @@ write_motifs_per_motif <- function(motif, minimal, multifreq) {
       out.ext[1] <- "extrainfo:"
       for (i in seq_along(motif@extrainfo)) {
         mot.inf <- paste0("> ", names(motif@extrainfo)[i], ": ", motif@extrainfo[i])
-        out.ext[i + 1] <- motf.inf
+        out.ext[i + 1] <- mot.inf
       }
     } else out.ext <- character(0)
 

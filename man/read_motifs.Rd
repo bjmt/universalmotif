@@ -16,7 +16,9 @@ file before starting to read.}
 \code{list} \linkS4class{universalmotif} objects.
 }
 \description{
-Import motifs created from \code{\link[=write_motifs]{write_motifs()}}.
+Import motifs created from \code{\link[=write_motifs]{write_motifs()}}. For optimal storage of
+\code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
+\code{\link[=readRDS]{readRDS()}}.
 }
 \seealso{
 Other read_motifs: \code{\link{read_cisbp}},
