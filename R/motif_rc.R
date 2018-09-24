@@ -25,6 +25,7 @@ motif_rc <- function(motifs) {
   motifs <- lapply(motifs, motif_rc_internal)
 
   motifs <- .internal_convert(motifs, unique(CLASS_IN))
+  # if (is.list(motifs) && length(motifs) == 1) motifs <- motifs[[1]]  # not sure..
   motifs
 
 }
