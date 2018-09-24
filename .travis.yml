@@ -10,7 +10,7 @@ script: R -q -e 'tic::script()'
 after_success:
   - R -q -e 'tic::after_success()'
   - R -q -e 'BiocManager::install("BiocCheck")'
-  - R -q -e 'BiocCheck::BiocCheck("/home/travis/build/bjmt/universalmotif", `no-check-vignettes`=TRUE, `quit-with-status=TRUE`, `new-package`=TRUE)'
+  - R -q -e 'BiocCheck::BiocCheck("/home/travis/build/bjmt/universalmotif", `no-check-vignettes`=TRUE, `quit-with-status`=TRUE, `new-package`=TRUE)'
 after_failure: R -q -e 'tic::after_failure()'
 after_script: R -q -e 'tic::after_script()'
 
