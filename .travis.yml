@@ -10,7 +10,7 @@ before_script: R -q -e 'tic::before_script()'
 script: R -q -e 'tic::script()'
 after_success:
   - R -q -e 'tic::after_success()'
-  - R CMD BiocCheck --new-package --no-check-vignettes universalmotif*.tar.gz
+  - R -q -e 'BiocCheck::BiocCheck("universalmotif*.tar.gz", "--no-check-vignettes")'
 after_failure: R -q -e 'tic::after_failure()'
 before_deploy: R -q -e 'tic::before_deploy()'
 deploy:
