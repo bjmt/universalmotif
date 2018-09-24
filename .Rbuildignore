@@ -14,5 +14,4 @@ build-tests/*
 builds
 builds/*
 tmp-stuff
-*.html
 vignettes/*.html
