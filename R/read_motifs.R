@@ -148,10 +148,23 @@ motifs_to_umot <- function(motif) {
     motif.eval <- as.numeric(motif.split[[which.eval]][2])
   } else motif.eval <- FALSE
 
+  which.extrainfo <- vapply(motif.split, function(x) x[1] == "extrainfo:", logical(1))
+  extrainfo.start <- which(which.extrainfo)
+
   which.motif <- vapply(motif.split, function(x) x[1] == "motif:", logical(1))
   motif.start <- which(which.motif)
   which.multifreq <- vapply(motif.split, function(x) x[1] == "multifreq:", logical(1))
   multifreq.start <- which(which.multifreq)
+
+  if (length(extrainfo.start) > 0) {
+    extrainfo.all <- motif.split[(extrainfo.start + 1):(motif.start - 1)]
+    extrainfo.names <- lapply(extrainfo.all, function(x) x[2])
+    extrainfo.content <- lapply(extrainfo.all, function(x) collapse2(x[-c(1:2)]))
+    motif.extrainfo <- mapply(function(x, y) { names(x) <- y; x },
+                              extrainfo.content, extrainfo.names,
+                              SIMPLIFY = TRUE)
+  } else motif.extrainfo <- FALSE
+
   if (length(multifreq.start) == 0) {
     motif.motif <- parse_matrix(motif.split[(motif.start + 1):length(motif.split)])
     motif.multifreq <- FALSE
@@ -163,21 +176,23 @@ motifs_to_umot <- function(motif) {
   make_umot(motif.name, motif.altname, motif.family, motif.organism, motif.alphabet,
             motif.type, motif.nsites, motif.pseudocount, motif.bkg, motif.bkgsites,
             motif.strand, motif.pval, motif.qval, motif.eval, motif.motif,
-            motif.multifreq)
+            motif.multifreq, motif.extrainfo)
 
 }
 
 make_umot <- function(motif.name, motif.altname, motif.family, motif.organism,
                       motif.alphabet, motif.type, motif.nsites, motif.pseudocount,
                       motif.bkg, motif.bkgsites, motif.strand, motif.pval,
-                      motif.qval, motif.eval, motif.motif, motif.multifreq) {
+                      motif.qval, motif.eval, motif.motif, motif.multifreq,
+                      motif.extrainfo) {
 
   args <- list(name = motif.name, altname = motif.altname, family = motif.family,
                organism = motif.organism, alphabet = motif.alphabet,
                nsites = motif.nsites, pseudocount = motif.pseudocount,
                bkg = motif.bkg, bkgsites = motif.bkgsites, strand = motif.strand,
                pval = motif.pval, qval = motif.qval, eval = motif.eval,
-               motif = motif.motif, multifreq = motif.multifreq)
+               motif = motif.motif, multifreq = motif.multifreq,
+               extrainfo = motif.extrainfo)
   args <- args[!vapply(args, isFALSE, logical(1))]
 
   do.call(universalmotif_cpp, args)

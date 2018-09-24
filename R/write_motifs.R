@@ -98,7 +98,7 @@ write_motifs_per_motif <- function(motif, minimal, multifreq) {
         mot.inf <- paste0("> ", names(motif@extrainfo)[i], ": ", motif@extrainfo[i])
         out.ext[i + 1] <- motf.inf
       }
-    }
+    } else out.ext <- character(0)
 
   }
 
