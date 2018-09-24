@@ -8,7 +8,9 @@ install: R -q -e 'tic::install()'
 after_install: R -q -e 'tic::after_install()'
 before_script: R -q -e 'tic::before_script()'
 script: R -q -e 'tic::script()'
-after_success: R -q -e 'tic::after_success()'
+after_success:
+  - R -q -e 'tic::after_success()'
+  - R CMD BiocCheck --new-package --no-check-vignettes universalmotif*.tar.gz
 after_failure: R -q -e 'tic::after_failure()'
 before_deploy: R -q -e 'tic::before_deploy()'
 deploy:
@@ -33,7 +35,7 @@ r: bioc-devel
 bioc_packages:
   - BiocCheck
 
-bioc_check: true
+# bioc_check: true
 
 addons:
   apt:
