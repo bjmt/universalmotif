@@ -10,7 +10,7 @@ script: R -q -e 'tic::script()'
 after_success:
   - R -q -e 'tic::after_success()'
   - R -q -e 'BiocManager::install("BiocCheck")'
-  - R -q -e 'BiocCheck::BiocCheck(paste0("universalmotif_", utils::packageDescription("universalmotif", lib.loc = "/home/travis/R/Library")$Version, ".tar.gz"), "--no-build-vignettes")'
+  - R -q -e 'BiocCheck::BiocCheck(paste0("universalmotif_", utils::packageDescription("universalmotif", lib.loc = "/home/travis/build/bjmt")$Version, ".tar.gz"), "--no-build-vignettes")'
 after_failure: R -q -e 'tic::after_failure()'
 after_script: R -q -e 'tic::after_script()'
 
