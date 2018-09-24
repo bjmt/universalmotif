@@ -438,7 +438,6 @@ setMethod("create_motif", signature(input = "character"),
             Ncheck <- apply(motif@motif, 2, function(x) all(x == x[1]))
             if (type == "PPM") motif <- convert_type(motif, "PCM")
             if (any(Ncheck)) {
-              print(motif)
               motif@motif[, Ncheck] <- rep(1 / nrow(motif@motif),
                                            nrow(motif@motif))
             }

@@ -5,7 +5,7 @@ using namespace Rcpp;
 namespace std {
   template<typename T>
   std::string to_string(const T &n) {
-    
+
     // This is required to get around `to_string` g++ compiler erorr
 
     // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592

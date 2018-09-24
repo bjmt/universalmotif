@@ -45,7 +45,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
     stop("consensus string for ", x@alphabet, " motifs is generated automatically")
   }
   slot(x, i) <- value
-  # msg <- validObject_universalmotif(x)
+  # msg <- validObject_universalmotif(x)  # throws errors..
   # if (length(msg) > 0) stop(msg) else x
   if (validObject(x)) x
 })
