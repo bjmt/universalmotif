@@ -9,3 +9,8 @@ R/tags
 .gitattributes
 todo
 ^todo$
+build-tests
+build-tests/*
+builds
+builds/*
+tmp-stuff

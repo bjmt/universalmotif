@@ -6,8 +6,9 @@
 #' @docType package
 #' @name universalmotif-pkg
 #'
-#' @import methods
-#' @import ggplot2
+#' @importFrom methods getClass is new slot "slot<-" validObject
+#' @importMethodsFrom methods initialize show
+#' @importFrom ggplot2 aes element_blank facet_wrap ggplot theme ylab
 #' @importFrom ggseqlogo ggseqlogo geom_logo theme_logo
 #' @importFrom ggtree ggtree geom_tiplab geom_tiplab2 groupOTU %<+%
 #' @importFrom ggtree geom_tippoint
