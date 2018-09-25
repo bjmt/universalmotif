@@ -47,6 +47,7 @@ read_motifs <- function(file, skip = 0) {
   motifs <- motifs[motifs.check]
 
   if (length(motifs) == 0) stop("no motifs were read")
+  if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
 
 }
