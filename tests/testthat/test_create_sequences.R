@@ -1,5 +1,4 @@
 context("Test sequence creation")
-library(universalmotif)
 
 test_that("sequence creation works", {
 

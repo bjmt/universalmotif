@@ -1,5 +1,4 @@
 context("Test motif enrichment")
-library(universalmotif)
 
 test_that("motif enrichment works", {
 

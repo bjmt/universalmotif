@@ -1,5 +1,4 @@
 context("Test utility functions")
-library(universalmotif)
 
 test_that("summarise_motifs works", {
 

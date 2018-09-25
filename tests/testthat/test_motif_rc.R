@@ -1,5 +1,4 @@
 context("Test motif reverse complement")
-library(universalmotif)
 
 test_that("motif reverse complement works", {
 

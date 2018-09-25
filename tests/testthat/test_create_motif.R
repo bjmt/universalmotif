@@ -1,5 +1,4 @@
 context("Test motif creation")
-library(universalmotif)
 
 test_that("motif creation for missing or from numeric input works", {
 

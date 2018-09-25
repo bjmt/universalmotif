@@ -1,5 +1,4 @@
 context("Test filling multifreq slot works")
-library(universalmotif)
 
 test_that("filling multifreq works", {
 

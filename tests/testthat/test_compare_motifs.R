@@ -1,5 +1,4 @@
 context("Test motif comparison")
-library(universalmotif)
 
 test_that("basic comparison works", {
 

@@ -1,5 +1,4 @@
 context("Test universalmotif methods")
-library(universalmotif)
 
 test_that("accessor functions work", {
 

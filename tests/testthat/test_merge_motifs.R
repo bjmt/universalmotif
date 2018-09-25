@@ -1,5 +1,4 @@
 context("Test motif merging")
-library(universalmotif)
 
 test_that("motif merging works", {
 

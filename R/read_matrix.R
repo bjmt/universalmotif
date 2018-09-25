@@ -13,7 +13,7 @@
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #'    If missing will try and guess which one.
 #' @param sep `character(1)` Indicates how individual motifs are seperated.
-#' @param headers `logical(1)`, \code{character(1)} Indicating if and how to read names. 
+#' @param headers `logical(1)`, `character(1)` Indicating if and how to read names. 
 #' @param rownames `logical(1)` Are there alphabet letters present as rownames?
 #'
 #' @return `list` [universalmotif-class] objects.
@@ -26,7 +26,7 @@
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
-                        alphabet = "DNA", sep = "", headers = FALSE,
+                        alphabet = "DNA", sep = "", headers = TRUE,
                         rownames = FALSE) {
 
   # param check --------------------------------------------
@@ -67,13 +67,19 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
                         character(1))
     } else {
       headers <- c(1, seperators + 1)
+      if (headers[length(headers)] >= length(raw_lines))
+        headers <- headers[-length(headers)]
       motif_starts <- headers + 1
       headers <- raw_lines[headers]
     }
   } else {
     motif_starts <- c(1, seperators + 1)
+    if (motif_starts[length(motifs_starts)] >= length(raw_lines))
+      motif_starts <- motif_starts[-length(motif_starts)]
   }
 
+  if (length(motif_starts) != length(motif_stops))
+    stop("parsing error; try setting 'header' and 'sep'")
   motifs <- mapply(function(x, y) raw_lines[x:y],
                      motif_starts, motif_stops, SIMPLIFY = FALSE)
   if (rownames && positions == "columns") {

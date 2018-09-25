@@ -1,5 +1,4 @@
 context("Test motif filtering")
-library(universalmotif)
 
 test_that("motif filtering works", {
 

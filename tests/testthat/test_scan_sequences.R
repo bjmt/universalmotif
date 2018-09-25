@@ -1,5 +1,4 @@
 context("Test motif scanning")
-library(universalmotif)
 
 test_that("Results are accurate", {
 

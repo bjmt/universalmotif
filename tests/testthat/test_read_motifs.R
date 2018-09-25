@@ -1,5 +1,4 @@
 context("Test read functions")
-library(universalmotif)
 
 test_that("read functions work ok", {
 
@@ -17,6 +16,9 @@ test_that("read functions work ok", {
                                         package="universalmotif"))
   universalmotif <- read_motifs(system.file("extdata", "universalmotif.txt",
                                             package="universalmotif"))
+  hocomoco <- read_matrix(system.file("extdata", "hocomoco.txt",
+                                      package="universalmotif"),
+                          headers = ">", alphabet = "DNA", positions = "rows")
 
   expect_equal(length(homer), 5)
   expect_equal(length(cisbp), 2)
@@ -25,5 +27,6 @@ test_that("read functions work ok", {
   expect_equal(length(transfac), 5)
   expect_equal(length(uniprobe), 3)
   expect_s4_class(universalmotif, "universalmotif")
+  expect_s4_class(hocomoco, "universalmotif")
 
 })

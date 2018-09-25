@@ -1,5 +1,4 @@
 context("Test site sampling")
-library(universalmotif)
 
 test_that("site sampling works", {
 

@@ -1,5 +1,4 @@
 context("Test motif pvalue calculations")
-library(universalmotif)
 
 test_that("p-values from scores are ok", {
 

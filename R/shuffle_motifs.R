@@ -31,6 +31,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (is(motifs, "universalmotif")) undo.list <- TRUE else undo.list <- FALSE
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs)
@@ -73,6 +74,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
                          SIMPLIFY = FALSE)
 
   new.motifs <- .internal_convert(new.motifs, unique(CLASS_IN))
+  if (undo.list && is.list(new.motifs)) new.motifs <- new.motifs[[1]]
   new.motifs
 
 }

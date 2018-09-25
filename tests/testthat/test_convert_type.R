@@ -1,5 +1,4 @@
 context("Test motif type conversion")
-library(universalmotif)
 
 test_that("type conversion works", {
 
