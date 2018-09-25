@@ -88,8 +88,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   all_checks <- c(num_check, bkg_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   if (use.freq > 2 && interactive()) {
-    cat(paste0(" * Using motif_pvalue with use.freq > 2 is ",
-               "NOT recommended.\n * Do you wish to continue?"))
+    cat(paste0("[Caution]\n ! Using motif_pvalue with use.freq > 2 is ",
+               "NOT recommended.\nDo you wish to continue?"))
     if (menu(c("Yes", "No")) == 2) {
       message("Exiting")
       return(invisible(NULL))
