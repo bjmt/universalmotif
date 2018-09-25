@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' ## plotting multifreq motifs:
-#' if (requireNamespace("Logolas", quietly = TRUE)) {
+#' \dontrun{
 #'   motif <- create_motif()
 #'   motif <- add_multifreq(motif, sample_sites(motif))
 #'   Logolas::logomaker(motif["multifreq"][[as.character(2)]], type = "Logo",

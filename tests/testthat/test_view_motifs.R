@@ -3,7 +3,7 @@ context("Test motif vis")
 test_that("motif vis works", {
 
   m <- create_motif()
-  r <- view_motifs(m1)
+  r <- view_motifs(m)
 
   expect_is(r, "gg")
   expect_equal(attributes(r$data)$class, "waiver")

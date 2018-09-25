@@ -5,7 +5,7 @@
 \title{Import motifs from raw matrices.}
 \usage{
 read_matrix(file, skip = 0, type, positions = "columns",
-  alphabet = "DNA", sep = "", headers = FALSE, rownames = FALSE)
+  alphabet = "DNA", sep = "", headers = TRUE, rownames = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
