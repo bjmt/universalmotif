@@ -132,7 +132,8 @@ will be saved.}
 
 \item{verbose}{\code{numeric(1)} Set \code{verbose = 0} to quiet \code{\link[=run_meme]{run_meme()}}.}
 
-\item{timeout}{\code{numeric(1)} Stop MEME program past \code{timeout}.}
+\item{timeout}{\code{numeric(1)} Stop MEME program past \code{timeout} (seconds). See
+\code{\link[processx:run]{processx::run()}}.}
 
 \item{bin}{\code{character(1)} Location of MEME binary. Alternatively, set this
 via \code{options(meme.bin = '/path/to/meme/bin')}.}
@@ -141,8 +142,8 @@ via \code{options(meme.bin = '/path/to/meme/bin')}.}
 \code{list} The output file is read with \code{\link[=read_meme]{read_meme()}}.
 }
 \description{
-For a detailed description of the command, see
-\url{http://meme-suite.org/doc/meme.html}. For a brief description of
+De novo motif discovery via MEME. For a detailed description of the command,
+see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
 the command parameters, run \code{run_meme()}. Parameters in \code{\link[=run_meme]{run_meme()}}
 which are directly taken from the MEME program are tagged with [MEME].
 }
@@ -157,7 +158,8 @@ run_meme()
 \insertRef{meme3}{universalmotif}
 }
 \seealso{
-\code{\link[=read_meme]{read_meme()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
+\code{\link[=read_meme]{read_meme()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
+\code{\link[processx:run]{processx::run()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -1,7 +1,7 @@
 #' Run MEME from within R.
 #'
-#' For a detailed description of the command, see
-#' \url{http://meme-suite.org/doc/meme.html}. For a brief description of
+#' De novo motif discovery via MEME. For a detailed description of the command,
+#' see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
 #' the command parameters, run `run_meme()`. Parameters in [run_meme()]
 #' which are directly taken from the MEME program are tagged with \[MEME\].
 #'
@@ -62,7 +62,8 @@
 #' @param readsites `logical(1)` Read sites from MEME output (from [read_meme()]).
 #' @param echo `logical(1)` Dump MEME output to console.
 #' @param verbose `numeric(1)` Set `verbose = 0` to quiet [run_meme()].
-#' @param timeout `numeric(1)` Stop MEME program past `timeout`.
+#' @param timeout `numeric(1)` Stop MEME program past `timeout` (seconds). See
+#'    [processx::run()].
 #' @param bin `character(1)` Location of MEME binary. Alternatively, set this
 #'    via `options(meme.bin = '/path/to/meme/bin')`.
 #'
@@ -78,7 +79,8 @@
 #'    \insertRef{meme3}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso [read_meme()], [create_sequences()], [shuffle_sequences()]
+#' @seealso [read_meme()], [create_sequences()], [shuffle_sequences()],
+#'    [processx::run()]
 #' @export
 run_meme <- function(target.sequences, output = NULL,
                      overwrite.dir = FALSE, control.sequences = NULL,
