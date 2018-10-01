@@ -1,6 +1,6 @@
 #' Import CIS-BP motifs.
 #' 
-#' Import CIS-BP formatted motifs. See <http://cisbp.ccbr.utoronto.ca/index.php>.
+#' Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
 #' Assumed to be DNA motifs.
 #'
 #' @param file `character(1)` File name.

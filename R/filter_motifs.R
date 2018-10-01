@@ -1,7 +1,8 @@
-#' Filter a list of \linkS4class{universalmotif} motifs.
+#' Filter a list of motifs.
 #'
 #' Filter motifs based on the contents of available [universalmotif-class]
-#' slots.
+#' slots. If the input motifs are not of [universalmotif-class], then they
+#' they will be converted for the duration of the [filter_motifs()] operation.
 #'
 #' @param motifs `list` See [convert_motifs()] for acceptable
 #'    formats.

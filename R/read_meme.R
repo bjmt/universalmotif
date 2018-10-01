@@ -1,8 +1,8 @@
 #' Import MEME motifs.
 #'
 #' Import MEME formatted motifs, as well as original motif sequences. See
-#' <http://meme-suite.org/>. Both 'full' and 'minimal' formats are
-#' supported.
+#' \url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
+#' formats are supported.
 #'
 #' @param file `character(1)` File name.
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the

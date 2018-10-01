@@ -1,6 +1,6 @@
 #' Import motifs from raw matrices.
 #'
-#' Import motifs formatted simply, as matrices.
+#' Import simply formatted motifs.
 #'
 #' @param file `character(1)` File name.
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the

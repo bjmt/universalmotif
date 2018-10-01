@@ -22,14 +22,19 @@ background. Currently does not supported if \code{use.freq > 1}.}
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
 otherwise uses the corresponding \code{multifreq} matrix.}
 
-\item{k}{\code{numeric(1)c} For speed, scores/p-values can be approximated after
+\item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after
 subsetting the motif every \code{k} columns. If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
 are exact.}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=motif_pvalue]{motif_pvalue()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for exceptionally large
+jobs. Furthermore, the behaviour of \code{progress = TRUE} is changed
+if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will be
+shown (which unfortunately is much less informative).}
 }
 \value{
 \code{numeric} A vector of scores/p-values.
@@ -54,16 +59,17 @@ the motif is subset, p-values calculated for the subsets, and finally
 combined for a total p-value. The smaller the size of the subsets, the
 faster the calculation; but also, the bigger the approximation. This can be
 controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
-calculating exact p-values can be done in reasonable time by setting
-\code{k = 12}.
+calculating exact p-values can be done individually in reasonable time by
+setting \code{k = 12}.
 
 To calculate a score based on a given p-value, the function simply guesses
 different scores until it finds one which when used to calculate a p-value,
-returns a p-value reasonably close to the given p-value.
+returns a p-value reasonably close to the given p-value. For low p-values,
+this usually only takes a couple of guesses.
 
-Note that as \code{k} increases (and thus the approximation increases) the
-resulting p-values increase; meaning the p-values will always be on the
-conservative side.
+Note that the approximation is always on the conservative side. The higher
+the number of motif subsets, the worse the approximation. Furthermore,
+the speed of \code{\link[=motif_pvalue]{motif_pvalue()}} increases with a decreasing p-value.
 }
 \examples{
 data(examplemotif)
@@ -71,12 +77,17 @@ data(examplemotif)
 ## p-value/score calculations are performed using the PWM version of the
 ## motif; these calculations do not work if any -Inf values are present
 examplemotif["pseudocount"] <- 1
+# or
+examplemotif <- normalize(examplemotif)
 
 ## get a minimum score based on a p-value
 motif_pvalue(examplemotif, pvalue = 0.001)
 
 ## get the probability of a particular sequence hit
 motif_pvalue(examplemotif, score = 0)
+
+## the calculations can be performed for multiple motifs
+motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 
 }
 \references{

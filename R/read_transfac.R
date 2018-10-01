@@ -4,7 +4,7 @@
 #' See `system.file("extdata", "transfac.txt", pacakge="universalmotif")`
 #' for an example motif.
 #'
-#' @return `list` [universalmotif-class objects.
+#' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",

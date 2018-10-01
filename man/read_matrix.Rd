@@ -33,7 +33,7 @@ or a string of letters.}
 \code{list} \linkS4class{universalmotif} objects.
 }
 \description{
-Import motifs formatted simply, as matrices.
+Import simply formatted motifs.
 }
 \examples{
    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")

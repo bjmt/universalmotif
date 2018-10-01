@@ -251,6 +251,8 @@ run_meme <- function(target.sequences, output = NULL,
   if (is.null(weights))
     writeXStringSet(target.sequences, dataset)
   else {
+    if (length(target.sequences != length(weights)))
+      stop("length of 'weights' must match length of 'target.sequences'")
     weights <- paste(weights, collapse = " ")
     weights <- paste(">WEIGHTS", weights)
     cat(weights, file = dataset)

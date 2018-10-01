@@ -1,44 +1,55 @@
-#' Generate ggplot2 motif trees with ggtree.
+#' Generate \pkg{ggplot2} motif trees with \pkg{ggtree}.
 #'
-#' For more powerful motif tree functions, see the motifStack package.
+#' For more powerful motif tree functions, see the \pkg{motifStack} package.
+#' The [motif_tree()] function compares motifs with [compare_motifs()] to create
+#' a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
+#' This can be plotted with [ggtree::ggtree()].
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
-#'    available formats. 
+#'    available formats. Alternatively, the resulting comparison matrix from
+#'    [compare_motifs()].
 #' @param layout `character(1)` One of `c('rectangular', 'slanted', 'fan', 'circular',
-#'    'radial', 'equal_angle', 'daylight')`.
+#'    'radial', 'equal_angle', 'daylight')`. See [ggtree::ggtree()].
 #' @param linecol `character(1)` [universalmotif-class] slot to use to
-#'    colour lines (e.g. 'family').
+#'    colour lines (e.g. 'family'). See [ggtree::ggtree()].
 #' @param labels `character(1)` [universalmotif-class] slot to use to label
-#'    tips (e.g. 'name').
+#'    tips (e.g. 'name'). See [ggtree::ggtree()].
 #' @param tipsize `character(1)` [universalmotif-class] slot to use to
-#'    control tip size (e.g. 'icscore').
+#'    control tip size (e.g. 'icscore'). See [ggtree::ggtree()].
 #' @param legend `logical(1)` Show legend for line colour and tip size.
+#'    See [ggtree::ggtree()].
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
+#'    See [ggtree::gtree()].
 #' @param db.scores `data.frame` See [compare_motifs()].
-#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`.
+#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`. See
+#'    [compare_motifs()].
 #' @param use.type `character(1)`c('PPM', 'ICM')`. The latter allows for taking
 #'    into account the background
-#'    frequencies (only if `relative_entropy = TRUE`).
+#'    frequencies (only if `relative_entropy = TRUE`). See [compare_motifs()].
 #' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
 #'    motifs. Setting this to a number higher then the width of the motifs
 #'    will not allow any overhangs. Can also be a number less than 1,
-#'    representing the minimum fraction that the motifs must overlap.
+#'    representing the minimum fraction that the motifs must overlap. See
+#'    [compare_motifs()].
 #' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
-#'    report the best score.
+#'    report the best score. See [compare_motifs()].
 #' @param min.mean.ic `numeric(1)` Minimum information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
-#'    alignments between low information content regions of two motifs.
+#'    alignments between low information content regions of two motifs. See
+#'    [compare_motifs()].
 #' @param relative_entropy `logical(1)` For ICM calculation. See
 #'    [convert_type()].
-#' @param progress `logical(1)` Show progress of [compare_motifs()].
-#' @param BP `logical(1)` Use BiocParallel in [compare_motifs()].
-#' @param ... \pkg{ggtree} params.
+#' @param progress `logical(1)` Show progress of [compare_motifs()]. Not
+#'    recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [compare_motifs()]. See [BiocParallel::register()] to change the default
+#'    backend. Setting `BP = TRUE` is only recommended for comparing large numbers
+#'    of motifs (>10,000). Furthermore, the behaviour of `progress = TRUE` is
+#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
+#'    be shown (which unfortunately is much less informative).
+#' @param ... \pkg{ggtree} params. See [ggtree::ggtree()].
 #'
 #' @return ggplot object.
-#'
-#' @details
-#'    See [ggtree::ggtree()] for more detailed descriptions of
-#'    parameters.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -52,7 +63,7 @@
 #'    \insertRef{ggtree}{universalmotif}
 #'
 #' @seealso [motifStack::motifStack()], [compare_motifs()],
-#'    [ggtree::ggtree()]
+#'    [ggtree::ggtree()], [ggplot2::ggplot()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
@@ -60,7 +71,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        branch.length = "none", db.scores, method = "MPCC",
                        use.type = "PPM", min.overlap = 6, tryRC = TRUE,
                        min.mean.ic = 0.5, relative_entropy = FALSE,
-                       progress = TRUE, BP = FALSE, ...){
+                       progress = TRUE, BP = FALSE, ...) {
 
   # param check --------------------------------------------
   args <- as.list(environment())

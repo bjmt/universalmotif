@@ -1,6 +1,6 @@
 #' Import JASPAR motifs.
 #'
-#' Import JASPAR formatted motifs. See <http://jaspar.genereg.net/>.
+#' Import JASPAR formatted motifs. See \url{http://jaspar.genereg.net/}.
 #' Can be either DNA, RNA, or AA motifs.
 #'
 #' @return `list` [universalmotif-class] objects.

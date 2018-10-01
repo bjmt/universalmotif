@@ -20,12 +20,15 @@ motif_rc <- function(motifs) {
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs)
+  if (is.list(motifs)) was.list <- TRUE else was.list <- FALSE
   if (!is.list(motifs)) motifs <- list(motifs)
 
   motifs <- lapply(motifs, motif_rc_internal)
 
   motifs <- .internal_convert(motifs, unique(CLASS_IN))
-  # if (is.list(motifs) && length(motifs) == 1) motifs <- motifs[[1]]  # not sure..
+  if (length(motifs) == 1 && !was.list)
+    motifs <- motifs[[1]]
+
   motifs
 
 }

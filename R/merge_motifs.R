@@ -79,7 +79,7 @@ merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
 
   out <- merge_motifs_internal(mot1, mot2, method, min.overlap, tryRC, ic1, ic2,
                                min.mean.ic, weight1, weight2, normalise.scores)
-  
+
   matrix(out[!is.na(out)], nrow = nrow(out))
 
 

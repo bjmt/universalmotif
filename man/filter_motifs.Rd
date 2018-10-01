@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter_motifs.R
 \name{filter_motifs}
 \alias{filter_motifs}
-\title{Filter a list of \linkS4class{universalmotif} motifs.}
+\title{Filter a list of motifs.}
 \usage{
 filter_motifs(motifs, name, altname, family, organism, width, alphabet,
   type, icscore, nsites, strand, pval, qval, eval)
@@ -43,7 +43,8 @@ class, see \code{\link[=convert_motifs]{convert_motifs()}} for limitations.
 }
 \description{
 Filter motifs based on the contents of available \linkS4class{universalmotif}
-slots.
+slots. If the input motifs are not of \linkS4class{universalmotif}, then they
+they will be converted for the duration of the \code{\link[=filter_motifs]{filter_motifs()}} operation.
 }
 \examples{
 ## By minimum IC:

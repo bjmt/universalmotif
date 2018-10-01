@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif_tree.R
 \name{motif_tree}
 \alias{motif_tree}
-\title{Generate ggplot2 motif trees with ggtree.}
+\title{Generate \pkg{ggplot2} motif trees with \pkg{ggtree}.}
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
@@ -13,59 +13,70 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
-available formats.}
+available formats. Alternatively, the resulting comparison matrix from
+\code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular', 'radial', 'equal_angle', 'daylight')}.}
+\item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular', 'radial', 'equal_angle', 'daylight')}. See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{linecol}{\code{character(1)} \linkS4class{universalmotif} slot to use to
-colour lines (e.g. 'family').}
+colour lines (e.g. 'family'). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{labels}{\code{character(1)} \linkS4class{universalmotif} slot to use to label
-tips (e.g. 'name').}
+tips (e.g. 'name'). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{tipsize}{\code{character(1)} \linkS4class{universalmotif} slot to use to
-control tip size (e.g. 'icscore').}
+control tip size (e.g. 'icscore'). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
-\item{legend}{\code{logical(1)} Show legend for line colour and tip size.}
+\item{legend}{\code{logical(1)} Show legend for line colour and tip size.
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
-\item{branch.length}{\code{character(1)} If 'none', draw a cladogram.}
+\item{branch.length}{\code{character(1)} If 'none', draw a cladogram.
+See \code{\link[ggtree:gtree]{ggtree::gtree()}}.}
 
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.}
+\item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}. See
+\code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if}relative_entropy = TRUE`).}
+\item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if}relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
 will not allow any overhangs. Can also be a number less than 1,
-representing the minimum fraction that the motifs must overlap.}
+representing the minimum fraction that the motifs must overlap. See
+\code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
-report the best score.}
+report the best score. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.mean.ic}{\code{numeric(1)} Minimum information content between the
 two motifs for an alignment to be scored. This helps prevent scoring
-alignments between low information content regions of two motifs.}
+alignments between low information content regions of two motifs. See
+\code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link[=convert_type]{convert_type()}}.}
 
-\item{progress}{\code{logical(1)} Show progress of \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{progress}{\code{logical(1)} Show progress of \code{\link[=compare_motifs]{compare_motifs()}}. Not
+recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel in \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=compare_motifs]{compare_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for comparing large numbers
+of motifs (>10,000). Furthermore, the behaviour of \code{progress = TRUE} is
+changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
+be shown (which unfortunately is much less informative).}
 
-\item{...}{\pkg{ggtree} params.}
+\item{...}{\pkg{ggtree} params. See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 }
 \value{
 ggplot object.
 }
 \description{
-For more powerful motif tree functions, see the motifStack package.
-}
-\details{
-See \code{\link[ggtree:ggtree]{ggtree::ggtree()}} for more detailed descriptions of
-parameters.
+For more powerful motif tree functions, see the \pkg{motifStack} package.
+The \code{\link[=motif_tree]{motif_tree()}} function compares motifs with \code{\link[=compare_motifs]{compare_motifs()}} to create
+a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
+This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -81,7 +92,7 @@ jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 }
 \seealso{
 \code{\link[motifStack:motifStack]{motifStack::motifStack()}}, \code{\link[=compare_motifs]{compare_motifs()}},
-\code{\link[ggtree:ggtree]{ggtree::ggtree()}}
+\code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

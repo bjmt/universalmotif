@@ -21,8 +21,8 @@ motif sites will be returned.
 }
 \description{
 Import MEME formatted motifs, as well as original motif sequences. See
-\url{http://meme-suite.org/}. Both 'full' and 'minimal' formats are
-supported.
+\url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
+formats are supported.
 }
 \examples{
 meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
