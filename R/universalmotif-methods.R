@@ -451,6 +451,9 @@ setMethod("colnames", signature(x = "universalmotif"),
 setMethod("rownames", signature(x = "universalmotif"),
           definition = function(x) rownames(x["motif"]))
 
+#' @export
+c.universalmotif <- function(...) list(...)
+
 #' @param ... [universalmotif-class] Motifs.
 #' @param deparse.level Unused.
 #' @rdname universalmotif-class

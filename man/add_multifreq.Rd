@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_multifreq.R
 \name{add_multifreq}
 \alias{add_multifreq}
-\title{Add multi-nucleotide information to a motif.}
+\title{Add multi-letter information to a motif.}
 \usage{
 add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
   threshold = 0.01, threshold.type = "logodds", motifs.perseq = 1)
@@ -38,30 +38,46 @@ can be used to generate higher-order PPM matrices.
 }
 \details{
 At each position in the motif, then the probability of each k-let
-covering from the initial position to k - 1 is calculated. Only
+covering from the initial position to ncol - 1 is calculated. Only
 positions within the motif are considered; this means that the
-final k-let probability matrix will have k - 1 fewer columns.
+final k-let probability matrix will have ncol - 1 fewer columns.
 Calculating k-let probabilities for the missing columns would be
 trivial however, as you would only need the background frequencies.
 Since these would not be useful for \code{\link[=scan_sequences]{scan_sequences()}}
 though, they are not calculated.
 
+Currently \code{\link[=add_multifreq]{add_multifreq()}} does not try to stay faithful to the default
+motif matrix when generating multifreq matrices. This means that if the
+sequences used for training are completely different from the actual
+motif, the multifreq matrices will be as well. However this is only really
+a problem if you supply \code{\link[=add_multifreq]{add_multifreq()}} with a set of sequences of the
+same length as the motif; in this case \code{\link[=add_multifreq]{add_multifreq()}} is forced to
+create the multifreq matrices from these sequences. Otherwise
+\code{\link[=add_multifreq]{add_multifreq()}} will scan the input sequences for the motif and use the
+best match(es) to construct the multifreq matrices.
+
+This 'multifreq' representation is only really useful within the
+\pkg{universalmotif} enrivonment. Despite this, if you wish it can be
+preserved as a text motif using \code{\link[=write_motifs]{write_motifs()}}.
+
 Note: the number of rows for each k-let matrix is n^k, with n being the
 number of letters in the alphabet being used. This means that the size
 of the k-let matrix can become quite large as k increases. For example,
 if one were to wish to represent a DNA motif of length 10 as a 10-let,
-this would require a matrix with 1,048,576 rows.
+this would require a matrix with 1,048,576 rows (though at this point
+if what you want is to search for exact sequence matches,
+the motif format itself is not very useful).
 }
 \examples{
 sequences <- create_sequences(seqlen = 10)
 motif <- create_motif()
 motif.trained <- add_multifreq(motif, sequences, add.k = 2:4)
-## peak at the 2-let matrix:
+## peek at the 2-let matrix:
 motif.trained["multifreq"]$`2`
 
 }
 \seealso{
-\code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=convert_motifs]{convert_motifs()}}
+\code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=write_motifs]{write_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

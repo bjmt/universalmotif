@@ -13,7 +13,9 @@ merge_motifs(motifs, method = "MPCC", use.type = "PPM",
 
 \item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See details.}
 
-\item{use.type}{\code{character(1) One of}'PPM'\code{and}'ICM'\code{. The latter allows for taking into account the background frequencies if}relative_entropy = TRUE`.}
+\item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
+The latter allows for taking into account the background
+frequencies if \code{relative_entropy = TRUE}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs

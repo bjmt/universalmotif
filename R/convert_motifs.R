@@ -315,7 +315,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
           
           })
 
-#' @describeIn convert_motifs Convert MotifList motifs.
+#' @describeIn convert_motifs Convert MotifList motifs. (\pkg{MotifDb})
 #' @export
 setMethod("convert_motifs", signature(motifs = "MotifList"),
           definition = function(motifs, class) {
@@ -337,7 +337,7 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
             convert_motifs(motifs_out, class = class)
           })
 
-#' @describeIn convert_motifs Convert TFFMFirst motifs.
+#' @describeIn convert_motifs Convert TFFMFirst motifs. (\pkg{TFBSTools})
 #' @export
 setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
           definition = function(motifs, class) {
@@ -357,7 +357,7 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
             convert_motifs(mot, class = class)
           })
 
-#' @describeIn convert_motifs Convert PFMatrix motifs.
+#' @describeIn convert_motifs Convert PFMatrix motifs. (\pkg{TFBSTools})
 #' @export
 setMethod("convert_motifs", signature(motifs = "PFMatrix"),
           definition = function(motifs, class) {
@@ -386,7 +386,7 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert PWMatrix motifs.
+#' @describeIn convert_motifs Convert PWMatrix motifs. (\pkg{TFBSTools})
 setMethod("convert_motifs", signature(motifs = "PWMatrix"),
           definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
@@ -412,7 +412,7 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert ICMatrix motifs.
+#' @describeIn convert_motifs Convert ICMatrix motifs. (\pkg{TFBSTools})
 setMethod("convert_motifs", signature(motifs = "ICMatrix"),
           definition = function(motifs, class) {
             if (all(names(motifs@bg) %in% DNA_BASES)) {
@@ -438,7 +438,7 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert XMatrixList motifs.
+#' @describeIn convert_motifs Convert XMatrixList motifs. (\pkg{TFBSTools})
 #' @export
 setMethod("convert_motifs", signature(motifs = "XMatrixList"),
           definition = function(motifs, class) {
@@ -456,7 +456,7 @@ setMethod("convert_motifs", signature(motifs = "XMatrixList"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert pwm motifs.
+#' @describeIn convert_motifs Convert pwm motifs. (\pkg{seqLogo})
 #' @export
 setMethod("convert_motifs", signature(motifs = "pwm"),
           definition = function(motifs, class) {
@@ -467,7 +467,7 @@ setMethod("convert_motifs", signature(motifs = "pwm"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert pcm motifs.
+#' @describeIn convert_motifs Convert pcm motifs. (\pkg{motifStack})
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
           definition = function(motifs, class) {
@@ -481,7 +481,7 @@ setMethod("convert_motifs", signature(motifs = "pcm"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert pfm motifs.
+#' @describeIn convert_motifs Convert pfm motifs. (\pkg{motifStack})
 #' @export
 setMethod("convert_motifs", signature(motifs = "pfm"),
           definition = function(motifs, class) {
@@ -494,7 +494,7 @@ setMethod("convert_motifs", signature(motifs = "pfm"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert PWM motifs.
+#' @describeIn convert_motifs Convert PWM motifs. (\pkg{PWMEnrich})
 #' @export
 setMethod("convert_motifs", signature(motifs = "PWM"),
           definition = function(motifs, class) {
@@ -510,7 +510,7 @@ setMethod("convert_motifs", signature(motifs = "PWM"),
             convert_motifs(motifs, class = class)
           })
 
-#' @describeIn convert_motifs Convert Motif motifs.
+#' @describeIn convert_motifs Convert Motif motifs. (\pkg{motifRG})
 #' @export
 setMethod("convert_motifs", signature(motifs = "Motif"),
           definition = function(motifs, class) {

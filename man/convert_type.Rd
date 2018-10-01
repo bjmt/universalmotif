@@ -15,8 +15,8 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from apearing in PWM matrices. If missing, the pseudocount stored in the
 \linkS4class{universalmotif} 'pseudocount' slot will be
-used, which defaults to 0.8 (the suggested value from
-\insertCite{pseudo;textual}{universalmotif}).}
+used, which defaults to 0.8; the suggested value from
+\insertCite{pseudo;textual}{universalmotif}.}
 
 \item{nsize_correction}{\code{logical(1)} If true, the ICM
 at each position will be corrected to account

@@ -2,7 +2,7 @@ context("Test motif shuffling")
 
 test_that("motif shuffling works", {
 
-  m1 <- create_motif()
+  m1 <- create_motif("ATATCGGATACGGCTGTC")
   m2 <- shuffle_motifs(m1)
 
   expect_s4_class(m2, "universalmotif")

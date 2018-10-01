@@ -3,7 +3,7 @@ using namespace Rcpp;
 
 double motif_euclidean(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapted from TFBSTools:::PWMEuclidean
+  // Initially adapted from TFBSTools:::PWMEuclidean
 
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix diff_mat(mot1.nrow(), mot1.ncol());
@@ -28,7 +28,7 @@ double motif_euclidean(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_euclidean_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapted from TFBSTools:::PWMEuclidean
+  // Initially adapted from TFBSTools:::PWMEuclidean
 
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix diff_mat(mot1.nrow(), mot1.ncol());
@@ -53,7 +53,7 @@ double motif_euclidean_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapted from TFBSTools:::PWMPearson
+  // Initially adapted from TFBSTools:::PWMPearson
 
   int mat_size = mot1.nrow() * mot1.ncol();
   
@@ -95,7 +95,7 @@ double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapted from TFBSTools:::PWMPearson
+  // Initially adapted from TFBSTools:::PWMPearson
 
   int mat_size = mot1.nrow() * mot1.ncol();
   
@@ -138,7 +138,7 @@ double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_kl(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapted from TFBSTools:::PWMKL
+  // Initially adapted from TFBSTools:::PWMKL
   
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix new_mat(mot1.nrow(), mot1.ncol());
@@ -159,7 +159,7 @@ double motif_kl(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_kl_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapted from TFBSTools:::PWMKL
+  // Initially adapted from TFBSTools:::PWMKL
   
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix new_mat(mot1.nrow(), mot1.ncol());

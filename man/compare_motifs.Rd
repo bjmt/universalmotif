@@ -20,7 +20,9 @@ Otherwise compares all motifs to the specified motif(s).}
 
 \item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 
-\item{use.type}{\code{character(1) One of}'PPM'\code{and}'ICM'\code{. The latter allows for taking into account the background frequencies if}relative_entropy = TRUE`.}
+\item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
+The latter allows for taking into account the background
+frequencies if \code{relative_entropy = TRUE}.}
 
 \item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See details.}
 
@@ -52,9 +54,14 @@ Only used if \code{compare.to} is set.}
 Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=compare_motifs]{compare_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for compare large numbers
+of motifs (>10,000). Furthermore, the behaviour of \code{progress = TRUE} is
+changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
+be shown (which unfortunately is much less informative).}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
@@ -70,9 +77,11 @@ by the number of input motifs times two.}
 }
 }
 \description{
-Compare motifs using four metrics: Pearson correlation coefficient,
-Euclidean distance, Sandelin-Wasserman similarity, and Kullback-Leibler
-divergence.
+Compare motifs using four available metrics: Pearson correlation coefficient
+\insertCite{pearson}{universalmotif}, Euclidean distance
+\insertCite{euclidean}{universalmotif}, Sandelin-Wasserman similarity
+\insertCite{wasserman}{universalmotif}, and Kullback-Leibler divergence
+\insertCite{kldiv}{universalmotif}.
 }
 \details{
 Comparisons are calculated between two motifs at a time. All possible alignments
@@ -84,13 +93,37 @@ comparisons between short motifs. This can be avoided by using the 'mean' of
 scores.
 \itemize{
 \item PCC: Pearson correlation coefficient
+
+Per position:
+
+\code{PCC = sum(col1 * col2) / sqrt(sum(col1^2) * sum(col2^2))}
 \item MPCC: Mean PCC
+
+\code{MPCC = mean(PCC)}
 \item EUCL: Euclidian distance
+
+Per position:
+
+\code{EUCL = sqrt(sum((col1 - col2)^2)) / sqrt(2)}
 \item MEUCL: Mean EUCL
+
+\code{MEUCL = sum(EUCL) / ncol(alignment)}
 \item SW: Sandelin-Wasserman similarity
+
+Per position:
+
+\code{SW = 2 - sum((col1 - col2)^2)}
 \item MSW: Mean SW
+
+\code{MSW = mean(SW)}
 \item KL: Kullback-Leibler divergence
+
+Per position:
+
+\code{KL = 0.5 * sum(col1 * log(col1/col2) + col2 * log(col2/col1))}
 \item MKL: Mean Kullback-Leibler divergence
+
+\code{MKL = mean(KL)}
 }
 
 To note regarding p-values: p-values are pre-computed using the
@@ -114,13 +147,18 @@ as.dist(1 - motif1vs2)
 
 }
 \references{
+\insertRef{euclidean}{universalmotif}
+
 \insertRef{jaspar}{universalmotif}
 
-\insertRef{tfbstools}{universalmotif}
+\insertRef{pearson}{universalmotif}
+
+\insertRef{kldiv}{universalmotif}
+
+\insertRef{wasserman}{universalmotif}
 }
 \seealso{
-\code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[TFBSTools:PWMSimilarity]{TFBSTools::PWMSimilarity()}},
-\code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}}
+\code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

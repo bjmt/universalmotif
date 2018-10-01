@@ -26,7 +26,8 @@ Imports: methods,
     Rdpack (>= 0.7),
     Biostrings,
     BiocGenerics,
-    Rcpp
+    Rcpp,
+    processx
 Suggests: knitr,
     BiocStyle,
     TFBSTools,
@@ -78,6 +79,7 @@ Collate:
     'read_motifs.R'
     'read_transfac.R'
     'read_uniprobe.R'
+    'run_meme.R'
     'sample_sites.R'
     'scan_sequences.R'
     'shuffle_motifs.R'

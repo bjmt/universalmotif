@@ -121,27 +121,27 @@ The following package-class combinations can be output:
 
 \item \code{universalmotif}: Convert a \linkS4class{universalmotif} object.
 
-\item \code{MotifList}: Convert MotifList motifs.
+\item \code{MotifList}: Convert MotifList motifs. (\pkg{MotifDb})
 
-\item \code{TFFMFirst}: Convert TFFMFirst motifs.
+\item \code{TFFMFirst}: Convert TFFMFirst motifs. (\pkg{TFBSTools})
 
-\item \code{PFMatrix}: Convert PFMatrix motifs.
+\item \code{PFMatrix}: Convert PFMatrix motifs. (\pkg{TFBSTools})
 
-\item \code{PWMatrix}: Convert PWMatrix motifs.
+\item \code{PWMatrix}: Convert PWMatrix motifs. (\pkg{TFBSTools})
 
-\item \code{ICMatrix}: Convert ICMatrix motifs.
+\item \code{ICMatrix}: Convert ICMatrix motifs. (\pkg{TFBSTools})
 
-\item \code{XMatrixList}: Convert XMatrixList motifs.
+\item \code{XMatrixList}: Convert XMatrixList motifs. (\pkg{TFBSTools})
 
-\item \code{pwm}: Convert pwm motifs.
+\item \code{pwm}: Convert pwm motifs. (\pkg{seqLogo})
 
-\item \code{pcm}: Convert pcm motifs.
+\item \code{pcm}: Convert pcm motifs. (\pkg{motifStack})
 
-\item \code{pfm}: Convert pfm motifs.
+\item \code{pfm}: Convert pfm motifs. (\pkg{motifStack})
 
-\item \code{PWM}: Convert PWM motifs.
+\item \code{PWM}: Convert PWM motifs. (\pkg{PWMEnrich})
 
-\item \code{Motif}: Convert Motif motifs.
+\item \code{Motif}: Convert Motif motifs. (\pkg{motifRG})
 
 \item \code{matrix}: Create motif from matrices.
 }}

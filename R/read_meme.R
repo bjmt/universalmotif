@@ -106,7 +106,10 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
   if (length(motif_list) == 1) motif_list <- motif_list[[1]]
 
   if (readsites) {
-    mot.names <- vapply(motif_list, function(x) x["name"], character(1))
+    if (is.list(motif_list)) 
+      mot.names <- vapply(motif_list, function(x) x["name"], character(1))
+    else
+      mot.names <- motif_list["name"]
     block.starts <- sapply(mot.names,
                            function(x) grep("in BLOCKS format", raw_lines))
     if (length(block.starts) == 0) {
@@ -138,6 +141,9 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
                         sites, site.names,
                         SIMPLIFY = FALSE)
       if (length(sites) == 1) sites <- sites[[1]]
+      if (is.list(sites) && is.list(motif_list))  # TODO: this is a bug..
+        if (length(sites) != length(motif_list))
+          sites <- sites[seq_len(length(motif_list))]
       motif_list <- list(motifs = motif_list, sites = sites)
     }
   }

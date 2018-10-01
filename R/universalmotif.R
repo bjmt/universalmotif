@@ -22,11 +22,12 @@
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom Biostrings oligonucleotideTransitions trinucleotideFrequency
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
-#' @importFrom Biostrings reverseComplement
+#' @importFrom Biostrings reverseComplement writeXStringSet
 #' @importFrom ape as.phylo
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom Rcpp sourceCpp
+#' @importFrom processx run
 #' @importMethodsFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
 #' @importMethodsFrom BiocGenerics colMeans rowMeans normalize subset colSums
 #' @importMethodsFrom BiocGenerics as.data.frame

@@ -36,8 +36,13 @@
 #'    default class constructor (i.e. `new('universalmotif', name=...)`).
 #'    See examples for potential use cases.
 #'
-#' @seealso [convert_type()], [add_multifreq()],
-#'   [create_sequences()], [shuffle_motifs()].
+#'    Note: when generating random motifs, the `nsites` slot is also given a
+#'    random value. Furthermore, be careful about the `nsites` slot when
+#'    motifs from consensus strings: for example, the following class
+#'    `create_motif("TAAAT")` generates a motif with `nsites = 1`.
+#'
+#' @seealso [convert_type()], [add_multifreq()], [create_sequences()],
+#'    [shuffle_motifs()].
 #'
 #' @examples
 #' ##### create motifs from a single string
@@ -164,7 +169,7 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
 
 # TODO: Organise the methods better, lots of repeat code (debugging is a pain).
 #       (also get rid of all the '!missing' lines to check for params, use 'args')
-  
+
 #' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R
 #' @export
@@ -191,7 +196,7 @@ setMethod("create_motif", signature(input = "missing"),
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
             if (!missing(add.multifreq)) margs <- c(margs, list(add.multifreq = add.multifreq))
-            
+
             motif <- do.call(create_motif, c(list(input = 10), margs))
             if (!is.null(motif@motif)) {
               motif@motif <- motif@motif[order(rownames(motif@motif)), ]
@@ -263,7 +268,7 @@ setMethod("create_motif", signature(input = "numeric"),
             if (!missing(qval)) margs <- c(margs, list(qval = qval))
             if (!missing(eval)) margs <- c(margs, list(eval = eval))
             if (!missing(extrainfo)) margs <- c(margs, list(extrainfo = extrainfo))
-            
+
             motif <- do.call(create_motif, c(list(input = mot), margs,
                                              list(alphabet = alphabet)))
             if (!is.null(motif@motif)) {
@@ -557,7 +562,7 @@ setMethod("create_motif", signature(input = "matrix"),
             motif
           })
 
-#' @describeIn create_motif Create motif from a \linkS4class{DNAStringSet}.
+#' @describeIn create_motif Create motif from a [Biostrings::DNAStringSet-class].
 #' @export
 setMethod("create_motif", signature(input = "DNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -608,7 +613,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
           })
 
-#' @describeIn create_motif Create motif from a \linkS4class{RNAStringSet}.
+#' @describeIn create_motif Create motif from a [Biostrings::RNAStringSet-class].
 #' @export
 setMethod("create_motif", signature(input = "RNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -663,7 +668,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
           })
 
-#' @describeIn create_motif Create motif from a \linkS4class{AAStringSet}.
+#' @describeIn create_motif Create motif from a [Biostrings::AAStringSet-class].
 #' @export
 setMethod("create_motif", signature(input = "AAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -722,7 +727,7 @@ setMethod("create_motif", signature(input = "AAStringSet"),
 
           })
 
-#' @describeIn create_motif Create motif from a \linkS4class{BStringSet}.
+#' @describeIn create_motif Create motif from a [Biostrings::BStringSet-class].
 #' @export
 setMethod("create_motif", signature(input = "BStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,

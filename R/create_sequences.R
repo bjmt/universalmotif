@@ -147,8 +147,7 @@ create_k2 <- function(alph.letters, seqlen, difreq) {
 }
 
 create_k3 <- function(alph.letters, seqlen, trifreq) {
-  trinucs <- names(trinucleotideFrequency(DNAString("A")))
-  trifreq <- trifreq[trinucs]
+  trifreq <- trifreq[DNA_TRI]
   tritrans <- matrix(trifreq, nrow = 16, byrow = 16)
   rownames(tritrans) <- DNA_DI
   seqout <- rep(NA, seqlen)

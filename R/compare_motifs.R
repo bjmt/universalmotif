@@ -1,15 +1,17 @@
 #' Compare motifs.
 #'
-#' Compare motifs using four metrics: Pearson correlation coefficient,
-#' Euclidean distance, Sandelin-Wasserman similarity, and Kullback-Leibler
-#' divergence.
+#' Compare motifs using four available metrics: Pearson correlation coefficient
+#' \insertCite{pearson}{universalmotif}, Euclidean distance
+#' \insertCite{euclidean}{universalmotif}, Sandelin-Wasserman similarity
+#' \insertCite{wasserman}{universalmotif}, and Kullback-Leibler divergence
+#' \insertCite{kldiv}{universalmotif}.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param compare.to `numeric` If missing, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
 #' @param db.scores `data.frame` See `details`.
 #' @param use.freq `numeric(1)`. For comparing the `multifreq` slot.
-#' @param use.type `character(1) One of `'PPM'` and `'ICM'`.
+#' @param use.type `character(1)` One of `'PPM'` and `'ICM'`.
 #'    The latter allows for taking into account the background
 #'    frequencies if `relative_entropy = TRUE`.
 #' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
@@ -35,8 +37,13 @@
 #' @param max.e `numeric(1)` Maximum E-value allowed in reporting matches.
 #'    Only used if `compare.to` is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
-#' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Use BiocParallel.
+#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [compare_motifs()]. See [BiocParallel::register()] to change the default
+#'    backend. Setting `BP = TRUE` is only recommended for compare large numbers
+#'    of motifs (>10,000). Furthermore, the behaviour of `progress = TRUE` is
+#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
+#'    be shown (which unfortunately is much less informative).
 #'
 #' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
 #' * PCC: 0 represents complete distance, >0 similarity.
@@ -58,13 +65,44 @@
 #' scores.
 #'
 #' * PCC: Pearson correlation coefficient
+#'
+#'    Per position:
+#'
+#'    `PCC = sum(col1 * col2) / sqrt(sum(col1^2) * sum(col2^2))`
+#'
 #' * MPCC: Mean PCC
+#'
+#'    `MPCC = mean(PCC)`
+#'
 #' * EUCL: Euclidian distance
+#'
+#'    Per position:
+#'
+#'    `EUCL = sqrt(sum((col1 - col2)^2)) / sqrt(2)`
+#'
 #' * MEUCL: Mean EUCL
+#'
+#'    `MEUCL = sum(EUCL) / ncol(alignment)`
+#'
 #' * SW: Sandelin-Wasserman similarity
+#'
+#'    Per position:
+#'
+#'    `SW = 2 - sum((col1 - col2)^2)`
+#'
 #' * MSW: Mean SW
+#'
+#'    `MSW = mean(SW)`
+#'
 #' * KL: Kullback-Leibler divergence
+#'
+#'    Per position:
+#'
+#'    `KL = 0.5 * sum(col1 * log(col1/col2) + col2 * log(col2/col1))`
+#'
 #' * MKL: Mean Kullback-Leibler divergence
+#'
+#'    `MKL = mean(KL)`
 #'
 #' To note regarding p-values: p-values are pre-computed using the
 #' `make_DBscores` function. If not given, then uses a set of internal
@@ -86,13 +124,18 @@
 #' as.dist(1 - motif1vs2)
 #'
 #' @references
+#'    \insertRef{euclidean}{universalmotif}
+#'
 #'    \insertRef{jaspar}{universalmotif}
 #'
-#'    \insertRef{tfbstools}{universalmotif}
+#'    \insertRef{pearson}{universalmotif}
+#'
+#'    \insertRef{kldiv}{universalmotif}
+#'
+#'    \insertRef{wasserman}{universalmotif}
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso [convert_motifs()], [TFBSTools::PWMSimilarity()],
-#'    [motif_tree()], [view_motifs()]
+#' @seealso [convert_motifs()], [motif_tree()], [view_motifs()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "MPCC", tryRC = TRUE,

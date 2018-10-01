@@ -103,6 +103,11 @@ The aim of this function is provide an easy interface to creating
 \linkS4class{universalmotif} motifs, as an alternative to the
 default class constructor (i.e. \code{new('universalmotif', name=...)}).
 See examples for potential use cases.
+
+Note: when generating random motifs, the \code{nsites} slot is also given a
+random value. Furthermore, be careful about the \code{nsites} slot when
+motifs from consensus strings: for example, the following class
+\code{create_motif("TAAAT")} generates a motif with \code{nsites = 1}.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -114,13 +119,13 @@ See examples for potential use cases.
 
 \item \code{matrix}: Create motif from a matrix.
 
-\item \code{DNAStringSet}: Create motif from a \linkS4class{DNAStringSet}.
+\item \code{DNAStringSet}: Create motif from a \link[Biostrings:DNAStringSet-class]{Biostrings::DNAStringSet}.
 
-\item \code{RNAStringSet}: Create motif from a \linkS4class{RNAStringSet}.
+\item \code{RNAStringSet}: Create motif from a \link[Biostrings:RNAStringSet-class]{Biostrings::RNAStringSet}.
 
-\item \code{AAStringSet}: Create motif from a \linkS4class{AAStringSet}.
+\item \code{AAStringSet}: Create motif from a \link[Biostrings:AAStringSet-class]{Biostrings::AAStringSet}.
 
-\item \code{BStringSet}: Create motif from a \linkS4class{BStringSet}.
+\item \code{BStringSet}: Create motif from a \link[Biostrings:BStringSet-class]{Biostrings::BStringSet}.
 }}
 
 \examples{
@@ -239,8 +244,8 @@ DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 
 }
 \seealso{
-\code{\link[=convert_type]{convert_type()}}, \code{\link[=add_multifreq]{add_multifreq()}},
-\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_motifs]{shuffle_motifs()}}.
+\code{\link[=convert_type]{convert_type()}}, \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=create_sequences]{create_sequences()}},
+\code{\link[=shuffle_motifs]{shuffle_motifs()}}.
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
