@@ -37,9 +37,11 @@
 #'    See examples for potential use cases.
 #'
 #'    Note: when generating random motifs, the `nsites` slot is also given a
-#'    random value. Furthermore, be careful about the `nsites` slot when
-#'    motifs from consensus strings: for example, the following class
+#'    random value. Furthermore, be careful about the `nsites` slot when creating
+#'    motifs from consensus strings: for example, the following call
 #'    `create_motif("TAAAT")` generates a motif with `nsites = 1`.
+#'
+#'    See the `examples` section for more info on motif creation.
 #'
 #' @seealso [convert_type()], [add_multifreq()], [create_sequences()],
 #'    [shuffle_motifs()].
@@ -159,6 +161,7 @@
 #' DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso [create_sequences()]
 #' @export
 setGeneric("create_motif", function(input, alphabet, type = "PPM",
                                     name = "motif", pseudocount = 0,

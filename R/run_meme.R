@@ -86,8 +86,7 @@
 #' @export
 run_meme <- function(target.sequences, output = NULL,
                      overwrite.dir = FALSE, control.sequences = NULL,
-                     weights = NULL,
-                     text = FALSE, brief = 1000, objfun = "classic",
+                     weights = NULL, text = FALSE, brief = 1000, objfun = "classic",
                      test = NULL, use_llr = FALSE, shuf = 2, hsfrac = NULL,
                      cefrac = NULL, searchsize = NULL, norand = FALSE,
                      csites = 1000, seed = 0, alph = NULL, revcomp = FALSE,
@@ -262,7 +261,7 @@ run_meme <- function(target.sequences, output = NULL,
   if (delete.ouput) to.delete <- c(dataset, output) else to.delete <- dataset
 
   if (!is.null(control.sequences)) {
-    if (class(target.sequences) != class(control.sequences))
+    if (!is(target.sequences, class(control.sequences)))
       stop(paste0("'target.sequences' has class ", class(target.sequences),
                   " whereas 'control.sequences' has class ",
                   class(control.sequences)))
@@ -334,8 +333,8 @@ run_meme <- function(target.sequences, output = NULL,
   t.start <- Sys.time()
   run.res <-processx::run(bin, meme.args, error_on_status = FALSE,
                           wd = wd, timeout = timeout,
-                          echo_cmd = ifelse(v>0, T, F),
-                          echo = ifelse(echo, T, F),
+                          echo_cmd = ifelse(v>0, TRUE, FALSE),
+                          echo = ifelse(echo, TRUE, FALSE),
                           stderr_line_callback = ifelse(echo||v==0, NULL, meme_cb))
   t.stop <- Sys.time()
 

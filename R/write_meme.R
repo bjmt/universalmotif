@@ -1,6 +1,7 @@
 #' Export motifs in MEME format.
 #'
 #' Convert motifs to minimal MEME format and write to file.
+#' See \url{http://meme-suite.org/doc/meme-format.html}.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.

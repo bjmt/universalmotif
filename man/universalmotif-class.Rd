@@ -68,13 +68,13 @@
 
 \item{.Object}{\linkS4class{universalmotif} Final motif.}
 
-\item{name}{\code{character} Motif name.}
+\item{name}{\code{character(1)} Motif name.}
 
-\item{altname}{\code{character} Alternate motif name.}
+\item{altname}{\code{character(1)} Alternate motif name.}
 
-\item{family}{\code{character} Transcription factor family.}
+\item{family}{\code{character(1)} Transcription factor family.}
 
-\item{organism}{\code{character} Species of origin.}
+\item{organism}{\code{character(1)} Species of origin.}
 
 \item{motif}{\code{matrix} Each column represents a position in the motif.}
 
@@ -83,28 +83,28 @@ or a combined string representing the letters.}
 
 \item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{icscore}{\code{numeric} Total information content. Automatically generated.}
+\item{icscore}{\code{numeric(1)} Total information content. Automatically generated.}
 
-\item{nsites}{\code{numeric} Number of sites the motif was constructed from.}
+\item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from.}
 
-\item{pseudocount}{\code{pseudocount(1)} Correction to be applied to prevent \code{-Inf}
+\item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from apearing in PWM matrices.}
 
 \item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
 length. If missing, assumes a uniform background.}
 
-\item{bkgsites}{\code{numeric} Total number of sites used to find the motif.}
+\item{bkgsites}{\code{numeric(1)} Total number of sites used to find the motif.}
 
-\item{consensus}{\code{character} Consensus string. Automatically generated for
+\item{consensus}{\code{character(1)} Consensus string. Automatically generated for
 'DNA', 'RNA', and 'AA' alphabets.}
 
 \item{strand}{\code{character(1)} Whether the motif is specific to a certain strand.}
 
-\item{pval}{\code{numeric} P-value associated with motif.}
+\item{pval}{\code{numeric(1)} P-value associated with motif.}
 
-\item{qval}{\code{numeric} Adjusted P-value associated with motif.}
+\item{qval}{\code{numeric(1)} Adjusted P-value associated with motif.}
 
-\item{eval}{\code{numeric} E-value associated with motif.}
+\item{eval}{\code{numeric(1)} E-value associated with motif.}
 
 \item{multifreq}{\code{list} See \code{\link[=add_multifreq]{add_multifreq()}}.}
 
@@ -124,18 +124,18 @@ A motif object of class \linkS4class{universalmotif}.
 }
 \description{
 Container for motif objects. See \code{\link[=create_motif]{create_motif()}} for creating
-motifs.
+motifs as well as a more detailed description of the slots.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{name}}{\code{character(1)}}
 
-\item{\code{altname}}{\code{character}}
+\item{\code{altname}}{\code{character(1)}}
 
-\item{\code{family}}{\code{character}}
+\item{\code{family}}{\code{character(1)}}
 
-\item{\code{organism}}{\code{character}}
+\item{\code{organism}}{\code{character(1)}}
 
 \item{\code{motif}}{\code{matrix}}
 
@@ -145,23 +145,23 @@ motifs.
 
 \item{\code{icscore}}{\code{numeric(1)} Generated automatically.}
 
-\item{\code{nsites}}{\code{numeric}}
+\item{\code{nsites}}{\code{numeric(1)}}
 
 \item{\code{pseudocount}}{\code{numeric(1)}}
 
 \item{\code{bkg}}{\code{numeric} Length equal to number of letters in alphabet.}
 
-\item{\code{bkgsites}}{\code{numeric}}
+\item{\code{bkgsites}}{\code{numeric(1)}}
 
 \item{\code{consensus}}{\code{character} Generated automatically.}
 
 \item{\code{strand}}{\code{character(1)}}
 
-\item{\code{pval}}{\code{numeric}}
+\item{\code{pval}}{\code{numeric(1)}}
 
-\item{\code{qval}}{\code{numeric}}
+\item{\code{qval}}{\code{numeric(1)}}
 
-\item{\code{eval}}{\code{numeric}}
+\item{\code{eval}}{\code{numeric(1)}}
 
 \item{\code{multifreq}}{\code{list}}
 

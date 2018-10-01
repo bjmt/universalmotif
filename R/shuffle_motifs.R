@@ -3,17 +3,26 @@
 #' Given a set of motifs, shuffle the columns between them. Currently does not
 #' support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
 #' and 'bkgsites' slots will be preserved. Uses the same shuffling methods
-#' as [shuffle_sequences()].
+#' as [shuffle_sequences()]. When shuffling more than one motif, they are
+#' shuffled together.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('linear', 'random')`.
-#'    See details.
+#'    Only relevant if `k > 1`. See details.
 #' @param leftovers `character(1)` For \code{method = 'random'}. One of
 #'    `c('asis', 'first', 'split', 'discard')`. See details.
 #'
 #' @return Motifs. See [convert_motifs()] for available output
 #'    formats.
+#'
+#' @details
+#' If `method = 'linear'`, then the input positions are split linearly every
+#' `k` columns after which they are shuffled. If `method = random`, then
+#' sets of `k`-columns are chosen randonmly before being shuffled. This leaves
+#' leftover column islands smaller than `k`; these can be left `asis`, placed
+#' `first`, `split` between the beginning and the end, or `discard`ed. See
+#' [shuffle_motifs()].
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [shuffle_sequences()]

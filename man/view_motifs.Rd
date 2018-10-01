@@ -13,24 +13,25 @@ view_motifs(motifs, use.type = "ICM", method = "MPCC", tryRC = TRUE,
 
 \item{use.type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{tryRC}{\code{logical(1)} Check if motif reverse complement leads to a
-better alignment.}
+better alignment. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum alignment overlap between
 motifs. If \code{min.overlap < 1}, this represents the minimum fraction
-between the two motifs during alignment.}
+between the two motifs during alignment. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.mean.ic}{\code{numeric(1)} Minimum information content between the
 two motifs for an alignment to be scored. This helps prevent scoring
-alignments between low information content regions of two motifs.}
+alignments between low information content regions of two motifs. See
+\code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions.}
+unaligned positions. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{...}{Addtional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }
@@ -63,7 +64,7 @@ slot using the \pkg{Logolas} package.
 \insertRef{ggseqlogo}{universalmotif}
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=add_multifreq]{add_multifreq()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

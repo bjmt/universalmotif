@@ -18,7 +18,7 @@
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [create_sequences()]. See [BiocParallel::register()] to change the default
 #'    backend. Setting `BP = TRUE` is only recommended for large jobs (such as
-#'    `create_sequences(seqlen=100000,seqnum=100000)`. Furthermore,
+#'    `create_sequences(seqlen=100000,seqnum=100000)`). Furthermore,
 #'    the behaviour of `progress = TRUE` is
 #'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
 #'    be shown (which unfortunately is much less informative).

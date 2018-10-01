@@ -23,16 +23,23 @@ See details.}
 sequences.}
 
 \item{use.freq}{\code{numeric(1)} The default, 1, uses the motif matrix (from
-the \code{motif["motif"]} slot) to search for sequences. If a higher
+the \code{motif['motif']} slot) to search for sequences. If a higher
 number is used, then the matching k-let matrix from the
-\code{motif["multifreq"]} slot is used. See \code{\link[=add_multifreq]{add_multifreq()}}.}
+\code{motif['multifreq']} slot is used. See \code{\link[=add_multifreq]{add_multifreq()}}.}
 
-\item{verbose}{\code{numeric(1)} Describe progress, from none (0) to very
-verbose (3).}
+\item{verbose}{\code{numeric(1)} Describe progress, from none (\code{0}) to very
+verbose (\code{3}).}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel.}
+\item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
+\code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
+default backend. Setting \code{BP = TRUE} is only recommended for
+exceptionally large jobs. Keep in mind however that this function
+will not attempt to limit its memory usage. Furthermore, the
+behaviour of \code{porgress = TRUE} is changed if \code{BP = TRUE}; the
+default \pkg{BiocParallel} progress bar will be shown (which
+unfortunately is much less informative).}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input
@@ -62,7 +69,7 @@ possible score a motif (of type PWM), run
 If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
 generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
 
-Note: memory usage increases exponentially with k.
+Note: memory usage increases exponentially with increasing \code{k}.
 }
 \examples{
 ## any alphabet can be used

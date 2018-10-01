@@ -18,7 +18,8 @@ See \code{\link[=scan_sequences]{scan_sequences()}}.}
 NULL, invisibly.
 }
 \description{
-Convert motifs to HOMER format and write to file.
+Convert DNA motifs to HOMER format and write to file.
+See \url{http://homer.ucsd.edu/homer/motif/}.
 }
 \examples{
 motif <- create_motif()

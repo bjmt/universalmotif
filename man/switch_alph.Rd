@@ -10,7 +10,8 @@ switch_alph(motifs)
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 }
 \value{
-The DNA/RNA version of the motifs.
+The DNA/RNA version of the motifs. See \code{\link[=convert_motifs]{convert_motifs()}} for
+acceptable output formats.
 }
 \description{
 Convert a motif from DNA to RNA, or RNA to DNA.

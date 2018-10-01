@@ -25,6 +25,7 @@ otherwise will default to "+ -"}
 }
 \description{
 Convert motifs to minimal MEME format and write to file.
+See \url{http://meme-suite.org/doc/meme-format.html}.
 }
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",

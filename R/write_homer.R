@@ -1,6 +1,7 @@
 #' Export motifs in HOMER format.
 #'
-#' Convert motifs to HOMER format and write to file.
+#' Convert DNA motifs to HOMER format and write to file.
+#' See \url{http://homer.ucsd.edu/homer/motif/}.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.

@@ -30,7 +30,7 @@ named numeric vector of length 64.}
 \item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
 \code{\link[=create_sequences]{create_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
 backend. Setting \code{BP = TRUE} is only recommended for large jobs (such as
-\code{create_sequences(seqlen=100000,seqnum=100000)}. Furthermore,
+\code{create_sequences(seqlen=100000,seqnum=100000)}). Furthermore,
 the behaviour of \code{progress = TRUE} is
 changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
 be shown (which unfortunately is much less informative).}

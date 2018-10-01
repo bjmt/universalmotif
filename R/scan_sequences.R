@@ -12,13 +12,20 @@
 #' @param RC `logical(1)` If `TRUE`, check reverse complement of input
 #'    sequences.
 #' @param use.freq `numeric(1)` The default, 1, uses the motif matrix (from
-#'    the `motif["motif"]` slot) to search for sequences. If a higher
+#'    the `motif['motif']` slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
-#'    `motif["multifreq"]` slot is used. See [add_multifreq()].
-#' @param verbose `numeric(1)` Describe progress, from none (0) to very
-#'    verbose (3).
-#' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Use BiocParallel.
+#'    `motif['multifreq']` slot is used. See [add_multifreq()].
+#' @param verbose `numeric(1)` Describe progress, from none (`0`) to very
+#'    verbose (`3`).
+#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
+#'    [scan_sequences()]. See [BiocParallel::register()] to change the
+#'    default backend. Setting `BP = TRUE` is only recommended for
+#'    exceptionally large jobs. Keep in mind however that this function
+#'    will not attempt to limit its memory usage. Furthermore, the
+#'    behaviour of `porgress = TRUE` is changed if `BP = TRUE`; the
+#'    default \pkg{BiocParallel} progress bar will be shown (which
+#'    unfortunately is much less informative).
 #'
 #' @return `data.frame` with each row representing one hit; if the input
 #'    sequences are [Biostrings::DNAStringSet-class or
@@ -43,7 +50,7 @@
 #'    If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
 #'    generated using [motif_pvalue()].
 #'
-#'    Note: memory usage increases exponentially with k.
+#'    Note: memory usage increases exponentially with increasing `k`.
 #'
 #' @examples
 #' ## any alphabet can be used

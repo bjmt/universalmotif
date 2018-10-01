@@ -31,7 +31,7 @@ control tip size (e.g. 'icscore'). See \code{\link[ggtree:ggtree]{ggtree::ggtree
 See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{branch.length}{\code{character(1)} If 'none', draw a cladogram.
-See \code{\link[ggtree:gtree]{ggtree::gtree()}}.}
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 

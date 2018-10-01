@@ -5,12 +5,12 @@
 \title{Run MEME from within R.}
 \usage{
 run_meme(target.sequences, output = NULL, overwrite.dir = FALSE,
-  control.sequences = NULL, text = FALSE, brief = 1000,
-  objfun = "classic", test = NULL, use_llr = FALSE, shuf = 2,
-  hsfrac = NULL, cefrac = NULL, searchsize = NULL, norand = FALSE,
-  csites = 1000, seed = 0, alph = NULL, revcomp = FALSE,
-  pal = FALSE, mod = "zoops", nmotifs = 3, evt = NULL,
-  time = NULL, nsites = NULL, minsites = NULL, maxsites = NULL,
+  control.sequences = NULL, weights = NULL, text = FALSE,
+  brief = 1000, objfun = "classic", test = NULL, use_llr = FALSE,
+  shuf = 2, hsfrac = NULL, cefrac = NULL, searchsize = NULL,
+  norand = FALSE, csites = 1000, seed = 0, alph = NULL,
+  revcomp = FALSE, pal = FALSE, mod = "zoops", nmotifs = 3,
+  evt = NULL, nsites = NULL, minsites = NULL, maxsites = NULL,
   wnsites = 0.8, w = NULL, minw = 8, maxw = 50, allw = NULL,
   nomatrim = FALSE, wg = 11, ws = 1, noendgaps = FALSE,
   bfile = NULL, markov_order = 0, psp = NULL, maxiter = 50,
@@ -32,6 +32,9 @@ allow overwritting.}
 
 \item{control.sequences}{\code{XStringSet} List of negative sequences. Only
 used if \code{objfun = c("de", "se")}.}
+
+\item{weights}{\code{numeric} Vector of numbers between 0 and 1, representing
+sequence weights.}
 
 \item{text}{\code{logical(1)} [MEME]}
 
@@ -137,9 +140,6 @@ will be saved.}
 
 \item{bin}{\code{character(1)} Location of MEME binary. Alternatively, set this
 via \code{options(meme.bin = '/path/to/meme/bin')}.}
-
-\item{weights}{\code{numeric} Vector of numbers between 0 and 1, representing
-sequence weights.}
 }
 \value{
 \code{list} The output file is read with \code{\link[=read_meme]{read_meme()}}.

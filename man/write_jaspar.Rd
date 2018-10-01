@@ -16,6 +16,7 @@ write_jaspar(motifs, file)
 }
 \description{
 Convert motifs to JASPAR format and write to file.
+See \url{http://jaspar.genereg.net/}.
 }
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",

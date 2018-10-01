@@ -45,33 +45,33 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
     stop("consensus string for ", x@alphabet, " motifs is generated automatically")
   }
   slot(x, i) <- value
-  # msg <- validObject_universalmotif(x)  # throws errors..
+  # msg <- validObject_universalmotif(x)  # TODO: throws errors..
   # if (length(msg) > 0) stop(msg) else x
   if (validObject(x)) x
 })
 
 #' @param .Object [universalmotif-class] Final motif.
-#' @param name `character` Motif name.
-#' @param altname `character` Alternate motif name.
-#' @param family `character` Transcription factor family.
-#' @param organism `character` Species of origin.
+#' @param name `character(1)` Motif name.
+#' @param altname `character(1)` Alternate motif name.
+#' @param family `character(1)` Transcription factor family.
+#' @param organism `character(1)` Species of origin.
 #' @param motif `matrix` Each column represents a position in the motif.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
 #'    or a combined string representing the letters.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
-#' @param icscore `numeric` Total information content. Automatically generated.
-#' @param nsites `numeric` Number of sites the motif was constructed from.
-#' @param pseudocount `pseudocount(1)` Correction to be applied to prevent `-Inf`
+#' @param icscore `numeric(1)` Total information content. Automatically generated.
+#' @param nsites `numeric(1)` Number of sites the motif was constructed from.
+#' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
 #'   from apearing in PWM matrices.
 #' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
 #'            length. If missing, assumes a uniform background.
-#' @param bkgsites `numeric` Total number of sites used to find the motif.
-#' @param consensus `character` Consensus string. Automatically generated for 
+#' @param bkgsites `numeric(1)` Total number of sites used to find the motif.
+#' @param consensus `character(1)` Consensus string. Automatically generated for 
 #'    'DNA', 'RNA', and 'AA' alphabets.
 #' @param strand `character(1)` Whether the motif is specific to a certain strand.
-#' @param pval `numeric` P-value associated with motif.
-#' @param qval `numeric` Adjusted P-value associated with motif.
-#' @param eval `numeric` E-value associated with motif.
+#' @param pval `numeric(1)` P-value associated with motif.
+#' @param qval `numeric(1)` Adjusted P-value associated with motif.
+#' @param eval `numeric(1)` E-value associated with motif.
 #' @param multifreq `list` See [add_multifreq()].
 #' @param extrainfo `character` Any other extra information, represented as
 #'    a named character vector.

@@ -12,10 +12,12 @@
 #'    used to generate the multi-freq matrices. Otherwise
 #'    [scan_sequences()] is first run to find the right sequence.
 #' @param add.k `numeric(1)` The k-let lengths to add.
-#' @param threshold `numeric(1)` See [scan_sequences()].
-#' @param threshold.type `character(1)` See [scan_sequences()].
-#' @param RC `logical(1)` See [scan_sequences()].
-#' @param motifs.perseq `numeric(1)` If [scan_sequences()] is run, 
+#' @param threshold `numeric(1)` Between 0 and 1. See [scan_sequences()].
+#' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`.
+#'    See [scan_sequences()].
+#' @param RC `logical(1)` Check the reverse complement of a DNA sequence.
+#'    See [scan_sequences()].
+#' @param motifs.perseq `numeric(1)` If [scan_sequences()] is run,
 #'    then this indicates how many hits from each sequence is to be used.
 #'
 #' @details
@@ -36,11 +38,11 @@
 #'    same length as the motif; in this case [add_multifreq()] is forced to
 #'    create the multifreq matrices from these sequences. Otherwise
 #'    [add_multifreq()] will scan the input sequences for the motif and use the
-#'    best match(es) to construct the multifreq matrices.
+#'    best matches to construct the multifreq matrices.
 #'
 #'    This 'multifreq' representation is only really useful within the
 #'    \pkg{universalmotif} enrivonment. Despite this, if you wish it can be
-#'    preserved as a text motif using [write_motifs()].
+#'    preserved in text using [write_motifs()].
 #'
 #'    Note: the number of rows for each k-let matrix is n^k, with n being the
 #'    number of letters in the alphabet being used. This means that the size

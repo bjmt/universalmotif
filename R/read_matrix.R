@@ -74,7 +74,7 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
     }
   } else {
     motif_starts <- c(1, seperators + 1)
-    if (motif_starts[length(motifs_starts)] >= length(raw_lines))
+    if (motif_starts[length(motif_starts)] >= length(raw_lines))
       motif_starts <- motif_starts[-length(motif_starts)]
   }
 

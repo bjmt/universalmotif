@@ -64,7 +64,7 @@
 #' ## motif; these calculations do not work if any -Inf values are present
 #' examplemotif["pseudocount"] <- 1
 #' # or
-#' examplemotif <- normalize(examplemotif)
+#' examplemotif <- BiocGenerics::normalize(examplemotif)
 #'
 #' ## get a minimum score based on a p-value
 #' motif_pvalue(examplemotif, pvalue = 0.001)

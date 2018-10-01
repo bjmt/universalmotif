@@ -1,25 +1,25 @@
 #' universalmotif: Motif class.
 #'
 #' Container for motif objects. See [create_motif()] for creating
-#' motifs.
+#' motifs as well as a more detailed description of the slots.
 #'
 #' @slot name `character(1)`
-#' @slot altname `character`
-#' @slot family `character`
-#' @slot organism `character`
+#' @slot altname `character(1)`
+#' @slot family `character(1)`
+#' @slot organism `character(1)`
 #' @slot motif `matrix`
 #' @slot alphabet `character(1)`
 #' @slot type `character(1)`
 #' @slot icscore `numeric(1)` Generated automatically.
-#' @slot nsites `numeric`
+#' @slot nsites `numeric(1)`
 #' @slot pseudocount `numeric(1)`
 #' @slot bkg `numeric` Length equal to number of letters in alphabet.
-#' @slot bkgsites `numeric`
+#' @slot bkgsites `numeric(1)`
 #' @slot consensus `character` Generated automatically.
 #' @slot strand `character(1)`
-#' @slot pval `numeric`
-#' @slot qval `numeric`
-#' @slot eval `numeric`
+#' @slot pval `numeric(1)`
+#' @slot qval `numeric(1)`
+#' @slot eval `numeric(1)`
 #' @slot multifreq `list`
 #' @slot extrainfo `character`
 #'

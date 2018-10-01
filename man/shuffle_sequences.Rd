@@ -14,14 +14,19 @@ shuffle_sequences(sequences, k = 1, method = "linear",
 \item{k}{\code{numeric(1)} K-let size.}
 
 \item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
-See details.}
+Only relevant is \code{k > 1}. See details.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=shuffle_sequences]{shuffle_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for large jobs (such as
+shuffling billions of letters). Furthermore, the behaviour of \code{progress = TRUE}
+is changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
+be shown (which unfortunately is much less informative).}
 }
 \value{
 \link[Biostrings:XStringSet-class]{Biostrings::XStringSet} The input sequences will be returned with
@@ -42,17 +47,19 @@ dissimilar sequences versus true shuffling. See
 topic.
 
 If \code{method = 'linear'}, then the input sequences are split linearly
-every k letters; for example, for k = 3 'ACAGATAGACCC' becomes
-'ACA GAT AGA CCC'; afterwhich these 3-lets are shuffled randomly. If
-\code{method = 'random'}, then k-lets are picked from the sequence
+every \code{k} letters; for example, for \code{k = 3} 'ACAGATAGACCC' becomes
+'ACA GAT AGA CCC'; afterwhich these \code{3}-lets are shuffled randomly. If
+\code{method = 'random'}, then \code{k}-lets are picked from the sequence
 completely randomly. This however can leave 'leftover' letters, where
-lone letter islands smaller than k are left. There are a few options
+lone letter islands smaller than \code{k} are left. There are a few options
 provided to deal with these: \code{leftovers = 'asis'} will leave these
 letter islands in place; \code{leftovers = 'first'} will place these
 letters at the beginning of the sequence; \code{leftovers = 'split'}
 will place half of the leftovers at the beginning and end of the
 sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
-Do note however, that the \code{method} parameter is only relevant for k > 1.
+
+Do note however, that the \code{method} parameter is only relevant for \code{k > 1}.
+For this, a simple \code{sample} call is performed.
 }
 \examples{
 sequences <- create_sequences()
@@ -65,7 +72,8 @@ sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 \insertRef{markovmodel}{universalmotif}
 }
 \seealso{
-\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=enrich_motifs]{enrich_motifs()}}
+\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=enrich_motifs]{enrich_motifs()}},
+\code{\link[=shuffle_motifs]{shuffle_motifs()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

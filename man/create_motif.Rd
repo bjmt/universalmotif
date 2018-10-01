@@ -105,9 +105,11 @@ default class constructor (i.e. \code{new('universalmotif', name=...)}).
 See examples for potential use cases.
 
 Note: when generating random motifs, the \code{nsites} slot is also given a
-random value. Furthermore, be careful about the \code{nsites} slot when
-motifs from consensus strings: for example, the following class
+random value. Furthermore, be careful about the \code{nsites} slot when creating
+motifs from consensus strings: for example, the following call
 \code{create_motif("TAAAT")} generates a motif with \code{nsites = 1}.
+
+See the \code{examples} section for more info on motif creation.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -246,6 +248,8 @@ DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 \seealso{
 \code{\link[=convert_type]{convert_type()}}, \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=create_sequences]{create_sequences()}},
 \code{\link[=shuffle_motifs]{shuffle_motifs()}}.
+
+\code{\link[=create_sequences]{create_sequences()}}
 }
 \author{
 Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}

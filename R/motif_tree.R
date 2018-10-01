@@ -19,7 +19,7 @@
 #' @param legend `logical(1)` Show legend for line colour and tip size.
 #'    See [ggtree::ggtree()].
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
-#'    See [ggtree::gtree()].
+#'    See [ggtree::ggtree()].
 #' @param db.scores `data.frame` See [compare_motifs()].
 #' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`. See
 #'    [compare_motifs()].

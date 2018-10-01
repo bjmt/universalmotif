@@ -5,19 +5,21 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param use.type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
-#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`.
+#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
+#'    'SW', 'MSW', 'KL', 'MKL')`. See [compare_motifs()].
 #' @param tryRC `logical(1)` Check if motif reverse complement leads to a
-#'    better alignment.
+#'    better alignment. See [compare_motifs()].
 #' @param min.overlap `numeric(1)` Minimum alignment overlap between
 #'    motifs. If `min.overlap < 1`, this represents the minimum fraction
-#'    between the two motifs during alignment.
+#'    between the two motifs during alignment. See [compare_motifs()].
 #' @param min.mean.ic `numeric(1)` Minimum information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
-#'    alignments between low information content regions of two motifs.
+#'    alignments between low information content regions of two motifs. See
+#'    [compare_motifs()].
 #' @param relative_entropy `logical(1)` For ICM calculation. See
 #'    [convert_type()].
 #' @param normalise.scores `logical(1)` Favour alignments which leave fewer
-#'    unaligned positions.
+#'    unaligned positions. See [compare_motifs()].
 #' @param ... Addtional options for [ggseqlogo::geom_logo()].
 #'
 #' @return A ggplot object.
@@ -42,7 +44,7 @@
 #'
 #' \insertRef{ggseqlogo}{universalmotif}
 #'
-#' @seealso [compare_motifs()]
+#' @seealso [compare_motifs()], [add_multifreq()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",

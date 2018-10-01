@@ -20,11 +20,13 @@ used to generate the multi-freq matrices. Otherwise
 
 \item{add.k}{\code{numeric(1)} The k-let lengths to add.}
 
-\item{RC}{\code{logical(1)} See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{RC}{\code{logical(1)} Check the reverse complement of a DNA sequence.
+See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{threshold}{\code{numeric(1)} See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{threshold}{\code{numeric(1)} Between 0 and 1. See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{threshold.type}{\code{character(1)} See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}.
+See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
 \item{motifs.perseq}{\code{numeric(1)} If \code{\link[=scan_sequences]{scan_sequences()}} is run,
 then this indicates how many hits from each sequence is to be used.}
@@ -54,11 +56,11 @@ a problem if you supply \code{\link[=add_multifreq]{add_multifreq()}} with a set
 same length as the motif; in this case \code{\link[=add_multifreq]{add_multifreq()}} is forced to
 create the multifreq matrices from these sequences. Otherwise
 \code{\link[=add_multifreq]{add_multifreq()}} will scan the input sequences for the motif and use the
-best match(es) to construct the multifreq matrices.
+best matches to construct the multifreq matrices.
 
 This 'multifreq' representation is only really useful within the
 \pkg{universalmotif} enrivonment. Despite this, if you wish it can be
-preserved as a text motif using \code{\link[=write_motifs]{write_motifs()}}.
+preserved in text using \code{\link[=write_motifs]{write_motifs()}}.
 
 Note: the number of rows for each k-let matrix is n^k, with n being the
 number of letters in the alphabet being used. This means that the size

@@ -4,7 +4,8 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #'
-#' @return The DNA/RNA version of the motifs.
+#' @return The DNA/RNA version of the motifs. See [convert_motifs()] for
+#'    acceptable output formats.
 #'
 #' @examples
 #' DNA.motif <- create_motif()

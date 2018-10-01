@@ -1,6 +1,10 @@
 #' Utility functions.
 #'
-#' Various small functions used for motif creation.
+#' Various small functions used for motif creation. Note that all of the
+#' functions described here (with the following exceptions: [make_DBscores()],
+#' [summarise_motifs()]) are here only for demonstration purposes; internally
+#' the \pkg{universalmotif} package uses faster C++ code for type conversion
+#' and consensus manipulation.
 #'
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
@@ -16,20 +20,24 @@
 #' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
 #' @param db.motifs `list` Database motifs.
-#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`.
+#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
+#'    'SW', 'MSW', 'KL', 'MKL')`. See [compare_motifs()].
 #' @param shuffle.db `logical(1)` Shuffle `db.motifs` rather than
 #'    generate random motifs with [create_motif()].
-#' @param shuffle.k `numeric(1)`
-#' @param shuffle.method `character(1)`
-#' @param shuffle.leftovers `character(1)`
-#' @param rand.tries `numeric(1)`
-#' @param normalise.scores `logical(1)`
-#' @param min.overlap `numeric(1)` Minimum required motif overlap.
-#' @param min.mean.ic `numeric(1)`
-#' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Use BiocParallel.
+#' @param shuffle.k `numeric(1)` See [shuffle_motifs()].
+#' @param shuffle.method `character(1)` See [shuffle_motifs()].
+#' @param shuffle.leftovers `character(1)` See [shuffle_motifs()].
+#' @param rand.tries `numeric(1)` Number of random motifs to create for
+#'    P-value computation.
+#' @param normalise.scores `logical(1)` See [compare_motifs()].
+#' @param min.overlap `numeric(1)` Minimum required motif overlap. See
+#'    [compare_motifs()].
+#' @param min.mean.ic `numeric(1)` See [compare_motifs()].
+#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Use the \pkg{BiocParallel} package. See
+#'    [BiocParallel::register()] to change the default backend.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
-#' @param na.rm `logical` Remove columns where all values are \code{NA}.
+#' @param na.rm `logical` Remove columns where all values are `NA`.
 #'
 #' @return
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
@@ -49,6 +57,83 @@
 #'
 #'    For [summarise_motifs()]: a `data.frame` with columns representing
 #'    the [universalmotif-class] slots.
+#'
+#' @examples
+#' ## make_DBscores
+#' ## Generate P-value database for use with compare_motifs. Note that these
+#' ## must be created individually for all combinations of methods and
+#' ## normalisation.
+#' \dontrun{
+#' library(MotifDb)
+#' motifs <- convert_motifs(MotifDb[1:100])
+#' make_DBscores(motifs, method = "PCC")
+#' }
+#'
+#' ## ppm_to_icm
+#' ## Convert one column from a probability type motif to an information
+#' ## content type motif.
+#' motif <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
+#' motif.icm <- apply(motif, 2, ppm_to_icm, nsites = 100,
+#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
+#'
+#' ## icm_to_ppm
+#' ## Do the opposite of ppm_to_icm.
+#' motif.ppm <- apply(motif.icm, 2, icm_to_ppm)
+#'
+#' ## pcm_to_ppm
+#' ## Go from a count type motif to a probability type motif.
+#' motif.pcm <- create_motif(type = "PCM", nsites = 50)["motif"]
+#' motif.ppm2 <- apply(motif.pcm, 2, pcm_to_ppm, pseudocount = 1)
+#'
+#' ## ppm_to_pcm
+#' ## Do the opposite of pcm_to_ppm.
+#' motif.pcm2 <- apply(motif.ppm2, 2, ppm_to_pcm, nsites = 50)
+#'
+#' ## ppm_to_pwm
+#' ## Go from a probability type motif to a weight type motif.
+#' motif.pwm <- apply(motif.ppm, 2, ppm_to_pwm, nsites = 100,
+#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
+#'
+#' ## pwm_to_ppm
+#' ## Do the opposite of ppm_to_pwm.
+#' motif.ppm3 <- apply(motif.pwm, 2, pwm_to_ppm,
+#'                     bkg = c(0.25, 0.25, 0.25, 0.25))
+#'
+#' ## Note that not all type conversions can be done directly; for those
+#' ## type conversions which are unavailable, universalmotif just chains
+#' ## together others (i.e. from PCM -> ICM => pcm_to_ppm -> ppm_to_icm)
+#'
+#' ## position_icscore
+#' ## Similar to ppm_to_icm, except this calculates a sum for the position.
+#' ic.scores <- apply(motif.ppm, 2, position_icscore, type = "PPM",
+#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
+#'
+#' ## get_consensus
+#' ## Get a consensus string from a DNA/RNA motif.
+#' motif.consensus <- apply(motif.ppm, 2, get_consensus)
+#'
+#' ## consensus_to_ppm
+#' ## Do the opposite of get_consensus. Note that loss of information is
+#' ## inevitable.
+#' motif.ppm4 <- sapply(motif.consensus, consensus_to_ppm)
+#'
+#' ## get_consensusAA
+#' ## Get a consensus string from an amino acid motif. Unless each position
+#' ## is clearly dominated by a single amino acid, the resulting string will
+#' ## likely be useless.
+#' motif.aa <- create_motif(alphabet = "AA")["motif"]
+#' motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
+#'
+#' ## consensus_to_ppmAA
+#' ## Do the opposite of get_consensusAA.
+#' motif.aa2 <- sapply(motif.aa.consensus, consensus_to_ppmAA)
+#'
+#' ## summarise_motifs
+#' ## Create a data.frame of information based on a list of motifs.
+#' m1 <- create_motif()
+#' m2 <- create_motif()
+#' m3 <- create_motif()
+#' summarise_motifs(list(m1, m2, m3))
 #'
 #' @seealso [create_motif()], [compare_motifs()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}

@@ -1,6 +1,7 @@
 #' Export motifs in JASPAR format.
 #'
 #' Convert motifs to JASPAR format and write to file.
+#' See \url{http://jaspar.genereg.net/}.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.

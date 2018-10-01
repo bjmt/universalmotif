@@ -7,11 +7,16 @@
 #'    [Biostrings::DNAStringSet-class] and [Biostrings::RNAStringSet-class] only.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
-#'    See details.
+#'    Only relevant is `k > 1`. See details.
 #' @param leftovers `character(1)` For `method = 'random'`. One of
 #'    `c('asis', 'first', 'split', 'discard')`. See details.
-#' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Use BiocParallel.
+#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
+#'    backend. Setting `BP = TRUE` is only recommended for large jobs (such as
+#'    shuffling billions of letters). Furthermore, the behaviour of `progress = TRUE`
+#'    is changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
+#'    be shown (which unfortunately is much less informative).
 #'
 #' @return [Biostrings::XStringSet-class] The input sequences will be returned with 
 #'    identical names and lengths.
@@ -27,17 +32,19 @@
 #'    topic.
 #'
 #'    If `method = 'linear'`, then the input sequences are split linearly
-#'    every k letters; for example, for k = 3 'ACAGATAGACCC' becomes
-#'    'ACA GAT AGA CCC'; afterwhich these 3-lets are shuffled randomly. If
-#'    `method = 'random'`, then k-lets are picked from the sequence
+#'    every `k` letters; for example, for `k = 3` 'ACAGATAGACCC' becomes
+#'    'ACA GAT AGA CCC'; afterwhich these `3`-lets are shuffled randomly. If
+#'    `method = 'random'`, then `k`-lets are picked from the sequence
 #'    completely randomly. This however can leave 'leftover' letters, where
-#'    lone letter islands smaller than k are left. There are a few options
+#'    lone letter islands smaller than `k` are left. There are a few options
 #'    provided to deal with these: `leftovers = 'asis'` will leave these
 #'    letter islands in place; `leftovers = 'first'` will place these
 #'    letters at the beginning of the sequence; `leftovers = 'split'`
 #'    will place half of the leftovers at the beginning and end of the 
 #'    sequence; `leftovers = 'discard'` simply gets rid of the leftovers.
-#'    Do note however, that the `method` parameter is only relevant for k > 1.
+#'
+#'    Do note however, that the `method` parameter is only relevant for `k > 1`.
+#'    For this, a simple `sample` call is performed.
 #'
 #' @references
 #'    \insertRef{markovmodel2}{universalmotif}
@@ -48,7 +55,8 @@
 #' sequences <- create_sequences()
 #' sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 #'
-#' @seealso [create_sequences()], [scan_sequences()], [enrich_motifs()]
+#' @seealso [create_sequences()], [scan_sequences()], [enrich_motifs()],
+#'    [shuffle_motifs()]
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
