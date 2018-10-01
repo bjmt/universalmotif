@@ -13,11 +13,11 @@ formats.}
 
 \item{name}{\code{character} Keep motifs by names.}
 
-\item{altname}{\code{altname} Keep motifs by altnames.}
+\item{altname}{\code{character} Keep motifs by altnames.}
 
-\item{family}{\code{family} Keep motifs by family.}
+\item{family}{\code{character} Keep motifs by family.}
 
-\item{organism}{\code{organism} Keep motifs by organism.}
+\item{organism}{\code{character} Keep motifs by organism.}
 
 \item{width}{\code{numeric(1)} Keep motifs with minimum width.}
 
@@ -38,7 +38,8 @@ formats.}
 \item{eval}{\code{numeric(1)} Keep motifs by max E-val.}
 }
 \value{
-\code{list} Motifs.
+\code{list} Motifs. An attempt will be made to preserve the original
+class, see \code{\link[=convert_motifs]{convert_motifs()}} for limitations.
 }
 \description{
 Filter motifs based on the contents of available \linkS4class{universalmotif}

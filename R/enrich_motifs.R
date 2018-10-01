@@ -15,7 +15,8 @@
 #' @param max.q `numeric(1)` Adjusted P-value threshold. This is only useful
 #'    if multiple motifs are being enriched for.
 #' @param max.e `numeric(1)`. The E-value is calculated by multiplying the adjusted
-#'    P-value with the number of input motifs \insertCite{meme2}{universalmotif}.
+#'    P-value with the number of input motifs times two
+#'    \insertCite{meme2}{universalmotif}.
 #' @param qval.method `character(1)` See [stats::p.adjust()].
 #' @param positional.test `character(1)` One of `c('t.test', 'wilcox.test',
 #'    'chisq.test', 'shapiro.test')`. If using the Shapiro test for
@@ -34,12 +35,21 @@
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
 #'    [shuffle_sequences()].
-#' @param shuffle.method `character(1)` See [shuffle_sequences()].
-#' @param shuffle.leftovers `character(1)` See [shuffle_sequences()].
+#' @param shuffle.method `character(1)` One of `c('markov', 'linear', 'random')`.
+#'    See [shuffle_sequences()].
+#' @param shuffle.leftovers `character(1)` One of `c('asis', 'first', 'split', 'discard')`.
+#'    Only used if `shuffle.method = 'random'`. See [shuffle_sequences()].
 #' @param return.scan.results `logical(1)` Return output from
 #'    [scan_sequences()].
-#' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Use BiocParallel.
+#' @param progress `logical(1)` Show progress. Note recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [enrich_motifs()]. See [BiocParallel::register()] to change the default
+#'    backend. Setting `BP = TRUE` is only recommended for exceptionally large jobs
+#'    (be wary of memory usage however, as [enrich_motifs()] does not try and
+#'    limit itself in this regard).
+#'    Furthermore, the behaviour of `progress = TRUE` is
+#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
+#'    be shown (which unfortunately is much less informative).
 #'
 #' @return `data.frame` Motif enrichment results. The resulting 
 #'    `data.frame` contains the following columns:

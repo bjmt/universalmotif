@@ -58,7 +58,7 @@ by the number of input motifs times two.}
 
 \item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
 \code{\link[=compare_motifs]{compare_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for compare large numbers
+backend. Setting \code{BP = TRUE} is only recommended for comparing large numbers
 of motifs (>10,000). Furthermore, the behaviour of \code{progress = TRUE} is
 changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
 be shown (which unfortunately is much less informative).}

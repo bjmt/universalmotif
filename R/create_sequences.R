@@ -1,9 +1,10 @@
 #' Create random sequences.
 #'
-#' Generate random sequences from any set of characters.
+#' Generate random sequences from any set of characters, represented as
+#' [Biostrings::XStringSet-class] objects.
 #'
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`, or a string of
-#'    letters/characters to be used as the alphabet.
+#'    characters to be used as the alphabet.
 #' @param monofreqs `numeric` Alphabet frequencies to use. If missing assumes uniform
 #'   frequencies. Not used if `difreq` or `trifreq` are
 #'   input.
@@ -13,10 +14,16 @@
 #'   named numeric vector of length 16.
 #' @param trifreqs `numeric` Trinucleotide frequencies. DNA/RNA only. Must be a 
 #'   named numeric vector of length 64.
-#' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Use BiocParallel.
+#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [create_sequences()]. See [BiocParallel::register()] to change the default
+#'    backend. Setting `BP = TRUE` is only recommended for large jobs (such as
+#'    `create_sequences(seqlen=100000,seqnum=100000)`. Furthermore,
+#'    the behaviour of `progress = TRUE` is
+#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
+#'    be shown (which unfortunately is much less informative).
 #'
-#' @return [Biostrings::XStringSet-class]
+#' @return [Biostrings::XStringSet-class] The returned sequences are _unnamed_.
 #'
 #' @examples
 #' ## create DNA sequences with slightly increased AT content:

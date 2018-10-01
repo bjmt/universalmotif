@@ -10,6 +10,6 @@ ArabidopsisMotif
 }
 \description{
 Arabidopsis motif trained from \code{\link{ArabidopsisPromoters}} using
-MEME v4.
+MEME version 4.
 }
 \keyword{datasets}

@@ -40,7 +40,7 @@
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [compare_motifs()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for compare large numbers
+#'    backend. Setting `BP = TRUE` is only recommended for comparing large numbers
 #'    of motifs (>10,000). Furthermore, the behaviour of `progress = TRUE` is
 #'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
 #'    be shown (which unfortunately is much less informative).
@@ -217,6 +217,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     if (missing(db.scores)) {
       if (!normalise.scores) db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
       else db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
+      if (use.freq != 1)
+        warning("Using the internal P-value database with `use.freq > 1` will result in incorrect P-values",
+                immediate. = TRUE)
+      mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
+      if (!all(mot.alphs == "DNA"))
+        warning("Using the internal P-value database with non-DNA motifs will result in incorrect P-values",
+                immediate. = TRUE)
     } else {
       db.scores <- check_db_scores(db.scores, method, normalise.scores)
     }

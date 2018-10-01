@@ -12,6 +12,8 @@
 #'    allow overwritting.
 #' @param control.sequences `XStringSet` List of negative sequences. Only
 #'    used if `objfun = c("de", "se")`.
+#' @param weights `numeric` Vector of numbers between 0 and 1, representing
+#'    sequence weights.
 #' @param text `logical(1)` \[MEME\]
 #' @param brief `numeric(1)` \[MEME\]
 #' @param objfun `character(1)` \[MEME\]

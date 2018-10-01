@@ -6,9 +6,9 @@
 #' @param motifs `list` See [convert_motifs()] for acceptable
 #'    formats.
 #' @param name `character` Keep motifs by names.
-#' @param altname `altname` Keep motifs by altnames.
-#' @param family `family` Keep motifs by family.
-#' @param organism `organism` Keep motifs by organism.
+#' @param altname `character` Keep motifs by altnames.
+#' @param family `character` Keep motifs by family.
+#' @param organism `character` Keep motifs by organism.
 #' @param width `numeric(1)` Keep motifs with minimum width.
 #' @param alphabet `character` Keep motifs by alphabet.
 #' @param type `character` Keep motifs by type.
@@ -19,7 +19,8 @@
 #' @param qval `numeric(1)` Keep motifs by max Q-value.
 #' @param eval `numeric(1)` Keep motifs by max E-val.
 #'
-#' @return `list` Motifs.
+#' @return `list` Motifs. An attempt will be made to preserve the original
+#'    class, see [convert_motifs()] for limitations.
 #'
 #' @examples
 #' ## By minimum IC:

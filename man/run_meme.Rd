@@ -137,6 +137,9 @@ will be saved.}
 
 \item{bin}{\code{character(1)} Location of MEME binary. Alternatively, set this
 via \code{options(meme.bin = '/path/to/meme/bin')}.}
+
+\item{weights}{\code{numeric} Vector of numbers between 0 and 1, representing
+sequence weights.}
 }
 \value{
 \code{list} The output file is read with \code{\link[=read_meme]{read_meme()}}.

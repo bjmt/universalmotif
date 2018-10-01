@@ -9,7 +9,7 @@ create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100,
 }
 \arguments{
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of
-letters/characters to be used as the alphabet.}
+characters to be used as the alphabet.}
 
 \item{seqnum}{\code{numeric(1)} Number of sequences to generate.}
 
@@ -25,15 +25,22 @@ named numeric vector of length 16.}
 \item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a
 named numeric vector of length 64.}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=create_sequences]{create_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for large jobs (such as
+\code{create_sequences(seqlen=100000,seqnum=100000)}. Furthermore,
+the behaviour of \code{progress = TRUE} is
+changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
+be shown (which unfortunately is much less informative).}
 }
 \value{
-\link[Biostrings:XStringSet-class]{Biostrings::XStringSet}
+\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} The returned sequences are \emph{unnamed}.
 }
 \description{
-Generate random sequences from any set of characters.
+Generate random sequences from any set of characters, represented as
+\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} objects.
 }
 \examples{
 ## create DNA sequences with slightly increased AT content:

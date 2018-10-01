@@ -18,7 +18,9 @@ file before starting to read.}
 \description{
 Import motifs created from \code{\link[=write_motifs]{write_motifs()}}. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
-\code{\link[=readRDS]{readRDS()}}.
+\code{\link[=readRDS]{readRDS()}}. The \code{universalmotif} format will not be documented,
+as realistically the need to generate these manually/elsewhere should
+be nonexistent.
 }
 \seealso{
 Other read_motifs: \code{\link{read_cisbp}},

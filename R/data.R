@@ -36,7 +36,7 @@
 #' Arabidopsis motif.
 #'
 #' Arabidopsis motif trained from [`ArabidopsisPromoters`] using
-#' MEME v4.
+#' MEME version 4.
 #'
 #' @format [universalmotif-class]
 "ArabidopsisMotif"

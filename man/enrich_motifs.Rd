@@ -30,7 +30,8 @@ See details.}
 if multiple motifs are being enriched for.}
 
 \item{max.e}{\code{numeric(1)}. The E-value is calculated by multiplying the adjusted
-P-value with the number of input motifs \insertCite{meme2}{universalmotif}.}
+P-value with the number of input motifs times two
+\insertCite{meme2}{universalmotif}.}
 
 \item{qval.method}{\code{character(1)} See \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
 
@@ -57,16 +58,25 @@ then they can be used to scan the sequences. See \code{\link[=scan_sequences]{sc
 sequences. Only used if no background sequences are input. See
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
-\item{shuffle.method}{\code{character(1)} See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+\item{shuffle.method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
-\item{shuffle.leftovers}{\code{character(1)} See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+\item{shuffle.leftovers}{\code{character(1)} One of \code{c('asis', 'first', 'split', 'discard')}.
+Only used if \code{shuffle.method = 'random'}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Show progress. Note recommended if \code{BP = TRUE}.}
 
-\item{BP}{\code{logical(1)} Use BiocParallel.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=enrich_motifs]{enrich_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for exceptionally large jobs
+(be wary of memory usage however, as \code{\link[=enrich_motifs]{enrich_motifs()}} does not try and
+limit itself in this regard).
+Furthermore, the behaviour of \code{progress = TRUE} is
+changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
+be shown (which unfortunately is much less informative).}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting

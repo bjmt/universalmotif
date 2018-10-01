@@ -21,7 +21,9 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE)
 \description{
 Write motifs as universalmotif objects to file. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
-\code{\link[=readRDS]{readRDS()}}.
+\code{\link[=readRDS]{readRDS()}}. The \code{universalmotif} format will not be documented,
+as realistically the need to generate these manually/elsewhere should
+be nonexistent.
 }
 \seealso{
 Other write_motifs: \code{\link{write_homer}},
