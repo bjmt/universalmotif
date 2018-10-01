@@ -1,12 +1,94 @@
+#' Run MEME from within R.
+#'
+#' For a detailed description of the command, see
+#' \url{http://meme-suite.org/doc/meme.html}. For a brief description of
+#' the command parameters, run `run_meme()`. Parameters in [run_meme()]
+#' which are directly taken from the MEME program are tagged with \[MEME\].
+#'
+#' @param target.sequences `XStringSet` List of sequences to get motifs from.
+#' @param output `character(1)` Name of the output folder. If `NULL`, MEME
+#'    output will be deleted.
+#' @param overwrite.dir `logical(1)` If `output` is set but already exists,
+#'    allow overwritting.
+#' @param control.sequences `XStringSet` List of negative sequences. Only
+#'    used if `objfun = c("de", "se")`.
+#' @param text `logical(1)` \[MEME\]
+#' @param brief `numeric(1)` \[MEME\]
+#' @param objfun `character(1)` \[MEME\]
+#' @param test `character(1)` \[MEME\]
+#' @param use_llr `logical(1)` \[MEME\]
+#' @param shuf `numeric(1)` \[MEME\]
+#' @param hsfrac `numeric(1)` \[MEME\]
+#' @param cefrac `numeric(1)` \[MEME\]
+#' @param searchsize `numeric(1)` \[MEME\]
+#' @param norand `logical(1)` \[MEME\]
+#' @param csites `numeric(1)` \[MEME\]
+#' @param seed `numeric(1)` \[MEME\]
+#' @param alph `character(1)` \[MEME\]
+#' @param revcomp `logical(1)` \[MEME\]
+#' @param pal `logical(1)` \[MEME\]
+#' @param mod `character(1)` \[MEME\]
+#' @param nmotifs `numeric(1)` \[MEME\]
+#' @param evt `numeric(1)` \[MEME\]
+#' @param nsites `numeric(1)` \[MEME\]
+#' @param minsites `numeric(1)` \[MEME\]
+#' @param maxsites `numeric(1)` \[MEME\]
+#' @param wnsites `numeric(1)` \[MEME\]
+#' @param w `numeric(1)` \[MEME\]
+#' @param minw `numeric(1)` \[MEME\]
+#' @param maxw `numeric(1)` \[MEME\]
+#' @param allw `numeric(1)` \[MEME\]
+#' @param nomatrim `logical(1)` \[MEME\]
+#' @param wg `numeric(1)` \[MEME\]
+#' @param ws `numeric(1)` \[MEME\]
+#' @param noendgaps `logical(1)` \[MEME\]
+#' @param bfile `character(1)` \[MEME\]
+#' @param markov_order `numeric(1)` \[MEME\]
+#' @param psp `character(1)` \[MEME\]
+#' @param maxiter `numeric(1)` \[MEME\]
+#' @param distance `numeric(1)` \[MEME\]
+#' @param prior `character(1)` \[MEME\]
+#' @param b `numeric(1)` \[MEME\]
+#' @param plib `character(1)` \[MEME\]
+#' @param spfuzz `numeric(1)` \[MEME\]
+#' @param spmap `character(1)` \[MEME\]
+#' @param cons `character(1)` \[MEME\]
+#' @param p `numeric(1)` \[MEME\]
+#' @param maxsize `numeric(1)` \[MEME\]
+#' @param maxtime `numeric(1)` \[MEME\]
+#' @param wd `character(1)` Working directory to run MEME in.
+#' @param logfile `character(1)` File to dump MEME stderr. If `NULL`, no logs
+#'    will be saved.
+#' @param readsites `logical(1)` Read sites from MEME output (from [read_meme()]).
+#' @param echo `logical(1)` Dump MEME output to console.
+#' @param verbose `numeric(1)` Set `verbose = 0` to quiet [run_meme()].
+#' @param timeout `numeric(1)` Stop MEME program past `timeout`.
+#' @param bin `character(1)` Location of MEME binary. Alternatively, set this
+#'    via `options(meme.bin = '/path/to/meme/bin')`.
+#'
+#' @return `list` The output file is read with [read_meme()].
+#'
+#' @examples
+#' \dontrun{
+#' ## To check that you are properly linking to the binary:
+#' run_meme()
+#' }
+#'
+#' @references
+#'    \insertRef{meme3}{universalmotif}
+#'
+#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso [read_meme()], [create_sequences()], [shuffle_sequences()]
 #' @export
 run_meme <- function(target.sequences, output = NULL,
                      overwrite.dir = FALSE, control.sequences = NULL,
+                     weights = NULL,
                      text = FALSE, brief = 1000, objfun = "classic",
                      test = NULL, use_llr = FALSE, shuf = 2, hsfrac = NULL,
                      cefrac = NULL, searchsize = NULL, norand = FALSE,
                      csites = 1000, seed = 0, alph = NULL, revcomp = FALSE,
                      pal = FALSE, mod = "zoops", nmotifs = 3, evt = NULL,
-                     time = NULL, nsites = NULL, minsites = NULL,
+                     nsites = NULL, minsites = NULL,
                      maxsites = NULL, wnsites = 0.8, w = NULL, minw = 8,
                      maxw = 50, allw = NULL, nomatrim = FALSE, wg = 11,
                      ws = 1, noendgaps = FALSE, bfile = NULL,
@@ -35,7 +117,7 @@ run_meme <- function(target.sequences, output = NULL,
                                       logfile = args$logfile,
                                       bin = args$bin),
                                  numeric(), c(TRUE, FALSE, rep(TRUE, 9),
-                                              FALSE, FALSE, FALSE),
+                                              FALSE, TRUE, TRUE),
                                  "character")
   num_check <- check_fun_params(list(brief = args$brief,
                                      shuf = args$shuf,
@@ -46,7 +128,6 @@ run_meme <- function(target.sequences, output = NULL,
                                      seed = args$seed,
                                      nmotifs = args$nmotifs,
                                      evt = args$evt,
-                                     time = args$time,
                                      nsites = args$nsites,
                                      minsites = args$minsites,
                                      maxsites = args$maxsites,
@@ -67,7 +148,7 @@ run_meme <- function(target.sequences, output = NULL,
                                      maxtime = args$maxtime,
                                      verbose = args$verbose,
                                      timeout = args$timeout),
-                                numeric(), c(rep(TRUE, 28), FALSE, FALSE),
+                                numeric(), c(rep(TRUE, 27), FALSE, FALSE),
                                              "numeric")
   logi_check <- check_fun_params(list(overwrite.dir = args$overwrite.dir,
                                       text = args$text,
@@ -93,18 +174,9 @@ run_meme <- function(target.sequences, output = NULL,
                            error = function(e) stop("could not find the MEME binary"))
   meme.version <- sub("\n", "", meme.version$stdout, fixed = TRUE)
   meme.major <- as.numeric(strsplit(meme.version, ".", fixed = TRUE)[[1]][1])
-  if (meme.major != 5) warning("'run_meme' has been optimized for MEME version 5",
-                               immediate. = TRUE)
-
-  if (objfun %in% c("classic", "de", "se")) {
-    if (!is.null(control.sequences))
-      stop("control sequences cannot be used when `objfun = c('classic', 'se', 'de')`")
-    if (!is.null(test)) {
-      warning("'test' will be ignored when `objfun = c('classic', 'se', 'de')`",
-              immediate. = TRUE)
-      test <- NULL
-    }
-  }
+  if (!meme.major %in% 4:5)
+    warning("'run_meme' has been optimized for MEME versions 4-5",
+            immediate. = TRUE)
 
   if (missing(target.sequences)) {
     help <- processx::run(bin, "-h", error_on_status = FALSE)$stderr
@@ -172,7 +244,14 @@ run_meme <- function(target.sequences, output = NULL,
   if (is.null(names(target.sequences)))
     names(target.sequences) <- as.character(seq_len(length(target.sequences)))
   dataset <- paste0(wd, "/target.temp.fasta")
-  writeXStringSet(target.sequences, dataset)
+  if (is.null(weights))
+    writeXStringSet(target.sequences, dataset)
+  else {
+    weights <- paste(weights, collapse = " ")
+    weights <- paste(">WEIGHTS", weights)
+    cat(weights, file = dataset)
+    writeXStringSet(target.sequences, dataset, append = TRUE)
+  }
 
   if (delete.ouput) to.delete <- c(dataset, output) else to.delete <- dataset
 
@@ -228,7 +307,6 @@ run_meme <- function(target.sequences, output = NULL,
   if (!is.null(cefrac)) meme.args <- c(meme.args, "-cefrac", cefrac)
   if (!is.null(searchsize)) meme.args <- c(meme.args, "-searchsize", searchsize)
   if (!is.null(evt)) meme.args <- c(meme.args, "-evt", evt)
-  if (!is.null(time)) meme.args <- c(meme.args, "-time", time)
   if (!is.null(nsites)) meme.args <- c(meme.args, "-nsites", nsites)
   if (!is.null(minsites)) meme.args <- c(meme.args, "-minsites", minsites)
   if (!is.null(wnsites)) meme.args <- c(meme.args, "-wnsites", wnsites)
