@@ -344,6 +344,42 @@ setMethod("show", signature = "universalmotif",
 # as.character
 # names
 
+#' @export
+BiocGenerics::cbind
+
+#' @export
+BiocGenerics::subset
+
+#' @export
+BiocGenerics::rownames
+
+#' @export
+BiocGenerics::colnames
+
+#' @export
+BiocGenerics::ncol
+
+#' @export
+BiocGenerics::nrow
+
+#' @export
+BiocGenerics::rowSums
+
+#' @export
+BiocGenerics::colSums
+
+#' @export
+BiocGenerics::colMeans
+
+#' @export
+BiocGenerics::rowMeans
+
+#' @export
+BiocGenerics::normalize
+
+#' @export
+BiocGenerics::as.data.frame
+
 #' @rdname universalmotif-class
 #' @aliases as.data.frame,universalmotif-method
 setMethod("as.data.frame", signature(x = "universalmotif"),

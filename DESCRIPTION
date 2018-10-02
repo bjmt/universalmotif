@@ -11,7 +11,7 @@ Description: Allows for importing most common motif types into R
     as defined by other Bioconductor packages. A suite of motif and sequence
     manipulation and analysis functions are included, including enrichment,
     comparison, P-value calculation, shuffling, trimming, higher-order
-    motifs, and othersl.
+    motifs, and others.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8

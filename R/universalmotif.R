@@ -28,8 +28,8 @@
 #' @importFrom gtools rdirichlet permutations
 #' @importFrom Rcpp sourceCpp
 #' @importFrom processx run
-#' @importMethodsFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
-#' @importMethodsFrom BiocGenerics colMeans rowMeans normalize subset colSums
-#' @importMethodsFrom BiocGenerics as.data.frame
+#' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
+#' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums
+#' @importFrom BiocGenerics as.data.frame
 #' @useDynLib universalmotif
 NULL

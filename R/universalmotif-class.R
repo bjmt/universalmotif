@@ -1,7 +1,8 @@
 #' universalmotif: Motif class.
 #'
 #' Container for motif objects. See [create_motif()] for creating
-#' motifs as well as a more detailed description of the slots.
+#' motifs as well as a more detailed description of the slots. For a
+#' brief description of available methods, see `examples`.
 #'
 #' @slot name `character(1)`
 #' @slot altname `character(1)`
@@ -24,6 +25,75 @@
 #' @slot extrainfo `character`
 #'
 #' @return A motif object of class [universalmotif-class].
+#'
+#' @examples
+#' ## [
+#' ## Access the slots.
+#' motif <- create_motif()
+#' motif["motif"]
+#' # you can also access multiple slots at once, released as a list
+#' motif[c("motif", "name")]
+#'
+#' ## [<-
+#' ## Replace the slots.
+#' motif["name"] <- "new name"
+#' # some slots are protected
+#' # motif["consensus"] <- "AAAA"  # not allowed
+#'
+#' ## c
+#' ## Assemble a list of motifs.
+#' c(motif, motif)
+#'
+#' ## as.data.frame
+#' ## Represent a motif as a data.frame. The actual motif matrix is lost.
+#' ## Necessary for `summarise_motifs`.
+#' as.data.frame(motif)
+#'
+#' ## subset
+#' ## Subset a motif matrix by column.
+#' subset(motif, 3:7)  # extract motif core
+#'
+#' ## normalize
+#' ## Apply the pseudocount slot (or `1`, if the slot is set to zero) to the
+#' ## motif matrix.
+#' motif2 <- create_motif("AAAAA", nsites = 100, pseudocount = 1)
+#' normalize(motif2)
+#'
+#' ## rowMeans
+#' ## Calculate motif rowMeans.
+#' rowMeans(motif)
+#'
+#' ## colMeans
+#' ## Calculate motif colMeans.
+#' colMeans(motif)
+#'
+#' ## colSums
+#' ## Calculate motif colSums
+#' colSums(motif)
+#'
+#' ## rowSums
+#' ## Calculate motif rowSums.
+#' rowSums(motif)
+#'
+#' ## nrow
+#' ## Count motif rows.
+#' nrow(motif)
+#'
+#' ## ncol
+#' ## Count motif columns.
+#' ncol(motif)
+#'
+#' ## colnames
+#' ## Get motif colnames.
+#' colnames(motif)
+#'
+#' ## rownames
+#' ## Get motif rownames.
+#' rownames(motif)
+#'
+#' ## cbind
+#' ## Bind motifs together to create a new motif.
+#' cbind(motif, motif2)
 #'
 #' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name universalmotif-class
@@ -235,5 +305,5 @@ setValidity("universalmotif",
             # }
 
             if (valid) TRUE else msg
-            
+
             })
