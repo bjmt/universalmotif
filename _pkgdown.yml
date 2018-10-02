@@ -1,0 +1,109 @@
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    news:
+      text: Changelog
+      href: news/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: Advanced motif and sequence manipulation
+        href: articles/AdvancedUsage.html
+      - text: Introduction to the "universalmotif" package
+        href: articles/Introduction.html
+      - text: Introduction to sequence motifs
+        href: articles/IntroductionToSequenceMotifs.html
+      - text: Motif import, export, visualization, and manipulation
+        href: articles/MotifManipulation.html
+      - text: Sequence creation, manipulation, and scanning
+        href: articles/SequenceSearches.html
+    github:
+      icon: fa-github fa-lg
+      href: https://github.com/bjmt/universalmotif
+
+reference:
+- title: Motif import
+  desc: ~
+  contents:
+  - read_cisbp
+  - read_homer
+  - read_jaspar
+  - read_matrix
+  - read_meme
+  - read_motifs
+  - read_transfac
+  - read_uniprobe
+- title: Motif export
+  desc: ~
+  contents:
+  - write_homer
+  - write_jaspar
+  - write_matrix
+  - write_meme
+  - write_motifs
+  - write_transfac
+- title: Motif creation and manipulation
+  desc: ~
+  contents:
+  - add_multifreq
+  - convert_motifs
+  - convert_type
+  - filter_motifs
+  - merge_motifs
+  - motif_rc
+  - sample_sites
+  - shuffle_motifs
+  - switch_alph
+  - trim_motifs
+  - universalmotif-class
+  - view_motifs
+- title: Sequence creation and manipulation
+  desc: ~
+  contents:
+  - create_sequences
+  - shuffle_sequences
+- title: Motif analysis
+  desc: ~
+  contents:
+  - compare_motifs
+  - enrich_motifs
+  - motif_pvalue
+  - motif_tree
+  - run_meme
+  - scan_sequences
+- title: Miscellaneous utilities
+  desc: ~
+  contents:
+  - utilities
+- title: Data
+  desc: ~
+  contents:
+  - ArabidopsisMotif
+  - ArabidopsisPromoters
+  - JASPAR2018_CORE_DBSCORES
+  - JASPAR2018_CORE_DBSCORES_NORM
+
+articles:
+- title: All vignettes
+  desc: ~
+  contents:
+  - '`AdvancedUsage`'
+  - '`Introduction`'
+  - '`IntroductionToSequenceMotifs`'
+  - '`MotifManipulation`'
+  - '`SequenceSearches`'
+

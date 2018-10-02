@@ -38,7 +38,7 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 \item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}. See
 \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if}relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs

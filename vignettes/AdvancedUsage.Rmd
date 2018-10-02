@@ -18,9 +18,9 @@ output:
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
-library(universalmotif)
-library(Biostrings)
-library(MotifDb)
+suppressPackageStartupMessages(library(universalmotif))
+suppressPackageStartupMessages(library(Biostrings))
+suppressMessages(suppressPackageStartupMessages(library(MotifDb)))
 ```
 
 ## Multi-letter information

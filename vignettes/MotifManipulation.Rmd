@@ -18,6 +18,8 @@ output:
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+library(universalmotif)
+library(MotifDb)
 ```
 
 # The universalmotif class and conversion utilities
@@ -31,7 +33,7 @@ slots; furthermore, the 'pseudocount' and 'bkg' slots are also stored but not
 shown. `universalmotif` class motifs can be PCM, PPM, PWM, or ICM type.
 
 ```{r}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 examplemotif
 ```
@@ -39,7 +41,7 @@ examplemotif
 Exposing the motif class with `str` shows the other available slots:
 
 ```{r showslots,echo=FALSE}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 str(examplemotif)
 ```
@@ -47,7 +49,7 @@ str(examplemotif)
 The other slots will be shown once filled:
 
 ```{r}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 
 ## The various slots can be accessed individually using `[`
@@ -63,7 +65,7 @@ safeguards have been put in place for some of the slots which will prevent
 incorrect values from being introduced.
 
 ```{r,error=TRUE}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 
 ## The consensus slot is dependent on the motif matrix
@@ -94,10 +96,10 @@ This allows for easy transition between supported packages (see
 `?convert_motif` for a complete list of supported packages).
 
 ```{r}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 # data(MA0003.2)
-suppressPackageStartupMessages(library(MotifDb))
+# suppressPackageStartupMessages(library(MotifDb))
 
 ## convert from a universalmotif to another
 # convert_motifs(examplemotif, "TFBSTools-PWMatrix")
@@ -159,7 +161,7 @@ entropy. If this occurs, then back conversion to another type will be
 inaccurate. 
 
 ```{r}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 
 ## This motif is currently a PPM:
@@ -202,8 +204,8 @@ aims to fix this by providing the `compare_motifs` function. Using the
 rewritten in C++ and allows for comparing thousands of motifs in seconds.
 
 ```{r}
-library(universalmotif)
-library(MotifDb)
+# library(universalmotif)
+# library(MotifDb)
 
 ## No need to convert class, most universalmotif functions will do it
 ## automatically
@@ -222,8 +224,8 @@ Additionally, `r Biocpkg("universalmotif")` provides the `merge_motifs`
 function. This first finds the best alignment of input motifs before merging.
 
 ```{r}
-library(universalmotif)
-library(MotifDb)
+# library(universalmotif)
+# library(MotifDb)
 
 motifs <- convert_motifs(MotifDb[1:5])
 
@@ -303,7 +305,7 @@ such as `r Biocpkg("seqLogo")`, `r Biocpkg("Logolas")`,
 show how to use these to visualize `universalmotif` class motifs.
 
 ```{r}
-library(universalmotif)
+# library(universalmotif)
 data(examplemotif)
 
 ## For all the examples, simply passing the functions a PPM is sufficient
