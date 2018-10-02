@@ -18,3 +18,5 @@ builds/*
 tmp-stuff
 vignettes/*.html
 NEWS.md
+commit.r
+commit.sh
