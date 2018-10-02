@@ -1,99 +1,45 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 0.99.0
-Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"),
-                  email = "b2tremblay@uwaterloo.ca")
-URL: https://bjmt.github.io/universalmotif/, https://github.com/bjmt/universalmotif
+Version: 0.99.0.0002
+Authors@R: person("Benjamin", "Tremblay", role = c("aut", "cre"), email
+        = "b2tremblay@uwaterloo.ca")
+URL: https://bjmt.github.io/universalmotif/,
+        https://github.com/bjmt/universalmotif
 BugReports: https://github.com/bjmt/universalmotif/issues
-Description: Allows for importing most common motif types into R
-    for use by functions provided by other Bioconductor motif-related packages.
-    Motifs can be exported into most major motif formats from various classes 
-    as defined by other Bioconductor packages. A suite of motif and sequence
-    manipulation and analysis functions are included, including enrichment,
-    comparison, P-value calculation, shuffling, trimming, higher-order
-    motifs, and others.
+Description: Allows for importing most common motif types into R for
+        use by functions provided by other Bioconductor motif-related
+        packages. Motifs can be exported into most major motif formats
+        from various classes as defined by other Bioconductor packages.
+        A suite of motif and sequence manipulation and analysis
+        functions are included, including enrichment, comparison,
+        P-value calculation, shuffling, trimming, higher-order motifs,
+        and others.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
-Imports: methods,
-    ggplot2,
-    ape,
-    ggtree,
-    ggseqlogo,
-    stats,
-    utils,
-    gtools,
-    Rdpack (>= 0.7),
-    Biostrings,
-    BiocGenerics,
-    Rcpp,
-    processx
-Suggests: knitr,
-    BiocStyle,
-    TFBSTools,
-    MotIV,
-    PWMEnrich,
-    motifStack,
-    seqLogo,
-    rmarkdown,
-    MotifDb,
-    testthat,
-    rGADEM,
-    motifRG,
-    motifbreakR,
-    RcisTarget,
-    motifcounter,
-    Logolas,
-    BiocParallel,
-    BCRANK
+Imports: methods, ggplot2, ape, ggtree, ggseqlogo, stats, utils,
+        gtools, Rdpack (>= 0.7), Biostrings, BiocGenerics, Rcpp,
+        processx
+Suggests: knitr, BiocStyle, TFBSTools, MotIV, PWMEnrich, motifStack,
+        seqLogo, rmarkdown, MotifDb, testthat, rGADEM, motifRG,
+        motifbreakR, RcisTarget, motifcounter, Logolas, BiocParallel,
+        BCRANK
 LinkingTo: Rcpp
 RdMacros: Rdpack
 VignetteBuilder: knitr
-biocViews: MotifAnnotation,
-    MotifDiscovery,
-    DataImport,
-    GeneRegulation
+biocViews: MotifAnnotation, MotifDiscovery, DataImport, GeneRegulation
 RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
-Collate: 
-    'RcppExports.R'
-    'add_multifreq.R'
-    'compare_motifs.R'
-    'universalmotif-class.R'
-    'convert_motifs.R'
-    'convert_type.R'
-    'create_motif.R'
-    'create_sequences.R'
-    'data.R'
-    'enrich_motifs.R'
-    'filter_motifs.R'
-    'merge_motifs.R'
-    'motif_pvalue.R'
-    'motif_rc.R'
-    'motif_tree.R'
-    'read_cisbp.R'
-    'read_homer.R'
-    'read_jaspar.R'
-    'read_matrix.R'
-    'read_meme.R'
-    'read_motifs.R'
-    'read_transfac.R'
-    'read_uniprobe.R'
-    'run_meme.R'
-    'sample_sites.R'
-    'scan_sequences.R'
-    'shuffle_motifs.R'
-    'shuffle_sequences.R'
-    'switch_alph.R'
-    'trim_motifs.R'
-    'universalmotif-methods.R'
-    'universalmotif.R'
-    'utils.R'
-    'view_motifs.R'
-    'write_homer.R'
-    'write_jaspar.R'
-    'write_matrix.R'
-    'write_meme.R'
-    'write_motifs.R'
-    'write_transfac.R'
-    'zzz.R'
+Collate: 'RcppExports.R' 'add_multifreq.R' 'compare_motifs.R'
+        'universalmotif-class.R' 'convert_motifs.R' 'convert_type.R'
+        'create_motif.R' 'create_sequences.R' 'data.R'
+        'enrich_motifs.R' 'filter_motifs.R' 'merge_motifs.R'
+        'motif_pvalue.R' 'motif_rc.R' 'motif_tree.R' 'read_cisbp.R'
+        'read_homer.R' 'read_jaspar.R' 'read_matrix.R' 'read_meme.R'
+        'read_motifs.R' 'read_transfac.R' 'read_uniprobe.R'
+        'run_meme.R' 'sample_sites.R' 'scan_sequences.R'
+        'shuffle_motifs.R' 'shuffle_sequences.R' 'switch_alph.R'
+        'trim_motifs.R' 'universalmotif-methods.R' 'universalmotif.R'
+        'utils.R' 'view_motifs.R' 'write_homer.R' 'write_jaspar.R'
+        'write_matrix.R' 'write_meme.R' 'write_motifs.R'
+        'write_transfac.R' 'zzz.R'

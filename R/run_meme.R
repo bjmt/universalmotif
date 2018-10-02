@@ -253,7 +253,7 @@ run_meme <- function(target.sequences, output = NULL,
     if (length(target.sequences != length(weights)))
       stop("length of 'weights' must match length of 'target.sequences'")
     weights <- paste(weights, collapse = " ")
-    weights <- paste(">WEIGHTS", weights)
+    weights <- paste(">WEIGHTS", weights, "\n")
     cat(weights, file = dataset)
     writeXStringSet(target.sequences, dataset, append = TRUE)
   }
@@ -331,11 +331,11 @@ run_meme <- function(target.sequences, output = NULL,
   if (v>0) cat(paste0("\n *** Starting MEME ***\n\n", pdate(), "\n"))
 
   t.start <- Sys.time()
-  run.res <-processx::run(bin, meme.args, error_on_status = FALSE,
-                          wd = wd, timeout = timeout,
-                          echo_cmd = ifelse(v>0, TRUE, FALSE),
-                          echo = ifelse(echo, TRUE, FALSE),
-                          stderr_line_callback = ifelse(echo||v==0, NULL, meme_cb))
+  run.res <- processx::run(bin, meme.args, error_on_status = FALSE,
+                           wd = wd, timeout = timeout,
+                           echo_cmd = ifelse(v>0, TRUE, FALSE),
+                           echo = ifelse(echo, TRUE, FALSE),
+                           stderr_line_callback = ifelse(echo||v==0, NULL, meme_cb))
   t.stop <- Sys.time()
 
   if (!is.null(logfile)) cat(run.res$stderr, file = logfile)
