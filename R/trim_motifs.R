@@ -15,7 +15,7 @@
 #' jaspar.trimmed <- trim_motifs(jaspar)
 #'
 #' @seealso [create_motif()], [convert_type()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 trim_motifs <- function(motifs, min.ic = 0.25) {
 

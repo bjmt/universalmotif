@@ -1,26 +1,26 @@
 ---
-title: "Introduction to the \"universalmotif\" package"
+title: "Introduction to \"universalmotif\""
 shorttitle: "Intro to \"universalmotif\""
 author:
-- name: Benjamin Tremblay
+- name: Benjamin Jean-Marie Tremblay
   affiliation: University of Waterloo, Waterloo, Canada
   email: b2tremblay@uwaterloo.ca
-abstract: >
-  Introducing sequence motif types.
 bibliography: universalmotif.bib
 vignette: >
-  %\VignetteIndexEntry{Introduction to the "universalmotif" package}
+  %\VignetteIndexEntry{Introduction to "universalmotif"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::html_document
+  BiocStyle::pdf_document:
+    latex_engine: lualatex
+    toc: false
 ---
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
 ```
 
-# Installation
+# Installation {.unnumbered}
 
 ```{r, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -28,10 +28,18 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("universalmotif")
 ```
 
-# Session info {.unnumbered}
+# Overview {.unnumbered}
 
-```{r sessionInfo, echo=FALSE}
-sessionInfo()
-```
+For a brief explanation of sequence motifs, see the
+[Introduction to sequence motifs](IntroductionToSequenceMotifs.pdf) vignette. This
+broadly covers the different 'types' of motif representation, as well as
+establishes the nomenclature used by the `r Biocpkg("universalmotif")` package.
 
-# References {.unnumbered}
+Broadly speaking, the capabilities of the `r Biocpkg("universalmotif")` package
+can be divided into three categories. These are briefly demonstrated in the
+following vignettes:
+
+* [Motif import, export, and manipulation](MotifManipulation.pdf)
+* [Sequence scanning and manipulation](SequenceSearches.pdf)
+* [Motif analysis and advanced usage](AdvancedUsage.pdf)
+

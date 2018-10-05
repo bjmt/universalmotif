@@ -64,7 +64,7 @@
 #'
 #' @seealso [motifStack::motifStack()], [compare_motifs()],
 #'    [ggtree::ggtree()], [ggplot2::ggplot()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,

@@ -35,6 +35,6 @@ Other read_motifs: \code{\link{read_cisbp}},
   \code{\link{read_motifs}}, \code{\link{read_transfac}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
 \concept{read_motifs}

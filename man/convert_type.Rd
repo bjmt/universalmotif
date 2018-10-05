@@ -133,5 +133,5 @@ jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 \code{\link[=convert_motifs]{convert_motifs()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

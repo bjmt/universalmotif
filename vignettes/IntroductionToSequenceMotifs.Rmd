@@ -2,22 +2,22 @@
 title: "Introduction to sequence motifs"
 shorttitle: "Intro to motifs"
 author:
-- name: Benjamin Tremblay
+- name: Benjamin Jean-Marie Tremblay
   affiliation: University of Waterloo, Waterloo, Canada
   email: b2tremblay@uwaterloo.ca
-abstract: >
-  Introducing sequence motif types.
 bibliography: universalmotif.bib
 vignette: >
   %\VignetteIndexEntry{Introduction to sequence motifs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::html_document
+  BiocStyle::pdf_document:
+    latex_engine: lualatex
 ---
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+suppressPackageStartupMessages(library(universalmotif))
 ```
 
 # Introduction to sequence motifs
@@ -35,7 +35,7 @@ Information Content Matrix (ICM).
 These four types will be described here. Furthermore, the actual code used to
 go between these types can be see in `?utilities`.
 
-## Position count matrices
+# Position count matrices
 
 Also known as position frequency matrices, these are typically the most basic
 representation of a motif. Simply, for each position the total counts of
@@ -63,7 +63,7 @@ Position | 1 | 2 | 3 | 4 | 5 | 6
 
 _(Note that all positions sum to 6, the initial number of sequences.)_
 
-## Position probability matrices
+# Position probability matrices
 
 Also sometimes known as position frequency matrices and position weight
 matrices, these represent the probabilities for each letter at each position.
@@ -123,7 +123,7 @@ this case is quite low, the pseudocount can have a large impact on the values
 within the matrix; this impact decreases as the number of sequences increases.
 Of course, this can also be changed by using different pseudocounts.
 
-## Position weight matrices
+# Position weight matrices
 
 The position weight matrix, also known as position-specific weight matrix,
 position-specific scoring matrix, and logodds scoring matrix, was first
@@ -185,35 +185,32 @@ ATTTTT, with a score of 1.112, would indeed be discarded.
 
 Other methods for determining the minimum score include starting from
 P-values. The package `r CRANpkg("TFMPvalue")` for example can calculate minimum
-scores from P-values, using the algorithm described by @pval.
+scores from P-values, using the algorithm described by @pval. The
+`r Biocpkg("universalmotif")` package also offers this capability with the
+`motif_pvalue()` function.
 
-## Information content matrices
+# Information content matrices
 
 Finally, the information content matrix [@correction; @icm]. This type aims to
 include another
 consideration: are some positions more important than others? To explore this,
 let us consider the table \@ref(tab:ppm) motif. This matrix can be represented
-as a sequence logo using the `r Biocpkg("seqLogo")` package:
+as a probability sequence logo as seen in figure \@ref(fig:logo1).
 
-```{r,fig.cap="Sequence logo of a PPM",echo=FALSE}
-library(universalmotif)
-library(seqLogo)
+```{r logo1,fig.cap="Sequence logo of a PPM",echo=FALSE,fig.small=TRUE}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-seqLogo::seqLogo(motif["motif"], ic.scale = FALSE)
+view_motifs(motif, use.type="PPM")
 ```
 
 In this case, the height of the letters represent their probabilities at each
 position. However, when represented as an ICM, the sequence logo then
-resembles:
+resembles as seen in figure \@ref(fig:logo2).
 
-
-```{r,fig.cap="Sequence logo of an ICM",echo=FALSE}
-library(universalmotif)
-library(seqLogo)
+```{r logo2,fig.cap="Sequence logo of an ICM",echo=FALSE,fig.small=TRUE}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-seqLogo::seqLogo(motif["motif"], ic.scale = TRUE)
+view_motifs(motif)
 ```
 
 Now, the total height of each position is scaled using the total
@@ -263,7 +260,8 @@ rarely used however, but can be incorporated as such:
 
 The details for calculating this factor will not be covered here; refer to
 @correction. The `r Biocpkg("TFBSTools")` package offers the ability to
-incorporate this error correction.
+incorporate this error correction (and used in
+the `r Biocpkg("universalmotif")` package via `convert_type()`).
 
 Finally, to get the height of each letter at each position, the final IC is
 multiplied by the letter and position probabilities:
@@ -322,11 +320,5 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        T |  0.000 |  0.000 |  0.090 |  0.000 |  0.000 |  0.000
 : (\#tab:icmkl2) Information content matrix as relative divergence with
 a non-uniform background.
-
-# Session info {.unnumbered}
-
-```{r sessionInfo, echo=FALSE}
-sessionInfo()
-```
 
 # References {.unnumbered}

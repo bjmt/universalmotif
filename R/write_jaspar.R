@@ -18,7 +18,7 @@
 #'
 #' @family write_motifs
 #' @seealso [read_jaspar()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_jaspar <- function(motifs, file) {
 

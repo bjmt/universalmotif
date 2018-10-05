@@ -15,9 +15,21 @@ enrichment.
 
 ## Installation ##
 
+If you'd like to build the vignettes locally, a few prerequisite packages not
+listed in the 'Imports' section are needed:
+
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
   install.packages("BiocManager")
+BiocManager::install(c("knitr", "BiocStyle", "rmarkdown", "TFBSTools", "motifStack", "Logolas", "MotifDb", "seqLogo"))
 BiocManager::install("bjmt/universalmotif")
+```
+
+To install the package without vignettes:
+
+```r
+if (!requireNamespace("BiocManager", quietly=TRUE))
+  install.packages("BiocManager")
+BiocManager::install("bjmt/universalmotif", INSTALL_opts="--no-build-vignettes")
 ```
 

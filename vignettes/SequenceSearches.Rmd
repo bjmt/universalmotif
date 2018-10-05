@@ -1,90 +1,270 @@
 ---
-title: "Sequence creation, manipulation, and scanning"
-shorttitle: "Sequence scanning"
+title: "Sequence manipulation and scanning"
+shorttitle: "Sequence utilities"
 author:
-- name: Benjamin Tremblay
+- name: Benjamin Jean-Marie Tremblay
   affiliation: University of Waterloo, Waterloo, Canada
   email: b2tremblay@uwaterloo.ca
-abstract: >
-  Introducing sequence motif types.
 bibliography: universalmotif.bib
 vignette: >
-  %\VignetteIndexEntry{Sequence creation, manipulation, and scanning}
+  %\VignetteIndexEntry{Sequence manipulation and scanning}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::html_document
+  BiocStyle::pdf_document:
+    latex_engine: lualatex
 ---
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+suppressPackageStartupMessages(library(universalmotif))
+suppressPackageStartupMessages(library(Biostrings))
+data(ArabidopsisPromoters)
+data(ArabidopsisMotif)
 ```
 
-# Sequence-related functions
+# Introduction
 
-## Sequence shuffling and creation
+This vignette goes through generating your own sequences from a specified
+background model, shuffling sequences whilst maintaining a certain `k`-let
+size, and the scanning of sequences and scoring of motifs. For an introduction
+to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf)
+vignette. For a basic overview of available motif-related functions, see the
+[motif manipulation](MotifManipulation.pdf) vignette. For advanced usage and
+analyses, see the [advanced usage](AdvancedUsage.pdf) vignette.
+
+# Creating random sequences
 
 The `r Biocpkg("Biostrings")` package offers an excellent suite of functions for
 dealing with biological sequences. The `r Biocpkg("universalmotif")` package
-hopes to help extend these by providing the `create_sequences` and
-`shuffle_sequences` functions.
+hopes to help extend these by providing the `create_sequences()` and
+`shuffle_sequences()` functions. The first of these, `create_sequences()`,
+in it's simplest form generates a set of letters in random order with `sample()`,
+then passes these strings to the `r Biocpkg("Biostrings")` package. The
+number and length of sequences can be specified. The probabilities of individual
+letters can also be set.
+
+When creating DNA and RNA sequences, there is additionally the option to
+set dinucleotide or trinucleotide probabilities. In these cases the sequences
+are constructed by calling `sample()` for every letter added, with the
+letter probabilities being dependent on which letter(s) precede that position.
+Unfortunately these routines consist of looping R code, which as a result
+makes sequence generation a bit slow in this regard.
 
 ```{r}
-library(universalmotif)
+# library(universalmotif)
 ## library(Biostrings)
-## Create some DNA sequences for use with an external program:
-sequences <- create_sequences(seqnum = 500, monofreqs = c(0.3, 0.2, 0.2, 0.3))
-## writeXStringSet(sequences, "bkg.fasta")
 
-## Shuffle sequences:
-## sequences <- readDNAStringSet("sequences.fasta")
-sequences <- shuffle_sequences(sequences)
+## Create some DNA sequences for use with an external program (default
+## is DNA):
 
-## Maintain dinucleotide frequencies:
-sequences <- shuffle_sequences(sequences, k = 2)
+sequences.dna <- create_sequences(seqnum = 500,
+                                  monofreqs = c(0.3, 0.2, 0.2, 0.3))
+## writeXStringSet(sequences.dna, "dna.fasta")
+sequences.dna
 
-## Create sequences from any starting alphabet:
-sequences <- create_sequences(alphabet = "QWERTY")
-sequences <- shuffle_sequences(sequences, k = 6)
+## Amino acid:
+
+create_sequences(alphabet = "AA")
+
+## Any set of characters can be used
+
+create_sequences(alphabet = paste(letters, collapse = ""))
 ```
 
-## Searching for motifs in sequences
+# Shuffling sequences
 
-There are many fantastic motif scanning and enrichment programs available, such
-as [HOMER](http://homer.ucsd.edu/homer/index.html) and the
-[MEME suite](http://meme-suite.org/) to name a couple. The
+When performing _de novo_ motif searches or motif enrichment analyses,
+it is common to do so against a set of background sequences. In order to
+properly identify consistent patterns or motifs in the target sequences,
+it is important that there be maintained a certain level of sequence
+composition between the target and background sequences. This reduces
+results which are derived purely from differential letter frequency biases.
+
+In order to avoid these results, typically it desirable to use a set of
+background sequences which preserve a certain `k`-let size (such as dinucleotide
+or trinucleotide frequencies in the case of DNA sequences). Though for some cases
+a set of similar sequences may already be available for use as background
+sequences, usually background sequences are obtained by shuffling the
+target sequences, while preserving a desired `k`-let size. For this purpose,
+the most commonly used tool is likely uShuffle [@ushuffle]. Despite this
+the `r Biocpkg("universalmotif")` package aims to provide its own `k`-let
+shuffling capabilities for use within R via `shuffle_sequences()`.
+
+The `r Biocpkg("universalmotif")` offers three different methods for
+sequence shuffling: `markov`, `linear`, and `random`. The first method, `markov`
+(which is only available for DNA/RNA sequences with `k = c(2, 3)`) can only
+guarantee that the _approximate_ `k`-let frequency will be maintained, but not
+that the original letter counts will be preserved. The `markov` method
+involves determining the original `k`-let frequencies, then creating
+a new set of sequences which will _approximately_ similar `k`-let frequency.
+As a result the counts for the individual letters will likely be different.
+
+The second method `linear` preserves the original letter counts exactly,
+but uses a more crude shuffling technique. In this case the sequence is
+split into sub-sequences every `k`-let (of any size), which are then
+re-assembled randomly. This means that while shuffling the same sequence multiple
+times with `method = "linear"` will result in different sequences, they will
+all have started from the same set of sub-sequences (just re-assembled
+differently).
+
+The third method `random` is an attempt to fix the sub-sequence issue
+from the `linear` method, though it is imperfect. In this case `k`-let
+sub-sequences are pulled out from the original sequence at random;
+meaning that they will be different every time, as opposed to the `linear`
+method. However, due to the fact that the sub-sequences are pulled out at
+random, this will leave small letter islands smaller then `k`. A
+few strategies are available to deal with these, see `?shuffle_sequences`.
+
+```{r}
+# library(universalmotif)
+# data(ArabidopsisPromoters)
+
+# potentially starting off with some external sequences:
+# library(Biostrings)
+# ArabidopsisPromoters <- readDNAStringSet("ArabidopsisPromoters.fasta")
+
+markov <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "markov")
+linear <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "linear")
+random <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "random")
+
+## Let us compare how the methods perform:
+
+o.letter <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
+                                              1, as.prob = FALSE))
+m.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
+l.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
+r.letter <- colSums(oligonucleotideFrequency(random, 1, as.prob = FALSE))
+
+data.frame(original=o.letter, markov=m.letter,
+           linear=l.letter, random=r.letter)
+
+o.counts <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
+                                              2, as.prob = FALSE))
+m.counts <- colSums(oligonucleotideFrequency(markov, 2, as.prob = FALSE))
+l.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
+r.counts <- colSums(oligonucleotideFrequency(random, 2, as.prob = FALSE))
+
+data.frame(original=o.counts, markov=m.counts,
+           linear=l.counts, random=r.counts)
+```
+
+# Scanning sequences for motifs
+
+There are many motif-programs available with sequence scanning capabilities, such
+as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the
+[MEME suite](http://meme-suite.org/). The
 `r Biocpkg("universalmotif")` package does not aim to supplant these, but
 rather provide convenience functions for quickly scanning a few sequences
 without needing to leave the R environment. Furthermore, these functions
-allow for taking advantage of the k-letter motif format described earlier.
+allow for taking advantage of the higher-order (`multifreq`) motif format described
+in the [advanced usage](AdvancedUsage.pdf) vignette.
 
-Two functions are provided: `scan_sequences` and `enrich_motifs`. Given a motif
-of length n, `scan_sequences` considers every n-length subset in a sequence and
-scores it using the PWM format. If it surpasses the minimum threshold, it is
+Two scanning-related functions are provided: `scan_sequences()` and `enrich_motifs()`.
+The latter simply runs `scan_sequences()` twice on a set of target and
+background sequences; see the [advanged usage](AdvancedUsage.pdf) vignette. Given a motif
+of length `n`, `scan_sequences()` considers every possible `n`-length subset in a sequence and
+scores it using the PWM format. If the match surpasses the minimum threshold, it is
 reported. This is case regardless of whether one is scanning with a regular
-motif, or using the k-letter motif format (the k-letter PPM is converted to
-a k-letter PWM). The second function, `enrich_motifs`,
-simply scans a set of target sequences, then a set of background sequences, and
-checks for significant enrichment.
+motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix
+is converted to a PWM).
+
+## Regular scanning
+
+Before scanning a set of sequences, one must first decide the minimum logodds
+threshold for retrieving matches. This decision is not always the same between
+scanning programs out in the wild, nor is it usually told to the user what the
+cutoff is or how it is decided. As a result, `r Biocpkg("universalmotif")` aims
+to be as transparent as possible in this regard by allowing for complete
+control of the threshold. For more details on PWMs, see the
+[introductory](IntroductionToSequenceMotifs.pdf) vignette.
+
+One way is to set a cutoff between 0 and 1, then multiplying the highest
+possible PWM score to get a threshold. The `matchPWM()` function from
+the `r Biocpkg("Biostrings")` package for example uses a default
+of 0.8 (shown as `"80%"`). This is quite arbitrary of course, and every
+motif will end up with a different threshold. For high information content
+motifs, there is really no right or wrong threshold; as they tend to have
+fewer non-specific positions. This means that
+incorrect letters in a match will be more punishing. To illustrate this,
+contrast the following PWMs:
 
 ```{r}
-library(universalmotif)
-library(Biostrings)
+# library(universalmotif)
+m1 <- create_motif("TATATATATA", nsites = 50, type = "PWM", pseudocount = 1)
+m2 <- matrix(c(0.10,0.27,0.23,0.19,0.29,0.28,0.51,0.12,0.34,0.26,
+               0.36,0.29,0.51,0.38,0.23,0.16,0.17,0.21,0.23,0.36,
+               0.45,0.05,0.02,0.13,0.27,0.38,0.26,0.38,0.12,0.31,
+               0.09,0.40,0.24,0.30,0.21,0.19,0.05,0.30,0.31,0.08),
+             byrow=TRUE,nrow=4)
+m2 <- create_motif(m2, alphabet = "DNA", type = "PWM")
+m1["motif"]
+m2["motif"]
+```
 
-sequences <- create_sequences()
+In the first example, sequences which do not have a matching base in every
+position are punished heavily. The maximum logodds score in this case is
+approximately 20, and for each incorrect position the score is reduced
+approximately by 5.7. This means that a threshold of zero would allow for at
+most three mismatches. At this point, it is up to you how many mismatches
+you would deem appropriate.
 
-## Let us revisit our 2-letter motif example:
+This thinking becomes impossible for the second example. In this case,
+mismatches are much less punishing; to the point that one must ask, what
+even constitutes a mismatch? The answer to this question is much more
+difficult in cases such as these. An alternative to manually deciding
+upon a threshold is to instead start with maximum P-value one would
+consider appropriate for a match. If, say, we want matches with a
+P-value of at most 0.001, then we can use `motif_pvalue()` to calculate
+the appropriate threshold (see the [advanced usage](AdvancedUsage.pdf)
+vignette for details on motif P-values).
+
+```{r}
+motif_pvalue(m2, pvalue = 0.001, progress = FALSE)
+```
+
+## Higher-order scanning
+
+The `scan_sequences()` function offers the ability to scan using the `multifreq`
+slot, if available. This allows to take into account inter-positional
+dependencies, and get matches which more faithfully represent the original
+sequences from which the motif originated. For more details on the `multifreq`
+slot, see the [advanced usage](AdvancedUsage.pdf) vignette.
+
+```{r}
+# library(universalmotif)
+# library(Biostrings)
+# data(ArabidopsisPromoters)
+
+## A 2-letter example:
+
 motif.k2 <- create_motif("CWWWWCC", nsites = 6)
 sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif.k2 <- add_multifreq(motif.k2, sequences.k2)
 
 ## Regular scanning:
-head(scan_sequences(motif.k2, sequences, RC = TRUE, verbose = 0,
-                    threshold = 0.0001))
+
+head(scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE, verbose = 0,
+                    threshold = 0.0001, progress = FALSE))
 
 ## Using 2-letter information to scan:
-head(scan_sequences(motif.k2, sequences, use.freq = 2, RC = TRUE, verbose = 0))
+
+head(scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, RC = TRUE,
+                    verbose = 0, progress = FALSE))
 ```
+
+As an aside: the previous example involved calling `create_motif()` and `add_multifreq()`
+separately. In this case however this could have been simplified to just
+calling `create_motif()` and using the `add.multifreq` option:
+
+```{r}
+# library(universalmotif)
+# library(Biostrings)
+
+sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
+motif <- create_motif(sequences, add.multifreq = 2:3)
+```
+
 
 # Session info {.unnumbered}
 

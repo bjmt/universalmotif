@@ -19,7 +19,7 @@
 #'
 #' @family write_motifs
 #' @seealso [read_matrix()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                          type, sep = "", headers = TRUE) {

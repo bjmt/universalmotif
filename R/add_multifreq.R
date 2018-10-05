@@ -61,7 +61,7 @@
 #' ## peek at the 2-let matrix:
 #' motif.trained["multifreq"]$`2`
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [convert_motifs()], [write_motifs()] 
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,

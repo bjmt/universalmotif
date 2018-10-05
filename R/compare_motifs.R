@@ -53,7 +53,7 @@
 #' * SW: 0 represents complete distance, >0 similarity.
 #' * MSW: 0 represents complete distance, 2 complete similarity.
 #' * KL: 0 represents complete similarity, >0 distance.
-#' * MKL: 0 represents complete similarity, 4.62 complete distance.
+#' * MKL: 0 represents complete similarity, >0 complete distance.
 #'
 #' @details
 #' Comparisons are calculated between two motifs at a time. All possible alignments
@@ -134,7 +134,7 @@
 #'
 #'    \insertRef{wasserman}{universalmotif}
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()], [motif_tree()], [view_motifs()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,

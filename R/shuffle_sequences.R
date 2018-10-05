@@ -57,7 +57,7 @@
 #'
 #' @seealso [create_sequences()], [scan_sequences()], [enrich_motifs()],
 #'    [shuffle_motifs()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "linear",
                                leftovers = "asis", progress = FALSE,

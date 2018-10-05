@@ -37,6 +37,6 @@ Other write_motifs: \code{\link{write_jaspar}},
   \code{\link{write_motifs}}, \code{\link{write_transfac}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
 \concept{write_motifs}

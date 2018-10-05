@@ -24,5 +24,5 @@ jaspar.rc <- motif_rc(jaspar)
 
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

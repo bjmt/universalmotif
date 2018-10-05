@@ -133,5 +133,5 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
 }
 \author{
-Benjamin Tremblay \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay \email{b2tremblay@uwaterloo.ca}
 }

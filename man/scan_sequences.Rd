@@ -90,5 +90,5 @@ scan_sequences(motif, sequences)
 \code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

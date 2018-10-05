@@ -94,7 +94,7 @@
 #' @references
 #'    \insertRef{meme2}{universalmotif}
 #'
-#' @author Benjamin Tremblay \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [shuffle_sequences()],
 #'    [add_multifreq()], [motif_pvalue()]
 #' @export

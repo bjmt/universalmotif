@@ -73,7 +73,7 @@ be shown (which unfortunately is much less informative).}
 \item SW: 0 represents complete distance, >0 similarity.
 \item MSW: 0 represents complete distance, 2 complete similarity.
 \item KL: 0 represents complete similarity, >0 distance.
-\item MKL: 0 represents complete similarity, 4.62 complete distance.
+\item MKL: 0 represents complete similarity, >0 complete distance.
 }
 }
 \description{
@@ -161,5 +161,5 @@ as.dist(1 - motif1vs2)
 \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

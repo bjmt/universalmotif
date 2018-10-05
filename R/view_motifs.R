@@ -45,7 +45,7 @@
 #' \insertRef{ggseqlogo}{universalmotif}
 #'
 #' @seealso [compare_motifs()], [add_multifreq()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,

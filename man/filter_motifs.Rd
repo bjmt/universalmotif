@@ -61,5 +61,5 @@ if (requireNamespace("MotifDb", quietly = TRUE)) {
 
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

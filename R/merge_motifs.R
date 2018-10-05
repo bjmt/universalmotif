@@ -14,7 +14,7 @@
 #' }
 #'
 #' @seealso [compare_motifs()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
 merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",

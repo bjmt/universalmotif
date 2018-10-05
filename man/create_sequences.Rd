@@ -58,5 +58,5 @@ sequences.custom <- create_sequences("!@#$ ")
 \code{\link[=create_motif]{create_motif()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

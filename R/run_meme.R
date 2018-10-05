@@ -80,7 +80,7 @@
 #' @references
 #'    \insertRef{meme3}{universalmotif}
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [read_meme()], [create_sequences()], [shuffle_sequences()],
 #'    [processx::run()]
 #' @export

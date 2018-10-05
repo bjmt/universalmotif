@@ -53,7 +53,7 @@
 #' returns a p-value reasonably close to the given p-value. For low p-values,
 #' this usually only takes a couple of guesses.
 #'
-#' Note that the approximation is always on the conservative side. The higher
+#' Note that the approximation is _mostly_ on the conservative side. The higher
 #' the number of motif subsets, the worse the approximation. Furthermore,
 #' the speed of [motif_pvalue()] increases with a decreasing p-value.
 #'
@@ -75,7 +75,7 @@
 #' ## the calculations can be performed for multiple motifs
 #' motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                          k = 6, progress = TRUE, BP = FALSE) {

@@ -193,5 +193,5 @@ MA0003.2.trimmed <- trim_motifs(MA0003.2)
 \insertRef{motifrg}{universalmotif}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

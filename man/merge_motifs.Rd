@@ -58,5 +58,5 @@ if (requireNamespace("MotifDb", quietly = TRUE)) {
 \code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

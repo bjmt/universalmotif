@@ -14,7 +14,7 @@
 #'    \insertRef{uniprobe}{universalmotif}
 #'
 #' @family read_motifs
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp
 #' @export
 read_uniprobe <- function(file, skip = 0) {

@@ -114,7 +114,7 @@
 #'
 #'    \insertRef{tfbstools}{universalmotif}
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()]
 #' @export
 convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 

@@ -67,7 +67,7 @@ different scores until it finds one which when used to calculate a p-value,
 returns a p-value reasonably close to the given p-value. For low p-values,
 this usually only takes a couple of guesses.
 
-Note that the approximation is always on the conservative side. The higher
+Note that the approximation is \emph{mostly} on the conservative side. The higher
 the number of motif subsets, the worse the approximation. Furthermore,
 the speed of \code{\link[=motif_pvalue]{motif_pvalue()}} increases with a decreasing p-value.
 }
@@ -94,5 +94,5 @@ motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 \insertRef{pvalues}{universalmotif}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

@@ -136,7 +136,7 @@
 #' summarise_motifs(list(m1, m2, m3))
 #'
 #' @seealso [create_motif()], [compare_motifs()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utilities
 NULL
 

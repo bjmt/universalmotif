@@ -95,5 +95,5 @@ jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 \code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

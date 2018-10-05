@@ -23,7 +23,7 @@
 #'    \insertRef{meme}{universalmotif}
 #'
 #' @family read_motifs
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 read_meme <- function(file, skip = 0, readsites = FALSE) {
 

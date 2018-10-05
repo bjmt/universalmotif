@@ -24,7 +24,7 @@
 #' `first`, `split` between the beginning and the end, or `discard`ed. See
 #' [shuffle_motifs()].
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [shuffle_sequences()]
 #' @export
 shuffle_motifs <- function(motifs, k = 2, method = "linear",

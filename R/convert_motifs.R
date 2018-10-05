@@ -89,7 +89,7 @@
 #'
 #'    \insertRef{motifrg}{universalmotif}
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @include universalmotif-class.R
 #' @export
 setGeneric("convert_motifs", function(motifs,

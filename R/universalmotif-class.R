@@ -95,7 +95,7 @@
 #' ## Bind motifs together to create a new motif.
 #' cbind(motif, motif2)
 #'
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name universalmotif-class
 #' @rdname universalmotif-class
 #' @exportClass universalmotif

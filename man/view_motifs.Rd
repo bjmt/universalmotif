@@ -67,5 +67,5 @@ slot using the \pkg{Logolas} package.
 \code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=add_multifreq]{add_multifreq()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

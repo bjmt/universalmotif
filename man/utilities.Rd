@@ -214,5 +214,5 @@ summarise_motifs(list(m1, m2, m3))
 \code{\link[=create_motif]{create_motif()}}, \code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

@@ -40,5 +40,5 @@ leftover column islands smaller than \code{k}; these can be left \code{asis}, pl
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

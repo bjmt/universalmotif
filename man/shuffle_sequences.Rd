@@ -76,5 +76,5 @@ sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 \code{\link[=shuffle_motifs]{shuffle_motifs()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }

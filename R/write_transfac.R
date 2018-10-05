@@ -17,7 +17,7 @@
 #'
 #' @family write_motifs
 #' @seealso [read_transfac()]
-#' @author Benjamin Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_transfac <- function(motifs, file) {
 

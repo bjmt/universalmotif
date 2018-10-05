@@ -29,5 +29,5 @@ jaspar.trimmed <- trim_motifs(jaspar)
 \code{\link[=create_motif]{create_motif()}}, \code{\link[=convert_type]{convert_type()}}
 }
 \author{
-Benjamin Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
 }
