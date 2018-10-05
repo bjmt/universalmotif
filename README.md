@@ -21,8 +21,8 @@ listed in the 'Imports' section are needed:
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
   install.packages("BiocManager")
-BiocManager::install(c("knitr", "BiocStyle", "rmarkdown", "TFBSTools",
-                       "motifStack", "Logolas", "MotifDb", "seqLogo"))
+BiocManager::install(c("BiocStyle", "TFBSTools", "motifStack", "Logolas",
+                       "MotifDb"))
 BiocManager::install("bjmt/universalmotif")
 ```
 

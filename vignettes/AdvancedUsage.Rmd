@@ -11,8 +11,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::pdf_document:
-    latex_engine: lualatex
+  BiocStyle::pdf_document
 ---
 
 ```{r setup, echo=FALSE}
@@ -437,7 +436,6 @@ has already been run.
 
 ```{r}
 # library(universalmotif)
-# library(Biostrings)
 # library(MotifDb)
 
 tree <- motif_tree(MotifDb[301:400], layout = "daylight", linecol = "family",

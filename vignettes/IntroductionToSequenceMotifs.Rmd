@@ -11,8 +11,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::pdf_document:
-    latex_engine: lualatex
+  BiocStyle::pdf_document
 ---
 
 ```{r setup, echo=FALSE}
