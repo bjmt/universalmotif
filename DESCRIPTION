@@ -3,8 +3,7 @@ Title: Import, Modify, and Export Motifs with R
 Version: 0.99.0
 Authors@R: person(given=c("Benjamin", "Jean-Marie"), family="Tremblay",
     role = c("aut", "cre"), email = "b2tremblay@uwaterloo.ca")
-URL: https://bjmt.github.io/universalmotif/,
-    https://github.com/bjmt/universalmotif
+URL: https://github.com/bjmt/universalmotif
 BugReports: https://github.com/bjmt/universalmotif/issues
 Description: Allows for importing most common motif types
     into R for use by functions provided by other
