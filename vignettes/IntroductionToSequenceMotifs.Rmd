@@ -32,7 +32,7 @@ various types, in this package they are referred to as Position Count Matrix
 Information Content Matrix (ICM). 
 
 These four types will be described here. Furthermore, the actual code used to
-go between these types can be see in `?utilities`.
+go between these types can be seen in `?utilities`.
 
 # Position count matrices
 
