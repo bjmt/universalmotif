@@ -105,6 +105,8 @@ write_motifs_per_motif <- function(motif, minimal, multifreq) {
     } else out.ext <- character(0)
 
   }
+  
+  alph <- rownames(motif@motif)
 
   ## motif matrix
   out.mot <- vector("character", nrow(motif@motif) + 1)
@@ -112,7 +114,7 @@ write_motifs_per_motif <- function(motif, minimal, multifreq) {
   for (i in seq_len(nrow(motif@motif))) {
     mot.row <- formatC(motif@motif[i, ], format = "f", digits = 6)
     mot.row <- paste(mot.row, collapse = " ")
-    out.mot[i + 1] <- paste(">", mot.row)
+    out.mot[i + 1] <- paste0(alph[i], "> ", mot.row)
   }
 
   out.mul <- character(0)

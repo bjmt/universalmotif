@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/bjmt/universalmotif.svg?branch=master)](https://travis-ci.org/bjmt/universalmotif) [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/bjmt/universalmotif?branch=master&svg=true)](https://ci.appveyor.com/project/bjmt/universalmotif) [![codecov](https://codecov.io/gh/bjmt/universalmotif/branch/master/graph/badge.svg)](https://codecov.io/gh/bjmt/universalmotif)
-# universalmotif #
+# universalmotif
 
 This package allows for importing most common motif types into R for use by
 functions provided by other Bioconductor motif-related packages. Motifs can be 
@@ -13,7 +13,7 @@ as sequence creation and shuffling functions. Finally, this package implements
 higher-order motifs, allowing for more accurate sequence scanning and motif
 enrichment.
 
-## Installation ##
+## Installation
 
 If you'd like to build the vignettes locally, a few prerequisite packages not
 listed in the 'Imports' section are needed:
@@ -21,15 +21,13 @@ listed in the 'Imports' section are needed:
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
   install.packages("BiocManager")
-BiocManager::install(c("knitr", "BiocStyle", "rmarkdown", "TFBSTools", "motifStack", "Logolas", "MotifDb", "seqLogo"))
+BiocManager::install(c("knitr", "BiocStyle", "rmarkdown", "TFBSTools",
+                       "motifStack", "Logolas", "MotifDb", "seqLogo"))
 BiocManager::install("bjmt/universalmotif")
 ```
 
-To install the package without vignettes:
+To install the package with pre-built vignettes:
 
-```r
-if (!requireNamespace("BiocManager", quietly=TRUE))
-  install.packages("BiocManager")
-BiocManager::install("bjmt/universalmotif", INSTALL_opts="--no-build-vignettes")
-```
-
+  - Go to the 'release' tab
+  - Download the latest 'universalmotif_X.X.X.tar.gz' file
+  - Run `R CMD INSTALL universalmotif_X.X.X.tar.gz`
