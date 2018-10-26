@@ -334,9 +334,10 @@ check_db_scores <- function(db.scores, method, normalise.scores) {
 fix_pcc_diag <- function(comparisons, mot.mats) {
 
   mot.lens <- vapply(mot.mats, ncol, numeric(1))
-  for (i in seq_along(mot.lens)) {
-    comparisons[i, i] <- mot.lens[i]^2
-  }
+  # for (i in seq_along(mot.lens)) {
+    # comparisons[i, i] <- mot.lens[i]^2
+  # }
+  diag(comparisons) <- mot.lens^2
 
   comparisons
 
@@ -352,9 +353,13 @@ fix_pcc_diag <- function(comparisons, mot.mats) {
 #' @noRd
 get_rid_of_dupes <- function(comparisons) {
   comparisons.sorted <- character(nrow(comparisons))
-  for (i in seq_len(nrow(comparisons))) {
-    comparisons.sorted[i] <- paste(sort(comparisons[i, 1:2]), collapse = " ")
-  }
+  # for (i in seq_len(nrow(comparisons))) {
+    # comparisons.sorted[i] <- paste(sort(comparisons[i, 1:2]), collapse = " ")
+  # }
+  comparisons.sorted <- vapply(seq_len(nrow(comparisons)),
+                               function(x) paste(sort(comparisons[x, 1:2]),
+                                                 collapse = " "),
+                               character(1))
   comparisons[!duplicated(comparisons.sorted), ]
 } 
 

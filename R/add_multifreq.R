@@ -117,19 +117,21 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   if (length(seqs.out) == 0)
     stop("No motif matches found in sequences; consider lowering the minimum threshold")
 
-  multifreq <- vector("list", length(add.k))
+  # multifreq <- vector("list", length(add.k))
   if (sequences@elementType == "DNAString") {
     sequences <- DNAStringSet(seqs.out)
-    for (i in seq_along(add.k)) {
-      multifreq[[i]] <- add_multi(motif["bkg"], sequences, add.k[i])
+    # for (i in seq_along(add.k)) {
+      # multifreq[[i]] <- add_multi(motif["bkg"], sequences, add.k[i])
       # multifreq[[i]] <- add_multi_fix_freqs(motif["motif"], multifreq[[i]])
-    }
+    # }
+    multifreq <- lapply(add.k, function(x) add_multi(motif["bkg"], sequences, x))
   } else {
     alph <- rownames(motif["motif"])
-    for (i in seq_along(add.k)) {
-      multifreq[[i]] <- add_multi_ANY(sequences, add.k[i], alph)
+    # for (i in seq_along(add.k)) {
+      # multifreq[[i]] <- add_multi_ANY(sequences, add.k[i], alph)
       # multifreq[[i]] <- add_multi_fix_freqs(motif["motif"], multifreq[[i]])
-    }
+    # }
+    multifreq <- lapply(add.k, function(x) add_multi_ANY(sequences, x, alph))
   }
 
   names(multifreq) <- add.k

@@ -328,12 +328,8 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
                              organism = x@elementMetadata@listData$organism[i],
                              motif = x@listData[[i]], alphabet = "DNA",
                              type = "PPM")
-              if (.Platform$OS.type == "unix") {
-                msg <- validObject_universalmotif(mot)
-                if (length(msg) > 0) stop(msg)
-              } else {
-                validObject(mot)
-              }
+              msg <- validObject_universalmotif(mot)
+              if (length(msg) > 0) stop(msg)
               mot
             }
             motifs_out <- vector("list", length(motifs))

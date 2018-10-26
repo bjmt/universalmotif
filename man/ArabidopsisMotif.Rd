@@ -3,13 +3,14 @@
 \docType{data}
 \name{ArabidopsisMotif}
 \alias{ArabidopsisMotif}
-\title{Arabidopsis motif.}
+\title{Arabidopsis motif in \code{universalmotif} format.}
 \format{\linkS4class{universalmotif}}
 \usage{
 ArabidopsisMotif
 }
 \description{
 Arabidopsis motif trained from \code{\link{ArabidopsisPromoters}} using
-MEME version 4.
+MEME version 4. This motif was generated at the command line using
+the following command: \code{meme promoters.fa -revcomp -nmotifs 3  -mod anr -dna}.
 }
 \keyword{datasets}

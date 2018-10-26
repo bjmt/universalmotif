@@ -95,7 +95,7 @@ motifs_to_umot <- function(motif) {
 
   which.alphabet <- vapply(motif.split, function(x) x[1] == "alphabet:", logical(1))
   which.alphabet <- which(which.alphabet)
-  if (length(which.altname) == 1) {
+  if (length(which.alphabet) == 1) {
     motif.alphabet <- motif.split[[which.alphabet]][2]
   } else motif.alphabet <- FALSE
 

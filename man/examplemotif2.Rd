@@ -3,12 +3,14 @@
 \docType{data}
 \name{examplemotif2}
 \alias{examplemotif2}
-\title{Another example motif.}
+\title{Another example motif in \code{universalmotif} format.}
 \format{\linkS4class{universalmotif}}
 \usage{
 examplemotif2
 }
 \description{
-A simple DNA motif with a non-empty \code{multifreq} slot.
+A simple DNA motif with a non-empty \code{multifreq} slot. See
+the 'Advanced usage' vignette, section 2, for manually recreating
+this motif.
 }
 \keyword{datasets}

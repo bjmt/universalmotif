@@ -3,12 +3,19 @@
 \docType{data}
 \name{JASPAR2018_CORE_DBSCORES_NORM}
 \alias{JASPAR2018_CORE_DBSCORES_NORM}
-\title{JASPAR2018 CORE databse scores (normalised).}
+\title{JASPAR2018 CORE database scores (normalised).}
 \format{\code{list} with three \code{data.frames}}
 \usage{
 JASPAR2018_CORE_DBSCORES_NORM
 }
 \description{
-For use with \code{\link[=compare_motifs]{compare_motifs()}}. Normalised.
+For use with \code{\link[=compare_motifs]{compare_motifs()}}. The precomputed scores allow for fast P-value estimation.
+These scores were generated
+using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE motif set, with
+\code{normalise.scores = TRUE}. This particular set of scores is organized
+as a list, with each list item being a \code{data.frame} of scores for a specific comparison
+method. In each \code{data.frame} is the mean and sd of scores resulting between
+the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specifed
+\code{subject} and \code{target} motif length.
 }
 \keyword{datasets}

@@ -51,8 +51,8 @@ Unfortunately these routines consist of looping R code, which as a result
 makes sequence generation a bit slow in this regard.
 
 ```{r}
-# library(universalmotif)
-## library(Biostrings)
+library(universalmotif)
+library(Biostrings)
 
 ## Create some DNA sequences for use with an external program (default
 ## is DNA):
@@ -116,19 +116,19 @@ random, this will leave small letter islands smaller then `k`. A
 few strategies are available to deal with these, see `?shuffle_sequences`.
 
 ```{r}
-# library(universalmotif)
-# data(ArabidopsisPromoters)
+library(universalmotif)
+data(ArabidopsisPromoters)
 
-# potentially starting off with some external sequences:
+## Potentially starting off with some external sequences:
 # library(Biostrings)
 # ArabidopsisPromoters <- readDNAStringSet("ArabidopsisPromoters.fasta")
 
 markov <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "markov")
 linear <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "linear")
 random <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "random")
-
-## Let us compare how the methods perform:
-
+```
+Let us compare how the methods perform:
+```{r}
 o.letter <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               1, as.prob = FALSE))
 m.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
@@ -189,7 +189,7 @@ incorrect letters in a match will be more punishing. To illustrate this,
 contrast the following PWMs:
 
 ```{r}
-# library(universalmotif)
+library(universalmotif)
 m1 <- create_motif("TATATATATA", nsites = 50, type = "PWM", pseudocount = 1)
 m2 <- matrix(c(0.10,0.27,0.23,0.19,0.29,0.28,0.51,0.12,0.34,0.26,
                0.36,0.29,0.51,0.38,0.23,0.16,0.17,0.21,0.23,0.36,
@@ -231,23 +231,23 @@ sequences from which the motif originated. For more details on the `multifreq`
 slot, see the [advanced usage](AdvancedUsage.pdf) vignette.
 
 ```{r}
-# library(universalmotif)
-# library(Biostrings)
-# data(ArabidopsisPromoters)
+library(universalmotif)
+library(Biostrings)
+data(ArabidopsisPromoters)
 
 ## A 2-letter example:
 
 motif.k2 <- create_motif("CWWWWCC", nsites = 6)
 sequences.k2 <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif.k2 <- add_multifreq(motif.k2, sequences.k2)
-
-## Regular scanning:
-
+```
+Regular scanning:
+```{r}
 head(scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE, verbose = 0,
                     threshold = 0.0001, progress = FALSE))
-
-## Using 2-letter information to scan:
-
+```
+Using 2-letter information to scan:
+```{r}
 head(scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, RC = TRUE,
                     verbose = 0, progress = FALSE))
 ```
@@ -257,8 +257,8 @@ separately. In this case however this could have been simplified to just
 calling `create_motif()` and using the `add.multifreq` option:
 
 ```{r}
-# library(universalmotif)
-# library(Biostrings)
+library(universalmotif)
+library(Biostrings)
 
 sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif <- create_motif(sequences, add.multifreq = 2:3)

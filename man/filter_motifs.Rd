@@ -53,8 +53,7 @@ jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
 
 ## By organism:
-if (requireNamespace("MotifDb", quietly = TRUE) &&
-    .Platform$OS.type == "unix") {
+if (requireNamespace("MotifDb", quietly = TRUE)) {
   library(MotifDb)
   motifs <- convert_motifs(MotifDb)
   motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))

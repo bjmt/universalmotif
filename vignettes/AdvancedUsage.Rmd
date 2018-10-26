@@ -102,7 +102,7 @@ CAAAACC. This information is kept in the `multifreq` slot of `universalmotif`
 class motifs. To add this information, use the `add_multifreq` function.
 
 ```{r}
-# library(universalmotif)
+library(universalmotif)
 
 motif <- create_motif("CWWWWCC", nsites = 6)
 sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
@@ -137,9 +137,9 @@ by using `shuffle_sequences()` on the target sequences.
 Let us consider the following basic example:
 
 ```{r}
-# library(universalmotif)
-# data(ArabidopsisMotif)
-# data(ArabidopsisPromoters)
+library(universalmotif)
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
 
 enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
               verbose = 0, progress = FALSE, RC = TRUE)
@@ -153,9 +153,9 @@ package. Another type of test is available which looks for positional
 enrichment, i.e. whether one area in the target sequences is favoured.
 
 ```{r}
-# library(universalmotif)
-# data(ArabidopsisMotif)
-# data(ArabidopsisPromoters)
+library(universalmotif)
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
 
 enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
               search.mode = "positional", verbose = 0, progress = FALSE,
@@ -178,7 +178,7 @@ but are actually quite a challenging topic. For illustrate this, consider the fo
 example motif:
 
 ```{r}
-# library(universalmotif)
+library(universalmotif)
 
 m <- matrix(c(0.10,0.27,0.23,0.19,0.29,0.28,0.51,0.12,0.34,0.26,
               0.36,0.29,0.51,0.38,0.23,0.16,0.17,0.21,0.23,0.36,
@@ -192,7 +192,7 @@ motif
 Let us then use this motif with `scan_sequences()`:
 
 ```{r}
-# data(ArabidopsisPromoters)
+data(ArabidopsisPromoters)
 
 res <- scan_sequences(motif, ArabidopsisPromoters, verbose = 0,
                       progress = FALSE, threshold = 0.6,
@@ -206,14 +206,14 @@ calculate the match probabilities:
 ```{r}
 ## The first match was CTCTTTATTC, with a score of 3.931 (max possible = 6.536)
 
-# library(Biostrings)
+library(Biostrings)
 
 bkg <- colMeans(oligonucleotideFrequency(ArabidopsisPromoters, 1,
                                          as.prob = TRUE))
 bkg
-
-## Now, use these to calculate the probability of getting CTCTTTATTC
-
+```
+Now, use these to calculate the probability of getting CTCTTTATTC.
+```{r}
 hit.prob <- bkg["A"]^1 * bkg["C"]^3 * bkg["G"]^0 * bkg["T"]^6
 hit.prob <- unname(hit.prob)
 hit.prob
@@ -256,7 +256,7 @@ Now, let us return to our original example:
 pvals <- motif_pvalue(motif, res$score, progress = FALSE, bkg.probs = bkg)
 res2 <- data.frame(motif=res$motif, match=res$match,
                    pval=pvals)[order(pvals), ]
-head(res2)
+knitr::kable(head(res2), digits = 22, row.names = FALSE, format = "markdown")
 ```
 
 The default `k` in `motif_pvalue()` is 6. I have found this to be a good
@@ -283,7 +283,7 @@ for (i in seq_along(scores)) {
   }
 }
 
-out
+knitr::kable(out, format = "markdown", digits = 10)
 ```
 
 For this particular motif, while the approximation worsens slightly as `k`
@@ -301,12 +301,14 @@ should only have to guess two or three times. Continuing from our previous examp
 ```{r}
 r <- motif_pvalue(motif, pvalue = c(0.01, 0.001, 0.0001, 0.00001),
                   progress = FALSE, bkg.probs = bkg, k = 10)
-
-## Now let's check how close the guesses are:
-
+```
+Now let's check how close the guesses are:
+```{r}
 r2 <- motif_pvalue(motif, score = r, progress = FALSE, bkg.probs = bkg, k = 10)
 
-data.frame(pval=c(0.01, 0.001, 0.0001, 0.00001), score = r, pval.calc = r2)
+res <- data.frame(pval=c(0.01, 0.001, 0.0001, 0.00001), score = r,
+                  pval.calc = r2)
+knitr::kable(res, format = "markdown", digits = 22)
 ```
 
 As you can see, the guessed scores are far from exact. However keep in mind that
@@ -321,31 +323,26 @@ vignette for an introduction to using `compare_motifs()`. Let us begin by
 comparing the available methods:
 
 ```{r}
-# library(universalmotif)
-# library(MotifDb)
+library(universalmotif)
+library(MotifDb)
 
 motifs <- convert_motifs(MotifDb[3:4])
 summarise_motifs(motifs)
-try_all <- function(motifs, use.type = "PPM", tryRC = TRUE,
-                    min.overlap = 6, min.mean.ic = 0.5,
-                    normalise.scores = FALSE) {
+try_all <- function(motifs, ...) {
   scores <- numeric(8)
   methods <- c("MPCC", "PCC", "MEUCL", "EUCL", "MSW", "SW", "MKL", "KL")
   for (i in 1:8) {
     scores[i] <- compare_motifs(motifs, method = methods[i],
-                                use.type = use.type, tryRC = tryRC,
-                                min.overlap = min.overlap,
-                                min.mean.ic = min.mean.ic,
-                                normalise.scores = normalise.scores,
-                                progress = FALSE)[1, 2]
+                                progress = FALSE, ...)[1, 2]
   }
-  data.frame(method = c("MPCC", "PCC", "MEUCL", "EUCL",
-                        "MSW", "SW", "MKL", "KL"),
-             score = scores,
-             max = c(1, NA, sqrt(2), NA, 2, NA, NA, NA),
-             type = c("similarity", "similarity", "distance",
-                      "distance", "similarity", "similarity",
-                      "distance", "distance"))
+  res <- data.frame(method = c("MPCC", "PCC", "MEUCL", "EUCL",
+                                "MSW", "SW", "MKL", "KL"),
+                     score = scores,
+                     max = c(1, NA, sqrt(2), NA, 2, NA, NA, NA),
+                     type = c("similarity", "similarity", "distance",
+                              "distance", "similarity", "similarity",
+                              "distance", "distance"))
+  knitr::kable(res, format = "markdown")
 }
 try_all(motifs)
 ```
@@ -435,8 +432,8 @@ so altering the look of the trees can be done easily after `motif_tree()`
 has already been run.
 
 ```{r}
-# library(universalmotif)
-# library(MotifDb)
+library(universalmotif)
+library(MotifDb)
 
 tree <- motif_tree(MotifDb[301:400], layout = "daylight", linecol = "family",
                    progress = FALSE)
@@ -461,7 +458,7 @@ you should see the default MEME help message in your console. If not, then
 you'll need to provide the complete path to the MEME binary. There are two options:
 
 ```{r,eval=FALSE}
-# library(universalmotif)
+library(universalmotif)
 
 ## 1. Once per session: via `options`
 
@@ -479,8 +476,8 @@ we can read sequences from disk or extract them from one of the
 Bioconductor `BSgenome` packages.
 
 ```{r,eval=FALSE}
-# library(universalmotif)
-# data(ArabidopsisPromoters)
+library(universalmotif)
+data(ArabidopsisPromoters)
 
 ## 1. Read sequences from disk (in fasta format):
 

@@ -3,12 +3,14 @@
 \docType{data}
 \name{ArabidopsisPromoters}
 \alias{ArabidopsisPromoters}
-\title{Arabidopsis promoters.}
+\title{Arabidopsis promoters as a \code{DNAStringSet}.}
 \format{\link[Biostrings:DNAStringSet]{Biostrings::DNAStringSet}}
 \usage{
 ArabidopsisPromoters
 }
 \description{
-50 Arabidopsis promoters, each 1000 bases long.
+50 Arabidopsis promoters, each 1000 bases long. See the 'Advanced usage'
+vignette, section 7, for an example workflow describing extracting promoter
+sequences.
 }
 \keyword{datasets}

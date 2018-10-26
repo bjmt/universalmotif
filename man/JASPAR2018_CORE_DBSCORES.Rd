@@ -9,6 +9,13 @@
 JASPAR2018_CORE_DBSCORES
 }
 \description{
-For use with \code{\link[=compare_motifs]{compare_motifs()}}. Unormalised.
+For use with \code{\link[=compare_motifs]{compare_motifs()}}. The precomputed scores allow for fast P-value estimation.
+These scores were
+generated using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE motif set,
+with \code{normalise.scores = FALSE}. This particular set of scores is organized
+as a list, with each list item being a \code{data.frame} of scores for a specific comparison
+method. In each \code{data.frame} is the mean and sd of scores resulting between
+the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specifed
+\code{subject} and \code{target} motif length.
 }
 \keyword{datasets}

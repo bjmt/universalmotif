@@ -324,11 +324,11 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 .split_by_motif <- function(motifs, results) {
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  results.sep <- list(length = length(mot.names))
-
-  for (i in seq_along(mot.names)) {
-    results.sep[[i]] <- results[results$motif == mot.names[i], ]
-  }
+  # results.sep <- list(length = length(mot.names))
+  # for (i in seq_along(mot.names)) {
+    # results.sep[[i]] <- results[results$motif == mot.names[i], ]
+  # }
+  results.sep <- lapply(mot.names, function(x) results[results$motif == x, ])
 
   results.sep
 
