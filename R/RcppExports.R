@@ -57,6 +57,10 @@ numeric_to_integer_matrix <- function(mat) {
     .Call('_universalmotif_numeric_to_integer_matrix', PACKAGE = 'universalmotif', mat)
 }
 
+scan_seq_internal2 <- function(sequence, score_mat, min_score) {
+    .Call('_universalmotif_scan_seq_internal2', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
+}
+
 scan_seq_internal <- function(sequence, score_mat, min_score) {
     .Call('_universalmotif_scan_seq_internal', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
 }
