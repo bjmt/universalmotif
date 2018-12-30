@@ -1,3 +1,36 @@
+CHANGES IN VERSION 1.0.1
+------------------------
+
+BUG FIXES
+
+    o TFBSTools motifs with multiple species can convert to universalmotif
+
+    o `scan_sequences()`: will now ignore non-standard letters instead of
+      crashing
+
+CHANGES IN VERSION 1.0.0
+------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Changed the appearance of some of the vignette code blocks
+
+    o More documentation added in data.R
+
+BUG FIXES
+
+    o Replaced for loop with `lapply()` in add_multifreq.R L120-133
+
+    o Replaced for loop with `lapply()` in enrich_motifs.R L327-330
+
+    o Replaced for loop with `lapply()` in shuffle_motifs.R L77-80
+
+    o Using `diag()` instead of for loop in `fix_pcc_diag()` (compare_motifs.R)
+
+    o Fixed `read_motifs()` not parsing alphabet correctly
+
+    o Vignettes are now built using pdflatex instead of lualatex
+
 CHANGES IN VERSION 0.99.0
 -------------------------
 
