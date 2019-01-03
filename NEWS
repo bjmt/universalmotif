@@ -5,6 +5,11 @@ BUG FIXES
 
     o `read_meme()` can now read meme result files with missing strand info
 
+    o Use \link{*StringSet} instead of [Biostrings::*StringSet-class] in
+      documentation
+
+    o No longer load MotifDb package in examples on Windows
+
 CHANGES IN VERSION 1.0.1
 ------------------------
 
