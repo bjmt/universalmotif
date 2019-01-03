@@ -8,7 +8,7 @@
 #'    available formats.
 #'
 #' @examples
-#' if (requireNamespace("MotifDb", quietly = TRUE)) {
+#' if (requireNamespace("MotifDb", quietly = TRUE) && .Platform$OS.type == "unix") {
 #'   library(MotifDb)
 #'   merged.motif <- merge_motifs(MotifDb[1:5])
 #' }
