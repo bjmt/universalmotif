@@ -11,7 +11,7 @@ scan_sequences(motifs, sequences, threshold = 0.001,
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
 
-\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} Sequences to scan. Alphabet
+\item{sequences}{\link{XStringSet} Sequences to scan. Alphabet
 should match motif.}
 
 \item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
@@ -43,8 +43,8 @@ unfortunately is much less informative).}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input
-sequences are [Biostrings::DNAStringSet-class or
-\link[Biostrings:RNAStringSet-class]{Biostrings::RNAStringSet}, then an
+sequences are \link{DNAStringSet} or
+\link{RNAStringSet}, then an
 additional column with the strand is included.
 }
 \description{

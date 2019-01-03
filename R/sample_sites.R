@@ -8,7 +8,7 @@
 #' @param use.freq `numeric(1)` If one, use regular motif matrix. Otherwise,
 #'    use respective `multifreq` matrix.
 #'
-#' @return [Biostrings::XStringSet-class] object.
+#' @return \link{XStringSet} object.
 #'
 #' @examples
 #' motif <- create_motif()

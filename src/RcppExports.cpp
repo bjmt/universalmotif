@@ -200,6 +200,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scan_seq_internal2
+IntegerVector scan_seq_internal2(IntegerVector sequence, IntegerMatrix score_mat, int min_score);
+RcppExport SEXP _universalmotif_scan_seq_internal2(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sequence(sequenceSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
+    Rcpp::traits::input_parameter< int >::type min_score(min_scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(scan_seq_internal2(sequence, score_mat, min_score));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scan_seq_internal
 IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat, int min_score);
 RcppExport SEXP _universalmotif_scan_seq_internal(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
@@ -595,6 +608,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_merge_motifs_get_offset", (DL_FUNC) &_universalmotif_merge_motifs_get_offset, 8},
     {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 11},
     {"_universalmotif_numeric_to_integer_matrix", (DL_FUNC) &_universalmotif_numeric_to_integer_matrix, 1},
+    {"_universalmotif_scan_seq_internal2", (DL_FUNC) &_universalmotif_scan_seq_internal2, 3},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},
     {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},

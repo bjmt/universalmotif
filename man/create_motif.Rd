@@ -51,7 +51,7 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
 }
 \arguments{
 \item{input}{\code{character}, \code{numberic}, \code{matrix},
-\link[Biostrings:XStringSet-class]{Biostrings::XStringSet}, or \code{missing}}
+\link{XStringSet}, or \code{missing}}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
 or a combined string representing the letters.}

@@ -27,6 +27,35 @@ IntegerMatrix numeric_to_integer_matrix(NumericMatrix mat) {
 }
 
 // [[Rcpp::export]]
+IntegerVector scan_seq_internal2(IntegerVector sequence, IntegerMatrix score_mat,
+    int min_score) {
+
+  // BUG FIX: can't deal with NAs generated from non-standard letters
+
+  IntegerVector to_keep(sequence.length());
+
+  int tmp_score;
+  int max_step = sequence.size() - score_mat.ncol() + 1;
+
+  for (int i = 0; i < max_step; ++i) {
+
+    tmp_score = 0;
+    for (int j = 0; j < score_mat.ncol(); ++j) {
+      bool na_check = IntegerVector::is_na(sequence[i + j]);
+      if (na_check)
+        tmp_score += -999999;
+      else
+        tmp_score += score_mat(sequence[i + j], j);
+    }
+    if (tmp_score >= min_score) to_keep[i] = 1;
+
+  }
+
+  return to_keep;
+
+}
+
+// [[Rcpp::export]]
 IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
     int min_score) {
 

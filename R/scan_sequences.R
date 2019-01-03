@@ -4,7 +4,7 @@
 #' a set of input motifs.
 #'
 #' @param motifs See `convert_motifs()` for acceptable motif formats.
-#' @param sequences [Biostrings::XStringSet-class] Sequences to scan. Alphabet
+#' @param sequences \link{XStringSet} Sequences to scan. Alphabet
 #'    should match motif.
 #' @param threshold `numeric(1)` Between 0 and 1. See details.
 #' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`.
@@ -28,8 +28,8 @@
 #'    unfortunately is much less informative).
 #'
 #' @return `data.frame` with each row representing one hit; if the input
-#'    sequences are [Biostrings::DNAStringSet-class or
-#'    [Biostrings::RNAStringSet-class], then an
+#'    sequences are \link{DNAStringSet} or
+#'    \link{RNAStringSet}, then an
 #'    additional column with the strand is included.
 #'
 #' @details
@@ -241,6 +241,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            function(x) string_to_factor(x, mot.alphs),
                            BP = BP, PB = progress)
 
+  ## BUG FIX: can't deal with NAs generated from non-standard DNA letters
+  na.check <- lapply_(seq.matrices,
+                      function(x) any(is.na(x)),
+                      BP = BP, PB = progress)
+  na.check <- any(do.call(c, na.check))
+  if (na.check) warning("Non-standard letters found, these will be ignored",
+                             immediate. = TRUE)
+
   if (progress && !BP && verbose > 0)
     cat("   * Converting sequences to integers ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
@@ -260,10 +268,18 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (RC && progress && !BP && verbose > 0) cat("   * Forward strand ...")
   else if (RC && verbose > 0) cat("   * Forward strand\n")
-  to.keep <- lapply_(seq_along(score.mats),
-                      function(x) .score_motif(seq.ints, score.mats[[x]],
-                                               thresholds.int[x]),
-                     BP = BP, PB = progress)
+  if (!na.check) {
+    to.keep <- lapply_(seq_along(score.mats),
+                        function(x) .score_motif(seq.ints, score.mats[[x]],
+                                                 thresholds.int[x]),
+                       BP = BP, PB = progress)
+  } else {
+    to.keep <- lapply_(seq_along(score.mats),
+                        function(x) .score_motif2(seq.ints, score.mats[[x]],
+                                                  thresholds.int[x]),
+                       BP = BP, PB = progress)
+  }
+
   if (verbose > 2) {
     num.matches <- lapply(to.keep, function(x) do.call(c, x))
     num.matches <- do.call(c, num.matches)
@@ -280,10 +296,18 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       cat("   * Reverse strand ...")
     else if ((progress && BP && verbose > 0) || verbose > 0)
       cat("   * Reverse strand\n")
-    to.keep.rc <- lapply_(seq_along(score.mats.rc),
-                           function(x) .score_motif(seq.ints, score.mats.rc[[x]],
-                                                    thresholds.int[x]),
-                          BP = BP, PB = progress)
+    if (!na.check) {
+      to.keep.rc <- lapply_(seq_along(score.mats.rc),
+                             function(x) .score_motif(seq.ints, score.mats.rc[[x]],
+                                                      thresholds.int[x]),
+                            BP = BP, PB = progress)
+    } else {
+      to.keep.rc <- lapply_(seq_along(score.mats.rc),
+                             function(x) .score_motif2(seq.ints, score.mats.rc[[x]],
+                                                       thresholds.int[x]),
+                            BP = BP, PB = progress)
+    }
+
     if (verbose > 2) {
       num.matches.rc <- lapply(to.keep.rc, function(x) do.call(c, x))
       num.matches.rc <- do.call(c, num.matches.rc)
@@ -353,6 +377,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
 .score_motif <- function(seqs, score.1, thresh) {
   lapply(seqs, function(x) scan_seq_internal(x, score.1, thresh))
+}
+
+.score_motif2 <- function(seqs, score.1, thresh) {
+  lapply(seqs, function(x) scan_seq_internal2(x, score.1, thresh))
 }
 
 # perhaps implement this in cpp
