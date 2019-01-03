@@ -55,7 +55,11 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
     alph <- "AA"
   } else alph <- "custom"
   strands <- raw_lines[grepl("^strands:", raw_lines)]
-  strands <- strsplit(strands, "\\s+")[[1]][-1]
+  if (length(strands) > 0) {
+    strands <- strsplit(strands, "\\s+")[[1]][-1]
+  } else {
+    strands <- c("+", "-")
+  }
   if (all(c("+", "-") %in% strands)) {
     strands <- "+-"
   } 
