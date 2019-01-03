@@ -6,7 +6,7 @@
 #' @param motif See [convert_motifs()] for acceptable formats. If the
 #'    motif is not a [universalmotif-class] motif, then it will be
 #'    converted.
-#' @param sequences [Biostrings::XStringSet-class] The alphabet must match
+#' @param sequences \link{XStringSet} The alphabet must match
 #'    that of the motif. If
 #'    these sequences are all the same length as the motif, then they are all
 #'    used to generate the multi-freq matrices. Otherwise

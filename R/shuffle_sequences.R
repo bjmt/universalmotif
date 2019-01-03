@@ -3,8 +3,8 @@
 #' Given a set of input sequences, shuffle the letters within those
 #' sequences with any k-let size.
 #'
-#' @param sequences [Biostrings::XStringSet-class] For `method = 'markov'`,
-#'    [Biostrings::DNAStringSet-class] and [Biostrings::RNAStringSet-class] only.
+#' @param sequences \link{XStringSet} For `method = 'markov'`,
+#'    \link{DNAStringSet} and \link{RNAStringSet} only.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
 #'    Only relevant is `k > 1`. See details.
@@ -18,7 +18,7 @@
 #'    is changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
 #'    be shown (which unfortunately is much less informative).
 #'
-#' @return [Biostrings::XStringSet-class] The input sequences will be returned with 
+#' @return \link{XStringSet} The input sequences will be returned with 
 #'    identical names and lengths.
 #'
 #' @details

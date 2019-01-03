@@ -49,7 +49,7 @@
 #' vignette, section 7, for an example workflow describing extracting promoter
 #' sequences.
 #'
-#' @format [Biostrings::DNAStringSet]
+#' @format \link{DNAStringSet}
 "ArabidopsisPromoters"
 
 #' Arabidopsis motif in `universalmotif` format.

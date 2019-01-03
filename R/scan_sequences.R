@@ -4,7 +4,7 @@
 #' a set of input motifs.
 #'
 #' @param motifs See `convert_motifs()` for acceptable motif formats.
-#' @param sequences [Biostrings::XStringSet-class] Sequences to scan. Alphabet
+#' @param sequences \link{XStringSet} Sequences to scan. Alphabet
 #'    should match motif.
 #' @param threshold `numeric(1)` Between 0 and 1. See details.
 #' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`.
@@ -28,8 +28,8 @@
 #'    unfortunately is much less informative).
 #'
 #' @return `data.frame` with each row representing one hit; if the input
-#'    sequences are [Biostrings::DNAStringSet-class or
-#'    [Biostrings::RNAStringSet-class], then an
+#'    sequences are \link{DNAStringSet} or
+#'    \link{RNAStringSet}, then an
 #'    additional column with the strand is included.
 #'
 #' @details

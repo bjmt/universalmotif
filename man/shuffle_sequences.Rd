@@ -8,8 +8,8 @@ shuffle_sequences(sequences, k = 1, method = "linear",
   leftovers = "asis", progress = FALSE, BP = FALSE)
 }
 \arguments{
-\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} For \code{method = 'markov'},
-\link[Biostrings:DNAStringSet-class]{Biostrings::DNAStringSet} and \link[Biostrings:RNAStringSet-class]{Biostrings::RNAStringSet} only.}
+\item{sequences}{\link{XStringSet} For \code{method = 'markov'},
+\link{DNAStringSet} and \link{RNAStringSet} only.}
 
 \item{k}{\code{numeric(1)} K-let size.}
 
@@ -29,7 +29,7 @@ is changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
 be shown (which unfortunately is much less informative).}
 }
 \value{
-\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} The input sequences will be returned with
+\link{XStringSet} The input sequences will be returned with
 identical names and lengths.
 }
 \description{

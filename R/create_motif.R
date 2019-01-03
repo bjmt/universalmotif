@@ -4,7 +4,7 @@
 #' motif.
 #'
 #' @param input `character`, `numberic`, `matrix`,
-#'    [Biostrings::XStringSet-class], or `missing`
+#'    \link{XStringSet}, or `missing`
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
 #'    or a combined string representing the letters.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.

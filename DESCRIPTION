@@ -29,7 +29,7 @@ RdMacros: Rdpack
 VignetteBuilder: knitr
 biocViews: MotifAnnotation, MotifDiscovery, DataImport,
     GeneRegulation
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Collate: 'RcppExports.R' 'add_multifreq.R'
     'compare_motifs.R' 'universalmotif-class.R'

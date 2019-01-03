@@ -15,9 +15,9 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} Alphabet should match motif.}
+\item{sequences}{\link{XStringSet} Alphabet should match motif.}
 
-\item{bkg.sequences}{\link[Biostrings:XStringSet-class]{Biostrings::XStringSet} Optional; if missing,
+\item{bkg.sequences}{\link{XStringSet} Optional; if missing,
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is used to create background sequences from
 the input sequences.}
 
@@ -48,8 +48,8 @@ the background sequences are ignored. See \code{\link[stats:t.test]{stats::t.tes
 \item{verbose}{\code{numeric(1)} 0 for no output, 4 for max verbosity.}
 
 \item{RC}{\code{logical(1)} Whether to consider the reverse complement of the
-sequences. Only available for \link[Biostrings:DNAStringSet-class]{Biostrings::DNAStringSet},
-\link[Biostrings:RNAStringSet-class]{Biostrings::RNAStringSet} sequences.}
+sequences. Only available for \link{DNAStringSet},
+\link{RNAStringSet} sequences.}
 
 \item{use.freq}{\code{numeric(1)} If the \code{multifreq} slot of the motifs are filled,
 then they can be used to scan the sequences. See \code{\link[=scan_sequences]{scan_sequences()}}.}

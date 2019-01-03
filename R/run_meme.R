@@ -5,12 +5,12 @@
 #' the command parameters, run `run_meme()`. Parameters in [run_meme()]
 #' which are directly taken from the MEME program are tagged with \[MEME\].
 #'
-#' @param target.sequences `XStringSet` List of sequences to get motifs from.
+#' @param target.sequences \link{XStringSet} List of sequences to get motifs from.
 #' @param output `character(1)` Name of the output folder. If `NULL`, MEME
 #'    output will be deleted.
 #' @param overwrite.dir `logical(1)` If `output` is set but already exists,
 #'    allow overwritting.
-#' @param control.sequences `XStringSet` List of negative sequences. Only
+#' @param control.sequences \link{XStringSet} List of negative sequences. Only
 #'    used if `objfun = c("de", "se")`.
 #' @param weights `numeric` Vector of numbers between 0 and 1, representing
 #'    sequence weights.
