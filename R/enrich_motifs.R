@@ -42,6 +42,7 @@
 #' @param return.scan.results `logical(1)` Return output from
 #'    [scan_sequences()].
 #' @param progress `logical(1)` Show progress. Note recommended if `BP = TRUE`.
+#'    Set to `FALSE` if `verbose = 0`
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [enrich_motifs()]. See [BiocParallel::register()] to change the default
 #'    backend. Setting `BP = TRUE` is only recommended for exceptionally large jobs
@@ -134,6 +135,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (verbose <= 0) progress <- FALSE
+
   if (verbose > 2) {
     cat(" > Input parameters\n")
     cat("   > motifs:              ", deparse(substitute(motifs)), "\n")
@@ -159,6 +162,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   }
 
   motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "PWM")
 
   if (missing(bkg.sequences)) {
     if (progress && !BP) cat(" > Shuffling input sequences ...")
@@ -171,6 +175,18 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (!is.list(motifs)) motifs <- list(motifs)
   motcount <- length(motifs)
 
+  if (use.freq == 1) {
+    score.mats <- lapply(motifs, function(x) x["motif"])
+  } else {
+    score.mats <- lapply(motifs,
+                         function(x) x["multifreq"][[as.character(use.freq)]])
+    for (i in seq_along(score.mats)) {
+      score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
+                               nsites = motifs[[i]]["nsites"],
+                               pseudocount = motifs[[i]]["pseudocount"])
+    }
+  }
+
   if (threshold.type == "pvalue") {
     if (progress && !BP)
       cat(" > Converting P-values to logodds thresholds ...")
@@ -178,13 +194,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                               k = 5, progress = progress, BP = BP)
-    if (use.freq == 1) {
-      max.scores <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
-                           numeric(1))
-    } else {
-      max.scores <- vapply(motifs,
-            function(x) sum(apply(x["multifreq"][[as.character(use.freq)]])),
-                           numeric(1))
+    max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
+    for (i in seq_along(threshold)) {
+      if (threshold[i] > max.scores[i]) threshold[i] <- max.scores[i]
     }
     threshold <- threshold / max.scores
     threshold.type <- "logodds"
@@ -209,7 +221,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     if (nrow(res.scan[[2]]) == 0) res.scan[[2]] <- NULL
   }
 
-  if (nrow(res.all) < 1) {
+  if (nrow(res.all) < 1 || is.null(res.all)) {
     message(" ! No enriched motifs")
     if (return.scan.results) {
       res.all <- c(list(NULL), res.scan)
@@ -250,7 +262,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   res.all <- res.all[!is.na(res.all$motif), ]
   rownames(res.all) <- NULL
 
-  if (nrow(res.all) < 1) {
+  if (nrow(res.all) < 1 || is.null(res.all)) {
     message(" ! No enriched motifs")
     if (return.scan.results) {
       res.all <- c(list(NULL), res.scan)
@@ -340,14 +352,21 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                     bkg.sequences, verbose) {
 
   seq.hits <- results$start
-  if (length(seq.hits) == 0) {
+  if (length(seq.hits) == 0 || is.null(seq.hits)) {
     seq.hits.mean <- 0
   } else seq.hits.mean <- mean(seq.hits)
 
   bkg.hits <- results.bkg$start
-  if (length(bkg.hits) == 0) {
+  if (length(bkg.hits) == 0 || is.null(bkg.hits)) {
     bkg.hits.mean <- 0
   } else bkg.hits.mean <- mean(bkg.hits)
+
+  if (seq.hits.mean > 0 && bkg.hits.mean == 0) {
+    warning(paste0("Found hits for motif '", motifs["name"], "' in target sequences but none in bkg, significance will not be calculated"))
+    skip.calc <- TRUE
+  } else {
+    skip.calc <- FALSE
+  }
 
   if (length(seq.hits) == 0 && length(bkg.hits) == 0) return(NULL)
 
@@ -367,11 +386,15 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   if (verbose > 3) cat(" > Testing motif for enrichment:", motifs["name"], "\n")
 
-  hits.p <- fisher.test(results.table, alternative = "greater")$p.value
+  if (!skip.calc) {
+    hits.p <- fisher.test(results.table, alternative = "greater")$p.value
+  } else {
+    hits.p <- 0
+  }
 
   pos.p <- NA
 
-  if (search.mode %in% c("both", "positional") && length(seq.hits) > 0) {
+  if (search.mode %in% c("both", "positional") && length(seq.hits) > 0 && !skip.calc) {
     if (positional.test == "t.test" && length(bkg.hits) > 0) {
       if (verbose > 3) cat("   > Running t.test\n")
       tryCatch({
@@ -396,6 +419,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       pos.p <- shapiro.test(seq.hits)$p.value
       }, error = function(e) warning("shapiro.test failed"))
     } 
+  } else if (skip.calc) {
+    pos.p <- 0
   }
 
   if (verbose > 3 && search.mode %in% c("hits", "both")) {
