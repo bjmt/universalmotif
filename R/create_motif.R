@@ -4,7 +4,7 @@
 #' motif.
 #'
 #' @param input `character`, `numberic`, `matrix`,
-#'    \link{XStringSet}, or `missing`
+#'    \code{\link{XStringSet}}, or `missing`
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
 #'    or a combined string representing the letters.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
@@ -565,7 +565,7 @@ setMethod("create_motif", signature(input = "matrix"),
             motif
           })
 
-#' @describeIn create_motif Create motif from a [Biostrings::DNAStringSet-class].
+#' @describeIn create_motif Create motif from a \code{\link{DNAStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "DNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -616,7 +616,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
           })
 
-#' @describeIn create_motif Create motif from a [Biostrings::RNAStringSet-class].
+#' @describeIn create_motif Create motif from a \code{\link{RNAStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "RNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -671,7 +671,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
           })
 
-#' @describeIn create_motif Create motif from a [Biostrings::AAStringSet-class].
+#' @describeIn create_motif Create motif from a \code{\link{AAStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "AAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -730,7 +730,7 @@ setMethod("create_motif", signature(input = "AAStringSet"),
 
           })
 
-#' @describeIn create_motif Create motif from a [Biostrings::BStringSet-class].
+#' @describeIn create_motif Create motif from a \code{\link{BStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "BStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,

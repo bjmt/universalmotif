@@ -8,7 +8,7 @@
 #' @param use.freq `numeric(1)` If one, use regular motif matrix. Otherwise,
 #'    use respective `multifreq` matrix.
 #'
-#' @return \link{XStringSet} object.
+#' @return \code{\link{XStringSet}} object.
 #'
 #' @examples
 #' motif <- create_motif()

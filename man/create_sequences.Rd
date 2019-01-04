@@ -36,11 +36,11 @@ changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
 be shown (which unfortunately is much less informative).}
 }
 \value{
-\link{XStringSet} The returned sequences are \emph{unnamed}.
+\code{\link{XStringSet}} The returned sequences are \emph{unnamed}.
 }
 \description{
 Generate random sequences from any set of characters, represented as
-\link{XStringSet} objects.
+\code{\link{XStringSet}} objects.
 }
 \examples{
 ## create DNA sequences with slightly increased AT content:

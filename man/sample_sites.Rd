@@ -15,7 +15,7 @@ sample_sites(motif, n = 100, use.freq = 1)
 use respective \code{multifreq} matrix.}
 }
 \value{
-\link{XStringSet} object.
+\code{\link{XStringSet}} object.
 }
 \description{
 Given probabilities for a sequence as represented by a motif, generate

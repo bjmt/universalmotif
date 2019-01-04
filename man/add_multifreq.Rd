@@ -12,7 +12,7 @@ add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
 motif is not a \linkS4class{universalmotif} motif, then it will be
 converted.}
 
-\item{sequences}{\link{XStringSet} The alphabet must match
+\item{sequences}{\code{\link{XStringSet}} The alphabet must match
 that of the motif. If
 these sequences are all the same length as the motif, then they are all
 used to generate the multi-freq matrices. Otherwise

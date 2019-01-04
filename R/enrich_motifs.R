@@ -5,8 +5,8 @@
 #' background sequences.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
-#' @param sequences \link{XStringSet} Alphabet should match motif.
-#' @param bkg.sequences \link{XStringSet} Optional; if missing,
+#' @param sequences \code{\link{XStringSet}} Alphabet should match motif.
+#' @param bkg.sequences \code{\link{XStringSet}} Optional; if missing,
 #'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
 #' @param search.mode `character(1)` One of `c('hits', 'positional', 'both')`.
@@ -28,8 +28,8 @@
 #'    [scan_sequences()].
 #' @param verbose `numeric(1)` 0 for no output, 4 for max verbosity.
 #' @param RC `logical(1)` Whether to consider the reverse complement of the
-#'    sequences. Only available for \link{DNAStringSet},
-#'    \link{RNAStringSet} sequences.
+#'    sequences. Only available for \code{\link{DNAStringSet}},
+#'    \code{\link{RNAStringSet}} sequences.
 #' @param use.freq `numeric(1)` If the `multifreq` slot of the motifs are filled,
 #'    then they can be used to scan the sequences. See [scan_sequences()].
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input

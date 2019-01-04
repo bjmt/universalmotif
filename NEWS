@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.0.3
+------------------------
+
+BUG FIXES
+
+    o Missed a couple [Biostrings::*StringSet-class] from last patch
+
+    o Updated README to reflect new installation method
+
+    o Wrapped instances of \link{} with \code{\link{}}
+
 CHANGES IN VERSION 1.0.2
 ------------------------
 

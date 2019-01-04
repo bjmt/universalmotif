@@ -15,19 +15,8 @@ enrichment.
 
 ## Installation
 
-If you'd like to build the vignettes locally, a few prerequisite packages not
-listed in the 'Imports' section are needed:
-
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
   install.packages("BiocManager")
-BiocManager::install(c("BiocStyle", "TFBSTools", "motifStack", "Logolas",
-                       "MotifDb"))
-BiocManager::install("bjmt/universalmotif")
+BiocManager::install("universalmotif")
 ```
-
-To install the package with pre-built vignettes:
-
-  - Go to the 'release' tab
-  - Download the latest 'universalmotif_X.X.X.tar.gz' file
-  - Run `R CMD INSTALL universalmotif_X.X.X.tar.gz`

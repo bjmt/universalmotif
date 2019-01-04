@@ -1,7 +1,7 @@
 #' Create random sequences.
 #'
 #' Generate random sequences from any set of characters, represented as
-#' \link{XStringSet} objects.
+#' \code{\link{XStringSet}} objects.
 #'
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`, or a string of
 #'    characters to be used as the alphabet.
@@ -23,7 +23,7 @@
 #'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
 #'    be shown (which unfortunately is much less informative).
 #'
-#' @return \link{XStringSet} The returned sequences are _unnamed_.
+#' @return \code{\link{XStringSet}} The returned sequences are _unnamed_.
 #'
 #' @examples
 #' ## create DNA sequences with slightly increased AT content:
