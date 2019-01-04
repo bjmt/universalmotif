@@ -1,3 +1,24 @@
+CHANGES IN VERSION 1.0.5
+------------------------
+
+BUG FIXES
+
+    o `read_meme()` can now read non-DNA/RNA motifs
+
+    o removed duplicate line in run_meme.R
+
+    o `scan_sequences()` will not scan mismatching motif/sequence alphabets
+
+    o verbose output from `scan_sequences()` will now display correctly
+
+    o Using `enrich_motifs()` and not finding any motif hits in the input
+      sequences no longer throws an error
+
+    o Fixed threshold calculation in `enrich_motifs()`
+
+    o `enrich_motifs()` will now show results for motifs which have hits in
+      target sequences but none in bkg sequences
+
 CHANGES IN VERSION 1.0.4
 ------------------------
 

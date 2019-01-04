@@ -18,6 +18,7 @@
 #' @param verbose `numeric(1)` Describe progress, from none (`0`) to very
 #'    verbose (`3`).
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#'    Set to `FALSE` if `verbose = 0`.
 #' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
 #'    [scan_sequences()]. See [BiocParallel::register()] to change the
 #'    default backend. Setting `BP = TRUE` is only recommended for
@@ -90,6 +91,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (verbose <= 0) progress <- FALSE
+
   if (verbose > 2) {
     cat(" * Input parameters\n")
     cat("   * motifs:              ", deparse(substitute(motifs)), "\n")
@@ -128,6 +131,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
+
+  if (is(sequences, "DNAStringSet")) seq.alph <- "DNA"
+  else if (is(sequences, "RNAStringSet")) seq.alph <- "RNA"
+  else if (is(sequences, "AAStringSet")) seq.alph <- "AA"
+  else seq.alph <- "custom"
+
+  if (mot.alphs != seq.alph)
+    stop("Motif and sequence alphabets do not match", immediate. = TRUE)
 
   if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x["multifreq"]) == 0, logical(1))))
@@ -208,10 +219,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   seq.matrices <- lapply(seq.lens, function(x) matrix(ncol = x - use.freq + 1,
                                                       nrow = use.freq))
 
-  if ((progress && BP && verbose > 0) || verbose > 1)
-    cat("   * Creating sequence matrices\n")
-  else if (progress && !BP && verbose > 0)
+  if (progress && !BP && verbose > 0)
     cat("   * Creating sequence matrices ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Creating sequence matrices\n")
   seq.matrices <- mapply_(.process_seqs, seq.matrices, seqs.aschar, BP = BP,
                            MoreArgs = list(k = use.freq), SIMPLIFY = FALSE,
                            PB = progress)
@@ -242,6 +253,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            BP = BP, PB = progress)
 
   ## BUG FIX: can't deal with NAs generated from non-standard DNA letters
+  if (progress && !BP && verbose > 0)
+    cat("   * Checking for non-standard letters ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Checking for non-standard letters\n")
   na.check <- lapply_(seq.matrices,
                       function(x) any(is.na(x)),
                       BP = BP, PB = progress)

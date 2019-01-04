@@ -67,7 +67,8 @@ Only used if \code{shuffle.method = 'random'}. See \code{\link[=shuffle_sequence
 \item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{progress}{\code{logical(1)} Show progress. Note recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Show progress. Note recommended if \code{BP = TRUE}.
+Set to \code{FALSE} if \code{verbose = 0}}
 
 \item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
 \code{\link[=enrich_motifs]{enrich_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
