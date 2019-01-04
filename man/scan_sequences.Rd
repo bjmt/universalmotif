@@ -30,7 +30,8 @@ number is used, then the matching k-let matrix from the
 \item{verbose}{\code{numeric(1)} Describe progress, from none (\code{0}) to very
 verbose (\code{3}).}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.
+Set to \code{FALSE} if \code{verbose = 0}.}
 
 \item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
 \code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the

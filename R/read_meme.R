@@ -47,6 +47,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
 
   alph <- raw_lines[grepl("^ALPHABET=", raw_lines)]
   alph <- strsplit(alph, "\\s+")[[1]][2]
+  alph.len <- nchar(alph)
   if (alph == "ACGT") {
     alph <- "DNA"
   } else if (alph == "ACGU") {
@@ -100,7 +101,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
                                          bkg = bkg,
                                          alphabet = alph,
                                          strand = strands,
-                                         motif = t(matrix(z, ncol = 4,
+                                         motif = t(matrix(z, ncol = alph.len,
                                                           byrow = TRUE)))
                           msg <- validObject_universalmotif(mot)
                           if (length(msg) > 0) stop(msg) else mot

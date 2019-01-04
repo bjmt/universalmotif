@@ -167,7 +167,6 @@ run_meme <- function(target.sequences, output = NULL,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  args <- as.list(environment())
   v <- verbose
   os.check <- .Platform$OS.type
   if (os.check == "windows") stop("MEME is not available on windows")
