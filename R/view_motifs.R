@@ -161,6 +161,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                           x[1:2] <- fix_blank_pos(x[[1]], x[[2]]); x
                             })
 
+  if (length(mot.alns.rc) == 0) mot.alns.rc <- NULL
   mots <- realign_all_mots(alph, mot.alns, mot.alns.rc)
   if (!is.null(mot.alns.rc)) {
     which.rc <- mots[[2]]
