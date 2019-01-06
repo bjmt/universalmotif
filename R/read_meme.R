@@ -59,7 +59,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
   if (length(strands) > 0) {
     strands <- strsplit(strands, "\\s+")[[1]][-1]
   } else {
-    strands <- c("+", "-")
+    strands <- "+"
   }
   if (all(c("+", "-") %in% strands)) {
     strands <- "+-"
