@@ -265,7 +265,7 @@ setMethod("show", signature = "universalmotif",
             if (length(object@altname) > 0) {
               altname <- object@altname
               if (nchar(altname) > 40) {
-                altname <- paste0(substr(name, 1, 40), "...")
+                altname <- paste0(substr(altname, 1, 40), "...")
               }
               cat("   Alternate name:   ", altname, "\n", sep = "")
             }
