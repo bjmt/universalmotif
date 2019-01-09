@@ -326,7 +326,8 @@ comparing the available methods:
 library(universalmotif)
 library(MotifDb)
 
-motifs <- convert_motifs(MotifDb[3:4])
+motifs <- convert_motifs(MotifDb)
+motifs <- filter_motifs(motifs, altname = c("M0003_1.02", "M0004_1.02"))
 summarise_motifs(motifs)
 try_all <- function(motifs, ...) {
   scores <- numeric(8)
@@ -435,7 +436,9 @@ has already been run.
 library(universalmotif)
 library(MotifDb)
 
-tree <- motif_tree(MotifDb[301:400], layout = "daylight", linecol = "family",
+motifs <- convert_motifs(MotifDb)
+motifs <- filter_motifs(motifs, organism = "Athaliana")[1:100]
+tree <- motif_tree(motifs, layout = "daylight", linecol = "family",
                    progress = FALSE)
 
 ## Make some changes to the tree in regular ggplot2 fashion:
