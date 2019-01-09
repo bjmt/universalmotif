@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.0.8
+------------------------
+
+BUG FIXES
+
+    o Trying to prevent R CMD BUILD from changing the behaviour of vignette
+      code involving MotifDb package
+
 CHANGES IN VERSION 1.0.7
 ------------------------
 
