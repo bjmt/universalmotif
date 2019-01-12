@@ -19,13 +19,16 @@ available formats. Alternatively, the resulting comparison matrix from
 \item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular', 'radial', 'equal_angle', 'daylight')}. See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{linecol}{\code{character(1)} \linkS4class{universalmotif} slot to use to
-colour lines (e.g. 'family'). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+colour lines (e.g. 'family'). Not available for \code{dist} input.
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{labels}{\code{character(1)} \linkS4class{universalmotif} slot to use to label
-tips (e.g. 'name'). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+tips (e.g. 'name'). For \code{dist} input, only 'name' is available.
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{tipsize}{\code{character(1)} \linkS4class{universalmotif} slot to use to
-control tip size (e.g. 'icscore'). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+control tip size (e.g. 'icscore'). Not available for \code{dist} input.
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{legend}{\code{logical(1)} Show legend for line colour and tip size.
 See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}

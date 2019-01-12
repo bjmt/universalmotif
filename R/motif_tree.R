@@ -11,11 +11,14 @@
 #' @param layout `character(1)` One of `c('rectangular', 'slanted', 'fan', 'circular',
 #'    'radial', 'equal_angle', 'daylight')`. See [ggtree::ggtree()].
 #' @param linecol `character(1)` [universalmotif-class] slot to use to
-#'    colour lines (e.g. 'family'). See [ggtree::ggtree()].
+#'    colour lines (e.g. 'family'). Not available for `dist` input.
+#'    See [ggtree::ggtree()].
 #' @param labels `character(1)` [universalmotif-class] slot to use to label
-#'    tips (e.g. 'name'). See [ggtree::ggtree()].
+#'    tips (e.g. 'name'). For `dist` input, only 'name' is available.
+#'    See [ggtree::ggtree()].
 #' @param tipsize `character(1)` [universalmotif-class] slot to use to
-#'    control tip size (e.g. 'icscore'). See [ggtree::ggtree()].
+#'    control tip size (e.g. 'icscore'). Not available for `dist` input.
+#'    See [ggtree::ggtree()].
 #' @param legend `logical(1)` Show legend for line colour and tip size.
 #'    See [ggtree::ggtree()].
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
@@ -95,7 +98,13 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
   if (is(motifs, "dist")) {
     tree <- ape::as.phylo(hclust(motifs))
-  } else {
+    mot_names <- attr(motifs, "Labels")
+    if (labels == "name") {
+      tree$tip.label <- mot_names
+    } else if (labels != "none") {
+      warning("Trees from 'dist' objects can only use 'name' labels")
+    }
+  } else if (is.list(motifs)) {
     motifs <- convert_motifs(motifs)
     if (progress) cat("Comparing motifs...\n")
     tree <- compare_motifs(motifs,
@@ -108,16 +117,22 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     if (method == "MPCC") tree <- 1 - tree
     else if (method == "MSW") tree <- 2 - tree
     tree <- ape::as.phylo(hclust(as.dist(tree)))
-  }
-
-  if (labels != "none") {
-    mot_names <- sapply(motifs, function(x) x[labels])
-    tree$tip.label <- mot_names
+    if (labels != "none") {
+      mot_names <- sapply(motifs, function(x) x[labels])
+      tree$tip.label <- mot_names
+    } else {
+      mot_names <- vapply(motifs, function(x) x["name"], character(1))
+    }
   } else {
-    mot_names <- vapply(motifs, function(x) x["name"], character(1))
+    stop("Input must be a 'dist' object or a 'list' of motifs")
   }
 
-  if (linecol != "none") {
+  if (is(motifs, "dist")) {
+    if (linecol != "none") warning("'linecol' is not available for 'dist' objects")
+    if (tipsize != "none") warning("'tipsize' is not available for 'dist' objects")
+  }
+
+  if (linecol != "none" && !is(motifs, "dist")) {
 
     anno_list <- list()
     anno_bycol <- sapply(motifs, function(x) x[linecol])
@@ -173,7 +188,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
         geom_tiplab2(align = TRUE, linesize = 0.5)
     }
 
-    if (tipsize != "none") {
+    if (tipsize != "none" && !is(motifs, "dist")) {
       anno_names <- mot_names
       anno_df <- data.frame(name = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
@@ -187,11 +202,11 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   } else {
 
     p <- ggtree(tree, layout = layout, branch.length = branch.length, ...)
-    if (tipsize != "none") {
+    if (tipsize != "none" && !is(motifs, "dist")) {
       anno_names <- mot_names
       anno_df <- data.frame(name = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
-      if (tipsize %in% c("pval", "qval", "eval")) {
+      if (tipsize %in% c("pval", "qval", "eval") && !is(motifs, "dist")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
       p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
