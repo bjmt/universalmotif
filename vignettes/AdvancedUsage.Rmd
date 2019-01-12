@@ -411,10 +411,11 @@ information content positions to be scored (positions which don't pass the
 set threshold will not contribute to the score).
 
 ```{r}
-view_motifs(motifs, min.mean.ic = 0.5)
-try_all(motifs, min.mean.ic = 0.5)
-view_motifs(motifs, min.mean.ic = 0.75)
-try_all(motifs, min.mean.ic = 0.75)
+motifs2 <- filter_motifs(MotifDb, altname = c("M0100_1.02", "M0104_1.02"))
+view_motifs(motifs2, min.mean.ic = 0)
+try_all(motifs2, min.mean.ic = 0)
+view_motifs(motifs2, min.mean.ic = 0.7)
+try_all(motifs2, min.mean.ic = 0.7)
 ```
 
 In this case, changing the `min.mean.ic` did not alter the alignment, but had
