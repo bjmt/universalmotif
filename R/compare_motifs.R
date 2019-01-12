@@ -22,7 +22,7 @@
 #'    motifs. Setting this to a number higher then the width of the motifs
 #'    will not allow any overhangs. Can also be a number less than 1,
 #'    representing the minimum fraction that the motifs must overlap.
-#' @param min.mean.ic `numeric(1)` Minimum information content between the
+#' @param min.mean.ic `numeric(1)` Minimum mean information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
 #'    alignments between low information content regions of two motifs.
 #' @param relative_entropy `logical(1)` For ICM calculation. See

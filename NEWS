@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.0.11
+-------------------------
+
+BUG FIXES
+
+    o The compare_motifs() example for min.mean.ic in the Advanced Usage
+      vignette now makes more sense
+
 CHANGES IN VERSION 1.0.10
 -------------------------
 
