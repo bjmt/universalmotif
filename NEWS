@@ -1,3 +1,13 @@
+CHANGES IN VERSION 1.0.12
+-------------------------
+
+BUG FIXES
+
+    o motif_pvalue() no longer throws an error for
+      motif_pvalue(..., pvalue = 0)
+
+    o motif_tree() now works properly with dist objects as input
+
 CHANGES IN VERSION 1.0.11
 -------------------------
 

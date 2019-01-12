@@ -340,7 +340,8 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
     
       if (pv.refine >= pval * tolerance && pv.refine <= pval) break
 
-      pv.factor <- pv.refine / pval
+      if (pval < -0.01 || pval > 0.01) pv.factor <- pv.refine / pval
+      else pv.factor <- 1
       score <- as.integer(score * pv.factor + 10)
 
       if (score > max.score) score <- max.score
