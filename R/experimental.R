@@ -36,10 +36,21 @@ setMethod("initialize", signature = "universalcluster",
 
 setMethod("show", signature = "universalcluster",
           definition = function(object) {
-          
+
             cat("universalcluster object with", length(object@motifs),
                 "motifs\n")
             cat("Meta info:\n")
             print(object@meta)
-          
+
           })
+
+create_cluster <- function(motifs, meta) {
+
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "PWM")
+
+  cluster <- universalcluster(motifs, meta)
+
+  cluster
+
+}
