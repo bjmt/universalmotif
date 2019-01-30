@@ -78,7 +78,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
-                         k = 6, progress = TRUE, BP = FALSE) {
+                         k = 6, progress = ifelse(length(motifs) > 1, TRUE, FALSE),
+                         BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
