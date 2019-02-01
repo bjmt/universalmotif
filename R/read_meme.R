@@ -8,10 +8,14 @@
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
 #'    file before starting to read.
 #' @param readsites `logical(1)` If `TRUE`, the motif sites will be read as well.
+#' @param readsites.meta `logical(1)` If `readsites = TRUE`, then additionally
+#'    read site positions and P-values.
 #'
 #' @return `list` [universalmotif-class] objects. If `readsites = TRUE`, a list
 #'    comprising of a sub-list of motif objects and a sub-list of 
-#'    motif sites will be returned.
+#'    motif sites will be returned. If `readsites.meta = TRUE`, then two
+#'    additional list items will be present, one containing site positions
+#'    and P-values, and another containing combined sequence p-values.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
@@ -25,15 +29,17 @@
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-read_meme <- function(file, skip = 0, readsites = FALSE) {
+read_meme <- function(file, skip = 0, readsites = FALSE,
+                      readsites.meta = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
-  logi_check <- check_fun_params(list(readsites = args$readsites),
-                                 1, FALSE, "logical")
+  logi_check <- check_fun_params(list(readsites = args$readsites,
+                                      readsites.meta = args$readsites.meta),
+                                 numeric(), logical(), "logical")
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
@@ -43,7 +49,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
   raw_lines <- raw_lines[raw_lines != ""]
   raw_lines <- raw_lines[!grepl("\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*", raw_lines)]
-  raw_lines <- raw_lines[!grepl("------------------------", raw_lines)]
+  raw_lines <- raw_lines[!grepl("------------", raw_lines)]
 
   alph <- raw_lines[grepl("^ALPHABET=", raw_lines)]
   alph <- strsplit(alph, "\\s+")[[1]][2]
@@ -115,8 +121,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
       mot.names <- vapply(motif_list, function(x) x["name"], character(1))
     else
       mot.names <- motif_list["name"]
-    block.starts <- sapply(mot.names,
-                           function(x) grep("in BLOCKS format", raw_lines))
+    block.starts <- grep("in BLOCKS format", raw_lines)
     if (length(block.starts) == 0) {
       warning("could not find BLOCKS formatted motifs in MEME file")
       motif_list <- list(motifs = motif_list, sites = NULL)
@@ -145,12 +150,85 @@ read_meme <- function(file, skip = 0, readsites = FALSE) {
       sites <- mapply(function(x, y) {names(x) <- y; x},
                         sites, site.names,
                         SIMPLIFY = FALSE)
+      names(sites) <- mot.names
       if (length(sites) == 1) sites <- sites[[1]]
       if (is.list(sites) && is.list(motif_list))  # TODO: this is a bug..
         if (length(sites) != length(motif_list))
           sites <- sites[seq_len(length(motif_list))]
       motif_list <- list(motifs = motif_list, sites = sites)
     }
+
+    if (readsites.meta) {
+      site.starts <- grep("sites sorted by position p-value", raw_lines)
+      site.stops <- grep("block diagrams$", raw_lines)
+      if (length(site.starts) == 0 || length(site.stops) == 0) {
+        warning("Could not find site P-values in MEME file")
+      } else {
+        site.starts <- site.starts + 2
+        site.stops <- site.stops - 1
+        site.tables <- mapply(function(x, y) {
+                                z <- raw_lines[x:y]
+                                lapply(z, function(x) strsplit(x, "\\s+")[[1]])
+                              }, site.starts, site.stops, SIMPLIFY = FALSE)
+        col.seqname <- 1
+        if (all(grepl("Strand", raw_lines[site.starts - 1]))) {
+          col.pos <- 3
+          col.pval <- 4
+          col.seq <- 6
+        } else {
+          col.pos <- 2
+          col.pval <- 3
+          col.seq <- 5
+        }
+        site.tables <- lapply(site.tables,
+                              function(x) {
+                                z1 <- vapply(x, function(x) x[col.seqname], character(1))
+                                z2 <- vapply(x, function(x) x[col.pos], character(1))
+                                z3 <- vapply(x, function(x) x[col.pval], character(1))
+                                z4 <- vapply(x, function(x) x[col.seq], character(1))
+                                data.frame(Sequence = z1,
+                                           Position = as.numeric(z2),
+                                           Pvalue = as.numeric(z3),
+                                           Site = z4,
+                                           stringsAsFactors = FALSE)
+                              })
+        names(site.tables) <- mot.names
+        if (length(site.tables) == 1) site.tables <- site.tables[[1]]
+        motif_list <- list(motifs = motif_list$motifs,
+                           sites = motif_list$sites,
+                           sites.meta = site.tables)
+
+        summ.start <- grep("Combined block diagrams: non-overlapping sites",
+                           raw_lines)
+        if (length(summ.start) == 0) {
+          warning("Could not find combined P-values in MEME file")
+        } else {
+          summ.start <- summ.start + 2
+          summ.raw <- raw_lines[summ.start:(length(raw_lines) - 2)]
+          need.fix <- grep("\\", summ.raw, fixed = T)
+          if (length(need.fix) > 0) {
+            need.fix2 <- need.fix + 1
+            summ.raw[need.fix] <- vapply(summ.raw[need.fix],
+                                         function(x) strsplit(x, "\\",
+                                                              fixed = TRUE)[[1]],
+                                         character(1))
+            summ.raw[need.fix2] <- gsub("\\s+", "", summ.raw[need.fix2])
+            summ.raw[need.fix] <- mapply(function(x, y) paste0(x, y),
+                                         summ.raw[need.fix], summ.raw[need.fix2])
+            summ.raw <- summ.raw[-need.fix2]
+          }
+          summ.tab <- read.table(text = summ.raw, stringsAsFactors = FALSE)
+          colnames(summ.tab) <- c("Sequence", "Combined.Pvalue", "Diagram")
+          motif_list <- list(motifs = motif_list$motifs,
+                             sites = motif_list$sites,
+                             sites.meta = motif_list$sites.meta,
+                             sites.meta.combined = summ.tab)
+        }
+      }
+    }
+
+  } else if (readsites.meta) {
+    warning("'readsites.meta' is not valid if 'readsites = FALSE'")
   }
 
   motif_list
