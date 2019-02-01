@@ -28,6 +28,10 @@ addons:
       - ghostscript
       - texlive-fonts-recommended
 
+branches:
+  only:
+    - master
+
 #env
 env:
   global:

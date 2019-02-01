@@ -2,6 +2,7 @@
 #  - Compare peak locations to a set of bkg peaks
 #  - Look for peak co-occurence between multiple motifs
 
+#' @export
 motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                         peak.width = 3, nrand = 1000, plot = TRUE, BP = FALSE) {
 
@@ -47,7 +48,6 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                      hjust = 0, vjust = -1,
                      label = paste("Cutoff for P-value =<", max.p)) +
            theme_bw()
-    print(p)
   }
 
   out <- data.frame(Peak = data.kern$x[data.loc], Pval = peak.pvals)
@@ -55,10 +55,10 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
   out <- out[out$Pval <= max.p, ]
   if (nrow(out) == 0) {
     message("No significant peaks found.")
-    return(invisible(NULL))
+    if (plot) return(p) else return(invisible(NULL))
   }
   rownames(out) <- NULL
-  out
+  if (plot) return(list(Peaks = out, Plot = p)) else return(out)
 
 }
 

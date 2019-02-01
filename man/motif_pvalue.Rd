@@ -5,7 +5,7 @@
 \title{Motif P-value and scoring utility}
 \usage{
 motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
-  progress = TRUE, BP = FALSE)
+  progress = ifelse(length(motifs) > 1, TRUE, FALSE), BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
