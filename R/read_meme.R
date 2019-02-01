@@ -37,8 +37,9 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
-  logi_check <- check_fun_params(list(readsites = args$readsites),
-                                 1, FALSE, "logical")
+  logi_check <- check_fun_params(list(readsites = args$readsites,
+                                      readsites.meta = args$readsites.meta),
+                                 numeric(), logical(), "logical")
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
