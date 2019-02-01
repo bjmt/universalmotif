@@ -4,7 +4,7 @@
 \alias{read_meme}
 \title{Import MEME motifs.}
 \usage{
-read_meme(file, skip = 0, readsites = FALSE)
+read_meme(file, skip = 0, readsites = FALSE, readsites.meta = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
@@ -13,6 +13,9 @@ read_meme(file, skip = 0, readsites = FALSE)
 file before starting to read.}
 
 \item{readsites}{\code{logical(1)} If \code{TRUE}, the motif sites will be read as well.}
+
+\item{readsites.meta}{\code{logical(1)} If \code{readsites = TRUE}, then additionally
+read site positions and P-values.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects. If \code{readsites = TRUE}, a list
