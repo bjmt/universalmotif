@@ -1,10 +1,55 @@
-# Plans:
-#  - Compare peak locations to a set of bkg peaks
-#  - Look for peak co-occurence between multiple motifs
-
+#' Look for overrepresented motif position peaks in a set of sequences.
+#'
+#' Using the motif position data from [scan_sequences()] (or elsewhere),
+#' test whether certain positions in the sequences have significantly higher
+#' motif density.
+#'
+#' @param hits `numeric` A vector of sequence positions indicating motif sites.
+#' @param seq.length `numeric(1)` Length of sequences. Only one number is
+#'    allowed, as all sequences must be of identical length.
+#' @param seq.count `numeric(1)` Number of sequences with motif sites.
+#' @param bandwidth `numeric(1)` Peak smoothing parameter. Smaller numbers
+#'    will result in skinnier peaks, larger numbers will result in wider
+#'    peaks. Leaving this empty will cause [motif_peaks()] to generate one
+#'    by itself.
+#' @param max.p `numeric(1)` Maximum P-value allowed for finding significant
+#'    motif site peaks.
+#' @param peak.width `numeric(1)` Minimum peak width. A peak is defined as
+#'    as the highest point within the value set by `peak.width`.
+#' @param nrand `numeric(1)` Number of random permutations for generating a
+#'    null distribution. In order to calculate P-values, a set of random
+#'    motif site positions are generated `nrand` times.
+#' @param plot `logical(1)` Will create a `ggplot2` object displaying motif
+#'    peaks.
+#' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
+#'    [motif_peaks()]. See [BiocParallel::register()] to change the
+#'    default backend. Setting `BP = TRUE` is only recommended for
+#'    exceptionally large jobs. Keep in mind that this function will not
+#'    attempt to limit its memory usage.
+#'
+#' @return A `data.frame` with peak positions and P-values. If `plot = TRUE`,
+#'    then a list is return with the `data.frame` as the first item and
+#'    the `ggplot2` object as the second item.
+#'
+#' @examples
+#' data(ArabidopsisMotif)
+#' data(ArabidopsisPromoters)
+#' hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
+#'                        verbose = 0, progress = FALSE, threshold = 0,
+#'                        threshold.type = "logodds")
+#' res <- motif_peaks(hits$start, 1000, 50)
+#' # Open plot:
+#' res$Plot
+#'
+#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso [scan_sequences()]
 #' @export
 motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                         peak.width = 3, nrand = 1000, plot = TRUE, BP = FALSE) {
+
+# Plans:
+#  - Compare peak locations to a set of bkg peaks
+#  - Look for peak co-occurence between multiple motifs
 
   if (missing(seq.length)) seq.length <- max(hits)
   if (missing(seq.count)) seq.count <- length(unique(hits))
@@ -64,7 +109,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
 
 my_kern <- function(x, bandwidth, gridsize, range.x) {
 
-  # source: KernSmooth::bkde
+  # modified from KernSmooth::bkde
 
   n <- length(x)
   M <- gridsize
@@ -99,7 +144,7 @@ my_kern <- function(x, bandwidth, gridsize, range.x) {
 
 my_peakfinder <- function(x, m = 3) {
 
-  # source: ggpmisc:::find_peaks
+  # modified from ggpmisc:::find_peaks
 
   shape <- diff(sign(diff(x, na.pad = FALSE)))
   pks <- vapply(which(shape < 0), function(i) peak_finder_single(i, x, m),
@@ -124,7 +169,7 @@ peak_finder_single <- function(i, x, m) {
 
 my_linbin <- function(x, gpoints) {
 
-  # source: KernSmooth:::linbin
+  # modified from KernSmooth:::linbin
 
   M <- length(gpoints)
   gcnts <- rep(0, M)
