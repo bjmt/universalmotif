@@ -156,9 +156,6 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
     }
 
     if (readsites.meta) {
-      # want: 'Combined block diagrams:' --> one per file
-      #       'Motif XXX sites sorted by position p-value' --> per motif
-      #         - From this get P-values, site position, seq name
       site.starts <- grep("sites sorted by position p-value", raw_lines)
       site.stops <- grep("block diagrams$", raw_lines)
       if (length(site.starts) == 0 || length(site.stops) == 0) {
@@ -205,7 +202,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
         } else {
           summ.start <- summ.start + 2
           summ.raw <- raw_lines[summ.start:(length(raw_lines) - 2)]
-          need.fix <- grep("\\", summ.raw, fixed = T);print(need.fix)
+          need.fix <- grep("\\", summ.raw, fixed = T)
           if (length(need.fix) > 0) {
             need.fix2 <- need.fix + 1
             summ.raw[need.fix] <- vapply(summ.raw[need.fix],
