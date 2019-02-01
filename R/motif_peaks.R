@@ -27,8 +27,16 @@
 #'    exceptionally large jobs. Keep in mind that this function will not
 #'    attempt to limit its memory usage.
 #'
+#' @details
+#'    Kernel smoothing is used to calculate motif position density. The
+#'    implementation for this process is based on code from the
+#'    \pkg{KernSmooth} R package. These density estimates are used to
+#'    determine peak locations and heights. To calculate the P-values of
+#'    these peaks, a null distribution is calculated from peak heights of
+#'    randomly generated motif positions.
+#'
 #' @return A `data.frame` with peak positions and P-values. If `plot = TRUE`,
-#'    then a list is return with the `data.frame` as the first item and
+#'    then a list is returned with the `data.frame` as the first item and
 #'    the `ggplot2` object as the second item.
 #'
 #' @examples
@@ -50,6 +58,24 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
 # Plans:
 #  - Compare peak locations to a set of bkg peaks
 #  - Look for peak co-occurence between multiple motifs
+
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  num_check <- check_fun_params(list(hits = args$hits,
+                                     seq.length = args$seq.length,
+                                     seq.count = args$seq.count,
+                                     bandwidth = args$bandwidth,
+                                     max.p = args$max.p,
+                                     peak.width = args$peak.width,
+                                     nrand = args$nrand),
+                                c(0, rep(1, 6)),
+                                c(FALSE, FALSE, FALSE, TRUE,
+                                  FALSE, FALSE, FALSE), "numeric")
+  logi_check <- check_fun_params(list(plot = args$plot, BP = args$BP),
+                                 numeric(), logical(), "logical")
+  all_checks <- c(num_check, logi_check)
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  #---------------------------------------------------------
 
   if (missing(seq.length)) seq.length <- max(hits)
   if (missing(seq.count)) seq.count <- length(unique(hits))
@@ -177,9 +203,11 @@ my_linbin <- function(x, gpoints) {
   delta <- (gpoints[M] - gpoints[1]) / (M - 1)
 
   for (i in seq_along(x)) {
+
     lxi <- ((x[i] - gpoints[1]) / delta) + 1
     li <- as.integer(lxi)
     rem <- lxi - li
+
     if (li >= 1 && li < M) {
       gcnts[li] <- gcnts[li] + (1 - rem)
       gcnts[li + 1] <- gcnts[li + 1] + rem

@@ -41,13 +41,21 @@ attempt to limit its memory usage.}
 }
 \value{
 A \code{data.frame} with peak positions and P-values. If \code{plot = TRUE},
-then a list is return with the \code{data.frame} as the first item and
+then a list is returned with the \code{data.frame} as the first item and
 the \code{ggplot2} object as the second item.
 }
 \description{
 Using the motif position data from \code{\link[=scan_sequences]{scan_sequences()}} (or elsewhere),
 test whether certain positions in the sequences have significantly higher
 motif density.
+}
+\details{
+Kernel smoothing is used to calculate motif position density. The
+implementation for this process is based on code from the
+\pkg{KernSmooth} R package. These density estimates are used to
+determine peak locations and heights. To calculate the P-values of
+these peaks, a null distribution is calculated from peak heights of
+randomly generated motif positions.
 }
 \examples{
 data(ArabidopsisMotif)

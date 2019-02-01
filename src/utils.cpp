@@ -555,7 +555,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
 
       if (arg_len != exp_len && exp_len != 0) {
         fail_i = StringVector::create(fail_string1_2, arg_name, fail_string2,
-            exp_type, fail_string3, obs_type);
+            exp_len_c, fail_string3, obs_len_c);
         fails[((i + 1) * 2) - 1] = collapse(fail_i);
       }
 
