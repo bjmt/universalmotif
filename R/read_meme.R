@@ -13,7 +13,9 @@
 #'
 #' @return `list` [universalmotif-class] objects. If `readsites = TRUE`, a list
 #'    comprising of a sub-list of motif objects and a sub-list of 
-#'    motif sites will be returned.
+#'    motif sites will be returned. If `readsites.meta = TRUE`, then two
+#'    additional list items will be present, one containing site positions
+#'    and P-values, and another containing combined sequence p-values.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
@@ -159,7 +161,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
       site.starts <- grep("sites sorted by position p-value", raw_lines)
       site.stops <- grep("block diagrams$", raw_lines)
       if (length(site.starts) == 0 || length(site.stops) == 0) {
-        warning("Could not find site p-values")
+        warning("Could not find site P-values in MEME file")
       } else {
         site.starts <- site.starts + 2
         site.stops <- site.stops - 1
@@ -198,7 +200,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
         summ.start <- grep("Combined block diagrams: non-overlapping sites",
                            raw_lines)
         if (length(summ.start) == 0) {
-          warning("Could not find combined P-values")
+          warning("Could not find combined P-values in MEME file")
         } else {
           summ.start <- summ.start + 2
           summ.raw <- raw_lines[summ.start:(length(raw_lines) - 2)]
@@ -225,7 +227,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
     }
 
   } else if (readsites.meta) {
-    warning("'readsites.meta' is not valid if 'readsites = TRUE'")
+    warning("'readsites.meta' is not valid if 'readsites = FALSE'")
   }
 
   motif_list

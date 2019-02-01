@@ -20,7 +20,9 @@ read site positions and P-values.}
 \value{
 \code{list} \linkS4class{universalmotif} objects. If \code{readsites = TRUE}, a list
 comprising of a sub-list of motif objects and a sub-list of
-motif sites will be returned.
+motif sites will be returned. If \code{readsites.meta = TRUE}, then two
+additional list items will be present, one containing site positions
+and P-values, and another containing combined sequence p-values.
 }
 \description{
 Import MEME formatted motifs, as well as original motif sequences. See
