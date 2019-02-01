@@ -5,6 +5,8 @@
 motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                         peak.width = 3, nrand = 1000, plot = TRUE, BP = FALSE) {
 
+  if (missing(seq.length)) seq.length <- max(hits)
+  if (missing(seq.count)) seq.count <- length(unique(hits))
   if (missing(bandwidth)) {
     del0 <- (1 / (4 * pi))^(1 / 10)
     bandwidth <- del0 * (243 / (35 * length(hits)))^(1 / 5) * sqrt(var(hits))
@@ -15,7 +17,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
   rand.hits <- lapply(seq_len(nrand),
                       function(x) sample(seq_len(seq.length), length(hits),
                                          replace = TRUE))
-  # this is slowest step
+  # this is the slowest step
   rand.kern <- lapply_(rand.hits, function(x) my_kern(x, bandwidth, seq.length,
                                                      c(1, seq.length)),
                        BP = BP, PB = FALSE)
@@ -32,14 +34,9 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
 
   if (plot) {
     pval.lim <- quantile(rand.peaks, 1 - max.p)
-    # plot(data.kern, type = "l")
-    # points(x = data.kern$x[data.loc], y = data.kern$y[data.loc],
-           # col = "red", pch = 21, bg = "red")
-    # abline(h = pval.lim, col = "blue")
     kern.df <- data.frame(x = data.kern$x, y = data.kern$y)
     p <- ggplot(kern.df, aes(x, y)) +
            geom_line() +
-           # stat_peaks(span = peak.width, colour = "red") +  # ggpmisc::stat_peaks
            geom_point(data = data.frame(x = data.kern$x[data.loc],
                                         y = data.kern$y[data.loc]),
                       colour = "red") +
@@ -105,18 +102,23 @@ my_peakfinder <- function(x, m = 3) {
   # source: ggpmisc:::find_peaks
 
   shape <- diff(sign(diff(x, na.pad = FALSE)))
-  pks <- sapply(which(shape < 0), FUN = function(i) {
-                                    z <- i - m + 1
-                                    z <- ifelse(z > 0, z, 1)
-                                    w <- i + m + 1
-                                    w <- ifelse(w < length(x), w, length(x))
-                                    if (all(x[c(z:i, (i + 2):w)] <= x[i + 1]))
-                                      return(i + 1)
-                                    else
-                                      return(numeric(0))
-                                  })
-  pks <- unlist(pks)
-  pks
+  pks <- vapply(which(shape < 0), function(i) peak_finder_single(i, x, m),
+                numeric(1))
+  pks[!is.na(pks)]
+
+}
+
+peak_finder_single <- function(i, x, m) {
+
+  z <- i - m + 1
+  z <- ifelse(z > 0, z, 1)
+  w <- i + m + 1
+  w <- ifelse(w < length(x), w, length(x))
+
+  if (all(x[c(z:i, (i + 2):w)] <= x[i + 1]))
+    return(i + 1)
+  else
+    return(as.numeric(NA))
 
 }
 
