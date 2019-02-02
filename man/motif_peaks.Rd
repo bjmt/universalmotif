@@ -11,9 +11,11 @@ motif_peaks(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
 \item{hits}{\code{numeric} A vector of sequence positions indicating motif sites.}
 
 \item{seq.length}{\code{numeric(1)} Length of sequences. Only one number is
-allowed, as all sequences must be of identical length.}
+allowed, as all sequences must be of identical length. If missing,
+then the largets number from \code{hits} is used.}
 
-\item{seq.count}{\code{numeric(1)} Number of sequences with motif sites.}
+\item{seq.count}{\code{numeric(1)} Number of sequences with motif sites. If
+missing, then the number of unique \code{hits} values is used.}
 
 \item{bandwidth}{\code{numeric(1)} Peak smoothing parameter. Smaller numbers
 will result in skinnier peaks, larger numbers will result in wider
@@ -56,6 +58,13 @@ implementation for this process is based on code from the
 determine peak locations and heights. To calculate the P-values of
 these peaks, a null distribution is calculated from peak heights of
 randomly generated motif positions.
+
+If the \code{bandwidth} option left empty, then the following code is used
+(from \pkg{KernSmooth}):
+
+\code{del0 <- (1 / (4 * pi))^(1 / 10)}
+
+\code{bandwidth <- del0 * (243 / (35 * length(hits)))^(1 / 5) * sqrt(var(hits))}
 }
 \examples{
 data(ArabidopsisMotif)

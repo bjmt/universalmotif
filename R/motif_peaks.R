@@ -6,8 +6,10 @@
 #'
 #' @param hits `numeric` A vector of sequence positions indicating motif sites.
 #' @param seq.length `numeric(1)` Length of sequences. Only one number is
-#'    allowed, as all sequences must be of identical length.
-#' @param seq.count `numeric(1)` Number of sequences with motif sites.
+#'    allowed, as all sequences must be of identical length. If missing,
+#'    then the largets number from `hits` is used.
+#' @param seq.count `numeric(1)` Number of sequences with motif sites. If
+#'    missing, then the number of unique `hits` values is used.
 #' @param bandwidth `numeric(1)` Peak smoothing parameter. Smaller numbers
 #'    will result in skinnier peaks, larger numbers will result in wider
 #'    peaks. Leaving this empty will cause [motif_peaks()] to generate one
@@ -35,6 +37,13 @@
 #'    these peaks, a null distribution is calculated from peak heights of
 #'    randomly generated motif positions.
 #'
+#'    If the `bandwidth` option is not supplied, then the following code is used
+#'    (from \pkg{KernSmooth}):
+#'
+#'    `del0 <- (1 / (4 * pi))^(1 / 10)`
+#'
+#'    `bandwidth <- del0 * (243 / (35 * length(hits)))^(1 / 5) * sqrt(var(hits))`
+#'
 #' @return A `data.frame` with peak positions and P-values. If `plot = TRUE`,
 #'    then a list is returned with the `data.frame` as the first item and
 #'    the `ggplot2` object as the second item.
@@ -55,6 +64,8 @@
 motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                         peak.width = 3, nrand = 1000, plot = TRUE, BP = FALSE) {
 
+# TODO: add tests and vignette section
+
 # Plans:
 #  - Compare peak locations to a set of bkg peaks
 #  - Look for peak co-occurence between multiple motifs
@@ -69,7 +80,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                                      peak.width = args$peak.width,
                                      nrand = args$nrand),
                                 c(0, rep(1, 6)),
-                                c(FALSE, FALSE, FALSE, TRUE,
+                                c(FALSE, TRUE, TRUE, TRUE,
                                   FALSE, FALSE, FALSE), "numeric")
   logi_check <- check_fun_params(list(plot = args$plot, BP = args$BP),
                                  numeric(), logical(), "logical")
@@ -90,7 +101,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                       function(x) sample(seq_len(seq.length), length(hits),
                                          replace = TRUE))
   # this is the slowest step
-  rand.kern <- lapply_(rand.hits, function(x) my_kern(x, bandwidth, seq.length,
+  rand.kern <- lapply_(rand.hits, function(x) kern_fun(x, bandwidth, seq.length,
                                                      seq.length),
                        BP = BP, PB = FALSE)
   # second slowest
@@ -98,7 +109,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                         BP = BP, PB = FALSE)
   rand.peaks <- do.call(c, rand.peaks)
 
-  data.kern <- my_kern(hits, bandwidth, seq.length, seq.length)
+  data.kern <- kern_fun(hits, bandwidth, seq.length, seq.length)
   data.loc <- peakfinder_cpp(data.kern$y, peak.width)
   data.peaks <- data.kern$y[data.loc]
 
@@ -133,17 +144,16 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
 
 }
 
-my_kern <- function(x, bandwidth, gridsize, range.x) {
+kern_fun <- function(x, bandwidth, gridsize, range.x) {
 
   # modified from KernSmooth::bkde
 
   n <- length(x)
   M <- gridsize
-  range.x <- c(1, range.x)
   tau <- 4
   h <- bandwidth
-  a <- range.x[1L]
-  b <- range.x[2L]
+  a <- 1
+  b <- range.x
 
   gpoints <- seq(a, b, length = M)
   gcounts <- linbin_cpp(x, gpoints)
@@ -151,7 +161,7 @@ my_kern <- function(x, bandwidth, gridsize, range.x) {
   delta <- (b - a) / (h * (M - 1L))
   L <- min(floor(tau / delta), M)
 
-  lvec <- 0L:L
+  lvec <- seq(0L, L, 1)
   kappa <- dnorm(lvec * delta) / (n * h)
 
   P <- 2^(ceiling(log(M + L + 1L) / log(2)))
