@@ -91,15 +91,15 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                                          replace = TRUE))
   # this is the slowest step
   rand.kern <- lapply_(rand.hits, function(x) my_kern(x, bandwidth, seq.length,
-                                                     c(1, seq.length)),
+                                                     seq.length),
                        BP = BP, PB = FALSE)
   # second slowest
-  rand.peaks <- lapply_(rand.kern, function(x) x$y[my_peakfinder(x$y, peak.width)],
+  rand.peaks <- lapply_(rand.kern, function(x) x$y[peakfinder_cpp(x$y, peak.width)],
                         BP = BP, PB = FALSE)
   rand.peaks <- do.call(c, rand.peaks)
 
-  data.kern <- my_kern(hits, bandwidth, seq.length, c(1, seq.length))
-  data.loc <- my_peakfinder(data.kern$y, peak.width)
+  data.kern <- my_kern(hits, bandwidth, seq.length, seq.length)
+  data.loc <- peakfinder_cpp(data.kern$y, peak.width)
   data.peaks <- data.kern$y[data.loc]
 
   peak.pvals <- 1 - ecdf(rand.peaks)(data.peaks)
@@ -139,17 +139,14 @@ my_kern <- function(x, bandwidth, gridsize, range.x) {
 
   n <- length(x)
   M <- gridsize
-
+  range.x <- c(1, range.x)
   tau <- 4
   h <- bandwidth
-
-  if (missing(range.x)) range.x <- c(min(x) - tau * h, max(x) + tau * h)
-
   a <- range.x[1L]
   b <- range.x[2L]
 
   gpoints <- seq(a, b, length = M)
-  gcounts <- my_linbin(x, gpoints)
+  gcounts <- linbin_cpp(x, gpoints)
 
   delta <- (b - a) / (h * (M - 1L))
   L <- min(floor(tau / delta), M)
@@ -165,56 +162,5 @@ my_kern <- function(x, bandwidth, gridsize, range.x) {
   gcounts <- fft(gcounts)
 
   list(x = gpoints, y = (Re(fft(kappa * gcounts, TRUE)) / P)[1L:M])
-
-}
-
-my_peakfinder <- function(x, m = 3) {
-
-  # modified from ggpmisc:::find_peaks
-
-  shape <- diff(sign(diff(x, na.pad = FALSE)))
-  pks <- vapply(which(shape < 0), function(i) peak_finder_single(i, x, m),
-                numeric(1))
-  pks[!is.na(pks)]
-
-}
-
-peak_finder_single <- function(i, x, m) {
-
-  z <- i - m + 1
-  z <- ifelse(z > 0, z, 1)
-  w <- i + m + 1
-  w <- ifelse(w < length(x), w, length(x))
-
-  if (all(x[c(z:i, (i + 2):w)] <= x[i + 1]))
-    return(i + 1)
-  else
-    return(as.numeric(NA))
-
-}
-
-my_linbin <- function(x, gpoints) {
-
-  # modified from KernSmooth:::linbin
-
-  M <- length(gpoints)
-  gcnts <- rep(0, M)
-
-  delta <- (gpoints[M] - gpoints[1]) / (M - 1)
-
-  for (i in seq_along(x)) {
-
-    lxi <- ((x[i] - gpoints[1]) / delta) + 1
-    li <- as.integer(lxi)
-    rem <- lxi - li
-
-    if (li >= 1 && li < M) {
-      gcnts[li] <- gcnts[li] + (1 - rem)
-      gcnts[li + 1] <- gcnts[li + 1] + rem
-    }
-
-  }
-
-  gcnts
 
 }

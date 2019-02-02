@@ -7,6 +7,9 @@ NEW FEATURES
       individual motif site positions and P-values, as well as combined
       sequence P-values
 
+    o New motif_peaks() function: test for significantly overrepresented peaks
+      of motif sites in a set of sequences
+
 CHANGES IN VERSION 1.0.13
 -------------------------
 

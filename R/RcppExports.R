@@ -5,6 +5,14 @@ single_to_k <- function(seq, k) {
     .Call('_universalmotif_single_to_k', PACKAGE = 'universalmotif', seq, k)
 }
 
+peakfinder_cpp <- function(x, m = 3L) {
+    .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
+}
+
+linbin_cpp <- function(x, gpoints) {
+    .Call('_universalmotif_linbin_cpp', PACKAGE = 'universalmotif', x, gpoints)
+}
+
 calc_scores_cpp <- function(paths, score_mat) {
     .Call('_universalmotif_calc_scores_cpp', PACKAGE = 'universalmotif', paths, score_mat)
 }
