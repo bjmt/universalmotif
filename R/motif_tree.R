@@ -24,8 +24,8 @@
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
 #'    See [ggtree::ggtree()].
 #' @param db.scores `data.frame` See [compare_motifs()].
-#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`. See
-#'    [compare_motifs()].
+#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'SW', 'MSW',
+#'    'KL', 'MKL')`. See [compare_motifs()].
 #' @param use.type `character(1)`c('PPM', 'ICM')`. The latter allows for taking
 #'    into account the background
 #'    frequencies (only if `relative_entropy = TRUE`). See [compare_motifs()].
@@ -78,6 +78,24 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
   # param check --------------------------------------------
   args <- as.list(environment())
+  all_checks <- character(0)
+  if (!layout %in% c("rectangular", "slanted", "fan", "circular", "radial",
+                     "equal_angle", "daylight")) {
+    layout_check <- paste0(" * Incorrect 'layout': expected `rectangular`, `slanted`, `fan`, `circular`, `radial`, `equal_angle` or `daylight`; got `",
+                           layout, "`")
+    all_checks <- c(all_checks, layout_check)
+  }
+  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
+                     "MKL")) {
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+                           method, "`")
+    all_checks <- c(all_checks, method_check)
+  }
+  if (!use.type %in% c("PPM", "ICM")) {
+    use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; got `",
+                             use.type, "`")
+    all_checks <- c(all_checks, use.type_check)
+  }
   char_check <- check_fun_params(list(layout = args$layout, linecol = args$linecol,
                                       labels = args$labels, tipesize = args$tipsize,
                                       branch.length = args$branch.length,
@@ -90,7 +108,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                                       relative_entropy = args$relative_entropy,
                                       progress = args$progress, BP = args$BP),
                                  numeric(), logical(), "logical")
-  all_checks <- c(char_check, num_check, logi_check)
+  all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 

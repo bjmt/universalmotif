@@ -146,6 +146,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
   # param check --------------------------------------------
   args <- as.list(environment())
+  all_checks <- character(0)
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method), c(1, 1),
                                  c(FALSE, FALSE), "character")

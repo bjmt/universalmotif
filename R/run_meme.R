@@ -215,17 +215,20 @@ run_meme <- function(target.sequences, output = NULL,
     else if (objfun == "cd") cat("Search mode: Central Distance\n")
     else if (objfun == "ce") cat("Search mode: Central Enrichment\n")
     else if (objfun == "nc") cat("Search mode: Numerically Correct\n")
+    else cat(paste0("Search mode: ", objfun, "\n"))
 
     if (objfun %in% c("de", "se")) {
       if (test == "mhg" || is.null(test)) cat("Test: Multiple Hypergeometric\n")
       else if (test == "mbn") cat("Test: Multiple Binomial\n")
       else if (test == "mrs") cat("Test: Multiple Rank-Sum\n")
+      else cat(paste0("Test: ", test, "\n"))
     }
 
     if (mod == "zoops" || is.null(mod))
       cat("Model: Zero or One Occurrence Per Sequence\n")
     else if (mod == "oops") cat("Model: One Occurrence Per Sequence\n")
     else if (mod == "anr") cat("Model: Any Number of Repetitions\n")
+    else cat(paste0("Model: ", mod, "\n"))
 
     if (is.null(nmotifs) || nmotifs == 1)
       cat("Looking for 1 motif\n")

@@ -54,6 +54,18 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
 
   # param check --------------------------------------------
   args <- as.list(environment())
+  all_checks <- character(0)
+  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
+                     "MKL")) {
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+                           method, "`")
+    all_checks <- c(all_checks, method_check)
+  }
+  if (!use.type %in% c("PPM", "ICM")) {
+    use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; got `",
+                             use.type, "`")
+    all_checks <- c(all_checks, use.type_check)
+  }
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method),
                                  numeric(), logical(), "character")
@@ -64,7 +76,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores),
                                  numeric(), logical(), "logical")
-  all_checks <- c(char_check, num_check, logi_check)
+  all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 

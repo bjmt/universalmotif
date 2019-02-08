@@ -111,6 +111,39 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   # param check --------------------------------------------
   args <- as.list(environment())
+  all_checks <- character(0)
+  if (!search.mode %in% c("hits", "positional", "both")) {
+    search.mode_check <- paste0(" * Incorrect 'search.mode': expected `hits`, `positional` or `both`; got `",
+                                search.mode, "`")
+    all_checks <- c(all_checks, search.mode_check)
+  }
+  if (!qval.method %in% c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+                          "fdr", "none")) {
+    qval.method_check <- paste0(" * Incorrect 'qval.method': expected `holm`, `hochberg`, `hommel`, `bonferroni`, `BH`, `BY`, `fdr` or `none`; got `",
+                                qval.method, "`")
+    all_checks <- c(all_checks, qval.method_check)
+  }
+  if (!positional.test %in% c("t.test", "wilcox.test", "chisq.test",
+                              "shapiro.test")) {
+    positional.test_check <- paste0(" * Incorrect 'positional.test': expected `t.test`, `wilcox.test`, `chisq.test` or `shapiro.test`; got `",
+                                    positional.test, "`")
+    all_checks <- c(all_checks, positional.test_check)
+  }
+  if (!threshold.type %in% c("logodds", "pvalue")) {
+    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected `logodds` or `pvalue`; got `",
+                                   threshold.type, "`")
+    all_checks <- c(all_checks, threshold.type_check)
+  }
+  if (!shuffle.method %in% c("markov", "linear", "random")) {
+    shuffle.method_check <- paste0(" * Incorrect 'shuffle.method': expected `markov`, `linear` or `random`; got `",
+                                   shuffle.method, "`")
+    all_checks <- c(all_checks, shuffle.method_check)
+  }
+  if (!shuffle.leftovers %in% c("asis", "first", "split", "discard")) {
+    shuffle.leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`, `first`, `split` or `discard`; got `",
+                                      shuffle.leftovers, "`")
+    all_checks <- c(all_checks, shuffle.leftovers_check)
+  }
   char_check <- check_fun_params(list(search.mode = args$search.mode,
                                       qval.method = args$qval.method,
                                       positional.test = args$positional.test,
@@ -131,7 +164,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   s4_check <- check_fun_params(list(sequences = args$sequences,
                                     bkg.sequences = args$bkg.sequences),
                                numeric(), c(FALSE, TRUE, FALSE), "S4")
-  all_checks <- c(char_check, num_check, logi_check, s4_check)
+  all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 

@@ -122,13 +122,19 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
 
   # param check --------------------------------------------
   args <- as.list(environment())
+  all_checks <- character(0)
+  if (!type %in% c("PCM", "PPM", "PWM", "ICM")) {
+    type_check <- paste0(" * Incorrect 'type': expected `PCM`, `PPM`, `PWM` or `ICM`; got `",
+                         type, "`")
+    all_checks <- c(all_checks, type_check)
+  }
   char_check <- check_fun_params(list(type = args$type), 1, FALSE, "character")
   num_check <- check_fun_params(list(pseudocount = args$pseudocount),
                                 1, TRUE, "numeric")
   logi_check <- check_fun_params(list(nsize_correction = args$nsize_correction,
                                       relative_entropy = args$relative_entropy),
                                  c(1, 1), c(FALSE, FALSE), "logical")
-  all_checks <- c(char_check, num_check, logi_check)
+  all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
