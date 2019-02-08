@@ -38,8 +38,7 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{method}{\code{character(1)} One of \code{c('Pearson', 'Euclidean', 'KL')}. See
-\code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 

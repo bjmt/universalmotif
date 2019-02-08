@@ -24,8 +24,8 @@
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
 #'    See [ggtree::ggtree()].
 #' @param db.scores `data.frame` See [compare_motifs()].
-#' @param method `character(1)` One of `c('Pearson', 'Euclidean', 'KL')`. See
-#'    [compare_motifs()].
+#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW',
+#'    'MSW', 'KL', 'MKL')`. See [compare_motifs()].
 #' @param use.type `character(1)`c('PPM', 'ICM')`. The latter allows for taking
 #'    into account the background
 #'    frequencies (only if `relative_entropy = TRUE`). See [compare_motifs()].
