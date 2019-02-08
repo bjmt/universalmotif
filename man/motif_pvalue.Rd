@@ -89,6 +89,14 @@ motif_pvalue(examplemotif, score = 0)
 ## the calculations can be performed for multiple motifs
 motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 
+## get motif site p-values after using scan_sequences()
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
+                      progress = FALSE, verbose = 0, threshold = 0,
+                      threshold.type = "logodds")[1:100, ]
+res$pvalue <- motif_pvalue(ArabidopsisMotif, score = res$score)
+
 }
 \references{
 \insertRef{pvalues}{universalmotif}

@@ -12,15 +12,15 @@ motif_peaks(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
 
 \item{seq.length}{\code{numeric(1)} Length of sequences. Only one number is
 allowed, as all sequences must be of identical length. If missing,
-then the largets number from \code{hits} is used.}
+then the largest number from \code{hits} is used.}
 
 \item{seq.count}{\code{numeric(1)} Number of sequences with motif sites. If
-missing, then the number of unique \code{hits} values is used.}
+missing, then the number of unique values in \code{hits} is used.}
 
 \item{bandwidth}{\code{numeric(1)} Peak smoothing parameter. Smaller numbers
 will result in skinnier peaks, larger numbers will result in wider
 peaks. Leaving this empty will cause \code{\link[=motif_peaks]{motif_peaks()}} to generate one
-by itself.}
+by itself (see 'details').}
 
 \item{max.p}{\code{numeric(1)} Maximum P-value allowed for finding significant
 motif site peaks.}
@@ -59,7 +59,7 @@ determine peak locations and heights. To calculate the P-values of
 these peaks, a null distribution is calculated from peak heights of
 randomly generated motif positions.
 
-If the \code{bandwidth} option left empty, then the following code is used
+If the \code{bandwidth} option is not supplied, then the following code is used
 (from \pkg{KernSmooth}):
 
 \code{del0 <- (1 / (4 * pi))^(1 / 10)}
@@ -73,7 +73,7 @@ hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
                        verbose = 0, progress = FALSE, threshold = 0,
                        threshold.type = "logodds")
 res <- motif_peaks(hits$start, 1000, 50)
-# Open plot:
+# View plot:
 res$Plot
 
 }

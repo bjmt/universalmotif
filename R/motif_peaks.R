@@ -7,13 +7,13 @@
 #' @param hits `numeric` A vector of sequence positions indicating motif sites.
 #' @param seq.length `numeric(1)` Length of sequences. Only one number is
 #'    allowed, as all sequences must be of identical length. If missing,
-#'    then the largets number from `hits` is used.
+#'    then the largest number from `hits` is used.
 #' @param seq.count `numeric(1)` Number of sequences with motif sites. If
-#'    missing, then the number of unique `hits` values is used.
+#'    missing, then the number of unique values in `hits` is used.
 #' @param bandwidth `numeric(1)` Peak smoothing parameter. Smaller numbers
 #'    will result in skinnier peaks, larger numbers will result in wider
 #'    peaks. Leaving this empty will cause [motif_peaks()] to generate one
-#'    by itself.
+#'    by itself (see 'details').
 #' @param max.p `numeric(1)` Maximum P-value allowed for finding significant
 #'    motif site peaks.
 #' @param peak.width `numeric(1)` Minimum peak width. A peak is defined as
@@ -55,7 +55,7 @@
 #'                        verbose = 0, progress = FALSE, threshold = 0,
 #'                        threshold.type = "logodds")
 #' res <- motif_peaks(hits$start, 1000, 50)
-#' # Open plot:
+#' # View plot:
 #' res$Plot
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
@@ -64,7 +64,7 @@
 motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                         peak.width = 3, nrand = 1000, plot = TRUE, BP = FALSE) {
 
-# TODO: add tests and vignette section
+# TODO: vignette section + stop peaks from showing up in flat sections
 
 # Plans:
 #  - Compare peak locations to a set of bkg peaks
@@ -171,6 +171,6 @@ kern_fun <- function(x, bandwidth, gridsize, range.x) {
   kappa <- fft(kappa / tot)
   gcounts <- fft(gcounts)
 
-  list(x = gpoints, y = (Re(fft(kappa * gcounts, TRUE)) / P)[1L:M])
+  list(x = gpoints, y = (Re(fft(kappa * gcounts, TRUE)) / P)[seq_len(M)])
 
 }

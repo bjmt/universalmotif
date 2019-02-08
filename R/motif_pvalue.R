@@ -75,6 +75,14 @@
 #' ## the calculations can be performed for multiple motifs
 #' motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 #'
+#' ## get motif site p-values after using scan_sequences()
+#' data(ArabidopsisMotif)
+#' data(ArabidopsisPromoters)
+#' res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
+#'                       progress = FALSE, verbose = 0, threshold = 0,
+#'                       threshold.type = "logodds")[1:100, ]
+#' res$pvalue <- motif_pvalue(ArabidopsisMotif, score = res$score)
+#'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,

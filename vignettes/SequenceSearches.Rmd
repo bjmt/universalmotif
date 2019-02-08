@@ -264,6 +264,45 @@ sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif <- create_motif(sequences, add.multifreq = 2:3)
 ```
 
+# Testing for motif positional preferences in sequences
+
+The `r Biocpkg("universalmotif")` package provides a function, `motif_peaks()`,
+which can test for positionally preferential motif sites in a set of sequences. This
+can be useful, for example, when trying to determine whether a certain transcription
+factor binding site is more often than not located at a certain distance from the
+transcription start site (TSS). The `motif_peaks()` function finds density peaks in
+the input data, then creates a null distribution from randomly generated peaks
+to calculate peak P-values.
+
+```{r}
+library(universalmotif)
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+
+hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
+                       verbose = 0, progress = FALSE, threshold = 0,
+                       threshold.type = "logodds")
+
+res <- motif_peaks(hits$start,
+                   seq.length = unique(width(ArabidopsisPromoters)),
+                   seq.count = length(ArabidopsisPromoters))
+
+## Significant peaks:
+res$Peaks
+```
+
+Using the datasets provided in this package, a significant motif peak was found
+at 889 bases in the input promoters, or 111 bases away from the TSS. If you'd like
+to simply know the locations of any peaks, this can be done by setting `max.p = 1`.
+
+The function can also output a plot:
+
+```{r}
+res$Plot
+```
+
+In this plot, red dots are used to indicate density peaks and the blue line shows
+the P-value cutoff.
 
 # Session info {.unnumbered}
 
