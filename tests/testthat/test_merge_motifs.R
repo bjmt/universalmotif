@@ -1,4 +1,4 @@
-context("Test motif merging")
+context("merge_motifs()")
 
 test_that("motif merging works", {
 

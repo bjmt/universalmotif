@@ -1,4 +1,4 @@
-context("Test motif alphabet switching")
+context("switch_alph()")
 
 test_that("motif alphabet switching works", {
 

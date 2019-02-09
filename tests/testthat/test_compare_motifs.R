@@ -1,4 +1,4 @@
-context("Test motif comparison")
+context("compare_motifs()")
 
 test_that("basic comparison works", {
 

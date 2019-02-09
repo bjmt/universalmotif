@@ -1,4 +1,4 @@
-context("Test motif type conversion")
+context("convert_type()")
 
 test_that("type conversion works", {
 

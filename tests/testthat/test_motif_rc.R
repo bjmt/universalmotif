@@ -1,4 +1,4 @@
-context("Test motif reverse complement")
+context("motif_rc()")
 
 test_that("motif reverse complement works", {
 

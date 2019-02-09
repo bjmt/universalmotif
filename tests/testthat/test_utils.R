@@ -1,4 +1,4 @@
-context("Test utility functions")
+context("utils")
 
 test_that("summarise_motifs works", {
 

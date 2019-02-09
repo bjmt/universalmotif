@@ -1,4 +1,4 @@
-context("Test motif shuffling")
+context("shuffle_motifs()")
 
 test_that("motif shuffling works", {
 

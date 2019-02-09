@@ -1,4 +1,4 @@
-context("Test site sampling")
+context("sample_sites()")
 
 test_that("site sampling works", {
 

@@ -1,4 +1,4 @@
-context("Test write functions")
+context("write_*()")
 
 test_that("write functions are ok", {
 

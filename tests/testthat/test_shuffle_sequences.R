@@ -1,4 +1,4 @@
-context("Test sequence shuffling")
+context("shuffle_sequences()")
 
 test_that("sequence shuffling works", {
 

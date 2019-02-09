@@ -1,4 +1,4 @@
-context("Test read functions")
+context("read_*()")
 
 test_that("read functions work ok", {
 

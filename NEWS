@@ -21,6 +21,8 @@ MINOR CHANGES
     o Fixed various spelling mistakes throughout, added Language field to
       Description, and added spell check to tests
 
+    o Generally increased test coverage
+
 CHANGES IN VERSION 1.0.14
 -------------------------
 

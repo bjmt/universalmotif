@@ -1,4 +1,4 @@
-context("Test motif creation")
+context("create_motif()")
 
 test_that("motif creation for missing or from numeric input works", {
 

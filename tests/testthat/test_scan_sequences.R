@@ -1,4 +1,4 @@
-context("Test motif scanning")
+context("scan_sequences()")
 
 test_that("Results are accurate", {
 

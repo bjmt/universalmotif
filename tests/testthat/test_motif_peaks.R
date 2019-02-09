@@ -1,4 +1,4 @@
-context("Test motif peak finding")
+context("motif_peaks()")
 
 test_that("density and Pvalue calculations work", {
 

@@ -1,4 +1,4 @@
-context("Test motif filtering")
+context("filter_motifs()")
 
 test_that("motif filtering works", {
 

@@ -1,4 +1,4 @@
-context("Test motif pvalue calculations")
+context("motif_pvalue()")
 
 test_that("p-values from scores are ok", {
 

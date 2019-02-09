@@ -1,4 +1,4 @@
-context("Test sequence creation")
+context("create_sequences()")
 
 test_that("sequence creation works", {
 

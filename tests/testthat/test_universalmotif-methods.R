@@ -1,4 +1,4 @@
-context("Test universalmotif methods")
+context("universalmotif-methods")
 
 test_that("accessor functions work", {
 

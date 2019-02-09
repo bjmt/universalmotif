@@ -1,4 +1,4 @@
-context("Test filling multifreq slot works")
+context("add_multifreq()")
 
 test_that("filling multifreq works", {
 

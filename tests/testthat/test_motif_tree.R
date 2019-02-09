@@ -1,4 +1,4 @@
-context("Test motif trees")
+context("motif_tree()")
 
 test_that("motif trees work", {
 

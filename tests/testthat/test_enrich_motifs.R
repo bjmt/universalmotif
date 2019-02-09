@@ -1,4 +1,4 @@
-context("Test motif enrichment")
+context("enrich_motifs()")
 
 test_that("motif enrichment works", {
 
