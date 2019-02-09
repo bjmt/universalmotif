@@ -93,6 +93,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   } else stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM'")
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  if (length(mot.names) != length(unique(mot.names)))
+    stop("All motifs must have unique names")
 
   mot.mats <- lapply(motifs, function(x) x["motif"])
 
