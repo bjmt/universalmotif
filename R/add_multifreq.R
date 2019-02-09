@@ -41,7 +41,7 @@
 #'    best matches to construct the multifreq matrices.
 #'
 #'    This 'multifreq' representation is only really useful within the
-#'    \pkg{universalmotif} enrivonment. Despite this, if you wish it can be
+#'    \pkg{universalmotif} environment. Despite this, if you wish it can be
 #'    preserved in text using [write_motifs()].
 #'
 #'    Note: the number of rows for each k-let matrix is n^k, with n being the

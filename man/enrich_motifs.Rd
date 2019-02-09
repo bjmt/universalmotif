@@ -83,11 +83,11 @@ be shown (which unfortunately is much less informative).}
 \code{data.frame} Motif enrichment results. The resulting
 \code{data.frame} contains the following columns:
 * \code{motif} Motif name.
-* \code{total.seq.hits} Total number of matches accross all target
+* \code{total.seq.hits} Total number of matches across all target
 sequences.
 * \code{num.seqs.hits} Number of target sequences which contain matches.
 * \code{num.seqs.total} Number of target sequences.
-* \code{total.bkg.hits} Total number of matches accross all background
+* \code{total.bkg.hits} Total number of matches across all background
 sequences.
 * \code{num.bkg.hits} Number of background sequences which contain
 matches.

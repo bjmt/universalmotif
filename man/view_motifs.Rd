@@ -33,7 +33,7 @@ alignments between low information content regions of two motifs. See
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions. See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{...}{Addtional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
+\item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }
 \value{
 A ggplot object.

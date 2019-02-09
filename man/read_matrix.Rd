@@ -23,7 +23,7 @@ position within a motif is represented as a row or a column in the file.}
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
 or a string of letters.}
 
-\item{sep}{\code{character(1)} Indicates how individual motifs are seperated.}
+\item{sep}{\code{character(1)} Indicates how individual motifs are separated.}
 
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to read names.}
 

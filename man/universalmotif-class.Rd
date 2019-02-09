@@ -5,6 +5,7 @@
 \name{universalmotif-class}
 \alias{universalmotif-class}
 \alias{universalmotif}
+\alias{[,universalmotif,ANY,ANY,ANY-method}
 \alias{[,universalmotif-method}
 \alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{[<-,universalmotif-method}
@@ -24,7 +25,7 @@
 \alias{cbind,universalmotif-method}
 \title{universalmotif: Motif class.}
 \usage{
-\S4method{[}{universalmotif}(x, i)
+\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i)
 
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
@@ -88,7 +89,7 @@ or a combined string representing the letters.}
 \item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from.}
 
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
-from apearing in PWM matrices.}
+from appearing in PWM matrices.}
 
 \item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
 length. If missing, assumes a uniform background.}

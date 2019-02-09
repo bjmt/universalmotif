@@ -15,7 +15,7 @@ using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE mot
 \code{normalise.scores = TRUE}. This particular set of scores is organized
 as a list, with each list item being a \code{data.frame} of scores for a specific comparison
 method. In each \code{data.frame} is the mean and sd of scores resulting between
-the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specifed
+the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
 \code{subject} and \code{target} motif length.
 }
 \keyword{datasets}

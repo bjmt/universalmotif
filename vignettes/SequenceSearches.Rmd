@@ -161,7 +161,7 @@ in the [advanced usage](AdvancedUsage.pdf) vignette.
 
 Two scanning-related functions are provided: `scan_sequences()` and `enrich_motifs()`.
 The latter simply runs `scan_sequences()` twice on a set of target and
-background sequences; see the [advanged usage](AdvancedUsage.pdf) vignette. Given a motif
+background sequences; see the [advanced usage](AdvancedUsage.pdf) vignette. Given a motif
 of length `n`, `scan_sequences()` considers every possible `n`-length subset in a sequence and
 scores it using the PWM format. If the match surpasses the minimum threshold, it is
 reported. This is case regardless of whether one is scanning with a regular

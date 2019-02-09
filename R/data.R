@@ -23,7 +23,7 @@
 #' with `normalise.scores = FALSE`. This particular set of scores is organized
 #' as a list, with each list item being a `data.frame` of scores for a specific comparison
 #' method. In each `data.frame` is the mean and sd of scores resulting between
-#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specifed
+#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
 #' `subject` and `target` motif length.
 #'
 #' @format `list` with three `data.frames`
@@ -37,7 +37,7 @@
 #' `normalise.scores = TRUE`. This particular set of scores is organized
 #' as a list, with each list item being a `data.frame` of scores for a specific comparison
 #' method. In each `data.frame` is the mean and sd of scores resulting between
-#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specifed
+#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
 #' `subject` and `target` motif length.
 #'
 #' @format `list` with three `data.frames`

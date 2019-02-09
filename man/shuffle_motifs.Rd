@@ -31,7 +31,7 @@ shuffled together.
 \details{
 If \code{method = 'linear'}, then the input positions are split linearly every
 \code{k} columns after which they are shuffled. If \code{method = random}, then
-sets of \code{k}-columns are chosen randonmly before being shuffled. This leaves
+sets of \code{k}-columns are chosen randomly before being shuffled. This leaves
 leftover column islands smaller than \code{k}; these can be left \code{asis}, placed
 \code{first}, \code{split} between the beginning and the end, or \code{discard}ed. See
 \code{\link[=shuffle_motifs]{shuffle_motifs()}}.

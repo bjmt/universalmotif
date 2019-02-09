@@ -4,7 +4,7 @@
 #' `universalmotif` class motifs, consider using [saveRDS()] and
 #' [readRDS()]. The `universalmotif` format will not be documented,
 #' as realistically the need to generate these manually/elsewhere should
-#' be nonexistent.
+#' be non-existent.
 #'
 #' @param minimal `logical(1)` Only write essential motif information.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.

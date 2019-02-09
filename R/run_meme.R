@@ -9,7 +9,7 @@
 #' @param output `character(1)` Name of the output folder. If `NULL`, MEME
 #'    output will be deleted.
 #' @param overwrite.dir `logical(1)` If `output` is set but already exists,
-#'    allow overwritting.
+#'    allow over-writting.
 #' @param control.sequences \code{\link{XStringSet}} List of negative sequences. Only
 #'    used if `objfun = c("de", "se")`.
 #' @param weights `numeric` Vector of numbers between 0 and 1, representing

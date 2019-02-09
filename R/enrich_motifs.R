@@ -55,11 +55,11 @@
 #' @return `data.frame` Motif enrichment results. The resulting 
 #'    `data.frame` contains the following columns:
 #'     * `motif` Motif name.
-#'     * `total.seq.hits` Total number of matches accross all target
+#'     * `total.seq.hits` Total number of matches across all target
 #'       sequences.
 #'     * `num.seqs.hits` Number of target sequences which contain matches.
 #'     * `num.seqs.total` Number of target sequences.
-#'     * `total.bkg.hits` Total number of matches accross all background
+#'     * `total.bkg.hits` Total number of matches across all background
 #'       sequences.
 #'     * `num.bkg.hits` Number of background sequences which contain
 #'       matches.

@@ -23,7 +23,7 @@ Write motifs as universalmotif objects to file. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
 \code{\link[=readRDS]{readRDS()}}. The \code{universalmotif} format will not be documented,
 as realistically the need to generate these manually/elsewhere should
-be nonexistent.
+be non-existent.
 }
 \seealso{
 Other write_motifs: \code{\link{write_homer}},

@@ -10,7 +10,7 @@
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #' @param name `character(1)` Motif name.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
-#'   from apearing in PWM matrices.
+#'   from appearing in PWM matrices.
 #' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
 #'   length.
 #' @param nsites `numeric(1)` Number of sites the motif was constructed from.

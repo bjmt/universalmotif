@@ -13,7 +13,7 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
 \item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
-from apearing in PWM matrices. If missing, the pseudocount stored in the
+from appearing in PWM matrices. If missing, the pseudocount stored in the
 \linkS4class{universalmotif} 'pseudocount' slot will be
 used, which defaults to 0.8; the suggested value from
 \insertCite{pseudo;textual}{universalmotif}.}
@@ -57,7 +57,7 @@ log-odds matrix. At each position, each letter is represented by it's
 log-likelihood (\code{log2(letter_probability / background_probility)}),
 which is normalized using the background letter frequencies. A PWM matrix
 is constructed from a PPM; if any position has 0-probability letters to
-which pseudocounts were not added, then the final log-likelihodd of these
+which pseudocounts were not added, then the final log-likelihood of these
 letters will be \code{-Inf}.
 
 Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).

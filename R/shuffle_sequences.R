@@ -33,7 +33,7 @@
 #'
 #'    If `method = 'linear'`, then the input sequences are split linearly
 #'    every `k` letters; for example, for `k = 3` 'ACAGATAGACCC' becomes
-#'    'ACA GAT AGA CCC'; afterwhich these `3`-lets are shuffled randomly. If
+#'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly. If
 #'    `method = 'random'`, then `k`-lets are picked from the sequence
 #'    completely randomly. This however can leave 'leftover' letters, where
 #'    lone letter islands smaller than `k` are left. There are a few options

@@ -20,7 +20,7 @@
 #'    [convert_type()].
 #' @param normalise.scores `logical(1)` Favour alignments which leave fewer
 #'    unaligned positions. See [compare_motifs()].
-#' @param ... Addtional options for [ggseqlogo::geom_logo()].
+#' @param ... Additional options for [ggseqlogo::geom_logo()].
 #'
 #' @return A ggplot object.
 #'

@@ -62,7 +62,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param icscore `numeric(1)` Total information content. Automatically generated.
 #' @param nsites `numeric(1)` Number of sites the motif was constructed from.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
-#'   from apearing in PWM matrices.
+#'   from appearing in PWM matrices.
 #' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
 #'            length. If missing, assumes a uniform background.
 #' @param bkgsites `numeric(1)` Total number of sites used to find the motif.

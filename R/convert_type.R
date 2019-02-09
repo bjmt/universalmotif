@@ -7,7 +7,7 @@
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
-#'   from apearing in PWM matrices. If missing, the pseudocount stored in the
+#'   from appearing in PWM matrices. If missing, the pseudocount stored in the
 #'   \linkS4class{universalmotif} 'pseudocount' slot will be
 #'   used, which defaults to 0.8; the suggested value from
 #'   \insertCite{pseudo;textual}{universalmotif}.
@@ -43,7 +43,7 @@
 #'    log-likelihood (`log2(letter_probability / background_probility)`),
 #'    which is normalized using the background letter frequencies. A PWM matrix
 #'    is constructed from a PPM; if any position has 0-probability letters to
-#'    which pseudocounts were not added, then the final log-likelihodd of these
+#'    which pseudocounts were not added, then the final log-likelihood of these
 #'    letters will be `-Inf`.
 #'
 #'    Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).

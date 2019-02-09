@@ -12,7 +12,7 @@
 #'    or a string of letters.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #'    If missing will try and guess which one.
-#' @param sep `character(1)` Indicates how individual motifs are seperated.
+#' @param sep `character(1)` Indicates how individual motifs are separated.
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to read names. 
 #' @param rownames `logical(1)` Are there alphabet letters present as rownames?
 #'

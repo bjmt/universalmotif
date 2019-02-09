@@ -19,7 +19,7 @@
 #' @details
 #' If `method = 'linear'`, then the input positions are split linearly every
 #' `k` columns after which they are shuffled. If `method = random`, then
-#' sets of `k`-columns are chosen randonmly before being shuffled. This leaves
+#' sets of `k`-columns are chosen randomly before being shuffled. This leaves
 #' leftover column islands smaller than `k`; these can be left `asis`, placed
 #' `first`, `split` between the beginning and the end, or `discard`ed. See
 #' [shuffle_motifs()].

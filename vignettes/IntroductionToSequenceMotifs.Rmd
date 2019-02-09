@@ -93,10 +93,10 @@ However, when starting from a small pool of sequences, many zeroes can appear
 in the PPM; meaning that, for example, the probability of AAAAAA is currently
 zero. When scanning through large numbers of biological sequences, throwing away
 combinations of
-letters such as these can be undesirable, as for example  mimatches can be quite
+letters such as these can be undesirable, as for example  mismatches can be quite
 common in transcription factor binding sites; this can be fixed by adding a
 'pseudocount'. Usually a small number such as 1, it is introduced into the PCM
-to PPM caculation:
+to PPM calculation:
 
 \begin{equation}
   Prob_N = \frac{Counts_N + \frac{Pseudocount}{length_N}}{Counts_{Total} + Pseudocount}
@@ -308,7 +308,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
 : (\#tab:icmkl) Information content matrix as relative divergence.
 
 This motif would look significantly different with non-uniform background
-frequences. For example, starting from the following background frequencies: 
+frequencies. For example, starting from the following background frequencies: 
 `c(A = 0.4, C = 0.1, G = 0.1, T= 0.4)`, the motif resembles:
 
 Position |      1 |      2 |      3 |      4 |      5 |      6

@@ -61,7 +61,7 @@ or a combined string representing the letters.}
 \item{name}{\code{character(1)} Motif name.}
 
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
-from apearing in PWM matrices.}
+from appearing in PWM matrices.}
 
 \item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
 length.}

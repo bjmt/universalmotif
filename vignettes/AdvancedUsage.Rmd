@@ -456,7 +456,7 @@ all that is required is a set of `XStringSet` class sequences
 of running the program and reading the output for use within R.
 
 The first step is to check that R can find the MEME binary in
-your `$PATH` by running `run_meme()` without any parameters. If successfull,
+your `$PATH` by running `run_meme()` without any parameters. If successful,
 you should see the default MEME help message in your console. If not, then
 you'll need to provide the complete path to the MEME binary. There are two options:
 
