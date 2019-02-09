@@ -26,7 +26,7 @@ biocViews: MotifAnnotation, MotifDiscovery, DataImport, GeneRegulation
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Language: en-GB
-Collate: 
+Collate:
     'RcppExports.R'
     'add_multifreq.R'
     'compare_motifs.R'

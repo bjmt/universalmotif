@@ -5,7 +5,6 @@
 \name{universalmotif-class}
 \alias{universalmotif-class}
 \alias{universalmotif}
-\alias{[,universalmotif,ANY,ANY,ANY-method}
 \alias{[,universalmotif-method}
 \alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{[<-,universalmotif-method}
@@ -25,7 +24,7 @@
 \alias{cbind,universalmotif-method}
 \title{universalmotif: Motif class.}
 \usage{
-\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i)
+\S4method{[}{universalmotif}(x, i)
 
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
