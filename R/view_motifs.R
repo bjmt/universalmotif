@@ -61,8 +61,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                            method, "`")
     all_checks <- c(all_checks, method_check)
   }
-  if (!use.type %in% c("PPM", "ICM")) {
-    use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; got `",
+  if (!use.type %in% c("PPM", "ICM", "PWM", "PCM")) {
+    use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM`, `PCM`, `PWM` or `ICM`; got `",
                              use.type, "`")
     all_checks <- c(all_checks, use.type_check)
   }
