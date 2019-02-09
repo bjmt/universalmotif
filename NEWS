@@ -23,6 +23,14 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+CHANGES IN VERSION 1.0.15
+-------------------------
+
+BUG FIXES
+
+    o view_motifs() will now give an informative error message when trying
+      to plot multiple motifs with non-unique names
+
 CHANGES IN VERSION 1.0.14
 -------------------------
 
