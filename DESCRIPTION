@@ -16,9 +16,9 @@ License: GPL-3
 Encoding: UTF-8
 Imports: methods, ggplot2, ape, ggtree, ggseqlogo, stats, utils, gtools, Rdpack
     (>= 0.7), Biostrings, BiocGenerics, Rcpp, processx
-Suggests: knitr, BiocStyle, TFBSTools, MotIV, PWMEnrich, motifStack, seqLogo,
-    rmarkdown, MotifDb, testthat, rGADEM, motifRG, motifbreakR, RcisTarget,
-    motifcounter, Logolas, BiocParallel, BCRANK
+Suggests: spelling, knitr, BiocStyle, TFBSTools, MotIV, PWMEnrich, motifStack,
+    seqLogo, rmarkdown, MotifDb, testthat, rGADEM, motifRG, motifbreakR,
+    RcisTarget, motifcounter, Logolas, BiocParallel, BCRANK
 LinkingTo: Rcpp
 RdMacros: Rdpack
 VignetteBuilder: knitr

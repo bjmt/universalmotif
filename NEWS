@@ -18,8 +18,8 @@ MINOR CHANGES
 
     o Increased input security for character type parameters throughout
 
-    o Fixed various spelling mistakes throughout and added Language field to
-      Description
+    o Fixed various spelling mistakes throughout, added Language field to
+      Description, and added spell check to tests
 
 CHANGES IN VERSION 1.0.14
 -------------------------
