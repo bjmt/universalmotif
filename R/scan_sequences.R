@@ -132,7 +132,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (length(unique(mot.alphs)) != 1) stop("can only scan using one alphabet")
   mot.alphs <- unique(mot.alphs)
   if (verbose > 1) cat("   * Motif alphabet:", mot.alphs, "\n")
-  alph <- unique(mot.alphs)
+  alph <- mot.alphs
   mot.bkgs <- lapply(motifs, function(x) x["bkg"])
   seq.lens <- width(sequences)
 
@@ -142,10 +142,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (is(sequences, "DNAStringSet")) seq.alph <- "DNA"
   else if (is(sequences, "RNAStringSet")) seq.alph <- "RNA"
   else if (is(sequences, "AAStringSet")) seq.alph <- "AA"
-  else seq.alph <- "custom"
-
-  if (mot.alphs != seq.alph)
-    stop("Motif and sequence alphabets do not match", immediate. = TRUE)
+  else {
+    if (mot.alphs %in% c("DNA", "RNA", "AA"))
+      stop("Motif and sequence alphabets do not match")
+    seq.alph <- mot.alphs
+  }
 
   if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x["multifreq"]) == 0, logical(1))))

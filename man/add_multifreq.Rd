@@ -5,7 +5,7 @@
 \title{Add multi-letter information to a motif.}
 \usage{
 add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
-  threshold = 0.01, threshold.type = "logodds", motifs.perseq = 1)
+  threshold = 0, threshold.type = "logodds", motifs.perseq = 1)
 }
 \arguments{
 \item{motif}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats. If the

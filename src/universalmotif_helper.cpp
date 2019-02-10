@@ -57,6 +57,7 @@ S4 universalmotif_cpp(
     }
     StringVector mat_rownames = rownames(m_motif);
     rownames(m_motif) = sort_unique(alph_split);
+    alphabet[0] = collapse(sort_unique(alph_split));
   }
 
   if (StringVector::is_na(alphabet[0]) || alphabet.length() == 0) {

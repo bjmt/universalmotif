@@ -23,6 +23,15 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+CHANGES IN VERSION 1.0.17
+-------------------------
+
+BUG FIXES
+
+    o Custom motif alphabets are properly sorted in the alphabet slot of motifs
+
+    o scan_sequences() properly matches custom sequence and motif alphabets
+
 CHANGES IN VERSION 1.0.16
 -------------------------
 

@@ -316,7 +316,7 @@ setMethod("create_motif", signature(input = "character"),
             }
             if (!alphabet %in% c("DNA", "RNA", "AA", "custom", "missing") &&
                 length(consensus.all) == 1) {
-              alph.deparsed <- strsplit(alphabet, "")[[1]]
+              alph.deparsed <- sort(strsplit(alphabet, "")[[1]])
               if (any(!consensus %in% alph.deparsed)) {
                 stop("consensus string does not match provided alphabet")
               }
@@ -389,7 +389,7 @@ setMethod("create_motif", signature(input = "character"),
                 consensus <- lapply(consensus.all, BString)
                 consensus <- BStringSet(consensus)
                 if (alphabet != "custom") {
-                  alph.deparsed <- strsplit(alphabet, "")[[1]]
+                  alph.deparsed <- sort(strsplit(alphabet, "")[[1]])
                   if (any(!rownames(consensusMatrix(consensus)) %in%
                           alph.deparsed)) {
                     stop("consensus string does not match provided alphabet")
@@ -495,7 +495,7 @@ setMethod("create_motif", signature(input = "matrix"),
             matrix <- input
             if (!missing(alphabet) &&
                 !alphabet %in% c("DNA", "RNA", "AA", "custom")) {
-              alph.deparsed <- strsplit(alphabet, "")[[1]]
+              alph.deparsed <- sort(strsplit(alphabet, "")[[1]])
               if (any(!rownames(matrix) %in% alph.deparsed)) {
                 stop("rownames do not match provided alphabet")
               }
@@ -664,7 +664,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
                                                    rownames(motif@multifreq[[i]]))
               }
             }
-            
+
             msg <- validObject_universalmotif(motif)
             if (length(msg) > 0) stop(msg)
             motif
@@ -776,7 +776,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                  list(alphabet = "custom")))
             } else {
               sequences <- consensusMatrix(sequences)
-              alph.split <- strsplit(alphabet, "")[[1]]
+              alph.split <- sort(strsplit(alphabet, "")[[1]])
               motif <- vector("list", length(alph.split))
               mot_len <- ncol(sequences)
               for (i in alph.split) {
