@@ -3,9 +3,12 @@ context("add_multifreq()")
 test_that("filling multifreq works", {
 
   m1 <- create_motif("AAAAA", nsites=10)
+
   seqs <- Biostrings::DNAStringSet(rep(c("AAAAA", "ATAAA"), 3))
+  seqs2 <- Biostrings::DNAStringSet(rep(c("AAAAAC", "ATAAAC"), 3))
 
   m2 <- add_multifreq(m1, seqs, add.k = 2)
+  m2.2 <- add_multifreq(m1, seqs2, add.k = 2)
 
   m2.multi <- m2["multifreq"]$`2`
 

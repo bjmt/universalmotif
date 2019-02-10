@@ -23,6 +23,14 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+CHANGES IN VERSION 1.0.16
+-------------------------
+
+BUG FIXES
+
+    o scan_sequences() will now properly create a scoring matrix from motifs
+      with pseudocounts of 0
+
 CHANGES IN VERSION 1.0.15
 -------------------------
 
