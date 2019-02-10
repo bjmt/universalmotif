@@ -115,8 +115,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                        ifelse(length(motifs) > 1, "motifs\n", "motif\n"))
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)
+  motifs <- lapply(motifs, normalize)
+  motifs <- convert_type(motifs, "PWM")
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
   mot.pwms <- lapply(motifs, function(x) x["motif"])
