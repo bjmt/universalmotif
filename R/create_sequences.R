@@ -97,14 +97,14 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                                            bkg = monofreqs),
                     BP = BP, PB = progress)
   } else if (!missing(difreqs)) {
-    difreqs <- gsub("U", "T", difreqs)
+    names(difreqs) <- gsub("U", "T", names(difreqs))
     seqs <- lapply_(seq_len(seqnum),
                      function(x) create_k2(alph.letters = alph.letters,
                                            seqlen = seqlen,
                                            difreq = difreqs),
                     BP = BP, PB = progress)
   } else if (!missing(trifreqs)) {
-    trifreqs <- gsub("U", "T", trifreqs)
+    names(trifreqs) <- gsub("U", "T", names(trifreqs))
     seqs <- lapply_(seq_len(seqnum),
                      function(x) create_k3(alph.letters = alph.letters,
                                            seqlen = seqlen,
@@ -140,7 +140,7 @@ create_k2 <- function(alph.letters, seqlen, difreq) {
   ditrans <- matrix(c(probsA, probsC, probsG, probsT), nrow = 4)
   rownames(ditrans) <- alph.letters
   seqout <- rep(NA, seqlen)
-  first.di <- sample(names(difreq), 1, difreq)
+  first.di <- sample(names(difreq), 1, prob = difreq)
   first.di <- strsplit(first.di, "")[[1]]
   seqout[1] <- first.di[1]
   seqout[2] <- first.di[2]
