@@ -99,14 +99,14 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   } else if (!missing(difreqs)) {
     names(difreqs) <- gsub("U", "T", names(difreqs))
     seqs <- lapply_(seq_len(seqnum),
-                     function(x) create_k2(alph.letters = alph.letters,
+                     function(x) create_k2(alph.letters = DNA_BASES,
                                            seqlen = seqlen,
                                            difreq = difreqs),
                     BP = BP, PB = progress)
   } else if (!missing(trifreqs)) {
     names(trifreqs) <- gsub("U", "T", names(trifreqs))
     seqs <- lapply_(seq_len(seqnum),
-                     function(x) create_k3(alph.letters = alph.letters,
+                     function(x) create_k3(alph.letters = DNA_BASES,
                                            seqlen = seqlen,
                                            trifreq = trifreqs),
                     BP = BP, PB = progress)
@@ -117,6 +117,7 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   if (alphabet == "DNA") {
     seqs <- DNAStringSet(seqs)
   } else if (alphabet == "RNA") {
+    seqs <- DNAStringSet(seqs)
     seqs <- RNAStringSet(seqs)
   } else if (alphabet == "AA") {
     seqs <- AAStringSet(seqs)

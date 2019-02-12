@@ -23,6 +23,13 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+CHANGES IN VERSION 1.0.19
+-------------------------
+
+BUG FIXES
+
+    o Fixed create_sequences(alphabet = "RNA") when providing difreq/trifreq
+
 CHANGES IN VERSION 1.0.18
 -------------------------
 
