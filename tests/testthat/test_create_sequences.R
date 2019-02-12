@@ -21,4 +21,16 @@ test_that("sequence creation works", {
   expect_s4_class(s1, "DNAStringSet")
   expect_s4_class(s2, "RNAStringSet")
 
+  tri <- rep(1 / 64, 64)
+  names(tri) <- universalmotif:::DNA_TRI
+
+  tri.r <- tri
+  names(tri.r) <- gsub("T", "U", names(tri.r))
+
+  s3 <- create_sequences(trifreqs = tri)
+  s4 <- create_sequences("RNA", trifreqs = tri.r)
+
+  expect_s4_class(s3, "DNAStringSet")
+  expect_s4_class(s4, "RNAStringSet")
+
 })
