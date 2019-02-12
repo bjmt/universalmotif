@@ -59,10 +59,8 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (alphabet == "DNA") {
+  if (alphabet == "DNA" || alphabet == "RNA") {
     alph.letters <- DNA_BASES
-  } else if (alphabet == "RNA") {
-    alph.letters <- RNA_BASES
   } else if (alphabet == "AA") {
     alph.letters <- AA_STANDARD
     if (!missing(difreqs) || !missing(trifreqs)) {

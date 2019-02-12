@@ -23,6 +23,12 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+CHANGES IN VERSION 1.0.20
+-------------------------
+
+    o Fixed a bug introduced in previous patches where create_sequences()
+      fails with alphabet = "RNA" and missing difreq/trifreq
+
 CHANGES IN VERSION 1.0.19
 -------------------------
 

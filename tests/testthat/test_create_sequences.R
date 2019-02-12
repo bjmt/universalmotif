@@ -12,8 +12,13 @@ test_that("sequence creation works", {
          GA = 0.0625, GC = 0.0625, GG = 0.0625, GT = 0.0625,
          TA = 0.0625, TC = 0.0625, TG = 0.0625, TT = 0.0625)
 
+  r <- d
+  names(r) <- gsub("T", "U", names(r))
+
   s1 <- create_sequences(difreqs = d)
+  s2 <- create_sequences(alphabet = "RNA", difreqs = r)
 
   expect_s4_class(s1, "DNAStringSet")
+  expect_s4_class(s2, "RNAStringSet")
 
 })
