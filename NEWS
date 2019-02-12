@@ -23,6 +23,17 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+CHANGES IN VERSION 1.0.18
+-------------------------
+
+BUG FIXES
+
+    o Fixed alphabet letters being stripped from difreq and trifreq params in
+      create_sequences()
+
+    o Fixed an incorrect call to sample() when using create_sequences() with
+      difreq
+
 CHANGES IN VERSION 1.0.17
 -------------------------
 
