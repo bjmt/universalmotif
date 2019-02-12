@@ -26,11 +26,7 @@ BiocManager::install("universalmotif")
 ### Github development version
 
 ```r
-if (!requireNamespace("BiocManager", quietly=TRUE))
-  install.packages("BiocManager")
-BiocManager::install(c("BiocStyle", "TFBSTools", "motifStack", "Logolas",
-                       "MotifDb"))
-if (!requireNamespace("devtools", quietly=TRUE))
-  install.packages("devtools")
-devtools::install_github("bjmt/universalmotif")
+if (!requireNamespace("remotes", quietly=TRUE))
+  install.packages("remotes")
+remotes::install_github("bjmt/universalmotif")
 ```
