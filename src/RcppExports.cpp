@@ -617,9 +617,6 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP _universalmotif_kmer_mat_to_probs_k2_cpp(SEXP, SEXP, SEXP);
-RcppExport SEXP _universalmotif_kmer_mat_to_probs_k3_cpp(SEXP, SEXP, SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
@@ -667,8 +664,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_get_consensusAAC", (DL_FUNC) &_universalmotif_get_consensusAAC, 3},
     {"_universalmotif_clean_up_check", (DL_FUNC) &_universalmotif_clean_up_check, 1},
     {"_universalmotif_check_fun_params", (DL_FUNC) &_universalmotif_check_fun_params, 4},
-    {"_universalmotif_kmer_mat_to_probs_k2_cpp",   (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k2_cpp,    3},
-    {"_universalmotif_kmer_mat_to_probs_k3_cpp",   (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k3_cpp,    3},
     {NULL, NULL, 0}
 };
 
