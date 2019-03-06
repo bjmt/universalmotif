@@ -66,6 +66,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// kmer_mat_to_probs_k2_cpp
+NumericVector kmer_mat_to_probs_k2_cpp(IntegerMatrix bb_mat, NumericVector bkg, IntegerMatrix alph_sort);
+RcppExport SEXP _universalmotif_kmer_mat_to_probs_k2_cpp(SEXP bb_matSEXP, SEXP bkgSEXP, SEXP alph_sortSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type bb_mat(bb_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type alph_sort(alph_sortSEXP);
+    rcpp_result_gen = Rcpp::wrap(kmer_mat_to_probs_k2_cpp(bb_mat, bkg, alph_sort));
+    return rcpp_result_gen;
+END_RCPP
+}
+// kmer_mat_to_probs_k3_cpp
+NumericVector kmer_mat_to_probs_k3_cpp(IntegerMatrix bb_mat, NumericVector bkg, IntegerMatrix alph_sort);
+RcppExport SEXP _universalmotif_kmer_mat_to_probs_k3_cpp(SEXP bb_matSEXP, SEXP bkgSEXP, SEXP alph_sortSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type bb_mat(bb_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type alph_sort(alph_sortSEXP);
+    rcpp_result_gen = Rcpp::wrap(kmer_mat_to_probs_k3_cpp(bb_mat, bkg, alph_sort));
+    return rcpp_result_gen;
+END_RCPP
+}
 // init_paths_cpp
 IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score, int max_score);
 RcppExport SEXP _universalmotif_init_paths_cpp(SEXP score_matSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
@@ -623,6 +649,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_calc_scores_cpp", (DL_FUNC) &_universalmotif_calc_scores_cpp, 2},
     {"_universalmotif_kmer_mat_to_probs_k1_cpp", (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k1_cpp, 3},
+    {"_universalmotif_kmer_mat_to_probs_k2_cpp", (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k2_cpp, 3},
+    {"_universalmotif_kmer_mat_to_probs_k3_cpp", (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k3_cpp, 3},
     {"_universalmotif_init_paths_cpp", (DL_FUNC) &_universalmotif_init_paths_cpp, 3},
     {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},

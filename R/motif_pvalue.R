@@ -135,17 +135,24 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   if (use.freq == 1) {
     motifs <- lapply(motifs, function(x) x["motif"])
   } else {
-    if (!missing(bkg.probs)) warning("'bkg.probs' not supported for 'use.freq' > 1")
+    # if (!missing(bkg.probs)) warning("'bkg.probs' not supported for 'use.freq' > 1")
     mots <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
-    motifs <- mapply(function(x, y) apply(x, 2, ppm_to_pwmC, 
+    motifs <- mapply(function(x, y) apply(x, 2, ppm_to_pwmC,
                                             pseudocount = y["pseudocount"],
                                             nsites = y["nsites"]),
                        mots, motifs, SIMPLIFY = FALSE)
   }
 
-  if (missing(bkg.probs) || use.freq > 1) {
+  if (missing(bkg.probs)) {
     bkg.probs <- lapply(motifs, function(x) rep( 1 / nrow(x), nrow(x)))
-  } else if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
+  } else {
+    if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
+    bkg.probs.len <- lapply(bkg.probs, length)
+    motif.nrow <- lapply(motifs, nrow)
+    alph.len.check <- mapply(function(x, y) x != y,
+                             bkg.probs.len, motif.nrow, SIMPLIFY = TRUE)
+    if (any(alph.len.check)) stop("length(bkg.probs) must match nrow(motif['motif'])")
+  }
 
   if (!missing(score) && missing(pvalue)) {
 
@@ -174,7 +181,7 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   total.min <- sum(apply(score.mat, 2, min))
   if (return_scores) score <- total.min
 
-  if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
+  # if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
   score.mat <- score.mat[, order(apply(score.mat, 2, max), decreasing = TRUE)]
   alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
@@ -236,27 +243,40 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   }
 
   all.probs <- vector("list", length(mot.split))
-  for (i in seq_along(all.probs)) {
-    all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
-                                               alph.sort.split[[i]])
-  }
+  if (length(bkg.probs) == nrow(score.mat)) {
+    for (i in seq_along(all.probs)) {
+      all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
+                                                 alph.sort.split[[i]])
+    }
+  }  # higher ordre pvals are being calculated quite correctly
+  # else if (length(bkg.probs) == nrow(score.mat)^2) {
+    # for (i in seq_along(all.probs)) {
+      # all.probs[[i]] <- kmer_mat_to_probs_k2_cpp(all.paths[[i]], bkg.probs,
+                                                 # alph.sort.split[[i]])
+    # }
+  # } else if (length(bkg.probs) == nrow(score.mat)^3) {
+    # for (i in seq_along(all.probs)) {
+      # all.probs[[i]] <- kmer_mat_to_probs_k3_cpp(all.paths[[i]], bkg.probs,
+                                                 # alph.sort.split[[i]])
+    # }
+  # } else stop("length of bkg vector does not match motif alphabet")
 
   max.scores5 <- vapply(all.scores, max, numeric(1))
 
   if (length(mot.split) > 2) {
-  
+
     times.toloop <- length(mot.split) - 2
 
     for (i in seq_len(times.toloop)) {
-    
+
       for (j in seq_along(all.probs[[i + 1]])) {
         all.probs[[i + 1]][j] <- all.probs[[i + 1]][j] *
           sum(all.probs[[i + 2]][all.scores[[i + 2]] >
               score - all.scores[[i + 1]][i] - sum(max.scores5[seq_len(i)])])
       }
-    
+
     }
-  
+
   }
 
   if (length(mot.split) > 1) {
@@ -308,7 +328,7 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
   score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
   max.score <- sum(apply(score.mat, 2, max)) - 1L
   min.score <- sum(apply(score.mat, 2, min)) + 1L
-  if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
+  # if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
   if (ncol(score.mat) <= k) {  # for smaller motifs: exact calculation
     all.scores <- motif_pval(score.mat, min.score, bkg.probs, k,

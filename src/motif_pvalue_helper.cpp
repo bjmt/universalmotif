@@ -40,6 +40,60 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 
 }
 
+// // [[Rcpp::export]]
+// NumericVector kmer_mat_to_probs_k2_cpp(IntegerMatrix bb_mat, NumericVector bkg,
+    // IntegerMatrix alph_sort) {
+//
+  // NumericVector probs_out(bb_mat.nrow(), 1.0);
+  // int let1, let2, let3;
+//
+  // for (int i = 0; i < bb_mat.nrow(); ++i) {
+//
+    // for (int j = 0; j < bb_mat.ncol() - 1; ++j) {
+//
+      // let1 = alph_sort(bb_mat(i, j) - 1, j) - 1;
+      // let2 = alph_sort(bb_mat(i, j + 1) - 1, j + 1) - 1;
+//
+      // let3 = let1 * alph_sort.nrow() + let2;
+//
+      // probs_out[i] *= bkg[let3];
+//
+    // }
+//
+  // }
+//
+  // return probs_out;
+//
+// }
+
+// // [[Rcpp::export]]
+// NumericVector kmer_mat_to_probs_k3_cpp(IntegerMatrix bb_mat, NumericVector bkg,
+    // IntegerMatrix alph_sort) {
+//
+  // NumericVector probs_out(bb_mat.nrow(), 1.0);
+  // int let1, let2, let3, let4;
+  // int alph_len = alph_sort.nrow();
+//
+  // for (int i = 0; i < bb_mat.nrow(); ++i) {
+//
+    // for (int j = 0; j < bb_mat.ncol() - 2; ++j) {
+//
+      // let1 = alph_sort(bb_mat(i, j) - 1, j) - 1;
+      // let2 = alph_sort(bb_mat(i, j + 1) - 1, j + 1) - 1;
+      // let3 = alph_sort(bb_mat(i, j + 2) - 1, j + 2) - 1;
+//
+      // let4 = let1 * alph_len * alph_len + let2 * alph_len + let3;
+//
+      // probs_out[i] *= bkg[let4];
+//
+    // }
+//
+  // }
+//
+  // return probs_out;
+//
+// }
+
 // [[Rcpp::export]]
 IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score, 
     int max_score) {

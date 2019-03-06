@@ -21,6 +21,14 @@ kmer_mat_to_probs_k1_cpp <- function(bb_mat, bkg, alph_sort) {
     .Call('_universalmotif_kmer_mat_to_probs_k1_cpp', PACKAGE = 'universalmotif', bb_mat, bkg, alph_sort)
 }
 
+kmer_mat_to_probs_k2_cpp <- function(bb_mat, bkg, alph_sort) {
+    .Call('_universalmotif_kmer_mat_to_probs_k2_cpp', PACKAGE = 'universalmotif', bb_mat, bkg, alph_sort)
+}
+
+kmer_mat_to_probs_k3_cpp <- function(bb_mat, bkg, alph_sort) {
+    .Call('_universalmotif_kmer_mat_to_probs_k3_cpp', PACKAGE = 'universalmotif', bb_mat, bkg, alph_sort)
+}
+
 init_paths_cpp <- function(score_mat, score, max_score) {
     .Call('_universalmotif_init_paths_cpp', PACKAGE = 'universalmotif', score_mat, score, max_score)
 }
