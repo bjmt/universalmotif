@@ -17,13 +17,22 @@ namespace std {
   }
 }
 
+// // [[Rcpp::export]]
+// void print_pb(int out) {
+  // if (out == 0) Rcout << "   0%";
+  // else if (out > 0 && out < 10) Rcout << "\b\b\b\b  " << out << "%";
+  // else if (out >= 10 && out < 100) Rcout << "\b\b\b\b " << out << "%";
+  // else if (out == 100) Rcout << "\b\b\b\b" << out << "%";
+  // else if (out == -1) Rcout << "\b\b\b\b100%" << std::endl;
+// }
+
 // [[Rcpp::export]]
 void print_pb(int out) {
-  if (out == 0) Rcout << "   0%";
-  else if (out > 0 && out < 10) Rcout << "\b\b\b\b  " << out << "%";
-  else if (out >= 10 && out < 100) Rcout << "\b\b\b\b " << out << "%";
-  else if (out == 100) Rcout << "\b\b\b\b" << out << "%";
-  else if (out == -1) Rcout << "\b\b\b\b100%" << std::endl;
+  if (out == 0) Rprintf("   0%%");
+  else if (out > 0 && out < 10) Rprintf("\b\b\b\b  %i%%", out);
+  else if (out >= 10 && out < 100) Rprintf("\b\b\b\b %i%%", out);
+  else if (out == 100) Rprintf("\b\b\b\b%i%%", out);
+  else if (out == -1) Rprintf("\b\b\b\b100%%\n");
 }
 
 // [[Rcpp::export]]

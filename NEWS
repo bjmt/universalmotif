@@ -23,6 +23,8 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
+    o Using Rprintf instead of Rcout for faster progress printing
+
 CHANGES IN VERSION 1.0.22
 -------------------------
 
