@@ -17,15 +17,6 @@ namespace std {
   }
 }
 
-// // [[Rcpp::export]]
-// void print_pb(int out) {
-  // if (out == 0) Rcout << "   0%";
-  // else if (out > 0 && out < 10) Rcout << "\b\b\b\b  " << out << "%";
-  // else if (out >= 10 && out < 100) Rcout << "\b\b\b\b " << out << "%";
-  // else if (out == 100) Rcout << "\b\b\b\b" << out << "%";
-  // else if (out == -1) Rcout << "\b\b\b\b100%" << std::endl;
-// }
-
 // [[Rcpp::export]]
 void print_pb(int out) {
   if (out == 0) Rprintf("   0%%");
@@ -501,30 +492,21 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
     bool arg_fail = false;
     arg_name = param_names[i];
 
-    if (expected_type == 16) {
-      exp_type = "`character`";
-    } else if (expected_type == 14) {
-      exp_type = "`numeric`";
-    } else if (expected_type == 10) {
-      exp_type = "`logical`";
-    } else if (expected_type == 25) {
-      exp_type = "`S4`";
+    switch (expected_type) {
+      case 10: exp_type = "`logical`";   break;
+      case 14: exp_type = "`numeric`";   break;
+      case 16: exp_type = "`character`"; break;
+      case 25: exp_type = "`S4`";        break;
     }
 
-    if (arg_type == 16) {
-      obs_type = "`character`";
-    } else if (arg_type == 14) {
-      obs_type = "`numeric`";
-    } else if (arg_type == 10) {
-      obs_type = "`logical`";
-    } else if (arg_type == 0) {
-      obs_type = "`NULL`";
-    } else if (arg_type == 1) {
-      obs_type = "`missing`";
-    } else if (arg_type == 25) {
-      obs_type = "`S4`";
-    } else {
-      obs_type = "`unknown`";
+    switch (arg_type) {
+      case  0: obs_type = "`NULL`";      break;
+      case  1: obs_type = "`missing`";   break;
+      case 10: obs_type = "`logical`";   break;
+      case 14: obs_type = "`numeric`";   break;
+      case 16: obs_type = "`character`"; break;
+      case 25: obs_type = "`S4`";        break;
+      default: obs_type = "`unknown`";   break;
     }
 
     if (null_check) {

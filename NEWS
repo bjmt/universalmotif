@@ -23,7 +23,9 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
-    o Using Rprintf instead of Rcout for faster progress printing
+    o Using Rprintf instead of Rcout for faster progress printing in utils.cpp
+
+    o Replace a couple if-else instances with switch in utils.cpp
 
 CHANGES IN VERSION 1.0.22
 -------------------------
