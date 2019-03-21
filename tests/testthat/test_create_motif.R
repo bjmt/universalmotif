@@ -24,7 +24,7 @@ test_that("motif creation for missing or from numeric input works", {
   expect_true(all(motif1["motif"] != motif2["motif"]))
 
   expect_true(any(motif4["motif"] < 0))
-  expect_true(all(motif5["motif"] <= 2 && motif5["motif"] >= 0))
+  expect_true(all(motif5["motif"] <= 2 & motif5["motif"] >= 0))
 
   expect_error(create_motif(0))
   expect_error(create_motif(1, 2))
