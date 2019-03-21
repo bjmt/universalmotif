@@ -9,6 +9,7 @@ init:
 
 install:
   ps: Bootstrap
+  - travis-tool.sh install_bioc TFBSTools
 
 cache:
   - C:\RLibrary
@@ -18,9 +19,6 @@ cache:
 branches:
   only:
     - master
-
-install:
-  - travis-tool.sh install_bioc TFBSTools
 
 environment:
   global:
