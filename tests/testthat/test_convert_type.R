@@ -13,11 +13,11 @@ test_that("type conversion works", {
   expect_equal(m.pcm@motif[1, 2], 5)
 
   m.icm2 <- convert_type(m.pcm, "ICM")
-  m.icm3 <- convert_type(m.pcm, "ICM", nsize_correction = TRUE)
+  # m.icm3 <- convert_type(m.pcm, "ICM", nsize_correction = TRUE)
   m.icm4 <- convert_type(m.pwm, "ICM")
 
   expect_equal(m.icm2@motif[1, 2], 0.5)
-  expect_equal(round(m.icm3@motif[1, 2], digits = 2), 0.38)
+  # expect_equal(round(m.icm3@motif[1, 2], digits = 2), 0.38)
   expect_equal(m.icm4@motif[1, 2], 0.5)
 
   m.ppm2 <- convert_type(m.icm, "PPM")
