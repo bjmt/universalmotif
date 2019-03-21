@@ -20,7 +20,7 @@ branches:
     - master
 
 install:
-  - ./travis-tool.sh install_bioc TFBSTools
+  - travis-tool.sh install_bioc TFBSTools
 
 environment:
   global:
