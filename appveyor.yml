@@ -9,7 +9,6 @@ init:
 
 install:
   ps: Bootstrap
-  - travis-tool.sh install_bioc TFBSTools
 
 cache:
   - C:\RLibrary
@@ -28,6 +27,7 @@ environment:
 
 build_script:
   - travis-tool.sh install_deps
+  - travis-tool.sh install_bioc TFBSTools
 
 test_script:
   - travis-tool.sh run_tests
