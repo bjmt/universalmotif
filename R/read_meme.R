@@ -205,7 +205,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
         } else {
           summ.start <- summ.start + 2
           summ.raw <- raw_lines[summ.start:(length(raw_lines) - 2)]
-          need.fix <- grep("\\", summ.raw, fixed = T)
+          need.fix <- grep("\\", summ.raw, fixed = TRUE)
           if (length(need.fix) > 0) {
             need.fix2 <- need.fix + 1
             summ.raw[need.fix] <- vapply(summ.raw[need.fix],
