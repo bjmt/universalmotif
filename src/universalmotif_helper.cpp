@@ -2,7 +2,7 @@
 #include "utils.h"
 using namespace Rcpp;
 
-void universalmotif_alphabet(StringVector alphabet, NumericMatrix m_motif, S4 x) {
+StringVector universalmotif_alphabet(StringVector alphabet, NumericMatrix m_motif, S4 x) {
 
   if (alphabet[0] == "DNA")
     rownames(m_motif) = CharacterVector::create("A", "C", "G", "T");
@@ -34,11 +34,11 @@ void universalmotif_alphabet(StringVector alphabet, NumericMatrix m_motif, S4 x)
     }
   }
 
-  x.slot("alphabet") = alphabet;
+  return alphabet;
 
 }
 
-void universalmotif_type(NumericMatrix m_motif, StringVector type,
+StringVector universalmotif_type(NumericMatrix m_motif, StringVector type,
     NumericVector motif_colsums, S4 x) {
 
   LogicalVector mat_1_check = m_motif >= 1;
@@ -65,11 +65,11 @@ void universalmotif_type(NumericMatrix m_motif, StringVector type,
     }
   }
 
-  x.slot("type") = type;
+  return type;
 
 }
 
-void universalmotif_nsites(NumericVector nsites, StringVector type,
+NumericVector universalmotif_nsites(NumericVector nsites, StringVector type,
     NumericMatrix m_motif, NumericVector motif_colsums, S4 x) {
 
   if (NumericVector::is_na(nsites[0]) || nsites.length() == 0) {
@@ -92,11 +92,11 @@ void universalmotif_nsites(NumericVector nsites, StringVector type,
     }
   }
 
-  x.slot("nsites") = nsites;
+  return nsites;
 
 }
 
-void universalmotif_icscore(NumericVector icscore, NumericVector nsites,
+NumericVector universalmotif_icscore(NumericVector icscore, NumericVector nsites,
     NumericMatrix m_motif, NumericVector bkg, StringVector type,
     double pseudocount, S4 x) {
 
@@ -111,11 +111,11 @@ void universalmotif_icscore(NumericVector icscore, NumericVector nsites,
     icscore[0] = sum(icscore_tmp);
   }
 
-  x.slot("icscore") = icscore[0];
+  return icscore;
 
 }
 
-void universalmotif_consensus(NumericMatrix m_motif, StringVector alphabet,
+StringVector universalmotif_consensus(NumericMatrix m_motif, StringVector alphabet,
     StringVector type, double pseudocount, S4 x) {
 
   StringVector consensus_tmp(m_motif.ncol());
@@ -124,25 +124,25 @@ void universalmotif_consensus(NumericMatrix m_motif, StringVector alphabet,
     for (int i = 0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
     }
-    x.slot("consensus") = collapse(consensus_tmp);
     colnames(m_motif) = consensus_tmp;
+    return StringVector::create(collapse(consensus_tmp));
   } else if (alphabet[0] == "RNA") {
     for (int i = 0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
     }
-    x.slot("consensus") = collapse(consensus_tmp);
     colnames(m_motif) = consensus_tmp;
+    return StringVector::create(collapse(consensus_tmp));
   } else if (alphabet[0] == "AA") {
     for (int i =0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
     }
-    x.slot("consensus") = collapse(consensus_tmp);
     colnames(m_motif) = consensus_tmp;
+    return StringVector::create(collapse(consensus_tmp));
   } else {
     StringVector mot_rownames = rownames(m_motif);
     colnames(m_motif) = StringVector::create();
     rownames(m_motif) = mot_rownames;
-    x.slot("consensus") = StringVector::create();
+    return StringVector::create();
   }
 
 }
@@ -172,6 +172,8 @@ S4 universalmotif_cpp(
 
   NumericMatrix m_motif = Rcpp::clone(motif);
   NumericVector motif_colsums = colSums(m_motif);
+  // sometimes nsites can slip through as nan (not R_NaN), which messes things up
+  if (isnan(nsites[0])) nsites = NumericVector::create();
 
   // name
   x.slot("name") = name;
@@ -192,13 +194,14 @@ S4 universalmotif_cpp(
   x.slot("organism") = organism;
 
   // alphabet
-  universalmotif_alphabet(alphabet, m_motif, x);
+  x.slot("alphabet") = universalmotif_alphabet(alphabet, m_motif, x);
 
   // type
-  universalmotif_type(m_motif, type, motif_colsums, x);
+  x.slot("type") = universalmotif_type(m_motif, type, motif_colsums, x);
 
   // nsites
-  universalmotif_nsites(nsites, type, m_motif, motif_colsums, x);
+  x.slot("nsites") = universalmotif_nsites(nsites, type, m_motif,
+      motif_colsums, x);
 
   // pseudocount
   x.slot("pseudocount") = pseudocount;
@@ -209,14 +212,17 @@ S4 universalmotif_cpp(
   x.slot("bkg") = bkg;
 
   // icscore
-  universalmotif_icscore(icscore, nsites, m_motif, bkg, type, pseudocount, x);
+  icscore = universalmotif_icscore(icscore, nsites, m_motif, bkg,
+      type, pseudocount, x);
+  x.slot("icscore") = icscore[0];
 
   // bkgsites
   if (NumericVector::is_na(bkgsites[0])) bkgsites = NumericVector::create();
   x.slot("bkgsites") = bkgsites;
 
   // consensus
-  universalmotif_consensus(m_motif, alphabet, type, pseudocount, x);
+  x.slot("consensus") = universalmotif_consensus(m_motif, alphabet, type,
+      pseudocount, x);
 
   // motif
   x.slot("motif") = m_motif;
@@ -244,7 +250,7 @@ S4 universalmotif_cpp(
 
 }
 
-void check_length(StringVector m_name, StringVector m_altname,
+StringVector check_length(StringVector m_name, StringVector m_altname,
     StringVector m_family, StringVector m_organism, StringVector m_alphabet,
     StringVector m_type, NumericVector m_icscore, NumericVector m_nsites,
     NumericVector m_pseudocount, NumericVector m_bkgsites,
@@ -267,9 +273,11 @@ void check_length(StringVector m_name, StringVector m_altname,
   if (m_qval.length() > 1)         msg.push_back("qval cannot be longer than 1");
   if (m_eval.length() > 1)         msg.push_back("eval cannot be longer than 1");
 
+  return msg;
+
 }
 
-void check_char_slots(StringVector m_type, StringVector m_strand,
+StringVector check_char_slots(StringVector m_type, StringVector m_strand,
     StringVector msg) {
 
   if (m_type[0] != "PCM" &&
@@ -284,9 +292,11 @@ void check_char_slots(StringVector m_type, StringVector m_strand,
       m_strand[0] != "-+")
     msg.push_back("strand must be one of +, -, +-");
 
+  return msg;
+
 }
 
-void check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
+StringVector check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
     NumericVector m_nsites, StringVector msg) {
 
   NumericVector motif_colsums = colSums(m_motif);
@@ -303,9 +313,11 @@ void check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
       msg.push_back("for type PPM only positive values are allowed");
   }
 
+  return msg;
+
 }
 
-void check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
+StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
     StringVector msg) {
 
   StringVector m_rownames = rownames(m_motif);
@@ -348,9 +360,11 @@ void check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
 
   }
 
+  return msg;
+
 }
 
-void check_consensus(StringVector m_consensus, NumericMatrix m_motif,
+StringVector check_consensus(StringVector m_consensus, NumericMatrix m_motif,
     StringVector msg) {
 
   if (m_consensus.length() > 0) {
@@ -373,6 +387,8 @@ void check_consensus(StringVector m_consensus, NumericMatrix m_motif,
     }
 
   }
+
+  return msg;
 
 }
 
@@ -400,25 +416,25 @@ StringVector validObject_universalmotif(S4 motif) {
   NumericVector m_eval        = motif.slot("eval");
 
   // slot length checks
-  check_length(m_name, m_altname, m_family, m_organism, m_alphabet, m_type,
+  msg = check_length(m_name, m_altname, m_family, m_organism, m_alphabet, m_type,
       m_icscore, m_nsites, m_pseudocount, m_bkgsites, m_consensus, m_strand,
       m_pval, m_qval, m_eval, msg);
 
   // character slot checks
-  check_char_slots(m_type, m_strand, msg);
+  msg = check_char_slots(m_type, m_strand, msg);
 
   // bkg slot check
   if (m_bkg.length() != m_motif.nrow())
     msg.push_back("bkg length must be equal to alphabet size");
 
   // check motif and type
-  check_motif_and_type(m_motif, m_type, m_nsites, msg);
+  msg = check_motif_and_type(m_motif, m_type, m_nsites, msg);
 
   // check motif matches alphabet
-  check_alphabet(m_motif, m_alphabet, msg);
+  msg = check_alphabet(m_motif, m_alphabet, msg);
 
   // consensus check
-  check_consensus(m_consensus, m_motif, msg);
+  msg = check_consensus(m_consensus, m_motif, msg);
 
   return msg;
 

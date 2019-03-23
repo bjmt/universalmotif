@@ -1,3 +1,4 @@
+Makefile
 ^revdep$
 ^docs$
 ^_pkgdown\.yml$

@@ -303,7 +303,7 @@ DataFrame res_list_to_df_cpp(List res) {
       col_score_pct[j + row_offset] = col_score_pct_[j];
       col_match[j + row_offset] = col_match_[j];
       col_strand[j + row_offset] = col_strand_[j];
-    
+
     }
 
     row_offset += n_per[i];
