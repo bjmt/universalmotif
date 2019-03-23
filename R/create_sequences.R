@@ -112,14 +112,11 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
 
   seqs <- unlist(seqs)
 
-  if (alphabet == "DNA") {
-    seqs <- DNAStringSet(seqs)
-  } else if (alphabet == "RNA") {
-    seqs <- DNAStringSet(seqs)
-    seqs <- RNAStringSet(seqs)
-  } else if (alphabet == "AA") {
-    seqs <- AAStringSet(seqs)
-  } else seqs <- BStringSet(seqs)
+  switch(alphabet,
+         "DNA" = seqs <- DNAStringSet(seqs),
+         "RNA" = seqs <- RNAStringSet(DNAStringSet(seqs)),
+         "AA"  = seqs <- AAStringSet(seqs),
+                 seqs <- BStringSet(seqs))
 
   seqs
 

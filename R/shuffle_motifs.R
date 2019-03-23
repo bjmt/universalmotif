@@ -70,16 +70,20 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   if (k == 1) {
     new.order <- sample(col.order, ncol(mot.cols))
   } else {
-    if (method == "linear") {
-      mot.cols2 <- as.character(col.order)
-      new.order <- shuffle_linear(mot.cols2, k, mode = 2)
-      new.order <- as.numeric(new.order)
-    } else if (method == "random") {
-      mot.cols2 <- as.character(col.order)
-      new.order <- shuffle_random(mot.cols2, k, leftovers,
-                                  mode = 2)
-      new.order <- as.numeric(new.order)
-    } else stop("only 'linear' and 'random' are supported")
+    switch(method,
+      "linear" = {
+        mot.cols2 <- as.character(col.order)
+        new.order <- shuffle_linear(mot.cols2, k, mode = 2)
+        new.order <- as.numeric(new.order)
+      },
+      "random" = {
+        mot.cols2 <- as.character(col.order)
+        new.order <- shuffle_random(mot.cols2, k, leftovers,
+                                    mode = 2)
+        new.order <- as.numeric(new.order)
+      },
+      stop("only 'linear' and 'random' are supported")
+    )
   }
   mot.cols <- mot.cols[, new.order]
 

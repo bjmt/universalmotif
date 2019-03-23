@@ -95,27 +95,33 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   if (k == 1) {
     sequences <- as.character(sequences)
     sequences <- lapply_(sequences, shuffle_k1, PB = progress, BP = BP)
-  } else if (method == "markov") {
-    sequences <- lapply_(sequences, shuffle_markov, k = k, PB = progress, BP = BP)
-  } else if (method == "random") {
-    sequences <- as.character(sequences)
-    sequences <- lapply_(sequences, shuffle_random, k = k, leftover = leftovers,
-                         PB = progress, BP = BP)
-  } else if (method == "linear") {
-    sequences <- as.character(sequences)
-    sequences <- lapply_(sequences, shuffle_linear, k = k, PB = progress,
-                         BP = BP)
-  } else stop("incorrect 'k' and 'method' combo")
+  } else {
+    switch(method,
+      "markov" = {
+        sequences <- lapply_(sequences, shuffle_markov, k = k,
+                             PB = progress, BP = BP)
+      },
+      "random" = {
+        sequences <- as.character(sequences)
+        sequences <- lapply_(sequences, shuffle_random, k = k,
+                             leftover = leftovers, PB = progress, BP = BP)
+      },
+      "linear" = {
+        sequences <- as.character(sequences)
+        sequences <- lapply_(sequences, shuffle_linear, k = k, PB = progress,
+                             BP = BP)
+      },
+      stop("incorrect 'k' and 'method' combination")
+    )
+  }
 
   sequences <- unlist(sequences)
 
-  if (alph == "DNAStringSet") {
-    sequences <- DNAStringSet(sequences)
-  } else if (alph == "RNAStringSet") {
-    sequences <- RNAStringSet(sequences)
-  } else if (alph == "AAStringSet") {
-    sequences <- AAStringSet(sequences)
-  } else sequences <- BStringSet(sequences)
+  switch(alph,
+         "DNAStringSet" = sequences <- DNAStringSet(sequences),
+         "RNAStringSet" = sequences <- RNAStringSet(sequences),
+         "AAStringSet"  = sequences <- AAStringSet(sequences),
+                          sequences <- BStringSet(sequences))
 
   if (!is.null(seq.names)) names(sequences) <- seq.names
 
@@ -154,7 +160,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
   for (i in 1:nrow(seqs.k)) {
     if (all(is.na(seqs.k))) break
     repeat {
-      j <- sample(1:nrow(seqs.k), 1)  # this repeat loop can be removed
+      j <- sample(1:nrow(seqs.k), 1)  # can this repeat loop can be removed?
       let <- seqs.k[j, ]
       if (!any(is.na(let))) break
     }
@@ -175,38 +181,44 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
   new.seq <- new.seq[!is.na(new.seq)]
 
   leftover <- seqs1[seqs2]
-  
-  if (length(leftover) > 0 ){
-    if (leftover.strat == "last") {
-      new.seq <- c(new.seq, leftover)
-    } else if (leftover.strat == "asis") {
-      leftover <- seqs1
-      leftover[!seqs2] <- NA
-      toadd <- length(leftover) - length(new.seq)
-      toadd.left <- round((toadd + 0.1) / 2)
-      toadd.right <- toadd - toadd.left
-      toadd.left <- rep(NA, toadd.left)
-      toadd.right <- rep(NA, toadd.right)
-      new.seq <- c(toadd.left, new.seq, toadd.right)
-      new.seq <- matrix(c(leftover, new.seq), nrow = 2, byrow = TRUE)
-      new.seq <- as.character(new.seq)
-      new.seq <- new.seq[!is.na(new.seq)]
-    } else if (leftover.strat == "first") {
-      new.seq <- c(leftover, new.seq)
-    } else if (leftover.strat == "split") {
-      if (length(leftover) == 1) {
+
+  if (length(leftover) > 0)
+    switch(leftover.strat,
+      "last" = {
+        new.seq <- c(new.seq, leftover)
+      },
+      "asis" = {
+        leftover <- seqs1
+        leftover[!seqs2] <- NA
+        toadd <- length(leftover) - length(new.seq)
+        toadd.left <- round((toadd + 0.1) / 2)
+        toadd.right <- toadd - toadd.left
+        toadd.left <- rep(NA, toadd.left)
+        toadd.right <- rep(NA, toadd.right)
+        new.seq <- c(toadd.left, new.seq, toadd.right)
+        new.seq <- matrix(c(leftover, new.seq), nrow = 2, byrow = TRUE)
+        new.seq <- as.character(new.seq)
+        new.seq <- new.seq[!is.na(new.seq)]
+      },
+      "first" = {
         new.seq <- c(leftover, new.seq)
-      } else {
-        left.len <- length(leftover)
-        left.left <- round((left.len + 0.1) / 2)
-        left.right <- left.len - left.left
-        new.seq <- c(leftover[1:left.left], new.seq,
-                     leftover[left.right:length(leftover)])
-      }
-    } else if (leftover.strat == "discard") {
-      # do nothing
-    } else stop("unknown 'leftovers' arg")
-  }
+      },
+      "split" = {
+        if (length(leftover) == 1) {
+          new.seq <- c(leftover, new.seq)
+        } else {
+          left.len <- length(leftover)
+          left.left <- round((left.len + 0.1) / 2)
+          left.right <- left.len - left.left
+          new.seq <- c(leftover[1:left.left], new.seq,
+                       leftover[left.right:length(leftover)])
+        }
+      },
+      "discard" = {
+        # do nothing
+      },
+      stop("unknown 'leftovers' arg")
+    )
 
   if (mode == 1) new.seq <- collapse_cpp(new.seq)
 
@@ -221,12 +233,13 @@ shuffle_linear <- function(sequence, k, mode = 1) {
   if (mode == 1) {
     seq.len <- nchar(sequence)
     seq1 <- strsplit(sequence, "")[[1]]
-  } else if (mode == 2){
+  } else if (mode == 2) {
     seq.len <- length(sequence)
     seq1 <- sequence
   }
 
   seq.mod <- seq.len %% k
+
   if (seq.mod == 1) {
     left.keep <- 1
     right.keep <- 0
@@ -271,7 +284,7 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 }
 
 shuffle_markov <- function(sequence, k) {
-  
+
   sequence <- DNAStringSet(sequence)
   freqs <- colSums(oligonucleotideFrequency(sequence, width = k,
                                             as.prob = TRUE))
@@ -293,7 +306,7 @@ shuffle_markov <- function(sequence, k) {
 }
 
 shuffle_k1 <- function(sequence) {
-  
+
   sequence <- as.character(sequence)
   sequence <- strsplit(sequence, "")[[1]]
   sequence <- sample(sequence, length(sequence))

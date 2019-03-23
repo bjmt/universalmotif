@@ -186,27 +186,39 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
   min.scores <- vapply(score.mats, function(x) sum(apply(x, 2, min)), numeric(1))
 
-  if (threshold.type == "logodds") {
-    thresholds <- max.scores * threshold
-  } else if (threshold.type == "pvalue") {
-    if (progress && !BP && verbose > 0)
-      cat(" * Converting P-values to logodds thresholds ...")
-    else if ((progress && BP && verbose > 0) || verbose > 0)
-      cat(" * Converting P-values to logodds thresholds\n")
-    thresholds <- vector("numeric", length(motifs))
-    thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                               k = 5, progress = progress, BP = BP)
-    for (i in seq_along(thresholds)) {
-      if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
-    }
-    if (verbose > 3) {
+  switch(threshold.type,
+
+    "logodds" = {
+
+      thresholds <- max.scores * threshold
+
+    },
+
+    "pvalue" = {
+
+      if (progress && !BP && verbose > 0)
+        cat(" * Converting P-values to logodds thresholds ...")
+      else if ((progress && BP && verbose > 0) || verbose > 0)
+        cat(" * Converting P-values to logodds thresholds\n")
+      thresholds <- vector("numeric", length(motifs))
+      thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
+                                 k = 5, progress = progress, BP = BP)
       for (i in seq_along(thresholds)) {
-        cat("   * Motif", mot.names[i], ": max.score = ", max.scores[i],
-            ", threshold = ", thresholds[i], "\n")
+        if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }
-    }
-    thresholds <- unlist(thresholds)
-  } else stop("unknown 'threshold.type'")
+      if (verbose > 3) {
+        for (i in seq_along(thresholds)) {
+          cat("   * Motif", mot.names[i], ": max.score = ", max.scores[i],
+              ", threshold = ", thresholds[i], "\n")
+        }
+      }
+      thresholds <- unlist(thresholds)
+
+    },
+
+    stop("unknown 'threshold.type'")
+
+  )
 
   if (verbose > 0) cat(" * Processing sequences\n")
 
@@ -235,20 +247,26 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            MoreArgs = list(k = use.freq), SIMPLIFY = FALSE,
                            PB = progress)
 
-  if (mot.alphs == "DNA") {
-    mot.alphs <- DNA_BASES
-  } else if (mot.alphs == "RNA") {
-    mot.alphs <- RNA_BASES
-  } else if (mot.alphs == "AA") {
-    mot.alphs <- AA_STANDARD
-  } else if (alph == "custom") {
-    if (RC) stop("RC search is only available for DNA/RNA")
-    mot.alphs <- lapply(seqs.aschar, unique)
-    mot.alphs <- unique(do.call(c, mot.alphs))
-  } else {
-    if (RC) stop("RC search is only available for DNA/RNA")
-    mot.alphs <- strsplit(mot.alphs, "")[[1]]
-  }
+  switch(mot.alphs,
+    "DNA" = {
+      mot.alphs <- DNA_BASES
+    },
+    "RNA" = {
+      mot.alphs <- RNA_BASES
+    },
+    "AA" = {
+      mot.alphs <- AA_STANDARD
+    },
+    "custom" = {
+      if (RC) stop("RC search is only available for DNA/RNA")
+      mot.alphs <- lapply(seqs.aschar, unique)
+      mot.alphs <- unique(do.call(c, mot.alphs))
+    },
+    {
+      if (RC) stop("RC search is only available for DNA/RNA")
+      mot.alphs <- strsplit(mot.alphs, "")[[1]]
+    }
+  )
 
   alph.int <- as.integer(seq_len(length(mot.alphs)))
 

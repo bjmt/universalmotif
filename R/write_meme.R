@@ -49,16 +49,22 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
 
   alph <- unique(vapply(motifs, function(x) x["alphabet"], character(1)))
   if (length(alph) > 1) stop("all motifs must use the same alphabet")
-  if (alph == "DNA")  {
-    alph.2 <- "ACGT" 
-    alph.length <- 4
-  } else if (alph == "RNA") {
-    alph.2 <- "ACGU"
-    alph.length <- 4
-  } else if (alph == "AA") {
-    alph.2 <- "ACDEFGHIKLMNPQRSTVWY"
-    alph.length <- 20
-  } else stop("unknown alphabet")
+
+  switch(alph,
+    "DNA" = {
+      alph.2 <- "ACGT"
+      alph.length <- 4
+    },
+    "RNA" = {
+      alph.2 <- "ACGU"
+      alph.length <- 4
+    },
+    "AA" = {
+      alph.2 <- "ACDEFGHIKLMNPQRSTVWY"
+      alph.length <- 20
+    },
+    stop("unknown alphabet")
+  )
 
   if (missing(bkg)) {
     bkg <- lapply(motifs, function(x) x["bkg"])

@@ -209,13 +209,14 @@ run_meme <- function(target.sequences, output = NULL,
 
   if (v>0) {
 
-    if (objfun == "classic") cat("Search mode: Classic\n")
-    else if (objfun == "de") cat("Search mode: Differential Enrichment\n")
-    else if (objfun == "se") cat("Search mode: Selective Enrichment\n")
-    else if (objfun == "cd") cat("Search mode: Central Distance\n")
-    else if (objfun == "ce") cat("Search mode: Central Enrichment\n")
-    else if (objfun == "nc") cat("Search mode: Numerically Correct\n")
-    else cat(paste0("Search mode: ", objfun, "\n"))
+    switch(objfun,
+           "classic" = cat("Search mode: Classic\n"),
+           "de"      = cat("Search mode: Differential Enrichment\n"),
+           "se"      = cat("Search mode: Selective Enrichment\n"),
+           "cd"      = cat("Search mode: Central Distance\n"),
+           "ce"      = cat("Search mode: Central Enrichment\n"),
+           "nc"      = cat("Search mode: Numerically Correct\n"),
+                       cat("Search mode: ", objfun, "\n"))
 
     if (objfun %in% c("de", "se")) {
       if (test == "mhg" || is.null(test)) cat("Test: Multiple Hypergeometric\n")

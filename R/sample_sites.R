@@ -46,13 +46,11 @@ sample_sites <- function(motif, n = 100, use.freq = 1) {
   sites <- lapply(seq_len(n), .get_sites)
   sites <- unlist(sites)
 
-  if (alph == "DNA") {
-    sites <- DNAStringSet(sites)
-  } else if (alph == "RNA") {
-    sites <- RNAStringSet(sites)
-  } else if (alph == "AA") {
-    sites <- AAStringSet(sites)
-  } else sites <- BStringSet(sites)
+  switch(alph,
+         "DNA" = sites <- DNAStringSet(sites),
+         "RNA" = sites <- RNAStringSet(sites),
+         "AA"  = sites <- AAStringSet(sites),
+                 sites <- BStringSet(sites))
 
   sites
 

@@ -61,26 +61,29 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
       }
     }
 
-    if (positions == "columns") {
-      for (i in seq_len(nrow(motif["motif"]))) {
-        pos <- motif["motif"][i, ]
-        # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
-                      # character(1))
-        pos <- as.character(pos)
-        if (rownames) pos <- c(rownames(motif["motif"])[i], pos)
-        lines_out <- c(lines_out, paste(pos, collapse = "\t"))
+    switch(positions,
+      "columns" = {
+        for (i in seq_len(nrow(motif["motif"]))) {
+          pos <- motif["motif"][i, ]
+          # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
+                        # character(1))
+          pos <- as.character(pos)
+          if (rownames) pos <- c(rownames(motif["motif"])[i], pos)
+          lines_out <- c(lines_out, paste(pos, collapse = "\t"))
+        }
+      },
+      "rows" = {
+        if (rownames) lines_out <- c(lines_out, paste(rownames(motif["motif"]),
+                                                      collapse = "\t"))
+        for (i in seq_len(ncol(motif["motif"]))) {
+          pos <- motif["motif"][, i]
+          # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
+                        # character(1))
+          pos <- as.character(pos)
+          lines_out <- c(lines_out, paste(pos, collapse = "\t"))
+        }
       }
-    } else if (positions == "rows") {
-      if (rownames) lines_out <- c(lines_out, paste(rownames(motif["motif"]),
-                                                    collapse = "\t"))
-      for (i in seq_len(ncol(motif["motif"]))) {
-        pos <- motif["motif"][, i]
-        # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
-                      # character(1))
-        pos <- as.character(pos)
-        lines_out <- c(lines_out, paste(pos, collapse = "\t"))
-      }
-    }
+    )
 
     c(lines_out, sep)
 

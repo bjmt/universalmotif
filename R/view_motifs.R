@@ -87,22 +87,30 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   if (use.type == "ICM" && !relative_entropy) {
     plot.method <- "bits"
     yname <- "bits"
-  } else if (use.type == "PPM") {
-    plot.method <- "prob"
-    yname <- "probability"
-  } else if (use.type == "ICM") {
-    plot.method <- "custom"
-    yname <- "bits"
-  } else if (use.type == "PWM") {
-    plot.method <- "custom"
-    yname <- "logodds"
-    if (length(motifs) > 1 && method == "KL") {
-      stop("cannot use method 'KL' with 'PWM' matrices")
-    }
-  } else if (use.type == "PCM") {
-    plot.method <- "custom"
-    yname <- "counts"
-  } else stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM'")
+  } else {
+    switch(use.type,
+      "PPM" = {
+        plot.method <- "prob"
+        yname <- "probability"
+      },
+      "ICM" = {
+        plot.method <- "custom"
+        yname <- "bits"
+      },
+      "PWM" = {
+        plot.method <- "custom"
+        yname <- "logodds"
+        if (length(motifs) > 1 && method == "KL") {
+          stop("cannot use method 'KL' with 'PWM' matrices")
+        }
+      },
+      "PCM" = {
+        plot.method <- "custom"
+        yname <- "counts"
+      },
+      stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM'")
+    )
+  }
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
   if (length(mot.names) != length(unique(mot.names)))
@@ -113,22 +121,30 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   mot.alph <- unique(vapply(motifs, function(x) x["alphabet"], character(1)))
   if (length(mot.alph) > 1) stop("can only have one alphabet")
   use.custom <- FALSE
-  if (mot.alph == "DNA") {
-    alph <- DNA_BASES
-    seq_type <- "dna"
-  } else if (mot.alph == "RNA") {
-    alph <- RNA_BASES
-    seq_type <- "rna"
-  } else if (mot.alph == "AA") {
-    alph <- AA_STANDARD
-    seq_type <- "aa"
-  } else if (mot.alph != "custom"){
-    alph <- sort(strsplit(mot.alph, "")[[1]])
-    use.custom <- TRUE
-  } else{
-    alph <- rownames(mot.mats[[1]])
-    use.custom <- TRUE
-  }
+
+  switch(mot.alph,
+    "DNA" = {
+      alph <- DNA_BASES
+      seq_type <- "dna"
+    },
+    "RNA" = {
+      alph <- RNA_BASES
+      seq_type <- "rna"
+    },
+    "AA" = {
+      alph <- AA_STANDARD
+      seq_type <- "aa"
+    },
+    {
+      if (mot.alph != "custom") {
+        alph <- sort(strsplit(mot.alph, "")[[1]])
+        use.custom <- TRUE
+      } else {
+        alph <- rownames(mot.mats[[1]])
+        use.custom <- TRUE
+      }
+    }
+  )
 
   if (length(motifs) == 1) {
     if (use.custom) {
