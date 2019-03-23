@@ -176,7 +176,7 @@ S4 universalmotif_cpp(
   NumericMatrix m_motif = Rcpp::clone(motif);
   NumericVector motif_colsums = colSums(m_motif);
   // sometimes nsites can slip through as nan (not R_NaN), which messes things up
-  if (isnan(nsites[0])) nsites = NumericVector::create();
+  if (std::isnan(nsites[0])) nsites = NumericVector::create();
 
   // name
   x.slot("name") = name;
