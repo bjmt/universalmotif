@@ -6,7 +6,7 @@ namespace std {
   template<typename T>
   std::string to_string(const T &n) {
 
-    // This is required to get around `to_string` g++ compiler erorr
+    // This is required to get around `to_string` g++ compiler error
 
     // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
     // https://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-g-mingw
@@ -19,11 +19,11 @@ namespace std {
 
 // [[Rcpp::export]]
 void print_pb(int out) {
-  if (out == 0) Rprintf("   0%%");
-  else if (out > 0 && out < 10) Rprintf("\b\b\b\b  %i%%", out);
+       if (out == 0)               Rprintf("   0%%");
+  else if (out > 0 && out < 10)    Rprintf("\b\b\b\b  %i%%", out);
   else if (out >= 10 && out < 100) Rprintf("\b\b\b\b %i%%", out);
-  else if (out == 100) Rprintf("\b\b\b\b%i%%", out);
-  else if (out == -1) Rprintf("\b\b\b\b100%%\n");
+  else if (out == 100)             Rprintf("\b\b\b\b%i%%", out);
+  else if (out == -1)              Rprintf("\b\b\b\b100%%\n");
 }
 
 // [[Rcpp::export]]
@@ -156,7 +156,7 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 
   for (int i = 0; i < n_pos; ++i) {
     position[i] = pow(2.0, position[i]);
-  }  
+  }
 
   double possum = sum(position);
   if (possum > 0.99 && possum < 1.01) return position;
@@ -482,7 +482,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   String fail_string1_2 = " * Incorrect vector length for: '";
   String fail_string2 = "': expected ";
   String fail_string3 = "; got ";
-    
+
   for (int i = 0; i < arg_len; ++i) {
 
     RObject arg = param_args[i];
@@ -528,16 +528,19 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
 
       int arg_len;
 
-      if (arg_type == 16) {
-        StringVector arg_ = as<StringVector>(arg);
-        arg_len = arg_.length();
-      } else if (arg_type == 14) {
-        NumericVector arg_ = as<NumericVector>(arg);
-        arg_len = arg_.length();
-      } else if (arg_type == 10) {
-        LogicalVector arg_ = as<LogicalVector>(arg);
-        arg_len = arg_.length();
-      } else stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
+      // {} are required for each case here or otherwise gives error at comp
+      switch (arg_type) {
+        case 10: {LogicalVector arg_ = as<LogicalVector>(arg);
+                  arg_len = arg_.length();
+                  break;}
+        case 14: {NumericVector arg_ = as<NumericVector>(arg);
+                  arg_len = arg_.length();
+                  break;}
+        case 16: {StringVector arg_ = as<StringVector>(arg);
+                  arg_len = arg_.length();
+                  break;}
+        default: stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
+      }
 
       int exp_len = param_len2[i];
       // compiler error with to_string!
