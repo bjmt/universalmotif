@@ -274,6 +274,7 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
     position = icm_to_ppmC(position);
   }
 
+
   // single letter consensus
        if (position[0] > 0.5 &&
            position[0] > position[1] * 2.0 &&
