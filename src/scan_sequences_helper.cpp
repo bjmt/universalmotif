@@ -241,12 +241,13 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     row_offset += n_rows[i];
 
   }
-  
+
   List out = List::create(_["motif"] = col_motif,
       _["sequence"] = col_sequence, _["start"] = col_start,
       _["stop"] = col_stop, _["score"] = col_score,
       _["max.score"] = col_max_score, _["score.pct"] = col_score_pct,
-      _["match"] = col_match, _["strand"] = col_strand);
+      _["match"] = col_match, _["strand"] = col_strand,
+      _["stringsAsFactors"] = false);
 
   return out;
 
@@ -314,7 +315,8 @@ DataFrame res_list_to_df_cpp(List res) {
       _["sequence"] = col_sequence, _["start"] = col_start,
       _["stop"] = col_stop, _["score"] = col_score,
       _["max.score"] = col_max_score, _["score.pct"] = col_score_pct,
-      _["match"] = col_match, _["strand"] = col_strand);
+      _["match"] = col_match, _["strand"] = col_strand,
+      _["stringsAsFactors"] = false);
 
   return out;
 

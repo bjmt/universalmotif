@@ -407,9 +407,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (!alph %in% c("DNA", "RNA")) res <- res[, colnames(res) != "strand"]
 
-  factor2string <- vapply(res, is.factor, logical(1))
-  res[factor2string] <- lapply(res[factor2string], as.character)
-
   rownames(res) <- NULL
 
   res

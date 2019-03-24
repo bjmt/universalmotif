@@ -384,37 +384,29 @@ BiocGenerics::as.data.frame
 #' @aliases as.data.frame,universalmotif-method
 setMethod("as.data.frame", signature(x = "universalmotif"),
           definition = function(x) {
-            name <- x@name
-            altname <- x@altname
-            if (length(altname) == 0) altname <- as.character(NA)
-            family <- x@family
-            if (length(family) == 0) family <- as.character(NA)
-            organism <- x@organism
-            if (length(organism) == 0) organism <- as.character(NA)
-            alphabet <- x@alphabet
-            icscore <- x@icscore
-            nsites <- x@nsites
-            if (length(nsites) == 0) nsites <- as.numeric(NA)
-            bkgsites <- x@bkgsites
-            if (length(bkgsites) == 0) bkgsites <- as.numeric(NA)
-            consensus <- x@consensus
-            if (length(consensus) == 0) consensus <- as.character(NA)
-            strand <- x@strand
-            pval <- x@pval
-            if (length(pval) == 0) pval <- as.numeric(NA)
-            qval <- x@qval
-            if (length(qval) == 0) qval <- as.numeric(NA)
-            eval <- x@eval
-            if (length(eval) == 0) eval <- as.numeric(NA)
-            df <- data.frame(name = name, altname = altname, family = family,
-                             organism = organism, alphabet = alphabet,
-                             icscore = icscore, nsites = nsites,
-                             bkgsites = bkgsites,
-                             consensus = consensus, strand = strand,
-                             pval = pval, qval = qval, eval = eval,
-                             stringsAsFactors = FALSE)
-            rownames(df) <- NULL
-            df
+
+  data.frame(
+
+    name = x@name,
+    altname = ifelse(length(x@altname) == 0, NA_character_, x@altname),
+    family = ifelse(length(x@family) == 0, NA_character_, x@family),
+    organism = ifelse(length(x@organism) == 0, NA_character_, x@organism),
+    alphabet = x@alphabet,
+    icscore = x@icscore,
+    nsites = ifelse(length(x@nsites) == 0, NA_real_, x@nsites),
+    bkgsites = ifelse(length(x@bkgsites) == 0, NA_real_, x@bkgsites),
+    consensus = ifelse(length(x@consensus) == 0, NA_character_, x@consensus),
+    strand = x@strand,
+    pval = ifelse(length(x@pval) == 0, NA_real_, x@pval),
+    qval = ifelse(length(x@qval) == 0, NA_real_, x@qval),
+    eval = ifelse(length(x@eval) == 0, NA_real_, x@eval),
+
+    check.names = FALSE,
+    fix.empty.names = FALSE,
+    stringsAsFactors = FALSE
+
+  )
+
           })
 
 #' @param select `numeric` Columns to keep.

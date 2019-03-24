@@ -148,7 +148,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
                      k <- k - 1
                      if (k > 0) {
                        seqs.k <- seqs1[-c(1:k)]
-                       seqs.k <- c(seqs.k, rep(NA, k))
+                       seqs.k <- c(seqs.k, rep(NA_character_, k))
                        matrix(seqs.k)
                      } else matrix(seqs1)
                    })
@@ -172,7 +172,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
     if (del1 < 0) del1 <- 0
     if (del2 > nrow(seqs.k)) del2 <- nrow(seqs.k)
 
-    seqs.k[del1:del2, ] <- NA
+    seqs.k[del1:del2, ] <- NA_character_
     seqs2[j:(j + k - 1)] <- FALSE
 
   }
@@ -189,12 +189,12 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
       },
       "asis" = {
         leftover <- seqs1
-        leftover[!seqs2] <- NA
+        leftover[!seqs2] <- NA_character_
         toadd <- length(leftover) - length(new.seq)
         toadd.left <- round((toadd + 0.1) / 2)
         toadd.right <- toadd - toadd.left
-        toadd.left <- rep(NA, toadd.left)
-        toadd.right <- rep(NA, toadd.right)
+        toadd.left <- rep(NA_character_, toadd.left)
+        toadd.right <- rep(NA_character_, toadd.right)
         new.seq <- c(toadd.left, new.seq, toadd.right)
         new.seq <- matrix(c(leftover, new.seq), nrow = 2, byrow = TRUE)
         new.seq <- as.character(new.seq)
@@ -289,7 +289,7 @@ shuffle_markov <- function(sequence, k) {
   freqs <- colSums(oligonucleotideFrequency(sequence, width = k,
                                             as.prob = TRUE))
   trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
-  seqout <- rep(NA, width(sequence))
+  seqout <- rep(NA_character_, width(sequence))
   first.k <- sample(names(freqs), 1, prob = freqs)
   first.k <- strsplit(first.k, "")[[1]]
   seqout[1:k] <- first.k

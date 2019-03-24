@@ -113,207 +113,243 @@ setMethod("convert_motifs", signature(motifs = "list"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
           definition = function(motifs, class) {
-            
+
             out_class <- strsplit(class, "-")[[1]][2]
             out_class_pkg <- strsplit(class, "-")[[1]][1]
 
-            if (out_class_pkg == "universalmotif") {
-              return(motifs)
-            }
+            switch(out_class_pkg,
+              "universalmotif" = {
+                motifs
+              },
+              "MotIV" = {
+                if (out_class == "pwm2")
+                  convert_to_motiv_pwm2(motifs)
+                else
+                  stop("unknown 'class'")
+              },
+              "TFBSTools" = {
+                if (out_class %in% c("PFMatrix", "PWMatrix", "ICMatrix"))
+                  convert_to_tfbstools_matrix(motifs, out_class)
+                else if (out_class == "TFFMFirst")
+                  convert_to_tfbstools_tffmfirst(motifs)
+                else
+                  stop("unknown 'class'")
+              },
+              "seqLogo" = {
+                if (out_class == "pwm")
+                  convert_to_seqlogo_pwm(motifs)
+                else
+                  stop("unknown 'class'")
+              },
+              "motifStack" = {
+                switch(out_class,
+                       "pcm" = convert_to_motifstack_pcm(motifs),
+                       "pfm" = convert_to_motifstack_pfm(motifs),
+                               stop("unknown 'class'"))
+              },
+              "PWMEnrich" = {
+                if (out_class == "PWM")
+                  convert_to_pwmenrich_pwm(motifs)
+                else
+                  stop("unknown 'class'")
+              },
+              "Biostrings" = {
+                if (out_class == "PWM")
+                  convert_to_biostrings_pwm(motifs)
+                else
+                  stop("unknown 'class'")
+              },
+              "rGADEM" = {
+                if (out_class == "motif")
+                  convert_to_rgadem_motif(motifs)
+                else
+                  stop("unknown 'class'")
+              },
+              stop("unknown 'class'")
+            )
 
-            # MotIV-pwm2
-            if (out_class_pkg == "MotIV" && out_class == "pwm2") {
-              motifs <- convert_type(motifs, "PPM")
-              if (requireNamespace("MotIV", quietly = TRUE)) {
-                motifs <- MotIV::makePWM(motifs["motif"],
-                                         alphabet = motifs["alphabet"])
-              } else {
-                stop("package 'MotIV' is not installed") 
-              }
-              return(motifs)
-            }
-
-            # TFBSTools- PFMatrix, PWMatrix, and ICMatrix
-            if (out_class_pkg == "TFBSTools" && out_class %in% 
-                c("PFMatrix", "PWMatrix", "ICMatrix")) {
-              motifs <- convert_type(motifs, "PCM")
-              bkg <- motifs["bkg"]
-              names(bkg) <- DNA_BASES
-              extrainfo <- motifs["extrainfo"]
-              if (length(motifs["altname"]) == 0) {
-                motifs["altname"] <- ""
-              }
-              strand <- motifs["strand"]
-              if (strand %in% c("+-", "-+")) {
-                strand <- "*"
-              }
-              if (requireNamespace("TFBSTools", quietly = TRUE)) {
-                motifs <- TFBSTools::PFMatrix(name = motifs["name"],
-                                   ID = motifs["altname"],
-                                   strand = strand,
-                                   bg = bkg,
-                                   profileMatrix = motifs["motif"])
-                if (out_class == "PFMatrix") {
-                  motifs <- motifs
-                } else if (out_class == "PWMatrix") {
-                  motifs <- TFBSTools::toPWM(motifs, type = "log2probratio",
-                                  pseudocounts = 0.8,
-                                  bg = bkg)
-                } else if (out_class == "ICMatrix") {
-                  motifs <- TFBSTools::toICM(motifs, pseudocounts = 0.8,
-                                  bg = bkg)
-                }
-              } else {
-                stop("package 'TFBSTools' is not installed") 
-              }
-              if (length(extrainfo) > 0) {
-                motifs@tags <- as.list(extrainfo)
-              }
-              return(motifs)
-            }
-
-            # TFBSTools-TFFMFirst
-            if (out_class_pkg == "TFBSTools" && out_class == "TFFMFirst") {
-              motifs <- convert_type(motifs, "PPM")
-              if (!`2` %in% names(motifs@multifreq)) {
-                stop("cannot convert without filled multifreq slot")
-              }
-              if (motifs["alphabet"] != "DNA") stop("alphabet must be DNA")
-              bkg <- motifs["bkg"]
-              emission <- list(length = ncol(motifs@multifreq$`2`) + 1)
-              bkg <- motifs["bkg"]
-              names(bkg) <- DNA_BASES
-              emission[[1]] <- bkg
-              transition <- matrix(rep(0, (ncol(motifs@multifreq$`2`) + 1) *
-                                           ncol(motifs@multifreq$`2`)),
-                                   nrow = ncol(motifs@multifreq$`2`) + 1,
-                                   ncol = ncol(motifs@multifreq$`2`))
-              for (i in seq_len(ncol(motifs@multifreq$`2`))) {
-                emission[[i + 1]] <- motifs@multifreq$`2`[, i]
-                transition[i, i] <- 1
-              }
-              names(emission) <- rep("state", length(emission))
-              transition[nrow(transition), 1] <- 1
-              transition[2, 1:2] <- c(0.95, 0.05)
-              colnames(transition) <- seq_len(ncol(transition))
-              rownames(transition) <- c(0, seq_len(ncol(transition)))
-              if (length(motifs["altname"]) < 1) motifs@altname <- "Unknown"
-              strand <- motifs["strand"]
-              if (strand %in% c("+-", "-+")) strand <- "*"
-              family <- motifs["family"]
-              if (length(family) < 1) family <- "Unknown"
-              if (requireNamespace("TFBSTools", quietly = TRUE)) {
-                motifs <- TFBSTools::TFFMFirst(ID = motifs["altname"],
-                                    name = motifs["name"],
-                                    strand = strand, type = "First",
-                                    bg = bkg, matrixClass = family,
-                                    profileMatrix = motifs["motif"],
-                                    tags = as.list(motifs["extrainfo"]),
-                                    emission = emission, transition = transition)
-              } else {
-                stop("package 'TFBSTools' is not installed") 
-              }
-              return(motifs)
-            }
-
-            # seqLogo-pwm
-            if (out_class_pkg == "seqLogo" && out_class == "pwm") {
-              motifs <- convert_type(motifs, "PPM")
-              if (requireNamespace("seqLogo", quietly = TRUE)) {
-                motifs <- seqLogo::makePWM(motifs["motif"])
-              } else {
-                stop("'seqLogo' package not installed")
-              }
-              return(motifs)
-            }
-
-            # motifStack-pcm
-            if (out_class_pkg == "motifStack" && out_class == "pcm") {
-              if (requireNamespace("motifStack", quietly = TRUE)) {
-                pcm_class <- getClass("pcm", where = "motifStack")
-                motifs <- convert_type(motifs, "PCM")
-                motifs <- new(pcm_class, mat = motifs["motif"],
-                              name = motifs["name"],
-                              alphabet = motifs["alphabet"],
-                              background = motifs["bkg"])
-              } else {
-                stop("'motifStack' package not installed")
-              }
-              colnames(motifs@mat) <- seq_len(ncol(motifs@mat))
-              names(motifs@background) <- rownames(motifs@mat)
-              return(motifs)
-            }
-
-            # motifStack-pfm
-            if (out_class_pkg == "motifStack" && out_class == "pfm") {
-              if (requireNamespace("motifStack", quietly = TRUE)) {
-                pfm_class <- getClass("pfm", where = "motifStack")
-                motifs <- convert_type(motifs, "PPM")
-                motifs <- new(pfm_class, mat = motifs["motif"],
-                              name = motifs["name"],
-                              alphabet = motifs["alphabet"],
-                              background = motifs["bkg"])
-              } else {
-                stop("'motifStack' package not installed")
-              }
-              colnames(motifs@mat) <- seq_len(ncol(motifs@mat))
-              names(motifs@background) <- rownames(motifs@mat)
-              return(motifs)
-            }
-
-            # PWMEnrich-PWM
-            if (out_class_pkg == "PWMEnrich" && out_class == "PWM") {
-              if (requireNamespace("PWMEnrich", quietly = TRUE)) {
-                motifs <- convert_type(motifs, "PCM")
-                PWM_class <- getClass("PWM", where = "PWMEnrich")
-                bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
-                                  nrow = 4)
-                rownames(bio_mat) <- DNA_BASES
-                bio_priors <- motifs["bkg"]
-                names(bio_priors) <- DNA_BASES
-                bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
-                                    prior.params = bio_priors,
-                                    pseudo.count = motifs["pseudocount"])
-                motifs <- new(PWM_class, name = motifs["name"],
-                              pfm = motifs["motif"],
-                              prior.params = bio_priors,
-                              pwm = bio_mat$pwm)
-              } else {
-                stop("package 'PWMEnrich' not installed")
-              }
-              return(motifs)
-            }
-
-            # Biostrings-PWM
-            if (out_class_pkg == "Biostrings" && out_class == "PWM") {
-              motifs <- convert_type(motifs, "PCM")
-              bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
-                                nrow = 4)
-              rownames(bio_mat) <- DNA_BASES
-              bio_priors <- motifs["bkg"]
-              names(bio_priors) <- DNA_BASES
-              motifs <- PWM(x = bio_mat, type = "log2probratio",
-                            prior.params = bio_priors)
-              return(motifs)
-            }
-
-            # rGADEM-motif
-            if (out_class_pkg == "rGADEM" && out_class == "motif") {
-              if (requireNamespace("rGADEM", quietly = FALSE)) {
-                motifs <- convert_type(motifs, "PPM")
-                rGADEM_motif_class <- getClass("motif", where = "rGADEM")
-                motifs <- new("motif", pwm = motifs["motif"],
-                              name = motifs["name"],
-                              consensus = motifs["consensus"])
-              } else {
-                stop("'rGADEM' package not installed")
-              }
-              return(motifs)
-            }
-
-            stop("unknown 'class'")
-          
           })
+
+convert_to_motiv_pwm2 <- function(motifs) {
+  motifs <- convert_type(motifs, "PPM")
+  if (requireNamespace("MotIV", quietly = TRUE)) {
+    motifs <- MotIV::makePWM(motifs["motif"],
+                             alphabet = motifs["alphabet"])
+  } else {
+    stop("package 'MotIV' is not installed")
+  }
+  motifs
+}
+
+convert_to_tfbstools_matrix <- function(motifs, out_class) {
+  motifs <- convert_type(motifs, "PCM")
+  bkg <- motifs["bkg"]
+  names(bkg) <- DNA_BASES
+  extrainfo <- motifs["extrainfo"]
+  if (length(motifs["altname"]) == 0) {
+    motifs["altname"] <- ""
+  }
+  strand <- motifs["strand"]
+  if (strand %in% c("+-", "-+")) {
+    strand <- "*"
+  }
+  if (requireNamespace("TFBSTools", quietly = TRUE)) {
+    motifs <- TFBSTools::PFMatrix(name = motifs["name"],
+                       ID = motifs["altname"],
+                       strand = strand, bg = bkg,
+                       profileMatrix = motifs["motif"])
+    switch(out_class,
+      "PFMatrix" = {
+        motifs <- motifs
+      },
+      "PWMatrix" = {
+        motifs <- TFBSTools::toPWM(motifs, type = "log2probratio",
+                        pseudocounts = 0.8, bg = bkg)
+      },
+      "ICMatrix" = {
+        motifs <- TFBSTools::toICM(motifs, pseudocounts = 0.8, bg = bkg)
+      }
+    )
+  } else {
+    stop("package 'TFBSTools' is not installed") 
+  }
+  if (length(extrainfo) > 0) {
+    motifs@tags <- as.list(extrainfo)
+  }
+  motifs
+}
+
+convert_to_tfbstools_tffmfirst <- function(motifs) {
+  motifs <- convert_type(motifs, "PPM")
+  if (!`2` %in% names(motifs@multifreq)) {
+    stop("cannot convert without filled multifreq slot")
+  }
+  if (motifs["alphabet"] != "DNA") stop("alphabet must be DNA")
+  bkg <- motifs["bkg"]
+  emission <- list(length = ncol(motifs@multifreq$`2`) + 1)
+  bkg <- motifs["bkg"]
+  names(bkg) <- DNA_BASES
+  emission[[1]] <- bkg
+  transition <- matrix(rep(0, (ncol(motifs@multifreq$`2`) + 1) *
+                               ncol(motifs@multifreq$`2`)),
+                       nrow = ncol(motifs@multifreq$`2`) + 1,
+                       ncol = ncol(motifs@multifreq$`2`))
+  for (i in seq_len(ncol(motifs@multifreq$`2`))) {
+    emission[[i + 1]] <- motifs@multifreq$`2`[, i]
+    transition[i, i] <- 1
+  }
+  names(emission) <- rep("state", length(emission))
+  transition[nrow(transition), 1] <- 1
+  transition[2, 1:2] <- c(0.95, 0.05)
+  colnames(transition) <- seq_len(ncol(transition))
+  rownames(transition) <- c(0, seq_len(ncol(transition)))
+  if (length(motifs["altname"]) < 1) motifs@altname <- "Unknown"
+  strand <- motifs["strand"]
+  if (strand %in% c("+-", "-+")) strand <- "*"
+  family <- motifs["family"]
+  if (length(family) < 1) family <- "Unknown"
+  if (requireNamespace("TFBSTools", quietly = TRUE)) {
+    motifs <- TFBSTools::TFFMFirst(ID = motifs["altname"],
+                        name = motifs["name"],
+                        strand = strand, type = "First",
+                        bg = bkg, matrixClass = family,
+                        profileMatrix = motifs["motif"],
+                        tags = as.list(motifs["extrainfo"]),
+                        emission = emission, transition = transition)
+  } else {
+    stop("package 'TFBSTools' is not installed") 
+  }
+  motifs
+}
+
+convert_to_seqlogo_pwm <- function(motifs) {
+  motifs <- convert_type(motifs, "PPM")
+  if (requireNamespace("seqLogo", quietly = TRUE)) {
+    motifs <- seqLogo::makePWM(motifs["motif"])
+  } else {
+    stop("'seqLogo' package not installed")
+  }
+  motifs
+}
+
+convert_to_motifstack_pcm <- function(motifs) {
+  if (requireNamespace("motifStack", quietly = TRUE)) {
+    pcm_class <- getClass("pcm", where = "motifStack")
+    motifs <- convert_type(motifs, "PCM")
+    motifs <- new(pcm_class, mat = motifs["motif"],
+                  name = motifs["name"],
+                  alphabet = motifs["alphabet"],
+                  background = motifs["bkg"])
+  } else {
+    stop("'motifStack' package not installed")
+  }
+  colnames(motifs@mat) <- seq_len(ncol(motifs@mat))
+  names(motifs@background) <- rownames(motifs@mat)
+  motifs
+}
+
+convert_to_motifstack_pfm <- function(motifs) {
+  if (requireNamespace("motifStack", quietly = TRUE)) {
+    pfm_class <- getClass("pfm", where = "motifStack")
+    motifs <- convert_type(motifs, "PPM")
+    motifs <- new(pfm_class, mat = motifs["motif"],
+                  name = motifs["name"],
+                  alphabet = motifs["alphabet"],
+                  background = motifs["bkg"])
+  } else {
+    stop("'motifStack' package not installed")
+  }
+  colnames(motifs@mat) <- seq_len(ncol(motifs@mat))
+  names(motifs@background) <- rownames(motifs@mat)
+  motifs
+}
+
+convert_to_pwmenrich_pwm <- function(motifs) {
+  if (requireNamespace("PWMEnrich", quietly = TRUE)) {
+    motifs <- convert_type(motifs, "PCM")
+    PWM_class <- getClass("PWM", where = "PWMEnrich")
+    bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
+                      nrow = 4)
+    rownames(bio_mat) <- DNA_BASES
+    bio_priors <- motifs["bkg"]
+    names(bio_priors) <- DNA_BASES
+    bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
+                        prior.params = bio_priors,
+                        pseudo.count = motifs["pseudocount"])
+    motifs <- new(PWM_class, name = motifs["name"],
+                  pfm = motifs["motif"],
+                  prior.params = bio_priors,
+                  pwm = bio_mat$pwm)
+  } else {
+    stop("package 'PWMEnrich' not installed")
+  }
+  motifs
+}
+
+convert_to_biostrings_pwm <- function(motifs) {
+  motifs <- convert_type(motifs, "PCM")
+  bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
+                    nrow = 4)
+  rownames(bio_mat) <- DNA_BASES
+  bio_priors <- motifs["bkg"]
+  names(bio_priors) <- DNA_BASES
+  motifs <- PWM(x = bio_mat, type = "log2probratio",
+                prior.params = bio_priors)
+  motifs
+}
+
+convert_to_rgadem_motif <- function(motifs) {
+  if (requireNamespace("rGADEM", quietly = FALSE)) {
+    motifs <- convert_type(motifs, "PPM")
+    rGADEM_motif_class <- getClass("motif", where = "rGADEM")
+    motifs <- new("motif", pwm = motifs["motif"],
+                  name = motifs["name"],
+                  consensus = motifs["consensus"])
+  } else {
+    stop("'rGADEM' package not installed")
+  }
+  motifs
+}
 
 #' @describeIn convert_motifs Convert MotifList motifs. (\pkg{MotifDb})
 #' @export
