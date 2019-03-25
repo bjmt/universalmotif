@@ -152,15 +152,19 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
                        matrix(seqs.k)
                      } else matrix(seqs1)
                    })
-
   seqs.k <- do.call(cbind, seqs.k)
   seqs.k <- seqs.k[-c((nrow(seqs.k) - k + 2):nrow(seqs.k)), ]
 
   new.seq <- matrix(nrow = k, ncol = round((nrow(seqs.k) + 0.1) / 2))
-  for (i in 1:nrow(seqs.k)) {
+
+  seqs.k.n <- nrow(seqs.k)
+
+  ########## major timesink
+  for (i in 1:seqs.k.n) {
+
     if (all(is.na(seqs.k))) break
     repeat {
-      j <- sample(1:nrow(seqs.k), 1)  # can this repeat loop can be removed?
+      j <- sample(1:seqs.k.n, 1)
       let <- seqs.k[j, ]
       if (!any(is.na(let))) break
     }
@@ -170,12 +174,13 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
     del1 <- j - k + 1
     del2 <- j + k - 1
     if (del1 < 0) del1 <- 0
-    if (del2 > nrow(seqs.k)) del2 <- nrow(seqs.k)
+    if (del2 > seqs.k.n) del2 <- seqs.k.n
 
     seqs.k[del1:del2, ] <- NA_character_
     seqs2[j:(j + k - 1)] <- FALSE
 
   }
+  #########
 
   new.seq <- as.character(new.seq)
   new.seq <- new.seq[!is.na(new.seq)]

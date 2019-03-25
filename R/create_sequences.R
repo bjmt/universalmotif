@@ -135,7 +135,7 @@ create_k2 <- function(alph.letters, seqlen, difreq) {
   probsT <- difreq[c("TA", "TC", "TG", "TT")]
   ditrans <- matrix(c(probsA, probsC, probsG, probsT), nrow = 4)
   rownames(ditrans) <- alph.letters
-  seqout <- rep(NA, seqlen)
+  seqout <- rep(NA_character_, seqlen)
   first.di <- sample(names(difreq), 1, prob = difreq)
   first.di <- strsplit(first.di, "")[[1]]
   seqout[1] <- first.di[1]
@@ -153,7 +153,7 @@ create_k3 <- function(alph.letters, seqlen, trifreq) {
   trifreq <- trifreq[DNA_TRI]
   tritrans <- matrix(trifreq, nrow = 16, byrow = 16)
   rownames(tritrans) <- DNA_DI
-  seqout <- rep(NA, seqlen)
+  seqout <- rep(NA_character_, seqlen)
   first.tri <- sample(names(trifreq), 1, prob = trifreq)
   first.tri <- strsplit(first.tri, "")[[1]]
   seqout[1] <- first.tri[1]
@@ -162,7 +162,7 @@ create_k3 <- function(alph.letters, seqlen, trifreq) {
   for (i in 4:seqlen) {
     previous.nuc1 <- seqout[i - 1]
     previous.nuc2 <- seqout[i - 2]
-    previous.nuc <- paste0(previous.nuc2, previous.nuc1)
+    previous.nuc <- collapse_cpp(c(previous.nuc2, previous.nuc1))
     curr.prob <- tritrans[previous.nuc, ]
     curr.prob[is.na(curr.prob)] <- 0.00001
     seqout[i] <- sample(alph.letters, 1, prob = curr.prob)

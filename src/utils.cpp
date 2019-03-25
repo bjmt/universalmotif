@@ -74,9 +74,22 @@ String all_checks_collapse(StringVector checks) {
 
 // [[Rcpp::export]]
 String collapse_cpp(StringVector x) {
-  // about 20 times faster than paste(x, collapse = "")
+  // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")
+  // collapse_cpp(c(x, y)) about 2 times faster than base::paste0(x, y)
   return collapse(x);
 }
+
+// StringVector sample_string_cpp(StringVector x, int size, bool replace = false,
+    // sugar::probs_t prob = R_NilValue) {
+  // // about 1.5 times faster than base::sample
+  // return sample(x, size, replace, prob);
+// }
+//
+// NumericVector sample_numeric_cpp(NumericVector x, int size, bool replace = false,
+    // sugar::probs_t prob = R_NilValue) {
+  // // about 1.25 times faster than base::sample
+  // return sample(x, size, replace, prob);
+// }
 
 // [[Rcpp::export]]
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
