@@ -132,6 +132,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 # this creates truly random k-lets; unfortunately this has the side effect of
 # leaving behind 'leftover'-lets smaller than k
 shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
+  # benchmark timings: ~1370 times slower than shuffle_k1
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -147,7 +148,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
                    function(k) {
                      k <- k - 1
                      if (k > 0) {
-                       seqs.k <- seqs1[-c(1:k)]
+                       seqs.k <- seqs1[-seq_len(k)]
                        seqs.k <- c(seqs.k, rep(NA_character_, k))
                        matrix(seqs.k)
                      } else matrix(seqs1)
@@ -155,29 +156,27 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
   seqs.k <- do.call(cbind, seqs.k)
   seqs.k <- seqs.k[-c((nrow(seqs.k) - k + 2):nrow(seqs.k)), ]
 
-  new.seq <- matrix(nrow = k, ncol = round((nrow(seqs.k) + 0.1) / 2))
-
   seqs.k.n <- nrow(seqs.k)
+  seqs.k.n.len <- seq_len(seqs.k.n)
+  new.seq <- matrix(nrow = k, ncol = round((seqs.k.n + 0.1) / 2))
+
+  seqs.k.new.i <- sample(seqs.k.n.len)
 
   ########## major timesink
-  for (i in 1:seqs.k.n) {
+  for (i in seqs.k.n.len) {
 
-    if (all(is.na(seqs.k))) break
-    repeat {
-      j <- sample(1:seqs.k.n, 1)
-      let <- seqs.k[j, ]
-      if (!any(is.na(let))) break
-    }
+    if (length(seqs.k.new.i) == 0) break
 
-    new.seq[, i] <- let
+    j <- seqs.k.new.i[1]
+    new.seq[, i] <- seqs.k[j, ]
 
     del1 <- j - k + 1
     del2 <- j + k - 1
-    if (del1 < 0) del1 <- 0
-    if (del2 > seqs.k.n) del2 <- seqs.k.n
+    # if (del1 < 0) del1 <- 0
+    # if (del2 > seqs.k.n) del2 <- seqs.k.n
 
-    seqs.k[del1:del2, ] <- NA_character_
-    seqs2[j:(j + k - 1)] <- FALSE
+    seqs.k.new.i <- seqs.k.new.i[!seqs.k.new.i %in% del1:del2]
+    seqs2[j:del2] <- FALSE
 
   }
   #########
@@ -215,7 +214,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
           left.len <- length(leftover)
           left.left <- round((left.len + 0.1) / 2)
           left.right <- left.len - left.left
-          new.seq <- c(leftover[1:left.left], new.seq,
+          new.seq <- c(leftover[seq_len(left.left)], new.seq,
                        leftover[left.right:length(leftover)])
         }
       },
@@ -227,13 +226,14 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 
   if (mode == 1) new.seq <- collapse_cpp(new.seq)
 
-  new.seq 
+  new.seq
 
 }
 
 # this function won't leave any 'leftover' letters behind, but the k-lets are
 # predictable; the sequence is split up linearly every 'k'-letters
 shuffle_linear <- function(sequence, k, mode = 1) {
+  # benchmark timings: ~6 times slower than shuffle_k1
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -259,8 +259,8 @@ shuffle_linear <- function(sequence, k, mode = 1) {
     left.keep <- round((seq.mod + 0.1) / 2)
     right.keep <- seq.mod - left.keep
     right.keep <- seq.len - right.keep + 1
-    seq2 <- seq1[-c(1:left.keep, right.keep:seq.len)]
-    left.keep <- seq1[1:left.keep]
+    seq2 <- seq1[-c(seq_len(left.keep), right.keep:seq.len)]
+    left.keep <- seq1[seq_len(left.keep)]
     right.keep <- seq1[right.keep:length(seq1)]
   }
 
@@ -269,12 +269,14 @@ shuffle_linear <- function(sequence, k, mode = 1) {
   tosplit <- seq.len2 / k
   tosplit <- tosplit - 1
 
-  tosplit.i <- vapply(0:tosplit, function(x) 1 + k * x, numeric(1))
+  tosplit.i <- 0:tosplit * k + 1
 
-  seq.split <- lapply(tosplit.i, function(x) matrix(seq2[x:(x + k - 1)]))
-  seq.split <- do.call(cbind, seq.split)
+  seq.split <- matrix(nrow = k, ncol = length(tosplit.i))
+  for (i in seq_along(tosplit.i))  # slowest line
+    seq.split[, i] <- seq2[tosplit.i[i]:(tosplit.i[i] + k - 1)]
 
-  new.i <- sample(seq_len(ncol(seq.split)), ncol(seq.split))
+  seq.split.ncol <- ncol(seq.split)
+  new.i <- sample(seq_len(seq.split.ncol), seq.split.ncol)
   seq.split <- seq.split[, new.i]
 
   seq.split <- as.character(seq.split)
