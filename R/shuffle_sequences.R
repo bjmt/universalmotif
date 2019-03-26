@@ -162,6 +162,9 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 
   seqs.k.new.i <- sample(seqs.k.n.len)
 
+  # seqs.k.new.i.behind <- seqs.k.new.i[-1] - 1
+  # seqs.k.new.i.forward <- seqs.k.new.i + 1
+
   ########## major timesink
   for (i in seqs.k.n.len) {
 
@@ -233,7 +236,6 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 # this function won't leave any 'leftover' letters behind, but the k-lets are
 # predictable; the sequence is split up linearly every 'k'-letters
 shuffle_linear <- function(sequence, k, mode = 1) {
-  # benchmark timings: ~6 times slower than shuffle_k1
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -264,16 +266,7 @@ shuffle_linear <- function(sequence, k, mode = 1) {
     right.keep <- seq1[right.keep:length(seq1)]
   }
 
-  seq.len2 <- length(seq2)
-
-  tosplit <- seq.len2 / k
-  tosplit <- tosplit - 1
-
-  tosplit.i <- 0:tosplit * k + 1
-
-  seq.split <- matrix(nrow = k, ncol = length(tosplit.i))
-  for (i in seq_along(tosplit.i))  # slowest line
-    seq.split[, i] <- seq2[tosplit.i[i]:(tosplit.i[i] + k - 1)]
+  seq.split <- matrix(seq2, nrow = k)
 
   seq.split.ncol <- ncol(seq.split)
   new.i <- sample(seq_len(seq.split.ncol), seq.split.ncol)
