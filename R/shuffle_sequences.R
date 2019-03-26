@@ -7,9 +7,10 @@
 #'    \code{\link{DNAStringSet}} and \code{\link{RNAStringSet}} only.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
-#'    Only relevant is `k > 1`. See details.
+#'    Only relevant is `k > 1`. See details. The `'random'` method will be
+#'    removed in the next minor version.
 #' @param leftovers `character(1)` For `method = 'random'`. One of
-#'    `c('asis', 'first', 'split', 'discard')`. See details.
+#'    `c('asis', 'first', 'split', 'discard')`.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
@@ -33,18 +34,15 @@
 #'
 #'    If `method = 'linear'`, then the input sequences are split linearly
 #'    every `k` letters; for example, for `k = 3` 'ACAGATAGACCC' becomes
-#'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly. If
-#'    `method = 'random'`, then `k`-lets are picked from the sequence
-#'    completely randomly. This however can leave 'leftover' letters, where
-#'    lone letter islands smaller than `k` are left. There are a few options
-#'    provided to deal with these: `leftovers = 'asis'` will leave these
-#'    letter islands in place; `leftovers = 'first'` will place these
-#'    letters at the beginning of the sequence; `leftovers = 'split'`
-#'    will place half of the leftovers at the beginning and end of the 
-#'    sequence; `leftovers = 'discard'` simply gets rid of the leftovers.
+#'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly.
 #'
 #'    Do note however, that the `method` parameter is only relevant for `k > 1`.
 #'    For this, a simple `sample` call is performed.
+#'
+#'    Regarding performance: `method = 'linear'` for any `k > 1` is very
+#'    efficient and nearly as fast as for `k = 1`. Shuffling
+#'    with `method = 'markov'` is roughly ten times slower but requires less
+#'    total allocated memory.
 #'
 #' @references
 #'    \insertRef{markovmodel2}{universalmotif}
@@ -102,6 +100,8 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
                              PB = progress, BP = BP)
       },
       "random" = {
+        warning("the 'random' method option will be removed in the next minor version update",
+                immediate. = TRUE)
         sequences <- as.character(sequences)
         sequences <- lapply_(sequences, shuffle_random, k = k,
                              leftover = leftovers, PB = progress, BP = BP)
@@ -134,6 +134,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 shuffle_random <- function(sequence, k, leftover.strat = "asis", mode = 1) {
   # - benchmark timings: >200 times slower than shuffle_k1/shuffle_linear
   # - runtime decreases with increasing k!
+  # -  _very_  memory inefficient!!! lots of gc
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -211,6 +212,7 @@ shuffle_random <- function(sequence, k, leftover.strat = "asis", mode = 1) {
     )
 
   if (mode == 1) new.seq <- collapse_cpp(new.seq)
+  else new.seq <- new.seq[new.seq != ""]
 
   new.seq
 
@@ -271,6 +273,7 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 shuffle_markov <- function(sequence, k) {
   # - benchmark timings: >10 times slower than shuffle_k1/shuffle_linear
   # - runtime is indenpendent of k!
+  # - appears to be more memory efficient than even shuffle_k1...
 
   sequence <- DNAStringSet(sequence)
   seq.width <- width(sequence)

@@ -59,7 +59,8 @@ sequences. Only used if no background sequences are input. See
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{shuffle.method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
-See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+See \code{\link[=shuffle_sequences]{shuffle_sequences()}}. The \code{'random'} method will be removed in the
+next minor version.}
 
 \item{shuffle.leftovers}{\code{character(1)} One of \code{c('asis', 'first', 'split', 'discard')}.
 Only used if \code{shuffle.method = 'random'}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}

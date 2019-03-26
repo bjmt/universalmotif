@@ -12,7 +12,8 @@ shuffle_motifs(motifs, k = 2, method = "linear", leftovers = "asis")
 \item{k}{\code{numeric(1)} K-let size.}
 
 \item{method}{\code{character(1)} One of \code{c('linear', 'random')}.
-Only relevant if \code{k > 1}. See details.}
+Only relevant if \code{k > 1}. See details. The \code{'random'} method will
+be removed in the next minor version.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}. See details.}
@@ -27,14 +28,6 @@ support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
 and 'bkgsites' slots will be preserved. Uses the same shuffling methods
 as \code{\link[=shuffle_sequences]{shuffle_sequences()}}. When shuffling more than one motif, they are
 shuffled together.
-}
-\details{
-If \code{method = 'linear'}, then the input positions are split linearly every
-\code{k} columns after which they are shuffled. If \code{method = random}, then
-sets of \code{k}-columns are chosen randomly before being shuffled. This leaves
-leftover column islands smaller than \code{k}; these can be left \code{asis}, placed
-\code{first}, \code{split} between the beginning and the end, or \code{discard}ed. See
-\code{\link[=shuffle_motifs]{shuffle_motifs()}}.
 }
 \seealso{
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}

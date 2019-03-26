@@ -36,7 +36,8 @@
 #'    sequences. Only used if no background sequences are input. See
 #'    [shuffle_sequences()].
 #' @param shuffle.method `character(1)` One of `c('markov', 'linear', 'random')`.
-#'    See [shuffle_sequences()].
+#'    See [shuffle_sequences()]. The `'random'` method will be removed in the
+#'    next minor version.
 #' @param shuffle.leftovers `character(1)` One of `c('asis', 'first', 'split', 'discard')`.
 #'    Only used if `shuffle.method = 'random'`. See [shuffle_sequences()].
 #' @param return.scan.results `logical(1)` Return output from

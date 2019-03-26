@@ -14,10 +14,11 @@ shuffle_sequences(sequences, k = 1, method = "linear",
 \item{k}{\code{numeric(1)} K-let size.}
 
 \item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
-Only relevant is \code{k > 1}. See details.}
+Only relevant is \code{k > 1}. See details. The \code{'random'} method will be
+removed in the next minor version.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
-\code{c('asis', 'first', 'split', 'discard')}. See details.}
+\code{c('asis', 'first', 'split', 'discard')}.}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
@@ -48,18 +49,15 @@ topic.
 
 If \code{method = 'linear'}, then the input sequences are split linearly
 every \code{k} letters; for example, for \code{k = 3} 'ACAGATAGACCC' becomes
-'ACA GAT AGA CCC'; after which these \code{3}-lets are shuffled randomly. If
-\code{method = 'random'}, then \code{k}-lets are picked from the sequence
-completely randomly. This however can leave 'leftover' letters, where
-lone letter islands smaller than \code{k} are left. There are a few options
-provided to deal with these: \code{leftovers = 'asis'} will leave these
-letter islands in place; \code{leftovers = 'first'} will place these
-letters at the beginning of the sequence; \code{leftovers = 'split'}
-will place half of the leftovers at the beginning and end of the
-sequence; \code{leftovers = 'discard'} simply gets rid of the leftovers.
+'ACA GAT AGA CCC'; after which these \code{3}-lets are shuffled randomly.
 
 Do note however, that the \code{method} parameter is only relevant for \code{k > 1}.
 For this, a simple \code{sample} call is performed.
+
+Regarding performance: \code{method = 'linear'} for any \code{k > 1} is very
+efficient and nearly as fast as for \code{k = 1}. Shuffling
+with \code{method = 'markov'} is roughly ten times slower but requires less
+total allocated memory.
 }
 \examples{
 sequences <- create_sequences()

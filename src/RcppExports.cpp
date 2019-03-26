@@ -362,8 +362,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // shuffle_markov_loop
-String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k, StringVector seqout, StringVector dna, NumericMatrix trans, StringVector trans_cols);
-RcppExport SEXP _universalmotif_shuffle_markov_loop(SEXP seq_i_lSEXP, SEXP seq_i_rSEXP, SEXP kSEXP, SEXP seqoutSEXP, SEXP dnaSEXP, SEXP transSEXP, SEXP trans_colsSEXP) {
+String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k, StringVector seqout, StringVector lets, NumericMatrix trans, StringVector trans_cols);
+RcppExport SEXP _universalmotif_shuffle_markov_loop(SEXP seq_i_lSEXP, SEXP seq_i_rSEXP, SEXP kSEXP, SEXP seqoutSEXP, SEXP letsSEXP, SEXP transSEXP, SEXP trans_colsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -371,10 +371,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type seq_i_r(seq_i_rSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< StringVector >::type seqout(seqoutSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type dna(dnaSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type lets(letsSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type trans(transSEXP);
     Rcpp::traits::input_parameter< StringVector >::type trans_cols(trans_colsSEXP);
-    rcpp_result_gen = Rcpp::wrap(shuffle_markov_loop(seq_i_l, seq_i_r, k, seqout, dna, trans, trans_cols));
+    rcpp_result_gen = Rcpp::wrap(shuffle_markov_loop(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols));
     return rcpp_result_gen;
 END_RCPP
 }

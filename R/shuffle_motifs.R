@@ -9,20 +9,13 @@
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('linear', 'random')`.
-#'    Only relevant if `k > 1`. See details.
+#'    Only relevant if `k > 1`. See details. The `'random'` method will
+#'    be removed in the next minor version.
 #' @param leftovers `character(1)` For \code{method = 'random'}. One of
 #'    `c('asis', 'first', 'split', 'discard')`. See details.
 #'
 #' @return Motifs. See [convert_motifs()] for available output
 #'    formats.
-#'
-#' @details
-#' If `method = 'linear'`, then the input positions are split linearly every
-#' `k` columns after which they are shuffled. If `method = random`, then
-#' sets of `k`-columns are chosen randomly before being shuffled. This leaves
-#' leftover column islands smaller than `k`; these can be left `asis`, placed
-#' `first`, `split` between the beginning and the end, or `discard`ed. See
-#' [shuffle_motifs()].
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [shuffle_sequences()]
@@ -72,14 +65,13 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   } else {
     switch(method,
       "linear" = {
-        mot.cols2 <- as.character(col.order)
-        new.order <- shuffle_linear(mot.cols2, k, mode = 2)
+        new.order <- shuffle_linear(col.order, k, mode = 2)
         new.order <- as.numeric(new.order)
       },
       "random" = {
-        mot.cols2 <- as.character(col.order)
-        new.order <- shuffle_random(mot.cols2, k, leftovers,
-                                    mode = 2)
+        warning("the 'random' method option will be removed in the next minor version update",
+                immediate. = TRUE)
+        new.order <- shuffle_random(col.order, k, leftovers, mode = 2)
         new.order <- as.numeric(new.order)
       },
       stop("only 'linear' and 'random' are supported")
@@ -110,7 +102,7 @@ shuffle_new_mot <- function(new.mat, motif) {
   mot <- universalmotif_cpp(motif = new.mat, alphabet = motif["alphabet"],
                             bkg = motif["bkg"], bkgsites = motif["bkgsites"],
                             nsites = motif["nsites"], strand = motif["strand"],
-                            name = paste(motif["name"], "[shuffled]"))
+                            name = collapse_cpp(c(motif["name"], " [shuffled]")))
   msg <- validObject_universalmotif(mot)
   if (length(msg) > 0) stop(msg)
   mot

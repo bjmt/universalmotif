@@ -90,13 +90,13 @@ the most commonly used tool is likely uShuffle [@ushuffle]. Despite this
 the `r Biocpkg("universalmotif")` package aims to provide its own `k`-let
 shuffling capabilities for use within R via `shuffle_sequences()`.
 
-The `r Biocpkg("universalmotif")` offers three different methods for
-sequence shuffling: `markov`, `linear`, and `random`. The first method, `markov`
+The `r Biocpkg("universalmotif")` offers two different methods for
+sequence shuffling: `markov` and `linear`. The first method, `markov`
 (which is only available for DNA/RNA sequences) can only
-guarantee that the _approximate_ `k`-let frequency will be maintained, but not
+guarantee that the approximate `k`-let frequency will be maintained, but not
 that the original letter counts will be preserved. The `markov` method
 involves determining the original `k`-let frequencies, then creating
-a new set of sequences which will _approximately_ similar `k`-let frequency.
+a new set of sequences which will have approximately similar `k`-let frequency.
 As a result the counts for the individual letters will likely be different.
 
 The second method `linear` preserves the original letter counts exactly,
@@ -106,14 +106,6 @@ re-assembled randomly. This means that while shuffling the same sequence multipl
 times with `method = "linear"` will result in different sequences, they will
 all have started from the same set of sub-sequences (just re-assembled
 differently).
-
-The third method `random` is an attempt to fix the sub-sequence issue
-from the `linear` method, though it is imperfect. In this case `k`-let
-sub-sequences are pulled out from the original sequence at random;
-meaning that they will be different every time, as opposed to the `linear`
-method. However, due to the fact that the sub-sequences are pulled out at
-random, this will leave small letter islands smaller then `k`. A
-few strategies are available to deal with these, see `?shuffle_sequences`.
 
 ```{r}
 library(universalmotif)
@@ -125,27 +117,27 @@ data(ArabidopsisPromoters)
 
 markov <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "markov")
 linear <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "linear")
-random <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "random")
+k1 <- shuffle_sequences(ArabidopsisPromoters, k = 1)
 ```
 Let us compare how the methods perform:
 ```{r}
 o.letter <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               1, as.prob = FALSE))
-m.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
-l.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
-r.letter <- colSums(oligonucleotideFrequency(random, 1, as.prob = FALSE))
+m2.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
+l2.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
+k1.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
 
-data.frame(original=o.letter, markov=m.letter,
-           linear=l.letter, random=r.letter)
+data.frame(original=o.letter, markov=m2.letter, linear=l2.letter,
+           k1=k1.letter)
 
 o.counts <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               2, as.prob = FALSE))
-m.counts <- colSums(oligonucleotideFrequency(markov, 2, as.prob = FALSE))
-l.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
-r.counts <- colSums(oligonucleotideFrequency(random, 2, as.prob = FALSE))
+m2.counts <- colSums(oligonucleotideFrequency(markov, 2, as.prob = FALSE))
+l2.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
+k1.counts <- colSums(oligonucleotideFrequency(k1, 2, as.prob = FALSE))
 
-data.frame(original=o.counts, markov=m.counts,
-           linear=l.counts, random=r.counts)
+data.frame(original=o.counts, markov=m2.counts, linear=l2.counts,
+           k1=k1.counts)
 ```
 
 # Scanning sequences for motifs

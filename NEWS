@@ -27,7 +27,11 @@ MINOR CHANGES
 
     o Replace a couple if-else instances with switch in utils.cpp
 
-    o Speed increases to shuffle_sequences()
+    o The 'linear' and 'markov' shuffling methods are now much faster
+
+    o Documentation for the 'random' shuffling method has been removed and a
+      warning is stated when it is used to tell the user that it will be
+      removed in the next minor update
 
     o Various vignette tweaks
 

@@ -38,7 +38,7 @@ CharacterMatrix shuffle_random_loop(int seqs_k_n, int k,
 
 // [[Rcpp::export]]
 String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k,
-    StringVector seqout, StringVector dna, NumericMatrix trans,
+    StringVector seqout, StringVector lets, NumericMatrix trans,
     StringVector trans_cols) {
 
   StringVector prev_k_split;
@@ -56,7 +56,7 @@ String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k,
     trans_i = trans_cols.findName(prev_k);
     curr_prob = trans(_, trans_i);
 
-    seqout[i] = sample(dna, 1, false, curr_prob)[0];
+    seqout[i] = sample(lets, 1, false, curr_prob)[0];
 
   }
 
