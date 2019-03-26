@@ -92,7 +92,7 @@ shuffling capabilities for use within R via `shuffle_sequences()`.
 
 The `r Biocpkg("universalmotif")` offers three different methods for
 sequence shuffling: `markov`, `linear`, and `random`. The first method, `markov`
-(which is only available for DNA/RNA sequences with `k = c(2, 3)`) can only
+(which is only available for DNA/RNA sequences) can only
 guarantee that the _approximate_ `k`-let frequency will be maintained, but not
 that the original letter counts will be preserved. The `markov` method
 involves determining the original `k`-let frequencies, then creating

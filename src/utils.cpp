@@ -80,19 +80,6 @@ String collapse_cpp(StringVector x) {
 }
 
 // [[Rcpp::export]]
-StringVector sample_string_cpp(StringVector x, int size, bool replace = false,
-    sugar::probs_t prob = R_NilValue) {
-  // about 1.5 times faster than base::sample
-  return sample(x, size, replace, prob);
-}
-
-// NumericVector sample_numeric_cpp(NumericVector x, int size, bool replace = false,
-    // sugar::probs_t prob = R_NilValue) {
-  // // about 1.25 times faster than base::sample
-  // return sample(x, size, replace, prob);
-// }
-
-// [[Rcpp::export]]
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
   double possum = sum(position);

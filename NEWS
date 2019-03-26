@@ -29,6 +29,8 @@ MINOR CHANGES
 
     o Speed increases to shuffle_sequences()
 
+    o Various vignette tweaks
+
 CHANGES IN VERSION 1.0.22
 -------------------------
 

@@ -131,8 +131,9 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
 # this creates truly random k-lets; unfortunately this has the side effect of
 # leaving behind 'leftover'-lets smaller than k
-shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
-  # benchmark timings: >1000 times slower than shuffle_k1
+shuffle_random <- function(sequence, k, leftover.strat = "asis", mode = 1) {
+  # - benchmark timings: >200 times slower than shuffle_k1/shuffle_linear
+  # - runtime decreases with increasing k!
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -142,48 +143,32 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
     seqs1 <- sequence
   }
 
-  seqs2 <- rep(TRUE, seq.len)
-
   seqs.k <- lapply(seq_len(k),
                    function(k) {
                      k <- k - 1
                      if (k > 0) {
                        seqs.k <- seqs1[-seq_len(k)]
-                       seqs.k <- c(seqs.k, rep(NA_character_, k))
+                       seqs.k <- c(seqs.k, character(k))
                        matrix(seqs.k)
                      } else matrix(seqs1)
                    })
   seqs.k <- do.call(cbind, seqs.k)
-  seqs.k <- seqs.k[-c((nrow(seqs.k) - k + 2):nrow(seqs.k)), ]
+  seqs.k.n <- nrow(seqs.k)
+  seqs.k <- seqs.k[-c((seqs.k.n - k + 2):seqs.k.n), ]
 
   seqs.k.n <- nrow(seqs.k)
   seqs.k.n.len <- seq_len(seqs.k.n)
-  new.seq <- matrix(nrow = k, ncol = round((seqs.k.n + 0.1) / 2))
+  new.seq <- matrix(character(round((seqs.k.n + 0.1) / 2) * k), nrow = k)
 
   seqs.k.new.i <- sample(seqs.k.n.len)
 
-  seqs.k.new.i.behind <- seqs.k.new.i[-1] - k + 1
-  seqs.k.new.i.forward <- seqs.k.new.i + k - 1
+  # major time + mem sink:
+  new.seq <- shuffle_random_loop(seqs.k.n - 1, k, seqs.k.new.i - 1, new.seq,
+                                 seqs.k)
 
-  ########## major timesink
-  for (i in seqs.k.n.len) {
-
-    if (length(seqs.k.new.i) == 0) break
-
-    j <- seqs.k.new.i[1]
-    new.seq[, i] <- seqs.k[j, ]
-
-    del1 <- j - k + 1
-    del2 <- j + k - 1
-
-    seqs.k.new.i <- seqs.k.new.i[!seqs.k.new.i %in% del1:del2]
-    seqs2[j:del2] <- FALSE
-
-  }
-  #########
+  seqs2 <- !seqs1 %in% new.seq
 
   new.seq <- as.character(new.seq)
-  new.seq <- new.seq[!is.na(new.seq)]
 
   leftover <- seqs1[seqs2]
 
@@ -193,17 +178,17 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
         new.seq <- c(new.seq, leftover)
       },
       "asis" = {
+        new.seq <- new.seq[new.seq != ""]
         leftover <- seqs1
-        leftover[!seqs2] <- NA_character_
+        leftover[!seqs2] <- ""
         toadd <- length(leftover) - length(new.seq)
         toadd.left <- round((toadd + 0.1) / 2)
         toadd.right <- toadd - toadd.left
-        toadd.left <- rep(NA_character_, toadd.left)
-        toadd.right <- rep(NA_character_, toadd.right)
+        toadd.left <- character(toadd.left)
+        toadd.right <- character(toadd.right)
         new.seq <- c(toadd.left, new.seq, toadd.right)
         new.seq <- matrix(c(leftover, new.seq), nrow = 2, byrow = TRUE)
         new.seq <- as.character(new.seq)
-        new.seq <- new.seq[!is.na(new.seq)]
       },
       "first" = {
         new.seq <- c(leftover, new.seq)
@@ -234,7 +219,8 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 # this function won't leave any 'leftover' letters behind, but the k-lets are
 # predictable; the sequence is split up linearly every 'k'-letters
 shuffle_linear <- function(sequence, k, mode = 1) {
-  # benchmark timings: almost as fast as shuffle_k1
+  # - benchmark timings: about 1.25 times slower than shuffle_k1
+  # - runtime is independent of k!
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -283,33 +269,31 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 }
 
 shuffle_markov <- function(sequence, k) {
-  # benchmark timings: >100 times slower than shuffle_k1
+  # - benchmark timings: >10 times slower than shuffle_k1/shuffle_linear
+  # - runtime is indenpendent of k!
 
   sequence <- DNAStringSet(sequence)
   seq.width <- width(sequence)
 
+  # the Biostrings functions here sometimes cause C stack related crashes...
   freqs <- oligonucleotideFrequency(sequence, width = k, as.prob = TRUE)
   freqs <- colSums(freqs)
 
   trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
   trans <- t(trans)
-  trans[is.nan(trans)] <- 0
-
-  seqout <- rep(NA_character_, seq.width)
+  trans[is.nan(trans)] <- 1 / ncol(trans) / 1000  # if set to zero, sometimes
+                                                  # get all probs = 0
+  seqout <- character(seq.width)
   first.k <- sample(names(freqs), 1, prob = freqs)
   first.k <- strsplit(first.k, "")[[1]]
   seqout[1:k] <- first.k
 
-  seq.i <- (k + 1):seq.width
+  trans.cols <- colnames(trans)
+  names(trans.cols) <- trans.cols
+  # main time + mem sink:
+  seqout <- shuffle_markov_loop(k, seq.width, k, seqout, DNA_BASES, trans,
+                                trans.cols)
 
-  for (i in seq.i) {
-    previous.k <- seqout[(i - k + 1):(i - 1)]
-    previous.k <- collapse_cpp(previous.k)
-    curr.prob <- trans[, previous.k]
-    seqout[i] <- sample_string_cpp(DNA_BASES, 1, prob = curr.prob)
-  }
-
-  seqout <- collapse_cpp(seqout)
   seqout
 
 }

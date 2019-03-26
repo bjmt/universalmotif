@@ -346,6 +346,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// shuffle_random_loop
+CharacterMatrix shuffle_random_loop(int seqs_k_n, int k, IntegerVector seqs_k_new_i, CharacterMatrix new_seq, CharacterMatrix seqs_k);
+RcppExport SEXP _universalmotif_shuffle_random_loop(SEXP seqs_k_nSEXP, SEXP kSEXP, SEXP seqs_k_new_iSEXP, SEXP new_seqSEXP, SEXP seqs_kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type seqs_k_n(seqs_k_nSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type seqs_k_new_i(seqs_k_new_iSEXP);
+    Rcpp::traits::input_parameter< CharacterMatrix >::type new_seq(new_seqSEXP);
+    Rcpp::traits::input_parameter< CharacterMatrix >::type seqs_k(seqs_kSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_random_loop(seqs_k_n, k, seqs_k_new_i, new_seq, seqs_k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// shuffle_markov_loop
+String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k, StringVector seqout, StringVector dna, NumericMatrix trans, StringVector trans_cols);
+RcppExport SEXP _universalmotif_shuffle_markov_loop(SEXP seq_i_lSEXP, SEXP seq_i_rSEXP, SEXP kSEXP, SEXP seqoutSEXP, SEXP dnaSEXP, SEXP transSEXP, SEXP trans_colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type seq_i_l(seq_i_lSEXP);
+    Rcpp::traits::input_parameter< int >::type seq_i_r(seq_i_rSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seqout(seqoutSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type dna(dnaSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type trans(transSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type trans_cols(trans_colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_markov_loop(seq_i_l, seq_i_r, k, seqout, dna, trans, trans_cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // trim_motif_internal
 NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores, double min_ic);
 RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
@@ -449,20 +481,6 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_cpp(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sample_string_cpp
-StringVector sample_string_cpp(StringVector x, int size, bool replace, sugar::probs_t prob);
-RcppExport SEXP _universalmotif_sample_string_cpp(SEXP xSEXP, SEXP sizeSEXP, SEXP replaceSEXP, SEXP probSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
-    Rcpp::traits::input_parameter< bool >::type replace(replaceSEXP);
-    Rcpp::traits::input_parameter< sugar::probs_t >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(sample_string_cpp(x, size, replace, prob));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -657,6 +675,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 3},
     {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
     {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},
+    {"_universalmotif_shuffle_random_loop", (DL_FUNC) &_universalmotif_shuffle_random_loop, 5},
+    {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
@@ -665,7 +685,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_strsplit_cpp", (DL_FUNC) &_universalmotif_strsplit_cpp, 1},
     {"_universalmotif_all_checks_collapse", (DL_FUNC) &_universalmotif_all_checks_collapse, 1},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
-    {"_universalmotif_sample_string_cpp", (DL_FUNC) &_universalmotif_sample_string_cpp, 4},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},

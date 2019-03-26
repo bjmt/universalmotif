@@ -101,6 +101,14 @@ res_list_to_df_cpp <- function(res) {
     .Call('_universalmotif_res_list_to_df_cpp', PACKAGE = 'universalmotif', res)
 }
 
+shuffle_random_loop <- function(seqs_k_n, k, seqs_k_new_i, new_seq, seqs_k) {
+    .Call('_universalmotif_shuffle_random_loop', PACKAGE = 'universalmotif', seqs_k_n, k, seqs_k_new_i, new_seq, seqs_k)
+}
+
+shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, dna, trans, trans_cols) {
+    .Call('_universalmotif_shuffle_markov_loop', PACKAGE = 'universalmotif', seq_i_l, seq_i_r, k, seqout, dna, trans, trans_cols)
+}
+
 trim_motif_internal <- function(motif, ic_scores, min_ic) {
     .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
 }
@@ -131,10 +139,6 @@ all_checks_collapse <- function(checks) {
 
 collapse_cpp <- function(x) {
     .Call('_universalmotif_collapse_cpp', PACKAGE = 'universalmotif', x)
-}
-
-sample_string_cpp <- function(x, size, replace = FALSE, prob = NULL) {
-    .Call('_universalmotif_sample_string_cpp', PACKAGE = 'universalmotif', x, size, replace, prob)
 }
 
 pcm_to_ppmC <- function(position, pseudocount = 0) {
