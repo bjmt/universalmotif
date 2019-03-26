@@ -133,6 +133,10 @@ collapse_cpp <- function(x) {
     .Call('_universalmotif_collapse_cpp', PACKAGE = 'universalmotif', x)
 }
 
+sample_string_cpp <- function(x, size, replace = FALSE, prob = NULL) {
+    .Call('_universalmotif_sample_string_cpp', PACKAGE = 'universalmotif', x, size, replace, prob)
+}
+
 pcm_to_ppmC <- function(position, pseudocount = 0) {
     .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
 }

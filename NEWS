@@ -27,7 +27,7 @@ MINOR CHANGES
 
     o Replace a couple if-else instances with switch in utils.cpp
 
-    o Speed increases to shuffle_sequences(..., method = c("linear", "random"))
+    o Speed increases to shuffle_sequences()
 
 CHANGES IN VERSION 1.0.22
 -------------------------

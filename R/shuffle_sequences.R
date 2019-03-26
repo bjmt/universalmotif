@@ -132,7 +132,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 # this creates truly random k-lets; unfortunately this has the side effect of
 # leaving behind 'leftover'-lets smaller than k
 shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
-  # benchmark timings: ~1370 times slower than shuffle_k1
+  # benchmark timings: >1000 times slower than shuffle_k1
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -162,8 +162,8 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 
   seqs.k.new.i <- sample(seqs.k.n.len)
 
-  # seqs.k.new.i.behind <- seqs.k.new.i[-1] - 1
-  # seqs.k.new.i.forward <- seqs.k.new.i + 1
+  seqs.k.new.i.behind <- seqs.k.new.i[-1] - k + 1
+  seqs.k.new.i.forward <- seqs.k.new.i + k - 1
 
   ########## major timesink
   for (i in seqs.k.n.len) {
@@ -175,8 +175,6 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 
     del1 <- j - k + 1
     del2 <- j + k - 1
-    # if (del1 < 0) del1 <- 0
-    # if (del2 > seqs.k.n) del2 <- seqs.k.n
 
     seqs.k.new.i <- seqs.k.new.i[!seqs.k.new.i %in% del1:del2]
     seqs2[j:del2] <- FALSE
@@ -236,6 +234,7 @@ shuffle_random <- function(sequence, k, leftover.strat, mode = 1) {
 # this function won't leave any 'leftover' letters behind, but the k-lets are
 # predictable; the sequence is split up linearly every 'k'-letters
 shuffle_linear <- function(sequence, k, mode = 1) {
+  # benchmark timings: almost as fast as shuffle_k1
 
   if (mode == 1) {
     seq.len <- nchar(sequence)
@@ -284,22 +283,32 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 }
 
 shuffle_markov <- function(sequence, k) {
+  # benchmark timings: >100 times slower than shuffle_k1
 
   sequence <- DNAStringSet(sequence)
-  freqs <- colSums(oligonucleotideFrequency(sequence, width = k,
-                                            as.prob = TRUE))
+  seq.width <- width(sequence)
+
+  freqs <- oligonucleotideFrequency(sequence, width = k, as.prob = TRUE)
+  freqs <- colSums(freqs)
+
   trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
-  seqout <- rep(NA_character_, width(sequence))
+  trans <- t(trans)
+  trans[is.nan(trans)] <- 0
+
+  seqout <- rep(NA_character_, seq.width)
   first.k <- sample(names(freqs), 1, prob = freqs)
   first.k <- strsplit(first.k, "")[[1]]
   seqout[1:k] <- first.k
-  for (i in (k + 1):width(sequence)) {
+
+  seq.i <- (k + 1):seq.width
+
+  for (i in seq.i) {
     previous.k <- seqout[(i - k + 1):(i - 1)]
-    previous.k <- paste(previous.k, collapse = "")
-    curr.prob <- trans[previous.k, ]
-    curr.prob[is.na(curr.prob)] <- 0.0001
-    seqout[i] <- sample(DNA_BASES, 1, prob = curr.prob)
+    previous.k <- collapse_cpp(previous.k)
+    curr.prob <- trans[, previous.k]
+    seqout[i] <- sample_string_cpp(DNA_BASES, 1, prob = curr.prob)
   }
+
   seqout <- collapse_cpp(seqout)
   seqout
 

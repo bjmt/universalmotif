@@ -452,6 +452,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sample_string_cpp
+StringVector sample_string_cpp(StringVector x, int size, bool replace, sugar::probs_t prob);
+RcppExport SEXP _universalmotif_sample_string_cpp(SEXP xSEXP, SEXP sizeSEXP, SEXP replaceSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< bool >::type replace(replaceSEXP);
+    Rcpp::traits::input_parameter< sugar::probs_t >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(sample_string_cpp(x, size, replace, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pcm_to_ppmC
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount);
 RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP positionSEXP, SEXP pseudocountSEXP) {
@@ -651,6 +665,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_strsplit_cpp", (DL_FUNC) &_universalmotif_strsplit_cpp, 1},
     {"_universalmotif_all_checks_collapse", (DL_FUNC) &_universalmotif_all_checks_collapse, 1},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
+    {"_universalmotif_sample_string_cpp", (DL_FUNC) &_universalmotif_sample_string_cpp, 4},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},
     {"_universalmotif_ppm_to_pwmC", (DL_FUNC) &_universalmotif_ppm_to_pwmC, 4},
