@@ -459,6 +459,7 @@ get_consensusAA <- function(position, type, pseudocount) {
 #' @rdname utilities
 #' @export
 summarise_motifs <- function(motifs, na.rm = TRUE) {
+  # ~10s for entire MotifDb library
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   classcheck <- vapply(motifs, function(x) !is(x, "universalmotif"), logical(1))

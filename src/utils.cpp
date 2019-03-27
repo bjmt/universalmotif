@@ -17,7 +17,7 @@ namespace std {
   }
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 void print_pb(int out) {
        if (out == 0)               Rprintf("   0%%");
   else if (out > 0 && out < 10)    Rprintf("\b\b\b\b  %i%%", out);
@@ -26,7 +26,7 @@ void print_pb(int out) {
   else if (out == -1)              Rprintf("\b\b\b\b100%%\n");
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 void update_pb(int i, int max) {
 
   int prev = i - 1;
@@ -42,7 +42,7 @@ void update_pb(int i, int max) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 StringVector strsplit_cpp(std::string x) {  // slightly slower than
   int n = x.size();                         // strsplit(x, "")[[1]]
   StringVector out(n);
@@ -52,7 +52,7 @@ StringVector strsplit_cpp(std::string x) {  // slightly slower than
   return out;
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 String all_checks_collapse(StringVector checks) {
 
   int n = checks.length();
@@ -72,7 +72,7 @@ String all_checks_collapse(StringVector checks) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
   double possum = sum(position);
@@ -93,7 +93,7 @@ NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector ppm_to_pcmC(NumericVector position, double nsites) {
 
   if (nsites == 0) nsites = 100;
@@ -112,7 +112,7 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
     double pseudocount=0, NumericVector nsites=NumericVector::create()) {
 
@@ -139,7 +139,7 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 
   int n_pos = position.size();
@@ -172,7 +172,7 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
     bool relative_entropy=false) {
 
@@ -207,7 +207,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 double position_icscoreC(NumericVector position, NumericVector bkg=0,
     String type="PPM", double pseudocount=0.8, double nsites=100,
     bool relative_entropy=false) {
@@ -247,7 +247,7 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector icm_to_ppmC(NumericVector position) {
   double total_ic = sum(position);
   int n = position.size();
@@ -257,7 +257,7 @@ NumericVector icm_to_ppmC(NumericVector position) {
   return position;
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 String get_consensusC(NumericVector position, String alphabet="DNA",
     String type="PPM", double pseudocount=0.8) {
 
@@ -338,7 +338,7 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector consensus_to_ppmC(String letter) {
 
        if (letter == "A") return NumericVector::create(0.997, 0.001, 0.001, 0.001);
@@ -365,7 +365,7 @@ NumericVector consensus_to_ppmC(String letter) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector consensus_to_ppmAAC(String letter) {
 
   NumericVector let_n(20, 0.05);
@@ -399,7 +399,7 @@ NumericVector consensus_to_ppmAAC(String letter) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 String get_consensusAAC(NumericVector position, String type="PPM",
     double pseudocount=0.0) {
 
@@ -431,7 +431,7 @@ String get_consensusAAC(NumericVector position, String type="PPM",
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 StringVector clean_up_check(StringVector fails) {
 
   int fails_len = fails.length();
@@ -445,7 +445,7 @@ StringVector clean_up_check(StringVector fails) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 StringVector check_fun_params(List param_args, IntegerVector param_len,
     LogicalVector param_null, String expected_type_string) {
 

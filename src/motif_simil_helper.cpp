@@ -56,7 +56,7 @@ double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
   // Initially adapted from TFBSTools:::PWMPearson
 
   int mat_size = mot1.nrow() * mot1.ncol();
-  
+
   for (int i = 0; i < mat_size; ++i) {
     mot1[i] -= 1.0 / mot1.nrow();
     mot2[i] -= 1.0 / mot1.nrow();
@@ -98,7 +98,7 @@ double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
   // Initially adapted from TFBSTools:::PWMPearson
 
   int mat_size = mot1.nrow() * mot1.ncol();
-  
+
   // should this be turned off for ICM?
   for (int i = 0; i < mat_size; ++i) {
     mot1[i] -= 1.0 / mot1.nrow();
@@ -139,7 +139,7 @@ double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
 double motif_kl(NumericMatrix mot1, NumericMatrix mot2) {
 
   // Initially adapted from TFBSTools:::PWMKL
-  
+
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix new_mat(mot1.nrow(), mot1.ncol());
 
@@ -154,13 +154,13 @@ double motif_kl(NumericMatrix mot1, NumericMatrix mot2) {
   mat_colsums = mat_colsums[to_keep];
 
   return 0.5 * sum(mat_colsums);
-  
+
 }
 
 double motif_kl_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
   // Initially adapted from TFBSTools:::PWMKL
-  
+
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix new_mat(mot1.nrow(), mot1.ncol());
 
@@ -175,7 +175,7 @@ double motif_kl_norm(NumericMatrix mot1, NumericMatrix mot2) {
   mat_colsums = mat_colsums[to_keep];
 
   return 0.5 / mat_colsums.length() * sum(mat_colsums);
-  
+
 }
 
 double motif_sw(NumericMatrix mot1, NumericMatrix mot2) {
@@ -220,7 +220,7 @@ double motif_sw_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 List add_cols(NumericMatrix mot1, NumericMatrix mot2,
     NumericVector ic1, NumericVector ic2, double overlap) {
 
@@ -278,7 +278,7 @@ List add_cols(NumericMatrix mot1, NumericMatrix mot2,
   out = List::create(mot1_new, mot2, ic1_new, ic2);
 
   } else {
-  
+
     int total_2_toadd = ncol_2_toadd * nrow_2;
     int total_2_new = total_2_toadd * 2 + total_2;
     NumericMatrix mot2_new(nrow_2, ncol_2_toadd * 2 + ncol_2);
@@ -296,7 +296,7 @@ List add_cols(NumericMatrix mot1, NumericMatrix mot2,
     }
 
   out = List::create(mot1, mot2_new, ic1, ic2_new);
-  
+
   }
 
   return out;
@@ -351,7 +351,7 @@ double motif_simil_rc(NumericMatrix mot1, NumericMatrix mot2,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, bool tryRC, NumericVector ic1,
     NumericVector ic2, double min_ic, bool norm) {
@@ -370,7 +370,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector ans_rc;
   if (tryRC) ans_rc = motif_simil_rc(mot1, mot2, method, min_overlap,
       ic1, ic2, min_ic, norm);
-  
+
   List new_mots = add_cols(mot1, mot2, ic1, ic2, min_overlap);
   NumericMatrix mot1_new = new_mots(0);
   NumericMatrix mot2_new = new_mots(1);
@@ -406,7 +406,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
 
   for (int i = 0; i < for_i; ++i) {
     for (int j = 0; j < for_j; ++j) {
-      
+
       for (int k = 0; k < min_width; ++k) {
         mot1_tmp(_, k) = mot1_new(_, k + i);
         mot2_tmp(_, k) = mot2_new(_, k + j);
@@ -495,7 +495,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
               return min(final_ans);
 
     }
-  
+
   }
 
   switch(method_i) {
@@ -515,7 +515,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
     String method) {
 
@@ -529,14 +529,14 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
 
   int n = comparisons.length();
   for (int i = 0; i < n; ++i) {
-    
+
     NumericVector toadd = comparisons(i);
     int n_ = toadd.length();
     for (int j = 0; j < n_; ++j) {
       out(j + i + 1, i) = toadd[j];
       out(i, j+ i + 1) = toadd[j];
     }
-  
+
   }
 
   rownames(out) = mot_names;
@@ -622,7 +622,7 @@ void merge_add_cols(List out) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, NumericVector ic1,
     NumericVector ic2, double min_ic, bool norm) {
@@ -671,7 +671,7 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
 
   for (int i = 0; i < for_i; ++i) {
     for (int j = 0; j < for_j; ++j) {
-      
+
       for (int k = 0; k < min_width; ++k) {
         mot1_tmp(_, k) = mot1_new(_, k + i);
         mot2_tmp(_, k) = mot2_new(_, k + j);
@@ -768,7 +768,7 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, bool tryRC, NumericVector ic1,
     NumericVector ic2, double min_ic, double weight1, double weight2,

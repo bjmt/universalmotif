@@ -22,7 +22,7 @@ int peakfinder_single_cpp(int i, NumericVector x, int m) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector peakfinder_cpp(NumericVector x, int m = 3) {
 
   IntegerVector shape = diff(sign(diff(x)));
@@ -40,7 +40,7 @@ IntegerVector peakfinder_cpp(NumericVector x, int m = 3) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector linbin_cpp(IntegerVector x, IntegerVector gpoints) {
 
   int M = gpoints.length();

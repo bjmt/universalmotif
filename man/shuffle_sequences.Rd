@@ -52,12 +52,12 @@ every \code{k} letters; for example, for \code{k = 3} 'ACAGATAGACCC' becomes
 'ACA GAT AGA CCC'; after which these \code{3}-lets are shuffled randomly.
 
 Do note however, that the \code{method} parameter is only relevant for \code{k > 1}.
-For this, a simple \code{sample} call is performed.
+For \code{k = 1}, a simple \code{sample} call is performed.
 
 Regarding performance: \code{method = 'linear'} for any \code{k > 1} is very
-efficient and nearly as fast as for \code{k = 1}. Shuffling
-with \code{method = 'markov'} is roughly ten times slower but requires less
-total allocated memory.
+efficient and nearly as fast as for \code{k = 1}; shuffling
+with \code{method = 'markov'} is roughly ten times slower and slows with
+increasing \code{k}.
 }
 \examples{
 sequences <- create_sequences()

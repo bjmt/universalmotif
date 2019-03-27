@@ -10,6 +10,9 @@ NEW FEATURES
     o New motif_peaks() function: test for significantly overrepresented peaks
       of motif sites in a set of sequences
 
+    o shuffle_sequences(..., method = "markov") now works for any set of
+      characters instead of just DNA/RNA
+
 MINOR CHANGES
 
     o Expanded motif_pvalue() examples section
@@ -23,18 +26,11 @@ MINOR CHANGES
 
     o Generally increased test coverage
 
-    o Using Rprintf instead of Rcout for faster progress printing in utils.cpp
-
-    o Replace a couple if-else instances with switch in utils.cpp
-
     o The 'linear' and 'markov' shuffling methods are now much faster
 
-    o The 'markov' shuffling method now works for any set of characters instead
-      of just for DNA/RNA
-
     o Documentation for the 'random' shuffling method has been removed and a
-      warning is stated when it is used to tell the user that it will be
-      removed in the next minor update
+      warning is shown when  used to tell the user that it will be removed in
+      the next minor update
 
     o Various vignette tweaks
 

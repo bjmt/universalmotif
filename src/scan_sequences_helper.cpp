@@ -17,7 +17,7 @@ int score_seq_int(IntegerVector tmp_seq, IntegerMatrix score_mat) {
   return score;
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerMatrix numeric_to_integer_matrix(NumericMatrix mat) {
   IntegerMatrix out(mat.nrow(), mat.ncol());
   for (int i = 0; i < mat.length(); ++i) {
@@ -26,7 +26,7 @@ IntegerMatrix numeric_to_integer_matrix(NumericMatrix mat) {
   return out;
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector scan_seq_internal2(IntegerVector sequence, IntegerMatrix score_mat,
     int min_score) {
 
@@ -55,7 +55,7 @@ IntegerVector scan_seq_internal2(IntegerVector sequence, IntegerMatrix score_mat
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
     int min_score) {
 
@@ -78,7 +78,7 @@ IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
 
   IntegerVector out(seqs.length() / k, 0);
@@ -112,7 +112,7 @@ IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector string_to_factor(StringVector x, StringVector y) {
 
   StringVector lvls = sort_unique(y);
@@ -125,7 +125,7 @@ IntegerVector string_to_factor(StringVector x, StringVector y) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector res_to_index(IntegerVector x) {
 
   int x_len = x.length();
@@ -141,7 +141,7 @@ IntegerVector res_to_index(IntegerVector x) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep,
     int mot_len, int k) {
 
@@ -179,7 +179,7 @@ List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
     int mot_lens, double min_scores, double max_scores, String mot_names,
     StringVector seq_names, IntegerMatrix score_mats, String strand,
@@ -253,7 +253,7 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 DataFrame res_list_to_df_cpp(List res) {
 
   int n = res.length();

@@ -1,7 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores,
     double min_ic) {
 

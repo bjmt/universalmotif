@@ -1,7 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 StringVector single_to_k(StringVector seq, int k) {
 
   int n = seq.length();

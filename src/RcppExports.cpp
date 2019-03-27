@@ -10,7 +10,6 @@ StringVector single_to_k(StringVector seq, int k);
 RcppExport SEXP _universalmotif_single_to_k(SEXP seqSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type seq(seqSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     rcpp_result_gen = Rcpp::wrap(single_to_k(seq, k));
@@ -22,7 +21,6 @@ IntegerVector peakfinder_cpp(NumericVector x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     rcpp_result_gen = Rcpp::wrap(peakfinder_cpp(x, m));
@@ -34,7 +32,6 @@ IntegerVector linbin_cpp(IntegerVector x, IntegerVector gpoints);
 RcppExport SEXP _universalmotif_linbin_cpp(SEXP xSEXP, SEXP gpointsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type gpoints(gpointsSEXP);
     rcpp_result_gen = Rcpp::wrap(linbin_cpp(x, gpoints));
@@ -122,7 +119,6 @@ List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, Numeric
 RcppExport SEXP _universalmotif_add_cols(SEXP mot1SEXP, SEXP mot2SEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP overlapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic1(ic1SEXP);
@@ -137,7 +133,6 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2, String metho
 RcppExport SEXP _universalmotif_motif_simil_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP normSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
@@ -156,7 +151,6 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names, Str
 RcppExport SEXP _universalmotif_list_to_matrix_simil(SEXP comparisonsSEXP, SEXP mot_namesSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type comparisons(comparisonsSEXP);
     Rcpp::traits::input_parameter< StringVector >::type mot_names(mot_namesSEXP);
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
@@ -179,7 +173,6 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2, String meth
 RcppExport SEXP _universalmotif_merge_motifs_get_offset(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP normSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
@@ -197,7 +190,6 @@ NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2, Stri
 RcppExport SEXP _universalmotif_merge_motifs_internal(SEXP mot1SEXP, SEXP mot2SEXP, SEXP methodSEXP, SEXP min_overlapSEXP, SEXP tryRCSEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP min_icSEXP, SEXP weight1SEXP, SEXP weight2SEXP, SEXP normSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type mot1(mot1SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mot2(mot2SEXP);
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
@@ -218,7 +210,6 @@ IntegerMatrix numeric_to_integer_matrix(NumericMatrix mat);
 RcppExport SEXP _universalmotif_numeric_to_integer_matrix(SEXP matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP);
     rcpp_result_gen = Rcpp::wrap(numeric_to_integer_matrix(mat));
     return rcpp_result_gen;
@@ -229,7 +220,6 @@ IntegerVector scan_seq_internal2(IntegerVector sequence, IntegerMatrix score_mat
 RcppExport SEXP _universalmotif_scan_seq_internal2(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type sequence(sequenceSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
     Rcpp::traits::input_parameter< int >::type min_score(min_scoreSEXP);
@@ -242,7 +232,6 @@ IntegerVector scan_seq_internal(IntegerVector sequence, IntegerMatrix score_mat,
 RcppExport SEXP _universalmotif_scan_seq_internal(SEXP sequenceSEXP, SEXP score_matSEXP, SEXP min_scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type sequence(sequenceSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
     Rcpp::traits::input_parameter< int >::type min_score(min_scoreSEXP);
@@ -255,7 +244,6 @@ IntegerVector LETTER_to_int(IntegerVector seqs, int k, IntegerVector letters);
 RcppExport SEXP _universalmotif_LETTER_to_int(SEXP seqsSEXP, SEXP kSEXP, SEXP lettersSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type seqs(seqsSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type letters(lettersSEXP);
@@ -268,7 +256,6 @@ IntegerVector string_to_factor(StringVector x, StringVector y);
 RcppExport SEXP _universalmotif_string_to_factor(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< StringVector >::type y(ySEXP);
     rcpp_result_gen = Rcpp::wrap(string_to_factor(x, y));
@@ -280,7 +267,6 @@ IntegerVector res_to_index(IntegerVector x);
 RcppExport SEXP _universalmotif_res_to_index(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(res_to_index(x));
     return rcpp_result_gen;
@@ -291,7 +277,6 @@ List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep, int mot_len
 RcppExport SEXP _universalmotif_parse_k_res_helper_1(SEXP seqsSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type seqs(seqsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type to_keep(to_keepSEXP);
     Rcpp::traits::input_parameter< int >::type mot_len(mot_lenSEXP);
@@ -318,7 +303,6 @@ List get_res_cpp(List to_keep, List seqs_aschar, List seq_ints, int mot_lens, do
 RcppExport SEXP _universalmotif_get_res_cpp(SEXP to_keepSEXP, SEXP seqs_ascharSEXP, SEXP seq_intsSEXP, SEXP mot_lensSEXP, SEXP min_scoresSEXP, SEXP max_scoresSEXP, SEXP mot_namesSEXP, SEXP seq_namesSEXP, SEXP score_matsSEXP, SEXP strandSEXP, SEXP seq_lensSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type to_keep(to_keepSEXP);
     Rcpp::traits::input_parameter< List >::type seqs_aschar(seqs_ascharSEXP);
     Rcpp::traits::input_parameter< List >::type seq_ints(seq_intsSEXP);
@@ -340,7 +324,6 @@ DataFrame res_list_to_df_cpp(List res);
 RcppExport SEXP _universalmotif_res_list_to_df_cpp(SEXP resSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type res(resSEXP);
     rcpp_result_gen = Rcpp::wrap(res_list_to_df_cpp(res));
     return rcpp_result_gen;
@@ -351,7 +334,6 @@ CharacterMatrix shuffle_random_loop(int seqs_k_n, int k, IntegerVector seqs_k_ne
 RcppExport SEXP _universalmotif_shuffle_random_loop(SEXP seqs_k_nSEXP, SEXP kSEXP, SEXP seqs_k_new_iSEXP, SEXP new_seqSEXP, SEXP seqs_kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type seqs_k_n(seqs_k_nSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type seqs_k_new_i(seqs_k_new_iSEXP);
@@ -383,7 +365,6 @@ StringVector collapse_rows_mat(CharacterMatrix seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_mat(SEXP seqs_kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterMatrix >::type seqs_k(seqs_kSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_rows_mat(seqs_k));
     return rcpp_result_gen;
@@ -394,7 +375,6 @@ StringVector collapse_rows_df(DataFrame seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_df(SEXP seqs_kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< DataFrame >::type seqs_k(seqs_kSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_rows_df(seqs_k));
     return rcpp_result_gen;
@@ -405,7 +385,6 @@ String collapse_cpp(StringVector x);
 RcppExport SEXP _universalmotif_collapse_cpp(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_cpp(x));
     return rcpp_result_gen;
@@ -416,7 +395,6 @@ NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores, 
 RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type motif(motifSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ic_scores(ic_scoresSEXP);
     Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
@@ -429,7 +407,6 @@ S4 universalmotif_cpp(NumericMatrix motif, String name, StringVector altname, St
 RcppExport SEXP _universalmotif_universalmotif_cpp(SEXP motifSEXP, SEXP nameSEXP, SEXP altnameSEXP, SEXP familySEXP, SEXP organismSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP icscoreSEXP, SEXP nsitesSEXP, SEXP pseudocountSEXP, SEXP bkgSEXP, SEXP bkgsitesSEXP, SEXP consensusSEXP, SEXP strandSEXP, SEXP pvalSEXP, SEXP qvalSEXP, SEXP evalSEXP, SEXP extrainfoSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type motif(motifSEXP);
     Rcpp::traits::input_parameter< String >::type name(nameSEXP);
     Rcpp::traits::input_parameter< StringVector >::type altname(altnameSEXP);
@@ -457,7 +434,6 @@ StringVector validObject_universalmotif(S4 motif);
 RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type motif(motifSEXP);
     rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif));
     return rcpp_result_gen;
@@ -467,7 +443,6 @@ END_RCPP
 void print_pb(int out);
 RcppExport SEXP _universalmotif_print_pb(SEXP outSEXP) {
 BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type out(outSEXP);
     print_pb(out);
     return R_NilValue;
@@ -477,7 +452,6 @@ END_RCPP
 void update_pb(int i, int max);
 RcppExport SEXP _universalmotif_update_pb(SEXP iSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type i(iSEXP);
     Rcpp::traits::input_parameter< int >::type max(maxSEXP);
     update_pb(i, max);
@@ -489,7 +463,6 @@ StringVector strsplit_cpp(std::string x);
 RcppExport SEXP _universalmotif_strsplit_cpp(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(strsplit_cpp(x));
     return rcpp_result_gen;
@@ -500,7 +473,6 @@ String all_checks_collapse(StringVector checks);
 RcppExport SEXP _universalmotif_all_checks_collapse(SEXP checksSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type checks(checksSEXP);
     rcpp_result_gen = Rcpp::wrap(all_checks_collapse(checks));
     return rcpp_result_gen;
@@ -511,7 +483,6 @@ NumericVector pcm_to_ppmC(NumericVector position, double pseudocount);
 RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP positionSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
     rcpp_result_gen = Rcpp::wrap(pcm_to_ppmC(position, pseudocount));
@@ -523,7 +494,6 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites);
 RcppExport SEXP _universalmotif_ppm_to_pcmC(SEXP positionSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< double >::type nsites(nsitesSEXP);
     rcpp_result_gen = Rcpp::wrap(ppm_to_pcmC(position, nsites));
@@ -535,7 +505,6 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg, double pseu
 RcppExport SEXP _universalmotif_ppm_to_pwmC(SEXP positionSEXP, SEXP bkgSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
@@ -549,7 +518,6 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg);
 RcppExport SEXP _universalmotif_pwm_to_ppmC(SEXP positionSEXP, SEXP bkgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
     rcpp_result_gen = Rcpp::wrap(pwm_to_ppmC(position, bkg));
@@ -561,7 +529,6 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg, bool relati
 RcppExport SEXP _universalmotif_ppm_to_icmC(SEXP positionSEXP, SEXP bkgSEXP, SEXP relative_entropySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< bool >::type relative_entropy(relative_entropySEXP);
@@ -574,7 +541,6 @@ double position_icscoreC(NumericVector position, NumericVector bkg, String type,
 RcppExport SEXP _universalmotif_position_icscoreC(SEXP positionSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP, SEXP relative_entropySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< String >::type type(typeSEXP);
@@ -590,7 +556,6 @@ NumericVector icm_to_ppmC(NumericVector position);
 RcppExport SEXP _universalmotif_icm_to_ppmC(SEXP positionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     rcpp_result_gen = Rcpp::wrap(icm_to_ppmC(position));
     return rcpp_result_gen;
@@ -601,7 +566,6 @@ String get_consensusC(NumericVector position, String alphabet, String type, doub
 RcppExport SEXP _universalmotif_get_consensusC(SEXP positionSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< String >::type alphabet(alphabetSEXP);
     Rcpp::traits::input_parameter< String >::type type(typeSEXP);
@@ -615,7 +579,6 @@ NumericVector consensus_to_ppmC(String letter);
 RcppExport SEXP _universalmotif_consensus_to_ppmC(SEXP letterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< String >::type letter(letterSEXP);
     rcpp_result_gen = Rcpp::wrap(consensus_to_ppmC(letter));
     return rcpp_result_gen;
@@ -626,7 +589,6 @@ NumericVector consensus_to_ppmAAC(String letter);
 RcppExport SEXP _universalmotif_consensus_to_ppmAAC(SEXP letterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< String >::type letter(letterSEXP);
     rcpp_result_gen = Rcpp::wrap(consensus_to_ppmAAC(letter));
     return rcpp_result_gen;
@@ -637,7 +599,6 @@ String get_consensusAAC(NumericVector position, String type, double pseudocount)
 RcppExport SEXP _universalmotif_get_consensusAAC(SEXP positionSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
     Rcpp::traits::input_parameter< String >::type type(typeSEXP);
     Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
@@ -650,7 +611,6 @@ StringVector clean_up_check(StringVector fails);
 RcppExport SEXP _universalmotif_clean_up_check(SEXP failsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type fails(failsSEXP);
     rcpp_result_gen = Rcpp::wrap(clean_up_check(fails));
     return rcpp_result_gen;
@@ -661,7 +621,6 @@ StringVector check_fun_params(List param_args, IntegerVector param_len, LogicalV
 RcppExport SEXP _universalmotif_check_fun_params(SEXP param_argsSEXP, SEXP param_lenSEXP, SEXP param_nullSEXP, SEXP expected_type_stringSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type param_args(param_argsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type param_len(param_lenSEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type param_null(param_nullSEXP);

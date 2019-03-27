@@ -69,7 +69,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
         new.order <- as.numeric(new.order)
       },
       "random" = {
-        warning("the 'random' method option will be removed in the next minor version update",
+        warning("The 'random' method option will be removed in the next minor version update",
                 immediate. = TRUE)
         new.order <- shuffle_random(col.order, k, leftovers, mode = 2)
         new.order <- as.numeric(new.order)

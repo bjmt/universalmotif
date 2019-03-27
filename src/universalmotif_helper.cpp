@@ -150,7 +150,7 @@ StringVector universalmotif_consensus(NumericMatrix &m_motif, StringVector alpha
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 S4 universalmotif_cpp(
     NumericMatrix motif,
     String name = "new motif",
@@ -175,7 +175,7 @@ S4 universalmotif_cpp(
 
   NumericMatrix m_motif = Rcpp::clone(motif);
   NumericVector motif_colsums = colSums(m_motif);
-  // sometimes nsites can slip through as nan (not R_NaN), which messes things up
+  // sometimes nsites can slip through (?) as nan (not R_NaN)
   if (std::isnan(nsites[0])) nsites = NumericVector::create();
 
   // name
@@ -396,7 +396,7 @@ StringVector check_consensus(StringVector m_consensus, NumericMatrix m_motif,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 StringVector validObject_universalmotif(S4 motif) {
 
   StringVector msg;

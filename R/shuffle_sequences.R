@@ -28,7 +28,7 @@
 #'    frequencies. Please note that this method is not a 'true' shuffling, and
 #'    for short sequences (e.g. <100bp) this can result in slightly more
 #'    dissimilar sequences versus true shuffling. See
-#'    \insertCite{markovmodel;textual}{universalmotif} and 
+#'    \insertCite{markovmodel;textual}{universalmotif} and
 #'    \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
 #'    topic.
 #'
@@ -37,12 +37,12 @@
 #'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly.
 #'
 #'    Do note however, that the `method` parameter is only relevant for `k > 1`.
-#'    For this, a simple `sample` call is performed.
+#'    For `k = 1`, a simple `sample` call is performed.
 #'
 #'    Regarding performance: `method = 'linear'` for any `k > 1` is very
-#'    efficient and nearly as fast as for `k = 1`. Shuffling
-#'    with `method = 'markov'` is roughly ten times slower but requires less
-#'    total allocated memory.
+#'    efficient and nearly as fast as for `k = 1`; shuffling
+#'    with `method = 'markov'` is roughly ten times slower and slows with
+#'    increasing `k`.
 #'
 #' @references
 #'    \insertRef{markovmodel2}{universalmotif}
@@ -65,13 +65,15 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   args <- as.list(environment())
   all_checks <- character(0)
   if (!method %in% c("markov", "linear", "random")) {
-    method_check <- paste0(" * Incorrect 'shuffle.method': expected `markov`, `linear` or `random`; got `",
-                                   method, "`")
+    method_check <- paste0(" * Incorrect 'shuffle.method': expected `markov`, ",
+                           "`linear` or `random`; got `",
+                           method, "`")
     all_checks <- c(all_checks, method_check)
   }
   if (!leftovers %in% c("asis", "first", "split", "discard")) {
-    leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`, `first`, `split` or `discard`; got `",
-                                      leftovers, "`")
+    leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected ",
+                              "`asis`, `first`, `split` or `discard`; got `",
+                              leftovers, "`")
     all_checks <- c(all_checks, leftovers_check)
   }
   char_check <- check_fun_params(list(method = args$method,
@@ -133,7 +135,6 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
 shuffle_k1 <- function(sequence) {
 
-  sequence <- as.character(sequence)
   sequence <- strsplit(sequence, "")[[1]]
   sequence <- sample(sequence, length(sequence))
   sequence <- collapse_cpp(sequence)
@@ -291,13 +292,11 @@ shuffle_markov <- function(sequence, k) {
   seq.width <- width(sequence)
 
   # the Biostrings functions here sometimes cause C stack related crashes...
-  # if I could write my own then shuffle_markov would not be restricted to
-  # DNA/RNA
   freqs <- oligonucleotideFrequency(sequence, width = k, as.prob = TRUE)
   freqs <- colSums(freqs)
 
-  # using both oligonucleotideFrequency+oligonucleotideTransitions could be
-  # avoided here, see letter_freqs
+  # using both oligonucleotideFrequency + oligonucleotideTransitions could be
+  # avoided here, see letter_freqs; regardless, the extra cost is quite minor
   trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
   trans <- t(trans)
   trans[is.nan(trans)] <- 1 / ncol(trans) / 1000  # if set to zero, sometimes
@@ -305,7 +304,7 @@ shuffle_markov <- function(sequence, k) {
   seqout <- character(seq.width)
   first.k <- sample(names(freqs), 1, prob = freqs)
   first.k <- strsplit(first.k, "")[[1]]
-  seqout[1:k] <- first.k
+  seqout[seq_len(k)] <- first.k
 
   trans.cols <- colnames(trans)
   names(trans.cols) <- trans.cols
@@ -318,7 +317,8 @@ shuffle_markov <- function(sequence, k) {
 }
 
 shuffle_markov_any <- function(sequence, k) {
-  # almost as fast as shuffle_markov, but much less memory efficient
+  # - almost as fast as shuffle_markov, but much less memory efficient
+  # - runtime increases with increasing k
 
   seq1 <- strsplit(sequence, "")[[1]]
   lets.uniq <- sort(unique(seq1))
@@ -332,11 +332,10 @@ shuffle_markov_any <- function(sequence, k) {
   seqout <- character(seq.width)
   first.k <- sample(let.info$frequencies$lets, 1, prob = freqs)
   first.k <- strsplit(first.k, "")[[1]]
-  seqout[1:k] <- first.k
+  seqout[seq_len(k)] <- first.k
 
   trans.cols <- colnames(trans)
   names(trans.cols) <- trans.cols
-  trans <- as.matrix(trans)
   seqout <- shuffle_markov_loop(k, seq.width, k, seqout, lets.uniq, trans,
                                 trans.cols)
 
@@ -388,9 +387,9 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
     letskm1 <- collapse_rows_df(letskm1)
     colnames(trans) <- lets.uniq
     rownames(trans) <- letskm1
-    trans.rowsums <- rowSums(trans)
+    trans.sums <- rowSums(trans)
     if (as.prob)
-      for (i in seq_len(nrow(trans))) trans[i, ] <- trans[i, ] / trans.rowsums[i]
+      for (i in seq_len(nrow(trans))) trans[i, ] <- trans[i, ] / trans.sums[i]
     trans[is.nan(trans)] <- 0
     out$transitions <- trans
   }
