@@ -73,13 +73,6 @@ String all_checks_collapse(StringVector checks) {
 }
 
 // [[Rcpp::export]]
-String collapse_cpp(StringVector x) {
-  // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")
-  // collapse_cpp(c(x, y)) about 2 times faster than base::paste0(x, y)
-  return collapse(x);
-}
-
-// [[Rcpp::export]]
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
   double possum = sum(position);

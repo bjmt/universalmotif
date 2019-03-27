@@ -8,8 +8,8 @@ shuffle_sequences(sequences, k = 1, method = "linear",
   leftovers = "asis", progress = FALSE, BP = FALSE)
 }
 \arguments{
-\item{sequences}{\code{\link{XStringSet}} For \code{method = 'markov'},
-\code{\link{DNAStringSet}} and \code{\link{RNAStringSet}} only.}
+\item{sequences}{\code{\link{XStringSet}} Set of sequences to shuffle. Works
+with any set of characters.}
 
 \item{k}{\code{numeric(1)} K-let size.}
 

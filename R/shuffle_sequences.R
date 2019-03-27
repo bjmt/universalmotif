@@ -3,8 +3,8 @@
 #' Given a set of input sequences, shuffle the letters within those
 #' sequences with any k-let size.
 #'
-#' @param sequences \code{\link{XStringSet}} For `method = 'markov'`,
-#'    \code{\link{DNAStringSet}} and \code{\link{RNAStringSet}} only.
+#' @param sequences \code{\link{XStringSet}} Set of sequences to shuffle. Works
+#'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
 #'    Only relevant is `k > 1`. See details. The `'random'` method will be
@@ -91,25 +91,27 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   seq.names <- names(sequences)
 
   if (k == 1) {
-    sequences <- as.character(sequences)
-    sequences <- lapply_(sequences, shuffle_k1, PB = progress, BP = BP)
+    sequences <- lapply_(as.character(sequences), shuffle_k1,
+                         PB = progress, BP = BP)
   } else {
     switch(method,
       "markov" = {
-        sequences <- lapply_(sequences, shuffle_markov, k = k,
-                             PB = progress, BP = BP)
+        if (is(sequences, "DNAStringSet") || is(sequences, "RNAStringSet"))
+          sequences <- lapply_(sequences, shuffle_markov, k = k,
+                               PB = progress, BP = BP)
+        else
+          sequences <- lapply_(as.character(sequences), shuffle_markov_any,
+                               k = k, PB = progress, BP = BP)
       },
       "random" = {
-        warning("the 'random' method option will be removed in the next minor version update",
+        warning("The 'random' method option will be removed in the next minor version update",
                 immediate. = TRUE)
-        sequences <- as.character(sequences)
-        sequences <- lapply_(sequences, shuffle_random, k = k,
+        sequences <- lapply_(as.character(sequences), shuffle_random, k = k,
                              leftover = leftovers, PB = progress, BP = BP)
       },
       "linear" = {
-        sequences <- as.character(sequences)
-        sequences <- lapply_(sequences, shuffle_linear, k = k, PB = progress,
-                             BP = BP)
+        sequences <- lapply_(as.character(sequences), shuffle_linear, k = k,
+                             PB = progress, BP = BP)
       },
       stop("incorrect 'k' and 'method' combination")
     )
@@ -126,6 +128,16 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   if (!is.null(seq.names)) names(sequences) <- seq.names
 
   sequences
+
+}
+
+shuffle_k1 <- function(sequence) {
+
+  sequence <- as.character(sequence)
+  sequence <- strsplit(sequence, "")[[1]]
+  sequence <- sample(sequence, length(sequence))
+  sequence <- collapse_cpp(sequence)
+  sequence
 
 }
 
@@ -279,9 +291,13 @@ shuffle_markov <- function(sequence, k) {
   seq.width <- width(sequence)
 
   # the Biostrings functions here sometimes cause C stack related crashes...
+  # if I could write my own then shuffle_markov would not be restricted to
+  # DNA/RNA
   freqs <- oligonucleotideFrequency(sequence, width = k, as.prob = TRUE)
   freqs <- colSums(freqs)
 
+  # using both oligonucleotideFrequency+oligonucleotideTransitions could be
+  # avoided here, see letter_freqs
   trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
   trans <- t(trans)
   trans[is.nan(trans)] <- 1 / ncol(trans) / 1000  # if set to zero, sometimes
@@ -301,12 +317,84 @@ shuffle_markov <- function(sequence, k) {
 
 }
 
-shuffle_k1 <- function(sequence) {
+shuffle_markov_any <- function(sequence, k) {
+  # almost as fast as shuffle_markov, but much less memory efficient
 
-  sequence <- as.character(sequence)
-  sequence <- strsplit(sequence, "")[[1]]
-  sequence <- sample(sequence, length(sequence))
-  sequence <- collapse_cpp(sequence)
-  sequence
+  seq1 <- strsplit(sequence, "")[[1]]
+  lets.uniq <- sort(unique(seq1))
+  seq.width <- length(seq1)
+
+  let.info <- letter_freqs(seq1, k)
+  freqs <- let.info$frequencies$freqs
+  trans <- t(let.info$transitions)
+  trans[trans == 0] <- 1 / nrow(trans) / 1000
+
+  seqout <- character(seq.width)
+  first.k <- sample(let.info$frequencies$lets, 1, prob = freqs)
+  first.k <- strsplit(first.k, "")[[1]]
+  seqout[1:k] <- first.k
+
+  trans.cols <- colnames(trans)
+  names(trans.cols) <- trans.cols
+  trans <- as.matrix(trans)
+  seqout <- shuffle_markov_loop(k, seq.width, k, seqout, lets.uniq, trans,
+                                trans.cols)
+
+  seqout
+
+}
+
+letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
+                         as.prob = TRUE) {
+  # ~3 times slower than Biostrings::oligonucleotideTransitions
+
+  lets.uniq <- sort(unique(seqs1))
+  possible.lets <- expand.grid(rep(list(lets.uniq), k), stringsAsFactors = FALSE)
+  possible.lets <- collapse_rows_df(possible.lets)
+  possible.lets <- data.frame(lets = possible.lets, stringsAsFactors = FALSE)
+
+  seqs.k <- lapply(seq_len(k),
+                   function(k) {
+                     k <- k - 1
+                     if (k > 0) {
+                       seqs.k <- seqs1[-seq_len(k)]
+                       seqs.k <- c(seqs.k, character(k))
+                       matrix(seqs.k)
+                     } else matrix(seqs1)
+                   })
+  seqs.k <- do.call(cbind, seqs.k)
+  seqs.k.n <- nrow(seqs.k)
+  seqs.k <- seqs.k[-c((seqs.k.n - k + 2):seqs.k.n), ]
+
+  seqs.let <- collapse_rows_mat(seqs.k)
+  seqs.counts <- as.data.frame(table(seqs.let))
+  colnames(seqs.counts) <- c("lets", "counts")
+  final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE)
+  final.table$counts[is.na(final.table$counts)] <- 0
+
+  total.counts <- sum(final.table$counts)
+  final.table$freqs <- final.table$counts / total.counts
+
+  out <- list()
+
+  if ("freqs" %in% to.return) {
+    if (as.prob) out$frequencies <- final.table[, -2]
+    else out$counts <- final.table[, -3]
+  }
+
+  if ("trans" %in% to.return) {
+    trans <- t(matrix(final.table$counts, nrow = length(lets.uniq)))
+    letskm1 <- expand.grid(rep(list(lets.uniq), k - 1), stringsAsFactors = FALSE)
+    letskm1 <- collapse_rows_df(letskm1)
+    colnames(trans) <- lets.uniq
+    rownames(trans) <- letskm1
+    trans.rowsums <- rowSums(trans)
+    if (as.prob)
+      for (i in seq_len(nrow(trans))) trans[i, ] <- trans[i, ] / trans.rowsums[i]
+    trans[is.nan(trans)] <- 0
+    out$transitions <- trans
+  }
+
+  out
 
 }

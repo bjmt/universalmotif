@@ -29,6 +29,9 @@ MINOR CHANGES
 
     o The 'linear' and 'markov' shuffling methods are now much faster
 
+    o The 'markov' shuffling method now works for any set of characters instead
+      of just for DNA/RNA
+
     o Documentation for the 'random' shuffling method has been removed and a
       warning is stated when it is used to tell the user that it will be
       removed in the next minor update

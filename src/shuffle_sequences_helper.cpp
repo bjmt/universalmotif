@@ -63,3 +63,38 @@ String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k,
   return collapse(seqout);
 
 }
+
+// [[Rcpp::export]]
+StringVector collapse_rows_mat(CharacterMatrix seqs_k) {
+  // ~10 times as fast as apply(seqs_k_matrix, 1, collapse_cpp)
+  // ~15 faster than collapse_rows_df(seqs_k_df)
+
+  StringVector out(seqs_k.nrow());
+
+  for (int i = 0; i < seqs_k.nrow(); ++i) {
+    out[i] = collapse(seqs_k(i, _));
+  }
+
+  return out;
+
+}
+
+// [[Rcpp::export]]
+StringVector collapse_rows_df(DataFrame seqs_k) {
+  // >2 times as fast as apply(seqs_k_df, 1, collapse_cpp)
+
+  CharacterMatrix seqs_k_mat(seqs_k.nrow(), seqs_k.size());
+
+  for (int i = 0; i < seqs_k.size(); ++i) 
+    seqs_k_mat(_, i) = StringVector(seqs_k[i]);
+
+  return collapse_rows_mat(seqs_k_mat);
+
+}
+
+// [[Rcpp::export]]
+String collapse_cpp(StringVector x) {
+  // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")
+  // collapse_cpp(c(x, y)) about 2 times faster than base::paste0(x, y)
+  return collapse(x);
+}

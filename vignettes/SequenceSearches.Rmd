@@ -91,8 +91,7 @@ the `r Biocpkg("universalmotif")` package aims to provide its own `k`-let
 shuffling capabilities for use within R via `shuffle_sequences()`.
 
 The `r Biocpkg("universalmotif")` offers two different methods for
-sequence shuffling: `markov` and `linear`. The first method, `markov`
-(which is only available for DNA/RNA sequences) can only
+sequence shuffling: `markov` and `linear`. The first method, `markov` can only
 guarantee that the approximate `k`-let frequency will be maintained, but not
 that the original letter counts will be preserved. The `markov` method
 involves determining the original `k`-let frequencies, then creating
@@ -123,21 +122,17 @@ Let us compare how the methods perform:
 ```{r}
 o.letter <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               1, as.prob = FALSE))
-m2.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
-l2.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
-k1.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
+m.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
+l.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
 
-data.frame(original=o.letter, markov=m2.letter, linear=l2.letter,
-           k1=k1.letter)
+data.frame(original=o.letter, markov=m.letter, linear=l.letter)
 
 o.counts <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               2, as.prob = FALSE))
-m2.counts <- colSums(oligonucleotideFrequency(markov, 2, as.prob = FALSE))
-l2.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
-k1.counts <- colSums(oligonucleotideFrequency(k1, 2, as.prob = FALSE))
+m.counts <- colSums(oligonucleotideFrequency(markov, 2, as.prob = FALSE))
+l.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
 
-data.frame(original=o.counts, markov=m2.counts, linear=l2.counts,
-           k1=k1.counts)
+data.frame(original=o.counts, markov=m.counts, linear=l.counts)
 ```
 
 # Scanning sequences for motifs
