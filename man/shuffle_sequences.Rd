@@ -14,8 +14,8 @@ with any set of characters.}
 \item{k}{\code{numeric(1)} K-let size.}
 
 \item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
-Only relevant is \code{k > 1}. See details. The \code{'random'} method will be
-removed in the next minor version.}
+Only relevant is \code{k > 1}. See details. The \code{'random'} method is deprecated
+and will be removed in the next minor version.}
 
 \item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
 \code{c('asis', 'first', 'split', 'discard')}.}

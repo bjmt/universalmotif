@@ -7,8 +7,8 @@
 #'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
-#'    Only relevant is `k > 1`. See details. The `'random'` method will be
-#'    removed in the next minor version.
+#'    Only relevant is `k > 1`. See details. The `'random'` method is deprecated
+#'    and will be removed in the next minor version.
 #' @param leftovers `character(1)` For `method = 'random'`. One of
 #'    `c('asis', 'first', 'split', 'discard')`.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
@@ -106,7 +106,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
                                k = k, PB = progress, BP = BP)
       },
       "random" = {
-        warning("The 'random' method option will be removed in the next minor version update",
+        warning("The 'random' method is deprecated, please use 'linear' or 'markov'",
                 immediate. = TRUE)
         sequences <- lapply_(as.character(sequences), shuffle_random, k = k,
                              leftover = leftovers, PB = progress, BP = BP)

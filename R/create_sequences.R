@@ -5,15 +5,13 @@
 #'
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`, or a string of
 #'    characters to be used as the alphabet.
-#' @param monofreqs `numeric` Alphabet frequencies to use. If missing assumes uniform
-#'   frequencies. Not used if `difreq` or `trifreq` are
-#'   input.
 #' @param seqnum `numeric(1)` Number of sequences to generate.
 #' @param seqlen `numeric(1)` Length of random sequences.
-#' @param difreqs `numeric` Dinucleotide frequencies. DNA/RNA only. Must be a
-#'   named numeric vector of length 16.
-#' @param trifreqs `numeric` Trinucleotide frequencies. DNA/RNA only. Must be a 
-#'   named numeric vector of length 64.
+#' @param freqs `numeric` A named vector of probabilities. The length of the
+#'    vector must be the power of the number of letters in the sequence alphabet.
+#' @param monofreqs `numeric` Deprecated. Use `freqs` instead.
+#' @param difreqs `numeric` Deprecated. Use `freqs` instead.
+#' @param trifreqs `numeric` Deprecated. Use `freqs` instead.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [create_sequences()]. See [BiocParallel::register()] to change the default
@@ -27,7 +25,7 @@
 #'
 #' @examples
 #' ## create DNA sequences with slightly increased AT content:
-#' sequences <- create_sequences(monofreqs = c(0.3, 0.2, 0.2, 0.3))
+#' sequences <- create_sequences(freqs = c(A=0.3, C=0.2, G=0.2, T=0.3))
 #' ## create custom sequences:
 #' sequences.QWER <- create_sequences("QWER")
 #' ## you can include non-alphabet characters are well, even spaces:
@@ -40,18 +38,19 @@
 #' @seealso [create_motif()], [shuffle_sequences()]
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
-                             monofreqs, difreqs, trifreqs, progress = FALSE,
-                             BP = FALSE) {
+                             freqs, monofreqs, difreqs, trifreqs,
+                             progress = FALSE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(alphabet = args$alphabet),
                                  1, FALSE, "character")
   num_check <- check_fun_params(list(seqnum = args$seqnum, seqlen = args$seqlen,
+                                     freqs = args$freqs,
                                      monofreqs = args$monofreqs,
                                      difreqs = args$difreqs,
                                      trifreqs = args$trifreqs),
-                                c(1, 1, rep(0, 3)), c(FALSE, FALSE, rep(TRUE, 3)),
+                                c(1, 1, rep(0, 4)), c(FALSE, FALSE, rep(TRUE, 4)),
                                 "numeric")
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
                                  numeric(), logical(), "logical")
@@ -59,64 +58,69 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (alphabet == "DNA" || alphabet == "RNA") {
-    alph.letters <- DNA_BASES
-  } else if (alphabet == "AA") {
-    alph.letters <- AA_STANDARD
-    if (!missing(difreqs) || !missing(trifreqs)) {
-      stop("'difreqs' and 'trifreqs' can only be used for 'DNA' and 'RNA'")
+  alph.letters <- switch(alphabet,
+                         "DNA" = DNA_BASES,
+                         "RNA" = RNA_BASES,
+                         "AA"  = AA_STANDARD,
+                                 sort(strsplit(alphabet, "")[[1]]))
+
+  if (missing(freqs)) {
+    if (!missing(monofreqs)) {
+      warning("`monofreqs` option is deprecated, please use `freqs`",
+              immediate. = TRUE)
+      freqs <- monofreqs
     }
+    if (!missing(difreqs)) {
+      warning("`difreqs` option is deprecated, please use `freqs`",
+              immediate. = TRUE)
+      freqs <- difreqs
+    }
+    if (!missing(trifreqs)) {
+      warning("`trifreqs` option is deprecated, please use `freqs`",
+              immediate. = TRUE)
+      freqs <- trifreqs
+    }
+  }
+
+
+  if (missing(monofreqs) &&
+      missing(difreqs) &&
+      missing(trifreqs) &&
+      missing(freqs)) {
+    freqs <- rep(1 / length(alph.letters), length(alph.letters))
+    names(freqs) <- alph.letters
   } else {
-    alph.letters <- strsplit(alphabet, "")[[1]]
-    if (!missing(difreqs) || !missing(trifreqs)) {
-      stop("'difreqs' and 'trifreqs' can only be used for 'DNA' and 'RNA'")
-    }
+    if (is.null(names(freqs))) stop("freqs must be NAMED vector")
   }
 
-  if (!missing(monofreqs) && length(monofreqs) != length(alph.letters)) {
-    stop("'monofreqs' and 'alphabet' must have the same number of letters")
-  }
-  if (!missing(difreqs) && length(difreqs) != 16) {
-    stop("'difreqs' must be of length 16")
-  }
-  if (!missing(trifreqs) && length(trifreqs) != 64) {
-    stop("'trifreqs' must be of length 64")
-  }
-
-  if (missing(monofreqs) && missing(difreqs) && missing(trifreqs)) {
-    monofreqs <- rep(1 / length(alph.letters), length(alph.letters))
-  }
-
+  freqs <- freqs[order(names(freqs))]
+  k <- logb(length(freqs), length(alph.letters))
+  if (k %% 1 != 0)
+    stop("The length of `freqs` must be the power of the number of letters ",
+         "in the sequence alphabet")
   seqs <- vector("list", seqnum)
-  if (!missing(monofreqs)) {
+
+  if (k == 1) {
     seqs <- lapply_(seq_len(seqnum),
                      function(x) create_k1(alph.letters = alph.letters,
-                                           seqlen = seqlen,
-                                           bkg = monofreqs),
+                                           seqlen = seqlen, bkg = freqs),
                     BP = BP, PB = progress)
-  } else if (!missing(difreqs)) {
-    names(difreqs) <- gsub("U", "T", names(difreqs))
+  } else  {
+    check_k_lets(alph.letters, freqs, k)
     seqs <- lapply_(seq_len(seqnum),
-                     function(x) create_k2(alph.letters = DNA_BASES,
-                                           seqlen = seqlen,
-                                           difreq = difreqs),
-                    BP = BP, PB = progress)
-  } else if (!missing(trifreqs)) {
-    names(trifreqs) <- gsub("U", "T", names(trifreqs))
-    seqs <- lapply_(seq_len(seqnum),
-                     function(x) create_k3(alph.letters = DNA_BASES,
-                                           seqlen = seqlen,
-                                           trifreq = trifreqs),
+                     function(x) create_kany(alph.letters = alph.letters,
+                                             seqlen = seqlen, freqs = freqs,
+                                             k = k),
                     BP = BP, PB = progress)
   }
 
   seqs <- unlist(seqs)
 
-  switch(alphabet,
-         "DNA" = seqs <- DNAStringSet(seqs),
-         "RNA" = seqs <- RNAStringSet(DNAStringSet(seqs)),
-         "AA"  = seqs <- AAStringSet(seqs),
-                 seqs <- BStringSet(seqs))
+  seqs <- switch(alphabet,
+                 "DNA" = DNAStringSet(seqs),
+                 "RNA" = RNAStringSet(seqs),
+                 "AA"  = AAStringSet(seqs),
+                         BStringSet(seqs))
 
   seqs
 
@@ -128,44 +132,36 @@ create_k1 <- function(alph.letters, seqlen, bkg) {
   seqout
 }
 
-create_k2 <- function(alph.letters, seqlen, difreq) {
-  probsA <- difreq[c("AA", "AC", "AG", "AT")]
-  probsC <- difreq[c("CA", "CC", "CG", "CT")]
-  probsG <- difreq[c("GA", "GC", "GG", "GT")]
-  probsT <- difreq[c("TA", "TC", "TG", "TT")]
-  ditrans <- matrix(c(probsA, probsC, probsG, probsT), nrow = 4)
-  rownames(ditrans) <- alph.letters
-  seqout <- rep(NA_character_, seqlen)
-  first.di <- sample(names(difreq), 1, prob = difreq)
-  first.di <- strsplit(first.di, "")[[1]]
-  seqout[1] <- first.di[1]
-  seqout[2] <- first.di[2]
-  for (i in 3:seqlen) {
-    previous.nuc <- seqout[i - 1]
-    curr.prob <- ditrans[previous.nuc, ]
-    curr.prob[is.na(curr.prob)] <- 0.00001
-    seqout[i] <- sample(alph.letters, 1, prob = curr.prob)
-  }
-  seqout <- collapse_cpp(seqout)
+check_k_lets <- function(alph.letters, freqs, k) {
+  lets1 <- names(freqs)
+  lets2 <- expand.grid(rep(list(alph.letters), k), stringsAsFactors = FALSE)
+  lets2 <- sort(collapse_rows_df(lets2))
+  if (!isTRUE(all.equal(lets1, lets2, use.names = FALSE)))
+    stop("For a k-let size of ", k, ", probabilities should be provided for:\n",
+         paste(lets2, collapse = " "))
+  invisible(NULL)
 }
 
-create_k3 <- function(alph.letters, seqlen, trifreq) {
-  trifreq <- trifreq[DNA_TRI]
-  tritrans <- matrix(trifreq, nrow = 16, byrow = 16)
-  rownames(tritrans) <- DNA_DI
-  seqout <- rep(NA_character_, seqlen)
-  first.tri <- sample(names(trifreq), 1, prob = trifreq)
-  first.tri <- strsplit(first.tri, "")[[1]]
-  seqout[1] <- first.tri[1]
-  seqout[2] <- first.tri[2]
-  seqout[3] <- first.tri[3]
-  for (i in 4:seqlen) {
-    previous.nuc1 <- seqout[i - 1]
-    previous.nuc2 <- seqout[i - 2]
-    previous.nuc <- collapse_cpp(c(previous.nuc2, previous.nuc1))
-    curr.prob <- tritrans[previous.nuc, ]
-    curr.prob[is.na(curr.prob)] <- 0.00001
-    seqout[i] <- sample(alph.letters, 1, prob = curr.prob)
-  }
-  seqout <- collapse_cpp(seqout)
+create_kany <- function(alph.letters, seqlen, freqs, k) {
+
+  seqout <- character(seqlen)
+  lets <- names(freqs)
+  first.k <- sample(lets, 1, prob = freqs)
+  first.k <- strsplit(first.k, "")[[1]]
+  seqout[seq_len(k)] <- first.k
+
+  trans <- t(matrix(freqs, nrow = length(alph.letters)))
+  lets2 <- expand.grid(rep(list(alph.letters), k - 1), stringsAsFactors = FALSE)
+  lets2 <- collapse_rows_df(lets2)
+  colnames(trans) <- alph.letters
+  rownames(trans) <- lets2
+
+  trans <- t(trans)
+  trans[trans == 0] <- 1 / nrow(trans) / 1000
+  names(lets2) <- lets2
+
+  seqout <- shuffle_markov_loop(k, seqlen, k, seqout, alph.letters, trans, lets2)
+
+  seqout
+
 }

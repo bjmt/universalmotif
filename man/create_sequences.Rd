@@ -4,7 +4,7 @@
 \alias{create_sequences}
 \title{Create random sequences.}
 \usage{
-create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100,
+create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, freqs,
   monofreqs, difreqs, trifreqs, progress = FALSE, BP = FALSE)
 }
 \arguments{
@@ -15,15 +15,14 @@ characters to be used as the alphabet.}
 
 \item{seqlen}{\code{numeric(1)} Length of random sequences.}
 
-\item{monofreqs}{\code{numeric} Alphabet frequencies to use. If missing assumes uniform
-frequencies. Not used if \code{difreq} or \code{trifreq} are
-input.}
+\item{freqs}{\code{numeric} A named vector of probabilities. The length of the
+vector must be the power of the number of letters in the sequence alphabet.}
 
-\item{difreqs}{\code{numeric} Dinucleotide frequencies. DNA/RNA only. Must be a
-named numeric vector of length 16.}
+\item{monofreqs}{\code{numeric} Deprecated. Use \code{freqs} instead.}
 
-\item{trifreqs}{\code{numeric} Trinucleotide frequencies. DNA/RNA only. Must be a
-named numeric vector of length 64.}
+\item{difreqs}{\code{numeric} Deprecated. Use \code{freqs} instead.}
+
+\item{trifreqs}{\code{numeric} Deprecated. Use \code{freqs} instead.}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
@@ -44,7 +43,7 @@ Generate random sequences from any set of characters, represented as
 }
 \examples{
 ## create DNA sequences with slightly increased AT content:
-sequences <- create_sequences(monofreqs = c(0.3, 0.2, 0.2, 0.3))
+sequences <- create_sequences(freqs = c(A=0.3, C=0.2, G=0.2, T=0.3))
 ## create custom sequences:
 sequences.QWER <- create_sequences("QWER")
 ## you can include non-alphabet characters are well, even spaces:

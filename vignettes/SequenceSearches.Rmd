@@ -58,7 +58,7 @@ library(Biostrings)
 ## is DNA):
 
 sequences.dna <- create_sequences(seqnum = 500,
-                                  monofreqs = c(0.3, 0.2, 0.2, 0.3))
+                                  freqs = c(A=0.3, C=0.2, G=0.2, T=0.3))
 ## writeXStringSet(sequences.dna, "dna.fasta")
 sequences.dna
 
