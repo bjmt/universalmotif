@@ -141,10 +141,6 @@ update_pb <- function(i, max) {
     invisible(.Call('_universalmotif_update_pb', PACKAGE = 'universalmotif', i, max))
 }
 
-strsplit_cpp <- function(x) {
-    .Call('_universalmotif_strsplit_cpp', PACKAGE = 'universalmotif', x)
-}
-
 all_checks_collapse <- function(checks) {
     .Call('_universalmotif_all_checks_collapse', PACKAGE = 'universalmotif', checks)
 }

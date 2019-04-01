@@ -458,16 +458,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// strsplit_cpp
-StringVector strsplit_cpp(std::string x);
-RcppExport SEXP _universalmotif_strsplit_cpp(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< std::string >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(strsplit_cpp(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // all_checks_collapse
 String all_checks_collapse(StringVector checks);
 RcppExport SEXP _universalmotif_all_checks_collapse(SEXP checksSEXP) {
@@ -666,7 +656,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
     {"_universalmotif_print_pb", (DL_FUNC) &_universalmotif_print_pb, 1},
     {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 2},
-    {"_universalmotif_strsplit_cpp", (DL_FUNC) &_universalmotif_strsplit_cpp, 1},
     {"_universalmotif_all_checks_collapse", (DL_FUNC) &_universalmotif_all_checks_collapse, 1},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},

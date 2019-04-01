@@ -28,11 +28,13 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
                      "MKL")) {
     method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")
+    method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
   if (!use.type %in% c("PPM", "ICM")) {
     use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; got `",
                              use.type, "`")
+    use.type_check <- wmsg2(use.type_check, 4, 2)
     all_checks <- c(all_checks, use.type_check)
   }
   char_check <- check_fun_params(list(method = args$method, use.type = args$use.type),

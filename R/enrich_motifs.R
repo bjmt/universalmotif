@@ -116,33 +116,39 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (!search.mode %in% c("hits", "positional", "both")) {
     search.mode_check <- paste0(" * Incorrect 'search.mode': expected `hits`, `positional` or `both`; got `",
                                 search.mode, "`")
+    search.mode_check <- wmsg2(search.mode_check, 4, 2)
     all_checks <- c(all_checks, search.mode_check)
   }
   if (!qval.method %in% c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
                           "fdr", "none")) {
     qval.method_check <- paste0(" * Incorrect 'qval.method': expected `holm`, `hochberg`, `hommel`, `bonferroni`, `BH`, `BY`, `fdr` or `none`; got `",
                                 qval.method, "`")
+    qval.method_check <- wmsg2(qval.method_check, 4, 2)
     all_checks <- c(all_checks, qval.method_check)
   }
   if (!positional.test %in% c("t.test", "wilcox.test", "chisq.test",
                               "shapiro.test")) {
     positional.test_check <- paste0(" * Incorrect 'positional.test': expected `t.test`, `wilcox.test`, `chisq.test` or `shapiro.test`; got `",
                                     positional.test, "`")
+    positional.test_check <- wmsg2(positional.test_check, 4, 2)
     all_checks <- c(all_checks, positional.test_check)
   }
   if (!threshold.type %in% c("logodds", "pvalue")) {
     threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected `logodds` or `pvalue`; got `",
                                    threshold.type, "`")
+    threshold.type_check <- wmsg2(threshold.type_check, 4, 2)
     all_checks <- c(all_checks, threshold.type_check)
   }
   if (!shuffle.method %in% c("markov", "linear", "random")) {
     shuffle.method_check <- paste0(" * Incorrect 'shuffle.method': expected `markov`, `linear` or `random`; got `",
                                    shuffle.method, "`")
+    shuffle.method_check <- wmsg2(shuffle.method_check, 4, 2)
     all_checks <- c(all_checks, shuffle.method_check)
   }
   if (!shuffle.leftovers %in% c("asis", "first", "split", "discard")) {
     shuffle.leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`, `first`, `split` or `discard`; got `",
                                       shuffle.leftovers, "`")
+    shuffle.leftovers_check <- wmsg2(shuffle.leftovers_check)
     all_checks <- c(all_checks, shuffle.leftovers_check)
   }
   char_check <- check_fun_params(list(search.mode = args$search.mode,
@@ -396,7 +402,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   } else bkg.hits.mean <- mean(bkg.hits)
 
   if (seq.hits.mean > 0 && bkg.hits.mean == 0) {
-    warning(paste0("Found hits for motif '", motifs["name"], "' in target sequences but none in bkg, significance will not be calculated"))
+    warning(wmsg2(paste0("Found hits for motif '", motifs["name"], "' in target sequences but none in bkg, significance will not be calculated")))
     skip.calc <- TRUE
   } else {
     skip.calc <- FALSE

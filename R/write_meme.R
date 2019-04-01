@@ -76,7 +76,7 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
       if (alph == "AA") bkg <- rep(1 / 20, 20)
     }
   }
-  bkg.2 <- strsplit(alph.2, "")[[1]]
+  bkg.2 <- safeExplode(alph.2)
 
   lines_out <- c(paste("MEME version", version), "",
                  paste("ALPHABET=", alph.2), "",

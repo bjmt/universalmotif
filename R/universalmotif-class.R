@@ -257,12 +257,12 @@ setValidity("universalmotif",
                                     paste(sort(AA_STANDARD), collapse = "")))
               }
             } else if (alph != "custom") {
-              if (nrow(mat) != length(strsplit(alph, "")[[1]])) {
+              if (nrow(mat) != length(safeExplode(alph))) {
                 valid <- FALSE
                 msg <- c(msg, paste0("motif with alphabet '",
                                      "' has an incorrect number of rows"))
               }
-              if (any(!rownames(object["motif"]) %in% strsplit(alph, "")[[1]])) {
+              if (any(!rownames(object["motif"]) %in% safeExplode(alph))) {
                 valid <- FALSE
                 msg <- c(msg, "motif rownames must match alphabet")
               }
@@ -271,7 +271,7 @@ setValidity("universalmotif",
             # consensus
             consensus <- object["consensus"]
             if (length(consensus) != 0) {
-              consensus <- strsplit(consensus, "")[[1]]
+              consensus <- safeExplode(consensus)
               if (length(consensus) != ncol(object["motif"])) {
                 valid <- FALSE
                 msg <- c(msg, "consensus string length does not match motif length")

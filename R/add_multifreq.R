@@ -62,7 +62,7 @@
 #' motif.trained["multifreq"]$`2`
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso [scan_sequences()], [convert_motifs()], [write_motifs()] 
+#' @seealso [scan_sequences()], [convert_motifs()], [write_motifs()]
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0, threshold.type = "logodds",
@@ -72,7 +72,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   args <- as.list(environment())
   all_checks <- character(0)
   if (!threshold.type %in% c("logodds", "pvalue")) {
-    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected `logodds` or `pvalue`; got `",
+    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected ",
+                                   "`logodds` or `pvalue`; got `",
                                    threshold.type, "`")
     all_checks <- c(all_checks, threshold.type_check)
   }
@@ -91,7 +92,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
   motif <- convert_motifs(motif)
   motif <- convert_type(motif, "PPM")
-  
+
   if (all(ncol(motif["motif"]) != unique(width(sequences)))) {
 
     seq.names <- names(sequences)
@@ -123,22 +124,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   if (length(seqs.out) == 0)
     stop("No motif matches found in sequences; consider lowering the minimum threshold")
 
-  # multifreq <- vector("list", length(add.k))
-  if (sequences@elementType == "DNAString") {
-    sequences <- DNAStringSet(seqs.out)
-    # for (i in seq_along(add.k)) {
-      # multifreq[[i]] <- add_multi(motif["bkg"], sequences, add.k[i])
-      # multifreq[[i]] <- add_multi_fix_freqs(motif["motif"], multifreq[[i]])
-    # }
-    multifreq <- lapply(add.k, function(x) add_multi(motif["bkg"], sequences, x))
-  } else {
-    alph <- rownames(motif["motif"])
-    # for (i in seq_along(add.k)) {
-      # multifreq[[i]] <- add_multi_ANY(sequences, add.k[i], alph)
-      # multifreq[[i]] <- add_multi_fix_freqs(motif["motif"], multifreq[[i]])
-    # }
-    multifreq <- lapply(add.k, function(x) add_multi_ANY(sequences, x, alph))
-  }
+  alph <- rownames(motif["motif"])
+  multifreq <- lapply(add.k, function(x) add_multi_ANY(seqs.out, x, alph))
 
   names(multifreq) <- add.k
   prev.multifreq <- motif["multifreq"]
@@ -163,36 +150,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
 }
 
-# add_multi_fix_freqs <- function(mot.mat, multi.mat) {
-  #
-  # for (i in seq_len(ncol(multi.mat))) {
-    # multi.mat[, i] <- add_multi_fix_freqs_sub(mot.mat[, i], multi.mat[, i])
-  # }
-#
-  # multi.mat[is.na(multi.mat)] <- 0
-  # multi.mat
-#
-# }
-
-# add_multi_fix_freqs_sub <- function(mot.pos, multi.pos) {
-#
-  # n1 <- length(mot.pos)
-  # n2 <- length(multi.pos)
-#
-  # split.i <- split(seq_len(n2), cut(seq_len(n2), n1, labels = FALSE))
-  # multi.split <- vector("list", length = n1)
-#
-  # for (i in seq_along(multi.split)) {
-    # multi.split[[i]] <- multi.pos[split.i[[i]]]
-    # norm.i <- mot.pos[i] / sum(multi.split[[i]])
-    # multi.split[[i]] <- multi.split[[i]] * norm.i
-  # }
-#
-  # do.call(c, multi.split)
-#
-# }
-
-add_multi <- function(bkg, sequences, k) {
+add_multi <- function(sequences, k) {
 
   seq.width <- unique(width(sequences))
   if (seq.width < k - 1) {
@@ -201,25 +159,26 @@ add_multi <- function(bkg, sequences, k) {
   }
 
   emissions <- matrix(nrow = 4^k, ncol = seq.width - k + 1)
-  
+
   multi_rows <- matrix(nrow = k, ncol = 4^k)
   for (i in seq_len(k)) {
     j <- rep(DNA_BASES, each = 4^(k - i + 1) / 4)
     if (length(j) != 4^k) j <- rep(j, 4^k / length(j))
     multi_rows[i, ] <- j
   }
-  multi_rows <- apply(multi_rows, 2, paste, collapse = "")
+  multi_rows <- apply(multi_rows, 2, collapse_cpp)
 
   rownames(emissions) <- multi_rows
   colnames(emissions) <- seq_len(ncol(emissions))
 
   seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- apply(seqs.split, 1, safeExplode)
   seqs.split <- t(seqs.split)
 
   for (i in seq_len(seq.width - k + 1)) {
     current.seqs <- seqs.split[, i:(i + k - 1)]
-    current.seqs <- apply(current.seqs, 1, paste, collapse = "")
+    # current.seqs <- apply(current.seqs, 1, collapse_cpp)
+    current.seqs <- collapse_rows_mat(current.seqs)
     current.seqs <- DNAStringSet(current.seqs)
     emissions.i <- colSums(oligonucleotideFrequency(current.seqs, k, 1))
     emissions.i <- emissions.i / sum(emissions.i)
@@ -242,29 +201,38 @@ add_multi_ANY <- function(sequences, k, alph) {
   emissions <- matrix(rep(0, alph.len^k * (seq.width - k + 1)),
                       nrow = alph.len^k, ncol = seq.width - k + 1)
 
-  alph.comb <- as.matrix(expand.grid(rep(list(alph), k)))
-  alph.comb <- apply(alph.comb, 1, paste, collapse = "")
+  alph.comb <- expand.grid(rep(list(alph), k), stringsAsFactors = FALSE)
+  alph.comb <- collapse_rows_df(alph.comb)
   alph.comb <- sort(alph.comb)
 
   rownames(emissions) <- alph.comb
   colnames(emissions) <- seq_len(ncol(emissions))
 
   seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, function(x) strsplit(x, "")[[1]])
+  seqs.split <- apply(seqs.split, 1, safeExplode)
 
   seq.list <- lapply(seq_len(ncol(seqs.split)),
                      function(x) single_to_k(seqs.split[, x], k))
 
   seq.list.i <- character(length(seq.list[[1]]))
+  em.lets <- rownames(emissions)
   for (i in seq_along(seq.list[[1]])) {
+
     for (j in seq_along(seq.list)) {
       seq.list.i[j] <- seq.list[[j]][i]
     }
+
+    ####
+    # most expensive process
     seq.list.t <- as.matrix(table(seq.list.i))
+    seq.list.t.lets <- rownames(seq.list.t)
     for (j in seq_len(nrow(seq.list.t))) {
-      emissions[rownames(emissions) == rownames(seq.list.t)[j], i] <- seq.list.t[j, ]
+      emissions[em.lets == seq.list.t.lets[j], i] <- seq.list.t[j, ]
     }
+    ####
+
     emissions[, i] <- emissions[, i] / sum(emissions[, i])
+
   }
 
   emissions

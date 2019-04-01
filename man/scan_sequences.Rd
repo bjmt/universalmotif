@@ -65,12 +65,15 @@ If \code{threshold.type = 'logodds'}, then to calculate the minimum
 allowed score the maximum possible score for a motif is multiplied
 by the value set by \code{threshold}. To determine the maximum
 possible score a motif (of type PWM), run
-\code{sum(apply(motif['motif'], 2, max))}.
+\code{sum(apply(motif['motif'], 2, max))}. If \code{threshold.type = 'pvalue'},
+then threshold logodds scores are generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
 
-If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
-generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
-
-Note: memory usage increases exponentially with increasing \code{k}.
+Non-standard letters (such as "N", "+", "-", ".", etc in \code{DNAString}
+objects) will be safely ignored, resulting only in a warning and a minor
+performance cost. This can used to scan
+masked sequences. See \code{\link[Biostrings:mask]{Biostrings::mask()}} for masking sequences
+(generating \code{MaskedXString} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
+to recover masked \code{XStringSet} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
 }
 \examples{
 ## any alphabet can be used
@@ -81,6 +84,18 @@ motif <- create_motif("hello", alphabet = alphabet)
 sequences <- create_sequences(alphabet, seqnum = 1000, seqlen = 100000)
 scan_sequences(motif, sequences)
 }
+
+## Sequence masking:
+library(Biostrings)
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+seq <- ArabidopsisPromoters[[1]]  # Only works for XString, not XStringSet
+seq <- mask(seq, pattern = "AAAA")  # MaskedDNAString class
+seq <- injectHardMask(seq, letter = "+")  # Recover XString
+seq <- DNAStringSet(seq)  # scan_sequences() needs XStringSet
+scan_sequences(ArabidopsisMotif, seq, verbose = 0, progress = FALSE)
+# A warning regarding the presence of non-standard letters will be given,
+# but can be safely ignored in this case.
 
 }
 \references{

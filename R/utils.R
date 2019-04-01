@@ -489,13 +489,16 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
 }
 
 # for a motif of length 4, the transition matrix is something like this:
-
 #       bkg pos1 pos2 pos3 pos4
 #  bkg    0    1    0    0    0
 # pos1    0    0    1    0    0
 # pos2    0    0    0    1    0
 # pos3    0    0    0    0    1
 # pos4    1    0    0    0    0
+
+# Inspired from S4Vectors::wmsg
+wmsg2 <- function(x, exdent = 0, indent = 0)
+  paste(strwrap(x, exdent = exdent, indent = indent), collapse = "\n")
 
 lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
 

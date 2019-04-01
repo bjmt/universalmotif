@@ -119,7 +119,7 @@ setMethod("initialize", signature = "universalmotif",
             # }
 
             if (!alphabet %in% c("DNA", "RNA", "AA", "custom")) {
-              alphabet <- strsplit(alphabet, "")[[1]]
+              alphabet <- safeExplode(alphabet)
               alphabet <- paste(sort(alphabet), collapse = "")
             }
             .Object@alphabet <- alphabet
@@ -166,9 +166,9 @@ setMethod("initialize", signature = "universalmotif",
                 rownames(.Object@motif)  <- RNA_BASES
               } else if (alphabet == "AA") {
                 rownames(.Object@motif) <- AA_STANDARD
-              } else if (length(strsplit(alphabet, "")[[1]]) == nrow(motif) &&
+              } else if (length(safeExplode(alphabet)) == nrow(motif) &&
                          alphabet != "custom") {
-                rownames(.Object@motif) <- strsplit(alphabet, "")[[1]]
+                rownames(.Object@motif) <- safeExplode(alphabet)
               } 
             } else {
               .Object@motif <- .Object@motif[order(rownames(.Object@motif)), ]

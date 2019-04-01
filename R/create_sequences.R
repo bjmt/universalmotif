@@ -62,7 +62,7 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                          "DNA" = DNA_BASES,
                          "RNA" = RNA_BASES,
                          "AA"  = AA_STANDARD,
-                                 sort(strsplit(alphabet, "")[[1]]))
+                                 sort(safeExplode(alphabet)))
 
   if (missing(freqs)) {
     if (!missing(monofreqs)) {
@@ -96,8 +96,8 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   freqs <- freqs[order(names(freqs))]
   k <- logb(length(freqs), length(alph.letters))
   if (k %% 1 != 0)
-    stop("The length of `freqs` must be the power of the number of letters ",
-         "in the sequence alphabet")
+    stop(wmsg2("The length of `freqs` must be the power of the number of letters ",
+         "in the sequence alphabet"))
   seqs <- vector("list", seqnum)
 
   if (k == 1) {
@@ -137,8 +137,9 @@ check_k_lets <- function(alph.letters, freqs, k) {
   lets2 <- expand.grid(rep(list(alph.letters), k), stringsAsFactors = FALSE)
   lets2 <- sort(collapse_rows_df(lets2))
   if (!isTRUE(all.equal(lets1, lets2, use.names = FALSE)))
-    stop("For a k-let size of ", k, ", probabilities should be provided for:\n",
-         paste(lets2, collapse = " "))
+    stop(wmsg2(paste0("For a k-let size of ", k, ",
+                      probabilities should be provided for:\n",
+                      paste(lets2, collapse = " "))))
   invisible(NULL)
 }
 
@@ -147,7 +148,7 @@ create_kany <- function(alph.letters, seqlen, freqs, k) {
   seqout <- character(seqlen)
   lets <- names(freqs)
   first.k <- sample(lets, 1, prob = freqs)
-  first.k <- strsplit(first.k, "")[[1]]
+  first.k <- safeExplode(first.k)
   seqout[seq_len(k)] <- first.k
 
   trans <- t(matrix(freqs, nrow = length(alph.letters)))

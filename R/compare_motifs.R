@@ -162,6 +162,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       normalise.scores = args$normalise.scores,
                                       progress = args$progress, BP = args$BP),
                                  numeric(), logical(), "logical")
+  all_checks <- c(char_check, num_check, logi_check)
   if (!use.type %in% c("PPM", "ICM")) {
     type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; ",
                          "got `", use.type, "`")
@@ -170,9 +171,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")) {
     method_check <- paste0(" * 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
                            ", `SW`, `MSW`, `KL`, or `MKL`; got `", method, "`")
+    method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
-  all_checks <- c(char_check, num_check, logi_check)
   if (!missing(db.scores) && !is.data.frame(db.scores)) {
     dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
                              "`data.frame`; got `", class(db.scores), "`")
@@ -219,11 +220,11 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       if (!normalise.scores) db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
       else db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
       if (use.freq != 1)
-        warning("Using the internal P-value database with `use.freq > 1` will result in incorrect P-values",
+        warning(wmsg2("Using the internal P-value database with `use.freq > 1` will result in incorrect P-values"),
                 immediate. = TRUE)
       mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
       if (!all(mot.alphs == "DNA"))
-        warning("Using the internal P-value database with non-DNA motifs will result in incorrect P-values",
+        warning(wmsg2("Using the internal P-value database with non-DNA motifs will result in incorrect P-values"),
                 immediate. = TRUE)
     } else {
       db.scores <- check_db_scores(db.scores, method, normalise.scores)

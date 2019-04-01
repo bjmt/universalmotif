@@ -20,7 +20,6 @@ test_that("summarise_motifs works", {
 
 test_that("string utilities works", {
 
-  expect_equal(universalmotif:::strsplit_cpp("AAA"), c("A", "A", "A"))
   expect_equal(collapse_cpp(c("A", "A", "A")), "AAA")
 
 })

@@ -10,37 +10,42 @@ NEW FEATURES
     o New motif_peaks() function: test for significantly overrepresented peaks
       of motif sites in a set of sequences
 
-    o shuffle_sequences(..., method = "markov") now works for any set of
+    o shuffle_sequences(..., method = "markov") works for any set of
       characters instead of just DNA/RNA
 
     o create_sequences() has a new option "freqs" which allows for generating
       sequence from higher order backgrounds and any sequence alphabet
+      (options "monofreqs", "difreqs" and "trifreqs" are now deprecated)
 
 MINOR CHANGES
 
-    o Expanded motif_pvalue() examples section
+    o Increased input security for character type parameters throughout
+
+    o Expanded motif_pvalue(), scan_sequences() examples sections
 
     o New vignette section for motif_peaks() added to SequenceSearches.Rmd
 
-    o Increased input security for character type parameters throughout
+    o Various vignette tweaks
 
     o Fixed various spelling mistakes throughout, added Language field to
       Description, and added spell check to tests
-
-    o Generally increased test coverage
-
-    o The "linear" and "markov" shuffling methods are now much faster
 
     o Documentation for the "random" shuffling method has been removed and a
       warning is shown when  used to tell the user that it will be removed in
       the next minor update
 
-    o Various vignette tweaks
+    o Generally increased test coverage
+
+    o The "linear" and "markov" shuffling methods are much faster
 
     o create_sequences() for higher order backgrounds is much faster
 
-    o create_sequences() options "monofreqs", "difreqs", and "trifreqs" are
-      deprecated in favour of "freqs"
+    o Faster add_multifreqs(): slight improvement for DNA motifs, big
+      improvement for non-DNA motifs
+
+    o sample_sites() has been rewritten for use.freq > 1: the probability of
+      each letter in the site is now dependent on the previous letters (also
+      faster and more memory efficient for any use.freq)
 
 CHANGES IN VERSION 1.0.22
 -------------------------

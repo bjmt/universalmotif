@@ -43,12 +43,10 @@ then passes these strings to the `r Biocpkg("Biostrings")` package. The
 number and length of sequences can be specified. The probabilities of individual
 letters can also be set.
 
-When creating DNA and RNA sequences, there is additionally the option to
-set dinucleotide or trinucleotide probabilities. In these cases the sequences
-are constructed by calling `sample()` for every letter added, with the
-letter probabilities being dependent on which letter(s) precede that position.
-Unfortunately these routines consist of looping R code, which as a result
-makes sequence generation a bit slow in this regard.
+The `freqs` option of `create_sequences()` also takes higher order backgrounds.
+In these cases the sequences are constructed in a Markov-style manner, where
+the probability of each letter (chosen by `sample()`) is based on which letters
+precede it.
 
 ```{r}
 library(universalmotif)

@@ -46,12 +46,15 @@
 #'    allowed score the maximum possible score for a motif is multiplied
 #'    by the value set by `threshold`. To determine the maximum
 #'    possible score a motif (of type PWM), run
-#'    `sum(apply(motif['motif'], 2, max))`.
+#'    `sum(apply(motif['motif'], 2, max))`. If \code{threshold.type = 'pvalue'},
+#'    then threshold logodds scores are generated using [motif_pvalue()].
 #'
-#'    If \code{threshold.type = 'pvalue'}, then threshold logodds scores are
-#'    generated using [motif_pvalue()].
-#'
-#'    Note: memory usage increases exponentially with increasing `k`.
+#'    Non-standard letters (such as "N", "+", "-", ".", etc in `DNAString`
+#'    objects) will be safely ignored, resulting only in a warning and a minor
+#'    performance cost. This can used to scan
+#'    masked sequences. See [Biostrings::mask()] for masking sequences
+#'    (generating `MaskedXString` objects), and [Biostrings::injectHardMask()]
+#'    to recover masked `XStringSet` objects for use with [scan_sequences()].
 #'
 #' @examples
 #' ## any alphabet can be used
@@ -62,6 +65,18 @@
 #' sequences <- create_sequences(alphabet, seqnum = 1000, seqlen = 100000)
 #' scan_sequences(motif, sequences)
 #' }
+#'
+#' ## Sequence masking:
+#' library(Biostrings)
+#' data(ArabidopsisMotif)
+#' data(ArabidopsisPromoters)
+#' seq <- ArabidopsisPromoters[[1]]  # Only works for XString, not XStringSet
+#' seq <- mask(seq, pattern = "AAAA")  # MaskedDNAString class
+#' seq <- injectHardMask(seq, letter = "+")  # Recover XString
+#' seq <- DNAStringSet(seq)  # scan_sequences() needs XStringSet
+#' scan_sequences(ArabidopsisMotif, seq, verbose = 0, progress = FALSE)
+#' # A warning regarding the presence of non-standard letters will be given,
+#' # but can be safely ignored in this case.
 #'
 #' @references
 #'    \insertRef{biostrings}{universalmotif}
@@ -75,11 +90,17 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            use.freq = 1, verbose = 1, progress = TRUE,
                            BP = FALSE) {
 
+  # TODO: Work with Masked*String objects. Masked letters show up as "#" after
+  #       as.character() calls, which should just cause scan_sequences() to
+  #       ignore these and work as intended. For now, just using "-", "." or
+  #       "+" within DNA/RNA/AAStringSet objects will work the same.
+
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
   if (!threshold.type %in% c("logodds", "pvalue")) {
-    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected `logodds` or `pvalue`; got `",
+    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected",
+                                   "`logodds` or `pvalue`; got `",
                                    threshold.type, "`")
     all_checks <- c(all_checks, threshold.type_check)
   }
@@ -232,7 +253,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     cat("   * Splitting up sequences ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Splitting up sequences\n")
-  seqs.aschar <- lapply_(seqs.aschar, function(x) strsplit(x, "")[[1]],
+  seqs.aschar <- lapply_(seqs.aschar, function(x) safeExplode(x),
                          BP = BP, PB = progress)
 
   seq.lens <- width(sequences)
@@ -264,7 +285,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     },
     {
       if (RC) stop("RC search is only available for DNA/RNA")
-      mot.alphs <- strsplit(mot.alphs, "")[[1]]
+      mot.alphs <- safeExplode(mot.alphs)
     }
   )
 

@@ -170,14 +170,17 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
                                     eval, extrainfo, add.multifreq)
            standardGeneric("create_motif"))
 
-# TODO: Organise the methods better, lots of repeat code (debugging is a pain).
-#       (also get rid of all the '!missing' lines to check for params, use 'args')
+# TODO: Organise the methods better, lots of repeat code
+
+# TODO: Allow for gapped motifs using the "-" character. Would also require
+#       changes to compare_motifs(), motif_pvalue(), view_motifs(),
+#       scan_sequences(), write_*(), lots of utility functions, etc!
 
 #' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R
 #' @export
 setMethod("create_motif", signature(input = "missing"),
-          definition = function(input, alphabet, type, name, pseudocount, 
+          definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo, add.multifreq) {
@@ -231,7 +234,7 @@ setMethod("create_motif", signature(input = "numeric"),
             } else if (alphabet == "AA") {
               alph_len <- 20
             } else {
-              alph_len <- length(strsplit(alphabet, "")[[1]])
+              alph_len <- length(safeExplode(alphabet))
             }
 
             mot <- matrix(rep(NA, alph_len * input), nrow = alph_len)
@@ -306,7 +309,7 @@ setMethod("create_motif", signature(input = "character"),
             }
             if (nchar(consensus) <= 1)
               stop("sequence must be longer than one character")
-            consensus <- strsplit(consensus, split = "")[[1]]
+            consensus <- safeExplode(consensus)
             if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 1) {
               motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
             } else if (alphabet == "AA" && length(consensus.all) == 1) {
@@ -316,7 +319,7 @@ setMethod("create_motif", signature(input = "character"),
             }
             if (!alphabet %in% c("DNA", "RNA", "AA", "custom", "missing") &&
                 length(consensus.all) == 1) {
-              alph.deparsed <- sort(strsplit(alphabet, "")[[1]])
+              alph.deparsed <- sort(safeExplode(alphabet))
               if (any(!consensus %in% alph.deparsed)) {
                 stop("consensus string does not match provided alphabet")
               }
@@ -389,7 +392,7 @@ setMethod("create_motif", signature(input = "character"),
                 consensus <- lapply(consensus.all, BString)
                 consensus <- BStringSet(consensus)
                 if (alphabet != "custom") {
-                  alph.deparsed <- sort(strsplit(alphabet, "")[[1]])
+                  alph.deparsed <- sort(safeExplode(alphabet))
                   if (any(!rownames(consensusMatrix(consensus)) %in%
                           alph.deparsed)) {
                     stop("consensus string does not match provided alphabet")
@@ -419,7 +422,7 @@ setMethod("create_motif", signature(input = "character"),
                                                margs))
             if (length(consensus.all) == 1 && missing(nsites) &&
                 alphabet %in% c("DNA", "RNA")) {
-              input.split <- strsplit(input, "")[[1]]
+              input.split <- safeExplode(input)
               if ("N" %in% input.split) {
                 motif["nsites"] <- 4
                 if (any(c("H", "B", "V", "D") %in% input.split)) {
@@ -435,7 +438,7 @@ setMethod("create_motif", signature(input = "character"),
               }
             } else if (length(consensus.all) == 1 && missing(nsites) &&
                        alphabet == "AA") {
-              input.split <- strsplit(input, "")[[1]]
+              input.split <- safeExplode(input)
               if ("X" %in% input.split) {
                 motif["nsites"] <- 20
               } else if (any(c("B", "Z", "J") %in% input.split)) {
@@ -451,23 +454,9 @@ setMethod("create_motif", signature(input = "character"),
             }
             motif <- convert_type(motif, type = type)
 
-            if (alphabet %in% c("DNA", "RNA") && length(input) > 1 &&
-                !missing(add.multifreq)) {
+            if (!missing(add.multifreq) && length(input) > 1) {
               for (i in add.multifreq) {
-                motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
-                                                                DNAStringSet(input),
-                                                                i)
-              }
-              if (alphabet == "RNA") {
-                for (i in names(motif@multifreq)) {
-                  rownames(motif@multifreq[[i]]) <- gsub("T", "U",
-                                                         rownames(motif@multifreq[[i]]))
-                }
-              }
-            } else if (length(input) > 1 && !missing(add.multifreq)) {
-              for (i in add.multifreq) {
-                motif@multifreq[[as.character(i)]] <- add_multi_ANY(BStringSet(input),
-                                                                    i,
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(BStringSet(input), i,
                                                                     rownames(motif["motif"]))
               }
             }
@@ -495,7 +484,7 @@ setMethod("create_motif", signature(input = "matrix"),
             matrix <- input
             if (!missing(alphabet) &&
                 !alphabet %in% c("DNA", "RNA", "AA", "custom")) {
-              alph.deparsed <- sort(strsplit(alphabet, "")[[1]])
+              alph.deparsed <- sort(safeExplode(alphabet))
               if (any(!rownames(matrix) %in% alph.deparsed)) {
                 stop("rownames do not match provided alphabet")
               }
@@ -511,14 +500,14 @@ setMethod("create_motif", signature(input = "matrix"),
                        missing(alphabet) && nrow(matrix) == 4) {
               alphabet <- "RNA"
             } else if (nrow(matrix) == 20 && missing(alphabet)) {
-              alphabet <- "AA" 
+              alphabet <- "AA"
             } else if (all(rownames(matrix) %in% AA_STANDARD) &&
                        missing(alphabet) && nrow(matrix) == 20) {
               alphabet <- "AA"
             } else if (!is.null(rownames(matrix))) {
               alphabet <- paste(rownames(matrix), collapse = "") 
             } else if (nrow(matrix == 4) && missing(alphabet)) {
-              alphabet <- "DNA" 
+              alphabet <- "DNA"
             } else if (missing(alphabet)) {
               alphabet <- paste(rownames(matrix), collapse = "")
             }
@@ -601,12 +590,11 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
             if (missing(nsites))  motif["nsites"] <- length(input)
             motif <- convert_type(motif, type = type)
-            
+
             if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
-                motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
-                                                         DNAStringSet(input),
-                                                                i)
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(DNAStringSet(input),
+                                                                   i, DNA_BASES)
               }
             }
 
@@ -655,13 +643,8 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
             if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
-                motif@multifreq[[as.character(i)]] <- add_multi(motif@bkg,
-                                                        DNAStringSet(input),
-                                                             i)
-              }
-              for (i in names(motif@multifreq)) {
-                rownames(motif@multifreq[[i]]) <- gsub("T", "U",
-                                                   rownames(motif@multifreq[[i]]))
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(RNAStringSet(input),
+                                                                    i, RNA_BASES)
               }
             }
 
@@ -716,9 +699,8 @@ setMethod("create_motif", signature(input = "AAStringSet"),
 
             if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
-                motif@multifreq[[as.character(i)]] <- add_multi_ANY(input,
-                                                                    i,
-                                                              AA_STANDARD)
+                motif@multifreq[[as.character(i)]] <- add_multi_ANY(input, i,
+                                                                    AA_STANDARD)
               }
             }
 
@@ -776,7 +758,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                  list(alphabet = "custom")))
             } else {
               sequences <- consensusMatrix(sequences)
-              alph.split <- sort(strsplit(alphabet, "")[[1]])
+              alph.split <- sort(safeExplode(alphabet))
               motif <- vector("list", length(alph.split))
               mot_len <- ncol(sequences)
               for (i in alph.split) {
@@ -790,7 +772,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                  margs,
                                                  list(alphabet = alphabet)))
             }
-          
+
             if (length(input) > 1 && !missing(add.multifreq)) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi_ANY(input,

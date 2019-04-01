@@ -81,19 +81,24 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   all_checks <- character(0)
   if (!layout %in% c("rectangular", "slanted", "fan", "circular", "radial",
                      "equal_angle", "daylight")) {
-    layout_check <- paste0(" * Incorrect 'layout': expected `rectangular`, `slanted`, `fan`, `circular`, `radial`, `equal_angle` or `daylight`; got `",
-                           layout, "`")
+    layout_check <- paste0(" * Incorrect 'layout': expected `rectangular`, ",
+                           "`slanted`, `fan`, `circular`, `radial`, `equal_angle`",
+                           " or `daylight`; got `", layout, "`")
+    layout_check <- wmsg2(layout_check, 4, 2)
     all_checks <- c(all_checks, layout_check)
   }
   if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
                      "MKL")) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`,",
+                           " `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")
+    method_check <- wmsg2(method_check)
     all_checks <- c(all_checks, method_check)
   }
   if (!use.type %in% c("PPM", "ICM")) {
     use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; got `",
                              use.type, "`")
+    use.type_check <- wmsg2(use.type_check, 4, 2)
     all_checks <- c(all_checks, use.type_check)
   }
   char_check <- check_fun_params(list(layout = args$layout, linecol = args$linecol,
@@ -168,16 +173,16 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (layout %in% c("rectangular", "slanted")) {
         p <- ggtree(tree, aes(color = group), layout = layout,
                     branch.length = branch.length, ...) +
-          geom_tiplab(align = TRUE, linesize = 0.5) 
+          geom_tiplab(align = TRUE, linesize = 0.5)
       } else {
-        p <- ggtree(tree, aes(color = group), layout = layout, 
+        p <- ggtree(tree, aes(color = group), layout = layout,
                     branch.length = branch.length, ...) +
-          geom_tiplab2(align = TRUE, linesize = 0.5) 
+          geom_tiplab2(align = TRUE, linesize = 0.5)
       }
 
     } else {
-      p <- ggtree(tree, aes(color = group), layout = layout, 
-                  branch.length = branch.length, ...) 
+      p <- ggtree(tree, aes(color = group), layout = layout,
+                  branch.length = branch.length, ...)
     }
 
     if (tipsize != "none") {
@@ -194,8 +199,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       return(p + theme(legend.position = "right", legend.title = element_blank()))
     } else return(p)
 
-  } 
-      
+  }
+
   if (labels != "none") {
 
     if (layout %in% c("rectangular", "slanted")) {
@@ -232,7 +237,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     return (p)
 
   }
- 
-} 
+
+}
 
 # grid.arrange(p1, p2 + scale_x_reverse(), nrow = 1) (package=egg)

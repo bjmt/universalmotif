@@ -46,7 +46,7 @@ write_transfac <- function(motifs, file) {
       lines_out <- c(lines_out, paste("OS", motif["organism"]))
     }
     lines_out <- c(lines_out, "P0\tA\tC\tG\tT")
-    consensus <- strsplit(motif["consensus"], "")[[1]]
+    consensus <- safeExplode(motif["consensus"])
     for (j in seq_along(consensus)) {
       p1 <- formatC(j, width = 2, format = "d", flag = "0")
       p2 <- paste(as.numeric(motif["motif"][, j]), collapse = "\t")

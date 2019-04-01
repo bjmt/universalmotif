@@ -226,7 +226,7 @@ convert_to_tfbstools_tffmfirst <- function(motifs) {
   }
   if (motifs["alphabet"] != "DNA") stop("alphabet must be DNA")
   bkg <- motifs["bkg"]
-  emission <- list(length = ncol(motifs@multifreq$`2`) + 1)
+  emission <- list(length = ncol(motifs@multifreq[["2"]]) + 1)
   bkg <- motifs["bkg"]
   names(bkg) <- DNA_BASES
   emission[[1]] <- bkg

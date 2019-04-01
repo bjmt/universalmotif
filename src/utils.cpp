@@ -42,15 +42,14 @@ void update_pb(int i, int max) {
 
 }
 
-// [[Rcpp::export(rng = false)]]
-StringVector strsplit_cpp(std::string x) {  // slightly slower than
-  int n = x.size();                         // strsplit(x, "")[[1]]
-  StringVector out(n);
-  for (int i = 0; i < n; ++i) {
-    out[i] = x.substr(i, 1);
-  }
-  return out;
-}
+// StringVector strsplit_cpp(std::string x) {  // slightly slower than
+  // int n = x.size();                         // strsplit(x, "")[[1]]
+  // StringVector out(n);
+  // for (int i = 0; i < n; ++i) {
+    // out[i] = x.substr(i, 1);
+  // }
+  // return out;
+// }
 
 // [[Rcpp::export(rng = false)]]
 String all_checks_collapse(StringVector checks) {

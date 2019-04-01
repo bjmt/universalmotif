@@ -59,11 +59,13 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                      "MKL")) {
     method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")
+    method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
   if (!use.type %in% c("PPM", "ICM", "PWM", "PCM")) {
     use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM`, `PCM`, `PWM` or `ICM`; got `",
                              use.type, "`")
+    use.type_check <- wmsg2(use.type_check, 4, 2)
     all_checks <- c(all_checks, use.type_check)
   }
   char_check <- check_fun_params(list(use.type = args$use.type,
@@ -137,7 +139,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
     },
     {
       if (mot.alph != "custom") {
-        alph <- sort(strsplit(mot.alph, "")[[1]])
+        alph <- sort(safeExplode(mot.alph))
         use.custom <- TRUE
       } else {
         alph <- rownames(mot.mats[[1]])
