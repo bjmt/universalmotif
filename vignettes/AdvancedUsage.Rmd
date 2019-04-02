@@ -296,7 +296,7 @@ from P-values.
 Similarly to calculating P-values, exact scores can be calculated from small
 motifs, and approximate scores from big motifs using subsetting. Unlike the
 P-value calculation however, a uniform background is assumed. This is because
-pproximate scores are calculated by assuming the distribution of possible
+approximate scores are calculated by assuming the distribution of possible
 scores follows a normal distribution. See the following code for a comparison
 of exact and approximate score calculations.
 
@@ -360,7 +360,7 @@ res <- data.frame(score = scores, pvalue = pvals,
 knitr::kable(res, format = "markdown", digits = 22)
 ```
 As you can see, results from exact calculations are not _quite_ exact. This is
-due to the fact that the distibutions of P-values and scores are assumed to be
+due to the fact that the distributions of P-values and scores are assumed to be
 continuous, when in reality they are discrete. As for results from approximate
 calculations: they are fairly close to exact values for larger P-values,
 but fall off for small P-values (P < 0.001).
