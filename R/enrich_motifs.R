@@ -103,7 +103,7 @@
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr", positional.test = "t.test",
-                          threshold = 0.001, threshold.type = "pvalue",
+                          threshold = 0.01, threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
                           shuffle.leftovers = "asis",
@@ -114,39 +114,47 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   args <- as.list(environment())
   all_checks <- character(0)
   if (!search.mode %in% c("hits", "positional", "both")) {
-    search.mode_check <- paste0(" * Incorrect 'search.mode': expected `hits`, `positional` or `both`; got `",
+    search.mode_check <- paste0(" * Incorrect 'search.mode': expected `hits`,",
+                                " `positional` or `both`; got `",
                                 search.mode, "`")
     search.mode_check <- wmsg2(search.mode_check, 4, 2)
     all_checks <- c(all_checks, search.mode_check)
   }
   if (!qval.method %in% c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
                           "fdr", "none")) {
-    qval.method_check <- paste0(" * Incorrect 'qval.method': expected `holm`, `hochberg`, `hommel`, `bonferroni`, `BH`, `BY`, `fdr` or `none`; got `",
+    qval.method_check <- paste0(" * Incorrect 'qval.method': expected `holm`, ",
+                                "`hochberg`, `hommel`, `bonferroni`, `BH`, `BY`, ",
+                                "`fdr` or `none`; got `",
                                 qval.method, "`")
     qval.method_check <- wmsg2(qval.method_check, 4, 2)
     all_checks <- c(all_checks, qval.method_check)
   }
   if (!positional.test %in% c("t.test", "wilcox.test", "chisq.test",
                               "shapiro.test")) {
-    positional.test_check <- paste0(" * Incorrect 'positional.test': expected `t.test`, `wilcox.test`, `chisq.test` or `shapiro.test`; got `",
+    positional.test_check <- paste0(" * Incorrect 'positional.test': expected ",
+                                    "`t.test`, `wilcox.test`, `chisq.test` or ",
+                                    "`shapiro.test`; got `",
                                     positional.test, "`")
     positional.test_check <- wmsg2(positional.test_check, 4, 2)
     all_checks <- c(all_checks, positional.test_check)
   }
   if (!threshold.type %in% c("logodds", "pvalue")) {
-    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected `logodds` or `pvalue`; got `",
+    threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected ",
+                                   "`logodds` or `pvalue`; got `",
                                    threshold.type, "`")
     threshold.type_check <- wmsg2(threshold.type_check, 4, 2)
     all_checks <- c(all_checks, threshold.type_check)
   }
   if (!shuffle.method %in% c("markov", "linear", "random")) {
-    shuffle.method_check <- paste0(" * Incorrect 'shuffle.method': expected `markov`, `linear` or `random`; got `",
+    shuffle.method_check <- paste0(" * Incorrect 'shuffle.method': expected ",
+                                   "`markov`, `linear` or `random`; got `",
                                    shuffle.method, "`")
     shuffle.method_check <- wmsg2(shuffle.method_check, 4, 2)
     all_checks <- c(all_checks, shuffle.method_check)
   }
   if (!shuffle.leftovers %in% c("asis", "first", "split", "discard")) {
-    shuffle.leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`, `first`, `split` or `discard`; got `",
+    shuffle.leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected ",
+                                      "`asis`, `first`, `split` or `discard`; got `",
                                       shuffle.leftovers, "`")
     shuffle.leftovers_check <- wmsg2(shuffle.leftovers_check)
     all_checks <- c(all_checks, shuffle.leftovers_check)
@@ -243,8 +251,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     if (verbose > 3) {
       mot.names <- vapply(motifs, function(x) x["name"], character(1))
       for (i in seq_along(threshold)) {
-        cat("   > Motif", mot.names[i], ": max.score = ", max.scores[i], ", threshold = ",
-            threshold[i], "\n")
+        cat("   > Motif", mot.names[i], ": max.score = ", max.scores[i],
+            ", threshold = ", threshold[i], "\n")
       }
     }
   }
@@ -402,7 +410,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   } else bkg.hits.mean <- mean(bkg.hits)
 
   if (seq.hits.mean > 0 && bkg.hits.mean == 0) {
-    warning(wmsg2(paste0("Found hits for motif '", motifs["name"], "' in target sequences but none in bkg, significance will not be calculated")))
+    warning(wmsg2(paste0("Found hits for motif '", motifs["name"],
+                         "' in target sequences but none in bkg, ",
+                         "significance will not be calculated")))
     skip.calc <- TRUE
   } else {
     skip.calc <- FALSE
@@ -458,7 +468,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       tryCatch({
       pos.p <- shapiro.test(seq.hits)$p.value
       }, error = function(e) warning("shapiro.test failed"))
-    } 
+    }
   } else if (skip.calc) {
     pos.p <- 0
   }
@@ -468,7 +478,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   }
   if (verbose > 3 && search.mode %in% c("positional", "both")) {
     cat("       positional bias p-value:", pos.p, "\n")
-  } 
+  }
 
   results <- data.frame(motif = motifs["name"],
                         total.seq.hits = length(seq.hits),

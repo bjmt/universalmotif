@@ -4,7 +4,7 @@
 \alias{scan_sequences}
 \title{Scan sequences for matches to input motifs.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.001,
+scan_sequences(motifs, sequences, threshold = 0.01,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 1,
   progress = TRUE, BP = FALSE)
 }

@@ -17,7 +17,9 @@ p-value.}
 
 \item{bkg.probs}{\code{numeric}, \code{list} If supplying individual background
 probabilities for each motif, a list. If missing, assumes a uniform
-background. Currently does not supported if \code{use.freq > 1}.}
+background. Note that this only influences calculating p-values
+from an input score; calculating a score from an input p-value
+currently assumes a uniform background.}
 
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
 otherwise uses the corresponding \code{multifreq} matrix.}
@@ -25,7 +27,7 @@ otherwise uses the corresponding \code{multifreq} matrix.}
 \item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after
 subsetting the motif every \code{k} columns. If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
-are exact.}
+are (nearly) exact.}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
@@ -62,14 +64,22 @@ controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
 calculating exact p-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
-To calculate a score based on a given p-value, the function simply guesses
-different scores until it finds one which when used to calculate a p-value,
-returns a p-value reasonably close to the given p-value. For low p-values,
-this usually only takes a couple of guesses.
+To calculate a score based on a given p-value, the means and variances of
+each motif subsets are combined to estimate the distribution of all
+possible scores using \code{\link[stats:qnorm]{stats::qnorm()}}:
 
-Note that the approximation is \emph{mostly} on the conservative side. The higher
-the number of motif subsets, the worse the approximation. Furthermore,
-the speed of \code{\link[=motif_pvalue]{motif_pvalue()}} increases with a decreasing p-value.
+\code{qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))}
+
+For calculating exact scores, \code{\link[stats:ecdf]{stats::ecdf()}} and \code{\link[stats:quantile]{stats::quantile()}} are
+used:
+
+\code{quantile(ecdf(scores), probs = pvalue)}
+
+It is important to keep in mind that both approximate and exact score
+calculations assume uniform backgrounds. To get all possible scores for
+each subset, \code{\link[=expand.grid]{expand.grid()}} is used instead of the branch-and-bound
+algorithm used for calculating p-values. Keep this in mind for determining
+the best \code{k} value for motifs with alphabets longer than DNA/RNA motifs.
 }
 \examples{
 data(examplemotif)

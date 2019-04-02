@@ -65,7 +65,7 @@
 #' @seealso [scan_sequences()], [convert_motifs()], [write_motifs()]
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
-                          threshold = 0, threshold.type = "logodds",
+                          threshold = 0.01, threshold.type = "pvalue",
                           motifs.perseq = 1) {
 
   # param check --------------------------------------------

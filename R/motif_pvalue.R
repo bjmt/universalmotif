@@ -4,17 +4,19 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param score `numeric` Get a p-value for a motif from a logodds score.
-#' @param pvalue `numeric` Get a logodds score for a motif from a 
+#' @param pvalue `numeric` Get a logodds score for a motif from a
 #'    p-value.
 #' @param bkg.probs `numeric`, `list` If supplying individual background
 #'    probabilities for each motif, a list. If missing, assumes a uniform
-#'    background. Currently does not supported if `use.freq > 1`.
+#'    background. Note that this only influences calculating p-values
+#'    from an input score; calculating a score from an input p-value
+#'    currently assumes a uniform background.
 #' @param use.freq `numeric(1)` By default uses the regular motif matrix;
 #'    otherwise uses the corresponding `multifreq` matrix.
-#' @param k `numeric(1)` For speed, scores/p-values can be approximated after 
+#' @param k `numeric(1)` For speed, scores/p-values can be approximated after
 #'    subsetting the motif every `k` columns. If `k` is a value
 #'    equal or higher to the size of input motif(s), then the calculations
-#'    are exact.
+#'    are (nearly) exact.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [motif_pvalue()]. See [BiocParallel::register()] to change the default
@@ -29,6 +31,7 @@
 #'    \insertRef{pvalues}{universalmotif}
 #'
 #' @details
+#'
 #' Calculating p-values for motifs can be very computationally intensive. This
 #' is due to how p-values must be calculated: for a given score, all possible
 #' sequences which score equal or higher must be found, and the probability for
@@ -48,14 +51,22 @@
 #' calculating exact p-values can be done individually in reasonable time by
 #' setting `k = 12`.
 #'
-#' To calculate a score based on a given p-value, the function simply guesses
-#' different scores until it finds one which when used to calculate a p-value,
-#' returns a p-value reasonably close to the given p-value. For low p-values,
-#' this usually only takes a couple of guesses.
+#' To calculate a score based on a given p-value, the means and variances of
+#' each motif subsets are combined to estimate the distribution of all
+#' possible scores using [stats::qnorm()]:
 #'
-#' Note that the approximation is _mostly_ on the conservative side. The higher
-#' the number of motif subsets, the worse the approximation. Furthermore,
-#' the speed of [motif_pvalue()] increases with a decreasing p-value.
+#' `qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))`
+#'
+#' For calculating exact scores, [stats::ecdf()] and [stats::quantile()] are
+#' used:
+#'
+#' `quantile(ecdf(scores), probs = pvalue)`
+#'
+#' It is important to keep in mind that both approximate and exact score
+#' calculations assume uniform backgrounds. To get all possible scores for
+#' each subset, [expand.grid()] is used instead of the branch-and-bound
+#' algorithm used for calculating p-values. Keep this in mind for determining
+#' the best `k` value for motifs with alphabets longer than DNA/RNA motifs.
 #'
 #' @examples
 #' data(examplemotif)
@@ -107,16 +118,16 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   }
   all_checks <- c(num_check, bkg_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
-  if (use.freq > 2 && interactive()) {
-    cat(paste0("[Caution]\n ! Using motif_pvalue with use.freq > 2 is ",
-               "NOT recommended.\nDo you wish to continue?"))
-    if (menu(c("Yes", "No")) == 2) {
-      message("Exiting")
-      return(invisible(NULL))
-    }
-  } else if (use.freq > 2 && !interactive()) {
-    warning("Using motif_pvalue with use.freq > 2 is NOT recommended")
-  }
+  # if (use.freq > 2 && interactive()) {
+    # cat(paste0("[Caution]\n ! Using motif_pvalue with use.freq > 2 is ",
+               # "NOT recommended.\nDo you wish to continue?"))
+    # if (menu(c("Yes", "No")) == 2) {
+      # message("Exiting")
+      # return(invisible(NULL))
+    # }
+  # } else if (use.freq > 2 && !interactive()) {
+    # warning("Using motif_pvalue with use.freq > 2 is NOT recommended")
+  # }
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
@@ -161,8 +172,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    out <- mapply_(motif_score, motifs, pvalue, bkg.probs, k,
-                    tolerance = 0.75, PB = progress, BP = BP)
+    out <- mapply_(motif_score2, motifs, pvalue, k, PB = progress, BP = BP)
 
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
 
@@ -181,7 +191,7 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   total.min <- sum(apply(score.mat, 2, min))
   if (return_scores) score <- total.min
 
-  # if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
+  if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
 
   score.mat <- score.mat[, order(apply(score.mat, 2, max), decreasing = TRUE)]
   alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
@@ -296,97 +306,6 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
 
 }
 
-fast_fourier_transform <- function(all.scores, pvalue) {
-
-  # https://stats.stackexchange.com/questions/291549/calculate-all-possible-combinations-and-obtain-overall-distribution
-  # currently can't find a way to make this work for calculating p-values..
-
-  counts <- vapply(all.scores, length, integer(1))
-  n.bins <- 58000
-  range.sum <- rowSums(ranges <- vapply(all.scores, range, integer(2)))
-  dx <- diff(range.sum) / n.bins
-
-  x.hat <- rep(1, n.bins)
-
-  for (x in all.scores) {
-    i <- 1 + round((x - min(x) / dx))
-    y <- tabulate(i, nbins = n.bins)
-    x.hat <- fft(y / sum(y)) * x.hat
-  }
-
-  total.sum.ft <- zapsmall(Re(fft(x.hat, inverse = TRUE))) / n.bins
-
-  i.values <- (1:n.bins - 1/2) * dx + range.sum[1]
-
-  answer <- which(cumsum(total.sum.ft) >= 1 - pvalue)[1]
-  i.values[answer]
-
-}
-
-motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
-
-  score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
-  max.score <- sum(apply(score.mat, 2, max)) - 1L
-  min.score <- sum(apply(score.mat, 2, min)) + 1L
-  # if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
-
-  if (ncol(score.mat) <= k) {  # for smaller motifs: exact calculation
-    all.scores <- motif_pval(score.mat, min.score, bkg.probs, k,
-                             num2int = FALSE, return_scores = TRUE)
-    return(quantile(all.scores[[1]], 1 - pval, names = FALSE) / 1000.0)
-  }
-
-  pv.refine <- motif_pval(score.mat, 0, bkg.probs, k, num2int = FALSE)
-
-  if (pv.refine > pval) score <- 100L else score <- -100L
-
-  if (score < 0) {
-
-    repeat {
-
-      pv.old <- pv.refine
-      score.old <- score
-    
-      if (pv.refine >= pval * tolerance && pv.refine <= pval) break
-
-      pv.factor <- pval / pv.refine 
-      score <- as.integer(score * pv.factor + 10)
-
-      if (score < min.score) score <- min.score
-      pv.refine <- motif_pval(score.mat, score, bkg.probs, k, num2int = FALSE)
-
-      if (pv.old > pv.refine && pv.refine <= pval) break
-      if (score == score.old) break
-
-    }
-  
-  } else if (score > 0) {
-
-    repeat {
-
-      pv.old <- pv.refine
-      score.old <- score
-    
-      if (pv.refine >= pval * tolerance && pv.refine <= pval) break
-
-      if (pval < -0.01 || pval > 0.01) pv.factor <- pv.refine / pval
-      else pv.factor <- 1
-      score <- as.integer(score * pv.factor + 10)
-
-      if (score > max.score) score <- max.score
-      pv.refine <- motif_pval(score.mat, score, bkg.probs, k, num2int = FALSE)
-    
-      if (pv.old > pv.refine && pv.refine <= pval) break
-      if (score == score.old) break
-
-    }
-  
-  }
-
-  score / 1000.0
-
-}
-
 .branch_and_bound_kmers <- function(score.mat, min.score) {
 
   max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0L)
@@ -402,9 +321,81 @@ motif_score <- function(score.mat, pval, bkg.probs, k = 6, tolerance = 0.75) {
 
   for (i in seq_len(mot_len - 1) + 1) {
     paths <- calc_next_path_cpp(score.mat, paths, min.score, max.scores[i + 1])
-    # paths <- do.call(rbind, paths)
   }
 
   paths
+
+}
+
+motif_score2 <- function(score.mat, pval, k = 8) {
+
+  pval <- 1 - pval
+  alph.len <- nrow(score.mat)
+  mot.len <- ncol(score.mat)
+
+  score.mat <- matrix(score.mat, nrow = alph.len)
+
+  max.score <- sum(apply(score.mat, 2, max))
+  min.score <- sum(apply(score.mat, 2, min))
+
+  if (mot.len > k) {
+
+    # Not sure it works correctly if the splits are not the same size?
+
+    score.mat.split <- split_mat(score.mat, k)
+    s.split <- lapply(score.mat.split,
+                      function(x) rowSums(expand.grid(as.data.frame(x))))
+
+    mean.split <- vapply(s.split, mean, numeric(1))
+    var.split <- vapply(s.split, var, numeric(1))
+
+    answer <- qnorm(pval, sum(mean.split), sqrt(sum(var.split)))
+
+    if (answer < min.score) answer <- min.score
+    else if (answer > max.score) answer <- max.score
+
+  } else {
+
+    p <- expand.grid(as.data.frame(score.mat))
+    s <- rowSums(p)
+    e <- ecdf(s)
+
+    answer <- unname(quantile(e, probs = pval))
+
+  }
+
+  answer
+
+}
+
+split_mat <- function(score.mat, k) {
+
+  mot.len <- ncol(score.mat)
+
+  times.tosplit <- mot.len %/% k
+  leftover.split <- mot.len %% k
+  mot.split <- vector("list", times.tosplit + ifelse(leftover.split > 0, 1, 0))
+  mot.split[[1]] <- score.mat[, seq_len(k)]
+
+  if (times.tosplit > 1) {
+
+    for (i in seq_len(times.tosplit - 1)) {
+      mot.split[[i + 1]] <- score.mat[, (i * k + 1):(i * k + k)]
+    }
+
+  }
+
+  if (leftover.split > 0) {
+
+    mot.split[[length(mot.split)]] <- score.mat[, (mot.len - leftover.split + 1):
+                                                   mot.len]
+
+    if (!is.matrix(mot.split[[length(mot.split)]])) {
+      mot.split[[length(mot.split)]] <- matrix(mot.split[[length(mot.split)]])
+    }
+
+  }
+
+  mot.split
 
 }

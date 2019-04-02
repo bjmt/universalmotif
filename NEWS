@@ -47,6 +47,11 @@ MINOR CHANGES
       each letter in the site is now dependent on the previous letters (also
       faster and more memory efficient for any use.freq)
 
+    o Huge improvement to calculating motif scores from p-value input: no
+      longer guesses different scores, instead estimating a normal distribution
+      of scores. This new approach is much, much faster and more memory
+      efficient. It does however assume a uniform background.
+
 CHANGES IN VERSION 1.0.22
 -------------------------
 

@@ -85,7 +85,7 @@
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
 #'    [enrich_motifs()], [motif_pvalue()]
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.001,
+scan_sequences <- function(motifs, sequences, threshold = 0.01,
                            threshold.type = "pvalue", RC = FALSE,
                            use.freq = 1, verbose = 1, progress = TRUE,
                            BP = FALSE) {

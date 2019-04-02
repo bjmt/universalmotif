@@ -26,7 +26,8 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
   all_checks <- character(0)
   if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
                      "MKL")) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`,",
+                           " `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
