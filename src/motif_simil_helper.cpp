@@ -568,8 +568,8 @@ NumericMatrix merge_mats(NumericMatrix mat1, NumericMatrix mat2,
 
 }
 
-// [[Rcpp::export]]
-void merge_add_cols(List out) {
+// [[Rcpp::export(rng = false)]]
+List merge_add_cols(List out) {
 
   NumericMatrix mot1 = out(0);
   NumericMatrix mot2 = out(1);
@@ -619,6 +619,8 @@ void merge_add_cols(List out) {
     else if (ncol2 > ncol1) out(0) = new_mat;
 
   }
+
+  return out;
 
 }
 
@@ -762,7 +764,7 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
   List out = List::create(_["mot1_new"] = mot1_new, _["mot2_new"] = mot2_new,
                           _["offset"] = offset, _["score"] = score);
 
-  merge_add_cols(out);
+  out = merge_add_cols(out);
 
   return out;
 
@@ -793,7 +795,7 @@ NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
 
     if (score >= score_rc) {
 
-      merge_add_cols(out);
+      out = merge_add_cols(out);
       NumericMatrix mot1_ = out(0);
       NumericMatrix mot2_ = out(1);
       NumericMatrix final_mot = merge_mats(mot1_, mot2_, weight1, weight2);
@@ -801,7 +803,7 @@ NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
 
     } else {
 
-      merge_add_cols(out_rc);
+      out_rc = merge_add_cols(out_rc);
       NumericMatrix mot1_ = out_rc(0);
       NumericMatrix mot2_ = out_rc(1);
       NumericMatrix final_mot = merge_mats(mot1_, mot2_, weight1, weight2);
@@ -811,7 +813,7 @@ NumericMatrix merge_motifs_internal(NumericMatrix mot1, NumericMatrix mot2,
 
   } else {
 
-    merge_add_cols(out);
+    out = merge_add_cols(out);
     NumericMatrix mot1_ = out(0);
     NumericMatrix mot2_ = out(1);
     NumericMatrix final_mot = merge_mats(mot1_, mot2_, weight1, weight2);

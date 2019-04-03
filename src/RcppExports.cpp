@@ -43,7 +43,6 @@ IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat);
 RcppExport SEXP _universalmotif_calc_scores_cpp(SEXP pathsSEXP, SEXP score_matSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerMatrix >::type paths(pathsSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
     rcpp_result_gen = Rcpp::wrap(calc_scores_cpp(paths, score_mat));
@@ -55,7 +54,6 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg, 
 RcppExport SEXP _universalmotif_kmer_mat_to_probs_k1_cpp(SEXP bb_matSEXP, SEXP bkgSEXP, SEXP alph_sortSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerMatrix >::type bb_mat(bb_matSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type alph_sort(alph_sortSEXP);
@@ -68,7 +66,6 @@ IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score, int max_score);
 RcppExport SEXP _universalmotif_init_paths_cpp(SEXP score_matSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
     Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
     Rcpp::traits::input_parameter< int >::type max_score(max_scoreSEXP);
@@ -81,7 +78,6 @@ IntegerMatrix list_to_matrix(List paths);
 RcppExport SEXP _universalmotif_list_to_matrix(SEXP pathsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type paths(pathsSEXP);
     rcpp_result_gen = Rcpp::wrap(list_to_matrix(paths));
     return rcpp_result_gen;
@@ -92,7 +88,6 @@ IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths, i
 RcppExport SEXP _universalmotif_calc_next_path_cpp(SEXP score_matSEXP, SEXP pathsSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerMatrix >::type score_mat(score_matSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type paths(pathsSEXP);
     Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
@@ -106,7 +101,6 @@ NumericVector calc_final_probs_cpp(List all_probs, List all_scores, int score);
 RcppExport SEXP _universalmotif_calc_final_probs_cpp(SEXP all_probsSEXP, SEXP all_scoresSEXP, SEXP scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type all_probs(all_probsSEXP);
     Rcpp::traits::input_parameter< List >::type all_scores(all_scoresSEXP);
     Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
@@ -159,13 +153,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // merge_add_cols
-void merge_add_cols(List out);
+List merge_add_cols(List out);
 RcppExport SEXP _universalmotif_merge_add_cols(SEXP outSEXP) {
 BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< List >::type out(outSEXP);
-    merge_add_cols(out);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(merge_add_cols(out));
+    return rcpp_result_gen;
 END_RCPP
 }
 // merge_motifs_get_offset
@@ -290,7 +284,6 @@ List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep, int mot_
 RcppExport SEXP _universalmotif_parse_k_res_helper_2(SEXP sequenceSEXP, SEXP to_keepSEXP, SEXP mot_lenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type sequence(sequenceSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type to_keep(to_keepSEXP);
     Rcpp::traits::input_parameter< int >::type mot_len(mot_lenSEXP);

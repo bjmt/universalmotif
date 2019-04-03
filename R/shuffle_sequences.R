@@ -357,15 +357,17 @@ shuffle_markov_any <- function(sequence, k) {
 #'
 #' @noRd
 letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
-                         as.prob = TRUE) {
+                         as.prob = TRUE, alph = NULL) {
   # ~3 times slower than Biostrings::oligonucleotideTransitions
 
-  lets.uniq <- sort(unique(seqs1))
+  if (is.null(alph)) lets.uniq <- sort(unique(seqs1))
+  else lets.uniq <- sort(alph)
+
   possible.lets <- expand.grid(rep(list(lets.uniq), k), stringsAsFactors = FALSE)
-  possible.lets <- collapse_rows_df(possible.lets)
+  possible.lets <- sort(collapse_rows_df(possible.lets))
   possible.lets <- data.frame(lets = possible.lets, stringsAsFactors = FALSE)
 
-  seqs.k <- lapply(seq_len(k),
+  seqs.k <- lapply(seq_len(k),  # third slowest step
                    function(k) {
                      k <- k - 1
                      if (k > 0) {
@@ -375,13 +377,16 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
                      } else matrix(seqs1)
                    })
 
-  seqs.k <- do.call(cbind, seqs.k)
+  seqs.k <- do.call(cbind, seqs.k)  # second slowest step
   seqs.k.n <- nrow(seqs.k)
   seqs.k <- seqs.k[-c((seqs.k.n - k + 2):seqs.k.n), ]
 
-  seqs.let <- collapse_rows_mat(seqs.k)
+  # IDEA: instead of having k columns, have k rows.
+
+  seqs.let <- collapse_rows_mat(seqs.k)  # slowest step
   seqs.counts <- as.data.frame(table(seqs.let))
   colnames(seqs.counts) <- c("lets", "counts")
+  seqs.counts <- seqs.counts[order(seqs.counts$lets), ]
   final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE)
   final.table$counts[is.na(final.table$counts)] <- 0
 
@@ -398,7 +403,7 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
   if ("trans" %in% to.return) {
     trans <- t(matrix(final.table$counts, nrow = length(lets.uniq)))
     letskm1 <- expand.grid(rep(list(lets.uniq), k - 1), stringsAsFactors = FALSE)
-    letskm1 <- collapse_rows_df(letskm1)
+    letskm1 <- sort(collapse_rows_df(letskm1))
     colnames(trans) <- lets.uniq
     rownames(trans) <- letskm1
     trans.sums <- rowSums(trans)

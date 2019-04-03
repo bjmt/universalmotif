@@ -1,7 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
 
   IntegerVector final_scores(paths.nrow());
@@ -11,7 +11,7 @@ IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
     tmp_score = 0;
     for (int j = 0; j < paths.ncol(); ++j) {
       tmp_score += score_mat(paths(i, j) - 1, j);
-    } 
+    }
     final_scores[i] = tmp_score;
   }
 
@@ -19,11 +19,10 @@ IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
     IntegerMatrix alph_sort) {
 
-  // NumericMatrix prob_mat(bb_mat.nrow(), bb_mat.ncol());
   NumericVector probs_out(bb_mat.nrow(), 1.0);
 
   for (int i = 0; i < bb_mat.nrow(); ++i) {
@@ -40,7 +39,7 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 
 }
 
-// // [[Rcpp::export]]
+// // [[Rcpp::export(rng = false)]]
 // NumericVector kmer_mat_to_probs_k2_cpp(IntegerMatrix bb_mat, NumericVector bkg,
     // IntegerMatrix alph_sort) {
 //
@@ -66,7 +65,7 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 //
 // }
 
-// // [[Rcpp::export]]
+// // [[Rcpp::export(rng = false)]]
 // NumericVector kmer_mat_to_probs_k3_cpp(IntegerMatrix bb_mat, NumericVector bkg,
     // IntegerMatrix alph_sort) {
 //
@@ -94,8 +93,8 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 //
 // }
 
-// [[Rcpp::export]]
-IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score, 
+// [[Rcpp::export(rng = false)]]
+IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score,
     int max_score) {
 
   int alph_len = score_mat.nrow();
@@ -148,7 +147,7 @@ IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerMatrix list_to_matrix(List paths) {
 
   IntegerMatrix tmp = paths[0];
@@ -192,7 +191,7 @@ IntegerMatrix list_to_matrix(List paths) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
     int score, int max_score) {
 
@@ -221,15 +220,14 @@ IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
     scores_tmp = calc_scores_cpp(paths_totry, score_mat) + max_score;
 
     final_paths(i) = calc_next_subworker_cpp(paths_totry, scores_tmp, score);
-  
+
   }
 
   return list_to_matrix(final_paths);
-  // return final_paths;
 
 }
 
-// // [[Rcpp::export]]
+// // [[Rcpp::export(rng = false)]]
 IntegerMatrix branch_and_bound_cpp(IntegerMatrix score_mat, int min_score) {
 
   IntegerVector max_scores(score_mat.ncol() + 1);
@@ -258,7 +256,7 @@ IntegerMatrix branch_and_bound_cpp(IntegerMatrix score_mat, int min_score) {
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 NumericVector calc_final_probs_cpp(List all_probs, List all_scores,
     int score) {
 

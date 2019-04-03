@@ -3,12 +3,16 @@ CHANGES IN VERSION 1.2.0
 
 NEW FEATURES
 
+    o New motif_peaks() function: test for significantly overrepresented peaks
+      of motif sites in a set of sequences
+
+    o New get_bkg() function: calculate background frequencies of sequence
+      alphabets, including higher order backgrounds. Works for any sequence
+      alphabet. Can also create MEME background format files.
+
     o read_meme() has a new option, readites.meta, which allows for reading
       individual motif site positions and P-values, as well as combined
       sequence P-values
-
-    o New motif_peaks() function: test for significantly overrepresented peaks
-      of motif sites in a set of sequences
 
     o shuffle_sequences(..., method = "markov") works for any set of
       characters instead of just DNA/RNA

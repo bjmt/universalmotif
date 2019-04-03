@@ -50,7 +50,7 @@ list_to_matrix_simil <- function(comparisons, mot_names, method) {
 }
 
 merge_add_cols <- function(out) {
-    invisible(.Call('_universalmotif_merge_add_cols', PACKAGE = 'universalmotif', out))
+    .Call('_universalmotif_merge_add_cols', PACKAGE = 'universalmotif', out)
 }
 
 merge_motifs_get_offset <- function(mot1, mot2, method, min_overlap, ic1, ic2, min_ic, norm) {

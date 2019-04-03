@@ -79,7 +79,8 @@ It is important to keep in mind that both approximate and exact score
 calculations assume uniform backgrounds. To get all possible scores for
 each subset, \code{\link[=expand.grid]{expand.grid()}} is used instead of the branch-and-bound
 algorithm used for calculating p-values. Keep this in mind for determining
-the best \code{k} value for motifs with alphabets longer than DNA/RNA motifs.
+the best \code{k} value for motifs with alphabets longer than those of DNA/RNA
+motifs.
 }
 \examples{
 data(examplemotif)

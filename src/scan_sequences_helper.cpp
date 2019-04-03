@@ -160,7 +160,7 @@ List parse_k_res_helper_1(IntegerVector seqs, IntegerVector to_keep,
 
 }
 
-// [[Rcpp::export]]
+// [[Rcpp::export(rng = false)]]
 List parse_k_res_helper_2(StringVector sequence, IntegerVector to_keep,
     int mot_len) {
 

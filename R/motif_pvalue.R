@@ -66,7 +66,8 @@
 #' calculations assume uniform backgrounds. To get all possible scores for
 #' each subset, [expand.grid()] is used instead of the branch-and-bound
 #' algorithm used for calculating p-values. Keep this in mind for determining
-#' the best `k` value for motifs with alphabets longer than DNA/RNA motifs.
+#' the best `k` value for motifs with alphabets longer than those of DNA/RNA
+#' motifs.
 #'
 #' @examples
 #' data(examplemotif)
@@ -172,7 +173,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    out <- mapply_(motif_score2, motifs, pvalue, k, PB = progress, BP = BP)
+    out <- mapply_(motif_score, motifs, pvalue, k, PB = progress, BP = BP)
 
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
 
@@ -243,7 +244,7 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
 
   all.paths <- vector("list", length(mot.split))
   for (i in seq_along(all.paths)) {
-    all.paths[[i]] <- .branch_and_bound_kmers(mot.split[[i]], split.min[i])
+    all.paths[[i]] <-  branch_and_bound_kmers(mot.split[[i]], split.min[i])
     # all.paths[[i]] <- branch_and_bound_cpp(mot.split[[i]], split.min[i])
   }
 
@@ -306,13 +307,14 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
 
 }
 
-.branch_and_bound_kmers <- function(score.mat, min.score) {
+branch_and_bound_kmers <- function(score.mat, min.score) {
 
   max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0L)
 
-  if (min.score > max.scores[1]) stop("input score '", min.score / 1000.0,
-                                  "' is higher than max possible score: '",
-                                  max.scores[1] / 1000.0, "'")
+  if (min.score > max.scores[1])
+    stop("input score '", min.score / 1000.0,
+         "' is higher than max possible score: '",
+         max.scores[1] / 1000.0, "'")
 
   mot_len <- ncol(score.mat)
 
@@ -327,7 +329,9 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
 
 }
 
-motif_score2 <- function(score.mat, pval, k = 8) {
+motif_score <- function(score.mat, pval, k = 8) {
+
+  # Assumes a _uniform_ background! (or else distribution no longer normal)
 
   pval <- 1 - pval
   alph.len <- nrow(score.mat)
