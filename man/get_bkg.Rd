@@ -5,7 +5,8 @@
 \title{Calculate sequence background.}
 \usage{
 get_bkg(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
-  alphabet = NULL, to.meme = NULL, progress = FALSE, BP = FALSE)
+  alphabet = NULL, to.meme = NULL, RC = FALSE, progress = FALSE,
+  BP = FALSE)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Input sequences. Note that if
@@ -29,6 +30,9 @@ background in MEME Markov Background Model format. Input for this argument
 will be used for \code{cat(..., file = to.meme)} within \code{\link[=get_bkg]{get_bkg()}}. See
 \url{http://meme-suite.org/doc/bfile-format.html} for a description of
 the format.}
+
+\item{RC}{\code{logical(1)} Calculate the background of the reverse complement
+of the input sequences as well. Only valid for DNA/RNA.}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 

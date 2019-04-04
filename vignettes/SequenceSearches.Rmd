@@ -133,6 +133,31 @@ l.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
 data.frame(original=o.counts, markov=m.counts, linear=l.counts)
 ```
 
+# Calculating sequence background
+
+Sequence backgrounds can be retrieved for DNA and RNA sequences
+with `oligonucleotideFrequency()` from `r Biocpkg("Biostrings")`. Unfortunately,
+no such `r Biocpkg("Biostrings")` function exists for other sequence alphabets.
+The `r Biocpkg("universalmotif")` package proves `get_bkg()` to remedy this.
+Similarly, the `get_bkg()` function can calculate higher order backgrounds
+for any alphabet as well.
+It is recommended to use the original `r Biocpkg("Biostrings")` for DNA and
+RNA sequences whenever possible though, as it is much faster than `get_bkg()`.
+
+
+```{r}
+library(universalmotif)
+
+## Background of DNA sequences:
+dna <- create_sequences()
+get_bkg(dna, k = 1:2)
+
+## Background of non DNA/RNA sequences:
+qwerty <- create_sequences("QWERTY")
+get_bkg(qwerty, k = 1:2)
+```
+
+
 # Scanning sequences for motifs
 
 There are many motif-programs available with sequence scanning capabilities, such

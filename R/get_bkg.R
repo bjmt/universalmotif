@@ -20,6 +20,8 @@
 #'    will be used for `cat(..., file = to.meme)` within [get_bkg()]. See
 #'    \url{http://meme-suite.org/doc/bfile-format.html} for a description of
 #'    the format.
+#' @param RC `logical(1)` Calculate the background of the reverse complement
+#'    of the input sequences as well. Only valid for DNA/RNA.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
@@ -55,8 +57,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
-                    alphabet = NULL, to.meme = NULL, progress = FALSE,
-                    BP = FALSE) {
+                    alphabet = NULL, to.meme = NULL, RC = FALSE,
+                    progress = FALSE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -67,7 +69,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                                 c(0, 1), c(FALSE, FALSE), "numeric")
   char_check <- check_fun_params(list(alphabet = args$alphabet), numeric(),
                                  TRUE, "character")
-  logi_check <- check_fun_params(list(as.prob = args$as.prob,
+  logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC,
                                       progress = args$progress, BP = args$BP),
                                  numeric(), logical(), "logical")
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
@@ -75,6 +77,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   #---------------------------------------------------------
 
   k <- as.integer(k)
+  if (RC && (is(sequences, "DNAStringSet") || is(sequences, "RNAStringSet")))
+    sequences <- c(sequences, reverseComplement(sequences))
 
   if (!is.null(to.meme)) {
     if (!all(k == seq_len(k[length(k)])))
