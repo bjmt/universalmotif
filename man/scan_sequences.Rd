@@ -62,10 +62,11 @@ to the length of the motif, the scores for each base are summed. If the
 score sum is above the desired threshold, it is kept.
 
 If \code{threshold.type = 'logodds'}, then to calculate the minimum
-allowed score the maximum possible score for a motif is multiplied
-by the value set by \code{threshold}. To determine the maximum
-possible score a motif (of type PWM), run
-\code{sum(apply(motif['motif'], 2, max))}. If \code{threshold.type = 'pvalue'},
+allowed score the total possible score for a motif is multiplied
+by the value set by \code{threshold}. To determine the maximum and minimum
+possible scores a motif (of type PWM), run
+\code{sum(apply(motif['motif'], 2, max))} and
+\code{sum(apply(motif['motif'], 2, min))}. If \code{threshold.type = 'pvalue'},
 then threshold logodds scores are generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
 
 Non-standard letters (such as "N", "+", "-", ".", etc in \code{DNAString}

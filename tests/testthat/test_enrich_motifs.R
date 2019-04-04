@@ -6,7 +6,7 @@ test_that("motif enrichment works", {
   s1 <- Biostrings::DNAStringSet(rep("TTTAAA", 100))
   s2 <- Biostrings::DNAStringSet(c(rep("CCCGGG", 100), "TTTAAA"))
   r <- suppressWarnings(
-         enrich_motifs(m, s1, s2, verbose = 0, progress = FALSE, threshold = 0,
+         enrich_motifs(m, s1, s2, verbose = 0, progress = FALSE, threshold = 0.8,
                        threshold.type = "logodds", max.p = 0.1, max.q = 0.1,
                        max.e = 0.1)
     )

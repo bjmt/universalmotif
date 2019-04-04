@@ -43,10 +43,11 @@
 #'    score sum is above the desired threshold, it is kept.
 #'
 #'    If `threshold.type = 'logodds'`, then to calculate the minimum
-#'    allowed score the maximum possible score for a motif is multiplied
-#'    by the value set by `threshold`. To determine the maximum
-#'    possible score a motif (of type PWM), run
-#'    `sum(apply(motif['motif'], 2, max))`. If \code{threshold.type = 'pvalue'},
+#'    allowed score the total possible score for a motif is multiplied
+#'    by the value set by `threshold`. To determine the maximum and minimum
+#'    possible scores a motif (of type PWM), run
+#'    `sum(apply(motif['motif'], 2, max))` and 
+#'    `sum(apply(motif['motif'], 2, min))`. If \code{threshold.type = 'pvalue'},
 #'    then threshold logodds scores are generated using [motif_pvalue()].
 #'
 #'    Non-standard letters (such as "N", "+", "-", ".", etc in `DNAString`
@@ -211,7 +212,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
     "logodds" = {
 
-      thresholds <- max.scores * threshold
+      thresholds <- ((abs(max.scores) + abs(min.scores)) * threshold) - abs(min.scores)
 
     },
 

@@ -241,12 +241,13 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     else if ((progress && BP) || verbose > 0)
       cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              k = 5, progress = progress, BP = BP)
+                              k = 6, progress = progress, BP = BP)
     max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
+    min.scores <- vapply(score.mats, function(x) sum(apply(x, 2, min)), numeric(1))
     for (i in seq_along(threshold)) {
       if (threshold[i] > max.scores[i]) threshold[i] <- max.scores[i]
     }
-    threshold <- threshold / max.scores
+    threshold <- (threshold + abs(min.scores)) / (abs(max.scores) + abs(min.scores))
     threshold.type <- "logodds"
     if (verbose > 3) {
       mot.names <- vapply(motifs, function(x) x["name"], character(1))
