@@ -20,7 +20,7 @@ k-let size.}
 \item{pseudocount}{\code{integer(1)} Add a count to each possible k-let. Prevents
 any k-let from having 0 or 1 probabilities.}
 
-\item{alphabet}{\code{character} Provide a custom alphabet to calculate a
+\item{alphabet}{\code{character(1)} Provide a custom alphabet to calculate a
 background for. If \code{NULL}, then standard letters will be assumed for
 DNA, RNA and AA sequences, and all unique letters found will be used
 for \code{BStringSet} type sequences.}

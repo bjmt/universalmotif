@@ -14,8 +14,8 @@ test_that("Results are accurate", {
   expect_equal(res$strand[1], "+")
   expect_equal(res$score[1], 7.956, tolerance = 0.001)
   expect_equal(res$`max.score`[1], 7.957, tolerance = 0.001)
-  expect_equal(res$`score.pct`[1], 99.99, tolerance = 0.01) 
-  
+  expect_equal(res$`score.pct`[1], 100, tolerance = 0.1)
+
   expect_equal(res$score[1], res$score[2])
   expect_equal(res$`max.score`[1], res$`max.score`[2])
   expect_equal(res$strand[2], "-")

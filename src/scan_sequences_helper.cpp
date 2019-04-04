@@ -280,6 +280,8 @@ NumericVector create_col_score(List to_keep, IntegerVector n_rows, int n,
     List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens, k);
     for (int j = 0; j < n_rows[i]; ++j) {
       out[j + row_offset] = score_seq(hits_i[j], score_mats);
+    }
+    for (int j = 0; j < n_rows[i]; ++j) {
       out[j + row_offset] /= 1000.0;
     }
     row_offset += n_rows[i];
