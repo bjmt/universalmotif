@@ -27,14 +27,15 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   args <- as.list(environment())
   all_checks <- character(0)
   if (!method %in% c("linear", "random")) {
-    method_check <- paste0(" * Incorrect 'shuffle.method': expected `linear` or `random`; got `",
-                                   method, "`")
+    method_check <- paste0(" * Incorrect 'shuffle.method': expected `linear` ",
+                           "or `random`; got `", method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
   if (!leftovers %in% c("asis", "first", "split", "discard")) {
-    leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`, `first`, `split` or `discard`; got `",
-                                      leftovers, "`")
+    leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`,",
+                              " `first`, `split` or `discard`; got `",
+                              leftovers, "`")
     leftovers_check <- wmsg2(leftovers_check, 4, 2)
     all_checks <- c(all_checks, leftovers_check)
   }

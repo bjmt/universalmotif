@@ -63,7 +63,8 @@
 #' `quantile(ecdf(scores), probs = pvalue)`
 #'
 #' It is important to keep in mind that both approximate and exact score
-#' calculations assume uniform backgrounds. To get all possible scores for
+#' calculations assume uniform backgrounds, so do not use this function for
+#' motifs with extremely imbalanced backgrounds. To get all possible scores for
 #' each subset, [expand.grid()] is used instead of the branch-and-bound
 #' algorithm used for calculating p-values. Keep this in mind for determining
 #' the best `k` value for motifs with alphabets longer than those of DNA/RNA

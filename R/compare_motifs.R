@@ -220,11 +220,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       if (!normalise.scores) db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
       else db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
       if (use.freq != 1)
-        warning(wmsg2("Using the internal P-value database with `use.freq > 1` will result in incorrect P-values"),
+        warning(wmsg("Using the internal P-value database with `use.freq > 1`",
+                     " will result in incorrect P-values"),
                 immediate. = TRUE)
       mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
       if (!all(mot.alphs == "DNA"))
-        warning(wmsg2("Using the internal P-value database with non-DNA motifs will result in incorrect P-values"),
+        warning(wmsg("Using the internal P-value database with non-DNA motifs ",
+                     "will result in incorrect P-values"),
                 immediate. = TRUE)
     } else {
       db.scores <- check_db_scores(db.scores, method, normalise.scores)

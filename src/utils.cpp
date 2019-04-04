@@ -448,7 +448,21 @@ StringVector clean_up_check(StringVector fails) {
 StringVector check_fun_params(List param_args, IntegerVector param_len,
     LogicalVector param_null, String expected_type_string) {
 
-  // This function WILL fail if param_args is not a NAMED list
+  // param_args: A named list of arguments.
+  //
+  // param_len:  A vector of integers, each entry corresponding to an arg. The
+  //             values represent length of the argument. For arguments which
+  //             can be of any length, 0 can be used. The default is length 1
+  //             for all args, which is set as param_len = numeric(). Note that
+  //             length checks are not performed on S4 objects.
+  //
+  // param_null: A vector of booleans, each entry entry corresponding to an
+  //             arg. For args which allow NULL or missing values, TRUE is used.
+  //             The default is not allowing NULL or missing for all args,
+  //             which is set as param_null = logical().
+  //
+  // expected_type_string: Name of expected type. One of "character",
+  //             "numeric", "logical", "S4".
 
   int expected_type;
   if (expected_type_string == "character") expected_type = 16;

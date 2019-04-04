@@ -497,8 +497,9 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
 # pos4    1    0    0    0    0
 
 # Inspired from S4Vectors::wmsg
-wmsg2 <- function(x, exdent = 0, indent = 0)
-  paste(strwrap(x, exdent = exdent, indent = indent), collapse = "\n")
+wmsg2 <- function(..., exdent = 0, indent = 0)
+  paste0(strwrap(paste0(..., collapse = ""), exdent = exdent, indent = indent),
+         collapse = "\n")
 
 lapply_ <- function(X, FUN, ..., BP = FALSE, PB = FALSE) {
 

@@ -11,7 +11,7 @@
 #' @param as.prob `logical(1)` Whether to return k-let counts or probabilities.
 #' @param pseudocount `integer(1)` Add a count to each possible k-let. Prevents
 #'    any k-let from having 0 or 1 probabilities.
-#' @param alphabet `character` Provide a custom alphabet to calculate a
+#' @param alphabet `character(1)` Provide a custom alphabet to calculate a
 #'    background for. If `NULL`, then standard letters will be assumed for
 #'    DNA, RNA and AA sequences, and all unique letters found will be used
 #'    for `BStringSet` type sequences.
@@ -63,11 +63,16 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
+  if (any(k < 1)) {
+    k_check <- paste0(" * Incorrect 'k': values below 1 are not allowed; found `",
+                      paste0(k[k < 1], collapse = ", "), "`")
+    all_checks <- c(all_checks, k_check)
+  }
   s4_check <- check_fun_params(list(sequences = args$sequences),
                                numeric(), logical(), "S4")
   num_check <- check_fun_params(list(k = args$k, pseudocount = args$pseudocount),
                                 c(0, 1), c(FALSE, FALSE), "numeric")
-  char_check <- check_fun_params(list(alphabet = args$alphabet), numeric(),
+  char_check <- check_fun_params(list(alphabet = args$alphabet), 1,
                                  TRUE, "character")
   logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC,
                                       progress = args$progress, BP = args$BP),
@@ -95,7 +100,10 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     } else if (!is(sequences, "XStringSet")) {
       stop("`sequences` must be an `XStringSet` object")
     }
-  } else alphabet <- sort(alphabet)
+  } else {
+    if (length(alphabet) == 1) alphabet <- sort(safeExplode(alphabet))
+    else alphabet <- sort(alphabet)
+  }
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
@@ -103,7 +111,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   seqs <- lapply(seqs, safeExplode)
 
   # This function can be made many times faster for processing multiple
-  # sequences by combining them into. However, this introduces a big
+  # sequences by combining them into one. However, this introduces a big
   # problem: combining sequences means creating new k-lets between them.
   # (this only matters for k > 1)
   #
@@ -121,7 +129,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     k <- k[k != 1]
     k1 <- vector("list", length(seqs))
     for (i in seq_along(k1)) {
-      k1[[i]] <- as.numeric(table(seqs[[i]]))
+      k1[[i]] <- as.numeric(table(factor(seqs[[i]], levels = alphabet)))
     }
     k1 <- do.call(cbind, k1)
     k1 <- rowSums(k1)

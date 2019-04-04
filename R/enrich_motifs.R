@@ -410,9 +410,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   } else bkg.hits.mean <- mean(bkg.hits)
 
   if (seq.hits.mean > 0 && bkg.hits.mean == 0) {
-    warning(wmsg2(paste0("Found hits for motif '", motifs["name"],
-                         "' in target sequences but none in bkg, ",
-                         "significance will not be calculated")))
+    warning(wmsg("Found hits for motif '", motifs["name"],
+                 "' in target sequences but none in bkg, ",
+                 "significance will not be calculated"))
     skip.calc <- TRUE
   } else {
     skip.calc <- FALSE

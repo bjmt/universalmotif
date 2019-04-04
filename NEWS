@@ -56,6 +56,10 @@ MINOR CHANGES
       of scores. This new approach is much, much faster and more memory
       efficient. It does however assume a uniform background.
 
+    o The "score.pct" column in scan_sequences() results now represents the
+      percent score based on the total possible score, not just the score
+      between zero and the max possible score.
+
 CHANGES IN VERSION 1.0.22
 -------------------------
 

@@ -57,13 +57,15 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   all_checks <- character(0)
   if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
                      "MKL")) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, ",
+                           "`EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
   if (!use.type %in% c("PPM", "ICM", "PWM", "PCM")) {
-    use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM`, `PCM`, `PWM` or `ICM`; got `",
+    use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM`, `PCM`, ",
+                             "`PWM` or `ICM`; got `",
                              use.type, "`")
     use.type_check <- wmsg2(use.type_check, 4, 2)
     all_checks <- c(all_checks, use.type_check)

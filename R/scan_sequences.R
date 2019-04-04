@@ -50,8 +50,8 @@
 #'    then threshold logodds scores are generated using [motif_pvalue()].
 #'
 #'    Non-standard letters (such as "N", "+", "-", ".", etc in `DNAString`
-#'    objects) will be safely ignored, resulting only in a warning and a minor
-#'    performance cost. This can used to scan
+#'    objects) will be safely ignored, resulting only in a warning and a very
+#'    minor performance cost. This can used to scan
 #'    masked sequences. See [Biostrings::mask()] for masking sequences
 #'    (generating `MaskedXString` objects), and [Biostrings::injectHardMask()]
 #'    to recover masked `XStringSet` objects for use with [scan_sequences()].
@@ -309,7 +309,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
                       BP = BP, PB = progress)
   na.check <- any(do.call(c, na.check))
   if (na.check) warning("Non-standard letters found, these will be ignored",
-                             immediate. = TRUE)
+                        immediate. = TRUE, call. = FALSE)
 
   if (progress && !BP && verbose > 0)
     cat("   * Converting sequences to integers ...")
