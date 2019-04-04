@@ -18,7 +18,8 @@
 #' @param to.meme If not `NULL`, then [get_bkg()] will return the sequence
 #'    background in MEME Markov Background Model format. Input for this argument
 #'    will be used for `cat(..., file = to.meme)` within [get_bkg()]. See
-#'    details.
+#'    \url{http://meme-suite.org/doc/bfile-format.html} for a description of
+#'    the format.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
@@ -30,10 +31,6 @@
 #' @return
 #'    If `to.meme = NULL`: a list with each entry being a named numeric vector
 #'    for every element in `k`. Otherwise: `NULL`, invisibly.
-#'
-#' @details
-#'
-#' MEME background format: \url{http://meme-suite.org/doc/bfile-format.html}
 #'
 #' @examples
 #' ## Compare to Biostrings version
@@ -76,29 +73,6 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-# BENCHMARKS
-#
-# 1: colMeans(oligonucleotideFrequency(seqs, 3, 1, as.prob = TRUE)
-# 2: get_bkg(seqs, 3)$`3`
-#
-# a: seqs <- create_sequences(seqlen = 100, seqnum = 1)
-#    ~15 times slower
-# b: seqs <- create_sequences(seqlen = 10, seqnum = 10000)
-#    ~8 times slower
-# c: seqs <- create_sequences(seqlen = 100000, seqnum = 1)
-#    ~85 times slower
-# d: seqs <- create_sequences(seqlen = 1000, seqnum = 1000)
-#    ~88 times slower
-
-# TIMINGS
-#
-# get_bkg(seqs, 3)$`3`
-#
-# a: 1 million DNA bases
-#    ~1 sec
-# b: 100 million DNA bases
-#    ~65 sec
 
   k <- as.integer(k)
 
@@ -147,6 +121,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     }
     k1 <- do.call(cbind, k1)
     k1 <- rowSums(k1)
+    names(k1) <- alphabet
   }
 
   counts <- list()
@@ -176,8 +151,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
       zero.check <- vapply(counts, function(x) any(x == 0), logical(1))
       one.check <- vapply(counts, function(x) any(x == 1), logical(1))
       if (any(zero.check) || any(one.check))
-        stop(wmsg(paste0("MEME background files do not allow 0 or 1 values, ",
-                         "please try again with a `pseudocount` higher than 0")))
+        stop(wmsg("MEME background files do not allow 0 or 1 values, ",
+                  "please try again with a `pseudocount` higher than 0"))
     }
     if (!as.prob) counts <- lapply(counts, function(x) x / sum(x))
     out <- character(0)

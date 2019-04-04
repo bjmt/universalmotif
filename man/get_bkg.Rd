@@ -27,7 +27,8 @@ for \code{BStringSet} type sequences.}
 \item{to.meme}{If not \code{NULL}, then \code{\link[=get_bkg]{get_bkg()}} will return the sequence
 background in MEME Markov Background Model format. Input for this argument
 will be used for \code{cat(..., file = to.meme)} within \code{\link[=get_bkg]{get_bkg()}}. See
-details.}
+\url{http://meme-suite.org/doc/bfile-format.html} for a description of
+the format.}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
@@ -46,9 +47,6 @@ for every element in \code{k}. Otherwise: \code{NULL}, invisibly.
 For a set of input sequences, calculate the overall sequence background for
 any k-let size. Only recommended for non-DNA/RNA sequences: otherwise use
 the much faster and more efficient \code{\link[Biostrings:oligonucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
-}
-\details{
-MEME background format: \url{http://meme-suite.org/doc/bfile-format.html}
 }
 \examples{
 ## Compare to Biostrings version
