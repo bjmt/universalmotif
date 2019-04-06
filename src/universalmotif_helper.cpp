@@ -134,7 +134,8 @@ NumericVector universalmotif_bkg(NumericVector bkg, NumericMatrix m_motif) {
 
   }
 
-  if (bkg_len == alph_len && bkg.names() == R_NilValue) {
+  SEXP bnames = bkg.attr("names");
+  if (bkg_len == alph_len && Rf_isNull(bnames)) {
 
     bkg.attr("names") = rownames(m_motif);
     return bkg;
@@ -316,7 +317,7 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
   LogicalVector failed(blet.size(), true);
 
-  for (int i = 0; i < blet.size(); ++i) {
+  for (unsigned int i = 0; i < blet.size(); ++i) {
 
     for (int j = 0; j < alph.length(); ++j) {
 
@@ -340,13 +341,14 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
   int blen = bkg.length();
   int alen = alph.length();
 
-  if (bkg.names() == R_NilValue && StringVector::is_na(alph[0]))
+  SEXP bnames = bkg.attr("names");
+  if (Rf_isNull(bnames) && StringVector::is_na(alph[0]))
     msg.push_back("* bkg must be a named vector\n");
 
   if (blen < alen)
     msg.push_back("* bkg vector length is too short\n");
 
-  if (bkg.names() != R_NilValue) {
+  if (!Rf_isNull(bnames)) {
 
     StringVector bnames = bkg.names();
     bool zero_check = false;
