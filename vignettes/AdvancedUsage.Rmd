@@ -195,7 +195,7 @@ Let us then use this motif with `scan_sequences()`:
 data(ArabidopsisPromoters)
 
 res <- scan_sequences(motif, ArabidopsisPromoters, verbose = 0,
-                      progress = FALSE, threshold = 0.6,
+                      progress = FALSE, threshold = 0.8,
                       threshold.type = "logodds")
 head(res)
 ```
@@ -253,10 +253,11 @@ to the width of the motif, then the calculation is _exact_.
 Now, let us return to our original example:
 
 ```{r}
+res <- res[1:6, ]
 pvals <- motif_pvalue(motif, res$score, progress = FALSE, bkg.probs = bkg)
 res2 <- data.frame(motif=res$motif, match=res$match,
                    pval=pvals)[order(pvals), ]
-knitr::kable(head(res2), digits = 22, row.names = FALSE, format = "markdown")
+knitr::kable(res2, digits = 22, row.names = FALSE, format = "markdown")
 ```
 
 The default `k` in `motif_pvalue()` is 6. I have found this to be a good
