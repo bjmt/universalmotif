@@ -522,7 +522,8 @@ setMethod("create_motif", signature(input = "matrix"),
                 stop("alphabet length does not match number of rows")
               }
             } else if (is.null(rownames(matrix)) && missing(alphabet)) {
-              alphabet <- "custom"
+              stop("Please provide the 'alphabet' arg or a matrix with rownames")
+              # alphabet <- "custom"
             } else if (all(rownames(matrix) %in% DNA_BASES) &&
                        missing(alphabet) && nrow(matrix) == 4) {
               alphabet  <- "DNA"

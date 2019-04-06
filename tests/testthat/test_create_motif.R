@@ -44,7 +44,7 @@ test_that("motif creation from matrix input works", {
                 nrow = 4, byrow = TRUE)
   mat2 <- mat * 10
 
-  motif1 <- create_motif(mat)
+  motif1 <- create_motif(mat, alphabet = "QWER")
   motif2 <- create_motif(mat, alphabet = "DNA")
   motif3 <- create_motif(mat2, alphabet = "RNA")
   motif4 <- convert_type(motif3, type = "PWM")
@@ -53,9 +53,9 @@ test_that("motif creation from matrix input works", {
 
   motif5 <- create_motif(mat3)
   motif5["nsites"] <- 10
-  motif6 <- create_motif(mat2, type = "PCM")
+  motif6 <- create_motif(mat2, alphabet = "QWER", type = "PCM")
 
-  expect_equal(motif1["alphabet"], c(alphabet = "custom"))
+  expect_equal(motif1["alphabet"], c(alphabet = "EQRW"))
   expect_equal(motif2["consensus"], c(consensus = "TATAW"))
   expect_equal(motif3["consensus"], c(consensus = "UAUAW"))
   expect_equal(motif3["nsites"], c(nsites = 10))
