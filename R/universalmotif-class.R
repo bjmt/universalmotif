@@ -14,7 +14,7 @@
 #' @slot icscore `numeric(1)` Generated automatically.
 #' @slot nsites `numeric(1)`
 #' @slot pseudocount `numeric(1)`
-#' @slot bkg `numeric` Length equal to number of letters in alphabet.
+#' @slot bkg `numeric` 0-order probabilities must be provided for all letters.
 #' @slot bkgsites `numeric(1)`
 #' @slot consensus `character` Generated automatically.
 #' @slot strand `character(1)`
@@ -185,10 +185,30 @@ setValidity("universalmotif",
             bkg_check1 <- object["bkg"]
             bkg_check2 <- nrow(object["motif"])
             if (length(bkg_check1) > 0) {
-              if (length(bkg_check1) != bkg_check2) {
+              # if (length(bkg_check1) != bkg_check2) {
+              if (length(bkg_check1) < bkg_check2) {
                 valid <- FALSE
-                msg <- c(msg, "motif 'bkg' must be a numeric vector of length equal to the number of letters in motif")
+                # msg <- c(msg, "motif 'bkg' must be a numeric vector of length equal to the number of letters in motif")
+                msg <- c(msg, "'bkg' vector is too short")
               }
+              if (is.null(names(bkg_check1)) && !is.null(rownames(object["motif"]))) {
+                valid <- FALSE
+                msg <- c(msg, "'bkg' must be a named vector")
+              }
+              # if (!all(names(bkg_check1) == rownames(object["motif"])) &&
+                  # !is.null(names(bkg_check1)) &&
+                  # !is.null(rownames(object["motif"]))) {
+                # valid <- FALSE
+                # msg <- c(msg, "first elements of 'bkg' must correspond to 0-order background")
+              # }
+              if (object["alphabet"] != "custom" &&
+                  any(is.na(bkg_check1[rownames(object["motif"])]))) {
+                valid <- FALSE
+                msg <- c(msg, "'bkg' must contain 0-order probabilities for all letters")
+              }
+            } else {
+              valid <- FALSE
+              msg <- c(msg, "'bkg' cannot be empty")
             }
 
             ## motif slot check

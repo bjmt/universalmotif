@@ -11,8 +11,9 @@
 #' @param name `character(1)` Motif name.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
 #'   from appearing in PWM matrices.
-#' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
-#'   length.
+#' @param bkg `numeric` A vector of probabilities, each between 0 and 1. If
+#'    higher order backgrounds are provided, then the elements of the vector
+#'    must be named.
 #' @param nsites `numeric(1)` Number of sites the motif was constructed from.
 #' @param altname `character(1)` Alternate motif name.
 #' @param family `character(1)` Transcription factor family.
@@ -24,9 +25,9 @@
 #' @param eval `numeric(1)` E-value associated with motif.
 #' @param extrainfo `character` Any other extra information, represented as
 #'    a named character vector.
-#' @param add.multifreq `numeric(1)` If the motif is created from a set of
+#' @param add.multifreq `numeric` If the motif is created from a set of
 #'    sequences, then the [add_multifreq()] function can be
-#'    run at the same type.
+#'    run at the same time (with `RC = FALSE`).
 #'
 #' @return [universalmotif-class] object.
 #'
@@ -229,12 +230,20 @@ setMethod("create_motif", signature(input = "numeric"),
             if (input <= 0 ) stop("input must be greater than 0")
 
             if (missing(alphabet)) alphabet <- "DNA"
-            if (alphabet %in% c("DNA", "RNA")) {
+            if (alphabet == "DNA") {
               alph_len <- 4
+              alph.split <- DNA_BASES
+            } else if (alphabet == "RNA") {
+              alph_len <- 4
+              alph.split <- RNA_BASES
             } else if (alphabet == "AA") {
               alph_len <- 20
+              alph.split <- AA_STANDARD
+            } else if (alphabet != "custom") {
+              alph.split <- safeExplode(alphabet)
+              alph_len <- length(alph.split)
             } else {
-              alph_len <- length(safeExplode(alphabet))
+              stop("custom alphabets are not acceptable for input = MISSING")
             }
 
             mot <- matrix(rep(NA, alph_len * input), nrow = alph_len)
@@ -246,9 +255,18 @@ setMethod("create_motif", signature(input = "numeric"),
                 mot[, i] <- rdirichlet(1, bkg)
               }
             } else {
-              if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
+
+              # if (sum(bkg) < 0.99 || sum(bkg) > 1.01) stop("bkg must sum to 1")
+              if (is.null(names(bkg)) && length(bkg) > alph_len)
+                stop("please provide a named vector for 'bkg'")
+              else if (is.null(names(bkg)) && length(bkg) == alph_len) {
+                names(bkg) <- alph.split
+              }
+              if (length(bkg) < alph_len)
+                stop("'bkg' must be at least ", alph_len, " elements long")
+
               for (i in seq_len(input)) {
-                mot[, i] <- rdirichlet(1, bkg)
+                mot[, i] <- rdirichlet(1, bkg[alph.split])
               }
             }
 
@@ -295,7 +313,7 @@ setMethod("create_motif", signature(input = "numeric"),
 #' @describeIn create_motif Create motif from a consensus string.
 #' @export
 setMethod("create_motif", signature(input = "character"),
-          definition = function(input, alphabet, type, name, pseudocount, 
+          definition = function(input, alphabet, type, name, pseudocount,
                                 bkg, nsites, altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo, add.multifreq) {
@@ -454,11 +472,23 @@ setMethod("create_motif", signature(input = "character"),
             }
             motif <- convert_type(motif, type = type)
 
+            if (!is.null(rownames(motif@motif))) {
+              motif@motif <- motif@motif[order(rownames(motif@motif)), ]
+            }
+
             if (!missing(add.multifreq) && length(input) > 1) {
               for (i in add.multifreq) {
                 motif@multifreq[[as.character(i)]] <- add_multi_ANY(BStringSet(input), i,
-                                                                    rownames(motif["motif"]))
+                                                                    rownames(motif@motif))
               }
+              new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
+                                 pseudocount = pseudocount,
+                                 alphabet = rownames(motif@motif))
+              new.bkg <- unlist(new.bkg)
+              names(new.bkg) <- vapply(names(new.bkg),
+                                       function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                                       character(1))
+              motif@bkg <- c(motif@bkg, new.bkg)
             }
 
             if (!is.null(rownames(motif@motif))) {
@@ -475,7 +505,7 @@ setMethod("create_motif", signature(input = "character"),
 #' @export
 setMethod("create_motif", signature(input = "matrix"),
           definition = function(input, alphabet, type, name, pseudocount,
-                                bkg, nsites, 
+                                bkg, nsites,
                                 altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo, add.multifreq) {
@@ -505,7 +535,7 @@ setMethod("create_motif", signature(input = "matrix"),
                        missing(alphabet) && nrow(matrix) == 20) {
               alphabet <- "AA"
             } else if (!is.null(rownames(matrix))) {
-              alphabet <- paste(rownames(matrix), collapse = "") 
+              alphabet <- paste(rownames(matrix), collapse = "")
             } else if (nrow(matrix == 4) && missing(alphabet)) {
               alphabet <- "DNA"
             } else if (missing(alphabet)) {
@@ -568,7 +598,6 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
             }
 
             margs <- list(name = name, pseudocount = pseudocount)
-            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
             if (!missing(family)) margs <- c(margs, list(family = family))
@@ -583,6 +612,9 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
             sequences <- consensusMatrix(sequences, baseOnly = TRUE)
             if (sum(sequences[5, ]) > 0) stop("only ACGT are accepted for DNA")
             motif <- apply(sequences[1:4, ], 2, pcm_to_ppmC, pseudocount = 0)
+
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+
             motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(type = "PPM"),
                                                margs,
@@ -596,6 +628,13 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
                 motif@multifreq[[as.character(i)]] <- add_multi_ANY(DNAStringSet(input),
                                                                    i, DNA_BASES)
               }
+              new.bkg <- get_bkg(DNAStringSet(input), k = add.multifreq,
+                                 pseudocount = pseudocount, alphabet = DNA_BASES)
+              new.bkg <- unlist(new.bkg)
+              names(new.bkg) <- vapply(names(new.bkg),
+                                       function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                                       character(1))
+              motif@bkg <- c(motif@bkg, new.bkg)
             }
 
             msg <- validObject_universalmotif(motif)
@@ -618,7 +657,6 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
             }
 
             margs <- list(name = name, pseudocount = pseudocount)
-            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
             if (!missing(family)) margs <- c(margs, list(family = family))
@@ -633,6 +671,9 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
             sequences <- consensusMatrix(sequences, baseOnly = TRUE)
             if (sum(sequences[5, ]) > 0) stop("only ACGU are accepted for RNA")
             motif <- apply(sequences[1:4, ], 2, pcm_to_ppmC, pseudocount = 0)
+
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+
             motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(type = "PPM"),
                                                margs,
@@ -646,6 +687,13 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
                 motif@multifreq[[as.character(i)]] <- add_multi_ANY(RNAStringSet(input),
                                                                     i, RNA_BASES)
               }
+              new.bkg <- get_bkg(RNAStringSet(input), k = add.multifreq,
+                                 pseudocount = pseudocount, alphabet = RNA_BASES)
+              new.bkg <- unlist(new.bkg)
+              names(new.bkg) <- vapply(names(new.bkg),
+                                       function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                                       character(1))
+              motif@bkg <- c(motif@bkg, new.bkg)
             }
 
             msg <- validObject_universalmotif(motif)
@@ -668,7 +716,6 @@ setMethod("create_motif", signature(input = "AAStringSet"),
             }
 
             margs <- list(name = name, pseudocount = pseudocount)
-            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
             if (!missing(family)) margs <- c(margs, list(family = family))
@@ -692,6 +739,9 @@ setMethod("create_motif", signature(input = "AAStringSet"),
             }
             motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
             motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+
+            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+
             motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                list(type = "PPM"),
                                                margs,
@@ -702,6 +752,13 @@ setMethod("create_motif", signature(input = "AAStringSet"),
                 motif@multifreq[[as.character(i)]] <- add_multi_ANY(input, i,
                                                                     AA_STANDARD)
               }
+              new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq,
+                                 pseudocount = pseudocount, alphabet = AA_STANDARD)
+              new.bkg <- unlist(new.bkg)
+              names(new.bkg) <- vapply(names(new.bkg),
+                                       function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                                       character(1))
+              motif@bkg <- c(motif@bkg, new.bkg)
             }
 
             if (missing(nsites))  motif["nsites"] <- length(input)
@@ -727,7 +784,6 @@ setMethod("create_motif", signature(input = "BStringSet"),
             }
 
             margs <- list(name = name, pseudocount = pseudocount)
-            if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
             if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
             if (!missing(altname)) margs <- c(margs, list(altname = altname))
             if (!missing(family)) margs <- c(margs, list(family = family))
@@ -744,6 +800,9 @@ setMethod("create_motif", signature(input = "BStringSet"),
               motif <- apply(sequences, 2, pcm_to_ppmC, pseudocount = 0)
               # rownames(motif) <- rownames(sequences)
               alphabet <- paste(rownames(sequences), collapse = "")
+
+              if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+
               motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -752,6 +811,13 @@ setMethod("create_motif", signature(input = "BStringSet"),
               sequences <- consensusMatrix(sequences)
               motif <- apply(sequences, 2, pcm_to_ppmC, pseudocount = 0)
               rownames(motif) <- rownames(sequences)
+
+              if (!missing(bkg)) {
+                if (!is.null(names(bkg)) && length(bkg) != nrow(motif))
+                  bkg <- bkg[order(names(bkg))]
+                margs <- c(margs, list(bkg = bkg))
+              }
+
               motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -767,6 +833,9 @@ setMethod("create_motif", signature(input = "BStringSet"),
               }
               motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
               motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+
+              if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+
               motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                                  list(type = "PPM"),
                                                  margs,
@@ -779,6 +848,14 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                                     i,
                                                  rownames(motif["motif"]))
               }
+              new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
+                                 pseudocount = pseudocount,
+                                 alphabet = rownames(motif["motif"]))
+              new.bkg <- unlist(new.bkg)
+              names(new.bkg) <- vapply(names(new.bkg),
+                                       function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                                       character(1))
+              motif@bkg <- c(motif@bkg, new.bkg)
             }
 
             if (missing(nsites))  motif["nsites"] <- length(input)

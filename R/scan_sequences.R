@@ -155,7 +155,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   mot.alphs <- unique(mot.alphs)
   if (verbose > 1) cat("   * Motif alphabet:", mot.alphs, "\n")
   alph <- mot.alphs
-  mot.bkgs <- lapply(motifs, function(x) x["bkg"])
+  mot.bkgs <- lapply(motifs, function(x) x["bkg"][rownames(x["motif"])])
   seq.lens <- width(sequences)
 
   seq.names <- names(sequences)
@@ -183,8 +183,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   for (i in seq_along(motifs)) {
     if (motifs[[i]]["pseudocount"] == 0) {
       if (verbose > 1)
-        cat("   * Setting 'pseudocount' to 0.001 for motif:", mot.names[i], "\n")
-      motifs[[i]]["pseudocount"] <- 0.001
+        cat("   * Setting 'pseudocount' to 1 for motif:", mot.names[i], "\n")
+      motifs[[i]]["pseudocount"] <- 1
     }
     if (length(motifs[[i]]["nsites"]) == 0) {
       if (verbose > 1)
@@ -224,7 +224,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
         cat(" * Converting P-values to logodds thresholds\n")
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                                 k = 5, progress = progress, BP = BP)
+                                 k = 6, progress = progress, BP = BP)
       for (i in seq_along(thresholds)) {
         if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }

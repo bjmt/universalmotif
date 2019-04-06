@@ -21,6 +21,15 @@ NEW FEATURES
       sequence from higher order backgrounds and any sequence alphabet
       (options "monofreqs", "difreqs" and "trifreqs" are now deprecated)
 
+    o universalmotif objects can now hold onto higher order backgrounds
+
+    o motif_pvalue() with use.freq > 1 can calculate P-values from
+      provided higher-order backgrounds, instead of assuming a uniform
+      background
+
+    o add_multifreq() adds corresponding higher order background probabilities
+      to motifs
+
 MINOR CHANGES
 
     o Increased input security for character type parameters throughout

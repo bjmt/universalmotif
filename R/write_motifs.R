@@ -51,8 +51,11 @@ write_motifs_per_motif <- function(motif, minimal, multifreq) {
   out.man[4] <- paste("type:", motif@type)
   out.man[5] <- paste("strand:", motif@strand)
   out.man[6] <- paste("pseudocount:", motif@pseudocount)
-  out.man[7] <- paste("bkg:", paste(formatC(motif@bkg, format = "f", digits = 4),
-                                    collapse = " "))
+  out.man[7] <- paste("bkg:",
+                      paste0(paste(names(motif@bkg),
+                                   formatC(motif@bkg, format = "f", digits = 4),
+                                   sep = "="),
+                             collapse = " "))
 
   if (!minimal) {
     ## for looks

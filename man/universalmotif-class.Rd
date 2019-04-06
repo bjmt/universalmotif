@@ -5,6 +5,7 @@
 \name{universalmotif-class}
 \alias{universalmotif-class}
 \alias{universalmotif}
+\alias{[,universalmotif,ANY,ANY,ANY-method}
 \alias{[,universalmotif-method}
 \alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{[<-,universalmotif-method}
@@ -24,7 +25,7 @@
 \alias{cbind,universalmotif-method}
 \title{universalmotif: Motif class.}
 \usage{
-\S4method{[}{universalmotif}(x, i)
+\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i)
 
 \S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
 
@@ -90,8 +91,9 @@ or a combined string representing the letters.}
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from appearing in PWM matrices.}
 
-\item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
-length. If missing, assumes a uniform background.}
+\item{bkg}{\code{numeric} A vector of probabilities, each between 0 and 1. If
+higher order backgrounds are provided, then the elements of the vector
+must be named.}
 
 \item{bkgsites}{\code{numeric(1)} Total number of sites used to find the motif.}
 
@@ -150,7 +152,7 @@ brief description of available methods, see \code{examples}.
 
 \item{\code{pseudocount}}{\code{numeric(1)}}
 
-\item{\code{bkg}}{\code{numeric} Length equal to number of letters in alphabet.}
+\item{\code{bkg}}{\code{numeric} 0-order probabilities must be provided for all letters.}
 
 \item{\code{bkgsites}}{\code{numeric(1)}}
 

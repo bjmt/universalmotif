@@ -32,4 +32,12 @@ NumericVector consensus_to_ppmAAC(String letter);
 String get_consensusAAC(NumericVector position, String type="PPM",
     double pseudocount=0.0);
 
+StringVector collapse_rows_mat(CharacterMatrix seqs_k);
+
+StringVector collapse_rows_df(DataFrame seqs_k);
+
+StringVector strsplit_cpp(std::string x);
+
+String all_checks_collapse(StringVector checks);
+
 #endif

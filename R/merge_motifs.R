@@ -2,7 +2,7 @@
 #'
 #' Aligns the motifs using [compare_motifs()], then averages the
 #' motif PPMs. Currently the `multifreq` slot, if filled in any of the motifs,
-#' will be dropped.
+#' will be dropped. Only 0-order background probabilities will be kept.
 #'
 #' @return A single motif object. See [convert_motifs()] for
 #'    available formats.
@@ -133,8 +133,8 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
   new.mat <- merge_mot_pair(mot.mats[[1]], mot.mats[[2]], 1, 1, mot.ic1,
                             mot.ic2, tryRC, min.overlap, min.mean.ic, method,
                             relative_entropy, normalise.scores)
-  bkg.1 <- motifs[[1]]["bkg"]
-  bkg.2 <- motifs[[2]]["bkg"]
+  bkg.1 <- motifs[[1]]["bkg"][rownames(motifs[[1]]["motif"])]
+  bkg.2 <- motifs[[2]]["bkg"][rownames(motifs[[2]]["motif"])]
   bkg.new <- vapply(seq_along(bkg.1), function(x) mean(c(bkg.1[x], bkg.2[x])),
                     numeric(1))
   nsites.1 <- motifs[[1]]["nsites"]
@@ -158,8 +158,8 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                                 new.ic, mot.ic, tryRC, min.overlap,
                                 min.mean.ic, method, relative_entropy,
                                 normalise.scores)
-      bkg.1 <- motifs[[i]]["bkg"]
-      bkg.2 <- mot.new["bkg"]
+      bkg.1 <- motifs[[i]]["bkg"][rownames(motifs[[i]]["motif"])]
+      bkg.2 <- mot.new["bkg"][rownames(mot.new["motif"])]
       bkg.new <- vapply(seq_along(bkg.1), function(x) mean(c(bkg.1[x], bkg.2[x])),
                       numeric(1))
       nsites.1 <- motifs[[i]]["nsites"]

@@ -15,7 +15,7 @@ test_that("accessor functions work", {
   expect_equal(unname(m["icscore"]), m@icscore)
   expect_equal(unname(m["nsites"]), m@nsites)
   expect_equal(unname(m["pseudocount"]), m@pseudocount)
-  expect_equal(unname(m["bkg"]), m@bkg)
+  expect_equal(m["bkg"], m@bkg)
   expect_equal(m["bkgsites"], m@bkgsites)
   expect_equal(unname(m["consensus"]), m@consensus)
   expect_equal(unname(m["strand"]), m@strand)

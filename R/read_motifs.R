@@ -42,7 +42,7 @@ read_motifs <- function(file, skip = 0) {
   motifs <- mapply(function(x, y) motifs_to_list(raw_lines, x, y),
                    motif_starts, motif_stops, SIMPLIFY = FALSE)
 
-  motifs <- lapply(motifs, motifs_to_umot)
+  motifs <- lapply(motifs, motifs_to_umot, version = version)
 
   motifs.check <- mapply(check_list, motifs, seq_along(motifs), SIMPLIFY = TRUE)
 
@@ -66,7 +66,7 @@ motifs_to_list <- function(raw_lines, motif_starts, motif_stops) {
   list(raw_lines[motif_starts:motif_stops])
 }
 
-motifs_to_umot <- function(motif) {
+motifs_to_umot <- function(motif, version) {
 
   motif <- motif[[1]]
   motif.split <- strsplit(motif, " ")
@@ -120,7 +120,17 @@ motifs_to_umot <- function(motif) {
   which.bkg <- vapply(motif.split, function(x) x[1] == "bkg:", logical(1))
   which.bkg <- which(which.bkg)
   if (length(which.bkg) == 1) {
-    motif.bkg <- as.numeric(motif.split[[which.bkg]][-1])
+    if (version < "1.1.57") {
+      motif.bkg <- as.numeric(motif.split[[which.bkg]][-1])
+    } else {
+      motif.bkg <- vapply(motif.split[[which.bkg]][-1],
+                          function(x) strsplit(x, "=")[[1]][2],
+                          character(1))
+      motif.bkg <- as.numeric(motif.bkg)
+      names(motif.bkg) <- vapply(motif.split[[which.bkg]][-1],
+                                 function(x) strsplit(x, "=")[[1]][1],
+                                 character(1))
+    }
   } else motif.bkg <- FALSE
 
   which.bkgsites <- vapply(motif.split, function(x) x[1] == "bkgsites:", logical(1))

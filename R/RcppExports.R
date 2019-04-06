@@ -109,6 +109,22 @@ shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_
     .Call('_universalmotif_shuffle_markov_loop', PACKAGE = 'universalmotif', seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols)
 }
 
+trim_motif_internal <- function(motif, ic_scores, min_ic) {
+    .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
+}
+
+universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character_, family = NA_character_, organism = NA_character_, alphabet = "DNA", type = NA_character_, icscore = as.numeric( c()), nsites = as.numeric( c()), pseudocount = 0.8, bkg = as.numeric( c()), bkgsites = as.numeric( c()), consensus = NA_character_, strand = "+-", pval = as.numeric( c()), qval = as.numeric( c()), eval = as.numeric( c()), extrainfo = NA_character_) {
+    .Call('_universalmotif_universalmotif_cpp', PACKAGE = 'universalmotif', motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo)
+}
+
+check_bkg_names <- function(alph, blet) {
+    .Call('_universalmotif_check_bkg_names', PACKAGE = 'universalmotif', alph, blet)
+}
+
+validObject_universalmotif <- function(motif) {
+    .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
+}
+
 collapse_rows_mat <- function(seqs_k) {
     .Call('_universalmotif_collapse_rows_mat', PACKAGE = 'universalmotif', seqs_k)
 }
@@ -119,18 +135,6 @@ collapse_rows_df <- function(seqs_k) {
 
 collapse_cpp <- function(x) {
     .Call('_universalmotif_collapse_cpp', PACKAGE = 'universalmotif', x)
-}
-
-trim_motif_internal <- function(motif, ic_scores, min_ic) {
-    .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
-}
-
-universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character_, family = NA_character_, organism = NA_character_, alphabet = "DNA", type = NA_character_, icscore = as.numeric( c()), nsites = as.numeric( c()), pseudocount = 0.8, bkg = as.numeric( c()), bkgsites = as.numeric( c()), consensus = NA_character_, strand = "+-", pval = as.numeric( c()), qval = as.numeric( c()), eval = as.numeric( c()), extrainfo = NA_character_) {
-    .Call('_universalmotif_universalmotif_cpp', PACKAGE = 'universalmotif', motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo)
-}
-
-validObject_universalmotif <- function(motif) {
-    .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
 }
 
 print_pb <- function(out) {

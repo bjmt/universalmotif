@@ -353,36 +353,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// collapse_rows_mat
-StringVector collapse_rows_mat(CharacterMatrix seqs_k);
-RcppExport SEXP _universalmotif_collapse_rows_mat(SEXP seqs_kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< CharacterMatrix >::type seqs_k(seqs_kSEXP);
-    rcpp_result_gen = Rcpp::wrap(collapse_rows_mat(seqs_k));
-    return rcpp_result_gen;
-END_RCPP
-}
-// collapse_rows_df
-StringVector collapse_rows_df(DataFrame seqs_k);
-RcppExport SEXP _universalmotif_collapse_rows_df(SEXP seqs_kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type seqs_k(seqs_kSEXP);
-    rcpp_result_gen = Rcpp::wrap(collapse_rows_df(seqs_k));
-    return rcpp_result_gen;
-END_RCPP
-}
-// collapse_cpp
-String collapse_cpp(StringVector x);
-RcppExport SEXP _universalmotif_collapse_cpp(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(collapse_cpp(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // trim_motif_internal
 NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores, double min_ic);
 RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
@@ -422,6 +392,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// check_bkg_names
+bool check_bkg_names(StringVector alph, std::string blet);
+RcppExport SEXP _universalmotif_check_bkg_names(SEXP alphSEXP, SEXP bletSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< std::string >::type blet(bletSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_bkg_names(alph, blet));
+    return rcpp_result_gen;
+END_RCPP
+}
 // validObject_universalmotif
 StringVector validObject_universalmotif(S4 motif);
 RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP) {
@@ -429,6 +411,36 @@ BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< S4 >::type motif(motifSEXP);
     rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif));
+    return rcpp_result_gen;
+END_RCPP
+}
+// collapse_rows_mat
+StringVector collapse_rows_mat(CharacterMatrix seqs_k);
+RcppExport SEXP _universalmotif_collapse_rows_mat(SEXP seqs_kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type seqs_k(seqs_kSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapse_rows_mat(seqs_k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// collapse_rows_df
+StringVector collapse_rows_df(DataFrame seqs_k);
+RcppExport SEXP _universalmotif_collapse_rows_df(SEXP seqs_kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type seqs_k(seqs_kSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapse_rows_df(seqs_k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// collapse_cpp
+String collapse_cpp(StringVector x);
+RcppExport SEXP _universalmotif_collapse_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapse_cpp(x));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -641,12 +653,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},
     {"_universalmotif_shuffle_random_loop", (DL_FUNC) &_universalmotif_shuffle_random_loop, 5},
     {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
+    {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
+    {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
+    {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
+    {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
-    {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
-    {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
-    {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
     {"_universalmotif_print_pb", (DL_FUNC) &_universalmotif_print_pb, 1},
     {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 2},
     {"_universalmotif_all_checks_collapse", (DL_FUNC) &_universalmotif_all_checks_collapse, 1},

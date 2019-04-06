@@ -23,6 +23,13 @@ IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
 NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
     IntegerMatrix alph_sort) {
 
+  // This function calculates the probability of finding a string of letters.
+  // The only thing I'm unsure of is taking into account the length of the
+  // sequence of origin; in which case the P-value calculation becomes:
+  // ( 1 - P(A)^k1 * P(C)^k2 * P(G)^k3 * P(T)^k4 ) ^ N
+  // Where N = total number of positions in a positions which could contain
+  // the sequence.
+
   NumericVector probs_out(bb_mat.nrow(), 1.0);
 
   for (int i = 0; i < bb_mat.nrow(); ++i) {
@@ -40,8 +47,8 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 }
 
 // // [[Rcpp::export(rng = false)]]
-// NumericVector kmer_mat_to_probs_k2_cpp(IntegerMatrix bb_mat, NumericVector bkg,
-    // IntegerMatrix alph_sort) {
+// NumericVector kmer_mat_to_probs_k2_cpp(IntegerMatrix bb_mat, NumericVector bkg1,
+    // IntegerMatrix alph_sort, NumericVector bkg2) {
 //
   // NumericVector probs_out(bb_mat.nrow(), 1.0);
   // int let1, let2, let3;
@@ -55,7 +62,8 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 //
       // let3 = let1 * alph_sort.nrow() + let2;
 //
-      // probs_out[i] *= bkg[let3];
+      // probs_out[i] *= bkg2[let3];
+      // probs_out[i] *= bkg1[let1];
 //
     // }
 //
@@ -67,7 +75,7 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 
 // // [[Rcpp::export(rng = false)]]
 // NumericVector kmer_mat_to_probs_k3_cpp(IntegerMatrix bb_mat, NumericVector bkg,
-    // IntegerMatrix alph_sort) {
+    // IntegerMatrix alph_sort, NumericVector bkg2, NumericVector bkg3) {
 //
   // NumericVector probs_out(bb_mat.nrow(), 1.0);
   // int let1, let2, let3, let4;

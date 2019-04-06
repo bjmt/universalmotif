@@ -2,7 +2,7 @@ context("create_motif()")
 
 test_that("motif creation for missing or from numeric input works", {
 
-  expect_error(universalmotif())
+  expect_error(universalmotif_cpp())
 
   motif1 <- create_motif()
   motif2 <- create_motif(10)
@@ -48,7 +48,7 @@ test_that("motif creation from matrix input works", {
   motif2 <- create_motif(mat, alphabet = "DNA")
   motif3 <- create_motif(mat2, alphabet = "RNA")
   motif4 <- convert_type(motif3, type = "PWM")
-  
+
   mat3 <- motif4["motif"]
 
   motif5 <- create_motif(mat3)

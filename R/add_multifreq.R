@@ -52,7 +52,8 @@
 #'    if what you want is to search for exact sequence matches,
 #'    the motif format itself is not very useful).
 #'
-#' @return A [universalmotif-class] object with filled `multifreq` slot.
+#' @return A [universalmotif-class] object with filled `multifreq` slot. The
+#'    `bkg` slot is also expanded with corresponding higher order probabilities.
 #'
 #' @examples
 #' sequences <- create_sequences(seqlen = 10)
@@ -145,6 +146,14 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     }
   }
   motif@multifreq <- multifreq
+
+  new.bkg <- get_bkg(sequences, k = add.k, RC = RC)
+  new.bkg <- unlist(new.bkg)
+  names(new.bkg) <- vapply(names(new.bkg),
+                           function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                           character(1))
+
+  motif@bkg <- c(motif@bkg, new.bkg)
 
   motif
 

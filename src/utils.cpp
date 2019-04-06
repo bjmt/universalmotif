@@ -18,6 +18,41 @@ namespace std {
 }
 
 // [[Rcpp::export(rng = false)]]
+StringVector collapse_rows_mat(CharacterMatrix seqs_k) {
+  // ~10 times as fast as apply(seqs_k_matrix, 1, collapse_cpp)
+  // ~15 faster than collapse_rows_df(seqs_k_df)
+
+  StringVector out(seqs_k.nrow());
+
+  for (int i = 0; i < seqs_k.nrow(); ++i) {
+    out[i] = collapse(seqs_k(i, _));
+  }
+
+  return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+StringVector collapse_rows_df(DataFrame seqs_k) {
+  // >2 times as fast as apply(seqs_k_df, 1, collapse_cpp)
+
+  CharacterMatrix seqs_k_mat(seqs_k.nrow(), seqs_k.size());
+
+  for (int i = 0; i < seqs_k.size(); ++i)
+    seqs_k_mat(_, i) = StringVector(seqs_k[i]);
+
+  return collapse_rows_mat(seqs_k_mat);
+
+}
+
+// [[Rcpp::export(rng = false)]]
+String collapse_cpp(StringVector x) {
+  // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")
+  // collapse_cpp(c(x, y)) about 2 times faster than base::paste0(x, y)
+  return collapse(x);
+}
+
+// [[Rcpp::export(rng = false)]]
 void print_pb(int out) {
        if (out == 0)               Rprintf("   0%%");
   else if (out > 0 && out < 10)    Rprintf("\b\b\b\b  %i%%", out);
@@ -42,14 +77,14 @@ void update_pb(int i, int max) {
 
 }
 
-// StringVector strsplit_cpp(std::string x) {  // slightly slower than
-  // int n = x.size();                         // strsplit(x, "")[[1]]
-  // StringVector out(n);
-  // for (int i = 0; i < n; ++i) {
-    // out[i] = x.substr(i, 1);
-  // }
-  // return out;
-// }
+StringVector strsplit_cpp(std::string x) {  // slightly slower than
+  int n = x.size();                         // strsplit(x, "")[[1]]
+  StringVector out(n);
+  for (int i = 0; i < n; ++i) {
+    out[i] = x.substr(i, 1);
+  }
+  return out;
+}
 
 // [[Rcpp::export(rng = false)]]
 String all_checks_collapse(StringVector checks) {

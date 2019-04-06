@@ -57,7 +57,7 @@ read_uniprobe <- function(file, skip = 0) {
     motif_list <- mapply(parse_motifs, motif_starts, motif_stops,
                            SIMPLIFY = FALSE)
     motif_list <- mapply(function(meta, motif) {
-                            universalmotif(name = meta[1],
+                            universalmotif_cpp(name = meta[1],
                                            motif = matrix(motif, nrow = 4,
                                                           byrow = TRUE),
                                            alphabet = "DNA",

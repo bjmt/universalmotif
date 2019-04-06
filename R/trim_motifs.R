@@ -48,7 +48,8 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
   mot.scores <- lapply(motifs,
                          function(x) {
                           apply(x["motif"], 2, position_icscoreC,
-                                bkg = x["bkg"], type = x["type"],
+                                bkg = x["bkg"][rownames(x["motif"])],
+                                type = x["type"],
                                 pseudocount = x["pseudocount"],
                                 nsites = x["nsites"])
                          })
@@ -82,7 +83,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
             mot.names[num_bar])
     return(invisible(NULL))
   }
-  
+
   motifs <- motifs[!dont_keep]
 
   motifs <- lapply(motifs,
@@ -91,7 +92,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
                        type <- x@type
                        pseudo <- x@pseudocount
                        mat <- x@motif
-                       bkg <- x@bkg
+                       bkg <- x@bkg[rownames(mat)]
                        nsites <- x@nsites
                        ic <- sum(apply(mat, 2, position_icscoreC, bkg = bkg,
                                  type = type, pseudocount = pseudo,

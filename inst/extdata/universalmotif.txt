@@ -1,11 +1,11 @@
-# universalmotif version 0.99.0
+# universalmotif version 1.1.57
 ================================================================================
 name: motif
 alphabet: DNA
 type: PPM
 strand: +-
 pseudocount: 0
-bkg: 0.2406 0.2525 0.2614 0.2455
+bkg: A=0.2406 C=0.2525 G=0.2614 T=0.2455
 icscore: 10.74
 consensus: GATGGGGAGS
 nsites: 232

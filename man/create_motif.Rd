@@ -63,8 +63,9 @@ or a combined string representing the letters.}
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from appearing in PWM matrices.}
 
-\item{bkg}{\code{numeric} Must sum to 1 and be equal in length to the alphabet
-length.}
+\item{bkg}{\code{numeric} A vector of probabilities, each between 0 and 1. If
+higher order backgrounds are provided, then the elements of the vector
+must be named.}
 
 \item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from.}
 
@@ -87,9 +88,9 @@ length.}
 \item{extrainfo}{\code{character} Any other extra information, represented as
 a named character vector.}
 
-\item{add.multifreq}{\code{numeric(1)} If the motif is created from a set of
+\item{add.multifreq}{\code{numeric} If the motif is created from a set of
 sequences, then the \code{\link[=add_multifreq]{add_multifreq()}} function can be
-run at the same type.}
+run at the same time (with \code{RC = FALSE}).}
 }
 \value{
 \linkS4class{universalmotif} object.

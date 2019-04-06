@@ -32,7 +32,8 @@ See \code{\link[=scan_sequences]{scan_sequences()}}.}
 then this indicates how many hits from each sequence is to be used.}
 }
 \value{
-A \linkS4class{universalmotif} object with filled \code{multifreq} slot.
+A \linkS4class{universalmotif} object with filled \code{multifreq} slot. The
+\code{bkg} slot is also expanded with corresponding higher order probabilities.
 }
 \description{
 If the original sequences are available for a particular motif, then they

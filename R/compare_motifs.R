@@ -408,7 +408,7 @@ get_rid_of_dupes <- function(comparisons) {
 #' @noRd
 .pos_iscscores <- function(motif, mot.mats, relative = FALSE) {
 
-  bkg <- motif["bkg"]
+  bkg <- motif["bkg"][rownames(motif["motif"])]
   pseudo <- motif["pseudocount"]
   nsites <- motif["nsites"]
   if (length(nsites) == 0) nsites <- 100

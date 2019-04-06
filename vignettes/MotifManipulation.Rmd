@@ -60,7 +60,7 @@ A brief description of all the available slots:
 * `icscore`: (generated automatically) Sum of information content for the motif
 * `nsites`: (optional) number of sites the motif was created from
 * `pseudocount`: this value to added to the motif matrix during certain type conversions; this is necessary to avoid `-Inf` values from appearing in PWM type motifs for example
-* `bkg`: a vector of numbers summing to 1 which represent the background letter frequencies
+* `bkg`: a named vector of probabilities which represent the background letter frequencies
 * `bkgsites`: (optional) total number of background sequences from motif creation
 * `consensus`: (generated automatically) for DNA/RNA/AA motifs, the motif consensus
 * `strand`: strand motif can be found on
@@ -228,7 +228,7 @@ convert_type(examplemotif, "ICM", nsize_correction = FALSE)
 
 convert_type(examplemotif, "ICM", nsize_correction = TRUE)
 
-examplemotif["bkg"] <- c(0.4, 0.1, 0.1, 0.4)
+examplemotif["bkg"] <- c(A=0.4, C=0.1, G=0.1, T=0.4)
 convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 ```
 

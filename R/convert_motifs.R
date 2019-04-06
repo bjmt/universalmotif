@@ -183,8 +183,8 @@ convert_to_motiv_pwm2 <- function(motifs) {
 
 convert_to_tfbstools_matrix <- function(motifs, out_class) {
   motifs <- convert_type(motifs, "PCM")
-  bkg <- motifs["bkg"]
-  names(bkg) <- DNA_BASES
+  bkg <- motifs["bkg"][DNA_BASES]
+  # names(bkg) <- DNA_BASES
   extrainfo <- motifs["extrainfo"]
   if (length(motifs["altname"]) == 0) {
     motifs["altname"] <- ""
@@ -225,10 +225,8 @@ convert_to_tfbstools_tffmfirst <- function(motifs) {
     stop("cannot convert without filled multifreq slot")
   }
   if (motifs["alphabet"] != "DNA") stop("alphabet must be DNA")
-  bkg <- motifs["bkg"]
+  bkg <- motifs["bkg"][DNA_BASES]
   emission <- list(length = ncol(motifs@multifreq[["2"]]) + 1)
-  bkg <- motifs["bkg"]
-  names(bkg) <- DNA_BASES
   emission[[1]] <- bkg
   transition <- matrix(rep(0, (ncol(motifs@multifreq$`2`) + 1) *
                                ncol(motifs@multifreq$`2`)),
@@ -279,7 +277,7 @@ convert_to_motifstack_pcm <- function(motifs) {
     motifs <- new(pcm_class, mat = motifs["motif"],
                   name = motifs["name"],
                   alphabet = motifs["alphabet"],
-                  background = motifs["bkg"])
+                  background = motifs["bkg"][DNA_BASES])
   } else {
     stop("'motifStack' package not installed")
   }
@@ -295,7 +293,7 @@ convert_to_motifstack_pfm <- function(motifs) {
     motifs <- new(pfm_class, mat = motifs["motif"],
                   name = motifs["name"],
                   alphabet = motifs["alphabet"],
-                  background = motifs["bkg"])
+                  background = motifs["bkg"][DNA_BASES])
   } else {
     stop("'motifStack' package not installed")
   }
@@ -311,8 +309,7 @@ convert_to_pwmenrich_pwm <- function(motifs) {
     bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
                       nrow = 4)
     rownames(bio_mat) <- DNA_BASES
-    bio_priors <- motifs["bkg"]
-    names(bio_priors) <- DNA_BASES
+    bio_priors <- motifs["bkg"][DNA_BASES]
     bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
                         prior.params = bio_priors,
                         pseudo.count = motifs["pseudocount"])
@@ -331,8 +328,7 @@ convert_to_biostrings_pwm <- function(motifs) {
   bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
                     nrow = 4)
   rownames(bio_mat) <- DNA_BASES
-  bio_priors <- motifs["bkg"]
-  names(bio_priors) <- DNA_BASES
+  bio_priors <- motifs["bkg"][DNA_BASES]
   motifs <- PWM(x = bio_mat, type = "log2probratio",
                 prior.params = bio_priors)
   motifs
@@ -383,10 +379,10 @@ setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
               difreq <- matrix(difreq, nrow = 16) / 4
               rownames(difreq) <- DNA_DI
               colnames(difreq) <- seq_len(ncol(difreq))
-              mot <- universalmotif(name = motifs@name, altname = motifs@ID,
+              mot <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
                              strand = motifs@strand, bkg = motifs@bg,
-                             motif = TFBSTools::getPosProb(motifs),
-                             multifreq = list(`2` = difreq))
+                             motif = TFBSTools::getPosProb(motifs))
+              mot@multifreq <- list("2" = difreq)
             } else {
               stop("package 'TFBSTools' is not installed") 
             }

@@ -14,7 +14,8 @@ setMethod("[", "universalmotif", function(x, i) {
 
   if (all(i == "motif")) return(x@motif)
   if (all(i == "multifreq")) return(x@multifreq)
-  
+  if (all(i == "bkg")) return(x@bkg)
+
   return_list <- lapply(i, function(y) slot(x, y))
   names(return_list) <- i
   if ("motif" %in% names(return_list)) {
@@ -23,7 +24,10 @@ setMethod("[", "universalmotif", function(x, i) {
   if ("multifreq" %in% names(return_list)) {
     return_list$multifreq <- x@multifreq
   }
- 
+  if ("bkg" %in% names(return_list)) {
+    return_list$bkg <- x@bkg
+  }
+
   if (length(return_list) <= 1) {
     return_list <- unlist(return_list)
     if (i == "extrainfo") {
@@ -40,14 +44,13 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
   if (i == "icscore") stop("'icscore' is generated automatically")
-  if (i == "multifreq") stop("please use 'add_multifreq'")
+  if (i == "multifreq") stop("please use add_multifreq()")
   if (i == "consensus" && x@alphabet %in% c("DNA", "RNA", "AA")) {
     stop("consensus string for ", x@alphabet, " motifs is generated automatically")
   }
   slot(x, i) <- value
-  # msg <- validObject_universalmotif(x)  # TODO: throws errors..
-  # if (length(msg) > 0) stop(msg) else x
-  if (validObject(x)) x
+  msg <- validObject_universalmotif(x)
+  if (length(msg) > 0) stop(msg) else x
 })
 
 #' @param .Object [universalmotif-class] Final motif.
@@ -63,8 +66,9 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param nsites `numeric(1)` Number of sites the motif was constructed from.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
 #'   from appearing in PWM matrices.
-#' @param bkg `numeric` Must sum to 1 and be equal in length to the alphabet
-#'            length. If missing, assumes a uniform background.
+#' @param bkg `numeric` A vector of probabilities, each between 0 and 1. If
+#'    higher order backgrounds are provided, then the elements of the vector
+#'    must be named.
 #' @param bkgsites `numeric(1)` Total number of sites used to find the motif.
 #' @param consensus `character(1)` Consensus string. Automatically generated for 
 #'    'DNA', 'RNA', and 'AA' alphabets.
@@ -79,13 +83,15 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @rdname universalmotif-class
 #' @aliases initialize,universalmotif-method
 setMethod("initialize", signature = "universalmotif",
-          definition = function(.Object, name, altname, family, 
+          definition = function(.Object, name, altname, family,
                                 organism, motif,
                                 alphabet = "DNA", type, icscore, nsites,
                                 pseudocount = 0.8, bkg, bkgsites,
                                 consensus, strand = "+-", pval,
                                 qval, eval, multifreq, extrainfo) {
-            
+
+            message("Please use create_motif() instead.")
+
             if (missing(name) || length(name) == 0 || is.na(name)) {
               name <- "new motif"
             }

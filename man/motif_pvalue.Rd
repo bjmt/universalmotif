@@ -16,13 +16,13 @@ motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
 p-value.}
 
 \item{bkg.probs}{\code{numeric}, \code{list} If supplying individual background
-probabilities for each motif, a list. If missing, assumes a uniform
-background. Note that this only influences calculating p-values
-from an input score; calculating a score from an input p-value
-currently assumes a uniform background.}
+probabilities for each motif, a list. If missing, retrieves the
+background from the motif \code{bkg} slot. Note that this only influences
+calculating p-values from an input score; calculating a score from an
+input p-value currently assumes a uniform background.}
 
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
-otherwise uses the corresponding \code{multifreq} matrix.}
+otherwise uses the corresponding \code{multifreq} matrix. Max is 3.}
 
 \item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after
 subsetting the motif every \code{k} columns. If \code{k} is a value
@@ -100,14 +100,6 @@ motif_pvalue(examplemotif, score = 0)
 
 ## the calculations can be performed for multiple motifs
 motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
-
-## get motif site p-values after using scan_sequences()
-data(ArabidopsisMotif)
-data(ArabidopsisPromoters)
-res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-                      progress = FALSE, verbose = 0, threshold = 0,
-                      threshold.type = "logodds")[1:100, ]
-res$pvalue <- motif_pvalue(ArabidopsisMotif, score = res$score)
 
 }
 \references{

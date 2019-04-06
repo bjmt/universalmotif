@@ -45,7 +45,7 @@ available formats.
 \description{
 Aligns the motifs using \code{\link[=compare_motifs]{compare_motifs()}}, then averages the
 motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
-will be dropped.
+will be dropped. Only 0-order background probabilities will be kept.
 }
 \examples{
 if (requireNamespace("MotifDb", quietly = TRUE) && .Platform$OS.type == "unix") {

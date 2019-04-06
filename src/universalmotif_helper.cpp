@@ -101,18 +101,49 @@ NumericVector universalmotif_icscore(NumericVector icscore, NumericVector nsites
     NumericMatrix m_motif, NumericVector bkg, StringVector type,
     double pseudocount) {
 
+  int alph_len = m_motif.nrow();
+  IntegerVector bkg_i = seq_len(alph_len) - 1;
+
   if (NumericVector::is_na(icscore[0]) || icscore.length() == 0) {
     double tmp_nsites = 0;
     if (nsites.length() != 0) tmp_nsites = nsites[0];
     NumericVector icscore_tmp(m_motif.ncol());
     for (int i = 0; i < m_motif.ncol(); ++i) {
-      icscore_tmp[i] = position_icscoreC(m_motif(_, i), bkg, type[0], pseudocount,
-          tmp_nsites);
+      icscore_tmp[i] = position_icscoreC(m_motif(_, i), bkg[bkg_i], type[0],
+          pseudocount, tmp_nsites);
     }
     icscore[0] = sum(icscore_tmp);
   }
 
   return icscore;
+
+}
+
+NumericVector universalmotif_bkg(NumericVector bkg, NumericMatrix m_motif) {
+
+  // NOTE: Assumes the vector is already properly alphabetically sorted.
+
+  int alph_len = m_motif.nrow();
+  int bkg_len = bkg.length();
+
+  if (NumericVector::is_na(bkg[0]) || bkg_len == 0) {
+
+    bkg = rep(1.0 / m_motif.nrow(), m_motif.nrow());
+    bkg.attr("names") = rownames(m_motif);
+    return bkg;
+
+  }
+
+  if (bkg_len == alph_len && bkg.names() == R_NilValue) {
+
+    bkg.attr("names") = rownames(m_motif);
+    return bkg;
+
+  }
+
+  if (bkg_len < alph_len) stop("'bkg' vector is too short");
+
+  return bkg;
 
 }
 
@@ -212,8 +243,7 @@ S4 universalmotif_cpp(
   x.slot("pseudocount") = pseudocount;
 
   // bkg
-  if (NumericVector::is_na(bkg[0]) || bkg.length() == 0)
-    bkg = rep(1.0 / m_motif.nrow(), m_motif.nrow());
+  bkg = universalmotif_bkg(bkg, m_motif);
   x.slot("bkg") = bkg;
 
   // icscore
@@ -276,6 +306,90 @@ StringVector check_length(StringVector m_name, StringVector m_altname,
   if (m_pval.length() > 1)         msg.push_back("* pval cannot be longer than 1\n");
   if (m_qval.length() > 1)         msg.push_back("* qval cannot be longer than 1\n");
   if (m_eval.length() > 1)         msg.push_back("* eval cannot be longer than 1\n");
+
+  return msg;
+
+}
+
+// [[Rcpp::export]]
+bool check_bkg_names(StringVector alph, std::string blet) {
+
+  LogicalVector failed(blet.size(), true);
+
+  for (int i = 0; i < blet.size(); ++i) {
+
+    for (int j = 0; j < alph.length(); ++j) {
+
+      std::string alph_j = as<std::string>(alph[j]);
+
+      if (alph_j[0] == blet[i]) {
+        failed[i] = false;
+        break;
+      }
+
+    }
+
+  }
+
+  return is_true(any(failed));
+
+}
+
+StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
+
+  int blen = bkg.length();
+  int alen = alph.length();
+
+  if (bkg.names() == R_NilValue && StringVector::is_na(alph[0]))
+    msg.push_back("* bkg must be a named vector\n");
+
+  if (blen < alen)
+    msg.push_back("* bkg vector length is too short\n");
+
+  if (bkg.names() != R_NilValue) {
+
+    StringVector bnames = bkg.names();
+    bool zero_check = false;
+    LogicalVector name_comp;
+    StringVector alph_i;
+    for (int i = 0; i < alen; ++i) {
+      alph_i = rep(StringVector::create(alph[i]), blen);
+      name_comp = bnames == alph_i;
+      if (is_false(any(name_comp))) zero_check = true;
+    }
+
+    if (zero_check)
+
+      msg.push_back("* bkg must contain 0-order possibilities for all letters");
+
+    else {
+
+      LogicalVector low_check = bkg < 0;
+      LogicalVector high_check = bkg > 1;
+
+      if (is_true(any(low_check)))
+        msg.push_back("* bkg does not allow values less than 0");
+
+      if (is_true(any(high_check)))
+        msg.push_back("* bkg does not allow values higher than 1");
+
+      NumericVector bkg_zero = bkg[alph];
+      double bkg_sum = sum(bkg_zero);
+      if (bkg_sum < 0.99 || bkg_sum > 1.01)
+        msg.push_back("* 0-order bkg probabilities must add up to 1");
+
+    }
+
+    for (int i = 0; i < blen; ++i) {
+
+      if (check_bkg_names(alph, as<std::string>(bnames[i]))) {
+        msg.push_back("* unknown letters found in bkg names");
+        break;
+      }
+
+    }
+
+  }
 
   return msg;
 
@@ -428,8 +542,7 @@ StringVector validObject_universalmotif(S4 motif) {
   msg = check_char_slots(m_type, m_strand, msg);
 
   // bkg slot check
-  if (m_bkg.length() != m_motif.nrow())
-    msg.push_back("* bkg length must be equal to alphabet size\n");
+  msg = check_bkg(m_bkg, rownames(m_motif), msg);
 
   // check motif and type
   msg = check_motif_and_type(m_motif, m_type, m_nsites, msg);
@@ -439,6 +552,8 @@ StringVector validObject_universalmotif(S4 motif) {
 
   // consensus check
   msg = check_consensus(m_consensus, m_motif, msg);
+
+  if (msg.length() > 0) msg = StringVector::create(all_checks_collapse(msg));
 
   return msg;
 

@@ -67,7 +67,7 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
   )
 
   if (missing(bkg)) {
-    bkg <- lapply(motifs, function(x) x["bkg"])
+    bkg <- lapply(motifs, function(x) x["bkg"][safeExplode(alph.2)])
     bkgtest <- lapply(bkg, function(x) all(x == bkg[[1]]))
     if (all(unlist(bkgtest))) {
       bkg <- bkg[[1]]

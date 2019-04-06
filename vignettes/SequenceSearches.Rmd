@@ -254,11 +254,13 @@ motif.k2 <- add_multifreq(motif.k2, sequences.k2)
 Regular scanning:
 ```{r}
 head(scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE, verbose = 0,
-                    threshold = 0.0001, progress = FALSE))
+                    threshold = 0.8, threshold.type = "logodds",
+                    progress = FALSE))
 ```
 Using 2-letter information to scan:
 ```{r}
 head(scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, RC = TRUE,
+                    threshold = 0.8, threshold.type = "logodds",
                     verbose = 0, progress = FALSE))
 ```
 
@@ -290,7 +292,7 @@ data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
 
 hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-                       verbose = 0, progress = FALSE, threshold = 0,
+                       verbose = 0, progress = FALSE, threshold = 0.8,
                        threshold.type = "logodds")
 
 res <- motif_peaks(hits$start,

@@ -7,12 +7,12 @@
 #' @param pvalue `numeric` Get a logodds score for a motif from a
 #'    p-value.
 #' @param bkg.probs `numeric`, `list` If supplying individual background
-#'    probabilities for each motif, a list. If missing, assumes a uniform
-#'    background. Note that this only influences calculating p-values
-#'    from an input score; calculating a score from an input p-value
-#'    currently assumes a uniform background.
+#'    probabilities for each motif, a list. If missing, retrieves the
+#'    background from the motif `bkg` slot. Note that this only influences
+#'    calculating p-values from an input score; calculating a score from an
+#'    input p-value currently assumes a uniform background.
 #' @param use.freq `numeric(1)` By default uses the regular motif matrix;
-#'    otherwise uses the corresponding `multifreq` matrix.
+#'    otherwise uses the corresponding `multifreq` matrix. Max is 3.
 #' @param k `numeric(1)` For speed, scores/p-values can be approximated after
 #'    subsetting the motif every `k` columns. If `k` is a value
 #'    equal or higher to the size of input motif(s), then the calculations
@@ -88,19 +88,44 @@
 #' ## the calculations can be performed for multiple motifs
 #' motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 #'
-#' ## get motif site p-values after using scan_sequences()
-#' data(ArabidopsisMotif)
-#' data(ArabidopsisPromoters)
-#' res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-#'                       progress = FALSE, verbose = 0, threshold = 0,
-#'                       threshold.type = "logodds")[1:100, ]
-#' res$pvalue <- motif_pvalue(ArabidopsisMotif, score = res$score)
-#'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                          k = 6, progress = ifelse(length(motifs) > 1, TRUE, FALSE),
                          BP = FALSE) {
+
+  # TODO: Number precision is terrible. Can't get P-values < 1e-8.
+
+  # NOTE: The calculated P-value is the chance of getting a certain score at
+  #       one position. To get a P-value from scanning a 2000 bp stretch for
+  #       example, the P-value is multiplied by the number of possible positions
+  #       the motif can find itself at. For example:
+  #
+  #       R> motif_pvalue(ArabidopsisMotif, 15)
+  #       [1] 9.779e-08
+  #
+  #       For a 2000 bp sequence (and motif length 15):
+  #
+  #       R> 9.779e-08 * (2000 - 15 + 1)
+  #       [1] 0.0001942
+  #
+  #       This number is the probability of finding the motif with this score
+  #       or higher once in a 2000 bp sequence. Let's say it is found three
+  #       times with this exact score:
+  #
+  #       R> 0.0001942^3
+  #       [1] 7.325e-12
+
+  # Previously removed from examples section:
+  #
+  # ## get motif site p-values after using scan_sequences()
+  # data(ArabidopsisMotif)
+  # data(ArabidopsisPromoters)
+  # res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
+  #                       progress = FALSE, verbose = 0, threshold = 0,
+  #                       threshold.type = "logodds")[1:100, ]
+  # res$pvalue <- motif_pvalue(ArabidopsisMotif, score = res$score)
+  #
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -118,18 +143,12 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                           class(bkg.probs), "`")
     }
   }
-  all_checks <- c(num_check, bkg_check, logi_check)
+  use.freq_check <- character()
+  if (use.freq > 3) {
+    use.freq_check <- " * Incorrect 'use.freq': maximum allowed is 3"
+  }
+  all_checks <- c(num_check, bkg_check, logi_check, use.freq_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
-  # if (use.freq > 2 && interactive()) {
-    # cat(paste0("[Caution]\n ! Using motif_pvalue with use.freq > 2 is ",
-               # "NOT recommended.\nDo you wish to continue?"))
-    # if (menu(c("Yes", "No")) == 2) {
-      # message("Exiting")
-      # return(invisible(NULL))
-    # }
-  # } else if (use.freq > 2 && !interactive()) {
-    # warning("Using motif_pvalue with use.freq > 2 is NOT recommended")
-  # }
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
@@ -145,10 +164,11 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     }
   }
 
+  motifs2 <- motifs
+
   if (use.freq == 1) {
     motifs <- lapply(motifs, function(x) x["motif"])
   } else {
-    # if (!missing(bkg.probs)) warning("'bkg.probs' not supported for 'use.freq' > 1")
     mots <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
     motifs <- mapply(function(x, y) apply(x, 2, ppm_to_pwmC,
                                             pseudocount = y["pseudocount"],
@@ -156,18 +176,23 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                        mots, motifs, SIMPLIFY = FALSE)
   }
 
-  if (missing(bkg.probs)) {
-    bkg.probs <- lapply(motifs, function(x) rep( 1 / nrow(x), nrow(x)))
-  } else {
-    if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
-    bkg.probs.len <- lapply(bkg.probs, length)
-    motif.nrow <- lapply(motifs, nrow)
-    alph.len.check <- mapply(function(x, y) x != y,
-                             bkg.probs.len, motif.nrow, SIMPLIFY = TRUE)
-    if (any(alph.len.check)) stop("length(bkg.probs) must match nrow(motif['motif'])")
-  }
-
   if (!missing(score) && missing(pvalue)) {
+
+    if (!missing(bkg.probs)) {
+
+      if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
+      bkg.probs.len <- lapply(bkg.probs, length)
+      motif.nrow <- lapply(motifs, nrow)
+      alph.len.check <- mapply(function(x, y) x != y^use.freq,
+                               bkg.probs.len, motif.nrow, SIMPLIFY = TRUE)
+      if (any(alph.len.check))
+        stop("length(bkg.probs) must match nrow(motif['motif'])^use.freq")
+
+    } else bkg.probs <- rep(list(NULL), length(motifs))
+
+    bkg.probs <- mapply(motif_pvalue_bkg, motifs2, bkg.probs,
+                        MoreArgs = list(use.freq = use.freq),
+                        SIMPLIFY = FALSE)
 
     out <- mapply_(motif_pval, motifs, score, bkg.probs, k, PB = progress,
                    BP = BP)
@@ -182,14 +207,69 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
 }
 
+motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
+
+  lets1 <- rownames(motif@motif)
+  if (use.freq > 1)
+    lets2 <- sort(collapse_rows_df(expand.grid(rep(list(lets1), use.freq),
+                                               stringsAsFactors = FALSE)))
+  if (is.null(bkg.probs)) {
+
+    if (use.freq == 1) out <- motif@bkg[lets1]
+    else {
+      out <- rep(1 / length(lets2), length(lets2))
+      names(out) <- lets2
+    }
+
+  } else {
+
+    if (use.freq == 1) out <- bkg.probs[lets1]
+    else {
+      out <- bkg.probs[lets2]
+      if (any(is.na(out))) {
+        message(wmsg("Could not find higher order background probabilities from",
+                     " motif object, assuming uniform background"))
+        out <- rep(1 / length(lets2), length(lets2))
+        names(out) <- lets2
+      }
+    }
+
+  }
+
+  out
+
+}
+
 motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
                        return_scores = FALSE) {
+
+  # lets1 <- rownames(score.mat)
+  # use.order <- "0"
+  # bkg_len <- length(bkg.probs)
+  # alph_len <- nrow(score.mat)
+  # if (bkg_len > alph_len) {
+    # if (bkg_len >= alph_len + alph_len^2) {
+      # lets2 <- expand.grid(rep(list(lets1), 2), stringsAsFactors = FALSE)
+      # lets2 <- sort(collapse_rows_df(lets2))
+      # lets2 <- bkg.probs[lets2]
+      # use.order <- "1"
+    # }
+    # if (bkg_len >= alph_len + alph_len^2 + alph_len^3) {
+      # lets3 <- expand.grid(rep(list(lets1), 3), stringsAsFactors = FALSE)
+      # lets3 <- sort(collapse_rows_df(lets3))
+      # lets3 <- bkg.probs[lets3]
+      # use.order <- "2"
+    # }
+  # }
 
   if (num2int) {
     if (!return_scores) score <- as.integer(score * 1000)
     score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
   }
   total.max <- sum(apply(score.mat, 2, max))
+  if (score > total.max) stop(wmsg("input score '", score / 1000,
+                                   "' is higher than max possible score: '",
+                                   total.max / 1000, "'"))
   total.min <- sum(apply(score.mat, 2, min))
   if (return_scores) score <- total.min
 
@@ -255,23 +335,32 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   }
 
   all.probs <- vector("list", length(mot.split))
-  if (length(bkg.probs) == nrow(score.mat)) {
-    for (i in seq_along(all.probs)) {
-      all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
-                                                 alph.sort.split[[i]])
-    }
-  }  # higher ordre pvals are being calculated quite correctly
-  # else if (length(bkg.probs) == nrow(score.mat)^2) {
-    # for (i in seq_along(all.probs)) {
-      # all.probs[[i]] <- kmer_mat_to_probs_k2_cpp(all.paths[[i]], bkg.probs,
-                                                 # alph.sort.split[[i]])
+  # switch(use.order,
+#
+    # "0" = {
+      for (i in seq_along(all.probs)) {
+        all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
+                                                   alph.sort.split[[i]])
+      }
+    # },
+#
+    # "1" = {
+      # for (i in seq_along(all.probs)) {
+        # all.probs[[i]] <- kmer_mat_to_probs_k2_cpp(all.paths[[i]], bkg.probs[lets1],
+                                                   # alph.sort.split[[i]],
+                                                   # bkg.probs[lets2])
+      # }
+    # },
+#
+    # "2" = {
+      # for (i in seq_along(all.probs)) {
+        # all.probs[[i]] <- kmer_mat_to_probs_k3_cpp(all.paths[[i]], bkg.probs[lets1],
+                                                   # alph.sort.split[[i]],
+                                                   # bkg.probs[lets2], bkg.probs[lets3])
+      # }
     # }
-  # } else if (length(bkg.probs) == nrow(score.mat)^3) {
-    # for (i in seq_along(all.probs)) {
-      # all.probs[[i]] <- kmer_mat_to_probs_k3_cpp(all.paths[[i]], bkg.probs,
-                                                 # alph.sort.split[[i]])
-    # }
-  # } else stop("length of bkg vector does not match motif alphabet")
+#
+  # )
 
   max.scores5 <- vapply(all.scores, max, numeric(1))
 
@@ -311,11 +400,6 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
 branch_and_bound_kmers <- function(score.mat, min.score) {
 
   max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0L)
-
-  if (min.score > max.scores[1])
-    stop("input score '", min.score / 1000.0,
-         "' is higher than max possible score: '",
-         max.scores[1] / 1000.0, "'")
 
   mot_len <- ncol(score.mat)
 

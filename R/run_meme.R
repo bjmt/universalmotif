@@ -168,8 +168,6 @@ run_meme <- function(target.sequences, output = NULL,
   #---------------------------------------------------------
 
   v <- verbose
-  # os.check <- .Platform$OS.type
-  # if (os.check == "windows") stop("MEME is not available on windows")
 
   if (is.null(bin)) stop("please specify the location of the MEME binary")
   meme.version <- tryCatch(processx::run(bin, "-version", error_on_status = FALSE),
