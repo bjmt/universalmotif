@@ -342,8 +342,11 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
   int alen = alph.length();
 
   SEXP bnames = bkg.attr("names");
-  if (Rf_isNull(bnames) && StringVector::is_na(alph[0]))
-    msg.push_back("* bkg must be a named vector\n");
+
+  if (blen > alen) {
+    if (Rf_isNull(bnames) && StringVector::is_na(alph[0]))
+      msg.push_back("* bkg must be a named vector\n");
+  }
 
   if (blen < alen)
     msg.push_back("* bkg vector length is too short\n");
