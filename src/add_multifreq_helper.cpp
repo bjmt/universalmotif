@@ -2,30 +2,25 @@
 using namespace Rcpp;
 
 // [[Rcpp::export(rng = false)]]
-StringVector single_to_k(StringVector seq, int k) {
+StringVector single_to_k(StringVector seq1, int k) {
 
-  int n = seq.length();
-  StringMatrix seq_mat(k, n - k + 1);
-  StringVector out(n - k + 1);
-  StringVector out_(k);
-  StringVector out_i;
+  // NOTE: switching the assignment of rows and columns makes the function
+  //       slightly faster for smaller sequences (<1000), but slower for bigger
+  //       sequences.
 
-  for (int i = 0; i < seq_mat.ncol(); ++i) {
-    seq_mat(0, i) = seq[i];
-  }
+  int n = seq1.length();
+  int n2 = n - k + 1;
+  StringMatrix seq_mat(k, n2);
+  StringVector out(n2);
+
+  seq_mat(0, _) = seq1[seq(0, n - k)];
 
   for (int i = 1; i < k; ++i) {
-    for (int j = 0; j < seq_mat.ncol(); ++j) {
-      seq_mat(i, j) = seq(j + i);
-    }
+    seq_mat(i, _) = seq1[seq(i, i + n2 - 1)];
   }
 
-  for (int i = 0; i < out.length(); ++i) {
-    for (int j = 0; j < k; ++j) {
-      out_[j] = seq_mat(j, i);
-    }
-    out_i = collapse(out_);
-    out[i] = out_i[0];
+  for (int i = 0; i < n2; ++i) {
+    out[i] = collapse(seq_mat(_, i));
   }
 
   return out;

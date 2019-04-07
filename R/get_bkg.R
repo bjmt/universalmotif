@@ -145,7 +145,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                                               PB = progress)
       counts[[as.character(k[i])]] <- do.call(cbind, counts[[as.character(k[i])]])
       counts[[as.character(k[i])]] <- rowSums(counts[[as.character(k[i])]])
-      names(counts[[as.character(k[i])]]) <- get_lets(alphabet, k[i])
+      names(counts[[as.character(k[i])]]) <- get_klets(alphabet, k[i])
     }
   }
 
@@ -183,11 +183,6 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
 get_counts <- function(x, k, alph) {
   a <- letter_freqs(x, k, to.return = "freqs", as.prob = FALSE, alph = alph)
   a$counts$counts
-}
-
-get_lets <- function(alph, k) {
-  lets <- expand.grid(rep(list(alph), k), stringsAsFactors = FALSE)
-  sort(collapse_rows_df(lets))
 }
 
 to_meme_bkg <- function(counts) {

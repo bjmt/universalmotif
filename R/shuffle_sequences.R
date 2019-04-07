@@ -363,27 +363,11 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
   if (is.null(alph)) lets.uniq <- sort(unique(seqs1))
   else lets.uniq <- sort(alph)
 
-  possible.lets <- expand.grid(rep(list(lets.uniq), k), stringsAsFactors = FALSE)
-  possible.lets <- sort(collapse_rows_df(possible.lets))
+  possible.lets <- get_klets(lets.uniq, k)
   possible.lets <- data.frame(lets = possible.lets, stringsAsFactors = FALSE)
 
-  seqs.k <- lapply(seq_len(k),  # third slowest step
-                   function(k) {
-                     k <- k - 1
-                     if (k > 0) {
-                       seqs.k <- seqs1[-seq_len(k)]
-                       seqs.k <- c(seqs.k, character(k))
-                       matrix(seqs.k)
-                     } else matrix(seqs1)
-                   })
+  seqs.let <- single_to_k(seqs1, k)
 
-  seqs.k <- do.call(cbind, seqs.k)  # second slowest step
-  seqs.k.n <- nrow(seqs.k)
-  seqs.k <- seqs.k[-c((seqs.k.n - k + 2):seqs.k.n), ]
-
-  # IDEA: instead of having k columns, have k rows.
-
-  seqs.let <- collapse_rows_mat(seqs.k)  # slowest step
   seqs.counts <- as.data.frame(table(seqs.let))
   colnames(seqs.counts) <- c("lets", "counts")
   seqs.counts <- seqs.counts[order(seqs.counts$lets), ]
@@ -402,8 +386,7 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
 
   if ("trans" %in% to.return) {
     trans <- t(matrix(final.table$counts, nrow = length(lets.uniq)))
-    letskm1 <- expand.grid(rep(list(lets.uniq), k - 1), stringsAsFactors = FALSE)
-    letskm1 <- sort(collapse_rows_df(letskm1))
+    letskm1 <- get_klets(lets.uniq, k - 1)
     colnames(trans) <- lets.uniq
     rownames(trans) <- letskm1
     trans.sums <- rowSums(trans)

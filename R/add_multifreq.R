@@ -210,9 +210,7 @@ add_multi_ANY <- function(sequences, k, alph) {
   emissions <- matrix(rep(0, alph.len^k * (seq.width - k + 1)),
                       nrow = alph.len^k, ncol = seq.width - k + 1)
 
-  alph.comb <- expand.grid(rep(list(alph), k), stringsAsFactors = FALSE)
-  alph.comb <- collapse_rows_df(alph.comb)
-  alph.comb <- sort(alph.comb)
+  alph.comb <- get_klets(alph, k)
 
   rownames(emissions) <- alph.comb
   colnames(emissions) <- seq_len(ncol(emissions))

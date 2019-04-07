@@ -45,6 +45,48 @@ StringVector collapse_rows_df(DataFrame seqs_k) {
 
 }
 
+//' @rdname utilities
+//' @export
+// [[Rcpp::export(rng = false)]]
+StringVector get_klets(StringVector lets, int k) {
+
+  // ~5 times faster and ~1/2 the memory allocations versus:
+  //
+  // sort(collapse_rows_df(expand.grid(rep(list(lets), k),
+  //                                   stringsAsFactors = FALSE)))
+  //
+  // ~11 times faster and ~1/3 the memory allocations versus:
+  //
+  // sort(apply(expand.grid(rep(list(lets),k), stringsAsFactors= FALSE),
+  //            1, paste0, collapse = ""))
+  //
+  // Slightly faster than collpase_rows_mat(RcppAlgos::permuteGeneral) with low
+  // k, and slightly slower with high k (similar timings for lets=DNA_BASES and
+  // k=4)
+
+  if (k <= 0) stop("`k` must be greater than 0");
+
+  lets = sort_unique(lets);
+
+  if (k == 1) return lets;
+
+  int n1 = lets.length();
+  int n2 = pow(n1, k);
+  StringMatrix out(n2, k + 1);
+
+  out(_, 0) = rep_each(lets, pow(n1, k - 1));
+  out(_, k - 1) = rep(lets, n2);
+
+  if (k == 2) return collapse_rows_mat(out);
+
+  for (int i = 1; i < k - 1; ++i) {
+    out(_, i) = rep(rep_each(lets, pow(n1, k - i - 1)), pow(n1, i + 1));
+  }
+
+  return collapse_rows_mat(out);
+
+}
+
 // [[Rcpp::export(rng = false)]]
 String collapse_cpp(StringVector x) {
   // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")

@@ -134,8 +134,7 @@ create_k1 <- function(alph.letters, seqlen, bkg) {
 
 check_k_lets <- function(alph.letters, freqs, k) {
   lets1 <- names(freqs)
-  lets2 <- expand.grid(rep(list(alph.letters), k), stringsAsFactors = FALSE)
-  lets2 <- sort(collapse_rows_df(lets2))
+  lets2 <- get_klets(alph.letters, k)
   if (!isTRUE(all.equal(lets1, lets2, use.names = FALSE)))
     stop(wmsg("For a k-let size of ", k, ",",
               "probabilities should be provided for:\n",

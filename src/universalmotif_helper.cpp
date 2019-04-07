@@ -344,8 +344,6 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
   SEXP bnames = bkg.attr("names");
 
   if (blen > alen) {
-    // if (Rf_isNull(bnames) && StringVector::is_na(alph[0]))
-      // msg.push_back("* bkg must be a named vector\n");
     if (Rf_isNull(bnames))
       msg.push_back("* bkg must be a named vector\n");
   }

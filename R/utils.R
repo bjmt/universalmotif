@@ -38,6 +38,8 @@
 #'    [BiocParallel::register()] to change the default backend.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are `NA`.
+#' @param lets `character` Letters to generate k-lets from.
+#' @param k `integer(1)` K-let size.
 #'
 #' @return
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
@@ -134,6 +136,10 @@
 #' m2 <- create_motif()
 #' m3 <- create_motif()
 #' summarise_motifs(list(m1, m2, m3))
+#'
+#' ## get_klets
+#' ## Generate all possible k-lets for a set of letters
+#' get_klets(c("A", "C", "G", "T"), 3)
 #'
 #' @seealso [create_motif()], [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}

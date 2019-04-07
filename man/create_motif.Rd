@@ -66,7 +66,8 @@ from appearing in PWM matrices.}
 
 \item{bkg}{\code{numeric} A vector of probabilities, each between 0 and 1. If
 higher order backgrounds are provided, then the elements of the vector
-must be named.}
+must be named. If unnamed, then the order of probabilities must be in the
+same order as the alphabetically sorted sequence alphabet.}
 
 \item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from.}
 

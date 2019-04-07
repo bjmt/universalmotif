@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include "utils.h"
 using namespace Rcpp;
 
 // StringVector sample_string_cpp(StringVector x, int size, bool replace = false,

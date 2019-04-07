@@ -6,13 +6,13 @@
 using namespace Rcpp;
 
 // single_to_k
-StringVector single_to_k(StringVector seq, int k);
-RcppExport SEXP _universalmotif_single_to_k(SEXP seqSEXP, SEXP kSEXP) {
+StringVector single_to_k(StringVector seq1, int k);
+RcppExport SEXP _universalmotif_single_to_k(SEXP seq1SEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< StringVector >::type seq(seqSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seq1(seq1SEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(single_to_k(seq, k));
+    rcpp_result_gen = Rcpp::wrap(single_to_k(seq1, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -434,6 +434,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_klets
+StringVector get_klets(StringVector lets, int k);
+RcppExport SEXP _universalmotif_get_klets(SEXP letsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< StringVector >::type lets(letsSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_klets(lets, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapse_cpp
 String collapse_cpp(StringVector x);
 RcppExport SEXP _universalmotif_collapse_cpp(SEXP xSEXP) {
@@ -659,6 +670,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
+    {"_universalmotif_get_klets", (DL_FUNC) &_universalmotif_get_klets, 2},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
     {"_universalmotif_print_pb", (DL_FUNC) &_universalmotif_print_pb, 1},
     {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 2},

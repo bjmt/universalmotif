@@ -210,9 +210,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
 
   lets1 <- rownames(motif@motif)
-  if (use.freq > 1)
-    lets2 <- sort(collapse_rows_df(expand.grid(rep(list(lets1), use.freq),
-                                               stringsAsFactors = FALSE)))
+  if (use.freq > 1) lets2 <- get_klets(lets1, use.freq)
   if (is.null(bkg.probs)) {
 
     if (use.freq == 1) out <- motif@bkg[lets1]

@@ -66,8 +66,7 @@ sample_motif <- function(k, kmat, alph, n) {
   alph.len <- length(alph)
 
   k.lets <- rownames(kmat)
-  k.lets.m1 <- expand.grid(rep(list(alph), k - 1), stringsAsFactors = FALSE)
-  k.lets.m1 <- sort(collapse_rows_df(k.lets.m1))
+  k.lets.m1 <- get_klets(alph, k - 1)
   k.lets.m1 <- rep(k.lets.m1, each = alph.len)
 
   seqout <- vapply(seq_len(n),

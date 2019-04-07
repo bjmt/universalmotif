@@ -30,6 +30,9 @@ NEW FEATURES
     o add_multifreq() adds corresponding higher order background probabilities
       to motifs
 
+    o New get_klets() utility function: generate all possible k-lets for any
+      set of characters.
+
 MINOR CHANGES
 
     o Increased input security for character type parameters throughout
