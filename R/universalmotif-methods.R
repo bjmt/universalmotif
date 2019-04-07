@@ -18,24 +18,18 @@ setMethod("[", "universalmotif", function(x, i) {
 
   return_list <- lapply(i, function(y) slot(x, y))
   names(return_list) <- i
-  if ("motif" %in% names(return_list)) {
-    return_list$motif <- x@motif
-  }
-  if ("multifreq" %in% names(return_list)) {
-    return_list$multifreq <- x@multifreq
-  }
-  if ("bkg" %in% names(return_list)) {
-    return_list$bkg <- x@bkg
-  }
+
+  if ("motif" %in% names(return_list)) return_list$motif <- x@motif
+  if ("multifreq" %in% names(return_list)) return_list$multifreq <- x@multifreq
+  if ("bkg" %in% names(return_list)) return_list$bkg <- x@bkg
 
   if (length(return_list) <= 1) {
     return_list <- unlist(return_list)
-    if (i == "extrainfo") {
+    if (i == "extrainfo")
       names(return_list) <- gsub("extrainfo.", "", names(return_list))
-      return(return_list)
-    }
   }
-  return(return_list)
+
+  return_list
 
 })
 
@@ -43,14 +37,18 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @rdname universalmotif-class
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
-  if (i == "icscore") stop("'icscore' is generated automatically")
+
+  if (i == "icscore") stop("'icscore' is not modifiable")
   if (i == "multifreq") stop("please use add_multifreq()")
-  if (i == "consensus" && x@alphabet %in% c("DNA", "RNA", "AA")) {
-    stop("consensus string for ", x@alphabet, " motifs is generated automatically")
-  }
+  if (i == "consensus" && x@alphabet %in% c("DNA", "RNA", "AA"))
+    stop(wmsg("consensus strings for ", x@alphabet,
+              " motifs are not modifiable"))
+
   slot(x, i) <- value
-  msg <- validObject_universalmotif(x)
-  if (length(msg) > 0) stop(msg) else x
+
+  validObject(x)
+  x
+
 })
 
 #' @param .Object [universalmotif-class] Final motif.
@@ -83,268 +81,209 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @rdname universalmotif-class
 #' @aliases initialize,universalmotif-method
 setMethod("initialize", signature = "universalmotif",
-          definition = function(.Object, name, altname, family,
-                                organism, motif,
+          definition = function(.Object, name, altname, family, organism, motif,
                                 alphabet = "DNA", type, icscore, nsites,
-                                pseudocount = 0.8, bkg, bkgsites,
-                                consensus, strand = "+-", pval,
-                                qval, eval, multifreq, extrainfo) {
+                                pseudocount = 1, bkg, bkgsites, consensus,
+                                strand = "+-", pval, qval, eval, multifreq,
+                                extrainfo) {
 
-            message("Please use create_motif() instead.")
+  message("Please use create_motif() instead.")
 
-            if (missing(name) || length(name) == 0 || is.na(name)) {
-              name <- "new motif"
-            }
-            .Object@name <- name
+  if (!missing(name))
+    .Object@name <- name
+  else
+    .Object@name <- character()
 
-            if (missing(altname) || length(altname) == 0 ||
-                is.na(altname)) {
-              altname <- character(0)
-            }
-            .Object@altname <- altname
+  if (!missing(altname))
+    .Object@altname
+  else
+    .Object@altname <- character()
 
-            if(missing(family) || length(family) == 0 ||
-               is.na(family)) {
-              family <- character(0)
-            }
-            .Object@family <- family
+  if (!missing(family))
+    .Object@family <- family
+  else
+    .Object@family <- character()
 
-            if (missing(organism) || length(organism) == 0 ||
-                is.na(organism)) {
-              organism <- character(0)
-            }
-            .Object@organism <- organism
+  if (!missing(organism))
+    .Object@organism <- organism
+  else
+    .Object@organism <- character()
 
-            if (missing(motif)) stop("missing motif matrix")
+  if (!missing(motif))
+    .Object@motif <- motif
+  else
+    .Object@motif <- matrix(nrow = 0, ncol = 0)
 
-            .Object@motif <- motif
-            # if (!missing(type)) {
-              # if (type == "PCM") {
-                # .Object@motif <- round(motif)
-              # }
-            # }
+  .Object@alphabet <- alphabet
 
-            if (!alphabet %in% c("DNA", "RNA", "AA", "custom")) {
-              alphabet <- safeExplode(alphabet)
-              alphabet <- paste(sort(alphabet), collapse = "")
-            }
-            .Object@alphabet <- alphabet
+  if (!missing(type))
+    .Object@type <- type
+  else
+    .Object@type <- character()
 
-            if (missing(alphabet) || length(alphabet) == 0 ||
-                is.na(alphabet)) {
-              if (nrow(motif) == 4) alphabet <- "DNA" else {
-                if (nrow(motif) == 20) {
-                  alphabet <- "AA"
-                } else alphabet <- "custom"
-              }
-            }
+  if (!missing(icscore))
+    .Object@icscore <- icscore
+  else
+    .Object@icscore <- numeric()
 
-            if (missing(type) || length(type) == 0 || is.na(type)) {
-              if (all(motif >= 1 | motif == 0)) {
-                type <- "PCM" 
-              } else if ((all(colSums(motif) > 0.99 &
-                              colSums(motif) < 1.01)) &&
-                         all(motif >= 0)) {
-                type <- "PPM"
-              } else if (all(motif >= 0)) {
-                type <- "ICM"
-              } else type <- "PWM"
-            }
-            .Object@type <- type
+  if (!missing(nsites))
+    .Object@nsites <- nsites
+  else
+    .Object@nsites <- numeric()
 
-            if (missing(nsites) || length(nsites) == 0  || is.na(nsites)) {
-              if (type == "PCM") {
-                nsites <- sum(motif[, 1])
-              } else nsites <- numeric(0)
-            } else if (type == "PCM" && any(colSums(motif) != nsites)) {
-              for (i in seq_len(ncol(motif))) {
-                motif[, i] <- motif[, i] / sum(motif[, i])
-              }
-              motif <- apply(motif, 2, ppm_to_pcmC, nsites = nsites)
-              .Object@motif <- motif
-            }
-            .Object@nsites <- nsites
+  .Object@pseudocount <- pseudocount
 
-            if (is.null(rownames(.Object@motif))) {
-              if (alphabet == "DNA") {
-                rownames(.Object@motif) <- DNA_BASES
-              } else if (alphabet == "RNA") {
-                rownames(.Object@motif)  <- RNA_BASES
-              } else if (alphabet == "AA") {
-                rownames(.Object@motif) <- AA_STANDARD
-              } else if (length(safeExplode(alphabet)) == nrow(motif) &&
-                         alphabet != "custom") {
-                rownames(.Object@motif) <- safeExplode(alphabet)
-              } 
-            } else {
-              .Object@motif <- .Object@motif[order(rownames(.Object@motif)), ]
-            }
-            if (missing(bkg) || length(bkg) == 0 || is.na(bkg)) {
-              if (alphabet %in% c("DNA", "RNA")) {
-                bkg <- rep(0.25, 4)
-              } else if (alphabet == "AA") {
-                bkg <- rep(0.05, 20)
-              } else {
-                bkg <- rep(1 / nrow(motif), nrow(motif))
-              }
-            }
-            if (length(bkg) != nrow(.Object@motif)) {
-              stop("bkg vector length should be ", nrow(.Object@motif))
-            }
-            .Object@bkg <- bkg
+  if (!missing(bkg))
+    .Object@bkg <- bkg
+  else
+    .Object@bkg <- numeric()
 
-            if (missing(icscore) || length(icscore) == 0 || is.na(icscore)) {
-              icscores <- apply(motif, 2, position_icscoreC,
-                                bkg = bkg, type = type,
-                                pseudocount = pseudocount,
-                                nsites = ifelse(length(nsites) == 0, 100, nsites))
-              icscore <- sum(icscores)
-            }
-            .Object@icscore <- icscore
+  if (!missing(bkgsites))
+    .Object@bkgsites <- bkgsites
+  else
+    .Object@bkgsites <- numeric()
 
-            .Object@pseudocount <- pseudocount
+  if (!missing(consensus))
+    .Object@consensus <- consensus
+  else
+    .Object@consensus <- character()
 
-            if (missing(bkgsites) || length(bkgsites) == 0 ||
-                is.na(bkgsites)) {
-              bkgsites <- numeric(0)
-            }
-            .Object@bkgsites <- bkgsites
+  .Object@strand <- strand
 
-            if (missing(consensus) || length(consensus) == 0 ||
-              is.na(consensus)) {
-              if (.Object@alphabet %in% c("DNA", "RNA")) {
-                consensus <- apply(motif, 2, get_consensusC, alphabet = alphabet,
-                                   type = type, pseudocount = pseudocount)
-                .Object@consensus <- paste(consensus, collapse = "")
-              } else if (.Object@alphabet == "AA") {
-                consensus <- apply(motif, 2, get_consensusAAC, type = type,
-                                   pseudocount = pseudocount)
-                .Object@consensus <- consensus
-              } else .Object@consensus <- character(0)
-            }
+  if (!missing(pval))
+    .Object@pval <- pval
+  else
+    .Object@pval <- numeric()
 
-            if (length(.Object@consensus) > 0) {
-              names(consensus) <- NULL
-              colnames(.Object@motif) <- consensus
-            }
+  if (!missing(qval))
+    .Object@qval <- qval
+  else
+    .Object@qval <- numeric()
 
-            .Object@strand <- strand
+  if (!missing(eval))
+    .Object@eval <- eval
+  else
+    .Object@eval <- numeric()
 
-            if (missing(pval) || length(pval) == 0 || is.na(pval)) {
-              pval <- numeric(0)
-            }
-            .Object@pval <- pval
+  if (!missing(multifreq))
+    .Object@multifreq <- multifreq
+  else
+    .Object@multifreq <- list()
 
-            if (missing(qval) || length(qval) == 0 || is.na(qval)) {
-              qval <- numeric(0)
-            }
-            .Object@qval <- qval
+  if (!missing(extrainfo))
+    .Object@extrainfo <- extrainfo
+  else
+    .Object@extrainfo <- character()
 
-            if (missing(eval) || length(eval) == 0 || is.na(eval)) {
-              eval <- numeric(0)
-            }
-            .Object@eval <- eval
+  validObject(.Object)
+  .Object
 
-            if (!missing(multifreq)) .Object@multifreq <- multifreq
-
-            if (missing(extrainfo) || length(extrainfo) == 0 || 
-                is.na(extrainfo)) {
-              extrainfo <- character(0)
-            }
-            .Object@extrainfo <- extrainfo
-
-            validObject(.Object)
-            .Object
-
-          })
+})
 
 #' @param object [universalmotif-class] Motif.
 #' @rdname universalmotif-class
 #' @aliases show,universalmotif-method
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
-            name <- object@name
-            if (nchar(name) > 40) {
-              name <- paste0(substr(name, 1, 40), "...")
-            }
-            cat("\n       Motif name:   ", name, "\n", sep = "")
-            if (length(object@altname) > 0) {
-              altname <- object@altname
-              if (nchar(altname) > 40) {
-                altname <- paste0(substr(altname, 1, 40), "...")
-              }
-              cat("   Alternate name:   ", altname, "\n", sep = "")
-            }
-            if (length(object@family)) {
-              family <- object@family
-              if (nchar(family) > 40) {
-                family <- paste0(substr(family, 1, 40), "...")
-              }
-              cat("           Family:   ", family, "\n", sep = "")
-            }
-            if (length(object@organism)) {
-              organism <- object@organism
-              if (nchar(organism) > 40) {
-                organism <- paste0(substr(organism, 1, 40), "...")
-              } 
-              cat("         Organism:   ", organism, "\n", sep = "")
-            }
-            alphabet <- object@alphabet
-            if (nchar(alphabet) > 40) {
-              alphabet <- paste0(substr(alphabet, 1, 40), "...")
-            }
-            cat("         Alphabet:   ", alphabet, "\n", sep = "")
-            cat("             Type:   ", object@type, "\n", sep = "")
-            if (object@alphabet %in% c("DNA", "RNA")) {
-              cat("          Strands:   ", object@strand, "\n", sep = "")
-            }
-            cat("         Total IC:   ", object@icscore, "\n", sep = "")
-            if (length(object@consensus) > 0) {
-              consensus <- object@consensus
-              if (nchar(consensus) > 40) {
-                consensus <- paste0(substr(consensus, 1, 40), "...")
-              }
-              cat("        Consensus:   ", consensus, "\n", sep = "")
-            }
-            if (length(object@nsites) > 0) {
-              cat("     Target sites:   ", object@nsites, "\n", sep = "")
-            }
-            if (length(object@bkgsites) > 0) {
-              cat(" Background sites:   ", object@bkgsites, "\n", sep = "")
-            }
-            if (length(object@pval) > 0) {
-              cat("          P-value:   ", object@pval, "\n", sep = "")
-            }
-            if (length(object@qval) > 0) {
-              cat("          Q-value:   ", object@qval, "\n", sep = "")
-            }
-            if (length(object@eval) > 0) {
-              cat("          E-value:   ", object@eval, "\n", sep = "")
-            }
-            if (length(object@multifreq) > 0) {
-              toprint <- paste(names(object@multifreq), collapse = ", ")
-              cat("   k-letter freqs:  ", toprint, "\n")
-            }
-            if (length(object@extrainfo) > 0 ) {
-              extrainfo <- object@extrainfo
-              cat("       Extra info:   ")
-              for (i in seq_len(length(extrainfo))) {
-                if (!is.null(names(extrainfo))) {
-                  to_show <- paste0(names(extrainfo[i]), ": ",
-                                    extrainfo[i])
-                } else to_show <- extrainfo[i]
-                if (nchar(to_show) > 40) {
-                  to_show <- paste0(substr(to_show, 1, 40), "...")
-                }
-                if (i == 1) {cat(to_show, "\n"); next}
-                cat("                     ", to_show,
-                    "\n", sep = "")
-              }
-            }
-            cat("\n")
-            print(round(object@motif * 100) / 100)
-            invisible(NULL)
-          })
+
+  name <- object@name
+  if (nchar(name) > 40) name <- collapse_cpp(c(substr(name, 1, 40), "..."))
+
+  cat("\n       Motif name:   ", name, "\n", sep = "")
+
+  if (length(object@altname) > 0) {
+    altname <- object@altname
+    if (nchar(altname) > 40)
+      altname <- collapse_cpp(c(substr(altname, 1, 40), "..."))
+    cat("   Alternate name:   ", altname, "\n", sep = "")
+  }
+
+  if (length(object@family) > 0) {
+    family <- object@family
+    if (nchar(family) > 40)
+      family <- collapse_cpp(c(substr(family, 1, 40), "..."))
+    cat("           Family:   ", family, "\n", sep = "")
+  }
+
+  if (length(object@organism) > 0) {
+    organism <- object@organism
+    if (nchar(organism) > 40)
+      organism <- collapse_cpp(c(substr(organism, 1, 40), "..."))
+    cat("         Organism:   ", organism, "\n", sep = "")
+  }
+
+  alphabet <- object@alphabet
+  if (nchar(alphabet) > 40)
+    alphabet <- collapse_cpp(c(substr(alphabet, 1, 40), "..."))
+
+  cat("         Alphabet:   ", alphabet, "\n", sep = "")
+  cat("             Type:   ", object@type, "\n", sep = "")
+
+  if (object@alphabet %in% c("DNA", "RNA"))
+    cat("          Strands:   ", object@strand, "\n", sep = "")
+
+  cat("         Total IC:   ", object@icscore, "\n", sep = "")
+
+  if (length(object@consensus) > 0) {
+    consensus <- object@consensus
+    if (nchar(consensus) > 40)
+      consensus <- collapse_cpp(c(substr(consensus, 1, 40), "..."))
+    cat("        Consensus:   ", consensus, "\n", sep = "")
+  }
+
+  if (length(object@nsites) > 0)
+    cat("     Target sites:   ", object@nsites, "\n", sep = "")
+
+  if (length(object@bkgsites) > 0)
+    cat(" Background sites:   ", object@bkgsites, "\n", sep = "")
+
+  if (length(object@pval) > 0)
+    cat("          P-value:   ", object@pval, "\n", sep = "")
+
+  if (length(object@qval) > 0)
+    cat("          Q-value:   ", object@qval, "\n", sep = "")
+
+  if (length(object@eval) > 0)
+    cat("          E-value:   ", object@eval, "\n", sep = "")
+
+  if (length(object@multifreq) > 0) {
+    toprint <- paste0(names(object@multifreq), collapse = ", ")
+    cat("   k-letter freqs:  ", toprint, "\n")
+  }
+
+  if (length(object@extrainfo) > 0 ) {
+
+    extrainfo <- object@extrainfo
+    cat("       Extra info:   ")
+
+    for (i in seq_along(extrainfo)) {
+
+      if (!is.null(names(extrainfo)))
+        to_show <- collapse_cpp(c(names(extrainfo[i]), ": ", extrainfo[i]))
+      else
+        to_show <- extrainfo[i]
+
+      if (nchar(to_show) > 40)
+        to_show <- collapse_cpp(c(substr(to_show, 1, 40), "..."))
+
+      if (i == 1) {
+        cat(to_show, "\n")
+        next
+      }
+
+      cat("                     ", to_show, "\n", sep = "")
+
+    }
+
+  }
+
+  cat("\n")
+
+  print(round(object@motif * 100) / 100)
+
+  invisible(NULL)
+
+})
 
 # as.matrix
 # as.character
@@ -413,77 +352,79 @@ setMethod("as.data.frame", signature(x = "universalmotif"),
 
   )
 
-          })
+})
 
 #' @param select `numeric` Columns to keep.
 #' @rdname universalmotif-class
 #' @aliases subset,universalmotif-method
 setMethod("subset", signature(x = "universalmotif"),
           definition = function(x, select) {
-            mot <- x["motif"][, select]
-            motif <- universalmotif_cpp(motif = mot, name = x@name,
-                                        altname = x@altname, family = x@family,
-                                        organism = x@organism,
-                                        alphabet = x@alphabet, nsites = x@nsites,
-                                        pseudocount = x@pseudocount, bkg = x@bkg,
-                                        bkgsites = x@bkgsites, strand = x@strand,
-                                        pval = x@pval, qval = x@qval, eval = x@eval,
-                                        extrainfo = x@extrainfo)
-            msg <- validObject_universalmotif(motif)
-            if (length(msg) > 0) stop(msg)
-            motif
-          })
+
+  mot <- x@motif[, select]
+  motif <- universalmotif_cpp(motif = mot, name = x@name,
+                              altname = x@altname, family = x@family,
+                              organism = x@organism,
+                              alphabet = x@alphabet, nsites = x@nsites,
+                              pseudocount = x@pseudocount, bkg = x@bkg,
+                              bkgsites = x@bkgsites, strand = x@strand,
+                              pval = x@pval, qval = x@qval, eval = x@eval,
+                              extrainfo = x@extrainfo)
+
+  validObject(motif)
+  motif
+
+})
 
 #' @rdname universalmotif-class
 #' @aliases normalize,universalmotif-method
 setMethod("normalize", signature(object = "universalmotif"),
           definition = function(object) {
-            type <- object["type"]
-            pseudo <- object["pseudocount"]
-            if (pseudo == 0) pseudo <- 1
-            object <- convert_type(object, "PCM")
-            convert_type(object, type, pseudocount = pseudo)
-          })
+  type <- object["type"]
+  pseudo <- object["pseudocount"]
+  if (pseudo == 0) pseudo <- 1
+  object <- convert_type(object, "PCM")
+  convert_type(object, type, pseudocount = pseudo)
+})
 
 #' @rdname universalmotif-class
 #' @aliases rowMeans,universalmotif-method
 setMethod("rowMeans", signature(x = "universalmotif"),
-          definition = function(x) rowMeans(x["motif"]))
+          definition = function(x) rowMeans(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases colMeans,universalmotif-method
 setMethod("colMeans", signature(x = "universalmotif"),
-          definition = function(x) colMeans(x["motif"]))
+          definition = function(x) colMeans(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases colSums,universalmotif-method
 setMethod("colSums", signature(x = "universalmotif"),
-          definition = function(x) colSums(x["motif"]))
+          definition = function(x) colSums(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases rowSums,universalmotif-method
 setMethod("rowSums", signature(x = "universalmotif"),
-          definition = function(x) rowSums(x["motif"]))
+          definition = function(x) rowSums(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases nrow,universalmotif-method
 setMethod("nrow", signature = "universalmotif",
-          definition = function(x) nrow(x["motif"]))
+          definition = function(x) nrow(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases ncol,universalmotif-method
 setMethod("ncol", signature = "universalmotif",
-          definition = function(x) ncol(x["motif"]))
+          definition = function(x) ncol(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases colnames,universalmotif-method
 setMethod("colnames", signature(x = "universalmotif"),
-          definition = function(x) colnames(x["motif"]))
+          definition = function(x) colnames(x@motif))
 
 #' @rdname universalmotif-class
 #' @aliases rownames,universalmotif-method
 setMethod("rownames", signature(x = "universalmotif"),
-          definition = function(x) rownames(x["motif"]))
+          definition = function(x) rownames(x@motif))
 
 #' @export
 c.universalmotif <- function(...) list(...)
@@ -495,50 +436,52 @@ c.universalmotif <- function(...) list(...)
 setMethod("cbind", signature = "universalmotif",
           definition = function(..., deparse.level = 0) {
 
-            mots <- list(...)
-            if (length(mots) == 1) return(mots[[1]])
-            mot.alphabet <- unique(vapply(mots, function(x) x["alphabet"], character(1)))
-            if (length(mot.alphabet) != 1)
-              stop("all motifs must have the same alphabet")
-            mots <- convert_type(mots, "PPM")
-            mot.name <- vapply(mots, function(x) x["name"], character(1))
-            mot.altname <- do.call(c, lapply(mots, function(x) x["altname"]))
-            mot.family <- do.call(c, lapply(mots, function(x) x["family"]))
-            mot.organism <- do.call(c, lapply(mots, function(x) x["organism"]))
-            mot.motif <- lapply(mots, function(x) x["motif"])
-            mot.nsites <- do.call(c, lapply(mots, function(x) x["nsites"]))
-            mot.bkg <- lapply(mots, function(x) x["bkg"])
-            mot.bkgsites <- lapply(mots, function(x) x["bkgsites"])
-            mot.bkgsites <- do.call(c, mot.bkgsites)
-            mot.strand <- unique(vapply(mots, function(x) x["strand"], character(1)))
-            mot.pval <- do.call(c, lapply(mots, function(x) x["pval"]))
-            mot.qval <- do.call(c, lapply(mots, function(x) x["qval"]))
-            mot.eval <- do.call(c, lapply(mots, function(x) x["eval"]))
-            mot.extrainfo <- lapply(mots, function(x) x["extrainfo"])
-            mot.extrainfo <- do.call(c, mot.extrainfo)
+  mots <- list(...)
+  if (length(mots) == 1) return(mots[[1]])
+  mot.alphabet <- unique(vapply(mots, function(x) x@alphabet, character(1)))
+  if (length(mot.alphabet) != 1) stop("all motifs must have the same alphabet")
+  mots <- convert_type(mots, "PPM")
+  mot.name <- vapply(mots, function(x) x@name, character(1))
+  mot.altname <- do.call(c, lapply(mots, function(x) x@altname))
+  mot.family <- do.call(c, lapply(mots, function(x) x@family))
+  mot.organism <- do.call(c, lapply(mots, function(x) x@organism))
+  mot.motif <- lapply(mots, function(x) x@motif)
+  mot.nsites <- do.call(c, lapply(mots, function(x) x@nsites))
+  mot.bkg <- lapply(mots, function(x) x@bkg)
+  mot.bkgsites <- lapply(mots, function(x) x@bkgsites)
+  mot.bkgsites <- do.call(c, mot.bkgsites)
+  mot.strand <- unique(vapply(mots, function(x) x@strand, character(1)))
+  mot.pval <- do.call(c, lapply(mots, function(x) x@pval))
+  mot.qval <- do.call(c, lapply(mots, function(x) x@qval))
+  mot.eval <- do.call(c, lapply(mots, function(x) x@eval))
+  mot.extrainfo <- lapply(mots, function(x) x@extrainfo)
+  mot.extrainfo <- do.call(c, mot.extrainfo)
 
-            mot.motif <- do.call(cbind, mot.motif)
-            mot.name <- paste(mot.name, collapse = "/")
-            if (length(mot.altname) > 0) mot.altname <- paste(mot.altname, collapse = "/")
-            if (length(mot.family) > 0) mot.family <- paste(mot.family, collapse = "/")
-            if (length(mot.organism) > 0) mot.organism <- paste(mot.organism, collapse = "/")
-            if (length(mot.nsites) > 1) mot.nsites <- max(mot.nsites)
-            mot.bkg <- colMeans(do.call(rbind, mot.bkg))
-            if (length(mot.bkgsites) > 1) mot.bkgsites <- max(mot.bkgsites)
-            if (length(mot.strand) > 1) mot.strand <- "+-"
-            if (length(mot.pval) > 1) mot.pval <- min(mot.pval)
-            if (length(mot.qval) > 1) mot.qval <- min(mot.qval)
-            if (length(mot.eval) > 1) mot.eval <- min(mot.eval)
+  mot.motif <- do.call(cbind, mot.motif)
+  mot.name <- paste0(mot.name, collapse = "/")
 
-            motif <- universalmotif_cpp(motif = mot.motif, name = mot.name,
-                                        altname = mot.altname, family = mot.family,
-                                        organism = mot.organism, nsites = mot.nsites,
-                                        alphabet = mot.alphabet, bkg = mot.bkg,
-                                        bkgsites = mot.bkgsites, strand = mot.strand,
-                                        pval = mot.pval, qval = mot.qval, eval = mot.eval,
-                                        extrainfo = mot.extrainfo)
-            msg <- validObject_universalmotif(motif)
-            if (length(msg) > 0) stop(msg)
-            motif
+  if (length(mot.altname) > 0) mot.altname <- paste0(mot.altname, collapse = "/")
+  if (length(mot.family) > 0) mot.family <- paste0(mot.family, collapse = "/")
+  if (length(mot.organism) > 0) mot.organism <- paste0(mot.organism, collapse = "/")
+  if (length(mot.nsites) > 1) mot.nsites <- max(mot.nsites)
 
-          })
+  mot.bkg <- colMeans(do.call(rbind, mot.bkg))
+
+  if (length(mot.bkgsites) > 1) mot.bkgsites <- max(mot.bkgsites)
+  if (length(mot.strand) > 1) mot.strand <- "+-"
+  if (length(mot.pval) > 1) mot.pval <- min(mot.pval)
+  if (length(mot.qval) > 1) mot.qval <- min(mot.qval)
+  if (length(mot.eval) > 1) mot.eval <- min(mot.eval)
+
+  motif <- universalmotif_cpp(motif = mot.motif, name = mot.name,
+                              altname = mot.altname, family = mot.family,
+                              organism = mot.organism, nsites = mot.nsites,
+                              alphabet = mot.alphabet, bkg = mot.bkg,
+                              bkgsites = mot.bkgsites, strand = mot.strand,
+                              pval = mot.pval, qval = mot.qval, eval = mot.eval,
+                              extrainfo = mot.extrainfo)
+
+  validObject(motif)
+  motif
+
+})

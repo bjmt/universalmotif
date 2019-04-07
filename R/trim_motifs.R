@@ -32,26 +32,26 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
-  mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  mot.names <- vapply(motifs, function(x) x@name, character(1))
 
   motifs <- lapply(motifs,
                      function(x) {
-                       y <- x["nsites"]
-                       if (length(y) == 0) x["nsites"] <- 100
+                       y <- x@nsites
+                       if (length(y) == 0) x@nsites <- 100
                        x
                      })
 
-  mot.mats <- lapply(motifs, function(x) x["motif"])
+  mot.mats <- lapply(motifs, function(x) x@motif)
 
-  mot.mats.k <- lapply(motifs, function(x) x["multifreq"])
+  mot.mats.k <- lapply(motifs, function(x) x@multifreq)
 
   mot.scores <- lapply(motifs,
                          function(x) {
-                          apply(x["motif"], 2, position_icscoreC,
-                                bkg = x["bkg"][rownames(x["motif"])],
-                                type = x["type"],
-                                pseudocount = x["pseudocount"],
-                                nsites = x["nsites"])
+                          apply(x@motif, 2, position_icscoreC,
+                                bkg = x@bkg[rownames(x@motif)],
+                                type = x@type,
+                                pseudocount = x@pseudocount,
+                                nsites = x@nsites)
                          })
 
   new.mats <- mapply(function(x, y) trim_motif_internal(x, y, min.ic),
@@ -112,8 +112,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
                          x@motif <- mat
                          x@consensus <- paste(consensus, collapse = "")
                        }
-                       msg <- validObject_universalmotif(x)
-                       if (length(msg) > 0) stop(msg)
+                       validObject(x)
                        x
                      })
 

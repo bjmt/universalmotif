@@ -29,8 +29,8 @@
 
 \S4method{initialize}{universalmotif}(.Object, name, altname, family,
   organism, motif, alphabet = "DNA", type, icscore, nsites,
-  pseudocount = 0.8, bkg, bkgsites, consensus, strand = "+-", pval,
-  qval, eval, multifreq, extrainfo)
+  pseudocount = 1, bkg, bkgsites, consensus, strand = "+-", pval, qval,
+  eval, multifreq, extrainfo)
 
 \S4method{show}{universalmotif}(object)
 

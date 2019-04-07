@@ -414,6 +414,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// summarise_motifs_cpp
+DataFrame summarise_motifs_cpp(List motifs);
+RcppExport SEXP _universalmotif_summarise_motifs_cpp(SEXP motifsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< List >::type motifs(motifsSEXP);
+    rcpp_result_gen = Rcpp::wrap(summarise_motifs_cpp(motifs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapse_rows_mat
 StringVector collapse_rows_mat(CharacterMatrix seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_mat(SEXP seqs_kSEXP) {
@@ -668,6 +678,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
+    {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
     {"_universalmotif_get_klets", (DL_FUNC) &_universalmotif_get_klets, 2},

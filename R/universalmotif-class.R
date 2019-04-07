@@ -100,230 +100,37 @@
 #' @rdname universalmotif-class
 #' @exportClass universalmotif
 universalmotif <- setClass("universalmotif",
-                           slots = list(name = "character",
-                                        altname = "character",
-                                        family = "character",
-                                        organism = "character",
-                                        motif = "matrix",
-                                        alphabet = "character",
-                                        type = "character", icscore = "numeric",
-                                        nsites = "numeric",
-                                        pseudocount = "numeric",
-                                        bkg = "numeric",
-                                        bkgsites = "numeric",
-                                        consensus = "character",
-                                        strand = "character", pval = "numeric",
-                                        qval = "numeric", eval = "numeric",
-                                        multifreq = "list",
-                                        extrainfo = "character"))
 
-setValidity("universalmotif",
-            function(object) {
+  slots = list(
 
-            msg <- vector()
-            valid <- TRUE
+    name = "character",
+    altname = "character",
+    family = "character",
+    organism = "character",
+    motif = "matrix",
+    alphabet = "character",
+    type = "character",
+    icscore = "numeric",
+    nsites = "numeric",
+    pseudocount = "numeric",
+    bkg = "numeric",
+    bkgsites = "numeric",
+    consensus = "character",
+    strand = "character",
+    pval = "numeric",
+    qval = "numeric",
+    eval = "numeric",
+    multifreq = "list",
+    extrainfo = "character"
 
-            ## character slot length checks
+  )
 
-            # mandatory
-            char_checks1 <- c("name", "type", "alphabet", "strand")
-            # optional
-            char_checks2 <- c("altname", "family", "consensus", "organism")
+)
 
-            char_results1 <- vapply(char_checks1,
-                                   function(x) length(object[x]) == 1,
-                                   logical(1))
-            char_results2 <- vapply(char_checks1,
-                                   function(x) length(object[x]) <= 1,
-                                   logical(1))
+setValidity("universalmotif", function(object) {
 
-            char_checks_all <- c(char_checks1, char_checks2)
-            char_results_all <- c(char_results1, char_results2)
+  msg <- validObject_universalmotif(object)
 
-            if (any(isFALSE(char_results_all))) {
-              valid <- FALSE
-              for (check in char_checks_all[isFALSE(char_results_all)]) {
-                msg <- c(msg, paste0("motif '", check,
-                                     "' must be a character vector of length 1"))
-              }
-            }
+  if (length(msg) == 0) TRUE else msg
 
-            ## character slot specific checks
-
-            # alphabets <- c("DNA", "RNA", "AA", "custom")
-            types <- c("PCM", "PPM", "PWM", "ICM")
-            strands <- c("+", "-", "+-", "-+")
-
-            if (!object["type"] %in% types) {
-              valid <- FALSE
-              msg <- c(msg, "motif 'type' must be either 'PCM', 'PPM', 'PWM', or 'ICM'")
-            }
-
-            if (!object["strand"] %in% strands) {
-              valid <- FALSE
-              msg <- c(msg, "motif 'strand' must be either '+', '-', or '+-'")
-            }
-
-            ## numeric slot length checks
-
-            num_checks <- c("pval", "qval", "eval", "bkgsites", "pseudocount",
-                            "nsites")
-            num_results <- vapply(num_checks,
-                                  function(x) length(object[x]) <= 1,
-                                  logical(1))
-
-            if (any(isFALSE(num_results))) {
-              valid <- FALSE
-              for (check in num_checks[isFALSE(num_checks)]) {
-                msg <- c(msg, paste0("motif '", check,
-                                     "' must be a numeric vector of length 1"))
-              }
-            }
-
-            ## bkg slot check
-
-            bkg_check1 <- object["bkg"]
-            bkg_check2 <- nrow(object["motif"])
-            if (length(bkg_check1) > 0) {
-              # if (length(bkg_check1) != bkg_check2) {
-              if (length(bkg_check1) < bkg_check2) {
-                valid <- FALSE
-                # msg <- c(msg, "motif 'bkg' must be a numeric vector of length equal to the number of letters in motif")
-                msg <- c(msg, "'bkg' vector is too short")
-              }
-              if (is.null(names(bkg_check1)) && !is.null(rownames(object["motif"]))) {
-                valid <- FALSE
-                msg <- c(msg, "'bkg' must be a named vector")
-              }
-              # if (!all(names(bkg_check1) == rownames(object["motif"])) &&
-                  # !is.null(names(bkg_check1)) &&
-                  # !is.null(rownames(object["motif"]))) {
-                # valid <- FALSE
-                # msg <- c(msg, "first elements of 'bkg' must correspond to 0-order background")
-              # }
-              if (object["alphabet"] != "custom" &&
-                  any(is.na(bkg_check1[rownames(object["motif"])]))) {
-                valid <- FALSE
-                msg <- c(msg, "'bkg' must contain 0-order probabilities for all letters")
-              }
-            } else {
-              valid <- FALSE
-              msg <- c(msg, "'bkg' cannot be empty")
-            }
-
-            ## motif slot check
-
-            mat_type <- object["type"]
-            mat <- object["motif"]
-            mat_colsums <- colSums(mat)
-
-            # PCM
-            if (mat_type == "PCM") {
-              mat_nsites <- object["nsites"]
-              if (length(unique(mat_colsums)) > 1) {
-                warning("not all positions have identical count totals")
-                # if (sd(unique(mat_colsums)) > 0.1) {
-                  # valid <- FALSE
-                  # msg <- c(msg, "motif of type 'PCM' must have equal column sums")
-                # }
-              }
-              if (length(mat_nsites) > 0) {
-                if (length(unique(mat_colsums)) == 1) {
-                  if (unique(mat_colsums) != mat_nsites) {
-                    valid <- FALSE
-                    msg <- c(msg, "motif of type 'PCM' must have column sums equal to 'nsites'")
-                  }
-                }
-              }
-            }
-
-            # PPM
-            if (mat_type == "PPM") {
-              if (any(mat_colsums > 1.01) || any(mat_colsums < 0.99)) {
-                valid <- FALSE
-                msg <- c(msg, "motif of type 'PPM' must have column sums equal to 1")
-              }
-              if (any(mat < 0)) {
-                valid <- FALSE
-                msg <- c(msg, "motif of type 'PPM' can only have positive probabilities")
-              }
-            }
-
-            # check it matches alphabet
-            alph <- object["alphabet"]
-            if (alph %in% c("DNA", "RNA")) {
-              if (nrow(mat) != 4) {
-                valid <- FALSE
-                msg <- c(msg,
-                         "motif with 'alphabet' of type 'DNA' or 'RNA' can only have 4 rows")
-              }
-              if (alph == "DNA" && any(rownames(object["motif"]) != DNA_BASES)) {
-                valid <- FALSE
-                msg <- c(msg, "DNA motif must have rownames A, C, G, T")
-              }
-              if (alph == "RNA" && any(rownames(object["motif"]) != RNA_BASES)) {
-                valid <- FALSE
-                msg <- c(msg, "RNA motif must have rownames A, C, G, U")
-              }
-            } else if (alph == "AA") {
-              if (nrow(mat) != 20) {
-                valid <- FALSE
-                msg <- c(msg,
-                         "motif with 'alphabet' of type 'AA' can only have 20 rows")
-              }
-              if (any(!rownames(object["motif"]) %in% AA_STANDARD)) {
-                valid <- FALSE
-                msg <- c(msg, paste("AA motif must have rownames",
-                                    paste(sort(AA_STANDARD), collapse = "")))
-              }
-            } else if (alph != "custom") {
-              if (nrow(mat) != length(safeExplode(alph))) {
-                valid <- FALSE
-                msg <- c(msg, paste0("motif with alphabet '",
-                                     "' has an incorrect number of rows"))
-              }
-              if (any(!rownames(object["motif"]) %in% safeExplode(alph))) {
-                valid <- FALSE
-                msg <- c(msg, "motif rownames must match alphabet")
-              }
-            }
-
-            # consensus
-            consensus <- object["consensus"]
-            if (length(consensus) != 0) {
-              consensus <- safeExplode(consensus)
-              if (length(consensus) != ncol(object["motif"])) {
-                valid <- FALSE
-                msg <- c(msg, "consensus string length does not match motif length")
-              }
-            }
-
-            # check multifreq
-            # multifreq <- object["multifreq"]
-            # if (length(multifreq) > 0) {
-              # for (i in seq_along(names(multifreq))) {
-                # if (!is.matrix(multifreq[[i]])) {
-                  # valid <- FALSE
-                  # msg <- c(msg, "multifreq slot must be a list of matrices")
-                # }
-                # if (as.integer(i) != as.numeric(i) || is.na(as.numeric(i))) {
-                  # valid <- FALSE
-                  # msg <- c(msg, "multifreq list names must be whole numbers")
-                # }
-                # if (nrow(multifreq[[i]]) != 4^as.numeric(i)) {
-                  # valid <- FALSE
-                  # msg <- c(msg, paste0(i, "-letter multifreq matrix must have ",
-                                       # 4^as.numeric(i), " rows"))
-                # }
-                # mot_len_check <- ncol(object["motif"]) - as.numeric(i) + 1
-                # if (ncol(multifreq[[i]]) != mot_len_check) {
-                  # valid <- FALSE
-                  # msg <- c(msg, paste0(i, "-letter multifreq matrix must have ",
-                                       # mot_len_check, " columns"))
-                # }
-              # }
-            # }
-
-            if (valid) TRUE else msg
-
-            })
+})

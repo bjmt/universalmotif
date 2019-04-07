@@ -360,8 +360,7 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
                              organism = x@elementMetadata@listData$organism[i],
                              motif = x@listData[[i]], alphabet = "DNA",
                              type = "PPM")
-              msg <- validObject_universalmotif(mot)
-              if (length(msg) > 0) stop(msg)
+              validObject(mot)
               mot
             }
             motifs_out <- vector("list", length(motifs))
@@ -413,8 +412,7 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
                                      strand = paste0(motifs@strand,
                                                      collapse = ""),
                                      extrainfo = extrainfo)
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -439,8 +437,7 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
                                      strand = paste0(motifs@strand,
                                                      collapse = ""),
                                      extrainfo = extrainfo)
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -465,8 +462,7 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
                                      strand = paste0(motifs@strand,
                                                      collapse = ""),
                                      extrainfo = extrainfo)
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -494,8 +490,7 @@ setMethod("convert_motifs", signature(motifs = "pwm"),
           definition = function(motifs, class) {
             motifs <- universalmotif_cpp(motif = motifs@pwm, type = "PPM",
                                      alphabet = motifs@alphabet)
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -508,8 +503,7 @@ setMethod("convert_motifs", signature(motifs = "pcm"),
                                      alphabet = motifs@alphabet,
                                      bkg = motifs@background,
                                      type = "PCM")
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -521,8 +515,7 @@ setMethod("convert_motifs", signature(motifs = "pfm"),
                                      alphabet = motifs@alphabet,
                                      bkg = motifs@background,
                                      type = "PPM")
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -537,8 +530,7 @@ setMethod("convert_motifs", signature(motifs = "PWM"),
                                      type = "PWM", alphabet = alphabet,
                                      bkg = motifs@prior.params,
                                      altname = motifs@id)
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 
@@ -554,8 +546,7 @@ setMethod("convert_motifs", signature(motifs = "Motif"),
                              strand = paste(unique(motifs@match$match.strand),
                                             collapse = ""),
             motif <- create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
-            msg <- validObject_universalmotif(motifs)
-            if (length(msg) > 0) stop(msg)
+            validObject(motifs)
             convert_motifs(motifs, class = class)
           })
 

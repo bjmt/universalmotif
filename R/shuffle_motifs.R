@@ -102,12 +102,12 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
 
 shuffle_new_mot <- function(new.mat, motif) {
 
-  mot <- universalmotif_cpp(motif = new.mat, alphabet = motif["alphabet"],
-                            bkg = motif["bkg"], bkgsites = motif["bkgsites"],
-                            nsites = motif["nsites"], strand = motif["strand"],
-                            name = collapse_cpp(c(motif["name"], " [shuffled]")))
-  msg <- validObject_universalmotif(mot)
-  if (length(msg) > 0) stop(msg)
+  mot <- universalmotif_cpp(motif = new.mat, alphabet = motif@alphabet,
+                            bkg = motif@bkg, bkgsites = motif@bkgsites,
+                            nsites = motif@nsites, strand = motif@strand,
+                            name = collapse_cpp(c(motif@name, " [shuffled]")))
+
+  validObject(mot)
   mot
 
 }

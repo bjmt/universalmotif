@@ -125,6 +125,10 @@ validObject_universalmotif <- function(motif) {
     .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
 }
 
+summarise_motifs_cpp <- function(motifs) {
+    .Call('_universalmotif_summarise_motifs_cpp', PACKAGE = 'universalmotif', motifs)
+}
+
 collapse_rows_mat <- function(seqs_k) {
     .Call('_universalmotif_collapse_rows_mat', PACKAGE = 'universalmotif', seqs_k)
 }

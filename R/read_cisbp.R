@@ -89,8 +89,8 @@ read_cisbp <- function(file, skip = 0) {
                                    motif = t(x),
                                    alphabet = alph,
                                    type = "PPM")
-                    msg <- validObject_universalmotif(mot)
-                    if (length(msg) > 0) stop(msg) else mot
+                    validObject(mot)
+                    mot
                   }, motif_list, meta_list)
 
   motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,

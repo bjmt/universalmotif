@@ -72,6 +72,8 @@ MINOR CHANGES
       percent score based on the total possible score, not just the score
       between zero and the max possible score.
 
+    o summarise_motifs() is much faster
+
 CHANGES IN VERSION 1.0.22
 -------------------------
 

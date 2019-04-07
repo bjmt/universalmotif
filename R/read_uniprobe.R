@@ -86,8 +86,8 @@ read_uniprobe <- function(file, skip = 0) {
                                             motif = motif,
                                             alphabet = "DNA",
                                             type = "PPM")
-                             msg <- validObject_universalmotif(mot)
-                             if (length(msg) > 0) stop(msg) else mot
+                             validObject(mot)
+                             mot
                            }, motif_names, motif_A, motif_C, motif_G, motif_T,
                            SIMPLIFY = FALSE)
 

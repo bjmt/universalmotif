@@ -46,23 +46,22 @@ motif_rc_internal <- function(motifs) {
     }
   }
 
-  motifs <- universalmotif_cpp(name = motifs["name"], altname = motifs["altname"],
-                           family = motifs["family"],
-                           motif = matrix(rev(as.numeric(motifs["motif"])),
+  motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@altname,
+                           family = motifs@family,
+                           motif = matrix(rev(as.numeric(motifs@motif)),
                                           nrow = 4, byrow = FALSE),
-                           alphabet = motifs["alphabet"], type = motifs["type"],
-                           organism = motifs["organism"],
-                           nsites = motifs["nsites"],
-                           pseudocount = motifs["pseudocount"],
-                           bkg = motifs["bkg"], bkgsites = motifs["bkgsites"],
-                           strand = motifs["strand"], pval = motifs["pval"],
-                           qval = motifs["qval"], eval = motifs["eval"],
-                           extrainfo = motifs["extrainfo"])
+                           alphabet = motifs@alphabet, type = motifs@type,
+                           organism = motifs@organism,
+                           nsites = motifs@nsites,
+                           pseudocount = motifs@pseudocount,
+                           bkg = motifs@bkg, bkgsites = motifs@bkgsites,
+                           strand = motifs@strand, pval = motifs@pval,
+                           qval = motifs@qval, eval = motifs@eval,
+                           extrainfo = motifs@extrainfo)
+
   if (length(multifreq) > 0) motif@multifreq <- multifreq
 
-  msg <- validObject_universalmotif(motifs)
-  if (length(msg) > 0) stop(msg)
-
+  validObject(motifs)
   motifs
 
 }

@@ -80,8 +80,8 @@ read_homer <- function(file, skip = 0) {
                    type = "PPM",
                    family = x[6],
                    extrainfo = c(logodds = x[5]))
-    msg <- validObject_universalmotif(mot)
-    if (length(msg) > 0) stop(msg) else mot
+    validObject(mot)
+    mot
   }
 
   motifs <- mapply(homer2umot, motif_meta, motif_list,

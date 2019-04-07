@@ -563,3 +563,113 @@ StringVector validObject_universalmotif(S4 motif) {
   return msg;
 
 }
+
+// [[Rcpp::export(rng = false)]]
+DataFrame summarise_motifs_cpp(List motifs) {
+
+  int n = motifs.length();
+  StringVector name(n);
+  StringVector altname(n);
+  StringVector family(n);
+  StringVector organism(n);
+  StringVector alphabet(n);
+  NumericVector icscore(n);
+  IntegerVector nsites(n);
+  IntegerVector bkgsites(n);
+  StringVector consensus(n);
+  StringVector strand(n);
+  NumericVector pval(n);
+  NumericVector qval(n);
+  NumericVector eval(n);
+
+  for (int i = 0; i < n; ++i) {
+
+    S4 mot = motifs[i];
+
+    StringVector name_i = mot.slot("name");
+    name[i] = name_i[0];
+
+    StringVector altname_i = mot.slot("altname");
+    if (altname_i.length() == 1)
+      altname[i] = altname_i[0];
+    else
+      altname[i] = NA_STRING;
+
+    StringVector family_i = mot.slot("family");
+    if (family_i.length() == 1)
+      family[i] = family_i[0];
+    else
+      family[i] = NA_STRING;
+
+    StringVector organism_i = mot.slot("organism");
+    if (organism_i.length() == 1)
+      organism[i] = organism_i[0];
+    else
+      organism[i] = NA_STRING;
+
+    StringVector alphabet_i = mot.slot("alphabet");
+    alphabet[i] = alphabet_i[0];
+
+    NumericVector icscore_i = mot.slot("icscore");
+    icscore[i] = icscore_i[0];
+
+    IntegerVector nsites_i = mot.slot("nsites");
+    if (nsites_i.length() == 1)
+      nsites[i] = nsites_i[0];
+    else
+      nsites[i] = NA_INTEGER;
+
+    IntegerVector bkgsites_i = mot.slot("bkgsites");
+    if (bkgsites_i.length() == 1)
+      bkgsites[i] = bkgsites_i[0];
+    else
+      bkgsites[i] = NA_INTEGER;
+
+    StringVector consensus_i = mot.slot("consensus");
+    if (consensus_i.length() == 1)
+      consensus[i] = consensus_i[0];
+    else
+      consensus[i] = NA_STRING;
+
+    StringVector strand_i = mot.slot("strand");
+    strand[i] = strand_i[0];
+
+    NumericVector pval_i = mot.slot("pval");
+    if (pval_i.length() == 1)
+      pval[i] = pval_i[0];
+    else
+      pval[i] = NA_REAL;
+
+    NumericVector qval_i = mot.slot("qval");
+    if (qval_i.length() == 1)
+      qval[i] = qval_i[0];
+    else
+      qval[i] = NA_REAL;
+
+    NumericVector eval_i = mot.slot("eval");
+    if (eval_i.length() == 1)
+      eval[i] = eval_i[0];
+    else
+      eval[i] = NA_REAL;
+
+  }
+
+  return DataFrame::create(
+
+      _["name"] = name,
+      _["altname"] = altname,
+      _["family"] = family,
+      _["organism"] = organism,
+      _["alphabet"] = alphabet,
+      _["icscore"] = icscore,
+      _["nsites"] = nsites,
+      _["bkgsites"] = bkgsites,
+      _["consensus"] = consensus,
+      _["strand"] = strand,
+      _["pval"] = pval,
+      _["qval"] = qval,
+      _["eval"] = eval,
+
+      _["stringsAsFactors"] = false);
+
+}

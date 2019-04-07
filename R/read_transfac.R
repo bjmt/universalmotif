@@ -131,8 +131,8 @@ read_transfac <- function(file, skip = 0) {
                                      motif = t(x),
                                      alphabet = "DNA",
                                      type = "PCM")
-                      msg <- validObject_universalmotif(mot)
-                      if (length(msg) > 0) stop(msg) else mot
+                      validObject(mot)
+                      mot
                      }, motif_matrix, motif_meta)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]

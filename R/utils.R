@@ -465,12 +465,12 @@ get_consensusAA <- function(position, type, pseudocount) {
 #' @rdname utilities
 #' @export
 summarise_motifs <- function(motifs, na.rm = TRUE) {
-  # ~10s for entire MotifDb library
+  # ~0.05 seconds for entire MotifDb library
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   classcheck <- vapply(motifs, function(x) !is(x, "universalmotif"), logical(1))
   if (any(classcheck)) stop("all motifs must be 'universalmotif'")
-  out <- do.call(rbind, lapply(motifs, as.data.frame))
+  out <- summarise_motifs_cpp(motifs)
   out <- out[, c("name", "altname", "family", "organism", "consensus", "alphabet",
                  "strand", "icscore", "nsites", "bkgsites", "pval", "qval", "eval")]
   if (na.rm) out <- Filter(function(x) !all(is.na(x)), out)
@@ -480,16 +480,25 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
 .internal_convert <- function(motifs, class = NULL) {
 
   if (is.null(class)) {
-    CLASS_PKG <- attributes(class(motifs))$package
+
     CLASS <- class(motifs)
-    CLASS_IN <- paste(CLASS_PKG, CLASS, sep = "-")
-    return(CLASS_IN)
+    CLASS_PKG <- attributes(CLASS)$package
+    CLASS_IN <- collapse_cpp(c(CLASS_PKG, "-", CLASS))
+
+    CLASS_IN
+
   } else {
+
     if (length(class) == 1 && class[1] != "universalmotif-universalmotif") {
+
       tryCatch(motifs <- convert_motifs(motifs, class),
                error = function(e) message("motifs converted to class 'universalmotif'"))
-    } else if (length(class) > 1) message("motifs converted to class 'universalmotif'")
-    return(motifs)
+
+    } else if (length(class) > 1)
+      message("motifs converted to class 'universalmotif'")
+
+    motifs
+
   }
 
 }
