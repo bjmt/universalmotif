@@ -59,7 +59,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param family `character(1)` Transcription factor family.
 #' @param organism `character(1)` Species of origin.
 #' @param motif `matrix` Each column represents a position in the motif.
-#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
 #'    or a combined string representing the letters.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #' @param icscore `numeric(1)` Total information content. Automatically generated.

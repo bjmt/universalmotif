@@ -5,8 +5,9 @@
 #'
 #' @param input `character`, `numberic`, `matrix`,
 #'    \code{\link{XStringSet}}, or `missing`
-#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA', 'custom')`,
-#'    or a combined string representing the letters.
+#' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
+#'    or a combined string representing the letters. If no alphabet is
+#'    provided then it will try and guess the alphabet from the input.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #' @param name `character(1)` Motif name.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
@@ -72,7 +73,7 @@
 #' # detected first
 #' AA.motif <- create_motif("AVLK", alphabet = "AA")
 #' 
-#' custom.motif <- create_motif("QWER", alphabet = "custom")
+#' custom.motif <- create_motif("QWER", alphabet = "QWER")
 #' # specify custom alphabet
 #' custom.motif <- create_motif("QWER", alphabet = "QWERASDF")
 #'
@@ -83,7 +84,7 @@
 #' RNA.motif <- create_motif(c("UUUU", "AAAA", "AACC", "UUGG"), type = "PWM")
 #' AA.motif <- create_motif(c("ARNDCQ", "EGHILK", "ARNDCQ"), alphabet = "AA")
 #' custom.motif <- create_motif(c("POIU", "LKJH", "POIU", "CVBN"),
-#'                              alphabet = "custom")
+#'                              alphabet = "POIULKJHCVBN")
 #'
 #' # ambiguity letters are only allowed for single consensus strings; the
 #' # following fails
@@ -120,7 +121,7 @@
 #'                 nrow = 4, byrow = TRUE)
 #' DNA.motif <- create_motif(mat, alphabet = "DNA")
 #' RNA.motif <- create_motif(mat, alphabet = "RNA", nsites = 20)
-#' custom.motif <- create_motif(mat)
+#' custom.motif <- create_motif(mat, alphabet = "QWER")
 #'
 #' # specify custom alphabet
 #' custom.motif <- create_motif(mat, alphabet = "QWER")

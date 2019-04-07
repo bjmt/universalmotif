@@ -6,7 +6,6 @@
 \alias{universalmotif-class}
 \alias{universalmotif}
 \alias{[,universalmotif-method}
-\alias{[<-,universalmotif,ANY,ANY,ANY-method}
 \alias{[<-,universalmotif-method}
 \alias{initialize,universalmotif-method}
 \alias{show,universalmotif-method}
@@ -26,7 +25,7 @@
 \usage{
 \S4method{[}{universalmotif}(x, i)
 
-\S4method{[}{universalmotif,ANY,ANY,ANY}(x, i) <- value
+\S4method{[}{universalmotif}(x, i) <- value
 
 \S4method{initialize}{universalmotif}(.Object, name, altname, family,
   organism, motif, alphabet = "DNA", type, icscore, nsites,
@@ -78,7 +77,7 @@
 
 \item{motif}{\code{matrix} Each column represents a position in the motif.}
 
-\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA', 'custom')},
+\item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
 or a combined string representing the letters.}
 
 \item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
