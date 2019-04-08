@@ -24,4 +24,7 @@ test_that("filling multifreq works", {
 
   expect_equal(unname(m4@multifreq[[1]][8, ]), c(0.5, 0.5, 1, 1))
 
+  s <- create_sequences(seqlen = 10)
+  expect_equal(add_multi(s, 2), add_multi_ANY(s, 2, Biostrings::DNA_BASES))
+
 })

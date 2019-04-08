@@ -133,8 +133,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   if (length(prev.multifreq) > 0) {
     if (any(names(prev.multifreq) %in% names(multifreq))) {
       warning("Overwriting previous `multifreq`: ",
-              paste(names(prev.multifreq)[names(prev.multifreq) %in% names(multifreq)],
-                    collapse = ", "))
+              paste0(names(prev.multifreq)[names(prev.multifreq) %in% names(multifreq)],
+                     collapse = ", "))
       prev.multifreq <- prev.multifreq[!names(prev.multifreq) %in% names(multifreq)]
       if (length(prev.multifreq) > 0) {
         multifreq <- c(prev.multifreq, multifreq)
@@ -164,7 +164,7 @@ add_multi <- function(sequences, k) {
   seq.width <- unique(width(sequences))
   if (seq.width < k - 1) {
     warning("motif is not long enough for k = ", k)
-    return(matrix())
+    return(matrix(nrow = 0, ncol = 0))
   }
 
   emissions <- matrix(nrow = 4^k, ncol = seq.width - k + 1)
@@ -175,7 +175,7 @@ add_multi <- function(sequences, k) {
     if (length(j) != 4^k) j <- rep(j, 4^k / length(j))
     multi_rows[i, ] <- j
   }
-  multi_rows <- apply(multi_rows, 2, collapse_cpp)
+  multi_rows <- collapse_cols_mat(multi_rows)
 
   rownames(emissions) <- multi_rows
   colnames(emissions) <- seq_len(ncol(emissions))
@@ -186,7 +186,6 @@ add_multi <- function(sequences, k) {
 
   for (i in seq_len(seq.width - k + 1)) {
     current.seqs <- seqs.split[, i:(i + k - 1)]
-    # current.seqs <- apply(current.seqs, 1, collapse_cpp)
     current.seqs <- collapse_rows_mat(current.seqs)
     current.seqs <- DNAStringSet(current.seqs)
     emissions.i <- colSums(oligonucleotideFrequency(current.seqs, k, 1))

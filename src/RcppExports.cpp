@@ -96,18 +96,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_final_probs_cpp
-NumericVector calc_final_probs_cpp(List all_probs, List all_scores, int score);
-RcppExport SEXP _universalmotif_calc_final_probs_cpp(SEXP all_probsSEXP, SEXP all_scoresSEXP, SEXP scoreSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< List >::type all_probs(all_probsSEXP);
-    Rcpp::traits::input_parameter< List >::type all_scores(all_scoresSEXP);
-    Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_final_probs_cpp(all_probs, all_scores, score));
-    return rcpp_result_gen;
-END_RCPP
-}
 // add_cols
 List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, NumericVector ic2, double overlap);
 RcppExport SEXP _universalmotif_add_cols(SEXP mot1SEXP, SEXP mot2SEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP overlapSEXP) {
@@ -435,6 +423,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// collapse_cols_mat
+StringVector collapse_cols_mat(CharacterMatrix seqs_k);
+RcppExport SEXP _universalmotif_collapse_cols_mat(SEXP seqs_kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type seqs_k(seqs_kSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapse_cols_mat(seqs_k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapse_rows_df
 StringVector collapse_rows_df(DataFrame seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_df(SEXP seqs_kSEXP) {
@@ -656,7 +654,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_init_paths_cpp", (DL_FUNC) &_universalmotif_init_paths_cpp, 3},
     {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
-    {"_universalmotif_calc_final_probs_cpp", (DL_FUNC) &_universalmotif_calc_final_probs_cpp, 3},
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 9},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},
@@ -681,6 +678,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
+    {"_universalmotif_collapse_cols_mat", (DL_FUNC) &_universalmotif_collapse_cols_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
     {"_universalmotif_get_klets", (DL_FUNC) &_universalmotif_get_klets, 2},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},

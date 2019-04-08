@@ -4,7 +4,8 @@ test_that("accessor functions work", {
 
   m <- create_motif("SGDGNTGGAY", pseudocount = 1, nsites = 88,
                     family = "asdf", organism = "qwer")
-  
+
+  expect_equal(length(m[]), 19)
   expect_equal(unname(m["name"]), m@name)
   expect_equal(m["altname"], m@altname)
   expect_equal(unname(m["family"]), m@family)
@@ -28,6 +29,10 @@ test_that("accessor functions work", {
   m["altname"] <- "zxcv"
   expect_equal(m@altname, "zxcv")
   expect_error(m["motif"] <- matrix(1:8, nrow = 2))
+  expect_error(m["icscore"] <- 5)
+  expect_error(m["multifreq"] <- list())
+  expect_error(m["consensus"] <- "AASDAD")
+  expect_error(universalmotif())
 
 })
 

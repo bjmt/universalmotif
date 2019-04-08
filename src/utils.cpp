@@ -33,6 +33,19 @@ StringVector collapse_rows_mat(CharacterMatrix seqs_k) {
 }
 
 // [[Rcpp::export(rng = false)]]
+StringVector collapse_cols_mat(CharacterMatrix seqs_k) {
+
+  StringVector out(seqs_k.ncol());
+
+  for (int i = 0; i < seqs_k.ncol(); ++i) {
+    out[i] = collapse(seqs_k(_, i));
+  }
+
+  return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
 StringVector collapse_rows_df(DataFrame seqs_k) {
   // >2 times as fast as apply(seqs_k_df, 1, collapse_cpp)
 

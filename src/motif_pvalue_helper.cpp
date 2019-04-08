@@ -123,12 +123,9 @@ IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score,
 
   path = path[tokeep];
 
-  IntegerMatrix out(path.length(), 1);
-  for (int i = 0; i < path.length(); ++i) {
-    out(i, 0) = path[i];
-  }
+  path.attr("dim") = Dimension(path.length(), 1);
 
-  return out;
+  return as<IntegerMatrix>(path);
 
 }
 
@@ -159,40 +156,22 @@ IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry,
 IntegerMatrix list_to_matrix(List paths) {
 
   IntegerMatrix tmp = paths[0];
+  int n_rows = 0, n_cols = tmp.ncol();
 
-  int num_mat(paths.length());
-  int mat_ncols(tmp.ncol());
-
-  IntegerVector path_nrows(num_mat);
-
-  for (int i = 0; i < num_mat; ++i) {
+  for (int i = 0; i < paths.length(); ++i) {
     IntegerMatrix tmp = paths[i];
-    path_nrows[i] = tmp.nrow();
+    n_rows += tmp.nrow();
   }
 
-  int total_rows = sum(path_nrows);
+  IntegerMatrix out(n_rows, n_cols);
 
-  IntegerVector out_pre(total_rows * mat_ncols);
-
-  int pre_index = 0;
-
-  for (int i = 0; i < num_mat; ++i) {
+  int pos = 0;
+  for (int i = 0; i < paths.length(); ++i) {
     IntegerMatrix tmp = paths[i];
-    for (int j = 0; j < tmp.nrow(); ++j) {
-      for (int b = 0; b < tmp.ncol(); ++b) {
-        out_pre[pre_index] = tmp(j, b);
-        pre_index += 1;
-      }
+    for (int j = pos; j < pos + tmp.nrow(); ++j) {
+      out(j, _) = tmp(j - pos, _);
     }
-  }
-
-  pre_index = 0;
-  IntegerMatrix out(total_rows, mat_ncols);
-  for (int i = 0; i < out.nrow(); ++i) {
-    for (int j = 0; j < out.ncol(); ++j) {
-      out(i, j) = out_pre[pre_index];
-      pre_index += 1;
-    }
+    pos += tmp.nrow();
   }
 
   return out;
@@ -227,62 +206,10 @@ IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
 
     scores_tmp = calc_scores_cpp(paths_totry, score_mat) + max_score;
 
-    final_paths(i) = calc_next_subworker_cpp(paths_totry, scores_tmp, score);
+    final_paths[i] = calc_next_subworker_cpp(paths_totry, scores_tmp, score);
 
   }
 
   return list_to_matrix(final_paths);
-
-}
-
-// // [[Rcpp::export(rng = false)]]
-IntegerMatrix branch_and_bound_cpp(IntegerMatrix score_mat, int min_score) {
-
-  IntegerVector max_scores(score_mat.ncol() + 1);
-  for (int i = 0; i < max_scores.length() - 1; ++i) {
-    max_scores[i] = max(score_mat(_, i));
-  }
-
-  for (int i = 0; i < max_scores.length(); ++i) {
-    for (int j = i + 1; j < max_scores.length(); ++j) {
-      max_scores[i] += max_scores[j];
-    }
-  }
-
-  if (min_score > max_scores(0)) min_score = max_scores(0) - 0.0001;
-
-  int mot_len = score_mat.ncol();
-
-  IntegerMatrix paths = init_paths_cpp(score_mat, min_score, max_scores[1]);
-  if (mot_len == 1) return paths;
-
-  for (int i = 1; i < mot_len; ++i) {
-    paths = calc_next_path_cpp(score_mat, paths, min_score, max_scores[i + 1]);
-  }
-
-  return paths;
-
-}
-
-// [[Rcpp::export(rng = false)]]
-NumericVector calc_final_probs_cpp(List all_probs, List all_scores,
-    int score) {
-
-  IntegerVector scores0 = all_scores[0];
-  IntegerVector scores1 = all_scores[1];
-  NumericVector probs0 = all_probs[0];
-  NumericVector probs1 = all_probs[1];
-  NumericVector final_probs(scores0.length());
-
-  double tmp_prob;
-  for (int i = 0; i < final_probs.length(); ++i) {
-    tmp_prob = probs0[i];
-    NumericVector tmp_probs_2 = probs1;
-    LogicalVector which_probs_2 = scores1 > score - scores0(i);
-    tmp_probs_2 = tmp_probs_2[which_probs_2];
-    final_probs[i] = tmp_prob * sum(tmp_probs_2);
-  }
-
-  return final_probs;
 
 }

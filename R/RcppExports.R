@@ -33,10 +33,6 @@ calc_next_path_cpp <- function(score_mat, paths, score, max_score) {
     .Call('_universalmotif_calc_next_path_cpp', PACKAGE = 'universalmotif', score_mat, paths, score, max_score)
 }
 
-calc_final_probs_cpp <- function(all_probs, all_scores, score) {
-    .Call('_universalmotif_calc_final_probs_cpp', PACKAGE = 'universalmotif', all_probs, all_scores, score)
-}
-
 add_cols <- function(mot1, mot2, ic1, ic2, overlap) {
     .Call('_universalmotif_add_cols', PACKAGE = 'universalmotif', mot1, mot2, ic1, ic2, overlap)
 }
@@ -131,6 +127,10 @@ summarise_motifs_cpp <- function(motifs) {
 
 collapse_rows_mat <- function(seqs_k) {
     .Call('_universalmotif_collapse_rows_mat', PACKAGE = 'universalmotif', seqs_k)
+}
+
+collapse_cols_mat <- function(seqs_k) {
+    .Call('_universalmotif_collapse_cols_mat', PACKAGE = 'universalmotif', seqs_k)
 }
 
 collapse_rows_df <- function(seqs_k) {

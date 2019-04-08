@@ -241,25 +241,6 @@ motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
 motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
                        return_scores = FALSE) {
 
-  # lets1 <- rownames(score.mat)
-  # use.order <- "0"
-  # bkg_len <- length(bkg.probs)
-  # alph_len <- nrow(score.mat)
-  # if (bkg_len > alph_len) {
-    # if (bkg_len >= alph_len + alph_len^2) {
-      # lets2 <- expand.grid(rep(list(lets1), 2), stringsAsFactors = FALSE)
-      # lets2 <- sort(collapse_rows_df(lets2))
-      # lets2 <- bkg.probs[lets2]
-      # use.order <- "1"
-    # }
-    # if (bkg_len >= alph_len + alph_len^2 + alph_len^3) {
-      # lets3 <- expand.grid(rep(list(lets1), 3), stringsAsFactors = FALSE)
-      # lets3 <- sort(collapse_rows_df(lets3))
-      # lets3 <- bkg.probs[lets3]
-      # use.order <- "2"
-    # }
-  # }
-
   if (num2int) {
     if (!return_scores) score <- as.integer(score * 1000)
     score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
@@ -324,7 +305,6 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   all.paths <- vector("list", length(mot.split))
   for (i in seq_along(all.paths)) {
     all.paths[[i]] <-  branch_and_bound_kmers(mot.split[[i]], split.min[i])
-    # all.paths[[i]] <- branch_and_bound_cpp(mot.split[[i]], split.min[i])
   }
 
   all.scores <- vector("list", length(mot.split))
@@ -333,32 +313,10 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   }
 
   all.probs <- vector("list", length(mot.split))
-  # switch(use.order,
-#
-    # "0" = {
-      for (i in seq_along(all.probs)) {
-        all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
-                                                   alph.sort.split[[i]])
-      }
-    # },
-#
-    # "1" = {
-      # for (i in seq_along(all.probs)) {
-        # all.probs[[i]] <- kmer_mat_to_probs_k2_cpp(all.paths[[i]], bkg.probs[lets1],
-                                                   # alph.sort.split[[i]],
-                                                   # bkg.probs[lets2])
-      # }
-    # },
-#
-    # "2" = {
-      # for (i in seq_along(all.probs)) {
-        # all.probs[[i]] <- kmer_mat_to_probs_k3_cpp(all.paths[[i]], bkg.probs[lets1],
-                                                   # alph.sort.split[[i]],
-                                                   # bkg.probs[lets2], bkg.probs[lets3])
-      # }
-    # }
-#
-  # )
+  for (i in seq_along(all.probs)) {
+    all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
+                                               alph.sort.split[[i]])
+  }
 
   max.scores5 <- vapply(all.scores, max, numeric(1))
 
@@ -384,7 +342,6 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
       final.probs[i] <- all.probs[[1]][i] *
         sum(all.probs[[2]][all.scores[[2]] > score - all.scores[[1]][i]])
     }
-    # final.probs <- calc_final_probs_cpp(all.probs, all.scores, score)
   }
 
   if (length(mot.split) == 1) {

@@ -22,4 +22,11 @@ test_that("Results are accurate", {
   expect_equal(res$start[2], 14)
   expect_equal(res$stop[2], 11)
 
+  m <- create_motif(create_sequences(seqlen = 10), add.multifreq = 2)
+  s <- create_sequences()
+  r <- scan_sequences(m, s, RC = TRUE, use.freq = 2, threshold = 0.8,
+                      threshold.type = "logodds", verbose = 0, progress = FALSE)
+
+  expect_true(is.data.frame(r))
+
 })

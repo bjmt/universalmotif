@@ -138,15 +138,10 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                         SIMPLIFY = FALSE)
       sites <- lapply(blocks, function(x) x$V4)
       site.names <- lapply(blocks, function(x) x$V1)
-      if (alph == "DNA") {
-        sites <- lapply(sites, DNAStringSet)
-      } else if (alph == "RNA") {
-        sites <- lapply(sites, RNAStringSet)
-      } else if (alph == "AA") {
-        sites <- lapply(sites, AAStringSet)
-      } else {
-        sites <- lapply(sites, BStringSet)
-      }
+      sites <- switch(alph, "DNA" = lapply(sites, DNAStringSet),
+                      "RNA" = lapply(sites, RNAStringSet),
+                      "AA" = lapply(sites, AAStringSet),
+                      lapply(sites, BStringSet))
       sites <- mapply(function(x, y) {names(x) <- y; x},
                         sites, site.names,
                         SIMPLIFY = FALSE)
