@@ -562,7 +562,7 @@ StringVector validObject_universalmotif(S4 motif, bool throw_error = true) {
 
     msg = StringVector::create(all_checks_collapse(msg));
 
-    if (throw_error) stop(msg[0]);
+    if (throw_error) stop(as<std::string>(msg[0]));
 
   }
 
