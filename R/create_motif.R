@@ -211,7 +211,7 @@ setMethod("create_motif", signature(input = "missing"),
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
   }
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -289,7 +289,7 @@ setMethod("create_motif", signature(input = "numeric"),
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
   }
 
-  validObject(motif)
+  validObject_universalmotif(motif)
 
   if (!missing(add.multifreq)) {
     motif <- add_multifreq(motif, sample_sites(motif, motif@nsites),
@@ -424,7 +424,7 @@ setMethod("create_motif", signature(input = "character"),
     if (!is.null(motif@motif)) {
       motif@motif <- motif@motif[order(rownames(motif@motif)), ]
     }
-    validObject(motif)
+    validObject_universalmotif(motif)
     return(motif)
 
   }
@@ -489,7 +489,7 @@ setMethod("create_motif", signature(input = "character"),
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
   }
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -580,7 +580,7 @@ setMethod("create_motif", signature(input = "matrix"),
   if (!is.null(rownames(motif@motif)))
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -638,7 +638,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -696,7 +696,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -763,7 +763,7 @@ setMethod("create_motif", signature(input = "AAStringSet"),
   if (missing(nsites)) motif@nsites <- length(input)
   motif <- convert_type(motif, type = type)
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -852,7 +852,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
   }
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })

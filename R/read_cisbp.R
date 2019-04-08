@@ -89,7 +89,7 @@ read_cisbp <- function(file, skip = 0) {
                                    motif = t(x),
                                    alphabet = alph,
                                    type = "PPM")
-                    validObject(mot)
+                    validObject_universalmotif(mot)
                     mot
                   }, motif_list, meta_list)
 

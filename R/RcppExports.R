@@ -121,8 +121,8 @@ check_bkg_names <- function(alph, blet) {
     .Call('_universalmotif_check_bkg_names', PACKAGE = 'universalmotif', alph, blet)
 }
 
-validObject_universalmotif <- function(motif) {
-    .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif)
+validObject_universalmotif <- function(motif, throw_error = TRUE) {
+    .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif, throw_error)
 }
 
 summarise_motifs_cpp <- function(motifs) {

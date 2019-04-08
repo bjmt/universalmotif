@@ -111,7 +111,7 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
                        SIMPLIFY = FALSE)
   }
 
-  motifs <- lapply(motifs, function(x) {validObject(x); x})
+  motifs <- lapply(motifs, function(x) {validObject_universalmotif(x); x})
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
 

@@ -80,7 +80,7 @@ read_homer <- function(file, skip = 0) {
                    type = "PPM",
                    family = x[6],
                    extrainfo = c(logodds = x[5]))
-    validObject(mot)
+    validObject_universalmotif(mot)
     mot
   }
 

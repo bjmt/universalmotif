@@ -56,74 +56,74 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
   all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-  
+
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   if (!missing(name)) {
-    motif_names <- vapply(motifs, function(x) x["name"], character(1))
+    motif_names <- vapply(motifs, function(x) x@name, character(1))
     motifs <- motifs[motif_names %in% name]
   }
 
   if (!missing(altname)) {
-    motif_altnames <- sapply(motifs, function(x) x["altname"])
+    motif_altnames <- sapply(motifs, function(x) x@altname)
     motifs <- motifs[motif_altnames %in% altname]
   }
 
   if (!missing(family)) {
-    motif_families <- sapply(motifs, function(x) x["family"])
+    motif_families <- sapply(motifs, function(x) x@family)
     motifs <- motifs[motif_families %in% family]
   }
 
   if (!missing(organism)) {
-    motif_organisms <- sapply(motifs, function(x) x["organism"])
+    motif_organisms <- sapply(motifs, function(x) x@organism)
     motifs <- motifs[motif_organisms %in% organism]
   }
 
   if (!missing(width)) {
-    motif_widths <- vapply(motifs, function(x) ncol(x["motif"]), numeric(1))
+    motif_widths <- vapply(motifs, function(x) ncol(x@motif), numeric(1))
     motifs <- motifs[motif_widths >= width]
   }
 
   if (!missing(alphabet)) {
-    motif_alphabets <- vapply(motifs, function(x) x["alphabet"], character(1))
+    motif_alphabets <- vapply(motifs, function(x) x@alphabet, character(1))
     motifs <- motifs[motif_alphabets %in% alphabet]
   }
 
   if (!missing(type)) {
-    motif_types <- vapply(motifs, function(x) x["type"], character(1))
+    motif_types <- vapply(motifs, function(x) x@type, character(1))
     motifs <- motifs[motif_types %in% type]
   }
 
   if (!missing(icscore)) {
-    motif_icscores <- vapply(motifs, function(x) x["icscore"], numeric(1))
+    motif_icscores <- vapply(motifs, function(x) x@icscore, numeric(1))
     motifs <- motifs[motif_icscores >= icscore]
   }
 
   if (!missing(nsites)) {
-    motif_nsites <- apply(motifs, function(x) x["nsites"])
+    motif_nsites <- apply(motifs, function(x) x@nsites)
     motifs <- motifs[motif_nsites >= nsites]
   }
 
   if (!missing(strand)) {
-    motif_strands <- vapply(motifs, function(x) x["strand"], character(1))
+    motif_strands <- vapply(motifs, function(x) x@strand, character(1))
     motifs <- motifs[motif_strands %in% strand]
   }
 
   if (!missing(pval)) {
-    motif_pvals <- sapply(motifs, function(x) x["pval"])
+    motif_pvals <- sapply(motifs, function(x) x@pval)
     motifs <- motifs[motif_pvals <= pval]
   }
 
   if (!missing(qval)) {
-    motif_qvals <- sapply(motifs, function(x) x["qval"])
+    motif_qvals <- sapply(motifs, function(x) x@qval)
     motifs <- motifs[motif_qvals <= qval]
   }
 
   if (!missing(eval)) {
-    motif_evals <- sapply(motifs, function(x) x["eval"])
+    motif_evals <- sapply(motifs, function(x) x@eval)
     motifs <- motifs[motif_evals <= eval]
   }
 

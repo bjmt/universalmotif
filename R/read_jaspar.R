@@ -93,7 +93,7 @@ read_jaspar <- function(file, skip = 0) {
     mot <- universalmotif_cpp(name = name[1], altname = name[2],
                    type = "PCM", alphabet = alphabet,
                    motif = motif)
-    validObject(mot)
+    validObject_universalmotif(mot)
     mot
   }
 

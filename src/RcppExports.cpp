@@ -405,12 +405,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // validObject_universalmotif
-StringVector validObject_universalmotif(S4 motif);
-RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP) {
+StringVector validObject_universalmotif(S4 motif, bool throw_error);
+RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP, SEXP throw_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< S4 >::type motif(motifSEXP);
-    rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif));
+    Rcpp::traits::input_parameter< bool >::type throw_error(throw_errorSEXP);
+    rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif, throw_error));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -677,7 +678,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
-    {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 1},
+    {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},

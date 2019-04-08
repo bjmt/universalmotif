@@ -46,7 +46,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 
   slot(x, i) <- value
 
-  validObject(x)
+  validObject_universalmotif(x)
   x
 
 })
@@ -189,66 +189,66 @@ setMethod("show", signature = "universalmotif",
   name <- object@name
   if (nchar(name) > 40) name <- collapse_cpp(c(substr(name, 1, 40), "..."))
 
-  cat("\n       Motif name:   ", name, "\n", sep = "")
+  cat(collapse_cpp(c("\n       Motif name:   ", name, "\n")))
 
   if (length(object@altname) > 0) {
     altname <- object@altname
     if (nchar(altname) > 40)
       altname <- collapse_cpp(c(substr(altname, 1, 40), "..."))
-    cat("   Alternate name:   ", altname, "\n", sep = "")
+    cat(collapse_cpp(c("   Alternate name:   ", altname, "\n")))
   }
 
   if (length(object@family) > 0) {
     family <- object@family
     if (nchar(family) > 40)
       family <- collapse_cpp(c(substr(family, 1, 40), "..."))
-    cat("           Family:   ", family, "\n", sep = "")
+    cat(collapse_cpp(c("           Family:   ", family, "\n")))
   }
 
   if (length(object@organism) > 0) {
     organism <- object@organism
     if (nchar(organism) > 40)
       organism <- collapse_cpp(c(substr(organism, 1, 40), "..."))
-    cat("         Organism:   ", organism, "\n", sep = "")
+    cat(collapse_cpp(c("         Organism:   ", organism, "\n")))
   }
 
   alphabet <- object@alphabet
   if (nchar(alphabet) > 40)
     alphabet <- collapse_cpp(c(substr(alphabet, 1, 40), "..."))
 
-  cat("         Alphabet:   ", alphabet, "\n", sep = "")
-  cat("             Type:   ", object@type, "\n", sep = "")
+  cat(collapse_cpp(c("         Alphabet:   ", alphabet, "\n")))
+  cat(collapse_cpp(c("             Type:   ", object@type, "\n")))
 
   if (object@alphabet %in% c("DNA", "RNA"))
-    cat("          Strands:   ", object@strand, "\n", sep = "")
+    cat(collapse_cpp(c("          Strands:   ", object@strand, "\n")))
 
-  cat("         Total IC:   ", object@icscore, "\n", sep = "")
+  cat(collapse_cpp(c("         Total IC:   ", round(object@icscore, 2), "\n")))
 
   if (length(object@consensus) > 0) {
     consensus <- object@consensus
     if (nchar(consensus) > 40)
       consensus <- collapse_cpp(c(substr(consensus, 1, 40), "..."))
-    cat("        Consensus:   ", consensus, "\n", sep = "")
+    cat(collapse_cpp(c("        Consensus:   ", consensus, "\n")))
   }
 
   if (length(object@nsites) > 0)
-    cat("     Target sites:   ", object@nsites, "\n", sep = "")
+    cat(collapse_cpp(c("     Target sites:   ", object@nsites, "\n")))
 
   if (length(object@bkgsites) > 0)
-    cat(" Background sites:   ", object@bkgsites, "\n", sep = "")
+    cat(collapse_cpp(c(" Background sites:   ", object@bkgsites, "\n")))
 
   if (length(object@pval) > 0)
-    cat("          P-value:   ", object@pval, "\n", sep = "")
+    cat(collapse_cpp(c("          P-value:   ", object@pval, "\n")))
 
   if (length(object@qval) > 0)
-    cat("          Q-value:   ", object@qval, "\n", sep = "")
+    cat(collapse_cpp(c("          Q-value:   ", object@qval, "\n")))
 
   if (length(object@eval) > 0)
-    cat("          E-value:   ", object@eval, "\n", sep = "")
+    cat(collapse_cpp(c("          E-value:   ", object@eval, "\n")))
 
   if (length(object@multifreq) > 0) {
     toprint <- paste0(names(object@multifreq), collapse = ", ")
-    cat("   k-letter freqs:  ", toprint, "\n")
+    cat(collapse_cpp(c("   k-letter freqs:   ", toprint, "\n")))
   }
 
   if (length(object@extrainfo) > 0 ) {
@@ -271,7 +271,7 @@ setMethod("show", signature = "universalmotif",
         next
       }
 
-      cat("                     ", to_show, "\n", sep = "")
+      cat(collapse_cpp(c("                     ", to_show, "\n")))
 
     }
 
@@ -370,7 +370,7 @@ setMethod("subset", signature(x = "universalmotif"),
                               pval = x@pval, qval = x@qval, eval = x@eval,
                               extrainfo = x@extrainfo)
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })
@@ -481,7 +481,7 @@ setMethod("cbind", signature = "universalmotif",
                               pval = mot.pval, qval = mot.qval, eval = mot.eval,
                               extrainfo = mot.extrainfo)
 
-  validObject(motif)
+  validObject_universalmotif(motif)
   motif
 
 })

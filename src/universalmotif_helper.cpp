@@ -516,7 +516,7 @@ StringVector check_consensus(StringVector m_consensus, NumericMatrix m_motif,
 }
 
 // [[Rcpp::export(rng = false)]]
-StringVector validObject_universalmotif(S4 motif) {
+StringVector validObject_universalmotif(S4 motif, bool throw_error = true) {
 
   StringVector msg;
 
@@ -558,7 +558,13 @@ StringVector validObject_universalmotif(S4 motif) {
   // consensus check
   msg = check_consensus(m_consensus, m_motif, msg);
 
-  if (msg.length() > 0) msg = StringVector::create(all_checks_collapse(msg));
+  if (msg.length() > 0) {
+
+    msg = StringVector::create(all_checks_collapse(msg));
+
+    if (throw_error) stop(msg[0]);
+
+  }
 
   return msg;
 

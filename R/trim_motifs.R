@@ -112,7 +112,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
                          x@motif <- mat
                          x@consensus <- paste(consensus, collapse = "")
                        }
-                       validObject(x)
+                       validObject_universalmotif(x)
                        x
                      })
 

@@ -107,7 +107,7 @@ shuffle_new_mot <- function(new.mat, motif) {
                             nsites = motif@nsites, strand = motif@strand,
                             name = collapse_cpp(c(motif@name, " [shuffled]")))
 
-  validObject(mot)
+  validObject_universalmotif(mot)
   mot
 
 }

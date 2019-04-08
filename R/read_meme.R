@@ -109,7 +109,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                                          strand = strands,
                                          motif = t(matrix(z, ncol = alph.len,
                                                           byrow = TRUE)))
-                          validObject(mot)
+                          validObject_universalmotif(mot)
                           mot
                          }, motif_names, motif_meta, motif_list,
                          SIMPLIFY = FALSE)

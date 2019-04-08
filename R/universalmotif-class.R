@@ -129,7 +129,7 @@ universalmotif <- setClass("universalmotif",
 
 setValidity("universalmotif", function(object) {
 
-  msg <- validObject_universalmotif(object)
+  msg <- validObject_universalmotif(object, FALSE)
 
   if (length(msg) == 0) TRUE else msg
 

@@ -61,7 +61,7 @@ motif_rc_internal <- function(motifs) {
 
   if (length(multifreq) > 0) motif@multifreq <- multifreq
 
-  validObject(motifs)
+  validObject_universalmotif(motifs)
   motifs
 
 }

@@ -55,7 +55,7 @@ read_motifs <- function(file, skip = 0) {
 }
 
 check_list <- function(motif, count) {
-  msg <- validObject_universalmotif(motif)
+  msg <- validObject_universalmotif(motif, FALSE)
   if (length(msg) > 0) {
     warning(paste0("error parsing motif number ", count))
     FALSE

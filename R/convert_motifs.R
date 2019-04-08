@@ -100,75 +100,77 @@ setGeneric("convert_motifs", function(motifs,
 #' @export
 setMethod("convert_motifs", signature(motifs = "list"),
           definition = function(motifs, class) {
-            mot_classes <- vapply(motifs, function(x) class(x), character(1))
-            mot_classes <- unique(mot_classes)
-            if (length(mot_classes) == 1) {
-              classin <- strsplit(class, "-")[[1]][2]
-              if (mot_classes == classin) return(motifs)
-            }
-            lapply(motifs, function(x) convert_motifs(x, class = class))
-          })
+
+  mot_classes <- vapply(motifs, function(x) class(x), character(1))
+  mot_classes <- unique(mot_classes)
+  if (length(mot_classes) == 1) {
+    classin <- strsplit(class, "-")[[1]][2]
+    if (mot_classes == classin) return(motifs)
+  }
+  lapply(motifs, function(x) convert_motifs(x, class = class))
+
+})
 
 #' @describeIn convert_motifs Convert a \linkS4class{universalmotif} object.
 #' @export
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
           definition = function(motifs, class) {
 
-            out_class <- strsplit(class, "-")[[1]][2]
-            out_class_pkg <- strsplit(class, "-")[[1]][1]
+  out_class <- strsplit(class, "-")[[1]][2]
+  out_class_pkg <- strsplit(class, "-")[[1]][1]
 
-            switch(out_class_pkg,
-              "universalmotif" = {
-                motifs
-              },
-              "MotIV" = {
-                if (out_class == "pwm2")
-                  convert_to_motiv_pwm2(motifs)
-                else
-                  stop("unknown 'class'")
-              },
-              "TFBSTools" = {
-                if (out_class %in% c("PFMatrix", "PWMatrix", "ICMatrix"))
-                  convert_to_tfbstools_matrix(motifs, out_class)
-                else if (out_class == "TFFMFirst")
-                  convert_to_tfbstools_tffmfirst(motifs)
-                else
-                  stop("unknown 'class'")
-              },
-              "seqLogo" = {
-                if (out_class == "pwm")
-                  convert_to_seqlogo_pwm(motifs)
-                else
-                  stop("unknown 'class'")
-              },
-              "motifStack" = {
-                switch(out_class,
-                       "pcm" = convert_to_motifstack_pcm(motifs),
-                       "pfm" = convert_to_motifstack_pfm(motifs),
-                               stop("unknown 'class'"))
-              },
-              "PWMEnrich" = {
-                if (out_class == "PWM")
-                  convert_to_pwmenrich_pwm(motifs)
-                else
-                  stop("unknown 'class'")
-              },
-              "Biostrings" = {
-                if (out_class == "PWM")
-                  convert_to_biostrings_pwm(motifs)
-                else
-                  stop("unknown 'class'")
-              },
-              "rGADEM" = {
-                if (out_class == "motif")
-                  convert_to_rgadem_motif(motifs)
-                else
-                  stop("unknown 'class'")
-              },
-              stop("unknown 'class'")
-            )
+  switch(out_class_pkg,
+    "universalmotif" = {
+      motifs
+    },
+    "MotIV" = {
+      if (out_class == "pwm2")
+        convert_to_motiv_pwm2(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    "TFBSTools" = {
+      if (out_class %in% c("PFMatrix", "PWMatrix", "ICMatrix"))
+        convert_to_tfbstools_matrix(motifs, out_class)
+      else if (out_class == "TFFMFirst")
+        convert_to_tfbstools_tffmfirst(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    "seqLogo" = {
+      if (out_class == "pwm")
+        convert_to_seqlogo_pwm(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    "motifStack" = {
+      switch(out_class,
+             "pcm" = convert_to_motifstack_pcm(motifs),
+             "pfm" = convert_to_motifstack_pfm(motifs),
+                     stop("unknown 'class'"))
+    },
+    "PWMEnrich" = {
+      if (out_class == "PWM")
+        convert_to_pwmenrich_pwm(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    "Biostrings" = {
+      if (out_class == "PWM")
+        convert_to_biostrings_pwm(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    "rGADEM" = {
+      if (out_class == "motif")
+        convert_to_rgadem_motif(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    stop("unknown 'class'")
+  )
 
-          })
+})
 
 convert_to_motiv_pwm2 <- function(motifs) {
   motifs <- convert_type(motifs, "PPM")
@@ -241,18 +243,18 @@ convert_to_tfbstools_tffmfirst <- function(motifs) {
   transition[2, 1:2] <- c(0.95, 0.05)
   colnames(transition) <- seq_len(ncol(transition))
   rownames(transition) <- c(0, seq_len(ncol(transition)))
-  if (length(motifs["altname"]) < 1) motifs@altname <- "Unknown"
-  strand <- motifs["strand"]
+  if (length(motifs@altname) < 1) motifs@altname <- "Unknown"
+  strand <- motifs@strand
   if (strand %in% c("+-", "-+")) strand <- "*"
-  family <- motifs["family"]
+  family <- motifs@family
   if (length(family) < 1) family <- "Unknown"
   if (requireNamespace("TFBSTools", quietly = TRUE)) {
-    motifs <- TFBSTools::TFFMFirst(ID = motifs["altname"],
-                        name = motifs["name"],
+    motifs <- TFBSTools::TFFMFirst(ID = motifs@altname,
+                        name = motifs@name,
                         strand = strand, type = "First",
                         bg = bkg, matrixClass = family,
-                        profileMatrix = motifs["motif"],
-                        tags = as.list(motifs["extrainfo"]),
+                        profileMatrix = motifs@motif,
+                        tags = as.list(motifs@extrainfo),
                         emission = emission, transition = transition)
   } else {
     stop("package 'TFBSTools' is not installed") 
@@ -263,7 +265,7 @@ convert_to_tfbstools_tffmfirst <- function(motifs) {
 convert_to_seqlogo_pwm <- function(motifs) {
   motifs <- convert_type(motifs, "PPM")
   if (requireNamespace("seqLogo", quietly = TRUE)) {
-    motifs <- seqLogo::makePWM(motifs["motif"])
+    motifs <- seqLogo::makePWM(motifs@motif)
   } else {
     stop("'seqLogo' package not installed")
   }
@@ -274,10 +276,10 @@ convert_to_motifstack_pcm <- function(motifs) {
   if (requireNamespace("motifStack", quietly = TRUE)) {
     pcm_class <- getClass("pcm", where = "motifStack")
     motifs <- convert_type(motifs, "PCM")
-    motifs <- new(pcm_class, mat = motifs["motif"],
-                  name = motifs["name"],
-                  alphabet = motifs["alphabet"],
-                  background = motifs["bkg"][DNA_BASES])
+    motifs <- new(pcm_class, mat = motifs@motif,
+                  name = motifs@name,
+                  alphabet = motifs@alphabet,
+                  background = motifs@bkg[DNA_BASES])
   } else {
     stop("'motifStack' package not installed")
   }
@@ -290,10 +292,10 @@ convert_to_motifstack_pfm <- function(motifs) {
   if (requireNamespace("motifStack", quietly = TRUE)) {
     pfm_class <- getClass("pfm", where = "motifStack")
     motifs <- convert_type(motifs, "PPM")
-    motifs <- new(pfm_class, mat = motifs["motif"],
-                  name = motifs["name"],
-                  alphabet = motifs["alphabet"],
-                  background = motifs["bkg"][DNA_BASES])
+    motifs <- new(pfm_class, mat = motifs@motif,
+                  name = motifs@name,
+                  alphabet = motifs@alphabet,
+                  background = motifs@bkg[DNA_BASES])
   } else {
     stop("'motifStack' package not installed")
   }
@@ -306,15 +308,15 @@ convert_to_pwmenrich_pwm <- function(motifs) {
   if (requireNamespace("PWMEnrich", quietly = TRUE)) {
     motifs <- convert_type(motifs, "PCM")
     PWM_class <- getClass("PWM", where = "PWMEnrich")
-    bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
+    bio_mat <- matrix(as.integer(motifs@motif), byrow = FALSE,
                       nrow = 4)
     rownames(bio_mat) <- DNA_BASES
-    bio_priors <- motifs["bkg"][DNA_BASES]
+    bio_priors <- motifs@bkg[DNA_BASES]
     bio_mat <- PWMEnrich::PFMtoPWM(bio_mat, type = "log2probratio",
                         prior.params = bio_priors,
-                        pseudo.count = motifs["pseudocount"])
+                        pseudo.count = motifs@pseudocount)
     motifs <- new(PWM_class, name = motifs["name"],
-                  pfm = motifs["motif"],
+                  pfm = motifs@motif,
                   prior.params = bio_priors,
                   pwm = bio_mat$pwm)
   } else {
@@ -328,7 +330,7 @@ convert_to_biostrings_pwm <- function(motifs) {
   bio_mat <- matrix(as.integer(motifs["motif"]), byrow = FALSE,
                     nrow = 4)
   rownames(bio_mat) <- DNA_BASES
-  bio_priors <- motifs["bkg"][DNA_BASES]
+  bio_priors <- motifs@bkg[DNA_BASES]
   motifs <- PWM(x = bio_mat, type = "log2probratio",
                 prior.params = bio_priors)
   motifs
@@ -338,9 +340,9 @@ convert_to_rgadem_motif <- function(motifs) {
   if (requireNamespace("rGADEM", quietly = FALSE)) {
     motifs <- convert_type(motifs, "PPM")
     rGADEM_motif_class <- getClass("motif", where = "rGADEM")
-    motifs <- new("motif", pwm = motifs["motif"],
-                  name = motifs["name"],
-                  consensus = motifs["consensus"])
+    motifs <- new("motif", pwm = motifs@motif,
+                  name = motifs@name,
+                  consensus = motifs@consensus)
   } else {
     stop("'rGADEM' package not installed")
   }
@@ -351,212 +353,227 @@ convert_to_rgadem_motif <- function(motifs) {
 #' @export
 setMethod("convert_motifs", signature(motifs = "MotifList"),
           definition = function(motifs, class) {
-            motifdb_fun <- function(i) {
-              x <- motifs
-              mot <- universalmotif_cpp(
-                             altname = x@elementMetadata@listData$providerName[i],
-                             name = x@elementMetadata@listData$geneSymbol[i],
-                             family = x@elementMetadata@listData$tfFamily[i],
-                             organism = x@elementMetadata@listData$organism[i],
-                             motif = x@listData[[i]], alphabet = "DNA",
-                             type = "PPM")
-              validObject(mot)
-              mot
-            }
-            motifs_out <- vector("list", length(motifs))
-            motifs_out <- lapply(seq_len(length(motifs)), motifdb_fun)
-            convert_motifs(motifs_out, class = class)
-          })
+
+  x <- motifs
+
+  altname <- x@elementMetadata@listData$providerName
+  name <- x@elementMetadata@listData$geneSymbol
+  family <- x@elementMetadata@listData$tfFamily
+  organism <- x@elementMetadata@listData$organism
+  motif <- x@listData
+
+  motifdb_fun <- function(i) {
+
+    mot <- universalmotif_cpp(altname = altname[i], name = name[i],
+                              family = family[i], organism = organism[i],
+                              motif = motif[[i]], alphabet = "DNA",
+                              type = "PPM")
+
+    validObject_universalmotif(mot)
+    mot
+
+  }
+
+  motifs_out <- lapply(seq_len(length(x)), motifdb_fun)
+  convert_motifs(motifs_out, class = class)
+
+})
 
 #' @describeIn convert_motifs Convert TFFMFirst motifs. (\pkg{TFBSTools})
 #' @export
 setMethod("convert_motifs", signature(motifs = "TFFMFirst"),
           definition = function(motifs, class) {
-            if (requireNamespace("TFBSTools", quietly = TRUE)) {
-              difreq <- motifs@emission[-1]
-              difreq <- do.call(c, difreq)
-              difreq <- matrix(difreq, nrow = 16) / 4
-              rownames(difreq) <- DNA_DI
-              colnames(difreq) <- seq_len(ncol(difreq))
-              mot <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                             strand = motifs@strand, bkg = motifs@bg,
-                             motif = TFBSTools::getPosProb(motifs))
-              mot@multifreq <- list("2" = difreq)
-            } else {
-              stop("package 'TFBSTools' is not installed") 
-            }
-            convert_motifs(mot, class = class)
-          })
+
+  if (requireNamespace("TFBSTools", quietly = TRUE)) {
+    difreq <- motifs@emission[-1]
+    difreq <- do.call(c, difreq)
+    difreq <- matrix(difreq, nrow = 16) / 4
+    rownames(difreq) <- DNA_DI
+    colnames(difreq) <- seq_len(ncol(difreq))
+    mot <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
+                   strand = motifs@strand, bkg = motifs@bg,
+                   motif = TFBSTools::getPosProb(motifs))
+    mot@multifreq <- list("2" = difreq)
+  } else {
+    stop("package 'TFBSTools' is not installed") 
+  }
+  convert_motifs(mot, class = class)
+
+})
 
 #' @describeIn convert_motifs Convert PFMatrix motifs. (\pkg{TFBSTools})
 #' @export
 setMethod("convert_motifs", signature(motifs = "PFMatrix"),
           definition = function(motifs, class) {
-            if (all(names(motifs@bg) %in% DNA_BASES)) {
-              alphabet <- "DNA"
-            } else alphabet  <- "RNA"
-            extrainfo <- motifs@tags
-            if (length(extrainfo) > 0) {
-              extrainfo <- unlist(extrainfo)
-            } else {
-              extrainfo <- character()
-            }
-            nsites <- sum(motifs@profileMatrix[, 1])
-            motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                                     family = motifs@tags$family,
-                                     nsites = nsites,
-                                     organism = paste(motifs@tags$species, collapse = "/"),
-                                     motif = motifs@profileMatrix,
-                                     alphabet = alphabet, type = "PCM",
-                                     bkg = motifs@bg,
-                                     strand = paste0(motifs@strand,
-                                                     collapse = ""),
-                                     extrainfo = extrainfo)
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+
+  if (all(names(motifs@bg) %in% DNA_BASES)) {
+    alphabet <- "DNA"
+  } else alphabet  <- "RNA"
+  extrainfo <- motifs@tags
+  if (length(extrainfo) > 0) {
+    extrainfo <- unlist(extrainfo)
+  } else {
+    extrainfo <- character()
+  }
+  nsites <- sum(motifs@profileMatrix[, 1])
+  motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
+                               family = motifs@tags$family,
+                               nsites = nsites,
+                               organism = paste0(motifs@tags$species,
+                                                 collapse = "/"),
+                               motif = motifs@profileMatrix,
+                               alphabet = alphabet, type = "PCM",
+                               bkg = motifs@bg,
+                               strand = collapse_cpp(motifs@strand),
+                               extrainfo = extrainfo)
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+
+})
 
 #' @describeIn convert_motifs Convert PWMatrix motifs. (\pkg{TFBSTools})
 setMethod("convert_motifs", signature(motifs = "PWMatrix"),
           definition = function(motifs, class) {
-            if (all(names(motifs@bg) %in% DNA_BASES)) {
-              alphabet <- "DNA"
-            } else alphabet  <- "RNA"
-            extrainfo <- motifs@tags
-            if (length(extrainfo) > 0) {
-              extrainfo <- unlist(extrainfo)
-            } else {
-              extrainfo <- character()
-            }
-            motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                                     family = motifs@tags$family,
-                                     organism = paste(motifs@tags$species, collapse = "/"),
-                                     motif = motifs@profileMatrix,
-                                     alphabet = alphabet, type = "PWM",
-                                     bkg = motifs@bg,
-                                     strand = paste0(motifs@strand,
-                                                     collapse = ""),
-                                     extrainfo = extrainfo)
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+
+  if (all(names(motifs@bg) %in% DNA_BASES)) {
+    alphabet <- "DNA"
+  } else alphabet  <- "RNA"
+  extrainfo <- motifs@tags
+  if (length(extrainfo) > 0) {
+    extrainfo <- unlist(extrainfo)
+  } else {
+    extrainfo <- character()
+  }
+  motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
+                               family = motifs@tags$family,
+                               organism = paste(motifs@tags$species,
+                                                collapse = "/"),
+                               motif = motifs@profileMatrix,
+                               alphabet = alphabet, type = "PWM",
+                               bkg = motifs@bg,
+                               strand = collapse_cpp(motifs@strand),
+                               extrainfo = extrainfo)
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+
+})
 
 #' @describeIn convert_motifs Convert ICMatrix motifs. (\pkg{TFBSTools})
 setMethod("convert_motifs", signature(motifs = "ICMatrix"),
           definition = function(motifs, class) {
-            if (all(names(motifs@bg) %in% DNA_BASES)) {
-              alphabet <- "DNA"
-            } else alphabet  <- "RNA"
-            extrainfo <- motifs@tags
-            if (length(extrainfo) > 0) {
-              extrainfo <- unlist(extrainfo)
-            } else {
-              extrainfo <- character()
-            }
-            motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                                     family = motifs@tags$family,
-                                     organism = paste(motifs@tags$species, collapse = "/"),
-                                     motif = motifs@profileMatrix,
-                                     alphabet = alphabet, type = "ICM",
-                                     bkg = motifs@bg,
-                                     strand = paste0(motifs@strand,
-                                                     collapse = ""),
-                                     extrainfo = extrainfo)
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+
+  if (all(names(motifs@bg) %in% DNA_BASES)) {
+    alphabet <- "DNA"
+  } else alphabet  <- "RNA"
+  extrainfo <- motifs@tags
+  if (length(extrainfo) > 0) {
+    extrainfo <- unlist(extrainfo)
+  } else {
+    extrainfo <- character()
+  }
+  motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
+                           family = motifs@tags$family,
+                           organism = paste(motifs@tags$species,
+                                            collapse = "/"),
+                           motif = motifs@profileMatrix,
+                           alphabet = alphabet, type = "ICM",
+                           bkg = motifs@bg,
+                           strand = collapse_cpp(motifs@strand),
+                           extrainfo = extrainfo)
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+
+})
 
 #' @describeIn convert_motifs Convert XMatrixList motifs. (\pkg{TFBSTools})
 #' @export
 setMethod("convert_motifs", signature(motifs = "XMatrixList"),
           definition = function(motifs, class) {
-            motif_num <- length(motifs@listData)
-            motifs_out <- lapply(seq_len(motif_num),
-                                   function(i) {
-                                     motifs@listData[[i]]
-                                   })
-            motif_names <- unlist(lapply(seq_len(motif_num),
-                                           function(i) {
-                                            motifs@listData[[i]]@name
-                                           }))
-            names(motifs_out) <- motif_names
-            motifs <- convert_motifs(motifs_out, class = "universalmotif")
-            convert_motifs(motifs, class = class)
-          })
+
+  motif_num <- length(motifs@listData)
+  motifs_out <- lapply(seq_len(motif_num),
+                       function(i) motifs@listData[[i]])
+  motif_names <- unlist(lapply(seq_len(motif_num),
+                               function(i) motifs@listData[[i]]@name))
+  names(motifs_out) <- motif_names
+  motifs <- convert_motifs(motifs_out, class = "universalmotif")
+  convert_motifs(motifs, class = class)
+
+})
 
 #' @describeIn convert_motifs Convert pwm motifs. (\pkg{seqLogo})
 #' @export
 setMethod("convert_motifs", signature(motifs = "pwm"),
           definition = function(motifs, class) {
-            motifs <- universalmotif_cpp(motif = motifs@pwm, type = "PPM",
-                                     alphabet = motifs@alphabet)
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+  motifs <- universalmotif_cpp(motif = motifs@pwm, type = "PPM",
+                           alphabet = motifs@alphabet)
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+})
 
 #' @describeIn convert_motifs Convert pcm motifs. (\pkg{motifStack})
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
           definition = function(motifs, class) {
-            motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
-                                     nsites = unique(colSums(motifs@mat))[1],
-                                     alphabet = motifs@alphabet,
-                                     bkg = motifs@background,
-                                     type = "PCM")
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+  motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
+                           nsites = unique(colSums(motifs@mat))[1],
+                           alphabet = motifs@alphabet,
+                           bkg = motifs@background,
+                           type = "PCM")
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+})
 
 #' @describeIn convert_motifs Convert pfm motifs. (\pkg{motifStack})
 #' @export
 setMethod("convert_motifs", signature(motifs = "pfm"),
           definition = function(motifs, class) {
-            motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
-                                     alphabet = motifs@alphabet,
-                                     bkg = motifs@background,
-                                     type = "PPM")
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+  motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
+                           alphabet = motifs@alphabet,
+                           bkg = motifs@background,
+                           type = "PPM")
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+})
 
 #' @describeIn convert_motifs Convert PWM motifs. (\pkg{PWMEnrich})
 #' @export
 setMethod("convert_motifs", signature(motifs = "PWM"),
           definition = function(motifs, class) {
-            if (all(names(motifs@pwm) %in% DNA_BASES)) {
-              alphabet <- "DNA"
-            } else alphabet <- "RNA"
-            motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@pwm,
-                                     type = "PWM", alphabet = alphabet,
-                                     bkg = motifs@prior.params,
-                                     altname = motifs@id)
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+  if (all(names(motifs@pwm) %in% DNA_BASES)) {
+    alphabet <- "DNA"
+  } else alphabet <- "RNA"
+  motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@pwm,
+                           type = "PWM", alphabet = alphabet,
+                           bkg = motifs@prior.params,
+                           altname = motifs@id)
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+})
 
 #' @describeIn convert_motifs Convert Motif motifs. (\pkg{motifRG})
 #' @export
 setMethod("convert_motifs", signature(motifs = "Motif"),
           definition = function(motifs, class) {
-            motifs <- universalmotif_cpp(name = motifs@pattern,
-                                     nsites = sum(motifs@count),
-                                     alphabet = "DNA",
-                                     type = "PCM",
-                                     extrainfo = c(score = motifs@score),
-                             strand = paste(unique(motifs@match$match.strand),
-                                            collapse = ""),
-            motif <- create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
-            validObject(motifs)
-            convert_motifs(motifs, class = class)
-          })
+  motifs <- universalmotif_cpp(name = motifs@pattern,
+                           nsites = sum(motifs@count),
+                           alphabet = "DNA",
+                           type = "PCM",
+                           extrainfo = c(score = motifs@score),
+                   strand = paste(unique(motifs@match$match.strand),
+                                  collapse = ""),
+  motif <- create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
+  validObject_universalmotif(motifs)
+  convert_motifs(motifs, class = class)
+})
 
 #' @describeIn convert_motifs Create motif from matrices.
 #' @export
 setMethod("convert_motifs", signature(motifs = "matrix"),
           definition = function(motifs, class) {
-            motifs <- create_motif(motifs)
-            convert_motifs(motifs, class = class)
-          })
+  motifs <- create_motif(motifs)
+  convert_motifs(motifs, class = class)
+})
 
 # @describeIn convert_motifs Convert non-\linkS4class{universalmotif} class motifs.
 # @export
