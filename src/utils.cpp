@@ -2,14 +2,39 @@
 #include <sstream>  // needed for `to_string` work around
 using namespace Rcpp;
 
+StringVector dna = StringVector::create( "A", "C", "G", "T" );
+
+StringVector rna = StringVector::create( "A", "C", "G", "U" );
+
+StringVector types = StringVector::create( "PCM", "PPM", "PWM", "ICM" );
+
+StringVector rdna = StringVector::create(
+
+    "A", "C", "G", "T",
+    "U", "R", "Y", "M",
+    "K", "S", "W", "H",
+    "B", "V", "D", "N"
+
+);
+
+StringVector aa = StringVector::create(
+
+    "A", "C", "D", "E",
+    "F", "G", "H", "I",
+    "K", "L", "M", "N",
+    "P", "Q", "R", "S",
+    "T", "V", "W", "Y"
+
+);
+
 namespace std {
   template<typename T>
   std::string to_string(const T &n) {
 
-    // This is required to get around `to_string` g++ compiler error
+  // This is required to get around `to_string` g++ compiler error
 
-    // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
-    // https://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-g-mingw
+  // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
+  // https://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-g-mingw
 
     std::ostringstream s;
     s << n;
@@ -19,6 +44,7 @@ namespace std {
 
 // [[Rcpp::export(rng = false)]]
 StringVector collapse_rows_mat(CharacterMatrix seqs_k) {
+
   // ~10 times as fast as apply(seqs_k_matrix, 1, collapse_cpp)
   // ~15 faster than collapse_rows_df(seqs_k_df)
 
@@ -47,6 +73,7 @@ StringVector collapse_cols_mat(CharacterMatrix seqs_k) {
 
 // [[Rcpp::export(rng = false)]]
 StringVector collapse_rows_df(DataFrame seqs_k) {
+
   // >2 times as fast as apply(seqs_k_df, 1, collapse_cpp)
 
   CharacterMatrix seqs_k_mat(seqs_k.nrow(), seqs_k.size());
@@ -81,18 +108,11 @@ StringVector get_klets(StringVector lets, int k) {
 
   lets = sort_unique(lets);
 
-  if (k == 1) return lets;
-
   int n1 = lets.length();
   int n2 = pow(n1, k);
   StringMatrix out(n2, k + 1);
 
-  out(_, 0) = rep_each(lets, pow(n1, k - 1));
-  out(_, k - 1) = rep(lets, n2);
-
-  if (k == 2) return collapse_rows_mat(out);
-
-  for (int i = 1; i < k - 1; ++i) {
+  for (int i = 0; i < k ; ++i) {
     out(_, i) = rep(rep_each(lets, pow(n1, k - i - 1)), pow(n1, i + 1));
   }
 
@@ -102,9 +122,12 @@ StringVector get_klets(StringVector lets, int k) {
 
 // [[Rcpp::export(rng = false)]]
 String collapse_cpp(StringVector x) {
+
   // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")
   // collapse_cpp(c(x, y)) about 2 times faster than base::paste0(x, y)
+
   return collapse(x);
+
 }
 
 // [[Rcpp::export(rng = false)]]
@@ -169,13 +192,13 @@ NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
   NumericVector out(num);
 
   if (pseudocount != 0) {
-    for (int i = 0; i < num; ++i) {
-      out[i] = (position[i] + (pseudocount / num)) / (possum + pseudocount);
-    }
+
+    out = (position + (pseudocount / num)) / (possum + pseudocount);
+
   } else {
-    for (int i = 0; i < num; ++i) {
-      out[i] = position[i] / possum;
-    }
+
+    out = position / possum;
+
   }
 
   return out;
@@ -183,13 +206,14 @@ NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 }
 
 // [[Rcpp::export(rng = false)]]
-NumericVector ppm_to_pcmC(NumericVector position, double nsites) {
+NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
 
   if (nsites == 0) nsites = 100;
   int n = position.size();
   for (int i = 0; i < n; ++i) {
     position[i] = round(position[i] * nsites);
   }
+
   double possum = sum(position);
   if (possum != nsites) {
     double fix = nsites - possum;
@@ -197,7 +221,7 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites) {
     position[tochange] += fix;
   }
 
-  return position; 
+  return position;
 
 }
 
@@ -243,19 +267,15 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
   }
 
   double possum = sum(position);
+
   if (possum > 0.99 && possum < 1.01) return position;
 
-  for (int i = 0; i < n_pos; ++i) {
-    position[i] *= bkg[i];
-  }
-
+  position = position * bkg;
   possum = sum(position);
+
   if (possum > 0.99 && possum < 1.01) return position;
 
-  possum = sum(position);
-  for (int i = 0; i < n_pos; ++i) {
-    position[i] /= possum;
-  }
+  position = position / possum;
 
   return position;
 
@@ -269,8 +289,12 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
   int n_bkg = bkg.size();
 
   double n_pos2 = n_pos;
-  NumericVector bkg2(n_pos, 1.0 / n_pos2);
-  if (n_pos != n_bkg) bkg = bkg2;
+  if (n_pos != n_bkg) bkg = rep(1.0 / n_pos2, n_pos);
+  else {
+    double s_bkg = sum(bkg);
+    if (s_bkg > 1.01 || s_bkg < 0.99)
+      bkg = bkg / s_bkg;
+  }
 
   if (relative_entropy) {
     for (int i = 0; i < n_pos; ++i) {
@@ -287,10 +311,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
     }
     double height_after = sum(heights);
     double total_ic = log2(n_pos2) - height_after;
-    NumericVector ic(1, total_ic);
-    for (int i = 0; i < n_pos; ++i) {
-      position[i] = position[i] * total_ic;
-    }
+    position = position * total_ic;
     return position;
   }
 
@@ -301,6 +322,8 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
     String type="PPM", double pseudocount=0.8, double nsites=100,
     bool relative_entropy=false) {
 
+  if (nsites == 1) nsites = 100;
+
   int n_pos = position.size();
   int n_bkg = bkg.size();
 
@@ -308,12 +331,17 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
   NumericVector bkg2(n_pos, 1.0 / n_pos2);
   if (n_pos != n_bkg) bkg = bkg2;
 
-  if (type == "PCM") position = pcm_to_ppmC(position, pseudocount);
-  else if (type == "PWM") position = pwm_to_ppmC(position, bkg);
-  else if (type == "ICM") return sum(position);
-  else if (type == "PPM") {
-    position = ppm_to_pcmC(position, nsites);
-    position = pcm_to_ppmC(position, pseudocount);
+  int ntype = match(StringVector::create(type), ::types)[0];
+  switch (ntype) {
+    case  1: position = pcm_to_ppmC(position, pseudocount);
+             break;
+    case  2: position = ppm_to_pcmC(position, nsites);
+             position = pcm_to_ppmC(position, pseudocount);
+             break;
+    case  3: position = pwm_to_ppmC(position, bkg);
+             break;
+    case  4: return sum(position);
+    default: stop("Incorrect type");
   }
 
   if (relative_entropy) {
@@ -338,44 +366,51 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
 
 // [[Rcpp::export(rng = false)]]
 NumericVector icm_to_ppmC(NumericVector position) {
+
   double total_ic = sum(position);
-  int n = position.size();
-  for (int i = 0; i < n; ++i) {
-    position[i] /= total_ic;
-  }
+  position = position / total_ic;
+
   return position;
+
 }
 
 // [[Rcpp::export(rng = false)]]
 String get_consensusC(NumericVector position, String alphabet="DNA",
     String type="PPM", double pseudocount=0.8) {
 
-  if (type == "PCM") {
-    position = pcm_to_ppmC(position, pseudocount);
-  } else if (type == "PWM") {
-    position = pwm_to_ppmC(position);
-  } else if (type == "ICM") {
-    position = icm_to_ppmC(position);
+  int ntype = match(StringVector::create(type), ::types)[0];
+  switch (ntype) {
+    case 1: position = pcm_to_ppmC(position, pseudocount);
+            break;
+    case 2: break;
+    case 3: position = pwm_to_ppmC(position);
+            break;
+    case 4: position = icm_to_ppmC(position);
+            break;
   }
 
+  NumericVector position2 = position * 2.0;
 
   // single letter consensus
        if (position[0] > 0.5 &&
-           position[0] > position[1] * 2.0 &&
-           position[0] > position[2] * 2.0 &&
-           position[0] > position[3] * 2.0) return "A";
+           position[0] > position2[1] &&
+           position[0] > position2[2] &&
+           position[0] > position2[3]) return "A";
+
   else if (position[1] > 0.5 &&
-           position[1] > position[0] * 2.0 &&
-           position[1] > position[2] * 2.0 &&
-           position[1] > position[3] * 2.0) return "C";
+           position[1] > position2[0] &&
+           position[1] > position2[2] &&
+           position[1] > position2[3]) return "C";
+
   else if (position[2] > 0.5 &&
-           position[2] > position[0] * 2.0 &&
-           position[2] > position[1] * 2.0 &&
-           position[2] > position[3] * 2.0) return "G";
+           position[2] > position2[0] &&
+           position[2] > position2[1] &&
+           position[2] > position2[3]) return "G";
+
   else if (position[3] > 0.5 &&
-           position[3] > position[0] * 2.0 &&
-           position[3] > position[1] * 2.0 &&
-           position[3] > position[2] * 2.0) {
+           position[3] > position2[0] &&
+           position[3] > position2[1] &&
+           position[3] > position2[2]) {
     if (alphabet == "DNA") return "T";
     else return "U";
   }
@@ -386,21 +421,25 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
     else if (position[2] > 0.25) return "R";
     else if (position[3] > 0.25) return "W";
   }
+
   else if (position[1] > 0.5) {
          if (position[0] > 0.25) return "M";
     else if (position[2] > 0.25) return "S";
     else if (position[3] > 0.25) return "Y";
   }
+
   else if (position[2] > 0.5) {
          if (position[0] > 0.25) return "R";
     else if (position[1] > 0.25) return "S";
     else if (position[3] > 0.25) return "Y";
   }
+
   else if (position[3] > 0.5) {
          if (position[0] > 0.25) return "W";
     else if (position[1] > 0.25) return "Y";
     else if (position[2] > 0.25) return "K";
   }
+
   else if ((position[0] + position[1]) > 0.75) return "M";
   else if ((position[0] + position[2]) > 0.75) return "R";
   else if ((position[0] + position[3]) > 0.75) return "W";
@@ -412,12 +451,15 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
   else if (position[0] > 0.25 &&
            position[1] > 0.25 &&
            position[3] > 0.25) return "H";
+
   else if (position[1] > 0.25 &&
            position[2] > 0.25 &&
            position[3] > 0.25) return "B";
+
   else if (position[0] > 0.25 &&
            position[1] > 0.25 &&
            position[2] > 0.25) return "V";
+
   else if (position[0] > 0.25 &&
            position[2] > 0.25 &&
            position[3] > 0.25) return "D";
@@ -430,61 +472,59 @@ String get_consensusC(NumericVector position, String alphabet="DNA",
 // [[Rcpp::export(rng = false)]]
 NumericVector consensus_to_ppmC(String letter) {
 
-       if (letter == "A") return NumericVector::create(0.997, 0.001, 0.001, 0.001);
-  else if (letter == "C") return NumericVector::create(0.001, 0.997, 0.001, 0.001);
-  else if (letter == "G") return NumericVector::create(0.001, 0.001, 0.997, 0.001);
-  else if (letter == "T") return NumericVector::create(0.001, 0.001, 0.001, 0.997);
-  else if (letter == "U") return NumericVector::create(0.001, 0.001, 0.001, 0.997);
-  else if (letter == "R") return NumericVector::create(0.499, 0.001, 0.499, 0.001);
-  else if (letter == "Y") return NumericVector::create(0.001, 0.499, 0.001, 0.449);
-  else if (letter == "M") return NumericVector::create(0.499, 0.499, 0.001, 0.001);
-  else if (letter == "K") return NumericVector::create(0.001, 0.001, 0.499, 0.499);
-  else if (letter == "S") return NumericVector::create(0.001, 0.499, 0.499, 0.001);
-  else if (letter == "W") return NumericVector::create(0.499, 0.001, 0.001, 0.499);
-  else if (letter == "H") return NumericVector::create(0.333, 0.333, 0.001, 0.333);
-  else if (letter == "B") return NumericVector::create(0.001, 0.333, 0.333, 0.333);
-  else if (letter == "V") return NumericVector::create(0.333, 0.333, 0.333, 0.001);
-  else if (letter == "D") return NumericVector::create(0.333, 0.001, 0.333, 0.333);
-  else if (letter == "N") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
-  else if (letter == "+") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
-  else if (letter == "-") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
-  else if (letter == ".") return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
+  int let = match(StringVector::create(letter), ::rdna)[0];
+  switch (let) {
 
-  return NumericVector::create(0.0, 0.0, 0.0, 0.0);
+    case  1: return NumericVector::create(0.997, 0.001, 0.001, 0.001);  // A
+    case  2: return NumericVector::create(0.001, 0.997, 0.001, 0.001);  // C
+    case  3: return NumericVector::create(0.001, 0.001, 0.997, 0.001);  // G
+    case  4: return NumericVector::create(0.001, 0.001, 0.001, 0.997);  // T
+    case  5: return NumericVector::create(0.001, 0.001, 0.001, 0.997);  // U
+    case  6: return NumericVector::create(0.499, 0.001, 0.499, 0.001);  // R
+    case  7: return NumericVector::create(0.001, 0.499, 0.001, 0.449);  // Y
+    case  8: return NumericVector::create(0.499, 0.499, 0.001, 0.001);  // M
+    case  9: return NumericVector::create(0.001, 0.001, 0.499, 0.499);  // K
+    case 10: return NumericVector::create(0.001, 0.499, 0.499, 0.001);  // S
+    case 11: return NumericVector::create(0.499, 0.001, 0.001, 0.499);  // W
+    case 12: return NumericVector::create(0.333, 0.333, 0.001, 0.333);  // H
+    case 13: return NumericVector::create(0.001, 0.333, 0.333, 0.333);  // B
+    case 14: return NumericVector::create(0.333, 0.333, 0.333, 0.001);  // V
+    case 15: return NumericVector::create(0.333, 0.001, 0.333, 0.333);  // D
+    case 16: return NumericVector::create( 0.25,  0.25,  0.25,  0.25);  // N
+    default: return NumericVector::create( 0.25,  0.25,  0.25,  0.25);
+
+  }
 
 }
 
 // [[Rcpp::export(rng = false)]]
 NumericVector consensus_to_ppmAAC(String letter) {
 
-  NumericVector let_n(20, 0.05);
-       if (letter == "X") return let_n;
-  else if (letter == ".") return let_n;
-  else if (letter == "-") return let_n;
-  else if (letter == "+") return let_n;
+  int let = match(StringVector::create(letter), ::aa)[0];
+  NumericVector out(20, 0.001);
 
-  NumericVector let_2(20, 0.001);
-  if (letter == "B") {
-    let_2[2] = 0.491;
-    let_2[11] = 0.491;
-    return let_2;
-  } else if (letter == "Z") {
-    let_2[3] = 0.491;
-    let_2[13] = 0.491;
-    return let_2;
-  } else if (letter == "J") {
-    let_2[7] = 0.491;
-    let_2[9] = 0.491;
-    return let_2;
+  if (IntegerVector::is_na(let)) {
+
+    if (letter == "B") {
+      out[2] = 0.491;
+      out[11] = 0.491;
+    } else if (letter == "Z") {
+      out[3] = 0.491;
+      out[13] = 0.491;
+    } else if (letter == "J") {
+      out[7] = 0.491;
+      out[9] = 0.491;
+    } else {
+      return rep(0.05, 20);
+    }
+
+  } else {
+
+    out[let - 1] = 0.981;
+
   }
 
-  let_2.names() = CharacterVector::create("A", "C", "D", "E", "F",
-                                          "G", "H", "I", "K", "L",
-                                          "M", "N", "P", "Q", "R",
-                                          "S", "T", "V", "W", "Y");
-  int n = let_2.findName(letter);
-  let_2[n] = 0.981;
-  return let_2;
+  return out;
 
 }
 
@@ -492,31 +532,28 @@ NumericVector consensus_to_ppmAAC(String letter) {
 String get_consensusAAC(NumericVector position, String type="PPM",
     double pseudocount=0.0) {
 
-  if (type == "PCM") {
-    position = pcm_to_ppmC(position, pseudocount);
-  } else if (type == "PWM") {
-    position = pwm_to_ppmC(position);
-  } else if (type == "ICM") {
-    position = icm_to_ppmC(position);
+  int ntype = match(StringVector::create(type), ::types)[0];
+  switch (ntype) {
+    case 1: position = pcm_to_ppmC(position, pseudocount);
+            break;
+    case 2: break;
+    case 3: position = pwm_to_ppmC(position);
+            break;
+    case 4: position = icm_to_ppmC(position);
+            break;
   }
 
        if (position[2] >= 0.4 && position[11] >= 0.4) return "B";
   else if (position[3] >= 0.4 && position[13] >= 0.4) return "Z";
   else if (position[7] >= 0.4 && position[9]  >= 0.4) return "J";
 
-  bool test = all(position < 0.1).is_true();
-  if (test) return "X";
+  if (is_true(all(position < 0.1))) return "X";
 
   NumericVector position2 = Rcpp::clone(position);
   std::sort(position2.begin(), position2.end());
   if (position2[19] == position2[18]) return "X";
 
-  CharacterVector lets = CharacterVector::create("A", "C", "D", "E", "F",
-                                                 "G", "H", "I", "K", "L",
-                                                 "M", "N", "P", "Q", "R",
-                                                 "S", "T", "V", "W", "Y");
-
-  return lets[which_max(position)];
+  return ::aa[which_max(position)];
 
 }
 
@@ -555,11 +592,14 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   //             "numeric", "logical", "S4".
 
   int expected_type;
-  if (expected_type_string == "character") expected_type = 16;
-  else if (expected_type_string == "numeric") expected_type = 14;
-  else if (expected_type_string == "logical") expected_type = 10;
-  else if (expected_type_string == "S4") expected_type = 25;
+
+       if (expected_type_string == "character") expected_type = 16;
+  else if (expected_type_string == "numeric")   expected_type = 14;
+  else if (expected_type_string == "logical")   expected_type = 10;
+  else if (expected_type_string == "S4")        expected_type = 25;
+
   else stop("Unknown 'expected_type_string'");
+
   int arg_len = param_args.length();
   StringVector fails(arg_len * 2);
   StringVector param_names = param_args.names();

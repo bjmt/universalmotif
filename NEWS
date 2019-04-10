@@ -47,7 +47,7 @@ MINOR CHANGES
       Description, and added spell check to tests
 
     o Documentation for the "random" shuffling method has been removed and a
-      warning is shown when  used to tell the user that it will be removed in
+      warning is shown when used to tell the user that it will be removed in
       the next minor update
 
     o Generally increased test coverage
@@ -73,6 +73,10 @@ MINOR CHANGES
       between zero and the max possible score.
 
     o summarise_motifs() is much faster
+
+BUG FIXES
+
+    o Fixed IC score calculation from character input in create_motif()
 
 CHANGES IN VERSION 1.0.22
 -------------------------

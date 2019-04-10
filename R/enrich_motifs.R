@@ -110,6 +110,11 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           return.scan.results = FALSE, progress = TRUE,
                           BP = FALSE) {
 
+  # This function can take up a _lot_ of memory when searching with
+  # a lot of motifs. Perhaps run scan_sequences() for every motif
+  # individually? That way scan_sequences() isn't made to keep hits
+  # for every motif in memory until it's done scanning.
+
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)

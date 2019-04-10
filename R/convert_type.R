@@ -185,6 +185,7 @@ convert_type_single <- function(motif, type, pseudocount,
                                            nsize_correction, relative_entropy),
                   "ICM" = convert_from_icm(motif, type, pseudocount, bkg, nsites))
 
+  validObject_universalmotif(motif)
   motif
 
 }

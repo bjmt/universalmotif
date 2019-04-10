@@ -213,3 +213,18 @@ IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
   return list_to_matrix(final_paths);
 
 }
+
+// [[Rcpp::export(rng = false)]]
+IntegerVector expand_scores(IntegerMatrix scores) {
+
+  int n_row = scores.nrow(), n_col = scores.ncol();
+  IntegerMatrix expanded(pow(n_row, n_col), n_col);
+
+  for (int i = 0; i < n_col; ++i) {
+    expanded(_, i) = rep(rep_each(scores(_, i), pow(n_row, n_col - i - 1)),
+                         pow(n_row, i + 1));
+  }
+
+  return rowSums(expanded);
+
+}

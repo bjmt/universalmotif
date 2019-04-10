@@ -96,6 +96,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// expand_scores
+IntegerVector expand_scores(IntegerMatrix scores);
+RcppExport SEXP _universalmotif_expand_scores(SEXP scoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type scores(scoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(expand_scores(scores));
+    return rcpp_result_gen;
+END_RCPP
+}
 // add_cols
 List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, NumericVector ic2, double overlap);
 RcppExport SEXP _universalmotif_add_cols(SEXP mot1SEXP, SEXP mot2SEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP overlapSEXP) {
@@ -654,6 +664,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_init_paths_cpp", (DL_FUNC) &_universalmotif_init_paths_cpp, 3},
     {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
+    {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 9},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},

@@ -94,8 +94,6 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                          k = 6, progress = ifelse(length(motifs) > 1, TRUE, FALSE),
                          BP = FALSE) {
 
-  # TODO: Number precision is terrible. Can't get P-values < 1e-8.
-
   # NOTE: The calculated P-value is the chance of getting a certain score at
   #       one position. To get a P-value from scanning a 2000 bp stretch for
   #       example, the P-value is multiplied by the number of possible positions
@@ -342,6 +340,10 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
       final.probs[i] <- all.probs[[1]][i] *
         sum(all.probs[[2]][all.scores[[2]] > score - all.scores[[1]][i]])
     }
+      # final.probs[i] <- prod(
+          # all.probs[[1]][i],
+          # Reduce("+", all.probs[[2]][all.scores[[2]] > score - all.scores[[1]][i]])
+      # )
   }
 
   if (length(mot.split) == 1) {
@@ -373,22 +375,24 @@ motif_score <- function(score.mat, pval, k = 8) {
 
   # Assumes a _uniform_ background! (or else distribution no longer normal)
 
+  # Previously used rowSums(expand.grid(as.data.frame(scores)) instead of
+  # expand_scores(scores). The latter function ends up with 1/3 the memory
+  # allocations compared to the expand.grid solution.
+
   pval <- 1 - pval
   alph.len <- nrow(score.mat)
   mot.len <- ncol(score.mat)
 
-  score.mat <- matrix(score.mat, nrow = alph.len)
+  score.mat <- matrix(as.integer(score.mat * 1000), nrow = alph.len)
 
-  max.score <- sum(apply(score.mat, 2, max))
-  min.score <- sum(apply(score.mat, 2, min))
+  max.score <- sum(apply(score.mat, 2, max)) / 1000
+  min.score <- sum(apply(score.mat, 2, min)) / 1000
 
   if (mot.len > k) {
 
-    # Not sure it works correctly if the splits are not the same size?
-
     score.mat.split <- split_mat(score.mat, k)
     s.split <- lapply(score.mat.split,
-                      function(x) rowSums(expand.grid(as.data.frame(x))))
+                      function(x) expand_scores(x) / 1000)
 
     mean.split <- vapply(s.split, mean, numeric(1))
     var.split <- vapply(s.split, var, numeric(1))
@@ -400,8 +404,7 @@ motif_score <- function(score.mat, pval, k = 8) {
 
   } else {
 
-    p <- expand.grid(as.data.frame(score.mat))
-    s <- rowSums(p)
+    s <- expand_scores(score.mat) / 1000
     e <- ecdf(s)
 
     answer <- unname(quantile(e, probs = pval))

@@ -6,14 +6,11 @@ StringVector universalmotif_alphabet(StringVector alphabet,
     NumericMatrix &m_motif) {
 
   if (alphabet[0] == "DNA")
-    rownames(m_motif) = CharacterVector::create("A", "C", "G", "T");
+    rownames(m_motif) = ::dna;
   else if (alphabet[0] == "RNA")
-    rownames(m_motif) = CharacterVector::create("A", "C", "G", "U");
+    rownames(m_motif) = ::rna;
   else if (alphabet[0] == "AA")
-    rownames(m_motif) = CharacterVector::create("A", "C", "D", "E", "F",
-                                                "G", "H", "I", "K", "L",
-                                                "M", "N", "P", "Q", "R",
-                                                "S", "T", "V", "W", "Y");
+    rownames(m_motif) = ::aa;
   else if (alphabet[0] != "custom") {
     StringVector alph_split;
     for (int i = 0; i < alphabet[0].size(); ++i) {
@@ -60,9 +57,7 @@ StringVector universalmotif_type(NumericMatrix &m_motif, StringVector type,
   } else if (type[0] == "PPM" && is_false(all(mat_099_101_check)) &&
       is_true(all(mat_pos_check))) {
     for (int i = 0; i < m_motif.ncol(); ++i) {
-      for (int j = 0; j < m_motif.nrow(); ++j) {
-        m_motif(j, i) = m_motif(j, i) / motif_colsums[i];
-      }
+      m_motif(_, i) = m_motif(_, i) / motif_colsums[i];
     }
   }
 
@@ -74,23 +69,31 @@ NumericVector universalmotif_nsites(NumericVector nsites, StringVector type,
     NumericMatrix &m_motif, NumericVector motif_colsums) {
 
   if (NumericVector::is_na(nsites[0]) || nsites.length() == 0) {
+
     if (type[0] == "PCM") nsites[0] = sum(m_motif(_, 1));
     else nsites = NumericVector::create();
+
   } else if (type[0] == "PCM" && is_true(any(motif_colsums != nsites[0]))) {
+
     double possum, fix;
     int tochange;
+
     for (int i = 0; i < m_motif.ncol(); ++i) {
+
       for (int j = 0; j < m_motif.nrow(); ++j) {
         m_motif(j, i) = m_motif(j, i) / motif_colsums[i];
         m_motif(j, i) = round(m_motif(j, i) * nsites[0]);
       }
+
       possum = sum(m_motif(_, i));
       if (possum != nsites[0]) {
         fix = nsites[0] - possum;
         tochange = which_max(m_motif(_, i));
         m_motif(tochange, i) += fix;
       }
+
     }
+
   }
 
   return nsites;
@@ -154,28 +157,36 @@ StringVector universalmotif_consensus(NumericMatrix &m_motif, StringVector alpha
   StringVector consensus_tmp(m_motif.ncol());
 
   if (alphabet[0] == "DNA") {
+
     for (int i = 0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
     }
     colnames(m_motif) = consensus_tmp;
     consensus = collapse(consensus_tmp);
+
   } else if (alphabet[0] == "RNA") {
+
     for (int i = 0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
     }
     colnames(m_motif) = consensus_tmp;
     consensus = collapse(consensus_tmp);
+
   } else if (alphabet[0] == "AA") {
+
     for (int i =0; i < m_motif.ncol(); ++i) {
       consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
     }
     colnames(m_motif) = consensus_tmp;
     consensus = collapse(consensus_tmp);
+
   } else {
+
     StringVector mot_rownames = rownames(m_motif);
     colnames(m_motif) = StringVector::create();
     rownames(m_motif) = mot_rownames;
     consensus = StringVector::create();
+
   }
 
   return consensus;
@@ -424,16 +435,33 @@ StringVector check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
 
   NumericVector motif_colsums = colSums(m_motif);
 
-  if (m_type[0] == "PCM" && m_nsites.length() > 0) {
-    NumericVector colsums_unique = unique(m_nsites);
-    if (colsums_unique.length() > 1) msg.push_back("* motif colSums must equal nsites\n");
+  if (m_type[0] == "PCM") {
+
+    if (m_nsites.length() > 0) {
+      NumericVector colsums_unique = unique(m_nsites);
+      if (colsums_unique.length() > 1)
+        msg.push_back("* for type PCM motif colSums must equal nsites\n");
+    }
+
+    LogicalVector int_check = (m_motif < 1.0) & (m_motif > 0.0);
+    if (is_true(any(int_check)))
+      msg.push_back("* type PCM motifs cannot contain values between 0 and 1\n");
+
   } else if (m_type[0] == "PPM") {
+
     LogicalVector colsums_1_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
     if (is_false(all(colsums_1_check)))
       msg.push_back("* for type PPM colSums must equal 1\n");
+
     LogicalVector motif_pos_check = m_motif >= 0;
     if (is_false(all(motif_pos_check)))
       msg.push_back("* for type PPM only positive values are allowed\n");
+
+  } else if (m_type[0] == "ICM") {
+
+    if (is_true(any(m_motif < 0)))
+      msg.push_back("* type ICM motifs cannot contain negative values\n");
+
   }
 
   return msg;
@@ -662,19 +690,19 @@ DataFrame summarise_motifs_cpp(List motifs) {
 
   return DataFrame::create(
 
-      _["name"] = name,
-      _["altname"] = altname,
-      _["family"] = family,
-      _["organism"] = organism,
-      _["alphabet"] = alphabet,
-      _["icscore"] = icscore,
-      _["nsites"] = nsites,
-      _["bkgsites"] = bkgsites,
+      _["name"]      = name,
+      _["altname"]   = altname,
+      _["family"]    = family,
+      _["organism"]  = organism,
+      _["alphabet"]  = alphabet,
+      _["icscore"]   = icscore,
+      _["nsites"]    = nsites,
+      _["bkgsites"]  = bkgsites,
       _["consensus"] = consensus,
-      _["strand"] = strand,
-      _["pval"] = pval,
-      _["qval"] = qval,
-      _["eval"] = eval,
+      _["strand"]    = strand,
+      _["pval"]      = pval,
+      _["qval"]      = qval,
+      _["eval"]      = eval,
 
       _["stringsAsFactors"] = false);
 

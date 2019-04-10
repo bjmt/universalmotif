@@ -104,4 +104,8 @@ test_that("motif creation from character input works", {
   expect_equal(m["consensus"], c(consensus = "NAKCNANN"))
   expect_equal(round(m@icscore, 3), 6.566)
 
+  m2 <- create_motif("NNNN")
+
+  expect_equal(m2["icscore"], c(icscore = 0))
+
 })

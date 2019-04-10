@@ -33,6 +33,10 @@ calc_next_path_cpp <- function(score_mat, paths, score, max_score) {
     .Call('_universalmotif_calc_next_path_cpp', PACKAGE = 'universalmotif', score_mat, paths, score, max_score)
 }
 
+expand_scores <- function(scores) {
+    .Call('_universalmotif_expand_scores', PACKAGE = 'universalmotif', scores)
+}
+
 add_cols <- function(mot1, mot2, ic1, ic2, overlap) {
     .Call('_universalmotif_add_cols', PACKAGE = 'universalmotif', mot1, mot2, ic1, ic2, overlap)
 }
@@ -163,7 +167,7 @@ pcm_to_ppmC <- function(position, pseudocount = 0) {
     .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
 }
 
-ppm_to_pcmC <- function(position, nsites) {
+ppm_to_pcmC <- function(position, nsites = 0) {
     .Call('_universalmotif_ppm_to_pcmC', PACKAGE = 'universalmotif', position, nsites)
 }
 

@@ -34,4 +34,14 @@ String get_consensusAAC(NumericVector position, String type="PPM",
 
 String all_checks_collapse(StringVector checks);
 
+extern StringVector rdna;
+
+extern StringVector dna;
+
+extern StringVector rna;
+
+extern StringVector aa;
+
+extern StringVector types;
+
 #endif
