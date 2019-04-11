@@ -82,6 +82,11 @@ BUG FIXES
 
     o Fixed IC score calculation from character input in create_motif()
 
+    o The internal DNA consensus letter calculation previously did not assign
+      ambiguous letters when one PPM position was >0.5 and another was >0.25.
+      This was unintended behaviour and will now output the proper ambigous
+      DNA letter.
+
 CHANGES IN VERSION 1.0.22
 -------------------------
 

@@ -129,7 +129,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     k <- k[k != 1]
     k1 <- vector("list", length(seqs))
     for (i in seq_along(k1)) {
-      k1[[i]] <- as.numeric(table(factor(seqs[[i]], levels = alphabet)))
+      k1[[i]] <- as.numeric(table_cpp(seqs[[i]]))
     }
     k1 <- do.call(cbind, k1)
     k1 <- rowSums(k1)

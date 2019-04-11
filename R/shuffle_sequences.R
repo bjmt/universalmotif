@@ -368,9 +368,8 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
 
   seqs.let <- single_to_k(seqs1, k)
 
-  seqs.counts <- as.data.frame(table(seqs.let))
-  colnames(seqs.counts) <- c("lets", "counts")
-  seqs.counts <- seqs.counts[order(seqs.counts$lets), ]
+  seqs.counts <- table_cpp(seqs.let)
+  seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts))
   final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE)
   final.table$counts[is.na(final.table$counts)] <- 0
 

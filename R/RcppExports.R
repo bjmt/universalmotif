@@ -129,6 +129,10 @@ summarise_motifs_cpp <- function(motifs) {
     .Call('_universalmotif_summarise_motifs_cpp', PACKAGE = 'universalmotif', motifs)
 }
 
+table_cpp <- function(x) {
+    .Call('_universalmotif_table_cpp', PACKAGE = 'universalmotif', x)
+}
+
 collapse_rows_mat <- function(seqs_k) {
     .Call('_universalmotif_collapse_rows_mat', PACKAGE = 'universalmotif', seqs_k)
 }
@@ -183,7 +187,7 @@ ppm_to_icmC <- function(position, bkg = 0L, relative_entropy = FALSE) {
     .Call('_universalmotif_ppm_to_icmC', PACKAGE = 'universalmotif', position, bkg, relative_entropy)
 }
 
-position_icscoreC <- function(position, bkg = 0L, type = "PPM", pseudocount = 0.8, nsites = 100, relative_entropy = FALSE) {
+position_icscoreC <- function(position, bkg = 0L, type = "PPM", pseudocount = 1, nsites = 100, relative_entropy = FALSE) {
     .Call('_universalmotif_position_icscoreC', PACKAGE = 'universalmotif', position, bkg, type, pseudocount, nsites, relative_entropy)
 }
 
@@ -191,8 +195,8 @@ icm_to_ppmC <- function(position) {
     .Call('_universalmotif_icm_to_ppmC', PACKAGE = 'universalmotif', position)
 }
 
-get_consensusC <- function(position, alphabet = "DNA", type = "PPM", pseudocount = 0.8) {
-    .Call('_universalmotif_get_consensusC', PACKAGE = 'universalmotif', position, alphabet, type, pseudocount)
+get_consensusC <- function(pos, alphabet = "DNA", type = "PPM", pseudocount = 1) {
+    .Call('_universalmotif_get_consensusC', PACKAGE = 'universalmotif', pos, alphabet, type, pseudocount)
 }
 
 consensus_to_ppmC <- function(letter) {

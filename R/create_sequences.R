@@ -151,8 +151,7 @@ create_kany <- function(alph.letters, seqlen, freqs, k) {
   seqout[seq_len(k)] <- first.k
 
   trans <- t(matrix(freqs, nrow = length(alph.letters)))
-  lets2 <- expand.grid(rep(list(alph.letters), k - 1), stringsAsFactors = FALSE)
-  lets2 <- collapse_rows_df(lets2)
+  lets2 <- get_klets(alph.letters, k -1)
   colnames(trans) <- alph.letters
   rownames(trans) <- lets2
 

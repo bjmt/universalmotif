@@ -104,7 +104,7 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
     }
 
     c(lines_out, "")
-  
+
   }
 
   lines_out <- c(lines_out, unlist(lapply(motifs, .write_meme)))

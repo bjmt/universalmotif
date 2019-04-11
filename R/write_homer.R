@@ -46,7 +46,7 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6) {
     motif <- motifs
     threshold <- logodds_thresholds
     header <- c(paste0(">", motif["consensus"]), motif["name"], threshold)
-    header <- paste(header, collapse = "\t")
+    header <- paste0(header, collapse = "\t")
     mat <- t(motif["motif"])
     lines_out <- vector("character", 1 + nrow(mat))
     lines_out[1] <- header
@@ -54,7 +54,7 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6) {
       pos <- mat[i, ]
       pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
                     character(1))
-      lines_out[1 + i] <- paste(pos, collapse = "\t")
+      lines_out[1 + i] <- paste0(pos, collapse = "\t")
     }
     lines_out
   }

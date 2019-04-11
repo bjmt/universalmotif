@@ -423,6 +423,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// table_cpp
+IntegerVector table_cpp(StringVector x);
+RcppExport SEXP _universalmotif_table_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< StringVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(table_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapse_rows_mat
 StringVector collapse_rows_mat(CharacterMatrix seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_mat(SEXP seqs_kSEXP) {
@@ -587,15 +597,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_consensusC
-String get_consensusC(NumericVector position, String alphabet, String type, double pseudocount);
-RcppExport SEXP _universalmotif_get_consensusC(SEXP positionSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
+String get_consensusC(NumericVector pos, String alphabet, String type, double pseudocount);
+RcppExport SEXP _universalmotif_get_consensusC(SEXP posSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type pos(posSEXP);
     Rcpp::traits::input_parameter< String >::type alphabet(alphabetSEXP);
     Rcpp::traits::input_parameter< String >::type type(typeSEXP);
     Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_consensusC(position, alphabet, type, pseudocount));
+    rcpp_result_gen = Rcpp::wrap(get_consensusC(pos, alphabet, type, pseudocount));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -688,6 +698,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
+    {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_cols_mat", (DL_FUNC) &_universalmotif_collapse_cols_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},

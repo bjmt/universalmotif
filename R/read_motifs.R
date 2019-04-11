@@ -55,10 +55,10 @@ read_motifs_ <- function(raw_lines) {
 
   mots.check <- vapply(motifs, is.null, logical(1))
   if (all(mots.check))
-    stop("Could not parse motifs")
+    stop("Failed to read any motifs")
   else if (any(mots.check)) {
     failed.mots <- names(motifs)[mots.check]
-    warning(wmsg("Some motifs could not be parsed: ", paste0(failed.mots, ", ")))
+    warning(wmsg("Some motifs could not be read: ", paste0(failed.mots, collapse = ", ")))
     motifs <- motifs[!mots.check]
   }
 
@@ -76,7 +76,8 @@ read_motifs_single <- function(mot) {
 
   mot[["bkg"]] <- unlist(mot[["bkg"]])
 
-  mot[["extrainfo"]] <- unlist(mot[["extrainfo"]])
+  if ("extrainfo" %in% fields)
+    mot[["extrainfo"]] <- unlist(mot[["extrainfo"]])
 
   mot.mat <- mot[["motif"]]
   mot.mat <- strsplit(mot.mat, " ")

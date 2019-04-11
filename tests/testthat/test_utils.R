@@ -38,7 +38,7 @@ test_that("type utilities work", {
                c(0.0472, 0.1415))
   expect_equal(round(universalmotif:::ppm_to_icmC(c(0.25, 0.75), relative_entropy = TRUE), 4),
                c(0.0000, 0.4387))
-  expect_equal(round(universalmotif:::position_icscoreC(c(0.25, 0.75)), 4), 0.1856)
+  expect_equal(round(universalmotif:::position_icscoreC(c(0.25, 0.75)), 3), 0.185)
   expect_equal(universalmotif:::icm_to_ppmC(c(0.5, 0.0, 0.3)),
                c(0.625, 0.000, 0.375))
 

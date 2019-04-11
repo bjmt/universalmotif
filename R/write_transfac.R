@@ -49,7 +49,7 @@ write_transfac <- function(motifs, file) {
     consensus <- safeExplode(motif["consensus"])
     for (j in seq_along(consensus)) {
       p1 <- formatC(j, width = 2, format = "d", flag = "0")
-      p2 <- paste(as.numeric(motif["motif"][, j]), collapse = "\t")
+      p2 <- paste0(as.numeric(motif["motif"][, j]), collapse = "\t")
       p3 <- consensus[j]
       lines_out <- c(lines_out, paste(p1, p2, p3, sep = "\t"))
     }

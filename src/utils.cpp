@@ -2,11 +2,23 @@
 #include <sstream>  // needed for `to_string` work around
 using namespace Rcpp;
 
-StringVector dna = StringVector::create( "A", "C", "G", "T" );
+StringVector dna = StringVector::create(
 
-StringVector rna = StringVector::create( "A", "C", "G", "U" );
+    "A", "C", "G", "T"
 
-StringVector types = StringVector::create( "PCM", "PPM", "PWM", "ICM" );
+);
+
+StringVector rna = StringVector::create(
+
+    "A", "C", "G", "U"
+
+);
+
+StringVector types = StringVector::create(
+
+    "PCM", "PPM", "PWM", "ICM"
+
+);
 
 StringVector rdna = StringVector::create(
 
@@ -40,6 +52,11 @@ namespace std {
     s << n;
     return s.str();
   }
+}
+
+// [[Rcpp::export(rng = false)]]
+IntegerVector table_cpp(StringVector x) {
+  return table(x);
 }
 
 // [[Rcpp::export(rng = false)]]
@@ -319,7 +336,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
 
 // [[Rcpp::export(rng = false)]]
 double position_icscoreC(NumericVector position, NumericVector bkg=0,
-    String type="PPM", double pseudocount=0.8, double nsites=100,
+    String type="PPM", double pseudocount=1, double nsites=100,
     bool relative_entropy=false) {
 
   if (nsites == 1) nsites = 100;
@@ -375,96 +392,44 @@ NumericVector icm_to_ppmC(NumericVector position) {
 }
 
 // [[Rcpp::export(rng = false)]]
-String get_consensusC(NumericVector position, String alphabet="DNA",
-    String type="PPM", double pseudocount=0.8) {
+String get_consensusC(NumericVector pos, String alphabet="DNA",
+    String type="PPM", double pseudocount=1) {
 
   int ntype = match(StringVector::create(type), ::types)[0];
   switch (ntype) {
-    case 1: position = pcm_to_ppmC(position, pseudocount);
-            break;
+    case 1: pos = pcm_to_ppmC(pos, pseudocount); break;
     case 2: break;
-    case 3: position = pwm_to_ppmC(position);
-            break;
-    case 4: position = icm_to_ppmC(position);
-            break;
+    case 3: pos = pwm_to_ppmC(pos); break;
+    case 4: pos = icm_to_ppmC(pos); break;
   }
 
-  NumericVector position2 = position * 2.0;
-
   // single letter consensus
-       if (position[0] > 0.5 &&
-           position[0] > position2[1] &&
-           position[0] > position2[2] &&
-           position[0] > position2[3]) return "A";
 
-  else if (position[1] > 0.5 &&
-           position[1] > position2[0] &&
-           position[1] > position2[2] &&
-           position[1] > position2[3]) return "C";
-
-  else if (position[2] > 0.5 &&
-           position[2] > position2[0] &&
-           position[2] > position2[1] &&
-           position[2] > position2[3]) return "G";
-
-  else if (position[3] > 0.5 &&
-           position[3] > position2[0] &&
-           position[3] > position2[1] &&
-           position[3] > position2[2]) {
-    if (alphabet == "DNA") return "T";
-    else return "U";
+  if (pos[0] > 0.5 && pos[1] <= 0.25 && pos[2] <= 0.25 && pos[3] <= 0.25) return "A";
+  if (pos[1] > 0.5 && pos[0] <= 0.25 && pos[2] <= 0.25 && pos[3] <= 0.25) return "C";
+  if (pos[2] > 0.5 && pos[0] <= 0.25 && pos[1] <= 0.25 && pos[3] <= 0.25) return "G";
+  if (pos[3] > 0.5 && pos[0] <= 0.25 && pos[1] <= 0.25 && pos[2] <= 0.25) {
+    if (alphabet == "DNA") return "T"; else return "U";
   }
 
   // two letter consensus
-  else if (position[0] > 0.5) {
-         if (position[1] > 0.25) return "M";
-    else if (position[2] > 0.25) return "R";
-    else if (position[3] > 0.25) return "W";
-  }
 
-  else if (position[1] > 0.5) {
-         if (position[0] > 0.25) return "M";
-    else if (position[2] > 0.25) return "S";
-    else if (position[3] > 0.25) return "Y";
-  }
-
-  else if (position[2] > 0.5) {
-         if (position[0] > 0.25) return "R";
-    else if (position[1] > 0.25) return "S";
-    else if (position[3] > 0.25) return "Y";
-  }
-
-  else if (position[3] > 0.5) {
-         if (position[0] > 0.25) return "W";
-    else if (position[1] > 0.25) return "Y";
-    else if (position[2] > 0.25) return "K";
-  }
-
-  else if ((position[0] + position[1]) > 0.75) return "M";
-  else if ((position[0] + position[2]) > 0.75) return "R";
-  else if ((position[0] + position[3]) > 0.75) return "W";
-  else if ((position[1] + position[2]) > 0.75) return "S";
-  else if ((position[1] + position[3]) > 0.75) return "Y";
-  else if ((position[2] + position[3]) > 0.75) return "K";
+  if ((pos[0] + pos[1]) > 0.75) return "M";
+  if ((pos[0] + pos[2]) > 0.75) return "R";
+  if ((pos[0] + pos[3]) > 0.75) return "W";
+  if ((pos[1] + pos[2]) > 0.75) return "S";
+  if ((pos[1] + pos[3]) > 0.75) return "Y";
+  if ((pos[2] + pos[3]) > 0.75) return "K";
 
   // three letter consensus
-  else if (position[0] > 0.25 &&
-           position[1] > 0.25 &&
-           position[3] > 0.25) return "H";
 
-  else if (position[1] > 0.25 &&
-           position[2] > 0.25 &&
-           position[3] > 0.25) return "B";
-
-  else if (position[0] > 0.25 &&
-           position[1] > 0.25 &&
-           position[2] > 0.25) return "V";
-
-  else if (position[0] > 0.25 &&
-           position[2] > 0.25 &&
-           position[3] > 0.25) return "D";
+  if (pos[0] > 0.25 && pos[1] > 0.25 && pos[3] > 0.25) return "H";
+  if (pos[1] > 0.25 && pos[2] > 0.25 && pos[3] > 0.25) return "B";
+  if (pos[0] > 0.25 && pos[1] > 0.25 && pos[2] > 0.25) return "V";
+  if (pos[0] > 0.25 && pos[2] > 0.25 && pos[3] > 0.25) return "D";
 
   // no consensus
+
   return "N";
 
 }
@@ -543,7 +508,7 @@ String get_consensusAAC(NumericVector position, String type="PPM",
             break;
   }
 
-       if (position[2] >= 0.4 && position[11] >= 0.4) return "B";
+  if      (position[2] >= 0.4 && position[11] >= 0.4) return "B";
   else if (position[3] >= 0.4 && position[13] >= 0.4) return "Z";
   else if (position[7] >= 0.4 && position[9]  >= 0.4) return "J";
 
@@ -593,7 +558,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
 
   int expected_type;
 
-       if (expected_type_string == "character") expected_type = 16;
+  if      (expected_type_string == "character") expected_type = 16;
   else if (expected_type_string == "numeric")   expected_type = 14;
   else if (expected_type_string == "logical")   expected_type = 10;
   else if (expected_type_string == "S4")        expected_type = 25;

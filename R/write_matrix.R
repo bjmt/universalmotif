@@ -69,18 +69,18 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                         # character(1))
           pos <- as.character(pos)
           if (rownames) pos <- c(rownames(motif["motif"])[i], pos)
-          lines_out <- c(lines_out, paste(pos, collapse = "\t"))
+          lines_out <- c(lines_out, paste0(pos, collapse = "\t"))
         }
       },
       "rows" = {
-        if (rownames) lines_out <- c(lines_out, paste(rownames(motif["motif"]),
-                                                      collapse = "\t"))
+        if (rownames) lines_out <- c(lines_out, paste0(rownames(motif["motif"]),
+                                                       collapse = "\t"))
         for (i in seq_len(ncol(motif["motif"]))) {
           pos <- motif["motif"][, i]
           # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
                         # character(1))
           pos <- as.character(pos)
-          lines_out <- c(lines_out, paste(pos, collapse = "\t"))
+          lines_out <- c(lines_out, paste0(pos, collapse = "\t"))
         }
       }
     )
