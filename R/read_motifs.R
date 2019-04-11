@@ -67,7 +67,7 @@ read_motifs_ <- function(raw_lines) {
 }
 
 read_motifs_try <- function(mot) {
-  tryCatch(read_motifs_single2(mot), error = function(e) return(NULL))
+  tryCatch(read_motifs_single(mot), error = function(e) return(NULL))
 }
 
 read_motifs_single <- function(mot) {
