@@ -53,7 +53,8 @@
 #'    Non-standard letters (such as "N", "+", "-", ".", etc in `DNAString`
 #'    objects) will be safely ignored, resulting only in a warning and a very
 #'    minor performance cost. This can used to scan
-#'    masked sequences. See [Biostrings::mask()] for masking sequences
+#'    masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
+#'    for masking sequences
 #'    (generating `MaskedXString` objects), and [Biostrings::injectHardMask()]
 #'    to recover masked `XStringSet` objects for use with [scan_sequences()].
 #'

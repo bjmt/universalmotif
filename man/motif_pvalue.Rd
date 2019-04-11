@@ -66,7 +66,7 @@ setting \code{k = 12}.
 
 To calculate a score based on a given p-value, the means and variances of
 each motif subsets are combined to estimate the distribution of all
-possible scores using \code{\link[stats:qnorm]{stats::qnorm()}}:
+possible scores using \code{\link[stats:Normal]{stats::qnorm()}}:
 
 \code{qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))}
 

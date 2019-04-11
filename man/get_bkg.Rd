@@ -50,7 +50,8 @@ for every element in \code{k}. Otherwise: \code{NULL}, invisibly.
 \description{
 For a set of input sequences, calculate the overall sequence background for
 any k-let size. Only recommended for non-DNA/RNA sequences: otherwise use
-the much faster and more efficient \code{\link[Biostrings:oligonucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
+the much faster and more efficient
+\code{\link[Biostrings:nucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
 }
 \examples{
 ## Compare to Biostrings version

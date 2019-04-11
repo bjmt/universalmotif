@@ -72,7 +72,8 @@ then threshold logodds scores are generated using \code{\link[=motif_pvalue]{mot
 Non-standard letters (such as "N", "+", "-", ".", etc in \code{DNAString}
 objects) will be safely ignored, resulting only in a warning and a very
 minor performance cost. This can used to scan
-masked sequences. See \code{\link[Biostrings:mask]{Biostrings::mask()}} for masking sequences
+masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
+for masking sequences
 (generating \code{MaskedXString} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
 to recover masked \code{XStringSet} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
 }
