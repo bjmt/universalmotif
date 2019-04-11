@@ -39,7 +39,7 @@ read_motifs <- function(file, skip = 0) {
   raw_lines <- raw_lines[raw_lines != "#"]
 
   if (version < "1.1.67")
-    motifs <- read_motifs_1_0_0(raw_lines, version)
+    motifs <- read_motifs_1_0_X(raw_lines, version)
   else
     motifs <- read_motifs_(raw_lines)
 
@@ -67,36 +67,25 @@ read_motifs_ <- function(raw_lines) {
 }
 
 read_motifs_try <- function(mot) {
-  tryCatch(read_motifs_single(mot), error = function(e) return(NULL))
+  tryCatch(read_motifs_single2(mot), error = function(e) return(NULL))
 }
 
 read_motifs_single <- function(mot) {
 
   fields <- names(mot)
 
-  margs <- list(name = mot[["name"]], alphabet = mot[["alphabet"]],
-                type = mot[["type"]], pseudocount = mot[["pseudocount"]],
-                bkg = unlist(mot[["bkg"]]), strand = mot[["strand"]])
+  mot[["bkg"]] <- unlist(mot[["bkg"]])
 
-  if ("altname" %in% fields) margs$altname <- mot[["altname"]]
-  if ("family" %in% fields) margs$family <- mot[["family"]]
-  if ("organism" %in% fields) margs$organism <- mot[["organism"]]
-  if ("nsites" %in% fields) margs$nsites <- mot[["nsites"]]
-  if ("bkgsites" %in% fields) margs$bkgsites <- mot[["bkgsites"]]
-  if ("pval" %in% fields) margs$pval <- mot[["pval"]]
-  if ("qval" %in% fields) margs$qval <- mot[["qval"]]
-  if ("eval" %in% fields) margs$eval <- mot[["eval"]]
-  if ("extrainfo" %in% fields) margs$extrainfo <- unlist(mot[["extrainfo"]])
+  mot[["extrainfo"]] <- unlist(mot[["extrainfo"]])
 
   mot.mat <- mot[["motif"]]
   mot.mat <- strsplit(mot.mat, " ")
   n_row <- length(mot.mat[[1]])
   mot.mat <- matrix(as.numeric(unlist(mot.mat)), nrow = n_row)
-  margs$motif <- mot.mat
-
-  motif <- do.call(universalmotif_cpp, margs)
+  mot[["motif"]] <- mot.mat
 
   if ("multifreq" %in% fields) {
+
     mult.names <- names(mot$multifreq)
     mults <- vector("list", length(mult.names))
     for (i in seq_along(mults)) {
@@ -108,8 +97,15 @@ read_motifs_single <- function(mot) {
       rownames(mults[[i]]) <- get_klets(rownames(motif@motif),
                                         log(nrow(mults[[i]]), nrow(motif@motif)))
     }
+
     names(mults) <- mult.names
+    motif <- do.call(universalmotif_cpp, mot[fields != "multifreq"])
     motif@multifreq <- mults
+
+  } else {
+
+    motif <- do.call(universalmotif_cpp, mot)
+
   }
 
   validObject_universalmotif(motif)
@@ -118,9 +114,9 @@ read_motifs_single <- function(mot) {
 }
 
 #-------------------------------------------------------------------------------
-# Pre-1.2.0
+# Pre-1.2.X
 
-read_motifs_1_0_0 <- function(raw_lines, version) {
+read_motifs_1_0_X <- function(raw_lines, version) {
 
   names_search <- substr(raw_lines, 1, 5)
   motif_starts <- which(names_search == "name:")
