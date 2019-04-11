@@ -206,10 +206,10 @@ convert_to_tfbstools_matrix <- function(motifs, out_class) {
       },
       "PWMatrix" = {
         motifs <- TFBSTools::toPWM(motifs, type = "log2probratio",
-                        pseudocounts = 0.8, bg = bkg)
+                        pseudocounts = 1, bg = bkg)
       },
       "ICMatrix" = {
-        motifs <- TFBSTools::toICM(motifs, pseudocounts = 0.8, bg = bkg)
+        motifs <- TFBSTools::toICM(motifs, pseudocounts = 1, bg = bkg)
       }
     )
   } else {

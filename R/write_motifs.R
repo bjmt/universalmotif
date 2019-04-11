@@ -8,6 +8,7 @@
 #'
 #' @param minimal `logical(1)` Only write essential motif information.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.
+#' @param progress `logical(1)` Show progress.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -15,127 +16,102 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams write_jaspar
 #' @export
-write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE) {
+write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
+                         progress = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
-  all_checks <- c(char_check)
+  logi_check <- check_fun_params(list(minimal = args$minimal,
+                                      multifreq = args$multifreq,
+                                      progress = args$progress),
+                                 numeric(), logical(), "logical")
+  all_checks <- c(char_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  out <- paste("# universalmotif version", packageDescription("universalmotif")$Version)
+  mots <- lapply_(motifs, write_motifs2_single, minimal = minimal,
+                  multifreq = multifreq, PB = progress)
+  names(mots) <- paste0("MOTIF", seq_along(mots))
 
-  core <- lapply(motifs, function(x) write_motifs_per_motif(x, minimal, multifreq))
+  mots <- as.yaml(mots, indent = 4, precision = 12)
 
-  out <- c(out, do.call(c, core), "")
+  mots <- collapse_cpp(c("# universalmotif version ",
+                         packageDescription("universalmotif")$Version,
+                         "\n#\n", mots))
 
-  writeLines(out, con <- file(file))
+  writeLines(mots, con <- file(file))
   close(con)
 
   invisible(NULL)
 
 }
 
-write_motifs_per_motif <- function(motif, minimal, multifreq) {
-
-  ## mandatory slots
-  out.man <- vector("character", 9)
-
-  out.man[1] <- paste(rep("=", 80), collapse = "")
-  out.man[2] <- paste("name:", motif@name)
-  out.man[3] <- paste("alphabet:", motif@alphabet)
-  out.man[4] <- paste("type:", motif@type)
-  out.man[5] <- paste("strand:", motif@strand)
-  out.man[6] <- paste("pseudocount:", motif@pseudocount)
-  out.man[7] <- paste("bkg:",
-                      paste0(paste(names(motif@bkg),
-                                   formatC(motif@bkg, format = "f", digits = 4),
-                                   sep = "="),
-                             collapse = " "))
-
-  if (!minimal) {
-    ## for looks
-    out.man[8] <- paste("icscore:", formatC(motif@icscore, format = "f", digits = 2))
-    out.man[9] <- paste("consensus:", motif@consensus)
-  } else {
-    out.man <- out.man[1:7]
-  }
+write_motifs2_single <- function(motif, minimal, multifreq) {
 
   if (minimal) {
-    out.opt <- character(0)
-    out.ext <- character(0)
+
+    lmot <- list(name = motif@name,
+                 alphabet = motif@alphabet,
+                 type = motif@type,
+                 pseudocount = motif@pseudocount,
+                 bkg = as.list(motif@bkg),
+                 strand = motif@strand)
+
   } else {
 
-    out.opt <- vector("character", 7)
+    lmot <- list(name = motif@name,
+                 altname = motif@altname,
+                 family = motif@family,
+                 organism = motif@organism,
+                 alphabet = motif@alphabet,
+                 type = motif@type,
+                 icscore = round(motif@icscore, 2),
+                 nsites = motif@nsites,
+                 pseudocount = motif@pseudocount,
+                 bkg = as.list(motif@bkg),
+                 bkgsites = motif@bkgsites,
+                 consensus = motif@consensus,
+                 strand = motif@strand,
+                 pval = motif@pval,
+                 qval = motif@qval,
+                 eval = motif@eval,
+                 extrainfo = as.list(motif@extrainfo))
 
-    ## optional slots
-    if (length(motif@altname) > 0) {
-      out.opt[1] <- paste("altname:", motif@altname)
-    }
-    if (length(motif@organism) > 0) {
-      out.opt[2] <- paste("organism:", motif@organism)
-    }
-    if (length(motif@nsites) > 0) {
-      out.opt[3] <- paste("nsites:", motif@nsites)
-    }
-    if (length(motif@bkgsites) > 0) {
-      out.opt[4] <- paste("bkgsites:", motif@bkgsites)
-    }
-    if (length(motif@pval) > 0) {
-      out.opt[5] <- paste("pval:", motif@pval)
-    }
-    if (length(motif@qval) > 0) {
-      out.opt[6] <- paste("qval:", motif@qval)
-    }
-    if (length(motif@eval) > 0) {
-      out.opt[7] <- paste("eval:", motif@eval)
-    }
-
-    out.opt <- out.opt[out.opt != ""]
-
-    ## extrainfo
-    if (length(motif@extrainfo) > 0) {
-      out.ext <- vector("character", length(motif@extrainfo) + 1)
-      out.ext[1] <- "extrainfo:"
-      for (i in seq_along(motif@extrainfo)) {
-        mot.inf <- paste0("> ", names(motif@extrainfo)[i], ": ", motif@extrainfo[i])
-        out.ext[i + 1] <- mot.inf
-      }
-    } else out.ext <- character(0)
+    to.keep <- vapply(lmot, length, integer(1)) > 0
+    lmot <- lmot[to.keep]
 
   }
-  
-  alph <- rownames(motif@motif)
 
-  ## motif matrix
-  out.mot <- vector("character", nrow(motif@motif) + 1)
-  out.mot[1] <- "motif:"
-  for (i in seq_len(nrow(motif@motif))) {
-    mot.row <- formatC(motif@motif[i, ], format = "f", digits = 6)
-    mot.row <- paste(mot.row, collapse = " ")
-    out.mot[i + 1] <- paste0(alph[i], "> ", mot.row)
-  }
 
-  out.mul <- character(0)
-  if (multifreq) {
-    ## multifreq
-    if (length(motif@multifreq) > 0) {
-      out.mul <- "multifreq:"
-      for (i in seq_along(motif@multifreq)) {
-        out.mul <- c(out.mul, paste(">", names(motif@multifreq)[i]))
-        for (j in seq_len(nrow(motif@multifreq[[i]]))) {
-          mul.row <- formatC(motif@multifreq[[i]][j, ], format = "f", digits = 6)
-          mul.row <- paste(mul.row, collapse = " ")
-          out.mul <- c(out.mul, paste(">>", mul.row))
-        }
-      }
+  mot.t <- t(motif@motif)
+  mot.bycol <- apply(mot.t, 1, format_pos)
+  mot.bycol <- as.list(unname(mot.bycol))
+
+  lmot$motif <- mot.bycol
+
+  if (multifreq && length(motif@multifreq) > 0) {
+
+    mult <- vector("list", length(motif@multifreq))
+    for (i in seq_along(mult)) {
+      mult.t <- t(motif@multifreq[[i]])
+      mult.l <- apply(mult.t, 1, format_pos)
+      mult.l <- as.list(unname(mult.l))
+      mult[[i]] <- mult.l
     }
+
+    names(mult) <- names(motif@multifreq)
+    lmot$multifreq <- mult
+
   }
 
-  c(out.man, out.opt, out.ext, out.mot, out.mul)
+  lmot
 
+}
+
+format_pos <- function(x) {
+  paste0(formatC(x, format = "e", digits = 3), collapse = " ")
 }

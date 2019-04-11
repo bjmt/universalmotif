@@ -204,7 +204,7 @@ S4 universalmotif_cpp(
     StringVector type = NA_STRING,
     NumericVector icscore = NumericVector::create(),
     NumericVector nsites = NumericVector::create(),
-    double pseudocount = 0.8,
+    double pseudocount = 1.0,
     NumericVector bkg = NumericVector::create(),
     NumericVector bkgsites = NumericVector::create(),
     StringVector consensus = NA_STRING,

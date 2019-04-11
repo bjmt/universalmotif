@@ -4,7 +4,8 @@
 \alias{write_motifs}
 \title{Export motifs in universalmotif format.}
 \usage{
-write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE)
+write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
+  progress = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -14,6 +15,8 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE)
 \item{minimal}{\code{logical(1)} Only write essential motif information.}
 
 \item{multifreq}{\code{logical(1)} Write \code{multifreq} slot, if present.}
+
+\item{progress}{\code{logical(1)} Show progress.}
 }
 \value{
 \code{NULL}, invisibly.

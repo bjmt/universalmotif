@@ -33,6 +33,10 @@ NEW FEATURES
     o New get_klets() utility function: generate all possible k-lets for any
       set of characters.
 
+    o The native write_motifs()/read_motifs() universalmotif format is now
+      yaml based. Motifs written before v1.2.0 can still be read by
+      read_motifs().
+
 MINOR CHANGES
 
     o Increased input security for character type parameters throughout

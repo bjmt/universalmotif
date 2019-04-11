@@ -15,7 +15,7 @@ Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
 Imports: methods, ggplot2, ape, ggtree, ggseqlogo, stats, utils, gtools, Rcpp,
-    Rdpack (>= 0.7), Biostrings, BiocGenerics, processx, S4Vectors
+    Rdpack (>= 0.7), Biostrings, BiocGenerics, processx, S4Vectors, yaml
 Suggests: spelling, knitr, BiocStyle, TFBSTools, rmarkdown, MotifDb, testthat,
     Logolas, BiocParallel, seqLogo, motifStack
 Enhances: MotIV, PWMEnrich, rGADEM, motifRG
