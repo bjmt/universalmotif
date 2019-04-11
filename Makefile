@@ -45,3 +45,6 @@ benchmarks:
 	mkdir -p benchmarks/results;\
 	cd benchmarks;\
 	./benchmarks.R
+
+reexports:
+	R -q -e "devtools::document(); l <- readLines(con <- file('man/reexports.Rd')); close(con); l <- gsub('[BiocGenerics]{ncol}', '[BiocGenerics:nrow]{ncol}', l, fixed = TRUE); l <- gsub('[BiocGenerics]{rownames}', '[BiocGenerics:row+colnames]{rownames}', l, fixed = TRUE); l <- gsub('[BiocGenerics]{colnames}', '[BiocGenerics:row+colnames]{colnames}', l, fixed = TRUE); l <- gsub('[BiocGenerics]{rowSums}', '[BiocGenerics:matrix-summary]{rowSums}', l, fixed = TRUE); l <- gsub('[BiocGenerics]{colSums}', '[BiocGenerics:matrix-summary]{colSums}', l, fixed = TRUE); l <- gsub('[BiocGenerics]{rowMeans}', '[BiocGenerics:matrix-summary]{rowMeans}', l, fixed = TRUE); l <- gsub('[BiocGenerics]{colMeans}', '[BiocGenerics:matrix-summary]{colMeans}', l, fixed = TRUE); writeLines(l, 'man/reexports.Rd')"
