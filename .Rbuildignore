@@ -24,3 +24,5 @@ vignettes/*.html
 NEWS.md
 commit.r
 commit.sh
+^.*\.Rproj$
+^\.Rproj\.user$
