@@ -4,6 +4,7 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.
+#' @param overwrite `logical(1)` Overwrite existing file.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -19,14 +20,19 @@
 #' @seealso [read_transfac()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_transfac <- function(motifs, file) {
+write_transfac <- function(motifs, file, overwrite = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
-  all_checks <- c(char_check)
+  logi_check <- check_fun_params(list(overwrite = args$overwrite),
+                                 1, FALSE, "logical")
+  all_checks <- c(char_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (file.exists(file) && !overwrite)
+    stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PCM")

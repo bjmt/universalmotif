@@ -7,6 +7,7 @@
 #' @param file `character(1)` File name.
 #' @param logodds_threshold `numeric` Stringency required for HOMER to match a motif.
 #'    See [scan_sequences()].
+#' @param overwrite `logical(1)` Overwrite existing file.
 #'
 #' @return NULL, invisibly.
 #'
@@ -21,16 +22,22 @@
 #' @seealso [read_homer()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_homer <- function(motifs, file, logodds_threshold = 0.6) {
+write_homer <- function(motifs, file, logodds_threshold = 0.6,
+                        overwrite = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
   num_check <- check_fun_params(list(logodds_threshold = args$logodds_threshold),
                                 1, FALSE, "numeric")
-  all_checks <- c(char_check, num_check)
+  logi_check <- check_fun_params(list(overwrite = args$overwrite),
+                                 1, FALSE, "logical")
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (file.exists(file) && !overwrite)
+    stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")

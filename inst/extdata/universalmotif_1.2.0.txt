@@ -1,5 +1,4 @@
-# universalmotif version 1.1.67
-#
+# universalmotif version 1.1.73
 MOTIF1:
     name: motif
     alphabet: DNA
@@ -12,7 +11,7 @@ MOTIF1:
         C: 0.2525
         G: 0.2614
         T: 0.2455
-    consensus: GATGGGGAGS
+    consensus: GATGKGGASS
     strand: +-
     motif:
     - 5.002e-03 1.357e-01 8.071e-01 5.220e-02

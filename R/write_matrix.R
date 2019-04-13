@@ -10,6 +10,7 @@
 #'   will use whatever type the motif is currently stored as.
 #' @param sep `character(1)` Indicates how to separate individual motifs.
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to write names.
+#' @param overwrite `logical(1)` Overwrite existing file.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -22,7 +23,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
-                         type, sep = "", headers = TRUE) {
+                         type, sep = "", headers = TRUE, overwrite = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -30,8 +31,9 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                                       type = args$type, sep = args$sep),
                                  numeric(), c(FALSE, FALSE, TRUE, FALSE),
                                  "character")
-  logi_check <- check_fun_params(list(rownames = args$rownames), 1, FALSE,
-                                 "logical")
+  logi_check <- check_fun_params(list(rownames = args$rownames,
+                                      overwrite = args$overwrite),
+                                 c(1, 1), c(FALSE, FALSE), "logical")
   header_check <- character()
   if (!is.logical(headers) && !is.character(headers)) {
     header_check <- paste0(" * Incorrect type for 'headers': ",
@@ -44,6 +46,9 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   all_checks <- c(char_check, logi_check, header_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (file.exists(file) && !overwrite)
+    stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))
 
   motifs <- convert_motifs(motifs)
   if (!missing(type)) motifs <- convert_type_internal(motifs, type)

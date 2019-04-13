@@ -224,10 +224,8 @@ add_multi_ANY <- function(sequences, k, alph) {
     }
 
     seq.list.t <- table_cpp(seq.list.i)
-    seq.list.t.lets <- names(seq.list.t)
-    for (j in seq_along(seq.list.t)) {
-      emissions[em.lets == seq.list.t.lets[j], i] <- seq.list.t[j]
-    }
+    emissions[, i] <- seq.list.t[em.lets]
+    emissions[is.na(emissions[, i]), i] <- 0
 
     emissions[, i] <- emissions[, i] / sum(emissions[, i])
 

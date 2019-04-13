@@ -5,7 +5,7 @@
 \title{Export motifs as raw matrices.}
 \usage{
 write_matrix(motifs, file, positions = "columns", rownames = FALSE,
-  type, sep = "", headers = TRUE)
+  type, sep = "", headers = TRUE, overwrite = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -22,6 +22,8 @@ will use whatever type the motif is currently stored as.}
 \item{sep}{\code{character(1)} Indicates how to separate individual motifs.}
 
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to write names.}
+
+\item{overwrite}{\code{logical(1)} Overwrite existing file.}
 }
 \value{
 \code{NULL}, invisibly.

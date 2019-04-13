@@ -4,12 +4,14 @@
 \alias{write_transfac}
 \title{Export motifs in TRANSFAC format.}
 \usage{
-write_transfac(motifs, file)
+write_transfac(motifs, file, overwrite = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
+
+\item{overwrite}{\code{logical(1)} Overwrite existing file.}
 }
 \value{
 \code{NULL}, invisibly.

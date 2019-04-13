@@ -5,7 +5,7 @@
 \title{Export motifs in universalmotif format.}
 \usage{
 write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
-  progress = FALSE)
+  progress = FALSE, overwrite = FALSE, append = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -17,6 +17,12 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
 \item{multifreq}{\code{logical(1)} Write \code{multifreq} slot, if present.}
 
 \item{progress}{\code{logical(1)} Show progress.}
+
+\item{overwrite}{\code{logical(1)} Overwrite existing file.}
+
+\item{append}{\code{logical(1)} Add to an existing motif file. Major package
+version must match, and the minor version must match either the current
+release or development version numbers.}
 }
 \value{
 \code{NULL}, invisibly.

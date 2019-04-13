@@ -11,6 +11,7 @@
 #'   background frequencies will be set to freq = 1/length(alphabet)
 #' @param strand `character` If missing, will use strand from motif objects (if identical);
 #'   otherwise will default to "+ -"
+#' @param overwrite `logical(1)` Overwrite existing file.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -26,16 +27,22 @@
 #' @seealso [read_meme()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_meme <- function(motifs, file, version = 4, bkg, strand) {
+write_meme <- function(motifs, file, version = 5, bkg, strand,
+                       overwrite = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file, strand = args$strand),
                                  numeric(), c(FALSE, TRUE), "character")
   num_check <- check_fun_params(list(version = args$version), 1, FALSE, "numeric")
-  all_checks <- c(char_check, num_check)
+  logi_check <- check_fun_params(list(overwrite = args$overwrite),
+                                 1, FALSE, "logical")
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (file.exists(file) && !overwrite)
+    stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PPM")

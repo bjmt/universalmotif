@@ -433,10 +433,7 @@ StringVector check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
     NumericVector m_nsites, StringVector msg) {
 
   SEXP s_type = m_type[0];
-  if (Rf_isNull(s_type)) {
-    msg.push_back("* cannot check motif slot as type is NULL");
-    return msg;
-  }
+  if (Rf_isNull(s_type)) return msg;
 
   NumericVector motif_colsums = colSums(m_motif);
 

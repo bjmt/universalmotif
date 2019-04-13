@@ -36,7 +36,7 @@ read_motifs <- function(file, skip = 0) {
     version <- packageDescription("universalmotif")$Version
   }
 
-  raw_lines <- raw_lines[raw_lines != "#"]
+  raw_lines <- raw_lines[!grepl("^#", raw_lines)]
 
   if (version < "1.1.67")
     motifs <- read_motifs_1_0_X(raw_lines, version)
