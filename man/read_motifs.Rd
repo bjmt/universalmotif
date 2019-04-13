@@ -4,13 +4,19 @@
 \alias{read_motifs}
 \title{Import universalmotif formatted motifs.}
 \usage{
-read_motifs(file, skip = 0)
+read_motifs(file, skip = 0, progress = FALSE, BP = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
 
 \item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
+
+\item{progress}{\code{logical(1)} Show progress.}
+
+\item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
+\code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
+default backend.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects.
@@ -18,9 +24,7 @@ file before starting to read.}
 \description{
 Import motifs created from \code{\link[=write_motifs]{write_motifs()}}. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
-\code{\link[=readRDS]{readRDS()}}. The \code{universalmotif} format will not be documented,
-as realistically the need to generate these manually/elsewhere should
-be non-existent.
+\code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based.
 }
 \seealso{
 Other read_motifs: \code{\link{read_cisbp}},

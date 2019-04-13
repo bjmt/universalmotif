@@ -4,7 +4,7 @@
 \alias{write_jaspar}
 \title{Export motifs in JASPAR format.}
 \usage{
-write_jaspar(motifs, file, overwrite = FALSE)
+write_jaspar(motifs, file, overwrite = FALSE, append = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -12,6 +12,8 @@ write_jaspar(motifs, file, overwrite = FALSE)
 \item{file}{\code{character(1)} File name.}
 
 \item{overwrite}{\code{logical(1)} Overwrite existing file.}
+
+\item{append}{\code{logical(1)} Add to an existing file.}
 }
 \value{
 \code{NULL}, invisibly.

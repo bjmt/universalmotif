@@ -2,9 +2,7 @@
 #'
 #' Write motifs as universalmotif objects to file. For optimal storage of
 #' `universalmotif` class motifs, consider using [saveRDS()] and
-#' [readRDS()]. The `universalmotif` format will not be documented,
-#' as realistically the need to generate these manually/elsewhere should
-#' be non-existent.
+#' [readRDS()]. Currently the `universalmotif` format is YAML-based.
 #'
 #' @param minimal `logical(1)` Only write essential motif information.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.
@@ -13,6 +11,9 @@
 #' @param append `logical(1)` Add to an existing motif file. Major package
 #'    version must match, and the minor version must match either the current
 #'    release or development version numbers.
+#' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
+#'    [scan_sequences()]. See [BiocParallel::register()] to change the
+#'    default backend.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -22,7 +23,7 @@
 #' @export
 write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
                          progress = FALSE, overwrite = FALSE,
-                         append = FALSE) {
+                         append = FALSE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -30,7 +31,8 @@ write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
   logi_check <- check_fun_params(list(minimal = args$minimal,
                                       multifreq = args$multifreq,
                                       progress = args$progress,
-                                      overwrite = args$overwrite),
+                                      overwrite = args$overwrite,
+                                      BP = args$BP),
                                  numeric(), logical(), "logical")
   all_checks <- c(char_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -71,31 +73,16 @@ write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
   }
 
   mots <- lapply_(motifs, write_motifs2_single, minimal = minimal,
-                  multifreq = multifreq, PB = progress)
-
+                  multifreq = multifreq, PB = progress, BP = BP)
+  mots <- unlist(mots)
 
   if (append) {
 
-    prev <- yaml.load_file(con <- file(file)); close(con)
-    keys <- names(prev)
-    keys <- keys[grepl("^MOTIF[0-9]{1,}$", keys)]
-    if (length(keys) > 0) {
-      keys <- strsplit(keys, "MOTIF", fixed = TRUE)
-      keys <- vapply(keys, function(x) as.numeric(x[2]), numeric(1))
-      keys <- max(as.integer(keys))
-      if (length(keys) == 0) keys <- 0
-    } else keys <- 0
-
-    names(mots) <- paste0("MOTIF", seq_along(mots) + keys)
-    mots <- as.yaml(mots, indent = 4, precision = 12)
-
     mots <- collapse_cpp(mots)
+    mots <- substr(mots, 2, nchar(mots))
     cat(mots, file = file, append = TRUE)
 
   } else {
-
-    names(mots) <- paste0("MOTIF", seq_along(mots))
-    mots <- as.yaml(mots, indent = 4, precision = 12)
 
     mots <- collapse_cpp(c("# universalmotif version ",
                            packageDescription("universalmotif")$Version,
@@ -166,7 +153,7 @@ write_motifs2_single <- function(motif, minimal, multifreq) {
 
   }
 
-  lmot
+  collapse_cpp(c("\n---\n", as.yaml(lmot)))
 
 }
 

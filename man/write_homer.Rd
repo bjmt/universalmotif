@@ -4,7 +4,8 @@
 \alias{write_homer}
 \title{Export motifs in HOMER format.}
 \usage{
-write_homer(motifs, file, logodds_threshold = 0.6, overwrite = FALSE)
+write_homer(motifs, file, logodds_threshold = 0.6, overwrite = FALSE,
+  append = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -15,6 +16,8 @@ write_homer(motifs, file, logodds_threshold = 0.6, overwrite = FALSE)
 See \code{\link[=scan_sequences]{scan_sequences()}}.}
 
 \item{overwrite}{\code{logical(1)} Overwrite existing file.}
+
+\item{append}{\code{logical(1)} Add to an existing file.}
 }
 \value{
 NULL, invisibly.

@@ -6,6 +6,7 @@
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.
 #' @param overwrite `logical(1)` Overwrite existing file.
+#' @param append `logical(1)` Add to an existing file.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -21,14 +22,15 @@
 #' @seealso [read_jaspar()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-write_jaspar <- function(motifs, file, overwrite = FALSE) {
+write_jaspar <- function(motifs, file, overwrite = FALSE, append = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
-  logi_check <- check_fun_params(list(overwrite = args$overwrite),
-                                 1, FALSE, "logical")
+  logi_check <- check_fun_params(list(overwrite = args$overwrite,
+                                      append = args$append),
+                                 c(1, 1), c(FALSE, FALSE), "logical")
   all_checks <- c(char_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
@@ -85,8 +87,11 @@ write_jaspar <- function(motifs, file, overwrite = FALSE) {
   lines_out <- lapply(motifs, .write_jaspar)
   lines_out <- unlist(lines_out)
 
-  writeLines(lines_out, con <- file(file))
-  close(con)
+  if (append) {
+    cat(lines_out, sep = "\n", file = file, append = TRUE)
+  } else {
+    writeLines(lines_out, con <- file(file)); close(con)
+  }
 
   invisible(NULL)
 

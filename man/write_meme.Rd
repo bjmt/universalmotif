@@ -4,7 +4,8 @@
 \alias{write_meme}
 \title{Export motifs in MEME format.}
 \usage{
-write_meme(motifs, file, version = 5, bkg, strand, overwrite = FALSE)
+write_meme(motifs, file, version = 5, bkg, strand, overwrite = FALSE,
+  append = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -21,6 +22,10 @@ background frequencies will be set to freq = 1/length(alphabet)}
 otherwise will default to "+ -"}
 
 \item{overwrite}{\code{logical(1)} Overwrite existing file.}
+
+\item{append}{\code{logical(1)} Add to an existing file. Motifs will be written
+in minimal format, so it is recommended to only use this if the existing
+file is also a minimal MEME format file.}
 }
 \value{
 \code{NULL}, invisibly.

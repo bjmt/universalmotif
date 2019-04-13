@@ -12,6 +12,9 @@
 #' @param strand `character` If missing, will use strand from motif objects (if identical);
 #'   otherwise will default to "+ -"
 #' @param overwrite `logical(1)` Overwrite existing file.
+#' @param append `logical(1)` Add to an existing file. Motifs will be written
+#'    in minimal format, so it is recommended to only use this if the existing
+#'    file is also a minimal MEME format file.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -28,15 +31,16 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_meme <- function(motifs, file, version = 5, bkg, strand,
-                       overwrite = FALSE) {
+                       overwrite = FALSE, append = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file, strand = args$strand),
                                  numeric(), c(FALSE, TRUE), "character")
   num_check <- check_fun_params(list(version = args$version), 1, FALSE, "numeric")
-  logi_check <- check_fun_params(list(overwrite = args$overwrite),
-                                 1, FALSE, "logical")
+  logi_check <- check_fun_params(list(overwrite = args$overwrite,
+                                      append = args$append),
+                                 c(1, 1), c(FALSE, FALSE), "logical")
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
@@ -114,10 +118,13 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
 
   }
 
-  lines_out <- c(lines_out, unlist(lapply(motifs, .write_meme)))
-
-  writeLines(lines_out, con <- file(file))
-  close(con)
+  if (append) {
+    lines_out <- unlist(lapply(motifs, .write_meme))
+    cat(lines_out, sep = "\n", file = file, append = TRUE)
+  } else {
+    lines_out <- c(lines_out, unlist(lapply(motifs, .write_meme)))
+    writeLines(lines_out, con <- file(file)); close(con)
+  }
 
   invisible(NULL)
 

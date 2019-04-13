@@ -2,9 +2,12 @@
 #'
 #' Import motifs created from [write_motifs()]. For optimal storage of
 #' `universalmotif` class motifs, consider using [saveRDS()] and
-#' [readRDS()]. The `universalmotif` format will not be documented,
-#' as realistically the need to generate these manually/elsewhere should
-#' be non-existent.
+#' [readRDS()]. Currently the `universalmotif` format is YAML-based.
+#'
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
+#'    [scan_sequences()]. See [BiocParallel::register()] to change the
+#'    default backend.
 #'
 #' @return `list` [universalmotif-class] objects.
 #'
@@ -12,13 +15,16 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp
 #' @export
-read_motifs <- function(file, skip = 0) {
+read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
                                  1, FALSE, "character")
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
+  logi_check <- check_fun_params(list(progress = args$progress,
+                                      BP = args$BP),
+                                 c(1, 1), c(FALSE, FALSE), "logical")
   all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
@@ -41,23 +47,32 @@ read_motifs <- function(file, skip = 0) {
   if (version < "1.1.67")
     motifs <- read_motifs_1_0_X(raw_lines, version)
   else
-    motifs <- read_motifs_(raw_lines)
+    motifs <- read_motifs_current(raw_lines, progress, BP)
 
   motifs
 
 }
 
-read_motifs_ <- function(raw_lines) {
+read_motifs_current <- function(raw_lines, progress, BP) {
 
-  mots <- yaml.load(raw_lines)
+  total <- length(raw_lines)
+  # starts <- which(raw_lines == "---")
+  starts <- grep("^---([^-]|$)", raw_lines)
+  if (length(starts) == 0) stop("Incorrectly formatted motif file")
+  if (starts[length(starts)] == total) stop("Incorrectly formatted motif file")
+  stops <- starts - 1
+  stops <- c(stops[-1], total)
+  starts <- starts + 1
 
-  motifs <- lapply(mots, read_motifs_try)
+  motifs <- mapply_(read_motifs_single_pre, starts, stops,
+                    MoreArgs = list(raw_lines = raw_lines),
+                    SIMPLIFY = FALSE, PB = progress, BP = BP)
 
   mots.check <- vapply(motifs, is.null, logical(1))
   if (all(mots.check))
     stop("Failed to read any motifs")
   else if (any(mots.check)) {
-    failed.mots <- names(motifs)[mots.check]
+    failed.mots <- seq_along(motifs)[mots.check]
     warning(wmsg("Some motifs could not be read: ", paste0(failed.mots, collapse = ", ")))
     motifs <- motifs[!mots.check]
   }
@@ -66,11 +81,14 @@ read_motifs_ <- function(raw_lines) {
 
 }
 
-read_motifs_try <- function(mot) {
-  tryCatch(read_motifs_single(mot), error = function(e) return(NULL))
+read_motifs_single_pre <- function(start, stop, raw_lines) {
+  tryCatch(read_motifs_single(raw_lines[start:stop]),
+           error = function(e) return(NULL))
 }
 
 read_motifs_single <- function(mot) {
+
+  mot <- yaml.load(mot)
 
   fields <- names(mot)
 

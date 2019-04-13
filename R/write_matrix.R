@@ -11,6 +11,7 @@
 #' @param sep `character(1)` Indicates how to separate individual motifs.
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to write names.
 #' @param overwrite `logical(1)` Overwrite existing file.
+#' @param append `logical(1)` Add to an existing file.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -23,7 +24,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
-                         type, sep = "", headers = TRUE, overwrite = FALSE) {
+                         type, sep = "", headers = TRUE, overwrite = FALSE,
+                         append = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -32,8 +34,9 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                                  numeric(), c(FALSE, FALSE, TRUE, FALSE),
                                  "character")
   logi_check <- check_fun_params(list(rownames = args$rownames,
-                                      overwrite = args$overwrite),
-                                 c(1, 1), c(FALSE, FALSE), "logical")
+                                      overwrite = args$overwrite,
+                                      append = args$append),
+                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), "logical")
   header_check <- character()
   if (!is.logical(headers) && !is.character(headers)) {
     header_check <- paste0(" * Incorrect type for 'headers': ",
@@ -99,8 +102,11 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                           headers = headers)  # not working??
   lines_final <- unlist(lines_final)
 
-  writeLines(lines_final, con <- file(file))
-  close(con)
+  if (append) {
+    cat(lines_final, sep = "\n", file = file, append = TRUE)
+  } else {
+    writeLines(lines_final, con <- file(file)); close(con)
+  }
 
   invisible(NULL)
 

@@ -5,7 +5,7 @@
 \title{Export motifs in universalmotif format.}
 \usage{
 write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
-  progress = FALSE, overwrite = FALSE, append = FALSE)
+  progress = FALSE, overwrite = FALSE, append = FALSE, BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -23,6 +23,10 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
 \item{append}{\code{logical(1)} Add to an existing motif file. Major package
 version must match, and the minor version must match either the current
 release or development version numbers.}
+
+\item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
+\code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
+default backend.}
 }
 \value{
 \code{NULL}, invisibly.
@@ -30,9 +34,7 @@ release or development version numbers.}
 \description{
 Write motifs as universalmotif objects to file. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
-\code{\link[=readRDS]{readRDS()}}. The \code{universalmotif} format will not be documented,
-as realistically the need to generate these manually/elsewhere should
-be non-existent.
+\code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based.
 }
 \seealso{
 Other write_motifs: \code{\link{write_homer}},

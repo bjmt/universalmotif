@@ -86,8 +86,7 @@ MINOR CHANGES
     o motif_rc() has a new option "ignore.alphabet", used to turn on or off the
       alphabet check (checks for DNA/RNA motif)
 
-    o Added an "overwrite" option to write_*() functions, and "append" to
-      write_motifs()
+    o Added "overwrite" and "append" options to write_*() functions
 
 BUG FIXES
 
