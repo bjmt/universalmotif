@@ -78,6 +78,14 @@ MINOR CHANGES
 
     o summarise_motifs() is much faster
 
+    o Objects in data/ are saved using serialization format version 3
+
+    o convert_motifs(motif, class = "universalmotif-universalmotif"): performs
+      a validObject() check if "motif" is a universalmotif object
+
+    o motif_rc() has a new option "ignore.alphabet", used to turn on or off the
+      alphabet check (checks for DNA/RNA motif)
+
 BUG FIXES
 
     o Fixed IC score calculation from character input in create_motif()

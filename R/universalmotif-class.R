@@ -129,6 +129,11 @@ universalmotif <- setClass("universalmotif",
 
 setValidity("universalmotif", function(object) {
 
+  # validObject_universalmotif() is about 30 times faster than validObject().
+  # (~10 microseconds VS ~300 microseconds)
+  #
+  # It takes about ~0.15 seconds to validate the entire MotifDb collection.
+
   msg <- validObject_universalmotif(object, FALSE)
 
   if (length(msg) == 0) TRUE else msg

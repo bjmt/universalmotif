@@ -123,11 +123,10 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
   sequences <- unlist(sequences)
 
-  switch(alph,
-         "DNAStringSet" = sequences <- DNAStringSet(sequences),
-         "RNAStringSet" = sequences <- RNAStringSet(sequences),
-         "AAStringSet"  = sequences <- AAStringSet(sequences),
-                          sequences <- BStringSet(sequences))
+  sequences <- switch(alph, "DNAStringSet" = DNAStringSet(sequences),
+                      "RNAStringSet" = RNAStringSet(sequences),
+                      "AAStringSet" = AAStringSet(sequences),
+                      BStringSet(sequences))
 
   if (!is.null(seq.names)) names(sequences) <- seq.names
 
@@ -271,15 +270,14 @@ shuffle_linear <- function(sequence, k, mode = 1) {
   seq.split <- matrix(seq2, nrow = k)
 
   seq.split.ncol <- ncol(seq.split)
-  new.i <- sample(seq_len(seq.split.ncol), seq.split.ncol)
+  new.i <- sample.int(seq.split.ncol, seq.split.ncol)
   seq.split <- seq.split[, new.i]
 
   seq.split <- as.character(seq.split)
 
+  # TODO: try and insert left.keep and right.keep somewhere inside seq.split
   new.seq <- c(left.keep, seq.split, right.keep)
-  if (mode == 1) {
-    new.seq <- collapse_cpp(new.seq)
-  }
+  if (mode == 1) new.seq <- collapse_cpp(new.seq)
 
   new.seq
 
@@ -295,14 +293,14 @@ shuffle_markov <- function(sequence, k) {
 
   # the Biostrings functions here sometimes cause C stack related crashes...
   freqs <- oligonucleotideFrequency(sequence, width = k, as.prob = TRUE)
-  freqs <- colSums(freqs)
+  freqs <- colMeans(freqs)
 
   # using both oligonucleotideFrequency + oligonucleotideTransitions could be
   # avoided here, see letter_freqs; regardless, the extra cost is quite minor
   trans <- oligonucleotideTransitions(sequence, k - 1, 1, as.prob = TRUE)
   trans <- t(trans)
-  trans[is.nan(trans)] <- 1 / ncol(trans) / 1000  # if set to zero, sometimes
-                                                  # get all probs = 0
+  trans[is.na(trans)] <- 1 / ncol(trans) / 1000  # if set to zero, sometimes
+                                                 # get all probs = 0
   seqout <- character(seq.width)
   first.k <- sample(names(freqs), 1, prob = freqs)
   first.k <- safeExplode(first.k)
@@ -347,10 +345,11 @@ shuffle_markov_any <- function(sequence, k) {
 
 #' Get k-let frequencies.
 #'
-#' @param seqs1 A character vector, usually from strsplit(seq, "")[[1]].
-#' @param k k-let size.
-#' @param to.return Return k-let frequencies and/or transition matrix.
-#' @param as.prob Return k-let counts or probabilities.
+#' @param seqs1 <CHAR> Split sequence, usually from strsplit(seq, "")[[1]].
+#' @param k <INT> k-let size.
+#' @param to.return <CHAR> Return k-let frequencies and/or transition matrix.
+#' @param as.prob <BOOL> Return k-let counts or probabilities.
+#' @param alph <CHAR> Alphabet letters, split.
 #'
 #' @return List, with entries 'transitions' (matrix), 'frequencies' (data.frame),
 #'    and/or 'counts' (data.frame).
@@ -369,7 +368,8 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
   seqs.let <- single_to_k(seqs1, k)
 
   seqs.counts <- table_cpp(seqs.let)
-  seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts))
+  seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts),
+                            stringsAsFactors = FALSE)
   final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE)
   final.table$counts[is.na(final.table$counts)] <- 0
 

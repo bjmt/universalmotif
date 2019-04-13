@@ -27,15 +27,15 @@ sample_sites <- function(motif, n = 100, use.freq = 1) {
   #---------------------------------------------------------
 
   motif <- convert_motifs(motif)
-  motif <- convert_type(motif, "PPM")
+  motif <- convert_type_internal(motif, "PPM")
 
   if (use.freq == 1) {
-    mot.mat <- motif["motif"]
+    mot.mat <- motif@motif
   } else {
-    mot.mat <- motif["multifreq"][[as.character(use.freq)]]
+    mot.mat <- motif@multifreq[[as.character(use.freq)]]
   }
 
-  alph <- rownames(motif["motif"])
+  alph <- rownames(motif@motif)
 
   if (use.freq == 1) {
     sites <- vapply(seq_len(n), function(x) sample_k1(mot.mat, alph, n),
@@ -44,13 +44,10 @@ sample_sites <- function(motif, n = 100, use.freq = 1) {
     sites <- sample_motif(use.freq, mot.mat, alph, n)
   }
 
-  alph <- motif["alphabet"]
+  alph <- motif@alphabet
 
-  switch(alph,
-         "DNA" = sites <- DNAStringSet(sites),
-         "RNA" = sites <- RNAStringSet(sites),
-         "AA"  = sites <- AAStringSet(sites),
-                 sites <- BStringSet(sites))
+  sites <- switch(alph, "DNA" = DNAStringSet(sites), "RNA" = RNAStringSet(sites),
+                  "AA" = AAStringSet(sites), BStringSet(sites))
 
   sites
 

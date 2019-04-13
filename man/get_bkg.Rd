@@ -5,8 +5,8 @@
 \title{Calculate sequence background.}
 \usage{
 get_bkg(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
-  alphabet = NULL, to.meme = NULL, RC = FALSE, progress = FALSE,
-  BP = FALSE)
+  alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = TRUE,
+  progress = FALSE, BP = FALSE)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Input sequences. Note that if
@@ -34,6 +34,9 @@ the format.}
 \item{RC}{\code{logical(1)} Calculate the background of the reverse complement
 of the input sequences as well. Only valid for DNA/RNA.}
 
+\item{list.out}{\code{logical(1)} Return background frequencies as list, with an
+entry for each \code{k}. If \code{FALSE}, return a single vector.}
+
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
 \item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
@@ -44,8 +47,9 @@ the behaviour of \code{progress = TRUE} is changed if \code{BP = TRUE}; the defa
 less informative).}
 }
 \value{
-If \code{to.meme = NULL}: a list with each entry being a named numeric vector
-for every element in \code{k}. Otherwise: \code{NULL}, invisibly.
+If \code{to.meme = NULL} and \code{list.out = TRUE}: a list with each entry being a
+named numeric vector for every element in \code{k}. If \code{to.meme = NULL} and
+\code{list.out = FALSE}: a named numeric vector. Otherwise: \code{NULL}, invisibly.
 }
 \description{
 For a set of input sequences, calculate the overall sequence background for
@@ -57,7 +61,7 @@ the much faster and more efficient
 ## Compare to Biostrings version
 library(Biostrings)
 seqs.DNA <- create_sequences()
-bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE)[[1]]
+bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE, list.out = FALSE)
 bkg.DNA2 <- oligonucleotideFrequency(seqs.DNA, 3, 1, as.prob = FALSE)
 bkg.DNA2 <- colSums(bkg.DNA2)
 all(bkg.DNA == bkg.DNA2)

@@ -2,12 +2,16 @@
 % Please edit documentation in R/motif_rc.R
 \name{motif_rc}
 \alias{motif_rc}
-\title{Get the reverse complement of a motif.}
+\title{Get the reverse complement of a DNA or RNA motif.}
 \usage{
-motif_rc(motifs)
+motif_rc(motifs, ignore.alphabet = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats}
+
+\item{ignore.alphabet}{\code{logical(1)} If \code{TRUE}, then \code{\link[=motif_rc]{motif_rc()}} throws
+an error when it detects a non-DNA/RNA motif. If \code{FALSE}, it will
+proceed regardless.}
 }
 \value{
 See \code{\link[=convert_motifs]{convert_motifs()}} for available output formats.

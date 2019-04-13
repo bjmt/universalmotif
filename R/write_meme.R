@@ -38,16 +38,16 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PPM")
+  motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   if (missing(strand)) {
-    strand <- unique(vapply(motifs, function(x) x["strand"], character(1)))
+    strand <- unique(vapply(motifs, function(x) x@strand, character(1)))
     if (length(strand) > 1) strand <- "+ -"
     if (strand == "+-" || strand == "-+") strand <- "+ -"
   }
 
-  alph <- unique(vapply(motifs, function(x) x["alphabet"], character(1)))
+  alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
   if (length(alph) > 1) stop("all motifs must use the same alphabet")
 
   switch(alph,
@@ -67,12 +67,12 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
   )
 
   if (missing(bkg)) {
-    bkg <- lapply(motifs, function(x) x["bkg"][safeExplode(alph.2)])
+    bkg <- lapply(motifs, function(x) x@bkg[safeExplode(alph.2)])
     bkgtest <- lapply(bkg, function(x) all(x == bkg[[1]]))
     if (all(unlist(bkgtest))) {
       bkg <- bkg[[1]]
     } else {
-      if (alph == "DNA" || alph == "RNA") bkg <- c(0.25, 0.25, 0.25, 0.25)
+      if (alph %in% c("DNA", "RNA")) bkg <- rep(0.25, 4)
       if (alph == "AA") bkg <- rep(1 / 20, 20)
     }
   }
@@ -87,17 +87,17 @@ write_meme <- function(motifs, file, version = 4, bkg, strand) {
   .write_meme <- function(motifs) {
   
     motif <- motifs
-    lines_out <- paste("MOTIF", motif["name"])
-    nsites <- motif["nsites"]
+    lines_out <- paste("MOTIF", motif@name)
+    nsites <- motif@nsites
     nsites <- ifelse(length(nsites) == 0, 100, nsites)
-    eval <- motif["eval"]
+    eval <- motif@eval
     eval <- ifelse(length(eval) == 0, 0, eval)
     lines_out <- c(lines_out,
                    paste("letter-probability matrix:", "alength=", alph.length,
-                         "w=", ncol(motif["motif"]), "nsites=", nsites,
+                         "w=", ncol(motif@motif), "nsites=", nsites,
                          "E=", eval))
-    for (i in seq_len(ncol(motif["motif"]))) {
-      pos <- motif["motif"][, i]
+    for (i in seq_len(ncol(motif@motif))) {
+      pos <- motif@motif[, i]
       pos <- vapply(pos, function(x) format(x, nsmall = 6), character(1))
       pos <- paste("", pos, "", collapse = "")
       lines_out <- c(lines_out, pos)

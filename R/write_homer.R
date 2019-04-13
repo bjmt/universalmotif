@@ -33,10 +33,10 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6) {
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PWM")
+  motifs <- convert_type_internal(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  max_logodds <- vapply(motifs, function(x) sum(apply(x["motif"], 2, max)),
+  max_logodds <- vapply(motifs, function(x) sum(apply(x@motif, 2, max)),
                         numeric(1))
   logodds_thresholds <- max_logodds * logodds_threshold
 
@@ -45,9 +45,9 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6) {
   .write_homer <- function(motifs, logodds_thresholds) {
     motif <- motifs
     threshold <- logodds_thresholds
-    header <- c(paste0(">", motif["consensus"]), motif["name"], threshold)
+    header <- c(paste0(">", motif["consensus"]), motif@name, threshold)
     header <- paste0(header, collapse = "\t")
-    mat <- t(motif["motif"])
+    mat <- t(motif@motif)
     lines_out <- vector("character", 1 + nrow(mat))
     lines_out[1] <- header
     for (i in seq_len(nrow(mat))) {

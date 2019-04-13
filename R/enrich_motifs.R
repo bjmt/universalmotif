@@ -215,7 +215,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   }
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PWM")
+  motifs <- convert_type_internal(motifs, "PWM")
 
   if (missing(bkg.sequences)) {
     if (progress && !BP) cat(" > Shuffling input sequences ...")

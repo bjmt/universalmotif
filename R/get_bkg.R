@@ -23,6 +23,8 @@
 #'    the format.
 #' @param RC `logical(1)` Calculate the background of the reverse complement
 #'    of the input sequences as well. Only valid for DNA/RNA.
+#' @param list.out `logical(1)` Return background frequencies as list, with an
+#'    entry for each `k`. If `FALSE`, return a single vector.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
@@ -32,14 +34,15 @@
 #'    less informative).
 #'
 #' @return
-#'    If `to.meme = NULL`: a list with each entry being a named numeric vector
-#'    for every element in `k`. Otherwise: `NULL`, invisibly.
+#'    If `to.meme = NULL` and `list.out = TRUE`: a list with each entry being a
+#'    named numeric vector for every element in `k`. If `to.meme = NULL` and
+#'    `list.out = FALSE`: a named numeric vector. Otherwise: `NULL`, invisibly.
 #'
 #' @examples
 #' ## Compare to Biostrings version
 #' library(Biostrings)
 #' seqs.DNA <- create_sequences()
-#' bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE)[[1]]
+#' bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE, list.out = FALSE)
 #' bkg.DNA2 <- oligonucleotideFrequency(seqs.DNA, 3, 1, as.prob = FALSE)
 #' bkg.DNA2 <- colSums(bkg.DNA2)
 #' all(bkg.DNA == bkg.DNA2)
@@ -59,7 +62,7 @@
 #' @export
 get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                     alphabet = NULL, to.meme = NULL, RC = FALSE,
-                    progress = FALSE, BP = FALSE) {
+                    list.out = TRUE, progress = FALSE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -76,7 +79,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   char_check <- check_fun_params(list(alphabet = args$alphabet), 1,
                                  TRUE, "character")
   logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC,
-                                      progress = args$progress, BP = args$BP),
+                                      progress = args$progress, BP = args$BP,
+                                      list.out = args$list.out),
                                  numeric(), logical(), "logical")
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -174,6 +178,13 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     cat(out, sep = "\n", file = to.meme)
 
   } else {
+
+    if (!list.out) {
+      counts <- unlist(counts)
+      names(counts) <- vapply(names(counts),
+                              function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
+                              character(1))
+    }
 
     counts
 

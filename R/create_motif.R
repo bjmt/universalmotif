@@ -458,11 +458,12 @@ setMethod("create_motif", signature(input = "character"),
 
   }
 
-  Ncheck <- apply(motif@motif, 2, function(x) all(x == x[1]))
-  if (type == "PPM") motif <- convert_type(motif, "PCM")
-  if (any(Ncheck))
-    motif@motif[, Ncheck] <- rep(1 / nrow(motif@motif), nrow(motif@motif))
-  motif <- convert_type(motif, type = type)
+  # Ncheck <- apply(motif@motif, 2, function(x) all(x == x[1]))
+  if (type == "PPM") motif <- convert_type_internal(motif, "PCM")
+  # if (any(Ncheck))
+    # motif@motif[, Ncheck] <- rep(1 / nrow(motif@motif), nrow(motif@motif))
+  # print(str(motif))
+  motif <- convert_type_internal(motif, type = type)
 
   if (!is.null(rownames(motif@motif)))
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
@@ -475,12 +476,8 @@ setMethod("create_motif", signature(input = "character"),
     }
 
     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
-                       pseudocount = pseudocount,
+                       pseudocount = pseudocount, list.out = FALSE,
                        alphabet = rownames(motif@motif))
-    new.bkg <- unlist(new.bkg)
-    names(new.bkg) <- vapply(names(new.bkg),
-                             function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                             character(1))
     motif@bkg <- c(motif@bkg, new.bkg)
 
   }
@@ -505,6 +502,9 @@ setMethod("create_motif", signature(input = "matrix"),
 
   if (nrow(input) == 1 || ncol(input) == 1)
     stop("matrix must have more than one row/column")
+
+  if (anyNA(input))
+    stop("matrix cannot have NA values")
 
   matrix <- input
 
@@ -575,7 +575,7 @@ setMethod("create_motif", signature(input = "matrix"),
       motif@nsites <- nsites
   }
 
-  motif <- convert_type(motif, type = type)
+  motif <- convert_type_internal(motif, type = type)
 
   if (!is.null(rownames(motif@motif)))
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
@@ -616,25 +616,20 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
   if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
 
-  motif <- do.call(universalmotif_cpp, c(list(motif = motif),
-                                     list(type = "PPM"),
-                                     margs,
-                                     list(alphabet = "DNA")))
+  motif <- do.call(universalmotif_cpp,
+                   c(list(motif = motif), list(type = "PPM"), margs,
+                     list(alphabet = "DNA")))
 
   if (missing(nsites))  motif@nsites <- length(input)
-  motif <- convert_type(motif, type = type)
+  motif <- convert_type_internal(motif, type = type)
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
       motif@multifreq[[as.character(i)]] <- add_multi_ANY(DNAStringSet(input),
                                                           i, DNA_BASES)
     }
-    new.bkg <- get_bkg(DNAStringSet(input), k = add.multifreq,
+    new.bkg <- get_bkg(DNAStringSet(input), k = add.multifreq, list.out = FALSE,
                        pseudocount = pseudocount, alphabet = DNA_BASES)
-    new.bkg <- unlist(new.bkg)
-    names(new.bkg) <- vapply(names(new.bkg),
-                             function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                             character(1))
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
@@ -680,19 +675,15 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
                                      list(alphabet = "RNA")))
 
   if (missing(nsites))  motif@nsites <- length(input)
-  motif <- convert_type(motif, type = type)
+  motif <- convert_type_internal(motif, type = type)
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
       motif@multifreq[[as.character(i)]] <- add_multi_ANY(RNAStringSet(input),
                                                           i, RNA_BASES)
     }
-    new.bkg <- get_bkg(RNAStringSet(input), k = add.multifreq,
+    new.bkg <- get_bkg(RNAStringSet(input), k = add.multifreq, list.out = FALSE,
                        pseudocount = pseudocount, alphabet = RNA_BASES)
-    new.bkg <- unlist(new.bkg)
-    names(new.bkg) <- vapply(names(new.bkg),
-                             function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                             character(1))
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
@@ -751,17 +742,13 @@ setMethod("create_motif", signature(input = "AAStringSet"),
       motif@multifreq[[as.character(i)]] <- add_multi_ANY(input, i,
                                                           AA_STANDARD)
     }
-    new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq,
+    new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq, list.out = FALSE,
                        pseudocount = pseudocount, alphabet = AA_STANDARD)
-    new.bkg <- unlist(new.bkg)
-    names(new.bkg) <- vapply(names(new.bkg),
-                             function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                             character(1))
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
   if (missing(nsites)) motif@nsites <- length(input)
-  motif <- convert_type(motif, type = type)
+  motif <- convert_type_internal(motif, type = type)
 
   validObject_universalmotif(motif)
   motif
@@ -837,17 +824,13 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                           rownames(motif@motif))
     }
     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
-                       pseudocount = pseudocount,
+                       pseudocount = pseudocount, list.out = FALSE,
                        alphabet = rownames(motif@motif))
-    new.bkg <- unlist(new.bkg)
-    names(new.bkg) <- vapply(names(new.bkg),
-                             function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                             character(1))
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
   if (missing(nsites))  motif@nsites <- length(input)
-  motif <- convert_type(motif, type = type)
+  motif <- convert_type_internal(motif, type = type)
   if (!is.null(motif@motif) && !is.null(rownames(motif@motif))) {
     motif@motif <- motif@motif[order(rownames(motif@motif)), ]
   }

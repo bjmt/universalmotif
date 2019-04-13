@@ -46,7 +46,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  if (!missing(type)) motifs <- convert_type(motifs, type)
+  if (!missing(type)) motifs <- convert_type_internal(motifs, type)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_matrix <- function(motifs, positions, rownames, sep, headers) {
@@ -56,27 +56,27 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
     lines_out <- vector()
 
     if (!isFALSE(headers)) {
-      if (isTRUE(headers)) lines_out <- c(lines_out, motif["name"]) else {
-        lines_out <- c(lines_out, paste0(headers, motif["name"]))
+      if (isTRUE(headers)) lines_out <- c(lines_out, motif@name) else {
+        lines_out <- c(lines_out, paste0(headers, motif@name))
       }
     }
 
     switch(positions,
       "columns" = {
-        for (i in seq_len(nrow(motif["motif"]))) {
-          pos <- motif["motif"][i, ]
+        for (i in seq_len(nrow(motif@motif))) {
+          pos <- motif@motif[i, ]
           # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
                         # character(1))
           pos <- as.character(pos)
-          if (rownames) pos <- c(rownames(motif["motif"])[i], pos)
+          if (rownames) pos <- c(rownames(motif@motif)[i], pos)
           lines_out <- c(lines_out, paste0(pos, collapse = "\t"))
         }
       },
       "rows" = {
-        if (rownames) lines_out <- c(lines_out, paste0(rownames(motif["motif"]),
+        if (rownames) lines_out <- c(lines_out, paste0(rownames(motif@motif),
                                                        collapse = "\t"))
-        for (i in seq_len(ncol(motif["motif"]))) {
-          pos <- motif["motif"][, i]
+        for (i in seq_len(ncol(motif@motif))) {
+          pos <- motif@motif[, i]
           # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
                         # character(1))
           pos <- as.character(pos)

@@ -54,13 +54,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   alph <- raw_lines[grepl("^ALPHABET=", raw_lines)]
   alph <- strsplit(alph, "\\s+")[[1]][2]
   alph.len <- nchar(alph)
-  if (alph == "ACGT") {
-    alph <- "DNA"
-  } else if (alph == "ACGU") {
-    alph <- "RNA"
-  } else if (alph == "ACDEFGHIKLMNPQRSTVWY") {
-    alph <- "AA"
-  } else alph <- "custom"
+  alph <- switch(alph, "ACGT" = "DNA", "ACGU" = "RNA",
+                 "ACDEFGHIKLMNPQRSTVWY" = "AA", "custom")
   strands <- raw_lines[grepl("^strands:", raw_lines)]
   if (length(strands) > 0) {
     strands <- strsplit(strands, "\\s+")[[1]][-1]
@@ -118,9 +113,9 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
 
   if (readsites) {
     if (is.list(motif_list)) 
-      mot.names <- vapply(motif_list, function(x) x["name"], character(1))
+      mot.names <- vapply(motif_list, function(x) x@name, character(1))
     else
-      mot.names <- motif_list["name"]
+      mot.names <- motif_list@name
     block.starts <- grep("in BLOCKS format", raw_lines)
     if (length(block.starts) == 0) {
       warning("could not find BLOCKS formatted motifs in MEME file")
@@ -133,7 +128,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
       block.starts <- block.starts + 2
       block.stops <- block.starts +  block.len - 1
       blocks <- mapply(function(x, y) read.table(text = raw_lines[x:y],
-                                                  stringsAsFactors = FALSE),
+                                                 stringsAsFactors = FALSE),
                         block.starts, block.stops,
                         SIMPLIFY = FALSE)
       sites <- lapply(blocks, function(x) x$V4)

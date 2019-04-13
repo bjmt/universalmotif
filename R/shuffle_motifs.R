@@ -53,13 +53,13 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  motifs <- convert_type(motifs, "PPM")
-  mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
+  motifs <- convert_type_internal(motifs, "PPM")
+  mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   if (length(unique(mot.alphs)) > 1)
     stop("all motifs must share the same alphabet")
 
-  mot.lens <- vapply(motifs, function(x) ncol(x["motif"]), numeric(1))
-  mot.mats <- lapply(motifs, function(x) x["motif"])
+  mot.lens <- vapply(motifs, function(x) ncol(x@motif), numeric(1))
+  mot.mats <- lapply(motifs, function(x) x@motif)
 
   mot.cols <- do.call(cbind, mot.mats)
   col.order <- seq_len(ncol(mot.cols))

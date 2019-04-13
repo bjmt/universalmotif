@@ -144,7 +144,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       mot_names <- sapply(motifs, function(x) x[labels])
       tree$tip.label <- mot_names
     } else {
-      mot_names <- vapply(motifs, function(x) x["name"], character(1))
+      mot_names <- vapply(motifs, function(x) x@name, character(1))
     }
   } else {
     stop("Input must be a 'dist' object or a 'list' of motifs")

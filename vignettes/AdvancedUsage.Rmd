@@ -25,21 +25,11 @@ data(ArabidopsisMotif)
 
 # Introduction
 
-This vignette details the `r Biocpkg("universalmotif")` implementation of
-higher-order motifs (`multifreq`), motif enrichment analyses, motif P-values,
-advanced usage related to motif comparison, drawing motif trees, and _de
-novo_ motif searches with MEME. For an
-introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf)
-vignette. For a basic overview of available motif-related functions, see
-the [motif manipulation](MotifManipulation.pdf) vignette. For sequence-related
-utilities, see the [sequences](SequenceSearches.pdf) vignette.
+This vignette details the `r Biocpkg("universalmotif")` implementation of higher-order motifs (`multifreq`), motif enrichment analyses, motif P-values, advanced usage related to motif comparison, drawing motif trees, and _de novo_ motif searches with MEME. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette.
 
 # Higher-order motifs
 
-Though PCM, PPM, PWM, and ICM type motifs are still widely used today, a few 'next
-generation' motif formats have been proposed. These wish to add another layer
-of information to motifs: positional interdependence. To illustrate this,
-consider the following sequences:
+Though PCM, PPM, PWM, and ICM type motifs are still widely used today, a few 'next generation' motif formats have been proposed. These wish to add another layer of information to motifs: positional interdependence. To illustrate this, consider the following sequences:
 
  # | Sequence
 -- | --------
@@ -61,17 +51,9 @@ Position |   1 |   2 |   3 |   4 |   5 |   6 |   7
        T | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
 : (\#tab:ppm2) Position probability matrix.
 
-Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are
-equally likely. Though looking at the starting sequences, should CTATACC really
-be considered so? For transcription factor binding sites, some would say the
-answer is no. By incorporating this type of information into the motif,
-this can allow for increased accuracy in motif searching. A few implementations
-of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
+Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, some would say the answer is no. By incorporating this type of information into the motif, this can allow for increased accuracy in motif searching. A few implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
 
-The `r Biocpkg("universalmotif")` package implements its' own, rather simplified,
-version of this concept. Plainly, the standard PPM has been extended to include
-`k`-letter frequencies, with `k` being any number higher than 1. For example, the
-2-letter version of the table \@ref(tab:ppm2) motif would be:
+The `r Biocpkg("universalmotif")` package implements its' own, rather simplified, version of this concept. Plainly, the standard PPM has been extended to include `k`-letter frequencies, with `k` being any number higher than 1. For example, the 2-letter version of the table \@ref(tab:ppm2) motif would be:
 
 Position |   1 |   2 |   3 |   4 |   5 |   6 
 -------- | --- | --- | --- | --- | --- | --- 
@@ -93,13 +75,7 @@ Position |   1 |   2 |   3 |   4 |   5 |   6
       TT | 0.0 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
 : (\#tab:multi) 2-letter probability matrix.
 
-This format shows the probability of each letter combined with the probability
-of the letter in the next position. The seventh column has been dropped, since
-it is not needed; the information in the sixth column is sufficient, and there
-is no eighth position to draw 2-letter probabilities from.
-Now, the probability of getting CTATACC is no longer equal to CTTTTCC and
-CAAAACC. This information is kept in the `multifreq` slot of `universalmotif`
-class motifs. To add this information, use the `add_multifreq` function.
+This format shows the probability of each letter combined with the probability of the letter in the next position. The seventh column has been dropped, since it is not needed; the information in the sixth column is sufficient, and there is no eighth position to draw 2-letter probabilities from. Now, the probability of getting CTATACC is no longer equal to CTTTTCC and CAAAACC. This information is kept in the `multifreq` slot of `universalmotif` class motifs. To add this information, use the `add_multifreq` function.
 
 ```{r}
 library(universalmotif)
@@ -114,25 +90,11 @@ motif.k2 <- add_multifreq(motif, sequences, add.k = 2)
 motif.k2
 ```
 
-This information is most useful with functions such as `scan_sequences()`
-and `enrich_motifs()`. Though other tools in the `r Biocpkg("universalmotif")`
-can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`),
-keep in mind they are not as well supported as regular motifs (getting P-values
-from `multifreq` motifs is exponentially slower, and P-values
-from using `compare_motifs()` for `multifreq` motifs are not available by default).
-See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()`
-with the `multifreq` slot.
+This information is most useful with functions such as `scan_sequences()` and `enrich_motifs()`. Though other tools in the `r Biocpkg("universalmotif")` can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`), keep in mind they are not as well supported as regular motifs (getting P-values from `multifreq` motifs is exponentially slower, and P-values from using `compare_motifs()` for `multifreq` motifs are not available by default). See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()` with the `multifreq` slot.
 
 # Enrichment analyses
 
-The `r Biocpkg("universalmotif")` package offers the ability to search for
-enriched motif sites in a set of sequences via `enrich_motifs()`. There is
-little complexity to this, as it simply runs `scan_sequences()` twice; once
-on a set of target sequences, and once on a set of background sequences. After
-which the results between the two sequences are collated and run through
-enrichment tests. The background sequences can be given explicitly,
-or else `enrich_motifs()` will create background sequences on its own
-by using `shuffle_sequences()` on the target sequences.
+The `r Biocpkg("universalmotif")` package offers the ability to search for enriched motif sites in a set of sequences via `enrich_motifs()`. There is little complexity to this, as it simply runs `scan_sequences()` twice; once on a set of target sequences, and once on a set of background sequences. After which the results between the two sequences are collated and run through enrichment tests. The background sequences can be given explicitly, or else `enrich_motifs()` will create background sequences on its own by using `shuffle_sequences()` on the target sequences.
 
 Let us consider the following basic example:
 
@@ -145,12 +107,7 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
               verbose = 0, progress = FALSE, RC = TRUE)
 ```
 
-Here we can see that the motif is significantly enriched in the target sequences.
-Looking for closely at the results, the motif was found 218 times in 43 of the 50
-sequences; whereas it was found 29 times in 21 of the 50 background sequences.
-The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")`
-package. Another type of test is available which looks for positional
-enrichment, i.e. whether one area in the target sequences is favoured.
+Here we can see that the motif is significantly enriched in the target sequences. Looking for closely at the results, the motif was found 218 times in 43 of the 50 sequences; whereas it was found 29 times in 21 of the 50 background sequences. The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package. Another type of test is available which looks for positional enrichment, i.e. whether one area in the target sequences is favoured.
 
 ```{r}
 library(universalmotif)
@@ -162,20 +119,13 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
               RC = TRUE)
 ```
 
-In this case however no such bias exists in the target sequences. There are
-a number of tests available for positional enrichment; see `?enrich_motifs`.
+In this case however no such bias exists in the target sequences. There are a number of tests available for positional enrichment; see `?enrich_motifs`.
 
-One final point: always keep in mind the `threshold` parameter, as this will
-ultimately decide the number of hits found. (A bad threshold can lead to a
-false negative.) See the [sequences](SequenceSearches.pdf) vignette for a
-discussion about using P-values to determine the threshold of `scan_sequences()`.
-Motif P-values are discussed in more details in the next section of this document.
+One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.) See the [sequences](SequenceSearches.pdf) vignette for a discussion about using P-values to determine the threshold of `scan_sequences()`. Motif P-values are discussed in more details in the next section of this document.
 
 # Motif P-values
 
-Motif P-values are not usually discussed outside of the bioinformatics literature,
-but are actually quite a challenging topic. For illustrate this, consider the following
-example motif:
+Motif P-values are not usually discussed outside of the bioinformatics literature, but are actually quite a challenging topic. For illustrate this, consider the following example motif:
 
 ```{r}
 library(universalmotif)
@@ -200,8 +150,7 @@ res <- scan_sequences(motif, ArabidopsisPromoters, verbose = 0,
 head(res)
 ```
 
-Now let us imagine that we wish to rank these matches by P-value. First, we must
-calculate the match probabilities:
+Now let us imagine that we wish to rank these matches by P-value. First, we must calculate the match probabilities:
 
 ```{r}
 ## The first match was CTCTTTATTC, with a score of 3.931 (max possible = 6.536)
@@ -219,36 +168,11 @@ hit.prob <- unname(hit.prob)
 hit.prob
 ```
 
-Calculating the probability of a single match was easy, but then comes the
-challenging part: calculating the probability of all possible matches with
-a score higher than 3.931, and then summing these. This final sum then
-represents the probability of finding a match which scores at least 3.931.
-One way is to list all possible sequence combinations, then filtering
-based on score; however this "brute force" approach is unreasonable but for the
-smallest of motifs.
+Calculating the probability of a single match was easy, but then comes the challenging part: calculating the probability of all possible matches with a score higher than 3.931, and then summing these. This final sum then represents the probability of finding a match which scores at least 3.931. One way is to list all possible sequence combinations, then filtering based on score; however this "brute force" approach is unreasonable but for the smallest of motifs.
 
-A few algorithms have been proposed to make this more efficient, but
-the method adopted by the `r Biocpkg("universalmotif")` package is that
-of @pvalues. The authors propose using a
-branch-and-bound^[https://en.wikipedia.org/wiki/Branch_and_bound] algorithm (with
-a few tricks) alongside a certain approximation. Briefly: motifs
-are first reorganized so that the highest scoring positions and letters are considered
-first in the branch-and-bound algorithm. Then, motifs past a certain width
-(in the original paper, 10) are split in sub-motifs. All possible
-combinations are found in these sub-motifs using the branch-and-bound
-algorithm, and P-values calculated for the sub-motifs. Finally, the P-values
-are combined.
+A few algorithms have been proposed to make this more efficient, but the method adopted by the `r Biocpkg("universalmotif")` package is that of @pvalues. The authors propose using a branch-and-bound^[https://en.wikipedia.org/wiki/Branch_and_bound] algorithm (with a few tricks) alongside a certain approximation. Briefly: motifs are first reorganized so that the highest scoring positions and letters are considered first in the branch-and-bound algorithm. Then, motifs past a certain width (in the original paper, 10) are split in sub-motifs. All possible combinations are found in these sub-motifs using the branch-and-bound algorithm, and P-values calculated for the sub-motifs. Finally, the P-values are combined.
 
-The `motif_pvalue()` function modifies this process slightly by allowing the
-size of the sub-motifs to be specified via the `k` parameter; and
-additionally, whereas the original implementation can only calculate
-P-values for motifs with a maximum of 17 positions (and motifs can
-only be split in at most two), the `r Biocpkg("universalmotif")` implementation
-allows for any length of motif to be used (and motifs can be split any
-number of times). Changing `k` allows one to decide between speed and
-accuracy; smaller `k` leads to faster but worse approximations, and
-larger `k` leads to slower but better approximations. If `k` is equal
-to the width of the motif, then the calculation is _exact_.
+The `motif_pvalue()` function modifies this process slightly by allowing the size of the sub-motifs to be specified via the `k` parameter; and additionally, whereas the original implementation can only calculate P-values for motifs with a maximum of 17 positions (and motifs can only be split in at most two), the `r Biocpkg("universalmotif")` implementation allows for any length of motif to be used (and motifs can be split any number of times). Changing `k` allows one to decide between speed and accuracy; smaller `k` leads to faster but worse approximations, and larger `k` leads to slower but better approximations. If `k` is equal to the width of the motif, then the calculation is _exact_.
 
 Now, let us return to our original example:
 
@@ -260,12 +184,9 @@ res2 <- data.frame(motif=res$motif, match=res$match,
 knitr::kable(res2, digits = 22, row.names = FALSE, format = "markdown")
 ```
 
-The default `k` in `motif_pvalue()` is 6. I have found this to be a good
-tradeoff between speed and P-value correctness.
+The default `k` in `motif_pvalue()` is 6. I have found this to be a good tradeoff between speed and P-value correctness.
 
-To demonstrate the effect that `k` has on the output P-value, consider
-the following (and also note that for this motif `k = 10` represents an
-exact calculation):
+To demonstrate the effect that `k` has on the output P-value, consider the following (and also note that for this motif `k = 10` represents an exact calculation):
 
 ```{r}
 scores <- c(-6, -3, 0, 3, 6)
@@ -287,19 +208,9 @@ for (i in seq_along(scores)) {
 knitr::kable(out, format = "markdown", digits = 10)
 ```
 
-For this particular motif, while the approximation worsens slightly as `k`
-decreases, it is still quite reasonable down to `k = 6`. Usually, you should only have
-to worry about `k` for longer motifs (such as those typically generated by MEME),
-where the number of sub-motifs increases.
+For this particular motif, while the approximation worsens slightly as `k` decreases, it is still quite reasonable down to `k = 6`. Usually, you should only have to worry about `k` for longer motifs (such as those typically generated by MEME), where the number of sub-motifs increases.
 
-The `r Biocpkg("universalmotif")` also allows for calculating motifs scores
-from P-values.
-Similarly to calculating P-values, exact scores can be calculated from small
-motifs, and approximate scores from big motifs using subsetting. Unlike the
-P-value calculation however, a uniform background is assumed. This is because
-approximate scores are calculated by assuming the distribution of possible
-scores follows a normal distribution. See the following code for a comparison
-of exact and approximate score calculations.
+The `r Biocpkg("universalmotif")` also allows for calculating motifs scores from P-values. Similarly to calculating P-values, exact scores can be calculated from small motifs, and approximate scores from big motifs using subsetting. Unlike the P-value calculation however, a uniform background is assumed. This is because approximate scores are calculated by assuming the distribution of possible scores follows a normal distribution. See the following code for a comparison of exact and approximate score calculations.
 
 Starting from a set of P-values:
 
@@ -360,18 +271,11 @@ res <- data.frame(score = scores, pvalue = pvals,
                   score.k8 = scores.approx8)
 knitr::kable(res, format = "markdown", digits = 22)
 ```
-As you can see, results from exact calculations are not _quite_ exact. This is
-due to the fact that the distributions of P-values and scores are assumed to be
-continuous, when in reality they are discrete. As for results from approximate
-calculations: they are fairly close to exact values for larger P-values,
-but fall off for small P-values (P < 0.001).
+As you can see, results from exact calculations are not _quite_ exact. This is due to the fact that the distributions of P-values and scores are assumed to be continuous, when in reality they are discrete. As for results from approximate calculations: they are fairly close to exact values for larger P-values, but fall off for small P-values (P < 0.001).
 
 # Advanced motif comparison
 
-Here I will explore the effects of some of the options available in `compare_motifs()`.
-See the relevant section in the [basic motif manipulation](MotifManipulation.pdf)
-vignette for an introduction to using `compare_motifs()`. Let us begin by
-comparing the available methods:
+Here I will explore the effects of some of the options available in `compare_motifs()`. See the relevant section in the [basic motif manipulation](MotifManipulation.pdf) vignette for an introduction to using `compare_motifs()`. Let us begin by comparing the available methods:
 
 ```{r}
 library(universalmotif)
@@ -399,45 +303,31 @@ try_all <- function(motifs, ...) {
 try_all(motifs)
 ```
 
-From this you can get a sense of how the different methods perform. See the
-function documentation at `?compare_motifs` for details on the method
-implementations. For now, let us explore how changing the other parameters
-affects the scores. First, we can control whether to allow the reverse
-complements to be compared as well:
+From this you can get a sense of how the different methods perform. See the function documentation at `?compare_motifs` for details on the method implementations. For now, let us explore how changing the other parameters affects the scores. First, we can control whether to allow the reverse complements to be compared as well:
 
 ```{r}
 try_all(motifs, tryRC = FALSE)
 ```
 
-In this case not allowing the reverse complement of the motifs did nothing; this
-is because the current motif orientations had better scores regardless. Next,
-whether to compare the motifs as PPM or ICM:
+In this case not allowing the reverse complement of the motifs did nothing; this is because the current motif orientations had better scores regardless. Next, whether to compare the motifs as PPM or ICM:
 
 ```{r}
 try_all(motifs, use.type = "ICM")
 ```
 
-Going from comparing PPM motifs to ICM motifs changes the scores quite a bit; in
-this case noticeable by increasing the distance between the two. Be careful about
-jumping to using `use.type = "ICM"` though; keep in mind that the conversion from
-PPM is ICM is not linear, so the comparison is inherently quite different in
-nature. Next, `normalise.scores`:
+Going from comparing PPM motifs to ICM motifs changes the scores quite a bit; in this case noticeable by increasing the distance between the two. Be careful about jumping to using `use.type = "ICM"` though; keep in mind that the conversion from PPM is ICM is not linear, so the comparison is inherently quite different in nature. Next, `normalise.scores`:
 
 ```{r}
 try_all(motifs, normalise.scores = TRUE)
 ```
 
-Again, using this option increases the distance between motifs. To explain this,
-let's visualize the motif alignment:
+Again, using this option increases the distance between motifs. To explain this, let's visualize the motif alignment:
 
 ```{r}
 view_motifs(motifs)
 ```
 
-From this image you can see that there is a bit of an overhang. What `normalise.scores`
-does is punish this overhang by multiplying the final score by the ratio of
-aligned to un-aligned positions. To illustrate this further, we can restrict
-the alignment so there are as few as possible overhangs:
+From this image you can see that there is a bit of an overhang. What `normalise.scores` does is punish this overhang by multiplying the final score by the ratio of aligned to un-aligned positions. To illustrate this further, we can restrict the alignment so there are as few as possible overhangs:
 
 ```{r}
 view_motifs(motifs, min.overlap = 99)
@@ -445,21 +335,14 @@ try_all(motifs, min.overlap = 99)
 try_all(motifs, min.overlap = 99, normalise.scores = TRUE)
 ```
 
-Now, using `normalise.scores = TRUE` is less punishing. These options are important;
-turning them off results in the following:
+Now, using `normalise.scores = TRUE` is less punishing. These options are important; turning them off results in the following:
 
 ```{r}
 try_all(motifs, min.overlap = 1)
 view_motifs(motifs, min.overlap = 1)
 ```
 
-In trying to find the highest possible score, `compare_motifs()` ended up
-with this alignment, which most would agree is not a fair comparison of the
-two motifs. The final parameter I will discuss is `min.mean.ic`. When you look
-at the motifs being compared, they both have low information content regions.
-The `compare_motifs()` function allows you decide whether you want low
-information content positions to be scored (positions which don't pass the
-set threshold will not contribute to the score).
+In trying to find the highest possible score, `compare_motifs()` ended up with this alignment, which most would agree is not a fair comparison of the two motifs. The final parameter I will discuss is `min.mean.ic`. When you look at the motifs being compared, they both have low information content regions. The `compare_motifs()` function allows you decide whether you want low information content positions to be scored (positions which don't pass the set threshold will not contribute to the score).
 
 ```{r}
 motifs2 <- filter_motifs(MotifDb, altname = c("M0100_1.02", "M0104_1.02"))
@@ -469,19 +352,11 @@ view_motifs(motifs2, min.mean.ic = 0.7)
 try_all(motifs2, min.mean.ic = 0.7)
 ```
 
-In this case, changing the `min.mean.ic` did not alter the alignment, but had
-a great impact on the scores. Setting this too high can be quite punishing;
-I have found `min.mean.ic = 0.5` to be a good middle ground.
+In this case, changing the `min.mean.ic` did not alter the alignment, but had a great impact on the scores. Setting this too high can be quite punishing; I have found `min.mean.ic = 0.5` to be a good middle ground.
 
 # Motif trees with ggtree
 
-Additionally, this package introduces the `motif_tree()` function for generating
-basic tree-like diagrams for comparing motifs. This allows for a visual result
-from `compare_motifs()`. All options from `compare_motifs()` are
-available in `motif_tree()`. This function uses the `r Biocpkg("ggtree")`
-package and outputs a `ggplot` object (from the `r CRANpkg("ggplot2")` package),
-so altering the look of the trees can be done easily after `motif_tree()`
-has already been run.
+Additionally, this package introduces the `motif_tree()` function for generating basic tree-like diagrams for comparing motifs. This allows for a visual result from `compare_motifs()`. All options from `compare_motifs()` are available in `motif_tree()`. This function uses the `r Biocpkg("ggtree")` package and outputs a `ggplot` object (from the `r CRANpkg("ggplot2")` package), so altering the look of the trees can be done easily after `motif_tree()` has already been run.
 
 ```{r}
 library(universalmotif)
@@ -500,16 +375,9 @@ tree
 
 # Motif discovery with MEME
 
-The `r Biocpkg("universalmotif")` package provides a simple wrapper to the
-powerful motif discovery tool MEME [@meme3]. To run an analysis with MEME,
-all that is required is a set of `XStringSet` class sequences
-(defined in the `r Biocpkg("Biostrings")` package), and `run_meme()` will take care
-of running the program and reading the output for use within R.
+The `r Biocpkg("universalmotif")` package provides a simple wrapper to the powerful motif discovery tool MEME [@meme3]. To run an analysis with MEME, all that is required is a set of `XStringSet` class sequences (defined in the `r Biocpkg("Biostrings")` package), and `run_meme()` will take care of running the program and reading the output for use within R.
 
-The first step is to check that R can find the MEME binary in
-your `$PATH` by running `run_meme()` without any parameters. If successful,
-you should see the default MEME help message in your console. If not, then
-you'll need to provide the complete path to the MEME binary. There are two options:
+The first step is to check that R can find the MEME binary in your `$PATH` by running `run_meme()` without any parameters. If successful, you should see the default MEME help message in your console. If not, then you'll need to provide the complete path to the MEME binary. There are two options:
 
 ```{r,eval=FALSE}
 library(universalmotif)
@@ -525,9 +393,7 @@ run_meme(...)
 run_meme(..., bin = "/path/to/meme/bin/meme")
 ```
 
-Now we need to get some sequences to use with `run_meme()`. At this point
-we can read sequences from disk or extract them from one of the
-Bioconductor `BSgenome` packages.
+Now we need to get some sequences to use with `run_meme()`. At this point we can read sequences from disk or extract them from one of the Bioconductor `BSgenome` packages.
 
 ```{r,eval=FALSE}
 library(universalmotif)
@@ -588,32 +454,17 @@ promoters <- getPromoterSeq(transcripts,
 run_meme(promoters, ...)
 ```
 
-Once the sequences are ready, there are few important options to keep in mind.
-One is whether to conserve the output from MEME. The default is not to, but
-this can be changed by setting the relevant option.
+Once the sequences are ready, there are few important options to keep in mind. One is whether to conserve the output from MEME. The default is not to, but this can be changed by setting the relevant option.
 
 ```{r,eval=FALSE}
 run_meme(sequences, output = "/path/to/desired/output/folder")
 ```
 
-The second important option is the search function (`objfun`). Some search
-functions such as the default `classic` do not require a set of background
-sequences, whilst some do (such as `de`). If you choose one of
-the latter, then you can either let MEME create them for you (it will
-shuffle the target seqeunces) or you can provide them via
-the `control.sequences` parameter.
+The second important option is the search function (`objfun`). Some search functions such as the default `classic` do not require a set of background sequences, whilst some do (such as `de`). If you choose one of the latter, then you can either let MEME create them for you (it will shuffle the target seqeunces) or you can provide them via the `control.sequences` parameter.
 
-Finally, choose how you'd like the data imported into R. Once the MEME
-program exits, `run_meme()` will import the results into R with `read_meme()`;
-at this point you can decide if you want just the motifs themselves (`readsites = FALSE`)
-or if you'd like the original sequence sites as well (`readsites = TRUE`, the default).
+Finally, choose how you'd like the data imported into R. Once the MEME program exits, `run_meme()` will import the results into R with `read_meme()`; at this point you can decide if you want just the motifs themselves (`readsites = FALSE`) or if you'd like the original sequence sites as well (`readsites = TRUE`, the default).
 
-There are a wealth of other MEME options available, such as the number of desired
-motifs (`nmotifs`),
-the width of desired motifs (`minw`, `maxw`), the search mode (`mod`), assigning
-sequence weights (`weights`), using a custom alphabet (`alph`), and many others.
-See the output from `run_meme()` for a brief description of the options, or visit the
-[online manual](http://meme-suite.org/doc/meme.html) for more details.
+There are a wealth of other MEME options available, such as the number of desired motifs (`nmotifs`), the width of desired motifs (`minw`, `maxw`), the search mode (`mod`), assigning sequence weights (`weights`), using a custom alphabet (`alph`), and many others. See the output from `run_meme()` for a brief description of the options, or visit the [online manual](http://meme-suite.org/doc/meme.html) for more details.
 
 # Session info {.unnumbered}
 

@@ -60,7 +60,7 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
-  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
+  motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
 
   mot <- merge_mot_list(motifs, tryRC, min.overlap, min.mean.ic, method,
                         relative_entropy, normalise.scores)
@@ -116,34 +116,34 @@ merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
 merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
                            relative_entropy, normalise.scores) {
 
-  mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.altnames <- do.call(c, sapply(motifs, function(x) x["altname"], simplify = FALSE))
-  mot.families <- unique(do.call(c, sapply(motifs, function(x) x["family"], simplify = FALSE)))
-  mot.orgs <- unique(do.call(c, sapply(motifs, function(x) x["organism"], simplify = FALSE)))
-  mot.bkgsites <- do.call(c, sapply(motifs, function(x) x["bkgsites"], simplify = FALSE))
-  mot.strands <- vapply(motifs, function(x) x["strand"], character(1))
-  mot.extrainfo <- lapply(motifs, function(x) x["extrainfo"])
+  mot.names <- vapply(motifs, function(x) x@name, character(1))
+  mot.altnames <- do.call(c, sapply(motifs, function(x) x@altname, simplify = FALSE))
+  mot.families <- unique(do.call(c, sapply(motifs, function(x) x@family, simplify = FALSE)))
+  mot.orgs <- unique(do.call(c, sapply(motifs, function(x) x@organism, simplify = FALSE)))
+  mot.bkgsites <- do.call(c, sapply(motifs, function(x) x@bkgsites, simplify = FALSE))
+  mot.strands <- vapply(motifs, function(x) x@strand, character(1))
+  mot.extrainfo <- lapply(motifs, function(x) x@extrainfo)
 
-  mot.mats <- lapply(motifs, function(x) x["motif"])
+  mot.mats <- lapply(motifs, function(x) x@motif)
 
-  alph <- motifs[[1]]["alphabet"]
+  alph <- motifs[[1]]@alphabet
 
   mot.ic1 <- .pos_iscscores(motifs[[1]], mot.mats[[1]], relative_entropy)
   mot.ic2 <- .pos_iscscores(motifs[[2]], mot.mats[[2]], relative_entropy)
   new.mat <- merge_mot_pair(mot.mats[[1]], mot.mats[[2]], 1, 1, mot.ic1,
                             mot.ic2, tryRC, min.overlap, min.mean.ic, method,
                             relative_entropy, normalise.scores)
-  bkg.1 <- motifs[[1]]["bkg"][rownames(motifs[[1]]["motif"])]
-  bkg.2 <- motifs[[2]]["bkg"][rownames(motifs[[2]]["motif"])]
+  bkg.1 <- motifs[[1]]@bkg[rownames(motifs[[1]]@motif)]
+  bkg.2 <- motifs[[2]]@bkg[rownames(motifs[[2]]@motif)]
   bkg.new <- vapply(seq_along(bkg.1), function(x) mean(c(bkg.1[x], bkg.2[x])),
                     numeric(1))
-  nsites.1 <- motifs[[1]]["nsites"]
-  nsites.2 <- motifs[[2]]["nsites"]
+  nsites.1 <- motifs[[1]]@nsites
+  nsites.2 <- motifs[[2]]@nsites
   if (length(nsites.1) == 0 && length(nsites.2) == 0) {
     nsites.new <- numeric()
   } else nsites.new <- max(c(nsites.1, nsites.2))
-  pseudo.1 <- motifs[[1]]["pseudocount"]
-  pseudo.2 <- motifs[[2]]["pseudocount"]
+  pseudo.1 <- motifs[[1]]@pseudocount
+  pseudo.2 <- motifs[[2]]@pseudocount
   pseudo.new <- mean(c(pseudo.1, pseudo.2))
 
   mot.new <- create_motif(new.mat, alphabet = alph, pseudocount = pseudo.new,
@@ -153,22 +153,22 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
     add.weight <- 2
     for (i in seq(3, length(motifs))) {
       mot.ic <- .pos_iscscores(motifs[[i]], mot.mats[[i]], relative_entropy)
-      new.ic <- .pos_iscscores(mot.new, mot.new["motif"], relative_entropy)
+      new.ic <- .pos_iscscores(mot.new, mot.new@motif, relative_entropy)
       new.mat <- merge_mot_pair(new.mat, mot.mats[[i]], add.weight, 1,
                                 new.ic, mot.ic, tryRC, min.overlap,
                                 min.mean.ic, method, relative_entropy,
                                 normalise.scores)
-      bkg.1 <- motifs[[i]]["bkg"][rownames(motifs[[i]]["motif"])]
-      bkg.2 <- mot.new["bkg"][rownames(mot.new["motif"])]
+      bkg.1 <- motifs[[i]]@bkg[rownames(motifs[[i]]@motif)]
+      bkg.2 <- mot.new@bkg[rownames(mot.new@motif)]
       bkg.new <- vapply(seq_along(bkg.1), function(x) mean(c(bkg.1[x], bkg.2[x])),
                       numeric(1))
-      nsites.1 <- motifs[[i]]["nsites"]
-      nsites.2 <- mot.new["nsites"]
+      nsites.1 <- motifs[[i]]@nsites
+      nsites.2 <- mot.new@nsites
       if (length(nsites.1) == 0 && length(nsites.2) == 0) {
         nsites.new <- numeric()
       } else nsites.new <- max(c(nsites.1, nsites.2))
-      pseudo.1 <- motifs[[i]]["pseudocount"]
-      pseudo.2 <- mot.new["pseudocount"]
+      pseudo.1 <- motifs[[i]]@pseudocount
+      pseudo.2 <- mot.new@pseudocount
       pseudo.new <- mean(c(pseudo.1, pseudo.2))
       mot.new <- create_motif(new.mat, alphabet = alph, pseudocount = pseudo.new,
                               bkg = bkg.new, nsites = nsites.new)
@@ -176,12 +176,12 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
     }
   }
 
-  new.name <- paste(mot.names, collapse = "/")
-  new.altname <- paste(mot.altnames, collapse = "/")
+  new.name <- paste0(mot.names, collapse = "/")
+  new.altname <- paste0(mot.altnames, collapse = "/")
   if (nchar(new.altname) == 0) new.altname <- character(0)
-  new.family <- paste(mot.families, collapse = "/")
+  new.family <- paste0(mot.families, collapse = "/")
   if (nchar(new.family) == 0) new.family <- character(0) 
-  new.organism <- paste(mot.orgs, collapse = "/")
+  new.organism <- paste0(mot.orgs, collapse = "/")
   if (nchar(new.organism) == 0) new.organism <- character(0)
   if (length(mot.bkgsites) > 1) {
     new.bkgsites <- max(mot.bkgsites)
@@ -191,14 +191,15 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
   } else new.strand <- unique(mot.strands)
   new.extrainfo <- do.call(c, mot.extrainfo)
 
-  mot.new["name"] <- new.name
-  mot.new["altname"] <- new.altname
-  mot.new["family"] <- new.family
-  mot.new["organism"] <- new.organism
-  mot.new["bkgsites"] <- new.bkgsites
-  mot.new["strand"] <- new.strand
-  mot.new["extrainfo"] <- new.extrainfo
+  mot.new@name <- new.name
+  mot.new@altname <- new.altname
+  mot.new@family <- new.family
+  mot.new@organism <- new.organism
+  mot.new@bkgsites <- new.bkgsites
+  mot.new@strand <- new.strand
+  mot.new@extrainfo <- new.extrainfo
 
+  validObject_universalmotif(mot.new)
   mot.new
 
 }

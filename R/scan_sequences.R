@@ -146,17 +146,17 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   motifs <- lapply(motifs, normalize)
-  motifs <- convert_type(motifs, "PWM")
+  motifs <- convert_type_internal(motifs, "PWM")
 
-  mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  mot.pwms <- lapply(motifs, function(x) x["motif"])
+  mot.names <- vapply(motifs, function(x) x@name, character(1))
+  mot.pwms <- lapply(motifs, function(x) x@motif)
   mot.lens <- vapply(mot.pwms, ncol, numeric(1))
-  mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
+  mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   if (length(unique(mot.alphs)) != 1) stop("can only scan using one alphabet")
   mot.alphs <- unique(mot.alphs)
   if (verbose > 1) cat("   * Motif alphabet:", mot.alphs, "\n")
   alph <- mot.alphs
-  mot.bkgs <- lapply(motifs, function(x) x["bkg"][rownames(x["motif"])])
+  mot.bkgs <- lapply(motifs, function(x) x@bkg[rownames(x@motif)])
   seq.lens <- width(sequences)
 
   seq.names <- names(sequences)
@@ -172,22 +172,22 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   }
 
   if (use.freq > 1) {
-    if (any(vapply(motifs, function(x) length(x["multifreq"]) == 0, logical(1))))
+    if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))
       stop("missing multifreq slots")
     check_multi <- vapply(motifs,
-                          function(x) any(names(x["multifreq"]) %in%
+                          function(x) any(names(x@multifreq) %in%
                                           as.character(use.freq)),
                           logical(1))
     if (!any(check_multi)) stop("not all motifs have correct multifreqs")
   }
 
   for (i in seq_along(motifs)) {
-    if (motifs[[i]]["pseudocount"] == 0) {
+    if (motifs[[i]]@pseudocount == 0) {
       if (verbose > 1)
         cat("   * Setting 'pseudocount' to 1 for motif:", mot.names[i], "\n")
       motifs[[i]]["pseudocount"] <- 1
     }
-    if (length(motifs[[i]]["nsites"]) == 0) {
+    if (length(motifs[[i]]@nsites) == 0) {
       if (verbose > 1)
         cat("   * Setting 'nsites' to 100 for motif:", mot.names[i], "\n")
       motifs[[i]]["nsites"] <- 100
@@ -198,11 +198,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     score.mats <- mot.pwms
   } else {
     score.mats <- lapply(motifs,
-                         function(x) x["multifreq"][[as.character(use.freq)]])
+                         function(x) x@multifreq[[as.character(use.freq)]])
     for (i in seq_along(score.mats)) {
       score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
-                               nsites = motifs[[i]]["nsites"],
-                               pseudocount = motifs[[i]]["pseudocount"])
+                               nsites = motifs[[i]]@nsites,
+                               pseudocount = motifs[[i]]@pseudocount)
     }
   }
 

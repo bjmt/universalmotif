@@ -98,8 +98,8 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
   hit.count.perseq <- length(hits) / seq.count
 
   rand.hits <- lapply(seq_len(nrand),
-                      function(x) sample(seq_len(seq.length), length(hits),
-                                         replace = TRUE))
+                      function(x) sample.int(seq.length, length(hits),
+                                             replace = TRUE))
   # this is the slowest step
   rand.kern <- lapply_(rand.hits, function(x) kern_fun(x, bandwidth, seq.length,
                                                      seq.length),

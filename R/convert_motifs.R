@@ -121,6 +121,7 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
   switch(out_class_pkg,
     "universalmotif" = {
+      validObject_universalmotif(motifs)
       motifs
     },
     "MotIV" = {

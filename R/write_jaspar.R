@@ -31,7 +31,7 @@ write_jaspar <- function(motifs, file) {
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PCM")
+  motifs <- convert_type_internal(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_jaspar <- function(motifs) {
@@ -39,24 +39,17 @@ write_jaspar <- function(motifs, file) {
     lines_out <- vector()
 
     motif <- motifs
-    if (length(motif["altname"]) > 0) {
-      lines_out <- c(lines_out, paste0(">", motif["name"], " ",
-                                       motif["altname"]))
+    if (length(motif@altname) > 0) {
+      lines_out <- c(lines_out, paste0(">", motif@name, " ",
+                                       motif@altname))
     } else {
-      lines_out <- c(lines_out, paste0(">", motif["name"]))
+      lines_out <- c(lines_out, paste0(">", motif@name))
     }
 
-    if (motif["alphabet"] == "DNA") {
-      alph <- c("A", "C", "G", "T") 
-    } else if (motif["alphabet"] == "RNA") {
-      alph <- c("A", "C", "G", "U")
-    } else if (motif["alphabet"] == "AA") {
-      alph <- c("A", "C", "D", "E", "F", "G", "H", "I", "K",
-              "L", "M", "N", "P", "Q", "R", "S", "T", "V",
-              "W", "Y")
-    } else stop("unknown alphabet")
+    alph <- switch(motif@alphabet, "DNA" = DNA_BASES, "RNA" = RNA_BASES,
+                   "AA" = AA_STANDARD, stop("unknown alphabet"))
 
-    nsites <- motif["nsites"]
+    nsites <- motif@nsites
     if (length(nsites) == 0) nsites <- 100
     if (nsites > 99999) {
       width <- 6
@@ -71,7 +64,7 @@ write_jaspar <- function(motifs, file) {
     for (j in seq_along(alph)) {
       p1 <- alph[j]
       p2 <- "["
-      p3 <- as.numeric(motif["motif"][j, ])
+      p3 <- as.numeric(motif@motif[j, ])
       p3 <- vapply(p3, function(x) formatC(x, width = width, format = "d"),
                    character(1))
       p3 <- paste0(p3, collapse = " ")

@@ -186,6 +186,13 @@ setMethod("initialize", signature = "universalmotif",
 setMethod("show", signature = "universalmotif",
           definition = function(object) {
 
+  obj.check <- tryCatch(validObject_universalmotif(object, FALSE),
+                        error = function(e) return("error"))
+  if (length(obj.check) > 0)
+    stop(wmsg("Something is wrong with the universalmotif object and it ",
+              "cannot be displayed."),
+         call. = FALSE)
+
   name <- object@name
   if (nchar(name) > 40) name <- collapse_cpp(c(substr(name, 1, 40), "..."))
 
@@ -379,8 +386,8 @@ setMethod("subset", signature(x = "universalmotif"),
 #' @aliases normalize,universalmotif-method
 setMethod("normalize", signature(object = "universalmotif"),
           definition = function(object) {
-  type <- object["type"]
-  pseudo <- object["pseudocount"]
+  type <- object@type
+  pseudo <- object@pseudocount
   if (pseudo == 0) pseudo <- 1
   object <- convert_type(object, "PCM")
   convert_type(object, type, pseudocount = pseudo)

@@ -32,6 +32,7 @@ switch_alph <- function(motifs) {
       motif@alphabet <- "RNA"
       rownames(motif@motif) <- RNA_BASES
       colnames(motif@motif) <- gsub("T", "U", colnames(motif@motif))
+      names(motif@bkg) <- gsub("T", "U", names(motif@bkg))
       motif@consensus <- gsub("T", "U", motif@consensus)
       if (length(motif@multifreq) > 0) {
         for (i in names(motif@multifreq)) {
@@ -42,6 +43,7 @@ switch_alph <- function(motifs) {
       motif@alphabet <- "DNA"
       rownames(motif@motif) <- DNA_BASES
       colnames(motif@motif) <- gsub("U", "T", colnames(motif@motif))
+      names(motif@bkg) <- gsub("U", "T", names(motif@bkg))
       motif@consensus <- gsub("U", "T", motif@consensus)
       if (length(motif@multifreq) > 0) {
         for (i in names(motif@multifreq)) {

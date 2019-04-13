@@ -183,7 +183,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
+  motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
 
   mot.names <- vapply(motifs, function(x) x["name"], character(1))
   mot.dup <- mot.names[duplicated(mot.names)]

@@ -117,7 +117,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()]
 #' @export
-convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE, 
+convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
                          relative_entropy = FALSE) {
 
   # param check --------------------------------------------
@@ -151,12 +151,32 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   if (missing(pseudocount)) pseudocount <- NULL
 
   motifs <- lapply(motifs, function(x) convert_type_single(x, type, pseudocount,
-                                                             nsize_correction,
-                                                             relative_entropy)) 
+                                                           nsize_correction,
+                                                           relative_entropy))
 
   motifs <- .internal_convert(motifs, unique(CLASS_IN))
   if (length(motifs) == 1 && !was_list) motifs <- motifs[[1]]
   motifs
+
+}
+
+# Skips validObject_universalmotif() call from convert_motifs() for
+# universalmotif objects. Not sure if it's a good idea to skip check
+# on the way out.
+convert_type_internal <- function(motifs, type, pseudocount,
+                                  nsize_correction = FALSE,
+                                  relative_entropy = FALSE) {
+
+  if (missing(pseudocount)) pseudocount <- NULL
+  was.list <- FALSE
+  if (!is.list(motifs)) motifs <- list(motifs)
+  else was.list <- TRUE
+
+  motifs <- lapply(motifs, function(x) convert_type_single(x, type, pseudocount,
+                                                           nsize_correction,
+                                                           relative_entropy))
+
+  if (length(motifs) == 1 && !was.list) motifs[[1]] else motifs
 
 }
 
@@ -165,7 +185,7 @@ convert_type_single <- function(motif, type, pseudocount,
                                 relative_entropy = FALSE) {
 
   if (length(motif@bkg) %% nrow(motif@motif) != 0)
-    stop(wmsg("length of bkg must be divisable by alphabet length"))
+    stop(wmsg("length of bkg must be divisible by alphabet length"))
 
   in_type <- motif@type
 

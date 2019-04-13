@@ -93,7 +93,7 @@ read_cisbp <- function(file, skip = 0) {
                     mot
                   }, motif_list, meta_list)
 
-  motifs <- motifs[vapply(motifs, function(x) ncol(x["motif"]) > 0,
+  motifs <- motifs[vapply(motifs, function(x) ncol(x@motif) > 0,
                           logical(1))]
 
   if (length(motifs) == 1) motifs <- motifs[[1]]

@@ -85,7 +85,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, use.type, relative_entropy = relative_entropy)
+  motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
   if (!is.list(motifs)) motifs <- list(motifs)
 
   if (use.type == "ICM" && !relative_entropy) {
@@ -116,13 +116,13 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
     )
   }
 
-  mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  mot.names <- vapply(motifs, function(x) x@name, character(1))
   if (length(mot.names) != length(unique(mot.names)))
     stop("All motifs must have unique names")
 
-  mot.mats <- lapply(motifs, function(x) x["motif"])
+  mot.mats <- lapply(motifs, function(x) x@motif)
 
-  mot.alph <- unique(vapply(motifs, function(x) x["alphabet"], character(1)))
+  mot.alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
   if (length(mot.alph) > 1) stop("can only have one alphabet")
   use.custom <- FALSE
 
@@ -163,7 +163,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   }
 
   motifs.rc <- motif_rc(motifs)
-  mot.mats.rc <- lapply(motifs.rc, function(x) x["motif"])
+  mot.mats.rc <- lapply(motifs.rc, function(x) x@motif)
 
   mot.ics <- mapply(function(x, y) as.numeric(.pos_iscscores(x, y, relative_entropy)),
                       motifs, mot.mats, SIMPLIFY = FALSE)

@@ -92,7 +92,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   #---------------------------------------------------------
 
   motif <- convert_motifs(motif)
-  motif <- convert_type(motif, "PPM")
+  motif <- convert_type_internal(motif, "PPM")
 
   if (all(ncol(motif["motif"]) != unique(width(sequences)))) {
 
@@ -147,12 +147,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   }
   motif@multifreq <- multifreq
 
-  new.bkg <- get_bkg(sequences, k = add.k, RC = RC)
-  new.bkg <- unlist(new.bkg)
-  names(new.bkg) <- vapply(names(new.bkg),
-                           function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                           character(1))
-
+  new.bkg <- get_bkg(sequences, k = add.k, RC = RC, list.out = FALSE)
   motif@bkg <- c(motif@bkg, new.bkg)
 
   motif
@@ -228,14 +223,11 @@ add_multi_ANY <- function(sequences, k, alph) {
       seq.list.i[j] <- seq.list[[j]][i]
     }
 
-    ####
-    # most expensive process
-    seq.list.t <- as.matrix(table(seq.list.i))
-    seq.list.t.lets <- rownames(seq.list.t)
-    for (j in seq_len(nrow(seq.list.t))) {
-      emissions[em.lets == seq.list.t.lets[j], i] <- seq.list.t[j, ]
+    seq.list.t <- table_cpp(seq.list.i)
+    seq.list.t.lets <- names(seq.list.t)
+    for (j in seq_along(seq.list.t)) {
+      emissions[em.lets == seq.list.t.lets[j], i] <- seq.list.t[j]
     }
-    ####
 
     emissions[, i] <- emissions[, i] / sum(emissions[, i])
 

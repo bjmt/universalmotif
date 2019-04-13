@@ -150,9 +150,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PWM")
+  motifs <- convert_type_internal(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)
-  anyinf <- vapply(motifs, function(x) any(is.infinite(x["motif"])), logical(1))
+  anyinf <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
   if (any(anyinf)) {
     warning("Found -Inf values in motif PWM, adding a pseudocount of 1")
     for (i in which(anyinf)) {
@@ -165,12 +165,12 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   motifs2 <- motifs
 
   if (use.freq == 1) {
-    motifs <- lapply(motifs, function(x) x["motif"])
+    motifs <- lapply(motifs, function(x) x@motif)
   } else {
-    mots <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
+    mots <- lapply(motifs, function(x) x@multifreq[[as.character(use.freq)]])
     motifs <- mapply(function(x, y) apply(x, 2, ppm_to_pwmC,
-                                            pseudocount = y["pseudocount"],
-                                            nsites = y["nsites"]),
+                                            pseudocount = y@pseudocount,
+                                            nsites = y@nsites),
                        mots, motifs, SIMPLIFY = FALSE)
   }
 
@@ -260,11 +260,14 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
   mot.len <- ncol(score.mat)
   alph.len <- nrow(score.mat)
 
+  splitl <- 1
+
   if (mot.len > k) {
 
     times.tosplit <- mot.len %/% k
     leftover.split <- mot.len %% k
-    mot.split <- vector("list", times.tosplit + ifelse(leftover.split > 0, 1, 0))
+    splitl <- times.tosplit + ifelse(leftover.split > 0, 1, 0)
+    mot.split <- vector("list", splitl)
     alph.sort.split <- mot.split
     mot.split[[1]] <- score.mat[, seq_len(k)]
     alph.sort.split[[1]] <- alph.sort[, seq_len(k)]
@@ -277,13 +280,11 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
     }
 
     if (leftover.split > 0) {
-      mot.split[[length(mot.split)]] <- score.mat[, (mot.len - leftover.split + 1):
-                                                     mot.len]
-      alph.sort.split[[length(mot.split)]] <- alph.sort[, (mot.len - leftover.split + 1):
-                                                        mot.len]
-      if (!is.matrix(mot.split[[length(mot.split)]])) {
-        mot.split[[length(mot.split)]] <- matrix(mot.split[[length(mot.split)]])
-        alph.sort.split[[length(mot.split)]] <- matrix(alph.sort.split[[length(mot.split)]])
+      mot.split[[splitl]] <- score.mat[, (mot.len - leftover.split + 1):mot.len]
+      alph.sort.split[[splitl]] <- alph.sort[, (mot.len - leftover.split + 1):mot.len]
+      if (!is.matrix(mot.split[[splitl]])) {
+        mot.split[[splitl]] <- matrix(mot.split[[splitl]])
+        alph.sort.split[[splitl]] <- matrix(alph.sort.split[[splitl]])
       }
 
     }
@@ -300,17 +301,17 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
     split.min[i] <- score - sum(split.max[-i])
   }
 
-  all.paths <- vector("list", length(mot.split))
+  all.paths <- vector("list", splitl)
   for (i in seq_along(all.paths)) {
     all.paths[[i]] <-  branch_and_bound_kmers(mot.split[[i]], split.min[i])
   }
 
-  all.scores <- vector("list", length(mot.split))
+  all.scores <- vector("list", splitl)
   for (i in seq_along(all.scores)) {
     all.scores[[i]] <- calc_scores_cpp(all.paths[[i]], mot.split[[i]])
   }
 
-  all.probs <- vector("list", length(mot.split))
+  all.probs <- vector("list", splitl)
   for (i in seq_along(all.probs)) {
     all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
                                                alph.sort.split[[i]])
@@ -318,23 +319,25 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
 
   max.scores5 <- vapply(all.scores, max, numeric(1))
 
-  if (length(mot.split) > 2) {
+  if (splitl > 2) {
 
-    times.toloop <- length(mot.split) - 2
+    times.toloop <- splitl - 2
 
     for (i in seq_len(times.toloop)) {
 
       for (j in seq_along(all.probs[[i + 1]])) {
+
         all.probs[[i + 1]][j] <- all.probs[[i + 1]][j] *
           sum(all.probs[[i + 2]][all.scores[[i + 2]] >
               score - all.scores[[i + 1]][i] - sum(max.scores5[seq_len(i)])])
+
       }
 
     }
 
   }
 
-  if (length(mot.split) > 1) {
+  if (splitl > 1) {
     final.probs <- vector("numeric", length(all.scores[[1]]))
     for (i in seq_along(final.probs)) {
       final.probs[i] <- all.probs[[1]][i] *
@@ -346,7 +349,7 @@ motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
       # )
   }
 
-  if (length(mot.split) == 1) {
+  if (splitl == 1) {
     final.probs <- all.probs[[1]]
   }
 
@@ -421,7 +424,8 @@ split_mat <- function(score.mat, k) {
 
   times.tosplit <- mot.len %/% k
   leftover.split <- mot.len %% k
-  mot.split <- vector("list", times.tosplit + ifelse(leftover.split > 0, 1, 0))
+  splitl <- times.tosplit + ifelse(leftover.split > 0, 1, 0)
+  mot.split <- vector("list", splitl)
   mot.split[[1]] <- score.mat[, seq_len(k)]
 
   if (times.tosplit > 1) {
@@ -434,11 +438,10 @@ split_mat <- function(score.mat, k) {
 
   if (leftover.split > 0) {
 
-    mot.split[[length(mot.split)]] <- score.mat[, (mot.len - leftover.split + 1):
-                                                   mot.len]
+    mot.split[[splitl]] <- score.mat[, (mot.len - leftover.split + 1):mot.len]
 
-    if (!is.matrix(mot.split[[length(mot.split)]])) {
-      mot.split[[length(mot.split)]] <- matrix(mot.split[[length(mot.split)]])
+    if (!is.matrix(mot.split[[splitl]])) {
+      mot.split[[splitl]] <- matrix(mot.split[[splitl]])
     }
 
   }

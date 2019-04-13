@@ -29,27 +29,27 @@ write_transfac <- function(motifs, file) {
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type(motifs, "PCM")
+  motifs <- convert_type_internal(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   .write_transfac <- function(motifs) {
     motif <- motifs
     lines_out <- vector()
-    lines_out <- c(lines_out, paste("ID", motif["name"]))
-    if (length(motif["altname"]) > 0) {
-      lines_out <- c(lines_out, paste("NA", motif["altname"]))
+    lines_out <- c(lines_out, paste("ID", motif@name))
+    if (length(motif@altname) > 0) {
+      lines_out <- c(lines_out, paste("NA", motif@altname))
     }
-    if (length(motif["family"]) > 0) {
-      lines_out <- c(lines_out, paste("HC", motif["family"]))
+    if (length(motif@family) > 0) {
+      lines_out <- c(lines_out, paste("HC", motif@family))
     }
-    if (length(motif["organism"]) > 0) {
-      lines_out <- c(lines_out, paste("OS", motif["organism"]))
+    if (length(motif@organism) > 0) {
+      lines_out <- c(lines_out, paste("OS", motif@organism))
     }
     lines_out <- c(lines_out, "P0\tA\tC\tG\tT")
-    consensus <- safeExplode(motif["consensus"])
+    consensus <- safeExplode(motif@consensus)
     for (j in seq_along(consensus)) {
       p1 <- formatC(j, width = 2, format = "d", flag = "0")
-      p2 <- paste0(as.numeric(motif["motif"][, j]), collapse = "\t")
+      p2 <- paste0(as.numeric(motif@motif[, j]), collapse = "\t")
       p3 <- consensus[j]
       lines_out <- c(lines_out, paste(p1, p2, p3, sep = "\t"))
     }
