@@ -83,6 +83,9 @@ MINOR CHANGES
     o convert_motifs(motif, class = "universalmotif-universalmotif"): performs
       a validObject() check if "motif" is a universalmotif object
 
+    o The show() method for universalmotif objects performs a validObject()
+      check first
+
     o motif_rc() has a new option "ignore.alphabet", used to turn on or off the
       alphabet check (checks for DNA/RNA motif)
 

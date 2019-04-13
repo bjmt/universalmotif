@@ -50,7 +50,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (file.exists(file) && !overwrite)
+  if (file.exists(file) && !overwrite && !append)
     stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))
 
   motifs <- convert_motifs(motifs)
