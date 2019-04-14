@@ -5,6 +5,8 @@ using namespace Rcpp;
 StringVector universalmotif_alphabet(StringVector alphabet,
     NumericMatrix &m_motif) {
 
+  // NOTE: assumes motif rows are properly alphabetically sorted
+
   if (alphabet[0] == "DNA")
     rownames(m_motif) = ::dna;
   else if (alphabet[0] == "RNA")
@@ -24,7 +26,7 @@ StringVector universalmotif_alphabet(StringVector alphabet,
     StringVector mat_rownames = rownames(m_motif);
     if (mat_rownames.length() == 0)
       stop("Error creating universalmotif object; missing alphabet");
-    mat_rownames = sort_unique(m_motif);
+    mat_rownames = sort_unique(mat_rownames);
     alphabet[0] = collapse(mat_rownames);
   }
 
@@ -477,19 +479,24 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
 
   if (m_alphabet[0] == "DNA") {
 
-    if (m_motif.nrow() != 4) msg.push_back("* DNA/RNA motifs must have 4 rows");
+    if (m_motif.nrow() != 4)
+      msg.push_back("* DNA/RNA motifs must have 4 rows");
     LogicalVector rownames_check = m_rownames == ::dna;
-    if (is_false(all(rownames_check))) msg.push_back("* rownames must be A, C, G, T");
+    if (is_false(all(rownames_check)))
+      msg.push_back("* rownames must be A, C, G, T");
 
   } else if (m_alphabet[0] == "RNA") {
 
-    if (m_motif.nrow() != 4) msg.push_back("* DNA/RNA motifs must have 4 rows");
+    if (m_motif.nrow() != 4)
+      msg.push_back("* DNA/RNA motifs must have 4 rows");
     LogicalVector rownames_check = m_rownames == ::rna;
-    if (is_false(all(rownames_check))) msg.push_back("* rownames must be A, C, G, U");
+    if (is_false(all(rownames_check)))
+      msg.push_back("* rownames must be A, C, G, U");
 
   } else if (m_alphabet[0] == "AA") {
 
-    if (m_motif.nrow() != 20) msg.push_back("* AA motifs must have 20 rows");
+    if (m_motif.nrow() != 20)
+      msg.push_back("* AA motifs must have 20 rows");
     LogicalVector rownames_check = m_rownames == ::aa;
     if (is_false(all(rownames_check)))
       msg.push_back("* rownames must be ACDEFGHIKLMNPQRSTVWY");
@@ -502,8 +509,9 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
     for (int i = 0; i < m_alphabet[0].size(); ++i) {
       alph_split.push_back(m_alphabet[0][i]);
     }
-    LogicalVector rownames_check = sort_unique(alph_split) == sort_unique(m_rownames);
-    if (is_false(all(rownames_check))) msg.push_back("* rownames must match alphabet");
+    LogicalVector rownames_check = sort_unique(alph_split) == m_rownames;
+    if (is_false(all(rownames_check)))
+      msg.push_back("* rownames must match alphabet and be in alphabetical order");
 
   }
 

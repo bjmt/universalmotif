@@ -2,10 +2,10 @@ PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" DESCRIPTION)
 PKGVER  := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION)
 PKGSRC  := $(shell basename `pwd`)
 
-all: prep reexports build check clean
+all: prep build check clean
 
 prep:
-	R -q -e "Rcpp::compileAttributes(); devtools::document()"
+	R -q -e "Rcpp::compileAttributes(); devtools::document(); message('Fixing reexports.Rd'); l <- readLines(con <- file('man/reexports.Rd')); close(con); l <- sub('[BiocGenerics]{ncol}', '[BiocGenerics:nrow]{ncol}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rownames}', '[BiocGenerics:row_colnames]{rownames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colnames}', '[BiocGenerics:row_colnames]{colnames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rowSums}', '[BiocGenerics:matrix-summary]{rowSums}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colSums}', '[BiocGenerics:matrix-summary]{colSums}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rowMeans}', '[BiocGenerics:matrix-summary]{rowMeans}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colMeans}', '[BiocGenerics:matrix-summary]{colMeans}', l, fixed = TRUE); writeLines(l, 'man/reexports.Rd')"
 
 build:
 	cd ..;\
@@ -46,5 +46,3 @@ benchmarks:
 	cd benchmarks;\
 	./benchmarks.R
 
-reexports:
-	R -q -e "devtools::document(); message('Fixing reexports.Rd'); l <- readLines(con <- file('man/reexports.Rd')); close(con); l <- sub('[BiocGenerics]{ncol}', '[BiocGenerics:nrow]{ncol}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rownames}', '[BiocGenerics:row_colnames]{rownames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colnames}', '[BiocGenerics:row_colnames]{colnames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rowSums}', '[BiocGenerics:matrix-summary]{rowSums}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colSums}', '[BiocGenerics:matrix-summary]{colSums}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rowMeans}', '[BiocGenerics:matrix-summary]{rowMeans}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colMeans}', '[BiocGenerics:matrix-summary]{colMeans}', l, fixed = TRUE); writeLines(l, 'man/reexports.Rd')"
