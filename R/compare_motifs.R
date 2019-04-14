@@ -185,7 +185,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
 
-  mot.names <- vapply(motifs, function(x) x["name"], character(1))
+  mot.names <- vapply(motifs, function(x) x@name, character(1))
   mot.dup <- mot.names[duplicated(mot.names)]
   if (length(mot.dup) > 0) {
     mot.dup.suffix <- seq_along(mot.dup)
@@ -198,9 +198,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
 
   if (use.freq == 1) {
-    mot.mats <- lapply(motifs, function(x) x["motif"])
+    mot.mats <- lapply(motifs, function(x) x@motif)
   } else {
-    mot.mats <- lapply(motifs, function(x) x["multifreq"][[as.character(use.freq)]])
+    mot.mats <- lapply(motifs, function(x) x@multifreq[[as.character(use.freq)]])
   }
   mot.ics <- mapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
                       motifs, mot.mats, SIMPLIFY = FALSE)
@@ -338,9 +338,6 @@ check_db_scores <- function(db.scores, method, normalise.scores) {
 fix_pcc_diag <- function(comparisons, mot.mats) {
 
   mot.lens <- vapply(mot.mats, ncol, numeric(1))
-  # for (i in seq_along(mot.lens)) {
-    # comparisons[i, i] <- mot.lens[i]^2
-  # }
   diag(comparisons) <- mot.lens^2
 
   comparisons
@@ -361,8 +358,8 @@ get_rid_of_dupes <- function(comparisons) {
     # comparisons.sorted[i] <- paste(sort(comparisons[i, 1:2]), collapse = " ")
   # }
   comparisons.sorted <- vapply(seq_len(nrow(comparisons)),
-                               function(x) paste(sort(comparisons[x, 1:2]),
-                                                 collapse = " "),
+                               function(x) paste0(sort(comparisons[x, 1:2]),
+                                                  collapse = " "),
                                character(1))
   comparisons[!duplicated(comparisons.sorted), ]
 } 
@@ -408,9 +405,9 @@ get_rid_of_dupes <- function(comparisons) {
 #' @noRd
 .pos_iscscores <- function(motif, mot.mats, relative = FALSE) {
 
-  bkg <- motif["bkg"][rownames(motif["motif"])]
-  pseudo <- motif["pseudocount"]
-  nsites <- motif["nsites"]
+  bkg <- motif@bkg[rownames(motif@motif)]
+  pseudo <- motif@pseudocount
+  nsites <- motif@nsites
   if (length(nsites) == 0) nsites <- 100
   apply(mot.mats, 2, function(x) position_icscoreC(x, bkg, "PPM", pseudo,
                                                    nsites, relative))
@@ -445,7 +442,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
   #---------------------------------------------------------
 
   db.motifs <- convert_motifs(db.motifs)
-  db.ncols <- vapply(db.motifs, function(x) ncol(x["motif"]), numeric(1))
+  db.ncols <- vapply(db.motifs, function(x) ncol(x@motif), numeric(1))
 
   if (shuffle.db) {
     rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
@@ -466,9 +463,9 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
     }
   } else {
     rand.mots <- lapply(seq_len(rand.tries),
-                        function(x) create_motif(sample(5:30, 1)))
+                        function(x) create_motif(sample.int(26, 1) + 4))
   }
-  rand.ncols <- vapply(rand.mots, function(x) ncol(x["motif"]), numeric(1))
+  rand.ncols <- vapply(rand.mots, function(x) ncol(x@motif), numeric(1))
 
   totry <- expand.grid(list(subject = sort(unique(rand.ncols)),
                             target = sort(unique(db.ncols))))
@@ -519,13 +516,13 @@ pvals_from_db <- function(subject, target, db, scores, method) {
 
   if (method %in% c("PCC", "MPCC", "SW", "MSW")) ltail <- FALSE else ltail <- TRUE
   pvals <- vector("numeric", length(target))
-  subject.ncol <- ncol(subject[[1]]["motif"])
+  subject.ncol <- ncol(subject[[1]]@motif)
   if (subject.ncol < db$subject[1]) subject.ncol <- db$subject[1]
   if (subject.ncol > db$subject[nrow(db)]) subject.ncol <- db$subject[nrow(db)]
   possible.ncols <- sort(unique(db$target))
   possible.sub <- sort(unique(db$subject))
   for (i in seq_along(target)) {
-    ncol2 <- ncol(target[[i]]["motif"])
+    ncol2 <- ncol(target[[i]]@motif)
     if (ncol2 < db$target[1]) ncol2 <- db$target[1]
     if (ncol2 > db$target[nrow(db)]) ncol2 <- db$target[nrow(db)]
     tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]

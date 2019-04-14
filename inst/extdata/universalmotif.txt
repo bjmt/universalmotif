@@ -1,4 +1,4 @@
-# universalmotif version 1.1.75
+# universalmotif version 1.2.0
 
 ---
 name: motif

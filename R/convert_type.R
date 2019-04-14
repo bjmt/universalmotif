@@ -191,8 +191,9 @@ convert_type_single <- function(motif, type, pseudocount,
 
   if (in_type == type) return(motif)
 
-  if (is.null(pseudocount)) pseudocount <- motif["pseudocount"]
-  bkg <- motif@bkg[seq_len(nrow(motif@motif))]
+  if (is.null(pseudocount)) pseudocount <- motif@pseudocount
+  bkg <- motif@bkg[rownames(motif@motif)]
+  if (anyNA(bkg)) bkg <- motif@bkg[seq_len(nrow(motif@motif))]
 
   if (length(motif@nsites) == 0) nsites <- 100 else nsites <- motif@nsites
 

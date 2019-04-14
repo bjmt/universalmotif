@@ -50,7 +50,7 @@ A brief description of all the available slots:
 * `type`: motif 'type', one of PCM, PPM, PWM, ICM; see the [introductory](IntroductionToSequenceMotifs.pdf) vignette
 * `icscore`: (generated automatically) Sum of information content for the motif
 * `nsites`: (optional) number of sites the motif was created from
-* `pseudocount`: this value to added to the motif matrix during certain type conversions; this is necessary to avoid `-Inf` values from appearing in PWM type motifs for example
+* `pseudocount`: this value to added to the motif matrix during certain type conversions; this is necessary to avoid `-Inf` values from appearing in PWM type motifs
 * `bkg`: a named vector of probabilities which represent the background letter frequencies
 * `bkgsites`: (optional) total number of background sequences from motif creation
 * `consensus`: (generated automatically) for DNA/RNA/AA motifs, the motif consensus
@@ -187,7 +187,7 @@ convert_type(examplemotif, "ICM", nsize_correction = FALSE)
 
 convert_type(examplemotif, "ICM", nsize_correction = TRUE)
 
-examplemotif["bkg"] <- c(A=0.4, C=0.1, G=0.1, T=0.4)
+examplemotif["bkg"] <- c(A = 0.4, C = 0.1, G = 0.1, T = 0.4)
 convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 ```
 
@@ -201,7 +201,7 @@ This function has been written to allow comparisons using the following metrics:
 library(universalmotif)
 library(MotifDb)
 
-## No need to convert class, most universalmotif functions will do it
+## No need to convert class, all universalmotif functions will do it
 ## automatically
 
 motifs.dist <- compare_motifs(MotifDb[1:5], progress = FALSE)
@@ -210,7 +210,7 @@ as.dist(motifs.dist)
 ## Additionally P-value calculations can be performed for requested
 ## comparisons
 
-compare_motifs(MotifDb[1:5], 1:5, progress = FALSE)
+compare_motifs(MotifDb[1:5], compare.to = 1:5, progress = FALSE)
 ```
 
 The `compare_motifs()` functionality is revisited in the [advanced usage](AdvancedUsage.pdf) vignette.
@@ -286,7 +286,7 @@ trim_motifs(motif)
 
 # Motif creation
 
-Though `universalmotif` class motifs can be created using the `new` constructor, the `r Biocpkg("universalmotif")` package provides the `create_motif()` function which aims to provide a simpler interface to motif creation. The `universalmotif` class was designed to work natively with DNA, RNA, and amino acid motifs. Despite this, it can handle any custom alphabet just as easily. The only downsides to custom alphabets is the lack of certain slots such as the `consensus` and `strand` slots.
+Though `universalmotif` class motifs can be created using the `new` constructor, the `r Biocpkg("universalmotif")` package provides the `create_motif()` function which aims to provide a simpler interface to motif creation. The `universalmotif` class was initially designed to work natively with DNA, RNA, and amino acid motifs. Currently though, it can handle any custom alphabet just as easily. The only downsides to custom alphabets is the lack of support for certain slots such as the `consensus` and `strand` slots.
 
 The `create_motif()` function will be introduced here only briefly; see `?create_motif` for details.
 
@@ -316,7 +316,7 @@ As a short aside: if you have a motif formatted simply as a matrix, you can stil
 
 ## From sequences or character strings
 
-If all you have is a particular consensus sequence in mind, you can easily create a full motif using `create_motif`. This can be convenient if you'd like to create a quick motif to use with an external program such as from the MEME suite or HOMER.
+If all you have is a particular consensus sequence in mind, you can easily create a full motif using `create_motif()`. This can be convenient if you'd like to create a quick motif to use with an external program such as from the MEME suite or HOMER.
 
 ```{r}
 motif <- create_motif("CCNSNGG", nsites = 50, pseudocount = 1)
@@ -329,14 +329,14 @@ motif
 
 ## Generating random motifs
 
-If you wish, it's easy to generate random motifs:
+If you wish, it's easy to create random motifs. The values within the motif are generated using `rdirichlet()` (from `r CRANpkg("gtools")`) to avoid creating low information content motifs.
 
 ```{r}
 create_motif()
 ```
 You can change the probabilities used to generate the values within the motif matrix:
 ```{r}
-create_motif(bkg = c(0.2, 0.4, 0.2, 0.2))
+create_motif(bkg = c(A = 0.2, C = 0.4, G = 0.2, T = 0.2))
 ```
  With a custom alphabet:
 ```{r}

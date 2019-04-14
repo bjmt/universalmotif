@@ -8,9 +8,8 @@
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.
 #' @param progress `logical(1)` Show progress.
 #' @param overwrite `logical(1)` Overwrite existing file.
-#' @param append `logical(1)` Add to an existing motif file. Major package
-#'    version must match, and the minor version must match either the current
-#'    release or development version numbers.
+#' @param append `logical(1)` Add to an existing motif file. Package version
+#'    in existing motif file must be greater than 1.2.0.
 #' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
 #'    [scan_sequences()]. See [BiocParallel::register()] to change the
 #'    default backend.
@@ -51,18 +50,10 @@ write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
     if (substr(old[1], 1, 24) == "# universalmotif version") {
 
       file.version <- strsplit(old[1], " ")[[1]][4]
-      file.version <- strsplit(file.version, ".", fixed = TRUE)[[1]]
-      file.version <- as.numeric(file.version[-3])
-      pkg.version <- packageDescription("universalmotif")$Version
-      pkg.version <- strsplit(pkg.version, ".", fixed = TRUE)[[1]]
-      pkg.version <- as.numeric(pkg.version[-3])
 
-      if (file.version[1] != pkg.version[1])
-        stop("To append motifs to exisiting file, package version must match")
-
-      if (file.version[2] != pkg.version[2] &&
-          file.version[2] != pkg.version[2] + 1)
-        stop("To append motifs to exisiting file, package version must match")
+      if (file.version < "1.2.0")
+        stop(wmsg("To append motifs to an existing file, file version",
+                  " must be at least 1.2.0"))
 
     } else {
 

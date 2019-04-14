@@ -34,7 +34,7 @@ NEW FEATURES
       set of characters.
 
     o The native write_motifs()/read_motifs() universalmotif format is now
-      yaml based. Motifs written before v1.2.0 can still be read by
+      YAML based. Motifs written before v1.2.0 can still be read by
       read_motifs().
 
 MINOR CHANGES
@@ -43,7 +43,8 @@ MINOR CHANGES
 
     o Expanded motif_pvalue(), scan_sequences() examples sections
 
-    o New vignette section for motif_peaks() added to SequenceSearches.Rmd
+    o New vignette sections for motif_peaks() and get_bkg() added to
+      SequenceSearches.Rmd
 
     o Various vignette tweaks
 

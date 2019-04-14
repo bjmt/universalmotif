@@ -7,9 +7,8 @@ setMethod("[", "universalmotif", function(x, i) {
 
   if (missing(i)) {
     i <- c("name", "altname", "family", "organism", "motif", "alphabet", "type",
-               "icscore", "nsites", "pseudocount", "bkg", "bkgsites",
-               "consensus", "strand", "pval", "qval", "eval",
-               "multifreq", "extrainfo")
+           "icscore", "nsites", "pseudocount", "bkg", "bkgsites", "consensus",
+           "strand", "pval", "qval", "eval", "multifreq", "extrainfo")
   }
 
   if (all(i == "motif")) return(x@motif)
@@ -38,11 +37,15 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
 
+  if (length(i) != 1) stop("please only replace one slot at a time") 
   if (i == "icscore") stop("'icscore' is not modifiable")
   if (i == "multifreq") stop("please use add_multifreq()")
   if (i == "consensus" && x@alphabet %in% c("DNA", "RNA", "AA"))
     stop(wmsg("consensus strings for ", x@alphabet,
               " motifs are not modifiable"))
+  if (i == "motif")
+    stop(wmsg("please either use cbind(), subset() to modify the 'motif slot'",
+              " or create_motif() to generate a new motif"))
 
   slot(x, i) <- value
 
@@ -190,7 +193,8 @@ setMethod("show", signature = "universalmotif",
                         error = function(e) return("error"))
   if (length(obj.check) > 0)
     stop(wmsg("Something is wrong with the universalmotif object and it ",
-              "cannot be displayed."),
+              "cannot be displayed. Run validObject(motif)",
+              " to diagnose the problem."),
          call. = FALSE)
 
   name <- object@name
@@ -448,10 +452,10 @@ setMethod("cbind", signature = "universalmotif",
   mot.alphabet <- unique(vapply(mots, function(x) x@alphabet, character(1)))
   if (length(mot.alphabet) != 1) stop("all motifs must have the same alphabet")
   mots <- convert_type(mots, "PPM")
-  mot.name <- vapply(mots, function(x) x@name, character(1))
-  mot.altname <- do.call(c, lapply(mots, function(x) x@altname))
-  mot.family <- do.call(c, lapply(mots, function(x) x@family))
-  mot.organism <- do.call(c, lapply(mots, function(x) x@organism))
+  mot.name <- unique(vapply(mots, function(x) x@name, character(1)))
+  mot.altname <- unique(do.call(c, lapply(mots, function(x) x@altname)))
+  mot.family <- unique(do.call(c, lapply(mots, function(x) x@family)))
+  mot.organism <- unique(do.call(c, lapply(mots, function(x) x@organism)))
   mot.motif <- lapply(mots, function(x) x@motif)
   mot.nsites <- do.call(c, lapply(mots, function(x) x@nsites))
   mot.bkg <- lapply(mots, function(x) x@bkg)
@@ -462,7 +466,7 @@ setMethod("cbind", signature = "universalmotif",
   mot.qval <- do.call(c, lapply(mots, function(x) x@qval))
   mot.eval <- do.call(c, lapply(mots, function(x) x@eval))
   mot.extrainfo <- lapply(mots, function(x) x@extrainfo)
-  mot.extrainfo <- do.call(c, mot.extrainfo)
+  mot.extrainfo <- unique(do.call(c, mot.extrainfo))
 
   mot.motif <- do.call(cbind, mot.motif)
   mot.name <- paste0(mot.name, collapse = "/")

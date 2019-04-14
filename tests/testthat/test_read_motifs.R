@@ -14,12 +14,9 @@ test_that("read functions work ok", {
                                         package="universalmotif"))
   uniprobe <- read_uniprobe(system.file("extdata", "uniprobe_full.txt",
                                         package="universalmotif"))
-  universalmotif_1.0.0 <- read_motifs(system.file("extdata",
-                                                  "universalmotif_1.0.0.txt",
-                                                  package="universalmotif"))
-  universalmotif_1.2.0 <- read_motifs(system.file("extdata",
-                                                  "universalmotif_1.2.0.txt",
-                                                  package="universalmotif"))
+  universalmotif <- read_motifs(system.file("extdata",
+                                            "universalmotif.txt",
+                                            package="universalmotif"))
   hocomoco <- read_matrix(system.file("extdata", "hocomoco.txt",
                                       package="universalmotif"),
                           headers = ">", alphabet = "DNA", positions = "rows")
@@ -30,8 +27,7 @@ test_that("read functions work ok", {
   expect_equal(length(meme), 3)
   expect_equal(length(transfac), 5)
   expect_equal(length(uniprobe), 3)
-  expect_s4_class(universalmotif_1.0.0, "universalmotif")
-  expect_s4_class(universalmotif_1.2.0, "universalmotif")
+  expect_s4_class(universalmotif, "universalmotif")
   expect_s4_class(hocomoco, "universalmotif")
 
   meme2 <- read_meme(m, readsites = TRUE)

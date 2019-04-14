@@ -20,9 +20,8 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
 
 \item{overwrite}{\code{logical(1)} Overwrite existing file.}
 
-\item{append}{\code{logical(1)} Add to an existing motif file. Major package
-version must match, and the minor version must match either the current
-release or development version numbers.}
+\item{append}{\code{logical(1)} Add to an existing motif file. Package version
+in existing motif file must be greater than 1.2.0.}
 
 \item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
 \code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the

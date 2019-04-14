@@ -20,7 +20,8 @@ available formats. Alternatively, the resulting comparison matrix from
 
 \item{linecol}{\code{character(1)} \linkS4class{universalmotif} slot to use to
 colour lines (e.g. 'family'). Not available for \code{dist} input.
-See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. (Motifs with missing entries will show up as \code{0}
+in the legend.)}
 
 \item{labels}{\code{character(1)} \linkS4class{universalmotif} slot to use to label
 tips (e.g. 'name'). For \code{dist} input, only 'name' is available.

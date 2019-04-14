@@ -180,7 +180,7 @@ double motif_kl_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_sw(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapter from RSAT compare-matrices
+  // Adapted from RSAT compare-matrices
 
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix res_mat(mot1.nrow(), mot1.ncol());
@@ -201,7 +201,7 @@ double motif_sw(NumericMatrix mot1, NumericMatrix mot2) {
 
 double motif_sw_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
-  // Adapter from RSAT compare-matrices
+  // Adapted from RSAT compare-matrices
 
   int mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix res_mat(mot1.nrow(), mot1.ncol());
@@ -226,16 +226,13 @@ List add_cols(NumericMatrix mot1, NumericMatrix mot2,
 
   List out;
 
-  int ncol_1 = mot1.ncol();
-  int nrow_1 = mot1.nrow();
+  int ncol_1 = mot1.ncol(), nrow_1 = mot1.nrow();
   int total_1 = ncol_1 * nrow_1;
 
-  int ncol_2 = mot2.ncol();
-  int nrow_2 = mot2.nrow();
+  int ncol_2 = mot2.ncol(), nrow_2 = mot2.nrow();
   int total_2 = ncol_2 * nrow_2;
 
-  int overlap1 = overlap;
-  int overlap2 = overlap;
+  int overlap1 = overlap, overlap2 = overlap;
   if (overlap < 1) {
     overlap1 = overlap * ncol_1;
     overlap2 = overlap * ncol_2;
@@ -326,8 +323,8 @@ int get_align_len(NumericMatrix mot1, NumericMatrix mot2) {
   int out = 0;
 
   for (int i = 0; i < mot1.ncol(); ++i) {
-    if (!NumericVector::is_na(mot1_[i]) &&
-        !NumericVector::is_na(mot2_[i])) out += 1;
+    if (!NumericVector::is_na(mot1_[i]) && !NumericVector::is_na(mot2_[i]))
+      out += 1;
   }
 
   return out;
@@ -356,7 +353,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
     String method, double min_overlap, bool tryRC, NumericVector ic1,
     NumericVector ic2, double min_ic, bool norm) {
 
-  // Adapted from TFBSTools::PWMSimilarity
+  // Initially adapted from TFBSTools::PWMSimilarity
 
   if (method == "KL" || method == "MKL") {
     mot1 = mot1 + 0.01;
@@ -391,8 +388,7 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   double align_len;
 
   int method_i = 0;
-  double ic1_mean;
-  double ic2_mean;
+  double ic1_mean, ic2_mean;
   bool low_ic = false;
 
        if (method == "EUCL")  method_i = 1;
@@ -522,10 +518,13 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
   NumericMatrix out(mot_names.length(), mot_names.length());
 
   if (method == "EUCL" || method == "MEUCL" ||
-      method == "SW" || method == "PCC" ||
-      method == "KL" || method == "MKL") out.fill_diag(0.0);
-  else if (method == "MPCC") out.fill_diag(1.0);
-  else if (method == "MSW") out.fill_diag(2.0);
+      method == "SW"   || method == "PCC"   ||
+      method == "KL"   || method == "MKL")
+    out.fill_diag(0.0);
+  else if (method == "MPCC")
+    out.fill_diag(1.0);
+  else if (method == "MSW")
+    out.fill_diag(2.0);
 
   int n = comparisons.length();
   for (int i = 0; i < n; ++i) {
@@ -554,12 +553,14 @@ NumericMatrix merge_mats(NumericMatrix mat1, NumericMatrix mat2,
   for (int i = 0; i < mat1.nrow(); ++i) {
     for (int j = 0; j < mat1.ncol(); ++j) {
 
-      if (NumericVector::is_na(mat1(i, j)) &&
-          NumericVector::is_na(mat2(i, j))) new_mat(i, j) = NA_REAL;
-      else if (NumericVector::is_na(mat1(i, j))) new_mat(i, j) = mat2(i, j);
-      else if (NumericVector::is_na(mat2(i, j))) new_mat(i, j) = mat1(i, j);
-      else new_mat(i, j) = (mat1(i, j) * weight1 + mat2(i, j) * weight2) /
-                           (weight1 + weight2);
+      if (NumericVector::is_na(mat1(i, j)) && NumericVector::is_na(mat2(i, j)))
+        new_mat(i, j) = NA_REAL;
+      else if (NumericVector::is_na(mat1(i, j)))
+        new_mat(i, j) = mat2(i, j);
+      else if (NumericVector::is_na(mat2(i, j)))
+        new_mat(i, j) = mat1(i, j);
+      else
+        new_mat(i, j) = (mat1(i, j) * weight1 + mat2(i, j) * weight2) / (weight1 + weight2);
 
     }
   }
@@ -599,7 +600,7 @@ List merge_add_cols(List out) {
 
     for (int i = 0; i < offset; ++i) {
       for (int j = 0; j < nrow1; ++j) {
-        new_mat(j, i) = NA_REAL;  
+        new_mat(j, i) = NA_REAL;
       }
     }
 

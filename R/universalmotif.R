@@ -26,7 +26,7 @@
 #' @importFrom Biostrings reverseComplement writeXStringSet
 #' @importFrom ape as.phylo
 #' @importFrom Rdpack reprompt
-#' @importFrom gtools rdirichlet permutations
+#' @importFrom gtools rdirichlet
 #' @importFrom Rcpp sourceCpp
 #' @importFrom processx run
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums

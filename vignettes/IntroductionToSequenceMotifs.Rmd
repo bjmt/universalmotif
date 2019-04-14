@@ -47,7 +47,7 @@ Position | 1 | 2 | 3 | 4 | 5 | 6
        C | 0 | 0 | 2 | 0 | 0 | 0
        G | 0 | 0 | 3 | 0 | 0 | 0
        T | 0 | 2 | 1 | 1 | 1 | 2
-: (\#tab:pcm) Position count matrix.
+: (\#tab:pcm) Position Count Matrix.
 
 _(Note that all positions sum to 6, the initial number of sequences.)_
 
@@ -68,7 +68,7 @@ Position |    1 |    2 |    3 |    4 |    5 |    6
        C | 0.00 | 0.00 | 0.33 | 0.00 | 0.00 | 0.00
        G | 0.00 | 0.00 | 0.50 | 0.00 | 0.00 | 0.00
        T | 0.00 | 0.33 | 0.17 | 0.17 | 0.17 | 0.33
-: (\#tab:ppm) Position probability matrix.
+: (\#tab:ppm) Position Probability Matrix.
 
 _(Note that all positions sum to 1.)_
 
@@ -87,7 +87,7 @@ Position |     1 |     2 |     3 |     4 |     5 |     6
        C | 0.036 | 0.035 | 0.320 | 0.035 | 0.035 | 0.035
        G | 0.036 | 0.035 | 0.464 | 0.035 | 0.035 | 0.035
        T | 0.036 | 0.320 | 0.180 | 0.180 | 0.180 | 0.320
-: (\#tab:ppmpseudo) Position probability matrix with a pseudocount of 1.
+: (\#tab:ppmpseudo) Position Probability Matrix with a pseudocount of 1.
 
 Now, though unlikely, it is no longer considered impossible for the sequence AAAAAA to exist as part of this motif. Since the total number of sequences in this case is quite low, the pseudocount can have a large impact on the values within the matrix; this impact decreases as the number of sequences increases. Of course, this can also be changed by using different pseudocounts.
 
@@ -108,7 +108,7 @@ Position |    1 |     2 |      3 |      4 |      5 |     6
        C | -Inf |  -Inf |  0.415 |   -Inf |   -Inf |  -Inf
        G | -Inf |  -Inf |  1.000 |   -Inf |   -Inf |  -Inf
        T | -Inf | 0.415 | -0.585 | -0.585 | -0.595 | 0.415
-: (\#tab:pwm) Position weight matrix.
+: (\#tab:pwm) Position Weight Matrix.
 
 _(Note that the position totals no longer have equal sums.)_
 
@@ -120,7 +120,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        C | -2.807 | -2.807 |  0.363 | -2.807 | -2.807 | -2.807
        G | -2.807 | -2.807 |  0.893 | -2.807 | -2.807 | -2.807
        T | -2.807 |  0.363 | -0.485 | -0.485 | -0.485 |  0.363
-: (\#tab:pwmpseudo) Position weight matrix with a pseudocount of 1.
+: (\#tab:pwmpseudo) Position Weight Matrix with a pseudocount of 1.
 
 Now, the score for AAGAA is 8.46, and the score for AAAAAA is 4.76. Though the score for the latter is low, it is no longer -Inf as a result of one mismatch.
 
@@ -132,7 +132,7 @@ Other methods for determining the minimum score include starting from P-values. 
 
 Finally, the information content matrix [@correction; @icm]. This type aims to include another consideration: are some positions more important than others? To explore this, let us consider the table \@ref(tab:ppm) motif. This matrix can be represented as a probability sequence logo as seen in figure \@ref(fig:logo1).
 
-```{r logo1,fig.cap="Sequence logo of a PPM",echo=FALSE,fig.small=TRUE}
+```{r logo1,fig.cap="Sequence logo of a Position Probability Matrix",echo=FALSE,fig.small=TRUE}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
 view_motifs(motif, use.type="PPM")
@@ -142,7 +142,7 @@ In this case, the height of the letters represent their probabilities at each
 position. However, when represented as an ICM, the sequence logo then
 resembles as seen in figure \@ref(fig:logo2).
 
-```{r logo2,fig.cap="Sequence logo of an ICM",echo=FALSE,fig.small=TRUE}
+```{r logo2,fig.cap="Sequence logo of an Information Content Matrix",echo=FALSE,fig.small=TRUE}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
 view_motifs(motif)
@@ -195,7 +195,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        C |  0.000 |  0.000 |  0.180 |  0.000 |  0.000 |  0.000
        G |  0.000 |  0.000 |  0.270 |  0.000 |  0.000 |  0.000
        T |  0.000 |  0.361 |  0.090 |  0.225 |  0.225 |  0.361
-: (\#tab:icm) Information content matrix.
+: (\#tab:icm) Information Content Matrix.
 
 _(Note that none of the positions have a sum larger than 2.)_
 
@@ -214,7 +214,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        C |  0.000 |  0.000 |  0.177 |  0.000 |  0.000 |  0.000
        G |  0.000 |  0.000 |  0.415 |  0.000 |  0.000 |  0.000
        T |  0.000 |  0.177 |  0.090 |  0.000 |  0.000 |  0.117
-: (\#tab:icmkl) Information content matrix as relative divergence.
+: (\#tab:icmkl) Information Content Matrix as relative divergence.
 
 This motif would look significantly different with non-uniform background frequencies. For example, starting from the following background frequencies: `c(A = 0.4, C = 0.1, G = 0.1, T= 0.4)`, the motif resembles:
 
@@ -224,7 +224,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        C |  0.000 |  0.000 |  0.541 |  0.000 |  0.000 |  0.000
        G |  0.000 |  0.000 |  1.028 |  0.000 |  0.000 |  0.000
        T |  0.000 |  0.000 |  0.090 |  0.000 |  0.000 |  0.000
-: (\#tab:icmkl2) Information content matrix as relative divergence with
+: (\#tab:icmkl2) Information Content Matrix as relative divergence with
 a non-uniform background.
 
 # References {.unnumbered}

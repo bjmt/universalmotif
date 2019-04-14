@@ -45,15 +45,15 @@ read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {
   raw_lines <- raw_lines[!grepl("^#", raw_lines)]
 
   if (version < "1.1.67")
-    motifs <- read_motifs_1_0_X(raw_lines, version)
+    motifs <- read_motifs_1_0(raw_lines, version)
   else
-    motifs <- read_motifs_current(raw_lines, progress, BP)
+    motifs <- read_motifs_1_2(raw_lines, progress, BP)
 
   motifs
 
 }
 
-read_motifs_current <- function(raw_lines, progress, BP) {
+read_motifs_1_2 <- function(raw_lines, progress, BP) {
 
   total <- length(raw_lines)
   # starts <- which(raw_lines == "---")
@@ -135,7 +135,7 @@ read_motifs_single <- function(mot) {
 #-------------------------------------------------------------------------------
 # Pre-1.2.X
 
-read_motifs_1_0_X <- function(raw_lines, version) {
+read_motifs_1_0 <- function(raw_lines, version) {
 
   names_search <- substr(raw_lines, 1, 5)
   motif_starts <- which(names_search == "name:")
@@ -338,5 +338,5 @@ parse_multi <- function(lines) {
 
 collapse2 <- function(char) {
   if (length(char) == 0) character(0)
-  else paste(char, collapse = " ")
+  else paste0(char, collapse = " ")
 }

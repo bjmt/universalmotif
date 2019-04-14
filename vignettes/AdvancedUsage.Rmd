@@ -49,7 +49,7 @@ Position |   1 |   2 |   3 |   4 |   5 |   6 |   7
        C | 1.0 | 0.0 | 0.0 | 0.0 | 0.0 | 1.0 | 1.0
        G | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0
        T | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
-: (\#tab:ppm2) Position probability matrix.
+: (\#tab:ppm2) Position Probability Matrix.
 
 Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, some would say the answer is no. By incorporating this type of information into the motif, this can allow for increased accuracy in motif searching. A few implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
 
@@ -84,7 +84,7 @@ motif <- create_motif("CWWWWCC", nsites = 6)
 sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif.k2 <- add_multifreq(motif, sequences, add.k = 2)
 
-# Or:
+## Alternatively:
 # motif.k2 <- create_motif(sequences, add.multifreq = 2)
 
 motif.k2
@@ -104,10 +104,10 @@ data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
 
 enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
-              verbose = 0, progress = FALSE, RC = TRUE)
+              threshold = 0.001, verbose = 0, progress = FALSE, RC = TRUE)
 ```
 
-Here we can see that the motif is significantly enriched in the target sequences. Looking for closely at the results, the motif was found 218 times in 43 of the 50 sequences; whereas it was found 29 times in 21 of the 50 background sequences. The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package. Another type of test is available which looks for positional enrichment, i.e. whether one area in the target sequences is favoured.
+Here we can see that the motif is significantly enriched in the target sequences. Looking for closely at the results, the motif was found 196 times in 41 of the 50 sequences; whereas it was found 22 times in 14 of the 50 background sequences. The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package. Another type of test is available which looks for positional enrichment, i.e. whether one area in the target sequences is favoured.
 
 ```{r}
 library(universalmotif)
@@ -134,7 +134,7 @@ m <- matrix(c(0.10,0.27,0.23,0.19,0.29,0.28,0.51,0.12,0.34,0.26,
               0.36,0.29,0.51,0.38,0.23,0.16,0.17,0.21,0.23,0.36,
               0.45,0.05,0.02,0.13,0.27,0.38,0.26,0.38,0.12,0.31,
               0.09,0.40,0.24,0.30,0.21,0.19,0.05,0.30,0.31,0.08),
-            byrow=TRUE,nrow=4)
+            byrow = TRUE, nrow = 4)
 motif <- create_motif(m, alphabet = "DNA", type = "PWM")
 motif
 ```
@@ -179,8 +179,7 @@ Now, let us return to our original example:
 ```{r}
 res <- res[1:6, ]
 pvals <- motif_pvalue(motif, res$score, progress = FALSE, bkg.probs = bkg)
-res2 <- data.frame(motif=res$motif, match=res$match,
-                   pval=pvals)[order(pvals), ]
+res2 <- data.frame(motif=res$motif,match=res$match,pval=pvals)[order(pvals), ]
 knitr::kable(res2, digits = 22, row.names = FALSE, format = "markdown")
 ```
 
@@ -246,7 +245,7 @@ Starting from a set of scores:
 
 ```{r}
 bkg <- c(A=0.25, C=0.25, G=0.25, T=0.25)
-scores <- 0:6
+scores <- -2:6
 pvals <- motif_pvalue(motif, score = scores, progress = FALSE,
                       bkg.probs = bkg, k = 10)
 

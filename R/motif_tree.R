@@ -12,7 +12,8 @@
 #'    'radial', 'equal_angle', 'daylight')`. See [ggtree::ggtree()].
 #' @param linecol `character(1)` [universalmotif-class] slot to use to
 #'    colour lines (e.g. 'family'). Not available for `dist` input.
-#'    See [ggtree::ggtree()].
+#'    See [ggtree::ggtree()]. (Motifs with missing entries will show up as `0`
+#'    in the legend.)
 #' @param labels `character(1)` [universalmotif-class] slot to use to label
 #'    tips (e.g. 'name'). For `dist` input, only 'name' is available.
 #'    See [ggtree::ggtree()].
