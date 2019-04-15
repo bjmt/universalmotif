@@ -73,15 +73,15 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     all_checks <- c(all_checks, k_check)
   }
   s4_check <- check_fun_params(list(sequences = args$sequences),
-                               numeric(), logical(), "S4")
+                               numeric(), logical(), TYPE_S4)
   num_check <- check_fun_params(list(k = args$k, pseudocount = args$pseudocount),
-                                c(0, 1), c(FALSE, FALSE), "numeric")
+                                c(0, 1), c(FALSE, FALSE), TYPE_NUM)
   char_check <- check_fun_params(list(alphabet = args$alphabet), 1,
-                                 TRUE, "character")
+                                 TRUE, TYPE_CHAR)
   logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC,
                                       progress = args$progress, BP = args$BP,
                                       list.out = args$list.out),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

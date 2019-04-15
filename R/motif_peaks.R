@@ -81,9 +81,9 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                                      nrand = args$nrand),
                                 c(0, rep(1, 6)),
                                 c(FALSE, TRUE, TRUE, TRUE,
-                                  FALSE, FALSE, FALSE), "numeric")
+                                  FALSE, FALSE, FALSE), TYPE_NUM)
   logi_check <- check_fun_params(list(plot = args$plot, BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

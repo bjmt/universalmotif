@@ -215,7 +215,7 @@ clean_up_check <- function(fails) {
     .Call('_universalmotif_clean_up_check', PACKAGE = 'universalmotif', fails)
 }
 
-check_fun_params <- function(param_args, param_len, param_null, expected_type_string) {
-    .Call('_universalmotif_check_fun_params', PACKAGE = 'universalmotif', param_args, param_len, param_null, expected_type_string)
+check_fun_params <- function(param_args, param_len, param_null, expected_type) {
+    .Call('_universalmotif_check_fun_params', PACKAGE = 'universalmotif', param_args, param_len, param_null, expected_type)
 }
 

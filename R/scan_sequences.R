@@ -107,15 +107,15 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     all_checks <- c(all_checks, threshold.type_check)
   }
   char_check <- check_fun_params(list(threshold.type = args$threshold.type),
-                                 1, FALSE, "character")
+                                 1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
                                      verbose = args$verbose),
-                                c(0, 1, 1), logical(), "numeric")
+                                c(0, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
-                               logical(), "S4")
+                               logical(), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

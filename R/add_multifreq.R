@@ -79,14 +79,14 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     all_checks <- c(all_checks, threshold.type_check)
   }
   char_check <- check_fun_params(list(threshold.type = args$threshold.type), 1,
-                                 FALSE, "character")
+                                 FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(add.k = args$add.k, threshold = args$threshold,
                                      motifs.perseq = args$motifs.perseq),
                                 c(0, 1, 1), c(FALSE, FALSE, FALSE),
-                                "numeric")
-  logi_check <- check_fun_params(list(RC = args$RC), 1, FALSE, "logical")
+                                TYPE_NUM)
+  logi_check <- check_fun_params(list(RC = args$RC), 1, FALSE, TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences),
-                               c(1, 1), c(FALSE, FALSE), "S4")
+                               c(1, 1), c(FALSE, FALSE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

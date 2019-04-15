@@ -121,7 +121,7 @@ run_meme <- function(target.sequences, output = NULL,
                                       bin = args$bin),
                                  numeric(), c(TRUE, FALSE, rep(TRUE, 9),
                                               FALSE, TRUE, TRUE),
-                                 "character")
+                                 TYPE_CHAR)
   num_check <- check_fun_params(list(brief = args$brief,
                                      shuf = args$shuf,
                                      hsfrac = args$hsfrac,
@@ -152,7 +152,7 @@ run_meme <- function(target.sequences, output = NULL,
                                      verbose = args$verbose,
                                      timeout = args$timeout),
                                 numeric(), c(rep(TRUE, 27), FALSE, FALSE),
-                                             "numeric")
+                                TYPE_NUM)
   logi_check <- check_fun_params(list(overwrite.dir = args$overwrite.dir,
                                       text = args$text,
                                       use_llr = args$use_llr,
@@ -162,7 +162,7 @@ run_meme <- function(target.sequences, output = NULL,
                                       nomatrim = args$nomatrim,
                                       noendgaps = args$noendgaps,
                                       echo = args$echo),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

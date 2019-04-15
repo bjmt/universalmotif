@@ -20,11 +20,11 @@ read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
-                                 1, FALSE, "character")
-  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
+                                 1, FALSE, TYPE_CHAR)
+  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(progress = args$progress,
                                       BP = args$BP),
-                                 c(1, 1), c(FALSE, FALSE), "logical")
+                                 c(1, 1), c(FALSE, FALSE), TYPE_LOGI)
   all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

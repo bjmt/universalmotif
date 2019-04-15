@@ -106,14 +106,14 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                                       labels = args$labels, tipesize = args$tipsize,
                                       branch.length = args$branch.length,
                                       method = args$method, use.type = args$use.type),
-                                 numeric(), logical(), "character")
+                                 numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic),
-                                numeric(), logical(), "numeric")
+                                numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(legend = args$legend, tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
                                       progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

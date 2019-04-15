@@ -652,15 +652,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // check_fun_params
-StringVector check_fun_params(List param_args, IntegerVector param_len, LogicalVector param_null, String expected_type_string);
-RcppExport SEXP _universalmotif_check_fun_params(SEXP param_argsSEXP, SEXP param_lenSEXP, SEXP param_nullSEXP, SEXP expected_type_stringSEXP) {
+StringVector check_fun_params(List param_args, IntegerVector param_len, LogicalVector param_null, int expected_type);
+RcppExport SEXP _universalmotif_check_fun_params(SEXP param_argsSEXP, SEXP param_lenSEXP, SEXP param_nullSEXP, SEXP expected_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< List >::type param_args(param_argsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type param_len(param_lenSEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type param_null(param_nullSEXP);
-    Rcpp::traits::input_parameter< String >::type expected_type_string(expected_type_stringSEXP);
-    rcpp_result_gen = Rcpp::wrap(check_fun_params(param_args, param_len, param_null, expected_type_string));
+    Rcpp::traits::input_parameter< int >::type expected_type(expected_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_fun_params(param_args, param_len, param_null, expected_type));
     return rcpp_result_gen;
 END_RCPP
 }

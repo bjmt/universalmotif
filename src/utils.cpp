@@ -538,7 +538,7 @@ StringVector clean_up_check(StringVector fails) {
 
 // [[Rcpp::export(rng = false)]]
 StringVector check_fun_params(List param_args, IntegerVector param_len,
-    LogicalVector param_null, String expected_type_string) {
+    LogicalVector param_null, int expected_type) {
 
   // param_args: A named list of arguments.
   //
@@ -553,17 +553,8 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   //             The default is not allowing NULL or missing for all args,
   //             which is set as param_null = logical().
   //
-  // expected_type_string: Name of expected type. One of "character",
-  //             "numeric", "logical", "S4".
-
-  int expected_type;
-
-  if      (expected_type_string == "character") expected_type = 16;
-  else if (expected_type_string == "numeric")   expected_type = 14;
-  else if (expected_type_string == "logical")   expected_type = 10;
-  else if (expected_type_string == "S4")        expected_type = 25;
-
-  else stop("Unknown 'expected_type_string'");
+  // expected_type: Expected type integer. One of 16 (character),
+  //             14 (numeric), 10 (logical), 25 (S4).
 
   int arg_len = param_args.length();
   StringVector fails(arg_len * 2);
@@ -574,11 +565,19 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
 
   if (param_len.length() == 0) {
     param_len2 = rep(1, arg_len);
-  } else param_len2 = param_len;
+  } else if (param_len.length() == 1 && arg_len > 1) {
+    param_len2 = rep(param_len[0], arg_len);
+  } else {
+    param_len2 = param_len;
+  }
 
   if (param_null.length() == 0) {
     param_null2 = rep(false, arg_len);
-  } else param_null2 = param_null;
+  } else if (param_null.length() == 1 && arg_len > 1) {
+    param_null2 = rep(param_null[0], arg_len);
+  } else {
+    param_null2 = param_null;
+  }
 
   StringVector fail_i;
   String arg_name, exp_type, obs_type, exp_len_c, obs_len_c;
@@ -601,6 +600,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
       case 14: exp_type = "`numeric`";   break;
       case 16: exp_type = "`character`"; break;
       case 25: exp_type = "`S4`";        break;
+      default: stop("utils.cpp: unknown 'expected_type'");
     }
 
     switch (arg_type) {
@@ -647,7 +647,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
       }
 
       int exp_len = param_len2[i];
-      // compiler error with to_string!
+      // g++ compiler error with to_string! (but not with clang++)
       exp_len_c = std::to_string(exp_len);
       obs_len_c = std::to_string(arg_len);
 

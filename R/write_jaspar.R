@@ -27,10 +27,10 @@ write_jaspar <- function(motifs, file, overwrite = FALSE, append = FALSE) {
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
-                                 1, FALSE, "character")
+                                 1, FALSE, TYPE_CHAR)
   logi_check <- check_fun_params(list(overwrite = args$overwrite,
                                       append = args$append),
-                                 c(1, 1), c(FALSE, FALSE), "logical")
+                                 c(1, 1), c(FALSE, FALSE), TYPE_LOGI)
   all_checks <- c(char_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

@@ -48,11 +48,11 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
                                       family = args$family, organism = args$organism,
                                       alphabet = args$alphabet, type = args$type,
                                       strand = args$strand),
-                                 rep(0, 7), rep(TRUE, 7), "character")
+                                 rep(0, 7), rep(TRUE, 7), TYPE_CHAR)
   num_check <- check_fun_params(list(width = args$width, icscore = args$icscore,
                                      nsites = args$nsites, pval = args$pval,
                                      qval = args$qval, eval = args$eval),
-                                rep(0, 6), rep(TRUE, 6), "numeric")
+                                rep(0, 6), rep(TRUE, 6), TYPE_NUM)
   all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

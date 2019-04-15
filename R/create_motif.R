@@ -756,6 +756,28 @@ setMethod("create_motif", signature(input = "BStringSet"),
 
 parse_args <- function(args, names) {
 
+  # param check --------------------------------------------
+  all_checks <- character(0)
+  char_check <- check_fun_params(list(alphabet = args$alphabet,
+                                      type = args$type, name = args$name,
+                                      altname = args$altname,
+                                      family = args$family,
+                                      organism = args$organism,
+                                      strand = args$strand,
+                                      extrainfo = args$extrainfo),
+                                 c(rep(1, 7), 0), rep(TRUE, 8), TYPE_CHAR)
+  num_check <- check_fun_params(list(pseudocount = args$pseudocount,
+                                     bkg = args$bkg, nsites = args$nsites,
+                                     bkgsites = args$bkgsites,
+                                     pval = args$pval, qval = args$qval,
+                                     eval = args$eval,
+                                     add.multifreq = args$add.multifreq),
+                                c(1, 0, 1, 1, 1, 1, 1, 0), rep(TRUE, 8),
+                                TYPE_NUM)
+  all_checks <- c(all_checks, char_check, num_check)
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  #---------------------------------------------------------
+
   to.keep <- !vapply(args, is.symbol, logical(1))
   args <- args[to.keep]
   args <- args[names(args) %in% names]

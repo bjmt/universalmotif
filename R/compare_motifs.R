@@ -149,19 +149,19 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   all_checks <- character(0)
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method), c(1, 1),
-                                 c(FALSE, FALSE), "character")
+                                 c(FALSE, FALSE), TYPE_CHAR)
   num_check <- check_fun_params(list(compare.to = args$compare.to,
                                      use.freq = args$use.freq,
                                      min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic,
                                      max.p = args$max.p, max.e = args$max.e),
                                 c(0, rep(1, 5)), c(TRUE, rep(FALSE, 5)),
-                                "numeric")
+                                TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores,
                                       progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (!use.type %in% c("PPM", "ICM")) {
     type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; ",
@@ -427,16 +427,16 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
   char_check <- check_fun_params(list(method = args$method,
                                       shuffle.method = args$shuffle.method,
                                       shuffle.leftovers = args$shuffle.leftovers),
-                                 numeric(), logical(), "character")
+                                 numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(shuffle.k = args$shuffle.k,
                                      rand.tries = args$rand.tries,
                                      min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic),
-                                numeric(), logical(), "numeric")
+                                numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
                                       progress = args$progress, BP = args$BP,
                                       normalise.scores = args$normalise.scores),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

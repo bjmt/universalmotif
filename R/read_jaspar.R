@@ -21,8 +21,8 @@ read_jaspar <- function(file, skip = 0) {
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),
-                                 1, FALSE, "character")
-  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
+                                 1, FALSE, TYPE_CHAR)
+  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, TYPE_NUM)
   all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

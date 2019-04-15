@@ -41,8 +41,8 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
   }
   char_check <- check_fun_params(list(method = args$method,
                                       leftovers = args$leftovers),
-                                 numeric(), logical(), "character")
-  num_check <- check_fun_params(list(k = args$k), 1, FALSE, "numeric")
+                                 numeric(), logical(), TYPE_CHAR)
+  num_check <- check_fun_params(list(k = args$k), 1, FALSE, TYPE_NUM)
   all_checks <- c(all_checks, char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

@@ -72,14 +72,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   }
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method),
-                                 numeric(), logical(), "character")
+                                 numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic),
-                                numeric(), logical(), "numeric")
+                                numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

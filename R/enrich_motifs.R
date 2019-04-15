@@ -170,20 +170,20 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                       threshold.type = args$threshold.type,
                                       shuffle.method = args$shuffle.method,
                                       shuffle.leftovers = args$shuffle.leftovers),
-                                 numeric(), logical(), "character")
+                                 numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(max.p = args$max.p, max.q = args$max.q,
                                      max.e = args$max.e,
                                      threshold = args$threshold,
                                      verbose = args$verbose, use.freq = args$use.freq,
                                      shuffle.k = args$shuffle.k),
-                                c(1, 1, 1, 0, 1, 1, 1), logical(), "numeric")
+                                c(1, 1, 1, 0, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, progress = args$progress,
                                       return.scan.results = args$return.scan.results,
                                       BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences,
                                     bkg.sequences = args$bkg.sequences),
-                               numeric(), c(FALSE, TRUE, FALSE), "S4")
+                               numeric(), c(FALSE, TRUE, FALSE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

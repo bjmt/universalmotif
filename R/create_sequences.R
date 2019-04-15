@@ -44,16 +44,16 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(alphabet = args$alphabet),
-                                 1, FALSE, "character")
+                                 1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(seqnum = args$seqnum, seqlen = args$seqlen,
                                      freqs = args$freqs,
                                      monofreqs = args$monofreqs,
                                      difreqs = args$difreqs,
                                      trifreqs = args$trifreqs),
                                 c(1, 1, rep(0, 4)), c(FALSE, FALSE, rep(TRUE, 4)),
-                                "numeric")
+                                TYPE_NUM)
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

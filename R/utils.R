@@ -158,6 +158,11 @@ DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
              "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
              "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
 
+TYPE_CHAR <- 16L
+TYPE_NUM <- 14L
+TYPE_LOGI <- 10L
+TYPE_S4 <- 25L
+
 #' @rdname utilities
 #' @export
 ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,

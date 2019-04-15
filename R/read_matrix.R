@@ -35,10 +35,10 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
                                       positions = args$positions,
                                       alphabet = args$alphabet, sep = args$sep),
                                  numeric(), c(FALSE, TRUE, FALSE, FALSE, FALSE),
-                                 "character")
-  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, "numeric")
+                                 TYPE_CHAR)
+  num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(rownames = args$rownames),
-                                 1, FALSE, "logical")
+                                 1, FALSE, TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

@@ -32,11 +32,11 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   char_check <- check_fun_params(list(file = args$file, positions = args$positions,
                                       type = args$type, sep = args$sep),
                                  numeric(), c(FALSE, FALSE, TRUE, FALSE),
-                                 "character")
+                                 TYPE_CHAR)
   logi_check <- check_fun_params(list(rownames = args$rownames,
                                       overwrite = args$overwrite,
                                       append = args$append),
-                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), "logical")
+                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), TYPE_LOGI)
   header_check <- character()
   if (!is.logical(headers) && !is.character(headers)) {
     header_check <- paste0(" * Incorrect type for 'headers': ",

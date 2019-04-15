@@ -130,9 +130,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   num_check <- check_fun_params(list(score = args$score, pvalue = args$pvalue,
                                      use.freq = args$use.freq, k = args$k),
                                 c(0, 0, 1, 1), c(TRUE, TRUE, FALSE, FALSE),
-                                "numeric")
+                                TYPE_NUM)
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   bkg_check <- character()
   if (!missing(bkg.probs)) {
     if (!is.list(bkg.probs) && !is.numeric(bkg.probs)) {

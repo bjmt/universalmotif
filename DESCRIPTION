@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.1.78
+Version: 1.1.79
 Authors@R: person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut",
     "cre"), email = "b2tremblay@uwaterloo.ca")
 URL: https://github.com/bjmt/universalmotif
@@ -14,7 +14,7 @@ Description: Allows for importing most common motif types into R for use by
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
-Imports: methods, ggplot2, ape, ggtree, ggseqlogo, stats, utils, gtools, Rcpp,
+Imports: methods, stats, utils, ggplot2, ape, ggtree, ggseqlogo, gtools, Rcpp,
     Rdpack (>= 0.7), Biostrings, BiocGenerics, processx, S4Vectors, yaml
 Suggests: spelling, knitr, BiocStyle, TFBSTools, rmarkdown, MotifDb, testthat,
     Logolas, BiocParallel, seqLogo, motifStack

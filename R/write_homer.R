@@ -28,12 +28,12 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6,
 
   # param check --------------------------------------------
   args <- as.list(environment())
-  char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
+  char_check <- check_fun_params(list(file = args$file), 1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(logodds_threshold = args$logodds_threshold),
-                                1, FALSE, "numeric")
+                                1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(overwrite = args$overwrite,
                                       append = args$append),
-                                 c(1, 1), c(FALSE, FALSE), "logical")
+                                 c(1, 1), c(FALSE, FALSE), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

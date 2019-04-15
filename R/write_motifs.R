@@ -26,13 +26,13 @@ write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
 
   # param check --------------------------------------------
   args <- as.list(environment())
-  char_check <- check_fun_params(list(file = args$file), 1, FALSE, "character")
+  char_check <- check_fun_params(list(file = args$file), 1, FALSE, TYPE_CHAR)
   logi_check <- check_fun_params(list(minimal = args$minimal,
                                       multifreq = args$multifreq,
                                       progress = args$progress,
                                       overwrite = args$overwrite,
                                       BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

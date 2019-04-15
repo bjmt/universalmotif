@@ -22,7 +22,7 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
   # param check --------------------------------------------
   args <- as.list(environment())
   num_check <- check_fun_params(list(min.ic = args$min.ic),
-                                1, FALSE, "numeric")
+                                1, FALSE, TYPE_NUM)
   all_checks <- c(num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

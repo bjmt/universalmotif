@@ -21,7 +21,7 @@ sample_sites <- function(motif, n = 100, use.freq = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
-  num_check <- check_fun_params(list(n = args$n), 1, FALSE, "numeric")
+  num_check <- check_fun_params(list(n = args$n), 1, FALSE, TYPE_NUM)
   all_checks <- c(num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

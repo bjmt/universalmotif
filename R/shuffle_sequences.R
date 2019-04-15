@@ -80,12 +80,12 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   }
   char_check <- check_fun_params(list(method = args$method,
                                       leftovers = args$leftovers),
-                                 numeric(), logical(), "character")
-  num_check <- check_fun_params(list(k = args$k), 1, FALSE, "numeric")
+                                 numeric(), logical(), TYPE_CHAR)
+  num_check <- check_fun_params(list(k = args$k), 1, FALSE, TYPE_NUM)
   s4_check <- check_fun_params(list(sequences = args$sequences),
-                               numeric(), logical(), "S4")
+                               numeric(), logical(), TYPE_S4)
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), "logical")
+                                 numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
