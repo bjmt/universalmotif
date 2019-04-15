@@ -88,7 +88,12 @@
 #' ## the calculations can be performed for multiple motifs
 #' motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 #'
+#' ## Compare score thresholds and P-value:
+#' scores <- motif_score(examplemotif, c(0.6, 0.7, 0.8, 0.9))
+#' motif_pvalue(examplemotif, scores)
+#'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @seealso [motif_score()]
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                          k = 6, progress = ifelse(length(motifs) > 1, TRUE, FALSE),
@@ -197,7 +202,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    out <- mapply_(motif_score, motifs, pvalue, k, PB = progress, BP = BP)
+    out <- mapply_(motif_score_pval, motifs, pvalue, k, PB = progress, BP = BP)
 
   } else stop("only one of 'score' and 'pvalue' can be used at a time")
 
@@ -374,7 +379,7 @@ branch_and_bound_kmers <- function(score.mat, min.score) {
 
 }
 
-motif_score <- function(score.mat, pval, k = 8) {
+motif_score_pval <- function(score.mat, pval, k = 8) {
 
   # Assumes a _uniform_ background! (or else distribution no longer normal)
 

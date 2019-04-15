@@ -40,6 +40,9 @@
 #' @param na.rm `logical` Remove columns where all values are `NA`.
 #' @param lets `character` Letters to generate k-lets from.
 #' @param k `integer(1)` K-let size.
+#' @param motif Motif object to calculate scores from.
+#' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
+#'    representing score percentage.
 #'
 #' @return
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
@@ -141,6 +144,11 @@
 #' ## Generate all possible k-lets for a set of letters
 #' get_klets(c("A", "C", "G", "T"), 3)
 #'
+#' ## motif_score
+#' ## Calculate motif score from different thresholds
+#' m <- create_motif()
+#' motif_score(m, c(0, 0.8, 1))
+#'
 #' @seealso [create_motif()], [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utilities
@@ -162,6 +170,42 @@ TYPE_CHAR <- 16L
 TYPE_NUM <- 14L
 TYPE_LOGI <- 10L
 TYPE_S4 <- 25L
+
+#' @rdname utilities
+#' @export
+motif_score <- function(motif, threshold = c(0, 1)) {
+
+  if (any(threshold < 0) || any(threshold > 1))
+    stop("For 'threshold', please only use values between 0 and 1")
+
+  motif <- convert_motifs(motif)
+
+  if (is.list(motif) && length(motif) > 1)
+    stop("Please only input a single motif")
+  else if (is.list(motif))
+    motif <- motif[[1]]
+
+  if (!is(motif, "universalmotif"))
+    stop("Unknown motif object")
+
+  motif <- convert_type_internal(motif, "PWM")
+
+  if (any(is.infinite(motif@motif))) {
+    warning("Found -Inf values in motif PWM, adding a pseudocount of 1")
+    motif <- normalize(motif)
+  }
+
+  s.max <- sum(apply(motif@motif, 2, max))
+  s.min <- sum(apply(motif@motif, 2, min))
+
+  s.total <- abs(s.max) + abs(s.min)
+
+  out <- s.total * threshold - abs(s.min)
+  names(out) <- paste0(as.character(threshold * 100), "%")
+
+  out
+
+}
 
 #' @rdname utilities
 #' @export

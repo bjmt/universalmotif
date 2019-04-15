@@ -101,9 +101,16 @@ motif_pvalue(examplemotif, score = 0)
 ## the calculations can be performed for multiple motifs
 motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 
+## Compare score thresholds and P-value:
+scores <- motif_score(examplemotif, c(0.6, 0.7, 0.8, 0.9))
+motif_pvalue(examplemotif, scores)
+
 }
 \references{
 \insertRef{pvalues}{universalmotif}
+}
+\seealso{
+\code{\link[=motif_score]{motif_score()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

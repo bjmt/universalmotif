@@ -92,6 +92,9 @@ MINOR CHANGES
 
     o Added "overwrite" and "append" options to write_*() functions
 
+    o New motif_score() utility function: calculate motif score from input
+      thresholds.
+
 BUG FIXES
 
     o Fixed IC score calculation from character input in create_motif()

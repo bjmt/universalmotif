@@ -4,6 +4,7 @@
 \alias{get_klets}
 \alias{make_DBscores}
 \alias{utilities}
+\alias{motif_score}
 \alias{ppm_to_icm}
 \alias{icm_to_ppm}
 \alias{pcm_to_ppm}
@@ -24,6 +25,8 @@ make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
   shuffle.method = "linear", shuffle.leftovers = "asis",
   rand.tries = 1000, normalise.scores = TRUE, min.overlap = 6,
   min.mean.ic = 0, progress = TRUE, BP = FALSE)
+
+motif_score(motif, threshold = c(0, 1))
 
 ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites,
   relative_entropy = FALSE)
@@ -85,6 +88,11 @@ P-value computation.}
 
 \item{BP}{\code{logical(1)} Use the \pkg{BiocParallel} package. See
 \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default backend.}
+
+\item{motif}{Motif object to calculate scores from.}
+
+\item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
+representing score percentage.}
 
 \item{position}{\code{numeric} A numeric vector representing the frequency or
 probability for each alphabet letter at a specific position.}
@@ -219,6 +227,11 @@ summarise_motifs(list(m1, m2, m3))
 ## get_klets
 ## Generate all possible k-lets for a set of letters
 get_klets(c("A", "C", "G", "T"), 3)
+
+## motif_score
+## Calculate motif score from different thresholds
+m <- create_motif()
+motif_score(m, c(0, 0.8, 1))
 
 }
 \seealso{

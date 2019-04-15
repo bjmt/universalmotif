@@ -149,19 +149,30 @@ String collapse_cpp(StringVector x) {
 
 // [[Rcpp::export(rng = false)]]
 void print_pb(int out) {
-       if (out == 0)               Rprintf("   0%%");
-  else if (out > 0 && out < 10)    Rprintf("\b\b\b\b  %i%%", out);
-  else if (out >= 10 && out < 100) Rprintf("\b\b\b\b %i%%", out);
-  else if (out == 100)             Rprintf("\b\b\b\b%i%%", out);
-  else if (out == -1)              Rprintf("\b\b\b\b100%%\n");
+  if (out >= 10 && out < 100) {
+    Rprintf("\b\b\b\b %i%%", out);
+    return;
+  }
+  if (out > 0 && out < 10) {
+    Rprintf("\b\b\b\b  %i%%", out);
+    return;
+  }
+  switch (out) {
+    case   0: Rprintf("   0%%");            return;
+    case 100: Rprintf("\b\b\b\b%i%%", out); return;
+    case  -1: Rprintf("\b\b\b\b100%%\n");   return;
+  }
+  stop("Input must be an integer in between -1 and 100");
 }
 
 // [[Rcpp::export(rng = false)]]
 void update_pb(int i, int max) {
 
-  int prev = i - 1;
-  int out = 100 * i / max;
-  if (i == max) out = -1;
+  int out, prev = i - 1;
+  if (i == max)
+    out = -1;
+  else
+    out = 100 * i / max;
 
   if (prev > 0 && out != -1) {
     prev = 100 * prev / max;
