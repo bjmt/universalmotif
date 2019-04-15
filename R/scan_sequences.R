@@ -162,14 +162,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
 
-  if (is(sequences, "DNAStringSet")) seq.alph <- "DNA"
-  else if (is(sequences, "RNAStringSet")) seq.alph <- "RNA"
-  else if (is(sequences, "AAStringSet")) seq.alph <- "AA"
-  else {
-    if (mot.alphs %in% c("DNA", "RNA", "AA"))
-      stop("Motif and sequence alphabets do not match")
+  seq.alph <- seqtype(sequences)
+  if (seq.alph != "B" && seq.alph != mot.alphs)
+    stop("Motif and Sequence alphabets do not match")
+  else if (seq.alph == "B")
     seq.alph <- mot.alphs
-  }
 
   if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))

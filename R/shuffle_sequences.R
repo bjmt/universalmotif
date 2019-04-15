@@ -90,7 +90,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  alph <- class(sequences)
+  alph <- seqtype(sequences)
 
   seq.names <- names(sequences)
 
@@ -100,7 +100,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
   } else {
     switch(method,
       "markov" = {
-        if (is(sequences, "DNAStringSet") || is(sequences, "RNAStringSet"))
+        if (seqtype(sequences) %in% c("DNA", "RNA"))
           sequences <- lapply_(sequences, shuffle_markov, k = k,
                                PB = progress, BP = BP)
         else
@@ -123,9 +123,9 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
 
   sequences <- unlist(sequences)
 
-  sequences <- switch(alph, "DNAStringSet" = DNAStringSet(sequences),
-                      "RNAStringSet" = RNAStringSet(sequences),
-                      "AAStringSet" = AAStringSet(sequences),
+  sequences <- switch(alph, "DNA" = DNAStringSet(sequences),
+                      "RNA" = RNAStringSet(sequences),
+                      "AA" = AAStringSet(sequences),
                       BStringSet(sequences))
 
   if (!is.null(seq.names)) names(sequences) <- seq.names

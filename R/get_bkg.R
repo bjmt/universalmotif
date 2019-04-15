@@ -87,7 +87,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   #---------------------------------------------------------
 
   k <- as.integer(k)
-  if (RC && (is(sequences, "DNAStringSet") || is(sequences, "RNAStringSet")))
+  if (RC && seqtype(sequences) %in% c("DNA", "RNA"))
     sequences <- c(sequences, reverseComplement(sequences))
 
   if (!is.null(to.meme)) {
@@ -97,14 +97,13 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
 
   no.alph <- FALSE
   if (is.null(alphabet)) {
-    if (is(sequences, "DNAStringSet")) alphabet <- DNA_BASES
-    else if (is(sequences, "RNAStringSet")) alphabet <- RNA_BASES
-    else if (is(sequences, "AAStringSet")) alphabet <- AA_STANDARD
-    else if (is(sequences, "BStringSet")) {
-      no.alph <- TRUE
-    } else if (!is(sequences, "XStringSet")) {
+    if (!is(sequences, "XStringSet"))
       stop("`sequences` must be an `XStringSet` object")
-    }
+    switch(seqtype(sequences),
+           "DNA" = alphabet <- DNA_BASES,
+           "RNA" = alphabet <- RNA_BASES,
+           "AA" = alphabet <- AA_STANDARD,
+           no.alph <- TRUE)
   } else {
     if (length(alphabet) == 1) alphabet <- sort(safeExplode(alphabet))
     else alphabet <- sort(alphabet)

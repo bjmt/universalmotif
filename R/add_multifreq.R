@@ -94,7 +94,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   motif <- convert_motifs(motif)
   motif <- convert_type_internal(motif, "PPM")
 
-  if (all(ncol(motif["motif"]) != unique(width(sequences)))) {
+  if (all(ncol(motif@motif) != unique(width(sequences)))) {
 
     seq.names <- names(sequences)
     if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -125,11 +125,11 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   if (length(seqs.out) == 0)
     stop("No motif matches found in sequences; consider lowering the minimum threshold")
 
-  alph <- rownames(motif["motif"])
+  alph <- rownames(motif@motif)
   multifreq <- lapply(add.k, function(x) add_multi_ANY(seqs.out, x, alph))
 
   names(multifreq) <- add.k
-  prev.multifreq <- motif["multifreq"]
+  prev.multifreq <- motif@multifreq
   if (length(prev.multifreq) > 0) {
     if (any(names(prev.multifreq) %in% names(multifreq))) {
       warning("Overwriting previous `multifreq`: ",

@@ -237,12 +237,11 @@ run_meme <- function(target.sequences, output = NULL,
   }
 
   if (is.null(alph)) {
-    if (is(target.sequences, "DNAStringSet")) alph.arg <- "-dna"
-    else if (is(target.sequences, "RNAStringSet")) alph.arg <- "-rna"
-    else if (is(target.sequences, "AAStringSet")) alph.arg <- "-protein"
-    else if (is(target.sequences, "BStringSet"))
-      stop("for custom alphabets, please pass an alphabet file to 'alph'\n",
-           "  (http://meme-suite.org/doc/alphabet-format.html)")
+    alph.arg <- switch(seqtype(target.sequences),
+                       "DNA" = "-dna", "RNA" = "-rna", "AA" = "-protein",
+                       stop("for custom alphabets, please pass an alphabet file",
+                            " to 'alph'\n",
+                            "  (http://meme-suite.org/doc/alphabet-format.html)"))
   } else alph.arg <- "-file"
 
   if (is.null(names(target.sequences)))
