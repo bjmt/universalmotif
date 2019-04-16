@@ -166,10 +166,31 @@ DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
              "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
              "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
 
-TYPE_CHAR <- 16L
-TYPE_NUM <- 14L
+# TYPES:
+#
+#        NULL   0
+#      symbol   1
+#     closure   3
+# environment   4
+#    promises   5
+#    logical   10
+#    integer   13
+#       real   14
+#    complex   15
+#     string   16
+#        ...   17
+#        ANY   18
+#    generic   19
+# expression   20
+#  byte code   21
+#    ext ptr   22
+#        raw   24
+#         S4   25
+
 TYPE_LOGI <- 10L
-TYPE_S4 <- 25L
+TYPE_NUM  <- 14L
+TYPE_CHAR <- 16L
+TYPE_S4   <- 25L
 
 #' @rdname utilities
 #' @export

@@ -41,7 +41,8 @@ MINOR CHANGES
 
     o Increased input security for character type parameters throughout.
 
-    o Expanded motif_pvalue(), scan_sequences() examples sections.
+    o Expanded motif_pvalue(), scan_sequences(), motif_tree() examples
+      sections.
 
     o New vignette sections for motif_peaks() and get_bkg() added to
       SequenceSearches.Rmd.
@@ -98,6 +99,10 @@ MINOR CHANGES
     o enrich_motifs(..., return.scan.results = FALSE): uses a slimmed down
       version of scan_sequences() which skips construction of the complete
       results data.frame, saving a tiny bit of time on large jobs.
+
+    o compare_motifs() now includes log P-values. This way comparisons can
+      still be properly ranked even if their P-values are below the machine
+      limit.
 
 BUG FIXES
 

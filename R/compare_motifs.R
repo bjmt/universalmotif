@@ -223,7 +223,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
         warning(wmsg("Using the internal P-value database with `use.freq > 1`",
                      " will result in incorrect P-values"),
                 immediate. = TRUE)
-      mot.alphs <- vapply(motifs, function(x) x["alphabet"], character(1))
+      mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
       if (!all(mot.alphs == "DNA"))
         warning(wmsg("Using the internal P-value database with non-DNA motifs ",
                      "will result in incorrect P-values"),
@@ -247,7 +247,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       comparisons[[i]] <- do.call(c, comparisons[[i]])
       if (!is.null(db.scores)) {
         pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
-                               db.scores, comparisons[[i]], method)
+                                    db.scores, comparisons[[i]], method)
       } else {
         pvals[[i]] <- rep(NA, length(motifs[-i]))
       }
@@ -272,13 +272,15 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                          data.frame(subject = rep(mot.names[compare.to[i]],
                                                   length(comparisons[[i]])),
                                     target = mot.names[-compare.to[i]],
-                                    score = comparisons[[i]], Pval = pvals[[i]],
-                                    Eval = pvals[[i]] * length(motifs) * 2,
+                                    score = comparisons[[i]],
+                                    logPval = pvals[[i]],
+                                    Pval = exp(1)^pvals[[i]],
+                                    Eval = exp(1)^pvals[[i]] * length(motifs) * 2,
                                     stringsAsFactors = FALSE)
                             })
     comparisons <- do.call(rbind, comparisons)
     if (!is.null(db.scores)) {
-      comparisons <- comparisons[order(comparisons$Pval, decreasing = FALSE), ]
+      comparisons <- comparisons[order(comparisons$logPval, decreasing = FALSE), ]
       comparisons <- comparisons[comparisons$Pval <= max.p &
                                  comparisons$Eval <= max.e, ]
       comparisons <- comparisons[comparisons$subject != comparisons$target, ]
@@ -309,14 +311,14 @@ check_db_scores <- function(db.scores, method, normalise.scores) {
                        "character", "logical")
   if (any(db_coltypes != db_coltypes_exp)) {
     stop("'db.scores' must have column types: ",
-         paste(db_coltypes_exp, collapse = ", "))
+         paste0(db_coltypes_exp, collapse = ", "))
   }
 
   db_colnames <- colnames(db.scores)
   db_colnames_exp <- c("subject", "target", "mean", "sd", "method", "normalised")
   if (!all(db_colnames_exp %in% db_colnames)) {
     stop(paste0("'db.scores' must have columns: ",
-               paste(db_colnames_exp, collapse = ", ")))
+               paste0(db_colnames_exp, collapse = ", ")))
   }
 
   if (!any(method %in% db.scores$method)) {
@@ -534,7 +536,7 @@ pvals_from_db <- function(subject, target, db, scores, method) {
       tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
     }
     tmp.sd <- db$sd[db$subject == subject.ncol & db$target == ncol2]
-    pvals[i] <- pnorm(scores[i], tmp.mean, tmp.sd, ltail)
+    pvals[i] <- pnorm(scores[i], tmp.mean, tmp.sd, ltail, TRUE)
   }
 
   pvals

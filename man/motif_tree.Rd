@@ -14,22 +14,22 @@ motif_tree(motifs, layout = "circular", linecol = "family",
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
 available formats. Alternatively, the resulting comparison matrix from
-\code{\link[=compare_motifs]{compare_motifs()}}.}
+\code{\link[=compare_motifs]{compare_motifs()}} (run \code{as.dist(results)} beforehand; if the comparison was
+performed with a similarity metric, make sure to convert to distances first).}
 
 \item{layout}{\code{character(1)} One of \code{c('rectangular', 'slanted', 'fan', 'circular', 'radial', 'equal_angle', 'daylight')}. See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{linecol}{\code{character(1)} \linkS4class{universalmotif} slot to use to
-colour lines (e.g. 'family'). Not available for \code{dist} input.
-See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. (Motifs with missing entries will show up as \code{0}
-in the legend.)}
+colour lines (e.g. 'family'). Not available for \code{dist} input (see examples
+for how to add it manually). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{labels}{\code{character(1)} \linkS4class{universalmotif} slot to use to label
 tips (e.g. 'name'). For \code{dist} input, only 'name' is available.
 See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{tipsize}{\code{character(1)} \linkS4class{universalmotif} slot to use to
-control tip size (e.g. 'icscore'). Not available for \code{dist} input.
-See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+control tip size (e.g. 'icscore'). Not available for \code{dist} input (see
+examples for how to add it manually). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{legend}{\code{logical(1)} Show legend for line colour and tip size.
 See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
@@ -86,6 +86,29 @@ jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
 jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
                           layout = "rectangular")
+
+## When inputting a dist object, the linecol and tipsize options are
+## not available. To add these manually:
+
+library(MotifDb)
+library(ggtree)
+library(ggplot2)
+
+motifs <- filter_motifs(MotifDb, organism = "Athaliana")[1:50]
+comparison <- compare_motifs(motifs, method = "MPCC")
+comparison <- as.dist(1 - comparison)
+mot.names <- attr(comparison, "Labels")
+tree <- motif_tree(comparison)
+
+annotations <- data.frame(label = mot.names,
+                          icscore = sapply(motifs, function(x) x["icscore"]),
+                          family = sapply(motifs, function(x) x["family"]))
+
+tree <- tree \%<+\% annotations +
+          geom_tippoint(aes(size = icscore)) +
+          aes(colour = family) +
+          theme(legend.position = "right",
+                legend.title = element_blank())
 
 }
 \references{

@@ -7,19 +7,19 @@
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. Alternatively, the resulting comparison matrix from
-#'    [compare_motifs()].
+#'    [compare_motifs()] (run `as.dist(results)` beforehand; if the comparison was
+#'    performed with a similarity metric, make sure to convert to distances first).
 #' @param layout `character(1)` One of `c('rectangular', 'slanted', 'fan', 'circular',
 #'    'radial', 'equal_angle', 'daylight')`. See [ggtree::ggtree()].
 #' @param linecol `character(1)` [universalmotif-class] slot to use to
-#'    colour lines (e.g. 'family'). Not available for `dist` input.
-#'    See [ggtree::ggtree()]. (Motifs with missing entries will show up as `0`
-#'    in the legend.)
+#'    colour lines (e.g. 'family'). Not available for `dist` input (see examples
+#'    for how to add it manually). See [ggtree::ggtree()].
 #' @param labels `character(1)` [universalmotif-class] slot to use to label
 #'    tips (e.g. 'name'). For `dist` input, only 'name' is available.
 #'    See [ggtree::ggtree()].
 #' @param tipsize `character(1)` [universalmotif-class] slot to use to
-#'    control tip size (e.g. 'icscore'). Not available for `dist` input.
-#'    See [ggtree::ggtree()].
+#'    control tip size (e.g. 'icscore'). Not available for `dist` input (see
+#'    examples for how to add it manually). See [ggtree::ggtree()].
 #' @param legend `logical(1)` Show legend for line colour and tip size.
 #'    See [ggtree::ggtree()].
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
@@ -60,6 +60,29 @@
 #'                                   package = "universalmotif"))
 #' jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 #'                           layout = "rectangular")
+#'
+#' ## When inputting a dist object, the linecol and tipsize options are
+#' ## not available. To add these manually:
+#'
+#' library(MotifDb)
+#' library(ggtree)
+#' library(ggplot2)
+#'
+#' motifs <- filter_motifs(MotifDb, organism = "Athaliana")[1:50]
+#' comparison <- compare_motifs(motifs, method = "MPCC")
+#' comparison <- as.dist(1 - comparison)
+#' mot.names <- attr(comparison, "Labels")
+#' tree <- motif_tree(comparison)
+#'
+#' annotations <- data.frame(label = mot.names,
+#'                           icscore = sapply(motifs, function(x) x["icscore"]),
+#'                           family = sapply(motifs, function(x) x["family"]))
+#'
+#' tree <- tree %<+% annotations +
+#'           geom_tippoint(aes(size = icscore)) +
+#'           aes(colour = family) +
+#'           theme(legend.position = "right",
+#'                 legend.title = element_blank())
 #'
 #' @references
 #'    \insertRef{ggplot2}{universalmotif}
@@ -191,7 +214,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
     if (tipsize != "none") {
       anno_names <- mot_names
-      anno_df <- data.frame(name = anno_names,
+      anno_df <- data.frame(label = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
       if (tipsize %in% c("pval", "qval", "eval")) {
         anno_df$icscore <- -log10(anno_df$icscore)
@@ -217,7 +240,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
     if (tipsize != "none" && !is(motifs, "dist")) {
       anno_names <- mot_names
-      anno_df <- data.frame(name = anno_names,
+      anno_df <- data.frame(label = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
       if (tipsize %in% c("pval", "qval", "eval")) {
         anno_df$icscore <- -log10(anno_df$icscore)
@@ -231,7 +254,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     p <- ggtree(tree, layout = layout, branch.length = branch.length, ...)
     if (tipsize != "none" && !is(motifs, "dist")) {
       anno_names <- mot_names
-      anno_df <- data.frame(name = anno_names,
+      anno_df <- data.frame(label = anno_names,
                             icscore = sapply(motifs, function(x) x[tipsize]))
       if (tipsize %in% c("pval", "qval", "eval") && !is(motifs, "dist")) {
         anno_df$icscore <- -log10(anno_df$icscore)
