@@ -41,7 +41,9 @@
 #' @param shuffle.leftovers `character(1)` One of `c('asis', 'first', 'split', 'discard')`.
 #'    Only used if `shuffle.method = 'random'`. See [shuffle_sequences()].
 #' @param return.scan.results `logical(1)` Return output from
-#'    [scan_sequences()].
+#'    [scan_sequences()]. For large jobs, leaving this as
+#'    `FALSE` can save a small amount time by preventing construction of the complete 
+#'    results `data.frame` from [scan_sequences()].
 #' @param progress `logical(1)` Show progress. Note recommended if `BP = TRUE`.
 #'    Set to `FALSE` if `verbose = 0`
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
@@ -103,17 +105,12 @@
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr", positional.test = "t.test",
-                          threshold = 0.01, threshold.type = "pvalue",
+                          threshold = 0.001, threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "linear",
                           shuffle.leftovers = "asis",
                           return.scan.results = FALSE, progress = TRUE,
                           BP = FALSE) {
-
-  # This function can take up a _lot_ of memory when searching with
-  # a lot of motifs. Perhaps run scan_sequences() for every motif
-  # individually? That way scan_sequences() isn't made to keep hits
-  # for every motif in memory until it's done scanning.
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -210,7 +207,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     cat("   > use.freq:            ", use.freq, "\n")
     cat("   > shuffle.k:           ", shuffle.k, "\n")
     cat("   > shuffle.method:      ", shuffle.method, "\n")
-    cat("   > shuffle.leftovers:   ", shuffle.leftovers, "\n")
     cat("   > return.scan.results: ", return.scan.results, "\n")
   }
 
@@ -229,14 +225,14 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   motcount <- length(motifs)
 
   if (use.freq == 1) {
-    score.mats <- lapply(motifs, function(x) x["motif"])
+    score.mats <- lapply(motifs, function(x) x@motif)
   } else {
     score.mats <- lapply(motifs,
-                         function(x) x["multifreq"][[as.character(use.freq)]])
+                         function(x) x@multifreq[[as.character(use.freq)]])
     for (i in seq_along(score.mats)) {
       score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
-                               nsites = motifs[[i]]["nsites"],
-                               pseudocount = motifs[[i]]["pseudocount"])
+                               nsites = motifs[[i]]@nsites,
+                               pseudocount = motifs[[i]]@pseudocount)
     }
   }
 
@@ -252,21 +248,21 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     for (i in seq_along(threshold)) {
       if (threshold[i] > max.scores[i]) threshold[i] <- max.scores[i]
     }
-    threshold <- (threshold + abs(min.scores)) / (abs(max.scores) + abs(min.scores))
-    threshold.type <- "logodds"
     if (verbose > 3) {
-      mot.names <- vapply(motifs, function(x) x["name"], character(1))
+      mot.names <- vapply(motifs, function(x) x@name, character(1))
       for (i in seq_along(threshold)) {
-        cat("   > Motif", mot.names[i], ": max.score = ", max.scores[i],
-            ", threshold = ", threshold[i], "\n")
+        cat("   > Motif ", mot.names[i], ": max.score = ", max.scores[i],
+            ", threshold.score = ", threshold[i], "\n", sep = "")
       }
     }
+    threshold <- (threshold + abs(min.scores)) / (abs(max.scores) + abs(min.scores))
+    threshold.type <- "logodds"
   }
 
-  res.all <- .enrich_mots2(motifs, sequences, bkg.sequences, threshold,
-                           verbose, RC, use.freq, positional.test,
-                           search.mode, threshold.type, motcount,
-                           return.scan.results, progress = progress, BP = BP)
+  res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
+                          verbose, RC, use.freq, positional.test,
+                          search.mode, threshold.type, motcount,
+                          return.scan.results, progress = progress, BP = BP)
 
   if (return.scan.results) {
     res.scan <- res.all[2:3]
@@ -334,22 +330,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
 }
 
-.enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
-                          verbose, RC, use.freq, positional.test,
-                          search.mode, threshold.type, motcount,
-                          return.scan.results, progress = progress,
-                          BP = BP) {
-
-  if (verbose > 0) cat(" > Scanning input sequences\n")
-  results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                            RC, use.freq, progress = progress,
-                            verbose = verbose - 1, BP = BP)
-
-  if (verbose > 0) cat(" > Scanning background sequences\n")
-  results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
-                                threshold.type, RC, use.freq,
-                                verbose = verbose - 1, progress = progress,
-                                BP = BP)
+enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
+                         verbose, RC, use.freq, positional.test,
+                         search.mode, threshold.type, motcount,
+                         return.scan.results, progress, BP) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -359,8 +343,63 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   seq.widths <- width(sequences)
   bkg.widths <- width(bkg.sequences)
 
-  results2 <- .split_by_motif(motifs, results)
-  results.bkg2 <- .split_by_motif(motifs, results.bkg)
+  if (return.scan.results) {
+
+    if (verbose > 0) cat(" > Scanning input sequences\n")
+    results <- scan_sequences(motifs, sequences, threshold, threshold.type,
+                              RC, use.freq, progress = progress,
+                              verbose = verbose - 1, BP = BP)
+
+    if (verbose > 0) cat(" > Scanning background sequences\n")
+    results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
+                                  threshold.type, RC, use.freq,
+                                  verbose = verbose - 1, progress = progress,
+                                  BP = BP)
+
+    results2 <- split_by_motif_enrich(motifs, results)
+    results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
+
+  } else {
+
+    seq.alph <- seqtype(sequences)
+    bkg.alph <- seqtype(bkg.sequences)
+    if (seq.alph != bkg.alph)
+      stop("'sequences' and 'bkg.sequences' alphabets do not match")
+    mot.alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
+    if (length(mot.alph) > 1)
+      stop("Not all motifs share the same alphabet")
+    if (seq.alph != mot.alph && !mot.alph %in% c("DNA", "RNA", "AA"))
+      stop("Motif and sequence alphabets differ")
+    alph <- switch(mot.alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES,
+                   "AA" = AA_STANDARD, safeExplode(mot.alph))
+
+    mot.names <- vapply(motifs, function(x) x@name, character(1))
+
+    inf.check <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
+    if (any(inf.check)) {
+      warning("-Inf values found in motifs, normalizing")
+      motifs <- mapply(function(x, y) if (x) normalize(y) else y, inf.check, motif,
+                       SIMPLIFY = FALSE)
+    }
+    score.mats <- lapply(motifs, function(x) x@motif)
+    score.mats <- lapply(score.mats, numeric_to_integer_matrix)
+    max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), integer(1))
+    min.scores <- vapply(score.mats, function(x) sum(apply(x, 2, min)), integer(1))
+    total.scores <- abs(max.scores) + abs(min.scores)
+    threshold <- total.scores * threshold - abs(min.scores)
+
+    if (verbose > 0) cat(" > Scanning input sequences\n")
+    results2 <- scan_sequences_slim(score.mats, sequences, threshold,
+                                    use.freq, alph, verbose - 1, mot.names,
+                                    RC, progress, BP)
+
+    if (verbose > 0) cat(" > Scanning background sequences\n")
+    results.bkg2 <- scan_sequences_slim(score.mats, bkg.sequences, threshold,
+                                        use.freq, alph, verbose - 1, mot.names,
+                                        RC, progress, BP)
+
+  }
+
   if (length(results2) == 0) {
     return(data.frame())
   }
@@ -369,13 +408,15 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (progress && !BP) cat(" > Testing motifs for enrichment ...")
   else if ((progress && BP) || verbose > 0) cat(" > Testing motifs for enrichment\n")
 
+  tmp_pb <- progress
+  if (verbose > 3) tmp_pb <- FALSE
   results.all <- mapply_(function(x, y, z)
-                          .enrich_mots2_subworker(x, y, z, seq.widths,
+                           enrich_mots2_subworker(x, y, z, seq.widths,
                                                   bkg.widths, search.mode,
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, verbose),
                           results2, results.bkg2, motifs,
-                          SIMPLIFY = FALSE, BP = BP, PB = progress)
+                          SIMPLIFY = FALSE, BP = BP, PB = tmp_pb)
 
   results.all <- do.call(rbind, results.all)
 
@@ -387,23 +428,19 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
 }
 
-.split_by_motif <- function(motifs, results) {
+split_by_motif_enrich <- function(motifs, results) {
 
-  mot.names <- vapply(motifs, function(x) x["name"], character(1))
-  # results.sep <- list(length = length(mot.names))
-  # for (i in seq_along(mot.names)) {
-    # results.sep[[i]] <- results[results$motif == mot.names[i], ]
-  # }
+  mot.names <- vapply(motifs, function(x) x@name, character(1))
   results.sep <- lapply(mot.names, function(x) results[results$motif == x, ])
 
   results.sep
 
 }
 
-.enrich_mots2_subworker <- function(results, results.bkg, motifs,
-                                    seq.widths, bkg.widths, search.mode,
-                                    positional.test, sequences, RC,
-                                    bkg.sequences, verbose) {
+enrich_mots2_subworker <- function(results, results.bkg, motifs,
+                                   seq.widths, bkg.widths, search.mode,
+                                   positional.test, sequences, RC,
+                                   bkg.sequences, verbose) {
 
   seq.hits <- results$start
   if (length(seq.hits) == 0 || is.null(seq.hits)) {
@@ -416,7 +453,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   } else bkg.hits.mean <- mean(bkg.hits)
 
   if (seq.hits.mean > 0 && bkg.hits.mean == 0) {
-    warning(wmsg("Found hits for motif '", motifs["name"],
+    warning(wmsg("Found hits for motif '", motifs@name,
                  "' in target sequences but none in bkg, ",
                  "significance will not be calculated"))
     skip.calc <- TRUE
@@ -426,12 +463,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 
   if (length(seq.hits) == 0 && length(bkg.hits) == 0) return(NULL)
 
-  seq.total <- (mean(seq.widths) - ncol(motifs["motif"]) + 1) *
-               length(sequences)
+  seq.total <- (mean(seq.widths) - ncol(motifs@motif) + 1) * length(sequences)
   if (RC) seq.total <- seq.total * 2
   seq.no <- seq.total - length(seq.hits)
-  bkg.total <- (mean(bkg.widths) - ncol(motifs["motif"]) + 1) *
-               length(bkg.sequences)
+  bkg.total <- (mean(bkg.widths) - ncol(motifs@motif) + 1) * length(bkg.sequences)
   if (RC) bkg.total <- bkg.total * 2
   bkg.norm <- seq.total / bkg.total
   bkg.no <- bkg.total - length(bkg.hits)
@@ -440,7 +475,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                             length(bkg.hits) * bkg.norm, bkg.no * bkg.norm),
                           nrow = 2, byrow = TRUE)
 
-  if (verbose > 3) cat(" > Testing motif for enrichment:", motifs["name"], "\n")
+  if (verbose > 3) cat(" > Testing motif for enrichment:", motifs@name, "\n")
 
   if (!skip.calc) {
     hits.p <- fisher.test(results.table, alternative = "greater")$p.value
@@ -486,7 +521,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     cat("       positional bias p-value:", pos.p, "\n")
   }
 
-  results <- data.frame(motif = motifs["name"],
+  results <- data.frame(motif = motifs@name,
                         total.seq.hits = length(seq.hits),
                         num.seqs.hit = length(unique(results$sequence)),
                         num.seqs.total = length(sequences),

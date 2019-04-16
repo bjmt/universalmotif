@@ -4,7 +4,7 @@ CHANGES IN VERSION 1.2.0
 NEW FEATURES
 
     o New motif_peaks() function: test for significantly overrepresented peaks
-      of motif sites in a set of sequences
+      of motif sites in a set of sequences.
 
     o New get_bkg() function: calculate background frequencies of sequence
       alphabets, including higher order backgrounds. Works for any sequence
@@ -12,23 +12,23 @@ NEW FEATURES
 
     o read_meme() has a new option, readites.meta, which allows for reading
       individual motif site positions and P-values, as well as combined
-      sequence P-values
+      sequence P-values.
 
     o shuffle_sequences(..., method = "markov") works for any set of
-      characters instead of just DNA/RNA
+      characters instead of just DNA/RNA.
 
     o create_sequences() has a new option "freqs" which allows for generating
       sequence from higher order backgrounds and any sequence alphabet
-      (options "monofreqs", "difreqs" and "trifreqs" are now deprecated)
+      (options "monofreqs", "difreqs" and "trifreqs" are now deprecated).
 
-    o universalmotif objects can now hold onto higher order backgrounds
+    o universalmotif objects can now hold onto higher order backgrounds.
 
     o motif_pvalue() with use.freq > 1 can calculate P-values from
       provided higher-order backgrounds, instead of assuming a uniform
-      background
+      background.
 
     o add_multifreq() adds corresponding higher order background probabilities
-      to motifs
+      to motifs.
 
     o New get_klets() utility function: generate all possible k-lets for any
       set of characters.
@@ -39,36 +39,36 @@ NEW FEATURES
 
 MINOR CHANGES
 
-    o Increased input security for character type parameters throughout
+    o Increased input security for character type parameters throughout.
 
-    o Expanded motif_pvalue(), scan_sequences() examples sections
+    o Expanded motif_pvalue(), scan_sequences() examples sections.
 
     o New vignette sections for motif_peaks() and get_bkg() added to
-      SequenceSearches.Rmd
+      SequenceSearches.Rmd.
 
-    o Various vignette tweaks
+    o Various vignette tweaks.
 
     o Fixed various spelling mistakes throughout, added Language field to
-      Description, and added spell check to tests
+      Description, and added spell check to tests.
 
     o Documentation for the "random" shuffling method has been removed and a
       warning is shown when used to tell the user that it will be removed in
-      the next minor update
+      the next minor update.
 
-    o Generally increased test coverage
+    o Generally increased test coverage.
 
-    o The "linear" and "markov" shuffling methods are much faster
+    o The "linear" and "markov" shuffling methods are much faster.
 
-    o create_sequences() for higher order backgrounds is much faster
+    o create_sequences() for higher order backgrounds is much faster.
 
     o Faster add_multifreqs(): slight improvement for DNA motifs, big
-      improvement for non-DNA motifs
+      improvement for non-DNA motifs.
 
     o sample_sites() has been rewritten for use.freq > 1: the probability of
       each letter in the site is now dependent on the previous letters (also
-      faster and more memory efficient for any use.freq)
+      faster and more memory efficient for any use.freq).
 
-    o Huge improvement to calculating motif scores from p-value input: no
+    o Big improvement to calculating motif scores from p-value input: no
       longer guesses different scores, instead estimating a normal distribution
       of scores. This new approach is much, much faster and more memory
       efficient. It does however assume a uniform background.
@@ -77,27 +77,31 @@ MINOR CHANGES
       percent score based on the total possible score, not just the score
       between zero and the max possible score.
 
-    o summarise_motifs() is much faster
+    o summarise_motifs() is much faster.
 
-    o Objects in data/ are saved using serialization format version 3
+    o Objects in data/ are saved using serialization format version 3.
 
     o convert_motifs(motif, class = "universalmotif-universalmotif"): performs
-      a validObject() check if "motif" is a universalmotif object
+      a validObject() check if "motif" is a universalmotif object.
 
     o The show() method for universalmotif objects performs a validObject()
-      check first
+      check first.
 
     o motif_rc() has a new option "ignore.alphabet", used to turn on or off the
-      alphabet check (checks for DNA/RNA motif)
+      alphabet check (checks for DNA/RNA motif).
 
-    o Added "overwrite" and "append" options to write_*() functions
+    o Added "overwrite" and "append" options to write_*() functions.
 
     o New motif_score() utility function: calculate motif score from input
       thresholds.
 
+    o enrich_motifs(..., return.scan.results = FALSE): uses a slimmed down
+      version of scan_sequences() which skips construction of the complete
+      results data.frame, saving a tiny bit of time on large jobs.
+
 BUG FIXES
 
-    o Fixed IC score calculation from character input in create_motif()
+    o Fixed IC score calculation from character input in create_motif().
 
     o The internal DNA consensus letter calculation previously did not assign
       ambiguous letters when one PPM position was >0.5 and another was >0.25.

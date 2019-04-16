@@ -6,7 +6,7 @@
 \usage{
 enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   max.p = 1e-05, max.q = 1e-05, max.e = 0.001, qval.method = "fdr",
-  positional.test = "t.test", threshold = 0.01,
+  positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "linear",
   shuffle.leftovers = "asis", return.scan.results = FALSE,
@@ -66,7 +66,9 @@ will be removed in the next minor version.}
 Only used if \code{shuffle.method = 'random'}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{return.scan.results}{\code{logical(1)} Return output from
-\code{\link[=scan_sequences]{scan_sequences()}}.}
+\code{\link[=scan_sequences]{scan_sequences()}}. For large jobs, leaving this as
+\code{FALSE} can save a small amount time by preventing construction of the complete
+results \code{data.frame} from \code{\link[=scan_sequences]{scan_sequences()}}.}
 
 \item{progress}{\code{logical(1)} Show progress. Note recommended if \code{BP = TRUE}.
 Set to \code{FALSE} if \code{verbose = 0}}

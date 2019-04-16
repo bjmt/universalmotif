@@ -101,6 +101,10 @@ res_list_to_df_cpp <- function(res) {
     .Call('_universalmotif_res_list_to_df_cpp', PACKAGE = 'universalmotif', res)
 }
 
+index_list_to_df_cpp <- function(to_keep, seq_names, lens_each) {
+    .Call('_universalmotif_index_list_to_df_cpp', PACKAGE = 'universalmotif', to_keep, seq_names, lens_each)
+}
+
 shuffle_random_loop <- function(seqs_k_n, k, seqs_k_new_i, new_seq, seqs_k) {
     .Call('_universalmotif_shuffle_random_loop', PACKAGE = 'universalmotif', seqs_k_n, k, seqs_k_new_i, new_seq, seqs_k)
 }

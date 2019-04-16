@@ -202,7 +202,7 @@ res <- motif_peaks(hits$start,
 res$Peaks
 ```
 
-Using the datasets provided in this package, a significant motif peak was found at 889 bases in the input promoters, or 111 bases away from the TSS. If you'd like to simply know the locations of any peaks, this can be done by setting `max.p = 1`.
+Using the datasets provided in this package, a significant motif peak was found at 885 bases in the input promoters, or 115 bases away from the TSS. If you'd like to simply know the locations of any peaks, this can be done by setting `max.p = 1`.
 
 The function can also output a plot:
 

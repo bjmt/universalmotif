@@ -77,6 +77,9 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        min.mean.ic = 0.5, relative_entropy = FALSE,
                        progress = TRUE, BP = FALSE, ...) {
 
+  # TODO: allow for user-provided linecol, labels, tipsize instead of just
+  #       pulling from motif slots.
+
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
@@ -174,11 +177,11 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (layout %in% c("rectangular", "slanted")) {
         p <- ggtree(tree, aes(color = group), layout = layout,
                     branch.length = branch.length, ...) +
-          geom_tiplab(align = TRUE, linesize = 0.5)
+               geom_tiplab(align = TRUE, linesize = 0.5)
       } else {
         p <- ggtree(tree, aes(color = group), layout = layout,
                     branch.length = branch.length, ...) +
-          geom_tiplab2(align = TRUE, linesize = 0.5)
+               geom_tiplab2(align = TRUE, linesize = 0.5)
       }
 
     } else {
@@ -206,10 +209,10 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
     if (layout %in% c("rectangular", "slanted")) {
       p <- ggtree(tree, layout = layout, branch.length = branch.length, ...) +
-        geom_tiplab(align = TRUE, linesize = 0.5)
+             geom_tiplab(align = TRUE, linesize = 0.5)
     } else {
       p <- ggtree(tree, layout = layout, branch.length = branch.length, ...) +
-        geom_tiplab2(align = TRUE, linesize = 0.5)
+             geom_tiplab2(align = TRUE, linesize = 0.5)
     }
 
     if (tipsize != "none" && !is(motifs, "dist")) {

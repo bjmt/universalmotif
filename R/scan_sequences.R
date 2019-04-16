@@ -87,10 +87,10 @@
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
 #'    [enrich_motifs()], [motif_pvalue()]
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.01,
+scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            threshold.type = "pvalue", RC = FALSE,
-                           use.freq = 1, verbose = 1, progress = TRUE,
-                           BP = FALSE) {
+                           use.freq = 1, verbose = 1,
+                           progress = TRUE, BP = FALSE) {
 
   # TODO: Work with Masked*String objects. Masked letters show up as "#" after
   #       as.character() calls, which should just cause scan_sequences() to
@@ -260,22 +260,21 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Splitting up sequences\n")
 
-  seqs.aschar <- lapply_(seqs.aschar, function(x) safeExplode(x),
-                         BP = BP, PB = progress)
+  seqs.aschar <- lapply_(seqs.aschar, safeExplode, BP = BP, PB = progress)
+
+#-------------------------------------------------------------------------------
+# SEQS --> SEQ MATRICES
 
   seq.lens <- width(sequences)
   seq.matrices <- lapply(seq.lens, function(x) matrix(ncol = x - use.freq + 1,
                                                       nrow = use.freq))
-
-#-------------------------------------------------------------------------------
-# SEQS --> SEQ MATRICES
 
   if (progress && !BP && verbose > 0)
     cat("   * Creating sequence matrices ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Creating sequence matrices\n")
 
-  seq.matrices <- mapply_(.process_seqs, seq.matrices, seqs.aschar, BP = BP,
+  seq.matrices <- mapply_(scan_process_seqs, seq.matrices, seqs.aschar, BP = BP,
                            MoreArgs = list(k = use.freq), SIMPLIFY = FALSE,
                            PB = progress)
 
@@ -292,7 +291,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     "custom" = {
       if (RC) stop("RC search is only available for DNA/RNA")
       mot.alphs <- lapply(seqs.aschar, unique)
-      mot.alphs <- unique(do.call(c, mot.alphs))
+      mot.alphs <- unique(unlist(mot.alphs))
     },
     {
       if (RC) stop("RC search is only available for DNA/RNA")
@@ -300,7 +299,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
     }
   )
 
-  alph.int <- as.integer(seq_len(length(mot.alphs)))
+  alph.int <- as.integer(seq_along(mot.alphs))
 
 #-------------------------------------------------------------------------------
 # STRINGS --> FACTORS
@@ -326,7 +325,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   na.check <- lapply_(seq.matrices,
                       function(x) any(is.na(x)),
                       BP = BP, PB = progress)
-  na.check <- any(do.call(c, na.check))
+  na.check <- any(as.logical(na.check))
   if (na.check) warning("Non-standard letters found, these will be ignored",
                         immediate. = TRUE, call. = FALSE)
 
@@ -366,21 +365,50 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
   if (!na.check) {
     to.keep <- lapply_(seq_along(score.mats),
-                       function(x) .score_motif(seq.ints, score.mats[[x]],
-                                                thresholds.int[x]),
+                       function(x) scan_score_motif(seq.ints, score.mats[[x]],
+                                                    thresholds.int[x]),
                        BP = BP, PB = progress)
   } else {
     to.keep <- lapply_(seq_along(score.mats),
-                       function(x) .score_motif2(seq.ints, score.mats[[x]],
-                                                 thresholds.int[x]),
+                       function(x) scan_score_motif2(seq.ints, score.mats[[x]],
+                                                     thresholds.int[x]),
                        BP = BP, PB = progress)
   }
 
   if (verbose > 2) {
-    num.matches <- sum(unlist(to.keep))
-    cat("   * Found", num.matches,
+    num.matches <- sum(sapply(to.keep, function(x) vapply(x, sum, integer(1))))
+    cat("     * Found", num.matches,
         ifelse(num.matches == 1, "match\n", "matches\n"))
   }
+
+  # TODO: Add a step to prune matches if they exceed a certain number. This will
+  #       prevent keeping too many scores in memory, bogging down the
+  #       get_res_cpp() step. 
+  #       *Would this really work? Either way a big to.keep object is made..
+  #
+  #   matches <- lapply(to.keep, function(x) lapply(x, res_to_index))
+  #   total.matches <- sum(sapply(matches, vapply(x, length, integer(1))))
+  #
+  #   if (total.matches > max.matches) {
+  #
+  #     scores <- vector("list", length(to.keep))
+  #     for (i in seq_along(to.keep)) {
+  #       scores[[i]] <- mapply(
+  #          function(x, y) create_col_score(x, vapply(matches[[i]], length, integer(1)),
+  #                                          length(to.keep[[i]]),
+  #                                          sum(vapply(matches[[i]], length, integer(1)),
+  #                                          seq.ints, score.mats[[i]], ncol(score.mats[[i]]),
+  #                                          use.freq),
+  #          to.keep[[i]], score.mats[[i]], SIMPLIFY = FALSE
+  #       )
+  #     }
+  #
+  #   }
+  # 
+  # Then sort and keep top X scores. If RC=TRUE, then after the RC scanning
+  # combine the forward and reverse score then repeat keeping top X scores.
+  # The calculated scores could be used in get_res_cpp() so that they don't have
+  # to be re-calculated.
 
   if (RC) {
 
@@ -395,19 +423,19 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
     if (!na.check) {
       to.keep.rc <- lapply_(seq_along(score.mats.rc),
-                            function(x) .score_motif(seq.ints, score.mats.rc[[x]],
+                            function(x) scan_score_motif(seq.ints, score.mats.rc[[x]],
                                                      thresholds.int[x]),
                             BP = BP, PB = progress)
     } else {
       to.keep.rc <- lapply_(seq_along(score.mats.rc),
-                            function(x) .score_motif2(seq.ints, score.mats.rc[[x]],
+                            function(x) scan_score_motif2(seq.ints, score.mats.rc[[x]],
                                                       thresholds.int[x]),
                             BP = BP, PB = progress)
     }
 
     if (verbose > 2) {
-      num.matches.rc <- sum(unlist(to.keep.rc))
-      cat("   * Found", num.matches.rc,
+      num.matches.rc <- sum(sapply(to.keep.rc, function(x) vapply(x, sum, integer(1))))
+      cat("     * Found", num.matches.rc,
           ifelse(num.matches.rc == 1, "match\n", "matches\n"))
     }
 
@@ -428,13 +456,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
   if (progress) print_pb(0)
   res <- vector("list", length(to.keep))
+  res.len <- length(res)
   for (i in seq_along(res)) {
     to.keep[[i]] <- lapply(to.keep[[i]], res_to_index)
     res[[i]] <- get_res_cpp(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
                             min.scores[i], max.scores[i], mot.names[i],
                             seq.names, score.mats[[i]], "+",
                             seq.lens, use.freq)
-    if (progress) update_pb(i, length(res))
+    if (progress) update_pb(i, res.len)
   }
 
   if (RC) {
@@ -446,13 +475,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
     if (progress) print_pb(0)
     res.rc <- vector("list", length(to.keep.rc))
+    res.rc.len <- length(res.rc)
     for (i in seq_along(res.rc)) {
       to.keep.rc[[i]] <- lapply(to.keep.rc[[i]], res_to_index)
       res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.aschar, seq.ints,
                                  mot.lens[i], min.scores[i], max.scores[i],
                                  mot.names[i], seq.names, score.mats.rc[[i]],
                                  "-", seq.lens, use.freq)
-      if (progress) update_pb(i, length(res.rc))
+      if (progress) update_pb(i, res.rc.len)
     }
 
     res <- c(res, res.rc)
@@ -482,16 +512,16 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
 
 #-------------------------------------------------------------------------------
 
-.score_motif <- function(seqs, score.1, thresh) {
+scan_score_motif <- function(seqs, score.1, thresh) {
   lapply(seqs, function(x) scan_seq_internal(x, score.1, thresh))
 }
 
-.score_motif2 <- function(seqs, score.1, thresh) {
+scan_score_motif2 <- function(seqs, score.1, thresh) {
   lapply(seqs, function(x) scan_seq_internal2(x, score.1, thresh))
 }
 
 # perhaps implement this in C++?
-.process_seqs <- function(seq.matrix, seq.aschar, k) {
+scan_process_seqs <- function(seq.matrix, seq.aschar, k) {
 
   for (i in seq_len(k)) {
     to.remove <- k - i
@@ -504,5 +534,217 @@ scan_sequences <- function(motifs, sequences, threshold = 0.01,
   }
 
   seq.matrix
+
+}
+
+#===============================================================================
+
+# For use with enrich_motifs(..., return.scan.results = FALSE).
+# Frankly, this isn't really worth it; the get_res_cpp() step really isn't that
+# expensive. The scan_seq_internal() step is by far the slowest step in either
+# version of scan_sequences.
+
+# INPUT
+#   score.mats: a list of PWM matrices
+#   sequences: XStringSet object
+#   thresholds.int: integer threshold (X1000)
+#   k: use.freq
+#   alph: character vector of alphabet letters
+#   verbose: 0-3
+#   mot.names: character vector of motif names
+#   RC, PB, BP: TRUE/FALSE
+# OUTPUT
+#   List of data.frames. One list entry per motif. The data.frames have
+#   columns sequence and start, as well as strand if RC=TRUE.
+scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
+                                alph, verbose, mot.names, RC, PB, BP) {
+
+  if (verbose <= 0) PB <- FALSE
+
+  progress <- PB
+
+  seq.names <- names(sequences)
+  if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
+
+#-------------------------------------------------------------------------------
+# SEQS --> SPLIT SEQS
+
+  if (verbose > 0) cat(" * Processing sequences\n")
+
+  if (verbose > 1) {
+    cat("   * Number of sequences:", length(sequences), "\n")
+    cat("   * Mean sequence width:", mean(width(sequences)), "\n")
+  }
+
+  seqs.aschar <- as.character(sequences)
+
+  if (progress && !BP && verbose > 0)
+    cat("   * Splitting up sequences ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Splitting up sequences\n")
+
+  seqs.aschar <- lapply_(seqs.aschar, safeExplode, BP = BP, PB = PB)
+
+#-------------------------------------------------------------------------------
+# SEQS --> SEQ MATRICES
+
+  seq.lens <- width(sequences)
+
+  seq.matrices <- lapply(seq.lens, function(x) matrix(ncol = x - k + 1,
+                                                      nrow = k))
+
+  if (progress && !BP && verbose > 0)
+    cat("   * Creating sequence matrices ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Creating sequence matrices\n")
+
+  seq.matrices <- mapply_(scan_process_seqs, seq.matrices, seqs.aschar,
+                          MoreArgs = list(k = k), SIMPLIFY = FALSE,
+                          BP = BP, PB = PB)
+
+  alph.int <- as.integer(seq_along(alph))
+
+#-------------------------------------------------------------------------------
+# STRINGS --> FACTORS
+
+  if (progress && !BP && verbose > 0)
+    cat("   * Converting sequences to factors ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Converting sequences to factors\n")
+
+  seq.matrices <- lapply_(seq.matrices, function(x) string_to_factor(x, alph),
+                          BP = BP, PB = PB)
+
+#-------------------------------------------------------------------------------
+# CHECK FOR NAs
+
+  ## BUG FIX: can't deal with NAs generated from non-standard DNA letters
+  if (progress && !BP && verbose > 0)
+    cat("   * Checking for non-standard letters ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Checking for non-standard letters\n")
+
+  na.check <- lapply_(seq.matrices, function(x) any(is.na(x)), BP = BP, PB = PB)
+  na.check <- any(as.logical(na.check))
+
+#-------------------------------------------------------------------------------
+# FACTORS --> INTEGERS
+
+  if (progress && !BP && verbose > 0)
+    cat("   * Converting sequences to integers ...")
+  else if ((progress && BP && verbose > 0) || verbose > 1)
+    cat("   * Converting sequences to integers\n")
+
+  seq.ints <- lapply_(seq.matrices, function(x) LETTER_to_int(as.integer(x) - 1,
+                                                              k, alph.int),
+                      BP = BP, PB = PB)
+
+#-------------------------------------------------------------------------------
+# SCANNING
+
+  if (progress && !RC && !BP && verbose > 0)
+    cat(" * Scanning sequences for motifs ...")
+  else if ((progress && RC && verbose > 0) || verbose > 0)
+    cat(" * Scanning sequences for motifs\n")
+
+  if (RC && progress && !BP && verbose > 0)
+    cat("   * Forward strand ...")
+  else if (RC && verbose > 0)
+    cat("   * Forward strand\n")
+
+  if (!na.check) {
+    to.keep <- lapply_(seq_along(score.mats),
+                       function(x) scan_score_motif(seq.ints, score.mats[[x]],
+                                                    thresholds.int[x]),
+                       BP = BP, PB = PB)
+  } else {
+    to.keep <- lapply_(seq_along(score.mats),
+                       function(x) scan_score_motif2(seq.ints, score.mats[[x]],
+                                                     thresholds.int[x]),
+                       BP = BP, PB = PB)
+  }
+
+  if (verbose > 2) {
+    num.matches <- sum(sapply(to.keep, function(x) vapply(x, sum, integer(1))))
+    cat("     * Found", num.matches,
+        ifelse(num.matches == 1, "match\n", "matches\n"))
+  }
+
+  if (RC) {
+    score.mats.rc <- lapply(score.mats, function(x) matrix(rev(as.numeric(x)),
+                                                           ncol = ncol(x)))
+
+    if (progress && !BP && verbose > 0)
+      cat("   * Reverse strand ...")
+    else if ((progress && BP && verbose > 0) || verbose > 0)
+      cat("   * Reverse strand\n")
+
+    if (!na.check) {
+      to.keep.rc <- lapply_(seq_along(score.mats),
+                            function(x) scan_score_motif(seq.ints, score.mats.rc[[x]],
+                                                         thresholds.int[x]),
+                            BP = BP, PB = PB)
+    } else {
+      to.keep.rc <- lapply_(seq_along(score.mats),
+                            function(x) scan_score_motif2(seq.ints, score.mats.rc[[x]],
+                                                          thresholds.int[x]),
+                            BP = BP, PB = PB)
+    }
+
+    if (verbose > 2) {
+      num.matches.rc <- sum(sapply(to.keep.rc, function(x) vapply(x, sum, integer(1))))
+      cat("     * Found", num.matches.rc,
+          ifelse(num.matches.rc == 1, "match\n", "matches\n"))
+    }
+
+  }
+
+#-------------------------------------------------------------------------------
+# MAKE RESULTS
+
+  if (progress && !RC && !BP && verbose > 0)
+    cat(" * Processing results ...")
+  else if ((progress && RC && verbose > 0) || verbose > 0)
+    cat(" * Processing results\n")
+
+  if (RC && progress && !BP && verbose > 0)
+    cat("   * Forward strand ...")
+  else if (RC && verbose > 0)
+    cat("   * Forward strand\n")
+
+  for (i in seq_along(to.keep)) {
+    to.keep[[i]] <- lapply(to.keep[[i]], res_to_index)
+  }
+  to.keep.lens <- lapply(to.keep, function(x) vapply(x, length, integer(1)))
+  to.keep <- mapply_(function(x, y) index_list_to_df_cpp(x, seq.names, y),
+                     to.keep, to.keep.lens, SIMPLIFY = FALSE, BP = BP, PB = PB)
+  names(to.keep) <- mot.names
+
+  if (RC) {
+
+    if (progress && !BP && verbose > 0)
+      cat("   * Reverse strand ...")
+    else if (verbose > 0 || (progress && verbose > 0))
+      cat("   * Reverse strand\n")
+
+    for (i in seq_along(to.keep.rc)) {
+      to.keep.rc[[i]] <- lapply(to.keep.rc[[i]], res_to_index)
+    }
+    to.keep.rc.lens <- lapply(to.keep.rc, function(x) vapply(x, length, integer(1)))
+    to.keep.rc <- mapply_(function(x, y) index_list_to_df_cpp(x, seq.names, y),
+                          to.keep.rc, to.keep.rc.lens, SIMPLIFY = FALSE, BP = BP, PB = PB)
+    names(to.keep.rc) <- paste0(mot.names)
+
+    # COMBINE FORWARD + REVERSE
+    for (i in seq_along(to.keep)) {
+      to.keep.rc[[i]]$start <- to.keep.rc[[i]]$start + ncol(score.mats[[i]]) - 1
+      # to.keep[[i]]$strand <- rep("+", nrow(to.keep[[i]]))
+      # to.keep.rc[[i]]$strand <- rep("-", nrow(to.keep.rc[[i]]))
+      to.keep[[i]] <- rbind(to.keep[[i]], to.keep.rc[[i]])  # potential bottleneck?
+    }
+
+  }
+
+  to.keep
 
 }

@@ -478,3 +478,42 @@ DataFrame res_list_to_df_cpp(List res) {
   return out;
 
 }
+
+// [[Rcpp::export(rng = false)]]
+DataFrame index_list_to_df_cpp(List to_keep, StringVector seq_names,
+    IntegerVector lens_each) {
+
+  int n_seq = seq_names.length();
+  int total_len = sum(lens_each);
+
+  StringVector seq_names_out(total_len);
+  IntegerVector hits_out(total_len);
+
+  int row_offset = 0;
+  int lens_i;
+  IntegerVector to_keep_i;
+
+  for (int i = 0; i < n_seq; ++i) {
+    lens_i = lens_each[i];
+    if (lens_i > 0) {
+      for (int j = row_offset; j < row_offset + lens_i; ++j) {
+        seq_names_out[j] = seq_names[i];
+      }
+      to_keep_i = to_keep[i];
+      for (int j = row_offset; j < row_offset + lens_i; ++j) {
+        hits_out[j] = to_keep_i[j - row_offset];
+      }
+      row_offset += lens_i;
+    }
+  }
+
+  DataFrame out = DataFrame::create(
+
+      _["sequence"] = seq_names_out,
+      _["start"] = hits_out,
+
+      _["stringsAsFactors"] = false);
+
+  return out;
+
+}

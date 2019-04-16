@@ -107,7 +107,7 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
               threshold = 0.001, verbose = 0, progress = FALSE, RC = TRUE)
 ```
 
-Here we can see that the motif is significantly enriched in the target sequences. Looking for closely at the results, the motif was found 196 times in 41 of the 50 sequences; whereas it was found 22 times in 14 of the 50 background sequences. The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package. Another type of test is available which looks for positional enrichment, i.e. whether one area in the target sequences is favoured.
+Here we can see that the motif is significantly enriched in the target sequences. Looking for closely at the results, the motif was found 197 times in 41 of the 50 sequences; whereas it was found 37 times in 14 of the 50 background sequences. The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package. Another type of test is available which looks for positional enrichment, i.e. whether one area in the target sequences is favoured.
 
 ```{r}
 library(universalmotif)
@@ -153,7 +153,7 @@ head(res)
 Now let us imagine that we wish to rank these matches by P-value. First, we must calculate the match probabilities:
 
 ```{r}
-## The first match was CTCTTTATTC, with a score of 3.931 (max possible = 6.536)
+## The second match was CTCTTTATTC, with a score of 3.896 (max possible = 6.403)
 
 library(Biostrings)
 
@@ -168,7 +168,7 @@ hit.prob <- unname(hit.prob)
 hit.prob
 ```
 
-Calculating the probability of a single match was easy, but then comes the challenging part: calculating the probability of all possible matches with a score higher than 3.931, and then summing these. This final sum then represents the probability of finding a match which scores at least 3.931. One way is to list all possible sequence combinations, then filtering based on score; however this "brute force" approach is unreasonable but for the smallest of motifs.
+Calculating the probability of a single match was easy, but then comes the challenging part: calculating the probability of all possible matches with a score higher than 3.896, and then summing these. This final sum then represents the probability of finding a match which scores at least 3.896. One way is to list all possible sequence combinations, then filtering based on score; however this "brute force" approach is unreasonable but for the smallest of motifs.
 
 A few algorithms have been proposed to make this more efficient, but the method adopted by the `r Biocpkg("universalmotif")` package is that of @pvalues. The authors propose using a branch-and-bound^[https://en.wikipedia.org/wiki/Branch_and_bound] algorithm (with a few tricks) alongside a certain approximation. Briefly: motifs are first reorganized so that the highest scoring positions and letters are considered first in the branch-and-bound algorithm. Then, motifs past a certain width (in the original paper, 10) are split in sub-motifs. All possible combinations are found in these sub-motifs using the branch-and-bound algorithm, and P-values calculated for the sub-motifs. Finally, the P-values are combined.
 

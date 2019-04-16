@@ -320,6 +320,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// index_list_to_df_cpp
+DataFrame index_list_to_df_cpp(List to_keep, StringVector seq_names, IntegerVector lens_each);
+RcppExport SEXP _universalmotif_index_list_to_df_cpp(SEXP to_keepSEXP, SEXP seq_namesSEXP, SEXP lens_eachSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< List >::type to_keep(to_keepSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seq_names(seq_namesSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type lens_each(lens_eachSEXP);
+    rcpp_result_gen = Rcpp::wrap(index_list_to_df_cpp(to_keep, seq_names, lens_each));
+    return rcpp_result_gen;
+END_RCPP
+}
 // shuffle_random_loop
 CharacterMatrix shuffle_random_loop(int seqs_k_n, int k, IntegerVector seqs_k_new_i, CharacterMatrix new_seq, CharacterMatrix seqs_k);
 RcppExport SEXP _universalmotif_shuffle_random_loop(SEXP seqs_k_nSEXP, SEXP kSEXP, SEXP seqs_k_new_iSEXP, SEXP new_seqSEXP, SEXP seqs_kSEXP) {
@@ -691,6 +703,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 3},
     {"_universalmotif_get_res_cpp", (DL_FUNC) &_universalmotif_get_res_cpp, 12},
     {"_universalmotif_res_list_to_df_cpp", (DL_FUNC) &_universalmotif_res_list_to_df_cpp, 1},
+    {"_universalmotif_index_list_to_df_cpp", (DL_FUNC) &_universalmotif_index_list_to_df_cpp, 3},
     {"_universalmotif_shuffle_random_loop", (DL_FUNC) &_universalmotif_shuffle_random_loop, 5},
     {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
