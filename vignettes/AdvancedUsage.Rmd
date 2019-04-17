@@ -19,6 +19,7 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
 suppressPackageStartupMessages(library(universalmotif))
 suppressPackageStartupMessages(library(Biostrings))
 suppressMessages(suppressPackageStartupMessages(library(MotifDb)))
+suppressMessages(suppressPackageStartupMessages(library(ggtree)))
 data(ArabidopsisPromoters)
 data(ArabidopsisMotif)
 ```
@@ -374,6 +375,7 @@ tree
 
 While `motif_tree()` works as a quick and convinient tree-building function, it can be inconvient when more control is required over tree construction. For this purpose, the following code goes through how exactly `motif_tree()` generates trees.
 
+
 ```{r}
 library(universalmotif)
 library(MotifDb)
@@ -439,7 +441,6 @@ tipsize <- data.frame(label = labels,
 tree <- tree %<+% tipsize + geom_tippoint(aes(size = icscore))
 
 ```
-
 
 # Motif discovery with MEME
 

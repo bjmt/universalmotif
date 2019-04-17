@@ -2,8 +2,6 @@ context("scan_sequences()")
 
 test_that("Results are accurate", {
 
-  skip_if(R.Version()$arch == "i386")
-
   motif <- create_motif("AAAA", pseudocount = 1, nsites = 100)
   seq <- Biostrings::DNAStringSet("GGGAAAAGGGTTTTGGG")  # width 17
   res <- scan_sequences(motif, seq, RC = TRUE, verbose = 0, progress = FALSE)

@@ -2,8 +2,6 @@ context("enrich_motifs()")
 
 test_that("motif enrichment works", {
 
-  skip_if(R.Version()$arch == "i386")
-
   m <- create_motif("TTTAAA", pseudocount = 1, nsites = 100)
   s1 <- Biostrings::DNAStringSet(rep("TTTAAA", 100))
   s2 <- Biostrings::DNAStringSet(c(rep("CCCGGG", 100), "TTTAAA"))
