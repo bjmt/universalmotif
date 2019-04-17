@@ -372,6 +372,75 @@ tree <- motif_tree(motifs, layout = "daylight", linecol = "family",
 tree
 ```
 
+While `motif_tree()` works as a quick and convinient tree-building function, it can be inconvient when more control is required over tree construction. For this purpose, the following code goes through how exactly `motif_tree()` generates trees.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+library(ggtree)
+library(ggplot2)
+
+motifs <- convert_motifs(MotifDb)
+motifs <- filter_motifs(motifs, organism = "Athaliana")
+motifs <- motifs[sample(seq_along(motifs), 25)]
+
+## Step 1: compare motifs
+
+comparisons <- compare_motifs(motifs, progress = FALSE)
+
+## Step 2: create a "dist" object
+
+# The default metric, MPCC, is a similarity metric
+comparisons <- 1 - comparisons
+
+comparisons <- as.dist(comparisons)
+
+# We also want to extract names from the dist object to match annotations
+labels <- attr(comparisons, "Labels")
+
+## Step 3: get the comparisons ready for tree-building
+
+# The R package "ape" provides the necessary "as.phylo" function
+comparisons <- ape::as.phylo(hclust(comparisons))
+
+## Step 4: incorporate annotation data to colour tree lines
+
+family <- sapply(motifs, function(x) x["family"])
+family.unique <- unique(family)
+
+# We need to create a list with an entry for each family; within each entry
+# are the names of the motifs belonging to that family
+family.annotations <- list()
+for (i in seq_along(family.unique)) {
+  family.annotations <- c(family.annotations,
+                          list(labels[family %in% family.unique[i]]))
+}
+names(family.annotations) <- family.unique
+
+# Now add the annotation data:
+comparisons <- ggtree::groupOTU(comparisons, family.annotations)
+
+## Step 5: draw the tree
+
+tree <- ggtree(comparisons, aes(colour = group), layout = "rectangular") +
+          theme(legend.position = "bottom", legend.title = element_blank())
+
+## Step 6: add additional annotations
+
+# If we wish, we can additional annotations such as tip labelling and size
+
+# Tip labels:
+tree <- tree + geom_tiplab()
+
+# Tip size:
+tipsize <- data.frame(label = labels,
+                      icscore = sapply(motifs, function(x) x["icscore"]))
+
+tree <- tree %<+% tipsize + geom_tippoint(aes(size = icscore))
+
+```
+
+
 # Motif discovery with MEME
 
 The `r Biocpkg("universalmotif")` package provides a simple wrapper to the powerful motif discovery tool MEME [@meme3]. To run an analysis with MEME, all that is required is a set of `XStringSet` class sequences (defined in the `r Biocpkg("Biostrings")` package), and `run_meme()` will take care of running the program and reading the output for use within R.

@@ -267,6 +267,8 @@ setMethod("show", signature = "universalmotif",
     extrainfo <- object@extrainfo
     cat("       Extra info:   ")
 
+    if (length(extrainfo) > 3) extrainfo <- c(extrainfo[1:3], "...")
+
     for (i in seq_along(extrainfo)) {
 
       if (!is.null(names(extrainfo)))

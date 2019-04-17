@@ -3,7 +3,10 @@
 #' For more powerful motif tree functions, see the \pkg{motifStack} package.
 #' The [motif_tree()] function compares motifs with [compare_motifs()] to create
 #' a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
-#' This can be plotted with [ggtree::ggtree()].
+#' This can be plotted with [ggtree::ggtree()]. The purpose of this function
+#' is simply to combine the [compare_motifs()] and [ggtree::ggtree()] steps
+#' into one. For more control over tree creation, it is recommend to do these
+#' steps separately. See the Advanced Usage vignette for such a workthrough.
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. Alternatively, the resulting comparison matrix from
@@ -61,6 +64,7 @@
 #' jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 #'                           layout = "rectangular")
 #'
+#' \dontrun{
 #' ## When inputting a dist object, the linecol and tipsize options are
 #' ## not available. To add these manually:
 #'
@@ -83,6 +87,7 @@
 #'           aes(colour = family) +
 #'           theme(legend.position = "right",
 #'                 legend.title = element_blank())
+#' }
 #'
 #' @references
 #'    \insertRef{ggplot2}{universalmotif}
@@ -156,7 +161,10 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     }
   } else if (is.list(motifs)) {
     motifs <- convert_motifs(motifs)
-    if (progress) cat("Comparing motifs...\n")
+    if (progress && !BP)
+      cat("Comparing motifs... ")
+    else if (progress)
+      cat("Comparing motifs...\n")
     tree <- compare_motifs(motifs,
                            use.type = use.type,
                            method = method, tryRC = tryRC,
@@ -166,6 +174,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                            BP = BP, progress = progress)
     if (method == "MPCC") tree <- 1 - tree
     else if (method == "MSW") tree <- 2 - tree
+    if (progress) cat("Constructing phylogeny...\n")
     tree <- ape::as.phylo(hclust(as.dist(tree)))
     if (labels != "none") {
       mot_names <- sapply(motifs, function(x) x[labels])
@@ -181,6 +190,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     if (linecol != "none") warning("'linecol' is not available for 'dist' objects")
     if (tipsize != "none") warning("'tipsize' is not available for 'dist' objects")
   }
+
+  if (progress) cat("Building tree...\n")
 
   if (linecol != "none" && !is(motifs, "dist")) {
 

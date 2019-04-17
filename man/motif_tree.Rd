@@ -79,7 +79,10 @@ ggplot object.
 For more powerful motif tree functions, see the \pkg{motifStack} package.
 The \code{\link[=motif_tree]{motif_tree()}} function compares motifs with \code{\link[=compare_motifs]{compare_motifs()}} to create
 a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
-This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.
+This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. The purpose of this function
+is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \code{\link[ggtree:ggtree]{ggtree::ggtree()}} steps
+into one. For more control over tree creation, it is recommend to do these
+steps separately. See the Advanced Usage vignette for such a workthrough.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -87,6 +90,7 @@ jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
                           layout = "rectangular")
 
+\dontrun{
 ## When inputting a dist object, the linecol and tipsize options are
 ## not available. To add these manually:
 
@@ -109,6 +113,7 @@ tree <- tree \%<+\% annotations +
           aes(colour = family) +
           theme(legend.position = "right",
                 legend.title = element_blank())
+}
 
 }
 \references{

@@ -362,13 +362,16 @@ setMethod("convert_motifs", signature(motifs = "MotifList"),
   family <- x@elementMetadata@listData$tfFamily
   organism <- x@elementMetadata@listData$organism
   motif <- x@listData
+  nsites <- as.numeric(x@elementMetadata@listData$sequenceCount)
+  dataSource <- x@elementMetadata@listData$dataSource
 
   motifdb_fun <- function(i) {
 
     mot <- universalmotif_cpp(altname = altname[i], name = name[i],
                               family = family[i], organism = organism[i],
                               motif = motif[[i]], alphabet = "DNA",
-                              type = "PPM")
+                              type = "PPM", nsites = nsites[i],
+                              extrainfo = c(dataSource = dataSource[i]))
 
     validObject_universalmotif(mot)
     mot
