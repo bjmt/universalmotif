@@ -106,6 +106,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// paths_alph_unsort
+IntegerMatrix paths_alph_unsort(IntegerMatrix paths, IntegerMatrix alph);
+RcppExport SEXP _universalmotif_paths_alph_unsort(SEXP pathsSEXP, SEXP alphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type paths(pathsSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(paths_alph_unsort(paths, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// paths_to_alph
+StringVector paths_to_alph(IntegerMatrix paths, StringVector alph);
+RcppExport SEXP _universalmotif_paths_to_alph(SEXP pathsSEXP, SEXP alphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type paths(pathsSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(paths_to_alph(paths, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
 // add_cols
 List add_cols(NumericMatrix mot1, NumericMatrix mot2, NumericVector ic1, NumericVector ic2, double overlap);
 RcppExport SEXP _universalmotif_add_cols(SEXP mot1SEXP, SEXP mot2SEXP, SEXP ic1SEXP, SEXP ic2SEXP, SEXP overlapSEXP) {
@@ -697,6 +719,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
     {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
+    {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
+    {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 9},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},

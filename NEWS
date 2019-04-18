@@ -33,6 +33,11 @@ NEW FEATURES
     o New get_klets() utility function: generate all possible k-lets for any
       set of characters.
 
+    o New score_match() utility function: score a match for a particular motif.
+
+    o New get_matches() utility function: get all possible motif matches above
+      a certain score.
+
     o The native write_motifs()/read_motifs() universalmotif format is now
       YAML based. Motifs written before v1.2.0 can still be read by
       read_motifs().

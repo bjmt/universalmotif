@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include "utils.h"
 using namespace Rcpp;
 
 // [[Rcpp::export(rng = false)]]
@@ -225,5 +226,33 @@ IntegerVector expand_scores(IntegerMatrix scores) {
   }
 
   return rowSums(expanded);
+
+}
+
+// [[Rcpp::export(rng = false)]]
+IntegerMatrix paths_alph_unsort(IntegerMatrix paths, IntegerMatrix alph) {
+
+  for (int i = 0; i < paths.ncol(); ++i) {
+    for (int j = 0; j < paths.nrow(); ++j) {
+      paths(j, i) = alph(paths(j, i) - 1, i);
+    }
+  }
+
+  return paths;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+StringVector paths_to_alph(IntegerMatrix paths, StringVector alph) {
+
+  StringMatrix out(paths.nrow(), paths.ncol());
+
+  for (int i = 0; i < paths.nrow(); ++i) {
+    for (int j = 0; j < paths.ncol(); ++j) {
+      out(i, j) = alph[paths(i, j) - 1];
+    }
+  }
+
+  return collapse_rows_mat(out);
 
 }

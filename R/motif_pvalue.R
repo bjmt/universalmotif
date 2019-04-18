@@ -16,7 +16,9 @@
 #' @param k `numeric(1)` For speed, scores/p-values can be approximated after
 #'    subsetting the motif every `k` columns. If `k` is a value
 #'    equal or higher to the size of input motif(s), then the calculations
-#'    are (nearly) exact.
+#'    are (nearly) exact. The default, 6, is recommended to those looking for
+#'    a good tradeoff between speed and accuracy for jobs requiring repeated
+#'    calculations.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [motif_pvalue()]. See [BiocParallel::register()] to change the default
@@ -77,7 +79,7 @@
 #' ## motif; these calculations do not work if any -Inf values are present
 #' examplemotif["pseudocount"] <- 1
 #' # or
-#' examplemotif <- BiocGenerics::normalize(examplemotif)
+#' examplemotif <- normalize(examplemotif)
 #'
 #' ## get a minimum score based on a p-value
 #' motif_pvalue(examplemotif, pvalue = 0.001)
@@ -91,6 +93,15 @@
 #' ## Compare score thresholds and P-value:
 #' scores <- motif_score(examplemotif, c(0.6, 0.7, 0.8, 0.9))
 #' motif_pvalue(examplemotif, scores)
+#'
+#' ## Calculate the probability of getting a certain match or better:
+#' TATATAT <- score_match(examplemotif, "TATATAT")
+#' TATATAG <- score_match(examplemotif, "TATATAG")
+#' motif_pvalue(examplemotif, TATATAT)
+#' motif_pvalue(examplemotif, TATATAG)
+#'
+#' ## Get all possible matches by P-value:
+#' get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [motif_score()]

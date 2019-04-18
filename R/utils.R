@@ -43,6 +43,8 @@
 #' @param motif Motif object to calculate scores from.
 #' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
 #'    representing score percentage.
+#' @param match `character(1)` Sequence string to calculate score from.
+#' @param score `numeric(1)` Logodds motif score.
 #'
 #' @return
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
@@ -146,8 +148,18 @@
 #'
 #' ## motif_score
 #' ## Calculate motif score from different thresholds
-#' m <- create_motif()
+#' data(examplemotif)
+#' m <- normalize(examplemotif)
 #' motif_score(m, c(0, 0.8, 1))
+#'
+#' ## score_match
+#' ## Calculate score of a particular match
+#' score_match(m, "TATATAT")
+#' score_match(m, "TATATAG")
+#'
+#' ## get_match
+#' ## Get all possible motif matches above input score
+#' get_matches(m, 10)
 #'
 #' @seealso [create_motif()], [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
@@ -242,19 +254,118 @@ motif_score <- function(motif, threshold = c(0, 1)) {
   motif <- convert_type_internal(motif, "PWM")
 
   if (any(is.infinite(motif@motif))) {
-    warning("Found -Inf values in motif PWM, adding a pseudocount of 1")
+    warning("Found -Inf values in motif PWM, adding a pseudocount of 1",
+            immediate. = TRUE)
     motif <- normalize(motif)
   }
 
-  s.max <- sum(apply(motif@motif, 2, max))
-  s.min <- sum(apply(motif@motif, 2, min))
+  mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
+
+  s.max <- sum(apply(mat, 2, max))
+  s.min <- sum(apply(mat, 2, min))
 
   s.total <- abs(s.max) + abs(s.min)
 
   out <- s.total * threshold - abs(s.min)
   names(out) <- paste0(as.character(threshold * 100), "%")
 
-  out
+  out / 1000
+
+}
+
+#' @rdname utilities
+#' @export
+score_match <- function(motif, match) {
+
+  if (missing(motif) || missing(match))
+    stop("motif and/or match are missing")
+
+  if (!is.character(match) || length(match) != 1)
+    stop("match must be a single string")
+
+  motif <- convert_motifs(motif)
+
+  if (is.list(motif) && length(motif) != 1)
+    stop("Please only input a single motif")
+  else if (is.list(motif))
+    motif <- motif[[1]]
+
+  if (!is(motif, "universalmotif"))
+    stop("Unknown motif class")
+
+  if (motif@type != "PWM")
+    motif <- convert_type_internal(motif, "PWM")
+
+  if (any(is.infinite(motif@motif))) {
+    warning("Found -Inf values in motif PWM, adding a pseudocount of 1",
+            immediate. = TRUE)
+    motif <- normalize(motif)
+  }
+
+  match <- safeExplode(match)
+  if (length(match) != ncol(motif))
+    stop(wmsg("motif length [", ncol(motif), "] and match length [",
+              length(match), "] are not equal"))
+
+  if (!all(match %in% rownames(motif@motif)))
+    stop("Found letters in match not found in motif")
+
+  score <- 0
+
+  mat <- matrix(as.integer(motif@motif * 1000),
+                nrow = nrow(motif@motif),
+                dimnames = dimnames(motif@motif))
+
+  for (i in seq_len(ncol(mat))) {
+    score <- score + mat[match[i], i]
+  }
+
+  score / 1000
+
+}
+
+#' @rdname utilities
+#' @export
+get_matches <- function(motif, score) {
+
+  motif <- convert_motifs(motif)
+  if (motif@type != "PWM")
+    motif <- convert_type_internal(motif, "PWM")
+  if (any(is.infinite(motif@motif))) {
+    warning(wmsg("found -Inf values in PWM motif, normalizing"),
+            immediate. = TRUE)
+    motif <- normalize(motif)
+  }
+
+  score.range <- motif_score(motif)
+  if (score > score.range[2])
+    stop(wmsg("input score is greater than max possible score ",
+              round(score.range[2], 3)))
+  if (score < score.range[1])
+    stop(wmsg("input score is less than min possible score ",
+              round(score.range[1], 3)))
+
+  score <- as.integer(score * 1000)
+
+  alph <- rownames(motif@motif)
+
+  score.mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
+
+  alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
+  for (i in seq_len(ncol(score.mat))) {
+    score.mat[, i] <- score.mat[alph.sort[, i], i]
+  }
+
+  col.sort <- order(apply(score.mat, 2, max), decreasing = TRUE)
+  score.mat <- score.mat[, col.sort]
+
+  all.paths <- branch_and_bound_kmers(score.mat, score)
+
+  all.paths <- all.paths[, order(col.sort), drop = FALSE]
+
+  all.paths <- paths_alph_unsort(all.paths, alph.sort)
+
+  paths_to_alph(all.paths, alph)
 
 }
 

@@ -37,6 +37,14 @@ expand_scores <- function(scores) {
     .Call('_universalmotif_expand_scores', PACKAGE = 'universalmotif', scores)
 }
 
+paths_alph_unsort <- function(paths, alph) {
+    .Call('_universalmotif_paths_alph_unsort', PACKAGE = 'universalmotif', paths, alph)
+}
+
+paths_to_alph <- function(paths, alph) {
+    .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
+}
+
 add_cols <- function(mot1, mot2, ic1, ic2, overlap) {
     .Call('_universalmotif_add_cols', PACKAGE = 'universalmotif', mot1, mot2, ic1, ic2, overlap)
 }
