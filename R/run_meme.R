@@ -175,7 +175,7 @@ run_meme <- function(target.sequences, output = NULL,
   meme.version <- sub("\n", "", meme.version$stdout, fixed = TRUE)
   meme.major <- as.numeric(strsplit(meme.version, ".", fixed = TRUE)[[1]][1])
   if (!meme.major %in% 4:5)
-    warning("'run_meme' has been optimized for MEME versions 4-5",
+    warning("'run_meme' has been configured for MEME versions 4-5",
             immediate. = TRUE)
 
   if (missing(target.sequences)) {

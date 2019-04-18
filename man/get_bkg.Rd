@@ -40,7 +40,7 @@ entry for each \code{k}. If \code{FALSE}, return a single vector.}
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
 \item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=shuffle_sequences]{shuffle_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+\code{\link[=get_bkg]{get_bkg()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
 backend. Setting \code{BP = TRUE} is only recommended for large jobs. Furthermore,
 the behaviour of \code{progress = TRUE} is changed if \code{BP = TRUE}; the default
 \pkg{BiocParallel} progress bar will be shown (which unfortunately is much

@@ -5,27 +5,31 @@
 #' @aliases [,universalmotif-method
 setMethod("[", "universalmotif", function(x, i) {
 
-  if (missing(i)) {
-    i <- c("name", "altname", "family", "organism", "motif", "alphabet", "type",
-           "icscore", "nsites", "pseudocount", "bkg", "bkgsites", "consensus",
-           "strand", "pval", "qval", "eval", "multifreq", "extrainfo")
-  }
+  validObject_universalmotif(x)
+
+  if (missing(i)) return(universalmotif_to_list(x))
 
   if (all(i == "motif")) return(x@motif)
   if (all(i == "multifreq")) return(x@multifreq)
   if (all(i == "bkg")) return(x@bkg)
 
   return_list <- lapply(i, function(y) slot(x, y))
-  names(return_list) <- i
-
-  if ("motif" %in% names(return_list)) return_list$motif <- x@motif
-  if ("multifreq" %in% names(return_list)) return_list$multifreq <- x@multifreq
-  if ("bkg" %in% names(return_list)) return_list$bkg <- x@bkg
 
   if (length(return_list) <= 1) {
+
     return_list <- unlist(return_list)
-    if (i == "extrainfo")
-      names(return_list) <- gsub("extrainfo.", "", names(return_list))
+
+  } else {
+
+    names(return_list) <- i
+
+    if ("motif" %in% names(return_list))
+      return_list$motif <- x@motif
+    if ("multifreq" %in% names(return_list))
+      return_list$multifreq <- x@multifreq
+    if ("bkg" %in% names(return_list))
+      return_list$bkg <- x@bkg
+
   }
 
   return_list
@@ -37,15 +41,8 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
 
-  if (length(i) != 1) stop("please only replace one slot at a time") 
-  if (i == "icscore") stop("'icscore' is not modifiable")
-  if (i == "multifreq") stop("please use add_multifreq()")
-  if (i == "consensus" && x@alphabet %in% c("DNA", "RNA", "AA"))
-    stop(wmsg("consensus strings for ", x@alphabet,
-              " motifs are not modifiable"))
-  if (i == "motif")
-    stop(wmsg("please either use cbind(), subset() to modify the 'motif slot'",
-              " or create_motif() to generate a new motif"))
+  if (i %in% c("icscore", "multifreq", "consensus", "motif"))
+    stop(wmsg("this slot is unmodifiable with [<-"))
 
   slot(x, i) <- value
 
@@ -450,7 +447,10 @@ setMethod("cbind", signature = "universalmotif",
           definition = function(..., deparse.level = 0) {
 
   mots <- list(...)
+  for (i in seq_along(mots)) validObject_universalmotif(mots[[i]])
+
   if (length(mots) == 1) return(mots[[1]])
+
   mot.alphabet <- unique(vapply(mots, function(x) x@alphabet, character(1)))
   if (length(mot.alphabet) != 1) stop("all motifs must have the same alphabet")
   mots <- convert_type(mots, "PPM")

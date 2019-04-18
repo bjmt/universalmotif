@@ -119,8 +119,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     layout_check <- wmsg2(layout_check, 4, 2)
     all_checks <- c(all_checks, layout_check)
   }
-  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
-                     "MKL")) {
+  if (!method %in% COMPARE_METRICS) {
     method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`,",
                            " `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")

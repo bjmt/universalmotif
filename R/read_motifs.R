@@ -6,7 +6,7 @@
 #'
 #' @param progress `logical(1)` Show progress.
 #' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
-#'    [scan_sequences()]. See [BiocParallel::register()] to change the
+#'    [read_motifs()]. See [BiocParallel::register()] to change the
 #'    default backend.
 #'
 #' @return `list` [universalmotif-class] objects.

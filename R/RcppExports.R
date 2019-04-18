@@ -133,6 +133,10 @@ summarise_motifs_cpp <- function(motifs) {
     .Call('_universalmotif_summarise_motifs_cpp', PACKAGE = 'universalmotif', motifs)
 }
 
+universalmotif_to_list <- function(motif) {
+    .Call('_universalmotif_universalmotif_to_list', PACKAGE = 'universalmotif', motif)
+}
+
 table_cpp <- function(x) {
     .Call('_universalmotif_table_cpp', PACKAGE = 'universalmotif', x)
 }

@@ -711,3 +711,32 @@ DataFrame summarise_motifs_cpp(List motifs) {
       _["stringsAsFactors"] = false);
 
 }
+
+// [[Rcpp::export(rng = false)]]
+List universalmotif_to_list(S4 motif) {
+
+  return List::create(
+
+      _["name"]        = motif.slot("name"),
+      _["altname"]     = motif.slot("altname"),
+      _["family"]      = motif.slot("family"),
+      _["organism"]    = motif.slot("organism"),
+      _["motif"]       = motif.slot("motif"),
+      _["alphabet"]    = motif.slot("alphabet"),
+      _["type"]        = motif.slot("type"),
+      _["icscore"]     = motif.slot("icscore"),
+      _["nsites"]      = motif.slot("nsites"),
+      _["pseudocount"] = motif.slot("pseudocount"),
+      _["bkg"]         = motif.slot("bkg"),
+      _["bkgsites"]    = motif.slot("bkgsites"),
+      _["consensus"]   = motif.slot("consensus"),
+      _["strand"]      = motif.slot("strand"),
+      _["pval"]        = motif.slot("pval"),
+      _["qval"]        = motif.slot ("qval"),
+      _["eval"]        = motif.slot("eval"),
+      _["multifreq"]   = motif.slot("multifreq"),
+      _["extrainfo"]   = motif.slot("extrainfo")
+
+      );
+
+}

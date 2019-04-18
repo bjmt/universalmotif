@@ -24,8 +24,7 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
-                     "MKL")) {
+  if (!method %in% COMPARE_METRICS) {
     method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`,",
                            " `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
                            method, "`")

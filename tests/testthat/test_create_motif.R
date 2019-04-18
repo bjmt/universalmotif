@@ -13,13 +13,13 @@ test_that("motif creation for missing or from numeric input works", {
   expect_s4_class(motif1, "universalmotif")
 
   expect_equal(ncol(motif1["motif"]), ncol(motif2["motif"]))
-  expect_equal(motif1["type"], c(type = "PPM"))
+  expect_equal(motif1["type"], "PPM")
   expect_equal(as.numeric(colSums(motif1["motif"])), rep(1, 10))
   expect_equal(sum(motif1["motif"]), 10)
-  expect_equal(motif1["alphabet"], c(alphabet = "DNA"))
-  expect_equal(motif1["strand"], c(strand = "+-"))
+  expect_equal(motif1["alphabet"], "DNA")
+  expect_equal(motif1["strand"], "+-")
   expect_equal(rownames(motif1["motif"]), c("A", "C", "G", "T"))
-  expect_equal(motif1["pseudocount"], c(pseudocount = 0))
+  expect_equal(motif1["pseudocount"], 0)
   expect_equal(sum(motif3["motif"]), 1000)
   expect_true(all(motif1["motif"] != motif2["motif"]))
 
@@ -55,10 +55,10 @@ test_that("motif creation from matrix input works", {
   motif5["nsites"] <- 10
   motif6 <- create_motif(mat2, alphabet = "QWER", type = "PCM")
 
-  expect_equal(motif1["alphabet"], c(alphabet = "EQRW"))
-  expect_equal(motif2["consensus"], c(consensus = "TATAW"))
-  expect_equal(motif3["consensus"], c(consensus = "UAUAW"))
-  expect_equal(motif3["nsites"], c(nsites = 10))
+  expect_equal(motif1["alphabet"], "EQRW")
+  expect_equal(motif2["consensus"], "TATAW")
+  expect_equal(motif3["consensus"], "UAUAW")
+  expect_equal(motif3["nsites"], 10)
   expect_true(all(motif6["motif"] >= 1))
   expect_true(any(motif4["motif"] < 0))
   # expect_identical(motif5, motif3)  # this tests fails on travis?
@@ -77,15 +77,15 @@ test_that("motif creation from XStringSet works", {
   motif3 <- create_motif(s3, add.multifreq = 2:3)
   motif4 <- create_motif(s4, add.multifreq = 2:3)
 
-  expect_equal(motif1["nsites"], c(nsites = 100))
-  expect_equal(motif2["nsites"], c(nsites = 100))
-  expect_equal(motif3["nsites"], c(nsites = 100))
-  expect_equal(motif4["nsites"], c(nsites = 100))
+  expect_equal(motif1["nsites"], 100)
+  expect_equal(motif2["nsites"], 100)
+  expect_equal(motif3["nsites"], 100)
+  expect_equal(motif4["nsites"], 100)
 
-  expect_equal(motif1["alphabet"], c(alphabet = "DNA"))
-  expect_equal(motif2["alphabet"], c(alphabet = "RNA"))
-  expect_equal(motif3["alphabet"], c(alphabet = "AA"))
-  expect_equal(motif4["alphabet"], c(alphabet = "EQRTWY"))
+  expect_equal(motif1["alphabet"], "DNA")
+  expect_equal(motif2["alphabet"], "RNA")
+  expect_equal(motif3["alphabet"], "AA")
+  expect_equal(motif4["alphabet"], "EQRTWY")
 
   expect_equal(names(motif1["multifreq"]), c("2", "3"))
   expect_equal(names(motif2["multifreq"]), c("2", "3"))
@@ -100,12 +100,12 @@ test_that("motif creation from character input works", {
 
   m <- create_motif(s, "DNA")
 
-  expect_equal(m["nsites"], c(nsites = 4))
-  expect_equal(m["consensus"], c(consensus = "NAKCNANN"))
+  expect_equal(m["nsites"], 4)
+  expect_equal(m["consensus"],  "NAKCNANN")
   expect_equal(round(m@icscore, 3), 6.566)
 
   m2 <- create_motif("NNNN")
 
-  expect_equal(m2["icscore"], c(icscore = 0))
+  expect_equal(m2["icscore"], 0)
 
 })

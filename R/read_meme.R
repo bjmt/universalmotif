@@ -55,7 +55,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   alph <- strsplit(alph, "\\s+")[[1]][2]
   alph.len <- nchar(alph)
   alph <- switch(alph, "ACGT" = "DNA", "ACGU" = "RNA",
-                 "ACDEFGHIKLMNPQRSTVWY" = "AA", "custom")
+                 "ACDEFGHIKLMNPQRSTVWY" = "AA", alph)
   strands <- raw_lines[grepl("^strands:", raw_lines)]
   if (length(strands) > 0) {
     strands <- strsplit(strands, "\\s+")[[1]][-1]
@@ -70,11 +70,15 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   bkg <- as.numeric(bkg[seq_len(length(bkg)) %% 2 == 0])
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
-  motif_names <- grep("^MOTIF ", raw_lines)
+  motif_names_i <- grep("^MOTIF ", raw_lines)
   # motif_names <- motif_meta - 1
-  motif_names <- lapply(raw_lines[motif_names], function(x) {
+  motif_names <- lapply(raw_lines[motif_names_i], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]
+                          })
+  motif_altnames <- lapply(raw_lines[motif_names_i], function(x) {
+                            x <- strsplit(x, "\\s+")[[1]]
+                            if (x[1] == "") x[4] else x[3]
                           })
   motif_starts <- motif_meta + 1
   motif_stops <- sapply(raw_lines[motif_meta],
@@ -94,19 +98,20 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                            z <- z[!is.na(z)]
                          }, motif_starts, motif_stops, SIMPLIFY = FALSE)
 
-  motif_list <- mapply(function(x, y, z) {
+  motif_list <- mapply(function(x, y, z, x2) {
                           mot <- universalmotif_cpp(name = x,
-                                         type = "PPM",
-                                         nsites = y[1],
-                                         eval = y[2],
-                                         bkg = bkg,
-                                         alphabet = alph,
-                                         strand = strands,
-                                         motif = t(matrix(z, ncol = alph.len,
-                                                          byrow = TRUE)))
+                                           type = "PPM",
+                                           altname = x2,
+                                           nsites = y[1],
+                                           eval = y[2],
+                                           bkg = bkg,
+                                           alphabet = alph,
+                                           strand = strands,
+                                           motif = t(matrix(z, ncol = alph.len,
+                                                            byrow = TRUE)))
                           validObject_universalmotif(mot)
                           mot
-                         }, motif_names, motif_meta, motif_list,
+                         }, motif_names, motif_meta, motif_list, motif_altnames,
                          SIMPLIFY = FALSE)
 
   if (length(motif_list) == 1) motif_list <- motif_list[[1]]

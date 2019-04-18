@@ -15,7 +15,7 @@ file before starting to read.}
 \item{progress}{\code{logical(1)} Show progress.}
 
 \item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
-\code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
+\code{\link[=read_motifs]{read_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
 default backend.}
 }
 \value{

@@ -24,7 +24,7 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
 in existing motif file must be greater than 1.2.0.}
 
 \item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
-\code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
+\code{\link[=write_motifs]{write_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
 default backend.}
 }
 \value{

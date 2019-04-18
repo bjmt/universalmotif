@@ -106,6 +106,9 @@ MINOR CHANGES
 
     o convert_motifs() from MotifList (MotifDb) carries over dataSource.
 
+    o If a MEME motif has two names, the second will be assigned as "altname"
+      by read_meme().
+
 BUG FIXES
 
     o Fixed IC score calculation from character input in create_motif().

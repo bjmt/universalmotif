@@ -11,7 +11,7 @@
 #' @param append `logical(1)` Add to an existing motif file. Package version
 #'    in existing motif file must be greater than 1.2.0.
 #' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
-#'    [scan_sequences()]. See [BiocParallel::register()] to change the
+#'    [write_motifs()]. See [BiocParallel::register()] to change the
 #'    default backend.
 #'
 #' @return `NULL`, invisibly.

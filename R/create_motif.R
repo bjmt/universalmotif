@@ -178,6 +178,7 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
 # TODO: Allow for gapped motifs using the "-" character. Would also require
 #       changes to compare_motifs(), motif_pvalue(), view_motifs(),
 #       scan_sequences(), write_*(), lots of utility functions, etc!
+#       Alternatively, create a new class for gapped motifs specifically.
 
 #' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R

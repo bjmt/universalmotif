@@ -154,6 +154,8 @@
 #' @name utilities
 NULL
 
+# INTERNAL CONSTANTS -----------------------------------------------------------
+
 DNA_DI <- c("AA", "AC", "AG", "AT",
             "CA", "CC", "CG", "CT",
             "GA", "GC", "GG", "GT",
@@ -191,6 +193,34 @@ TYPE_LOGI <- 10L
 TYPE_NUM  <- 14L
 TYPE_CHAR <- 16L
 TYPE_S4   <- 25L
+
+UNIVERSALMOTIF_SLOTS <- c(
+
+  "name",
+  "altname",
+  "family",
+  "organism",
+  "motif",
+  "alphabet",
+  "type",
+  "icscore",
+  "nsites",
+  "pseudocount",
+  "bkg",
+  "bkgsites",
+  "consensus",
+  "strand",
+  "pval",
+  "qval",
+  "eval",
+  "multifreq",
+  "extrainfo"
+
+)
+
+COMPARE_METRICS <- c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")
+
+# EXPORTED UTILITIES -----------------------------------------------------------
 
 #' @rdname utilities
 #' @export
@@ -546,6 +576,8 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
   if (na.rm) out <- Filter(function(x) !all(is.na(x)), out)
   out
 }
+
+# INTERNAL UTILITIES -----------------------------------------------------------
 
 .internal_convert <- function(motifs, class = NULL) {
 

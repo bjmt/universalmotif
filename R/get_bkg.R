@@ -27,7 +27,7 @@
 #'    entry for each `k`. If `FALSE`, return a single vector.
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
+#'    [get_bkg()]. See [BiocParallel::register()] to change the default
 #'    backend. Setting `BP = TRUE` is only recommended for large jobs. Furthermore,
 #'    the behaviour of `progress = TRUE` is changed if `BP = TRUE`; the default
 #'    \pkg{BiocParallel} progress bar will be shown (which unfortunately is much

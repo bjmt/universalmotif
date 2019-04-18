@@ -168,7 +168,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                          "got `", use.type, "`")
     all_checks <- c(all_checks, type_check)
   }
-  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")) {
+  if (!method %in% COMPARE_METRICS) {
     method_check <- paste0(" * 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
                            ", `SW`, `MSW`, `KL`, or `MKL`; got `", method, "`")
     method_check <- wmsg2(method_check, 4, 2)

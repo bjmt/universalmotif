@@ -435,6 +435,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// universalmotif_to_list
+List universalmotif_to_list(S4 motif);
+RcppExport SEXP _universalmotif_universalmotif_to_list(SEXP motifSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< S4 >::type motif(motifSEXP);
+    rcpp_result_gen = Rcpp::wrap(universalmotif_to_list(motif));
+    return rcpp_result_gen;
+END_RCPP
+}
 // table_cpp
 IntegerVector table_cpp(StringVector x);
 RcppExport SEXP _universalmotif_table_cpp(SEXP xSEXP) {
@@ -711,6 +721,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
+    {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},
     {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_cols_mat", (DL_FUNC) &_universalmotif_collapse_cols_mat, 1},
