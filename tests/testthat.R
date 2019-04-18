@@ -1,4 +1,8 @@
-library(testthat)
-library(universalmotif)
+if (R.Version()$arch != "i386") {
 
-if (R.Version()$arch != "i386") test_check("universalmotif") else TRUE
+  library(testthat)
+  library(universalmotif)
+
+  test_check("universalmotif") 
+
+} else TRUE

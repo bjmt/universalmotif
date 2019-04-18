@@ -52,11 +52,13 @@
 #' data(ArabidopsisMotif)
 #' data(ArabidopsisPromoters)
 #' hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-#'                        verbose = 0, progress = FALSE, threshold = 0,
-#'                        threshold.type = "logodds")
+#'                        verbose = 0, progress = FALSE)
 #' res <- motif_peaks(hits$start, 1000, 50)
 #' # View plot:
 #' res$Plot
+#'
+#' # The raw plot data can be found in:
+#' res$Plot$data
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()]

@@ -70,11 +70,13 @@ If the \code{bandwidth} option is not supplied, then the following code is used
 data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
 hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-                       verbose = 0, progress = FALSE, threshold = 0,
-                       threshold.type = "logodds")
+                       verbose = 0, progress = FALSE)
 res <- motif_peaks(hits$start, 1000, 50)
 # View plot:
 res$Plot
+
+# The raw plot data can be found in:
+res$Plot$data
 
 }
 \seealso{
