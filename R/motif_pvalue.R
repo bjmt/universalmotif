@@ -200,7 +200,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
       alph.len.check <- mapply(function(x, y) x != y^use.freq,
                                bkg.probs.len, motif.nrow, SIMPLIFY = TRUE)
       if (any(alph.len.check))
-        stop("length(bkg.probs) must match nrow(motif['motif'])^use.freq")
+        stop("length(bkg.probs) must match nrow(motif)^use.freq")
 
     } else bkg.probs <- rep(list(NULL), length(motifs))
 
@@ -215,7 +215,15 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
     out <- mapply_(motif_score_pval, motifs, pvalue, k, PB = progress, BP = BP)
 
-  } else stop("only one of 'score' and 'pvalue' can be used at a time")
+  } else if (missing(score) && missing(pvalue)) {
+
+    stop("Both 'score' and 'pvalue' cannot be missing")
+
+  } else {
+
+    stop("only one of 'score' and 'pvalue' can be used at a time")
+
+  }
 
   out
 
