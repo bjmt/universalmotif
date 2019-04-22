@@ -167,11 +167,7 @@ For \code{\link[=count_klets]{count_klets()}}: a \code{data.frame} with a column
 a column of k-let counts.
 }
 \description{
-Various small functions used for motif creation. Note that all of the
-functions described here (with the following exceptions: \code{\link[=make_DBscores]{make_DBscores()}},
-\code{\link[=summarise_motifs]{summarise_motifs()}}) are here only for demonstration purposes; internally
-the \pkg{universalmotif} package uses faster C++ code for type conversion
-and consensus manipulation.
+Various small functions used for motif creation.
 }
 \examples{
 ## make_DBscores

@@ -1,10 +1,6 @@
 #' Utility functions.
 #'
-#' Various small functions used for motif creation. Note that all of the
-#' functions described here (with the following exceptions: [make_DBscores()],
-#' [summarise_motifs()]) are here only for demonstration purposes; internally
-#' the \pkg{universalmotif} package uses faster C++ code for type conversion
-#' and consensus manipulation.
+#' Various small functions used for motif creation.
 #'
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
