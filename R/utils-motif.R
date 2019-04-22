@@ -192,6 +192,183 @@ NULL
 
 #' @rdname utils-motif
 #' @export
+consensus_to_ppm <- function(letter) {
+  if (!letter %in% DNA_ALPHABET)
+    stop(letter, " is not a DNA IUPAC symbol")
+  consensus_to_ppmC(letter)
+}
+
+#' @rdname utils-motif
+#' @export
+consensus_to_ppmAA <- function(letter) {
+  if (!letter %in% AA_ALPHABET)
+    stop(letter, " is not an AA IUPAC symbol")
+  consensus_to_ppmAAC(letter)
+}
+
+#' @rdname utils-motif
+#' @export
+get_consensus <- function(position, alphabet = "DNA", type = "PPM",
+                          pseudocount = 1) {
+
+  if (!type %in% c("PCM", "PPM", "PWM", "ICM"))
+    stop("type must be one of ICM, PCM, PPM, PWM")
+  if (!alphabet %in% c("DNA", "RNA"))
+    stop("alphabet must be one of DNA, RNA")
+
+  get_consensusC(position, alphabet, type, pseudocount)
+
+}
+
+#' @rdname utils-motif
+#' @export
+get_consensusAA <- function(position, type = "PPM", pseudocount = 0) {
+
+  if (!type %in% c("PCM", "PPM", "PWM", "ICM"))
+    stop("type must be one of ICM, PCM, PPM, PWM")
+
+  get_consensusAAC(position, type, pseudocount)
+
+}
+
+#' @rdname utils-motif
+#' @export
+get_matches <- function(motif, score) {
+
+  motif <- convert_motifs(motif)
+  if (motif@type != "PWM")
+    motif <- convert_type_internal(motif, "PWM")
+  if (any(is.infinite(motif@motif))) {
+    warning(wmsg("found -Inf values in PWM motif, normalizing"),
+            immediate. = TRUE)
+    motif <- normalize(motif)
+  }
+
+  score.range <- motif_score(motif)
+  if (score > score.range[2])
+    stop(wmsg("input score is greater than max possible score ",
+              round(score.range[2], 3)))
+  if (score < score.range[1])
+    stop(wmsg("input score is less than min possible score ",
+              round(score.range[1], 3)))
+
+  score <- as.integer(score * 1000)
+
+  alph <- rownames(motif@motif)
+
+  score.mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
+
+  alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
+  for (i in seq_len(ncol(score.mat))) {
+    score.mat[, i] <- score.mat[alph.sort[, i], i]
+  }
+
+  col.sort <- order(apply(score.mat, 2, max), decreasing = TRUE)
+  score.mat <- score.mat[, col.sort]
+
+  all.paths <- branch_and_bound_kmers(score.mat, score)
+
+  all.paths <- all.paths[, order(col.sort), drop = FALSE]
+
+  all.paths <- paths_alph_unsort(all.paths, alph.sort)
+
+  paths_to_alph(all.paths, alph)
+
+}
+
+#' @rdname utils-motif
+#' @export
+icm_to_ppm <- function(position) {
+  icm_to_ppmC(position)
+}
+
+#' @rdname utils-motif
+#' @export
+make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
+                          shuffle.k = 3, shuffle.method = "linear",
+                          shuffle.leftovers = "asis", rand.tries = 1000,
+                          normalise.scores = TRUE, min.overlap = 6,
+                          min.mean.ic = 0, progress = TRUE, BP = FALSE) {
+
+  # param check --------------------------------------------
+  args <- as.list(environment())
+  char_check <- check_fun_params(list(method = args$method,
+                                      shuffle.method = args$shuffle.method,
+                                      shuffle.leftovers = args$shuffle.leftovers),
+                                 numeric(), logical(), TYPE_CHAR)
+  num_check <- check_fun_params(list(shuffle.k = args$shuffle.k,
+                                     rand.tries = args$rand.tries,
+                                     min.overlap = args$min.overlap,
+                                     min.mean.ic = args$min.mean.ic),
+                                numeric(), logical(), TYPE_NUM)
+  logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
+                                      progress = args$progress, BP = args$BP,
+                                      normalise.scores = args$normalise.scores),
+                                 numeric(), logical(), TYPE_LOGI)
+  all_checks <- c(char_check, num_check, logi_check)
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  #---------------------------------------------------------
+
+  db.motifs <- convert_motifs(db.motifs)
+  db.ncols <- vapply(db.motifs, function(x) ncol(x@motif), numeric(1))
+
+  if (shuffle.db) {
+    rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
+                                method = shuffle.method,
+                                leftovers = shuffle.leftovers) 
+    if (length(rand.mots) != rand.tries) {
+      if (length(rand.mots) < rand.tries) {
+        while (length(rand.mots) < rand.tries) {
+          more.rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
+                                           method = shuffle.method,
+                                           leftovers = shuffle.leftovers) 
+          rand.mots <- c(rand.mots, more.rand.mots)
+        }
+      }
+      if (length(rand.mots) > rand.tries) {
+        rand.mots <- rand.mots[sample(seq_along(rand.mots), rand.tries)]
+      }
+    }
+  } else {
+    rand.mots <- lapply(seq_len(rand.tries),
+                        function(x) create_motif(sample.int(26, 1) + 4))
+  }
+  rand.ncols <- vapply(rand.mots, function(x) ncol(x@motif), numeric(1))
+
+  totry <- expand.grid(list(subject = sort(unique(rand.ncols)),
+                            target = sort(unique(db.ncols))))
+  totry$mean <- rep(NA, nrow(totry))
+  totry$sd <- rep(NA, nrow(totry))
+
+  res <- vector("list", nrow(totry))
+
+  if (progress) print_pb(0)
+
+  for (i in seq_len(nrow(totry))) {
+
+    tmp1 <- db.motifs[totry[i, 2] == db.ncols]
+    tmp2 <- rand.mots[totry[i, 1] == rand.ncols]
+
+    res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
+                               min.overlap = min.overlap, min.mean.ic = min.mean.ic,
+                               max.e = Inf, max.p = Inf, BP = BP, progress = FALSE,
+                               normalise.scores = normalise.scores)$score
+
+    totry$mean[i] <- mean(res[[i]])
+    totry$sd[i] <- sd(res[[i]])
+
+    if (progress) update_pb(i, nrow(totry))
+
+  }
+
+  totry$method <- rep(method, nrow(totry))
+  totry$normalised <- rep(normalise.scores, nrow(totry))
+  totry
+
+}
+
+#' @rdname utils-motif
+#' @export
 motif_score <- function(motif, threshold = c(0, 1)) {
 
   if (any(threshold < 0) || any(threshold > 1))
@@ -227,6 +404,92 @@ motif_score <- function(motif, threshold = c(0, 1)) {
 
   out / 1000
 
+}
+
+#' @rdname utils-motif
+#' @export
+pcm_to_ppm <- function(position, pseudocount = 0) {
+  pcm_to_ppmC(position, pseudocount)
+}
+
+#' @rdname utils-motif
+#' @export
+position_icscore <- function(position, bkg = 0, type = "PPM", pseudocount = 1,
+                             nsites = 100, relative_entropy = FALSE) {
+
+  if (!type %in% c("ICM", "PPM", "PWM", "PCM"))
+    stop("type must be one of ICM, PCM, PPM, PWM")
+
+  position_icscoreC(position, bkg, type, pseudocount, nsites, relative_entropy)
+
+}
+
+#' @rdname utils-motif
+#' @export
+ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites = 100,
+                       relative_entropy = FALSE) {
+  # NOTE: Basic IC computation assumes uniform bkg frequencies!
+  #       For different bkg frequencies: Relative entropy or Kullback-Leibler
+  #       (KL) divergence
+  if (is.null(bkg) || missing(bkg)) {
+    bkg <- rep(1 / length(position), length(position))
+  }
+  if (relative_entropy) {
+    ppm_to_icmC(position, bkg, TRUE)
+  } else {
+    height_after <- -sum(vapply(position, function(x) {
+                                            y <- x * log2(x)
+                                            ifelse(is.na(y), 0, y)
+                                          }, numeric(1)))
+    total_ic <- log2(length(position)) - height_after
+    if (schneider_correction && !missing(nsites)) {
+      correction <- ppm_to_pcm(position, nsites = nsites)
+      if (requireNamespace("TFBSTools", quietly = TRUE)) {
+        correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
+      } else {
+        stop("The 'TFBSTools' package is required for 'schneider_correction'")
+      }
+      total_ic <- total_ic + correction
+    }
+    ic <- position * total_ic
+    ic
+  }
+}
+
+#' @rdname utils-motif
+#' @export
+ppm_to_pcm <- function(position, nsites = 100) {
+  ppm_to_pcmC(position, nsites)
+}
+
+#' @rdname utils-motif
+#' @export
+ppm_to_pwm <- function(position, bkg, pseudocount = 1, nsites = 100,
+                       smooth = TRUE) {
+  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
+  if (length(nsites) == 0) nsites <- 100
+  if (smooth && pseudocount != 0) {
+    position <- ppm_to_pcm(position, nsites = nsites)
+    position <- pcm_to_ppm(position, pseudocount = pseudocount)
+  }
+  for (i in seq_along(position)) {
+    position[i] <- log2(position[i] / bkg[i])
+  }
+  return(position)
+}
+
+#' @rdname utils-motif
+#' @export
+pwm_to_ppm <- function(position, bkg) {
+  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
+  position <- vapply(position, function(x) 2 ^ x, numeric(1))
+  if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
+  for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
+  if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
+  warning("position does not add up to 1; normalizing..")
+  pos_missing <- sum(position)
+  position <- position / pos_missing
+  position
 }
 
 #' @rdname utils-motif
@@ -278,355 +541,6 @@ score_match <- function(motif, match) {
 
   score / 1000
 
-}
-
-#' @rdname utils-motif
-#' @export
-get_matches <- function(motif, score) {
-
-  motif <- convert_motifs(motif)
-  if (motif@type != "PWM")
-    motif <- convert_type_internal(motif, "PWM")
-  if (any(is.infinite(motif@motif))) {
-    warning(wmsg("found -Inf values in PWM motif, normalizing"),
-            immediate. = TRUE)
-    motif <- normalize(motif)
-  }
-
-  score.range <- motif_score(motif)
-  if (score > score.range[2])
-    stop(wmsg("input score is greater than max possible score ",
-              round(score.range[2], 3)))
-  if (score < score.range[1])
-    stop(wmsg("input score is less than min possible score ",
-              round(score.range[1], 3)))
-
-  score <- as.integer(score * 1000)
-
-  alph <- rownames(motif@motif)
-
-  score.mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
-
-  alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
-  for (i in seq_len(ncol(score.mat))) {
-    score.mat[, i] <- score.mat[alph.sort[, i], i]
-  }
-
-  col.sort <- order(apply(score.mat, 2, max), decreasing = TRUE)
-  score.mat <- score.mat[, col.sort]
-
-  all.paths <- branch_and_bound_kmers(score.mat, score)
-
-  all.paths <- all.paths[, order(col.sort), drop = FALSE]
-
-  all.paths <- paths_alph_unsort(all.paths, alph.sort)
-
-  paths_to_alph(all.paths, alph)
-
-}
-
-#' @rdname utils-motif
-#' @export
-ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites,
-                       relative_entropy = FALSE) {
-  # NOTE: Basic IC computation assumes uniform bkg frequencies!
-  #       For different bkg frequencies: Relative entropy or Kullback-Leibler
-  #       (KL) divergence
-  if (is.null(bkg) || missing(bkg)) {
-    bkg <- rep(1 / length(position), length(position))
-  if (length(nsites) == 0) nsites <- 100
-  }
-  if (relative_entropy) {
-    for (i in seq_along(position)) {
-      position[i] <- position[i] * log2(position[i] / bkg[i])
-      if (is.na(position[i]) || position[i] < 0) position[i] <- 0
-    }
-    position
-  } else {
-    height_after <- -sum(vapply(position, function(x) {
-                                            y <- x * log2(x)
-                                            ifelse(is.na(y), 0, y)
-                                          }, numeric(1)))
-    total_ic <- log2(length(position)) - height_after
-    if (schneider_correction && !missing(nsites)) {
-      correction <- ppm_to_pcm(position, nsites = nsites)
-      if (requireNamespace("TFBSTools", quietly = TRUE)) {
-        correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
-      } else {
-        stop("The 'TFBSTools' package is required for 'schneider_correction'")
-      }
-      total_ic <- total_ic + correction
-    }
-    ic <- position * total_ic
-    ic
-  }
-}
-
-#' @rdname utils-motif
-#' @export
-icm_to_ppm <- function(position) {
-  total_ic <- sum(position)
-  ppm <- position / total_ic
-  ppm
-}
-
-#' @rdname utils-motif
-#' @export
-pcm_to_ppm <- function(position, pseudocount = 0.8) {
-  possum <- sum(position)
-  num_letters <- length(position)
-  if (pseudocount != 0) {
-    pos <- vapply(position, function(x)
-                  (x + (pseudocount / num_letters)) / (possum + pseudocount),
-                  double(1))
-  } else {
-    pos <- vapply(position, function(x) x / possum, double(1))
-  }
-  return(pos)
-}
-
-#' @rdname utils-motif
-#' @export
-ppm_to_pcm <- function(position, nsites = 100) {
-  if (length(nsites) == 0 || missing(nsites)) nsites <- 100
-  pos <- vapply(position, function(x) round(x * nsites), numeric(1))
-  if (sum(pos) != nsites) {
-    fix <- nsites - sum(pos)
-    pos[which(range(pos)[2] == pos)[1]] <- pos[which(range(pos)[2] == pos)[1]] + fix
-  }
-  return(pos)
-}
-
-#' @rdname utils-motif
-#' @export
-ppm_to_pwm <- function(position, bkg, pseudocount = 0.8, nsites = 100,
-                       smooth = TRUE) {
-  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
-  if (length(nsites) == 0) nsites <- 100
-  if (smooth && pseudocount != 0) {
-    position <- ppm_to_pcm(position, nsites = nsites)
-    position <- pcm_to_ppm(position, pseudocount = pseudocount)
-  }
-  for (i in seq_along(position)) {
-    position[i] <- log2(position[i] / bkg[i])
-  }
-  return(position)
-}
-
-#' @rdname utils-motif
-#' @export
-pwm_to_ppm <- function(position, bkg) {
-  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
-  position <- vapply(position, function(x) 2 ^ x, numeric(1))
-  if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
-  for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
-  if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
-  warning("position does not add up to 1; normalizing..")
-  pos_missing <- sum(position)
-  position <- position / pos_missing
-  position
-}
-
-#' @rdname utils-motif
-#' @export
-position_icscore <- function(position, bkg, type, pseudocount = 0.8, nsites = 100,
-                             relative_entropy = FALSE) {
-
-  motif <- position
-  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
-
-  if (length(nsites) == 0) nsites <- 100
-  if (length(motif) != length(bkg)) {
-    bkg <- rep(1 / length(motif), length(motif))
-  }
-
-  if (type == "PCM") {
-      motif <- pcm_to_ppm(motif, pseudocount)
-  }
-  if (type == "PWM") motif <- pwm_to_ppm(motif, bkg = bkg)
-  if (type == "ICM") return(sum(motif))
-
-  if (type == "PPM") {
-    motif <- ppm_to_pcm(position = motif, nsites = nsites)
-    motif <- pcm_to_ppm(position = motif, pseudocount = pseudocount)
-  }
-
-  # ic <- vector(length = length(motif))
-  #
-  # for (i in seq_along(motif)) {
-    # if (motif[i] == 0) ic[i] <- 0 else {
-      # ic[i] <- motif[i] * log2(motif[i] / bkg[i])
-    # }
-  # }
-#
-  # sum(ic)
-
-  if (relative_entropy) {
-    for (i in seq_along(motif)) {
-      motif[i] <- motif[i] * log2(motif[i] / bkg[i])
-      if (is.na(motif[i]) || motif[i] < 0) motif[i] <- 0
-    }
-    total_ic <- sum(motif)
-  } else {
-    bkg <- rep(1 / length(position), length(position))
-    height_after <- -sum(vapply(motif, function(x) {
-                                         y <- x * log2(x)
-                                         ifelse(is.na(y), 0, y)
-                                       }, numeric(1)))
-    total_ic <- log2(length(motif)) - height_after
-  }
-  total_ic
-
-}
-
-#' @rdname utils-motif
-#' @export
-get_consensus <- function(position, alphabet = "DNA", type = "PPM",
-                          pseudocount = 0.8) {
-
-  pos <- position
-
-  if (type == "PCM") {
-    pos <- pcm_to_ppm(pos, pseudocount)
-    type <- "PPM"
-  }
-
-  if (type == "PWM") {
-    pos <- pwm_to_ppm(pos)
-    type <- "PPM"
-  }
-
-  if (type == "ICM") {
-    warning("get_consensus cannot handle ICM type")
-    return(character(0))
-  }
-
-  if (type == "PPM") {
-
-    if (alphabet == "DNA") names(pos) <- DNA_BASES
-    if (alphabet == "RNA") names(pos) <- DNA_BASES
-
-    # single letter consensus:
-
-    if (pos[1] > 0.5 && pos[1] > sort(pos)[3] * 2) return("A")
-    if (pos[2] > 0.5 && pos[2] > sort(pos)[3] * 2) return("C")
-    if (pos[3] > 0.5 && pos[3] > sort(pos)[3] * 2) return("G")
-    if (pos[4] > 0.5 && pos[4] > sort(pos)[3] * 2) {
-      ifelse(alphabet == "DNA", return("T"), return("U"))
-    }
-
-    # two letter consensus:
-
-    if (pos[1] > 0.5) {
-      if (names(sort(pos)[3]) == "C" && sort(pos)[3] > 0.25) return("M")
-      if (names(sort(pos)[3]) == "G" && sort(pos)[3] > 0.25) return("R")
-      if (names(sort(pos)[3]) %in% c("T", "U") &&
-          sort(pos)[3] > 0.25) return("W")
-    }
-
-    if (pos[2] > 0.5) {
-      if (names(sort(pos)[3]) == "A" && sort(pos)[3] > 0.25) return("M")
-      if (names(sort(pos)[3]) == "G" && sort(pos)[3] > 0.25) return("S")
-      if (names(sort(pos)[3]) %in% c("T", "U") &&
-          sort(pos)[3] > 0.25) return("Y")
-    }
-
-    if (pos[3] > 0.5) {
-      if (names(sort(pos)[3]) == "A" && sort(pos)[3] > 0.25) return("R")
-      if (names(sort(pos)[3]) == "C" && sort(pos)[3] > 0.25) return("S")
-      if (names(sort(pos)[3]) %in% c("T", "U") &&
-          sort(pos)[3] > 0.25) return("K")
-    }
-
-    if (pos[4] > 0.5) {
-      if (names(sort(pos)[3]) == "A" && sort(pos)[3] > 0.25) return("W")
-      if (names(sort(pos)[3]) == "C" && sort(pos)[3] > 0.25) return("Y")
-      if (names(sort(pos)[3]) == "G" && sort(pos)[3] > 0.25) return("K")
-    }
-
-    if ((pos[1] + pos[2]) > 0.75) return("M")
-    if ((pos[1] + pos[3]) > 0.75) return("R")
-    if ((pos[1] + pos[4]) > 0.75) return("W")
-
-    if ((pos[2] + pos[3]) > 0.75) return("S")
-    if ((pos[2] + pos[4]) > 0.75) return("Y")
-
-    if ((pos[3] + pos[4]) > 0.75) return("K")
-
-    # three letter consensus:
-
-    if (all(pos[c(1, 2, 4)] > 0.25)) return("H")
-    if (all(pos[c(2, 3, 4)] > 0.25)) return("B")
-    if (all(pos[c(1, 2, 3)] > 0.25)) return("V")
-    if (all(pos[c(1, 3, 4)] > 0.25)) return("D")
-
-    # no consensus:
-
-    return("N")
-
-  }
-
-}
-
-#' @rdname utils-motif
-#' @export
-consensus_to_ppm <- function(letter) {
-  if (letter == "A") return(c(0.997, 0.001, 0.001, 0.001))
-  if (letter == "C") return(c(0.001, 0.997, 0.001, 0.001))
-  if (letter == "G") return(c(0.001, 0.001, 0.997, 0.001))
-  if (letter %in% c("T", "U")) return(c(0.001, 0.001, 0.001, 0.997))
-  if (letter == "R") return(c(0.499, 0.001, 0.499, 0.001))
-  if (letter == "Y") return(c(0.001, 0.499, 0.001, 0.499))
-  if (letter == "M") return(c(0.499, 0.499, 0.001, 0.001))
-  if (letter == "K") return(c(0.001, 0.001, 0.499, 0.499))
-  if (letter == "S") return(c(0.001, 0.499, 0.499, 0.001))
-  if (letter == "W") return(c(0.499, 0.001, 0.001, 0.499))
-  if (letter == "H") return(c(0.333, 0.333, 0.001, 0.333))
-  if (letter == "B") return(c(0.001, 0.333, 0.333, 0.333))
-  if (letter == "V") return(c(0.333, 0.333, 0.333, 0.001))
-  if (letter == "D") return(c(0.333, 0.001, 0.333, 0.333))
-  if (letter %in% c("N", "+", "-", ".")) return(c(0.25, 0.25, 0.25, 0.25))
-  stop(letter, " is not an IUPAC symbol")
-}
-
-#' @rdname utils-motif
-#' @export
-consensus_to_ppmAA <- function(letter) {
-  if (letter %in% c("X", ".", "-", "+")) return(rep(0.05, 20))
-  if (letter == "B") return(c(rep(0.001, 2), 0.491, rep(0.001, 8), 0.491,
-                              rep(0.001, 8)))
-  if (letter == "Z") return(c(rep(0.001, 3), 0.491, rep(0.001, 9), 0.491,
-                              rep(0.001, 6)))
-  if (letter == "J") return(c(rep(0.001, 7), 0.491, 0.001, 0.491,
-                              rep(0.001, 10)))
-  i <- which(AA_STANDARD == letter)
-  c(rep(0.001, i - 1), 0.981, rep(0.001, 20 - i))
-}
-
-#' @rdname utils-motif
-#' @export
-get_consensusAA <- function(position, type, pseudocount) {
-  motif <- position
-  if (type == "PCM") {
-    motif <- pcm_to_ppm(motif, pseudocount)
-    type <- "PPM"
-  }
-  if (type == "PWM") {
-    motif <- pwm_to_ppm(motif)
-    type <- "PPM"
-  }
-  if (type == "ICM") {
-    warning("get_consensusAA cannot handle ICM type")
-    return(character(0))
-  }
-  if (motif[3] >= 0.4 && motif[12] >= 0.4) return("B")
-  if (motif[4] >= 0.4 && motif[14] >= 0.4) return("Z")
-  if (motif[8] >= 0.4 && motif[10] >= 0.4) return("J")
-  if (all(motif == 0.05) || all(motif < 0.1)) return("X")
-  .aa <- order(motif, decreasing = TRUE)
-  if (motif[.aa[1]] == motif[.aa[2]]) return("X")
-  if (motif[.aa[1]] > 0.2) return(AA_STANDARD[.aa[1]])
-  "X"
 }
 
 #' @rdname utils-motif

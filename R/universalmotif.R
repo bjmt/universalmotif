@@ -23,7 +23,7 @@
 #' @importFrom Biostrings DNA_BASES RNA_BASES DNA_ALPHABET as.matrix
 #' @importFrom Biostrings oligonucleotideTransitions trinucleotideFrequency
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
-#' @importFrom Biostrings reverseComplement writeXStringSet seqtype
+#' @importFrom Biostrings reverseComplement writeXStringSet seqtype AA_ALPHABET
 #' @importFrom ape as.phylo
 #' @importFrom Rdpack reprompt
 #' @importFrom gtools rdirichlet

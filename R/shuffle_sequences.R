@@ -85,6 +85,15 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   # NOTE: Use sort_unique_cpp() instead of sort() at ALL TIMES when sorting a
   #       character vector. Otherwise VERY annoying bugs occur when the sequences
   #       contain a mix of upper and lower case letters.
+  #       Update: sort(..., method = "radix") performs the same sorting as
+  #       Rcpp::sort_unique()! Turns out the issue is that R picks "shell" as
+  #       the sorting method for character vectors by default. Might as well
+  #       stick with sort_unique_cpp() though, since it's 10X faster than
+  #       sort(..., method = "radix").
+  #       Maybe consider adding this to utils-internal.R:
+  #       sort <- function(x, decreasing = FALSE, method = "radix", ...) {
+  #         base::sort(x, decreasing = decreasing, method = method, ...)
+  #       }
 
   # param check --------------------------------------------
   args <- as.list(environment())
