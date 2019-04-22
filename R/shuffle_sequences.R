@@ -82,6 +82,10 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   # TODO: I don't think the k>1 methods are safe to use with sequences
   #       containing non-standard letters (e.g. 'N' in DNA sequences).
 
+  # NOTE: Use sort_unique_cpp() instead of sort() at ALL TIMES when sorting a
+  #       character vector. Otherwise VERY annoying bugs occur when the sequences
+  #       contain a mix of upper and lower case letters.
+
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
@@ -133,7 +137,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
                                k = k, PB = progress, BP = BP)
       },
       "random" = {
-        warning("The 'random' method is deprecated, please use 'linear' or 'markov'",
+        warning("The 'random' method is deprecated, please use 'euler', 'linear' or 'markov'",
                 immediate. = TRUE)
         sequences <- lapply_(as.character(sequences), shuffle_random, k = k,
                              leftover = leftovers, PB = progress, BP = BP)
@@ -344,7 +348,7 @@ shuffle_markov_any <- function(sequence, k) {
   # - runtime increases with increasing k
 
   seq1 <- safeExplode(sequence)
-  lets.uniq <- sort(unique(seq1))
+  lets.uniq <- sort_unique_cpp(seq1)
   seq.width <- length(seq1)
 
   let.info <- letter_freqs(seq1, k)
@@ -370,13 +374,9 @@ shuffle_euler <- function(sequence, k) {
   # runtime increases with k
   # about 2X as slow and 2X as many mem allocs vs shuffle_markov_any()
 
-  # no idea why, but for now this has to be done
-  if (tolower(sequence) != sequence && toupper(sequence) != sequence)
-    stop("lower and upper case letters cannot both be used for method = 'euler'")
-
   seq <- safeExplode(sequence)
   seqlen <- length(seq)
-  alph <- sort(unique(seq))
+  alph <- sort_unique_cpp(seq)
 
   alph.i <- seq_along(alph)
   names(alph.i) <- alph
@@ -384,6 +384,7 @@ shuffle_euler <- function(sequence, k) {
   first <- seq[seq_len(k - 1)]
   last <- collapse_cpp(seq[(seqlen - k + 2):seqlen])
 
+  # NOTE: Rcpp::sort_unique() and sort() work differently on lower/upper-case!!!!
   kletsm1 <- get_klets(alph, k - 1)
   # second slowest step
   klets <- letter_freqs(seq, k, "freqs", FALSE, alph)$counts
@@ -471,19 +472,25 @@ letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
                          as.prob = TRUE, alph = NULL) {
   # ~3 times slower than Biostrings::oligonucleotideTransitions
 
-  if (is.null(alph)) lets.uniq <- sort(unique(seqs1))
-  else lets.uniq <- sort(alph)
+  if (is.null(alph)) lets.uniq <- sort_unique_cpp(seqs1)
+  else lets.uniq <- sort_unique_cpp(alph)
 
   possible.lets <- get_klets(lets.uniq, k)
-  possible.lets <- data.frame(lets = possible.lets, stringsAsFactors = FALSE)
+  possible.lets <- data.frame(lets = possible.lets, order = seq_along(possible.lets),
+                              stringsAsFactors = FALSE)
 
   seqs.let <- single_to_k(seqs1, k)
+
+  # R and Rcpp have different sorting methods for upper/lower case... furthermore,
+  # merge() messes with row order!!!
 
   seqs.counts <- table_cpp(seqs.let)
   seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts),
                             stringsAsFactors = FALSE)
-  final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE)
+  final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE, sort = FALSE)
   final.table$counts[is.na(final.table$counts)] <- 0
+  final.table <- final.table[order(final.table$order), ]
+  final.table <- final.table[, -2]
 
   total.counts <- sum(final.table$counts)
   final.table$freqs <- final.table$counts / total.counts

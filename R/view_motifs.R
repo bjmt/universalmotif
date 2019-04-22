@@ -141,7 +141,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
     },
     {
       if (mot.alph != "custom") {
-        alph <- sort(safeExplode(mot.alph))
+        alph <- sort_unique_cpp(safeExplode(mot.alph))
         use.custom <- TRUE
       } else {
         alph <- rownames(mot.mats[[1]])

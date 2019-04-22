@@ -53,7 +53,7 @@ count_klets <- function(string, k = 1) {
     stop("k must be greater than 0")
 
   string <- safeExplode(string)
-  counts <- letter_freqs(string, k, "freqs", FALSE, sort(unique(string)))
+  counts <- letter_freqs(string, k, "freqs", FALSE, sort_unique_cpp(string))
 
   counts$counts
 

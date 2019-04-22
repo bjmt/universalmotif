@@ -311,7 +311,7 @@ setMethod("create_motif", signature(input = "character"),
 
   if (!alphabet %in% c("DNA", "RNA", "AA", "missing") &&
       length(consensus.all) == 1) {
-    alph.deparsed <- sort(safeExplode(alphabet))
+    alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
     if (any(!consensus %in% alph.deparsed)) {
       stop("consensus string does not match provided alphabet")
     }
@@ -342,7 +342,7 @@ setMethod("create_motif", signature(input = "character"),
       alphabet <- "DNA"
       motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
     } else if (length(consensus.all) == 1) {
-      alphabet <- collapse_cpp(sort(unique(consensus)))
+      alphabet <- collapse_cpp(sort_unique_cpp(consensus))
       motif <- consensusMatrix(collapse_cpp(consensus))
     }
   }
@@ -379,7 +379,7 @@ setMethod("create_motif", signature(input = "character"),
       },
       {
         consensus <- BStringSet(lapply(consensus.all, BString))
-        alph.deparsed <- sort(safeExplode(alphabet))
+        alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
         if (any(!rownames(consensusMatrix(consensus)) %in%
                 alph.deparsed))
           stop("consensus string does not match provided alphabet")
@@ -475,7 +475,7 @@ setMethod("create_motif", signature(input = "matrix"),
   if (!missing(alphabet) &&
       !alphabet %in% c("DNA", "RNA", "AA")) {
 
-    alph.deparsed <- sort(safeExplode(alphabet))
+    alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
 
     if (any(!rownames(matrix) %in% alph.deparsed)) {
       stop("rownames do not match provided alphabet")
@@ -718,7 +718,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
   } else {
 
     sequences <- consensusMatrix(sequences)
-    alph.split <- sort(safeExplode(alphabet))
+    alph.split <- sort_unique_cpp(safeExplode(alphabet))
     motif <- vector("list", length(alph.split))
     mot_len <- ncol(sequences)
     for (i in alph.split) {

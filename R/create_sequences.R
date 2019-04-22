@@ -62,7 +62,7 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                          "DNA" = DNA_BASES,
                          "RNA" = RNA_BASES,
                          "AA"  = AA_STANDARD,
-                                 sort(safeExplode(alphabet)))
+                                 sort_unique_cpp(safeExplode(alphabet)))
 
   if (missing(freqs)) {
     if (!missing(monofreqs)) {

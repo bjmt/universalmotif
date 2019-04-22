@@ -149,6 +149,10 @@ universalmotif_to_list <- function(motif) {
     .Call('_universalmotif_universalmotif_to_list', PACKAGE = 'universalmotif', motif)
 }
 
+sort_unique_cpp <- function(x) {
+    .Call('_universalmotif_sort_unique_cpp', PACKAGE = 'universalmotif', x)
+}
+
 table_cpp <- function(x) {
     .Call('_universalmotif_table_cpp', PACKAGE = 'universalmotif', x)
 }

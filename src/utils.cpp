@@ -55,6 +55,13 @@ namespace std {
 }
 
 // [[Rcpp::export(rng = false)]]
+StringVector sort_unique_cpp(StringVector x) {
+  // Exporting this is unfortunately necessary, as base::sort() works differently
+  // VS Rcpp::sort_unique() with mixed lower/upper-case sequences
+  return sort_unique(x);
+}
+
+// [[Rcpp::export(rng = false)]]
 IntegerVector table_cpp(StringVector x) {
   return table(x);
 }

@@ -105,8 +105,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
            "AA" = alphabet <- AA_STANDARD,
            no.alph <- TRUE)
   } else {
-    if (length(alphabet) == 1) alphabet <- sort(safeExplode(alphabet))
-    else alphabet <- sort(alphabet)
+    if (length(alphabet) == 1) alphabet <- sort_unique_cpp(safeExplode(alphabet))
+    else alphabet <- sort_unique_cpp(alphabet)
   }
 
   seq.names <- names(sequences)
@@ -125,7 +125,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   # Update: turns out this approach is actually slower. Best to go back to
   # working on sequences individually.
 
-  if (no.alph) alphabet <- sort(unique(do.call(c, lapply(seqs, unique))))
+  if (no.alph) alphabet <- sort_unique_cpp(do.call(c, lapply(seqs, unique)))
 
   check.k1 <- FALSE
   if (1 %in% k) {
@@ -159,7 +159,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
 
   if (pseudocount > 0) counts <- lapply(counts, function(x) x + 1)
   if (as.prob) counts <- lapply(counts, function(x) x / sum(x))
-  counts <- counts[sort(names(counts))]
+  counts <- counts[sort_unique_cpp(names(counts))]
 
   if (!is.null(to.meme)) {
 
