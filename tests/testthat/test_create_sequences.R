@@ -20,7 +20,7 @@ test_that("sequence creation works", {
   expect_s4_class(s2, "RNAStringSet")
 
   tri <- rep(1 / 64, 64)
-  names(tri) <- universalmotif:::DNA_TRI
+  names(tri) <- get_klets(DNA_BASES, 3)
 
   tri.r <- tri
   names(tri.r) <- gsub("T", "U", names(tri.r))

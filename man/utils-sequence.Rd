@@ -7,27 +7,28 @@
 \alias{shuffle_string}
 \title{Sequence-related utility functions.}
 \usage{
-get_klets(lets, k)
+get_klets(lets, k = 1L)
 
-count_klets(string, k)
+count_klets(string, k = 1)
 
 shuffle_string(string, k = 1, method = c("euler", "linear", "markov"))
 }
 \arguments{
-\item{lets}{\code{character} A character vector of letters.}
+\item{lets}{\code{character} A character vector where each element will be
+considered a single unit.}
 
 \item{k}{\code{integer(1)} K-let size.}
 
-\item{string}{\code{character(1)} A string of letters.}
+\item{string}{\code{character(1)} A string of characters.}
 
-\item{method}{\code{character(1)} Shuffling method. One of \code{c("euer", "linear", "markov")}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+\item{method}{\code{character(1)} Shuffling method. One of \code{c("euler", "linear", "markov")}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 }
 \value{
 For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns \code{lets} and \code{counts}.
 
 For \code{\link[=get_klets]{get_klets()}}: A \code{character} vector of k-lets.
 
-For \code{\link[=shuffle_string]{shuffle_string()}}: A single string of type \code{character}.
+For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} string`.
 }
 \description{
 Sequence-related utility functions.
@@ -36,12 +37,17 @@ Sequence-related utility functions.
 #######################################################################
 ## count_klets
 ## Count k-lets for any string of characters
-count_klets("GCAAATGTACGCAGGGCCGA", 2)
+count_klets("GCAAATGTACGCAGGGCCGA", k = 2)
+## The default 'k' value (1) counts individual letters
+count_klets("GCAAATGTACGCAGGGCCGA")
 
 #######################################################################
 ## get_klets
-## Generate all possible k-lets for a set of letters
+## Generate all possible k-lets for a set of characters
 get_klets(c("A", "C", "G", "T"), 3)
+## Note that each element in 'lets' is considered a single unit;
+## see:
+get_klets(c("AA", "B"), k = 2)
 
 #######################################################################
 ## shuffle_string

@@ -154,7 +154,7 @@ Motif-related utility functions.
 }
 \examples{
 #######################################################################
-## Setting up variables
+## Setting up some variables
 data(examplemotif)
 m <- normalize(examplemotif)
 motif <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
