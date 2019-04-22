@@ -67,8 +67,20 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
                                leftovers = "asis", progress = FALSE,
                                BP = FALSE) {
 
-  # Idea: moving-window markov shuffling. Get k-let frequencies in windows,
+  # Idea: Moving-window markov shuffling. Get k-let frequencies in windows,
   #       and generate new letters based on local probabilities.
+
+  # Idea: For k>1, do like k=1 and call utf8ToInt(sequence) then work with
+  #       ints. This could make looking at the previous k-let in the
+  #       markov and euler methods cheaper, instead of having to paste
+  #       the previous strings. Maybe something like:
+  #       as.integer(factor(utf8ToInt(sequence)))
+  #       Then follow the method used in scan_sequences() to index k-lets.
+  #
+  #       utf8ToInt() is about 10X faster than strsplit() and safeExplode().
+
+  # TODO: I don't think the k>1 methods are safe to use with sequences
+  #       containing non-standard letters (e.g. 'N' in DNA sequences).
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -148,12 +160,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
 }
 
 shuffle_k1 <- function(sequence) {
-
-  sequence <- safeExplode(sequence)
-  sequence <- sample(sequence, length(sequence))
-  sequence <- collapse_cpp(sequence)
-  sequence
-
+  intToUtf8(sample(utf8ToInt(sequence)))
 }
 
 # this creates truly random k-lets; unfortunately this has the side effect of
@@ -251,6 +258,9 @@ shuffle_linear <- function(sequence, k, mode = 1) {
   # - benchmark timings: about 1.25 times slower than shuffle_k1
   # - runtime is independent of k!
 
+  # somehow the safeExplode() + collapse_cpp() combo is faster than
+  # utf8ToInt() + intToUtf8()!
+
   if (mode == 1) {
     seq.len <- nchar(sequence)
     seq1 <- safeExplode(sequence)
@@ -288,7 +298,7 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 
   seq.split <- as.character(seq.split)
 
-  # TODO: try and insert left.keep and right.keep somewhere inside seq.split
+  # TODO: try and insert left.keep and right.keep somewhere inside seq.split?
   new.seq <- c(left.keep, seq.split, right.keep)
   if (mode == 1) new.seq <- collapse_cpp(new.seq)
 
@@ -371,6 +381,7 @@ shuffle_euler <- function(sequence, k) {
   last <- collapse_cpp(seq[(seqlen - k + 2):seqlen])
 
   kletsm1 <- get_klets(alph, k - 1)
+  # second slowest step
   klets <- letter_freqs(seq, k, "freqs", FALSE, alph)$counts
 
   edgematrix <- matrix(klets$counts, nrow = length(kletsm1), byrow = TRUE,
@@ -421,7 +432,7 @@ get_lastlets <- function(edgematrix, last, k, kletsm1, alph) {
   vertices <- logical(n)
   names(vertices) <- kletsm1
 
-  vertices[last] <- TRUE
+  vertices[last] <- TRUE  # the last (k-1)-let in the sequence is the tree root
 
   for (i in seq_len(n)) {
     u <- i

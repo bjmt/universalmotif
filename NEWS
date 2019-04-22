@@ -70,7 +70,7 @@ MINOR CHANGES
 
     o Generally increased test coverage.
 
-    o The "linear" and "markov" shuffling methods are much faster.
+    o The "k=1", "linear" and "markov" shuffling methods are much faster.
 
     o create_sequences() for higher order backgrounds is much faster.
 

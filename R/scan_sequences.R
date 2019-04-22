@@ -246,6 +246,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 #-------------------------------------------------------------------------------
 # SEQS --> SPLIT SEQS
 
+  # Idea: The safeExplode() step could be skipped by using:
+  #       as.integer(factor(utf8ToInt(sequence), levels = utf8ToInt(alph))
+  #       (Order of letters in 'alph' is important!)
+  #
+  #       This would allow for a quick jump from SEQS --> FACTORS --> MATRICES.
+
   if (verbose > 0) cat(" * Processing sequences\n")
 
   if (verbose > 1) {
@@ -542,7 +548,8 @@ scan_process_seqs <- function(seq.matrix, seq.aschar, k) {
 # For use with enrich_motifs(..., return.scan.results = FALSE).
 # Frankly, this isn't really worth it; the get_res_cpp() step really isn't that
 # expensive. The scan_seq_internal() step is by far the slowest step in either
-# version of scan_sequences.
+# version of scan_sequences. Will probably delete this later when I get back
+# to working on scan_sequences().
 
 # INPUT
 #   score.mats: a list of PWM matrices
