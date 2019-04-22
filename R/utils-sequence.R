@@ -47,6 +47,8 @@ count_klets <- function(string, k) {
   counts$counts
 }
 
+# get_klets(lets, k) --> see utils.cpp
+
 #' @rdname utils-sequence
 #' @export
 shuffle_string <- function(string, k = 1, method = c("euler", "linear", "markov")) {

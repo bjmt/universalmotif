@@ -8,33 +8,6 @@
 #' @name utilities
 NULL
 
-# PUBLIC UTILS LIST
-#
-#   motif-related:
-#
-#     get_matches()
-#     score_match()
-#     motif_score()
-#     summarise_motifs()
-#     make_DBscores()
-#     ppm_to_icm()
-#     icm_to_ppm()
-#     pcm_to_ppm()
-#     ppm_to_pcm()
-#     ppm_to_pwm()
-#     pwm_to_ppm()
-#     position_icscore()
-#     get_consensus()
-#     consensus_to_ppm()
-#     consensus_to_ppmAA()
-#     get_consensusAA()
-#
-#   sequence-related:
-#     
-#     get_klets()
-#     count_klets()
-#     shuffle_string(x, k = 1, method = "euler")
-
 # INTERNAL CONSTANTS -----------------------------------------------------------
 
 DNA_DI <- c("AA", "AC", "AG", "AT",
@@ -42,37 +15,16 @@ DNA_DI <- c("AA", "AC", "AG", "AT",
             "GA", "GC", "GG", "GT",
             "TA", "TC", "TG", "TT")
 
-DNA_TRI <- c("AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG",
-             "AGT","ATA","ATC","ATG","ATT","CAA","CAC","CAG","CAT","CCA","CCC",
-             "CCG","CCT","CGA","CGC","CGG","CGT","CTA","CTC","CTG","CTT","GAA",
-             "GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT",
-             "GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG",
-             "TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT")
-
-# TYPES:
-#
-#        NULL   0
-#      symbol   1
-#     closure   3
-# environment   4
-#    promises   5
-#    logical   10
-#    integer   13
-#       real   14
-#    complex   15
-#     string   16
-#        ...   17
-#        ANY   18
-#    generic   19
-# expression   20
-#  byte code   21
-#    ext ptr   22
-#        raw   24
-#         S4   25
-
+# TYPE_NULL <- 0L
+# TYPE_SYM  <- 1L
+# TYPE_ENV  <- 4L
 TYPE_LOGI <- 10L
+# TYPE_INT  <- 13L
 TYPE_NUM  <- 14L
+# TYPE_COMP <- 15L
 TYPE_CHAR <- 16L
+# TYPE_DOT  <- 17L
+# TYPE_ANY  <- 18L
 TYPE_S4   <- 25L
 
 UNIVERSALMOTIF_SLOTS <- c(
@@ -137,7 +89,6 @@ COMPARE_METRICS <- c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")
 # pos3    0    0    0    0    1
 # pos4    1    0    0    0    0
 
-# Inspired from S4Vectors::wmsg
 wmsg2 <- function(..., exdent = 0, indent = 0)
   paste0(strwrap(paste0(..., collapse = ""), exdent = exdent, indent = indent),
          collapse = "\n")

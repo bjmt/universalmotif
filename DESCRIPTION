@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.1.94
+Version: 1.1.95
 Authors@R: person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut",
     "cre"), email = "b2tremblay@uwaterloo.ca")
 URL: https://github.com/bjmt/universalmotif
@@ -61,9 +61,9 @@ Collate:
     'trim_motifs.R'
     'universalmotif-methods.R'
     'universalmotif.R'
+    'utils-internal.R'
     'utils-motif.R'
     'utils-sequence.R'
-    'utils.R'
     'view_motifs.R'
     'write_homer.R'
     'write_jaspar.R'
