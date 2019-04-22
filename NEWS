@@ -17,6 +17,10 @@ NEW FEATURES
     o shuffle_sequences(..., method = "markov") works for any set of
       characters instead of just DNA/RNA.
 
+    o shuffle_sequences(): new shuffling method, 'euler'. This allows for k>1
+      shuffling that preserves exact letter counts, as opposed to 'markov'.
+      This method is set as the new default shuffling method.
+
     o create_sequences() has a new option "freqs" which allows for generating
       sequence from higher order backgrounds and any sequence alphabet
       (options "monofreqs", "difreqs" and "trifreqs" are now deprecated).

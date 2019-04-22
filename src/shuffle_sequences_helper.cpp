@@ -63,3 +63,36 @@ String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k,
   return collapse(seqout);
 
 }
+
+// [[Rcpp::export(rng = false)]]
+StringVector eulerian_walk_cpp(StringVector edgelist, StringVector firstl, int seqlen,
+    int k, StringVector last, IntegerVector indices) {
+
+  StringVector nextl;  // if I declare nextl as String, it's converted to int
+  String currentl;     // for some reason during
+                       // nextl = edgelist[currentl][indices[currentl]]
+
+  StringVector out(seqlen);
+  for (int i = 0; i < k - 1; ++i) {
+    out[i] = firstl[i];
+  }
+
+  for (int i = k - 2; i < seqlen - 2; ++i) {
+
+    currentl = "";
+    for (int j = i - k + 2; j <= i; ++j) {
+      currentl += out[j];
+    }
+
+    nextl = edgelist[currentl][indices[currentl]];
+    indices[currentl] = indices[currentl] + 1;
+
+    out[i + 1] = nextl[0];
+
+  }
+
+  out[out.length() - 1] = last[last.length() - 1];
+
+  return out;
+
+}

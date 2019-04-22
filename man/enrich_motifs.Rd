@@ -8,7 +8,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   max.p = 1e-05, max.q = 1e-05, max.e = 0.001, qval.method = "fdr",
   positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
-  shuffle.k = 2, shuffle.method = "linear",
+  shuffle.k = 2, shuffle.method = "euler",
   shuffle.leftovers = "asis", return.scan.results = FALSE,
   progress = TRUE, BP = FALSE)
 }
@@ -58,7 +58,7 @@ then they can be used to scan the sequences. See \code{\link[=scan_sequences]{sc
 sequences. Only used if no background sequences are input. See
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
-\item{shuffle.method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+\item{shuffle.method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear', 'random')}.
 See \code{\link[=shuffle_sequences]{shuffle_sequences()}}. The \code{'random'} method is deprecated and
 will be removed in the next minor version.}
 

@@ -121,6 +121,10 @@ shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_
     .Call('_universalmotif_shuffle_markov_loop', PACKAGE = 'universalmotif', seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols)
 }
 
+eulerian_walk_cpp <- function(edgelist, firstl, seqlen, k, last, indices) {
+    .Call('_universalmotif_eulerian_walk_cpp', PACKAGE = 'universalmotif', edgelist, firstl, seqlen, k, last, indices)
+}
+
 trim_motif_internal <- function(motif, ic_scores, min_ic) {
     .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
 }

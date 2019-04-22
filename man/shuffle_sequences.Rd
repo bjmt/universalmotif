@@ -4,7 +4,7 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences.}
 \usage{
-shuffle_sequences(sequences, k = 1, method = "linear",
+shuffle_sequences(sequences, k = 1, method = "euler",
   leftovers = "asis", progress = FALSE, BP = FALSE)
 }
 \arguments{
@@ -13,7 +13,7 @@ with any set of characters.}
 
 \item{k}{\code{numeric(1)} K-let size.}
 
-\item{method}{\code{character(1)} One of \code{c('markov', 'linear', 'random')}.
+\item{method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear', 'random')}.
 Only relevant is \code{k > 1}. See details. The \code{'random'} method is deprecated
 and will be removed in the next minor version.}
 
@@ -43,9 +43,18 @@ generate sequences which will maintain (on average) the k-let
 frequencies. Please note that this method is not a 'true' shuffling, and
 for short sequences (e.g. <100bp) this can result in slightly more
 dissimilar sequences versus true shuffling. See
-\insertCite{markovmodel;textual}{universalmotif} and
-\insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
+\insertCite{markovmodel;textual}{universalmotif} for a discussion on the
 topic.
+
+If \code{method = 'euler'}, then the sequence shuffling method proposed by
+\insertCite{markovmodel2;textual}{universalmotif} is used. As opposed
+to the 'markov' method, this one preserves exact k-let frequencies. This
+is done by creating a k-let edge graph, then following a
+random Eulerian walk through the graph. Not all walks will use up all
+available letters however, so the cycle-popping algorithm proposed by
+\insertCite{eulerAlgo;textual}{universalmotif} is used to find a
+random Eulerian path. A side effect of using this method is that the
+starting and ending sequence letters will remain unshuffled.
 
 If \code{method = 'linear'}, then the input sequences are split linearly
 every \code{k} letters; for example, for \code{k = 3} 'ACAGATAGACCC' becomes
@@ -53,11 +62,6 @@ every \code{k} letters; for example, for \code{k = 3} 'ACAGATAGACCC' becomes
 
 Do note however, that the \code{method} parameter is only relevant for \code{k > 1}.
 For \code{k = 1}, a simple \code{sample} call is performed.
-
-Regarding performance: \code{method = 'linear'} for any \code{k > 1} is very
-efficient and nearly as fast as for \code{k = 1}; shuffling
-with \code{method = 'markov'} is roughly ten times slower and slows with
-increasing \code{k}.
 }
 \examples{
 sequences <- create_sequences()
@@ -68,6 +72,8 @@ sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 \insertRef{markovmodel2}{universalmotif}
 
 \insertRef{markovmodel}{universalmotif}
+
+\insertRef{eulerAlgo}{universalmotif}
 }
 \seealso{
 \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=enrich_motifs]{enrich_motifs()}},

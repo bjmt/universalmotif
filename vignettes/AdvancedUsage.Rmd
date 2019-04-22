@@ -373,7 +373,7 @@ tree <- motif_tree(motifs, layout = "daylight", linecol = "family",
 tree
 ```
 
-While `motif_tree()` works as a quick and convinient tree-building function, it can be inconvient when more control is required over tree construction. For this purpose, the following code goes through how exactly `motif_tree()` generates trees.
+While `motif_tree()` works as a quick and convenient tree-building function, it can be inconvenient when more control is required over tree construction. For this purpose, the following code goes through how exactly `motif_tree()` generates trees.
 
 
 ```{r}

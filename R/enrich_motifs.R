@@ -35,7 +35,7 @@
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
 #'    [shuffle_sequences()].
-#' @param shuffle.method `character(1)` One of `c('markov', 'linear', 'random')`.
+#' @param shuffle.method `character(1)` One of `c('euler', 'markov', 'linear', 'random')`.
 #'    See [shuffle_sequences()]. The `'random'` method is deprecated and 
 #'    will be removed in the next minor version.
 #' @param shuffle.leftovers `character(1)` One of `c('asis', 'first', 'split', 'discard')`.
@@ -107,7 +107,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           qval.method = "fdr", positional.test = "t.test",
                           threshold = 0.001, threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
-                          shuffle.k = 2, shuffle.method = "linear",
+                          shuffle.k = 2, shuffle.method = "euler",
                           shuffle.leftovers = "asis",
                           return.scan.results = FALSE, progress = TRUE,
                           BP = FALSE) {
@@ -147,7 +147,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     threshold.type_check <- wmsg2(threshold.type_check, 4, 2)
     all_checks <- c(all_checks, threshold.type_check)
   }
-  if (!shuffle.method %in% c("markov", "linear", "random")) {
+  if (!shuffle.method %in% c("euler", "markov", "linear", "random")) {
     shuffle.method_check <- paste0(" * Incorrect 'shuffle.method': expected ",
                                    "`markov`, `linear` or `random`; got `",
                                    shuffle.method, "`")

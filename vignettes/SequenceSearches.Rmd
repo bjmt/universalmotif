@@ -59,9 +59,11 @@ When performing _de novo_ motif searches or motif enrichment analyses, it is com
 
 In order to avoid these results, typically it desirable to use a set of background sequences which preserve a certain `k`-let size (such as dinucleotide or trinucleotide frequencies in the case of DNA sequences). Though for some cases a set of similar sequences may already be available for use as background sequences, usually background sequences are obtained by shuffling the target sequences, while preserving a desired `k`-let size. For this purpose, the most commonly used tool is likely uShuffle [@ushuffle]. Despite this the `r Biocpkg("universalmotif")` package aims to provide its own `k`-let shuffling capabilities for use within R via `shuffle_sequences()`.
 
-The `r Biocpkg("universalmotif")` offers two different methods for sequence shuffling: `markov` and `linear`. The first method, `markov` can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different.
+The `r Biocpkg("universalmotif")` offers three different methods for sequence shuffling: `euler`, `markov` and `linear`. The first method, `euler`, can shuffle sequences while preserving any desired `k`-let size. Exact letter counts will be preserved. However in order for this to be possible, the first and last letters will remain unshuffled.
 
-The second method `linear` preserves the original letter counts exactly, but uses a more crude shuffling technique. In this case the sequence is split into sub-sequences every `k`-let (of any size), which are then re-assembled randomly. This means that while shuffling the same sequence multiple times with `method = "linear"` will result in different sequences, they will all have started from the same set of sub-sequences (just re-assembled differently).
+The second method, `markov` can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different.
+
+The third method `linear` preserves the original letter counts exactly, but uses a more crude shuffling technique. In this case the sequence is split into sub-sequences every `k`-let (of any size), which are then re-assembled randomly. This means that while shuffling the same sequence multiple times with `method = "linear"` will result in different sequences, they will all have started from the same set of sub-sequences (just re-assembled differently).
 
 ```{r}
 library(universalmotif)
@@ -71,6 +73,7 @@ data(ArabidopsisPromoters)
 # library(Biostrings)
 # ArabidopsisPromoters <- readDNAStringSet("ArabidopsisPromoters.fasta")
 
+euler <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "euler")
 markov <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "markov")
 linear <- shuffle_sequences(ArabidopsisPromoters, k = 2, method = "linear")
 k1 <- shuffle_sequences(ArabidopsisPromoters, k = 1)
@@ -79,17 +82,19 @@ Let us compare how the methods perform:
 ```{r}
 o.letter <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               1, as.prob = FALSE))
+e.letter <- colSums(oligonucleotideFrequency(euler, 1, as.prob = FALSE))
 m.letter <- colSums(oligonucleotideFrequency(markov, 1, as.prob = FALSE))
 l.letter <- colSums(oligonucleotideFrequency(linear, 1, as.prob = FALSE))
 
-data.frame(original=o.letter, markov=m.letter, linear=l.letter)
+data.frame(original=o.letter, euler=e.letter, markov=m.letter, linear=l.letter)
 
 o.counts <- colSums(oligonucleotideFrequency(ArabidopsisPromoters,
                                               2, as.prob = FALSE))
+e.counts <- colSums(oligonucleotideFrequency(euler, 2, as.prob = FALSE))
 m.counts <- colSums(oligonucleotideFrequency(markov, 2, as.prob = FALSE))
 l.counts <- colSums(oligonucleotideFrequency(linear, 2, as.prob = FALSE))
 
-data.frame(original=o.counts, markov=m.counts, linear=l.counts)
+data.frame(original=o.counts, euler=e.counts, markov=m.counts, linear=l.counts)
 ```
 
 # Calculating sequence background

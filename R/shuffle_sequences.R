@@ -6,7 +6,7 @@
 #' @param sequences \code{\link{XStringSet}} Set of sequences to shuffle. Works
 #'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
-#' @param method `character(1)` One of `c('markov', 'linear', 'random')`.
+#' @param method `character(1)` One of `c('euler', 'markov', 'linear', 'random')`.
 #'    Only relevant is `k > 1`. See details. The `'random'` method is deprecated
 #'    and will be removed in the next minor version.
 #' @param leftovers `character(1)` For `method = 'random'`. One of
@@ -28,9 +28,18 @@
 #'    frequencies. Please note that this method is not a 'true' shuffling, and
 #'    for short sequences (e.g. <100bp) this can result in slightly more
 #'    dissimilar sequences versus true shuffling. See
-#'    \insertCite{markovmodel;textual}{universalmotif} and
-#'    \insertCite{markovmodel2;textual}{universalmotif} for a discussion on the
+#'    \insertCite{markovmodel;textual}{universalmotif} for a discussion on the
 #'    topic.
+#'
+#'    If `method = 'euler'`, then the sequence shuffling method proposed by
+#'    \insertCite{markovmodel2;textual}{universalmotif} is used. As opposed
+#'    to the 'markov' method, this one preserves exact k-let frequencies. This
+#'    is done by creating a k-let edge graph, then following a
+#'    random Eulerian walk through the graph. Not all walks will use up all
+#'    available letters however, so the cycle-popping algorithm proposed by
+#'    \insertCite{eulerAlgo;textual}{universalmotif} is used to find a
+#'    random Eulerian path. A side effect of using this method is that the
+#'    starting and ending sequence letters will remain unshuffled.
 #'
 #'    If `method = 'linear'`, then the input sequences are split linearly
 #'    every `k` letters; for example, for `k = 3` 'ACAGATAGACCC' becomes
@@ -39,15 +48,12 @@
 #'    Do note however, that the `method` parameter is only relevant for `k > 1`.
 #'    For `k = 1`, a simple `sample` call is performed.
 #'
-#'    Regarding performance: `method = 'linear'` for any `k > 1` is very
-#'    efficient and nearly as fast as for `k = 1`; shuffling
-#'    with `method = 'markov'` is roughly ten times slower and slows with
-#'    increasing `k`.
-#'
 #' @references
 #'    \insertRef{markovmodel2}{universalmotif}
 #'
 #'    \insertRef{markovmodel}{universalmotif}
+#'
+#'    \insertRef{eulerAlgo}{universalmotif}
 #'
 #' @examples
 #' sequences <- create_sequences()
@@ -57,15 +63,15 @@
 #'    [shuffle_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-shuffle_sequences <- function(sequences, k = 1, method = "linear",
+shuffle_sequences <- function(sequences, k = 1, method = "euler",
                                leftovers = "asis", progress = FALSE,
                                BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!method %in% c("markov", "linear", "random")) {
-    method_check <- paste0(" * Incorrect 'shuffle.method': expected `markov`, ",
+  if (!method %in% c("markov", "linear", "random", "euler")) {
+    method_check <- paste0(" * Incorrect 'shuffle.method': expected `euler`, `markov`, ",
                            "`linear` or `random`; got `",
                            method, "`")
     method_check <- wmsg2(method_check)
@@ -99,6 +105,10 @@ shuffle_sequences <- function(sequences, k = 1, method = "linear",
                          PB = progress, BP = BP)
   } else {
     switch(method,
+      "euler" = {
+      sequences <- lapply_(as.character(sequences), shuffle_euler, k = k,
+                           PB = progress, BP = BP)
+      },
       "markov" = {
         if (seqtype(sequences) %in% c("DNA", "RNA"))
           sequences <- lapply_(sequences, shuffle_markov, k = k,
@@ -340,6 +350,90 @@ shuffle_markov_any <- function(sequence, k) {
                                 trans.cols)
 
   seqout
+
+}
+
+shuffle_euler <- function(sequence, k) {
+  # runtime increases with k
+  # about 2X as slow and 2X as many mem allocs vs shuffle_markov_any()
+
+  seq <- safeExplode(sequence)
+  seqlen <- length(seq)
+  alph <- sort(unique(seq))
+
+  alph.i <- seq_along(alph)
+  names(alph.i) <- alph
+
+  first <- seq[seq_len(k - 1)]
+  last <- collapse_cpp(seq[(seqlen - k + 2):seqlen])
+
+  kletsm1 <- get_klets(alph, k - 1)
+  klets <- letter_freqs(seq, k, "freqs", FALSE, alph)$counts
+
+  edgematrix <- matrix(klets$counts, nrow = length(kletsm1), byrow = TRUE,
+                       dimnames = list(kletsm1, alph))
+
+  to.keep <- apply(edgematrix, 1, function(x) any(x > 0))
+  kletsm1 <- kletsm1[to.keep]
+  edgematrix <- edgematrix[to.keep, ]
+
+  n <- length(kletsm1)
+
+  lastlets <- get_lastlets(edgematrix, last, k, kletsm1, alph)
+
+  for (i in seq_len(n)) {
+    edgematrix[i, alph.i[lastlets[[i]]]] <- edgematrix[i, alph.i[lastlets[[i]]]] - 1
+  }
+
+  edgelist <- vector("list", n)
+  names(edgelist) <- kletsm1
+  for (i in seq_len(n)) {
+    lets <- character()
+    for (j in seq_along(alph)) {
+      lets <- c(lets, rep(alph[j], edgematrix[i, j]))
+    }
+    edgelist[[i]] <- collapse_cpp(c(sample(lets), lastlets[[i]]))
+  }
+  edgelist <- unlist(edgelist)
+  indices <- integer(n)
+  names(indices) <- kletsm1
+
+  # by far the slowest step
+  out <- eulerian_walk_cpp(edgelist, first, seqlen, k, safeExplode(last), indices)
+
+  collapse_cpp(out)
+
+}
+
+get_lastlets <- function(edgematrix, last, k, kletsm1, alph) {
+
+  # Cycle-popping algorithm: RandomTreeWithRoot() (Propp and Wilson).
+  # Only needs to be done with last letters of each vertex to obtain a
+  # successfull Eulerian walk for entire sequence (Altschul and Erickson).
+
+  n <- length(kletsm1)
+  lastlets <- character(n)
+  names(lastlets) <- kletsm1
+
+  vertices <- logical(n)
+  names(vertices) <- kletsm1
+
+  vertices[last] <- TRUE
+
+  for (i in seq_len(n)) {
+    u <- i
+    while (!vertices[u]) {
+      lastlets[u] <- sample(alph, 1, prob = edgematrix[u, ])
+      u <- collapse_cpp(c(safeExplode(names(lastlets[u]))[-1], lastlets[u]))
+    }
+    u <- i
+    while (!vertices[u]) {
+      vertices[u] <- TRUE
+      u <- collapse_cpp(c(safeExplode(names(lastlets[u]))[-1], lastlets[u]))
+    }
+  }
+
+  as.list(lastlets)
 
 }
 

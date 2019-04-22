@@ -385,6 +385,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// eulerian_walk_cpp
+StringVector eulerian_walk_cpp(StringVector edgelist, StringVector firstl, int seqlen, int k, StringVector last, IntegerVector indices);
+RcppExport SEXP _universalmotif_eulerian_walk_cpp(SEXP edgelistSEXP, SEXP firstlSEXP, SEXP seqlenSEXP, SEXP kSEXP, SEXP lastSEXP, SEXP indicesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< StringVector >::type edgelist(edgelistSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type firstl(firstlSEXP);
+    Rcpp::traits::input_parameter< int >::type seqlen(seqlenSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type last(lastSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type indices(indicesSEXP);
+    rcpp_result_gen = Rcpp::wrap(eulerian_walk_cpp(edgelist, firstl, seqlen, k, last, indices));
+    return rcpp_result_gen;
+END_RCPP
+}
 // trim_motif_internal
 NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores, double min_ic);
 RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
@@ -740,6 +755,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_index_list_to_df_cpp", (DL_FUNC) &_universalmotif_index_list_to_df_cpp, 3},
     {"_universalmotif_shuffle_random_loop", (DL_FUNC) &_universalmotif_shuffle_random_loop, 5},
     {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
+    {"_universalmotif_eulerian_walk_cpp", (DL_FUNC) &_universalmotif_eulerian_walk_cpp, 6},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
