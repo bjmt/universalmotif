@@ -67,6 +67,9 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
                                leftovers = "asis", progress = FALSE,
                                BP = FALSE) {
 
+  # Idea: moving-window markov shuffling. Get k-let frequencies in windows,
+  #       and generate new letters based on local probabilities.
+
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)

@@ -1,6 +1,7 @@
 #' Utility functions.
 #'
-#' Various small functions used for motif creation.
+#' Various motif and sequence-related utility functions. See examples section
+#' for usage.
 #'
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.

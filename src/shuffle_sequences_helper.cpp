@@ -81,8 +81,8 @@ StringVector eulerian_walk_cpp(StringVector edgelist, StringVector firstl, int s
   for (int i = k - 2; i < seqlen - 2; ++i) {
 
     currentl = "";
-    for (int j = i - k + 2; j <= i; ++j) {
-      currentl += out[j];
+    for (int j = i - k + 2; j <= i; ++j) {  // TODO: this can probably be
+      currentl += out[j];                   //       replaced by int indexing
     }
 
     nextl = edgelist[currentl][indices[currentl]];

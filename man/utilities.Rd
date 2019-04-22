@@ -167,7 +167,8 @@ For \code{\link[=count_klets]{count_klets()}}: a \code{data.frame} with a column
 a column of k-let counts.
 }
 \description{
-Various small functions used for motif creation.
+Various motif and sequence-related utility functions. See examples section
+for usage.
 }
 \examples{
 ## make_DBscores
