@@ -4,6 +4,7 @@
 \alias{get_klets}
 \alias{make_DBscores}
 \alias{utilities}
+\alias{count_klets}
 \alias{motif_score}
 \alias{score_match}
 \alias{get_matches}
@@ -27,6 +28,8 @@ make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
   shuffle.method = "linear", shuffle.leftovers = "asis",
   rand.tries = 1000, normalise.scores = TRUE, min.overlap = 6,
   min.mean.ic = 0, progress = TRUE, BP = FALSE)
+
+count_klets(string, k)
 
 motif_score(motif, threshold = c(0, 1))
 
@@ -95,6 +98,8 @@ P-value computation.}
 \item{BP}{\code{logical(1)} Use the \pkg{BiocParallel} package. See
 \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default backend.}
 
+\item{string}{\code{character(1)} Letter string to count k-lets from.}
+
 \item{motif}{Motif object to calculate scores from.}
 
 \item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
@@ -149,6 +154,17 @@ input database.
 
 For \code{\link[=summarise_motifs]{summarise_motifs()}}: a \code{data.frame} with columns representing
 the \linkS4class{universalmotif} slots.
+
+For \code{\link[=get_matches]{get_matches()}}: a \code{character} vector of motif matches.
+
+For \code{\link[=motif_score]{motif_score()}}: a named \code{numeric} vector of motif scores.
+
+For \code{\link[=score_match]{score_match()}}: a \code{numeric} vector with the match motif score.
+
+For \code{\link[=get_klets]{get_klets()}}: a \code{character} vector of k-lets.
+
+For \code{\link[=count_klets]{count_klets()}}: a \code{data.frame} with a column of k-lets, and
+a column of k-let counts.
 }
 \description{
 Various small functions used for motif creation. Note that all of the
@@ -252,6 +268,10 @@ score_match(m, "TATATAG")
 ## get_match
 ## Get all possible motif matches above input score
 get_matches(m, 10)
+
+## count_klets
+## Count k-lets for any string of characters
+count_klets("GCAAATGTACGCAGGGCCGA", 2)
 
 }
 \seealso{

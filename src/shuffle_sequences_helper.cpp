@@ -68,6 +68,7 @@ String shuffle_markov_loop(int seq_i_l, int seq_i_r, int k,
 StringVector eulerian_walk_cpp(StringVector edgelist, StringVector firstl, int seqlen,
     int k, StringVector last, IntegerVector indices) {
 
+  int next_i;
   StringVector nextl;  // if I declare nextl as String, it's converted to int
   String currentl;     // for some reason during
                        // nextl = edgelist[currentl][indices[currentl]]
@@ -85,7 +86,11 @@ StringVector eulerian_walk_cpp(StringVector edgelist, StringVector firstl, int s
     }
 
     nextl = edgelist[currentl][indices[currentl]];
-    indices[currentl] = indices[currentl] + 1;
+
+    // indices[currentl] = indices[currentl] + 1;  // fails on windows
+    next_i = indices[currentl];
+    ++next_i;
+    indices[currentl] = next_i;
 
     out[i + 1] = nextl[0];
 

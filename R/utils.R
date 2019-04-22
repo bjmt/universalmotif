@@ -45,6 +45,7 @@
 #'    representing score percentage.
 #' @param match `character(1)` Sequence string to calculate score from.
 #' @param score `numeric(1)` Logodds motif score.
+#' @param string `character(1)` Letter string to count k-lets from.
 #'
 #' @return
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
@@ -64,6 +65,17 @@
 #'
 #'    For [summarise_motifs()]: a `data.frame` with columns representing
 #'    the [universalmotif-class] slots.
+#'
+#'    For [get_matches()]: a `character` vector of motif matches.
+#'
+#'    For [motif_score()]: a named `numeric` vector of motif scores.
+#'
+#'    For [score_match()]: a `numeric` vector with the match motif score.
+#'
+#'    For [get_klets()]: a `character` vector of k-lets.
+#'
+#'    For [count_klets()]: a `data.frame` with a column of k-lets, and
+#'    a column of k-let counts.
 #'
 #' @examples
 #' ## make_DBscores
@@ -161,6 +173,10 @@
 #' ## Get all possible motif matches above input score
 #' get_matches(m, 10)
 #'
+#' ## count_klets
+#' ## Count k-lets for any string of characters
+#' count_klets("GCAAATGTACGCAGGGCCGA", 2)
+#'
 #' @seealso [create_motif()], [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utilities
@@ -233,6 +249,19 @@ UNIVERSALMOTIF_SLOTS <- c(
 COMPARE_METRICS <- c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")
 
 # EXPORTED UTILITIES -----------------------------------------------------------
+
+#' @rdname utilities
+#' @export
+count_klets <- function(string, k) {
+  if (length(string) > 1)
+    stop("please input a single string")
+  k <- as.integer(k)
+  if (k < 1) 
+    stop("k must be greater than 0")
+  string <- safeExplode(string)
+  counts <- letter_freqs(string, k, "freqs", FALSE, sort(unique(string)))
+  counts$counts
+}
 
 #' @rdname utilities
 #' @export
