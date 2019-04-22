@@ -165,7 +165,7 @@ collapse_rows_df <- function(seqs_k) {
     .Call('_universalmotif_collapse_rows_df', PACKAGE = 'universalmotif', seqs_k)
 }
 
-#' @rdname utilities
+#' @rdname utils-sequence
 #' @export
 get_klets <- function(lets, k) {
     .Call('_universalmotif_get_klets', PACKAGE = 'universalmotif', lets, k)

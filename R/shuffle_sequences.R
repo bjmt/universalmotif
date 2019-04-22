@@ -370,6 +370,10 @@ shuffle_euler <- function(sequence, k) {
   # runtime increases with k
   # about 2X as slow and 2X as many mem allocs vs shuffle_markov_any()
 
+  # no idea why, but for now this has to be done
+  if (tolower(sequence) != sequence && toupper(sequence) != sequence)
+    stop("lower and upper case letters cannot both be used for method = 'euler'")
+
   seq <- safeExplode(sequence)
   seqlen <- length(seq)
   alph <- sort(unique(seq))

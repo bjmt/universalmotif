@@ -416,7 +416,7 @@ get_rid_of_dupes <- function(comparisons) {
 
 }
 
-#' @rdname utilities
+#' @rdname utils-motif
 #' @export
 make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",

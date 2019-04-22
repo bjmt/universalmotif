@@ -102,7 +102,7 @@ StringVector collapse_rows_df(DataFrame seqs_k) {
 
 }
 
-//' @rdname utilities
+//' @rdname utils-sequence
 //' @export
 // [[Rcpp::export(rng = false)]]
 StringVector get_klets(StringVector lets, int k) {

@@ -45,6 +45,12 @@ NEW FEATURES
     o New count_klets() utility function: count all k-lets for any string
       of characters.
 
+    o New motif_score() utility function: calculate motif score from input
+      thresholds.
+
+    o New shuffle_string() utility function: shuffle a string of character
+      using one of three methods: euler, linear, and markov.
+
     o The native write_motifs()/read_motifs() universalmotif format is now
       YAML based. Motifs written before v1.2.0 can still be read by
       read_motifs().
@@ -81,7 +87,7 @@ MINOR CHANGES
       each letter in the site is now dependent on the previous letters (also
       faster and more memory efficient for any use.freq).
 
-    o Big improvement to calculating motif scores from p-value input: no
+    o Improvement to calculating motif scores from p-value input: no
       longer guesses different scores, instead estimating a normal distribution
       of scores. This new approach is much, much faster and more memory
       efficient. It does however assume a uniform background.
@@ -105,9 +111,6 @@ MINOR CHANGES
 
     o Added "overwrite" and "append" options to write_*() functions.
 
-    o New motif_score() utility function: calculate motif score from input
-      thresholds.
-
     o enrich_motifs(..., return.scan.results = FALSE): uses a slimmed down
       version of scan_sequences() which skips construction of the complete
       results data.frame, saving a tiny bit of time on large jobs.
@@ -120,6 +123,9 @@ MINOR CHANGES
 
     o If a MEME motif has two names, the second will be assigned as "altname"
       by read_meme().
+
+    o Utilities documentation has been split into two: ?utils-motif and
+      ?utils-sequence.
 
 BUG FIXES
 
