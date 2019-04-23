@@ -275,8 +275,8 @@ shuffle_linear <- function(sequence, k, mode = 1) {
   # utf8ToInt() + intToUtf8()!
 
   if (mode == 1) {
-    seq.len <- nchar(sequence)
     seq1 <- safeExplode(sequence)
+    seq.len <- length(seq1)
   } else if (mode == 2) {
     seq.len <- length(sequence)
     seq1 <- sequence
