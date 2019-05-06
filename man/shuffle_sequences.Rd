@@ -5,7 +5,7 @@
 \title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, k = 1, method = "euler",
-  leftovers = "asis", progress = FALSE, BP = FALSE)
+  progress = FALSE, BP = FALSE)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Set of sequences to shuffle. Works
@@ -13,12 +13,8 @@ with any set of characters.}
 
 \item{k}{\code{numeric(1)} K-let size.}
 
-\item{method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear', 'random')}.
-Only relevant is \code{k > 1}. See details. The \code{'random'} method is deprecated
-and will be removed in the next minor version.}
-
-\item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
-\code{c('asis', 'first', 'split', 'discard')}.}
+\item{method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear')}.
+Only relevant is \code{k > 1}. See details.}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 

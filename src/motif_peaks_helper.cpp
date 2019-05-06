@@ -1,13 +1,13 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-int peakfinder_single_cpp(int i, NumericVector x, int m) {
+int peakfinder_single_cpp(int i, const NumericVector &x, int m) {
 
   int z = i - m;
   if (z < 0) z = 0;
 
   int w = i + m;
-  if (w > x.length() - 1) w = x.length() - 1;
+  if (w > x.size() - 1) w = x.size() - 1;
 
   IntegerVector x1 = seq(z, i);
   IntegerVector x2 = seq(i, w);
@@ -23,16 +23,16 @@ int peakfinder_single_cpp(int i, NumericVector x, int m) {
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector peakfinder_cpp(NumericVector x, int m = 3) {
+IntegerVector peakfinder_cpp(const NumericVector &x, int m = 3) {
 
   IntegerVector shape = diff(sign(diff(x)));
 
-  IntegerVector shape_count = seq(0, shape.length() - 1);
+  IntegerVector shape_count = seq(0, shape.size() - 1);
   IntegerVector shape_which = shape_count[shape < 0];
 
-  IntegerVector pks(shape_which.length());
+  IntegerVector pks(shape_which.size());
 
-  for (int i = 0; i < shape_which.length(); ++i) {
+  for (R_xlen_t i = 0; i < shape_which.size(); ++i) {
     pks[i] = peakfinder_single_cpp(shape_which[i] + 1, x, m);
   }
 
@@ -41,14 +41,14 @@ IntegerVector peakfinder_cpp(NumericVector x, int m = 3) {
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector linbin_cpp(IntegerVector x, IntegerVector gpoints) {
+IntegerVector linbin_cpp(const IntegerVector &x, const IntegerVector &gpoints) {
 
-  int M = gpoints.length();
+  int M = gpoints.size();
   IntegerVector gcnts(M);
 
   double delta = (gpoints[M - 1] - gpoints[0]) / (M - 1);
 
-  for (int i = 0; i < x.length(); ++i) {
+  for (R_xlen_t i = 0; i < x.size(); ++i) {
 
     double lxi = (x[i] - gpoints[0]) / delta;
     int li = lxi;

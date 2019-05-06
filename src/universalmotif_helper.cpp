@@ -2,32 +2,48 @@
 #include "utils.h"
 using namespace Rcpp;
 
+std::unordered_map<String, int> alphs_e = {
+  {"DNA", 1}, {"RNA", 2},
+  {"AA", 3}, {"custom", 4}
+};
+
+std::unordered_map<String, int> types2_e = {
+  {"PCM", 1}, {"PPM", 2},
+  {"PWM", 3}, {"ICM", 4}
+};
+
+
 StringVector universalmotif_alphabet(StringVector alphabet,
     NumericMatrix &m_motif) {
 
   // NOTE: assumes motif rows are properly alphabetically sorted
 
-  if (alphabet[0] == "DNA")
-    rownames(m_motif) = ::dna;
-  else if (alphabet[0] == "RNA")
-    rownames(m_motif) = ::rna;
-  else if (alphabet[0] == "AA")
-    rownames(m_motif) = ::aa;
-  else if (alphabet[0] != "custom") {
-    StringVector alph_split;
-    for (int i = 0; i < alphabet[0].size(); ++i) {
-      alph_split.push_back(alphabet[0][i]);
-    }
-    if (alph_split.length() != m_motif.nrow())
-      stop("Alphabet length does not match matrix rows");
-    rownames(m_motif) = sort_unique(alph_split);
-    alphabet[0] = collapse(sort_unique(alph_split));
-  } else {
-    StringVector mat_rownames = rownames(m_motif);
-    if (mat_rownames.length() == 0)
-      stop("Error creating universalmotif object; missing alphabet");
-    mat_rownames = sort_unique(mat_rownames);
-    alphabet[0] = collapse(mat_rownames);
+  switch (::alphs_e[alphabet[0]]) {
+    case 1: rownames(m_motif) = ::dna;
+            break;
+    case 2: rownames(m_motif) = ::rna;
+            break;
+    case 3: rownames(m_motif) = ::aa;
+            break;
+    case 4: {
+              StringVector mat_rownames = rownames(m_motif);
+              if (mat_rownames.size() == 0)
+                stop("Error creating universalmotif object; missing alphabet");
+              mat_rownames = sort_unique(mat_rownames);
+              alphabet[0] = collapse(mat_rownames);
+              break;
+             }
+    default: {
+               StringVector alph_split;
+               for (size_t i = 0; i < alphabet[0].size(); ++i) {
+                 alph_split.push_back(alphabet[0][i]);
+               }
+               if (alph_split.size() != m_motif.nrow())
+                 stop("Alphabet length does not match matrix rows");
+               rownames(m_motif) = sort_unique(alph_split);
+               alphabet[0] = collapse(sort_unique(alph_split));
+               break;
+            }
   }
 
   return alphabet;
@@ -35,7 +51,7 @@ StringVector universalmotif_alphabet(StringVector alphabet,
 }
 
 StringVector universalmotif_type(NumericMatrix &m_motif, StringVector type,
-    NumericVector motif_colsums) {
+    const NumericVector &motif_colsums) {
 
   LogicalVector mat_1_check = m_motif >= 1;
   LogicalVector mat_0_check = m_motif == 0;
@@ -43,7 +59,7 @@ StringVector universalmotif_type(NumericMatrix &m_motif, StringVector type,
   LogicalVector mat_099_101_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
   LogicalVector mat_pos_check = m_motif >= 0;
 
-  if (StringVector::is_na(type[0]) || type.length() == 0) {
+  if (StringVector::is_na(type[0]) || type.size() == 0) {
     if (is_true(all(mat_1_0_check)))
       type = StringVector::create("PCM");
     else if (is_true(all(mat_099_101_check)) && is_true(all(mat_pos_check)))
@@ -64,9 +80,9 @@ StringVector universalmotif_type(NumericMatrix &m_motif, StringVector type,
 }
 
 NumericVector universalmotif_nsites(NumericVector nsites, StringVector type,
-    NumericMatrix &m_motif, NumericVector motif_colsums) {
+    NumericMatrix &m_motif, const NumericVector &motif_colsums) {
 
-  if (NumericVector::is_na(nsites[0]) || nsites.length() == 0) {
+  if (NumericVector::is_na(nsites[0]) || nsites.size() == 0) {
 
     if (type[0] == "PCM") nsites[0] = sum(m_motif(_, 1));
     else nsites = NumericVector::create();
@@ -98,16 +114,16 @@ NumericVector universalmotif_nsites(NumericVector nsites, StringVector type,
 
 }
 
-NumericVector universalmotif_icscore(NumericVector icscore, NumericVector nsites,
-    NumericMatrix m_motif, NumericVector bkg, StringVector type,
-    double pseudocount) {
+NumericVector universalmotif_icscore(NumericVector icscore,
+    NumericVector nsites, NumericMatrix m_motif, NumericVector bkg,
+    StringVector type, double pseudocount) {
 
   int alph_len = m_motif.nrow();
   IntegerVector bkg_i = seq_len(alph_len) - 1;
 
-  if (NumericVector::is_na(icscore[0]) || icscore.length() == 0) {
+  if (NumericVector::is_na(icscore[0]) || icscore.size() == 0) {
     double tmp_nsites = 0;
-    if (nsites.length() != 0) tmp_nsites = nsites[0];
+    if (nsites.size() != 0) tmp_nsites = nsites[0];
     NumericVector icscore_tmp(m_motif.ncol());
     for (int i = 0; i < m_motif.ncol(); ++i) {
       icscore_tmp[i] = position_icscoreC(m_motif(_, i), bkg[bkg_i], type[0],
@@ -125,7 +141,7 @@ NumericVector universalmotif_bkg(NumericVector bkg, NumericMatrix m_motif) {
   // NOTE: Assumes the vector is already properly alphabetically sorted.
 
   int alph_len = m_motif.nrow();
-  int bkg_len = bkg.length();
+  size_t bkg_len = bkg.size();
 
   if (NumericVector::is_na(bkg[0]) || bkg_len == 0) {
 
@@ -154,37 +170,32 @@ StringVector universalmotif_consensus(NumericMatrix &m_motif, StringVector alpha
 
   StringVector consensus_tmp(m_motif.ncol());
 
-  if (alphabet[0] == "DNA") {
-
-    for (int i = 0; i < m_motif.ncol(); ++i) {
-      consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
-    }
-    colnames(m_motif) = consensus_tmp;
-    consensus = collapse(consensus_tmp);
-
-  } else if (alphabet[0] == "RNA") {
-
-    for (int i = 0; i < m_motif.ncol(); ++i) {
-      consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
-    }
-    colnames(m_motif) = consensus_tmp;
-    consensus = collapse(consensus_tmp);
-
-  } else if (alphabet[0] == "AA") {
-
-    for (int i =0; i < m_motif.ncol(); ++i) {
-      consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
-    }
-    colnames(m_motif) = consensus_tmp;
-    consensus = collapse(consensus_tmp);
-
-  } else {
-
-    StringVector mot_rownames = rownames(m_motif);
-    colnames(m_motif) = StringVector::create();
-    rownames(m_motif) = mot_rownames;
-    consensus = StringVector::create();
-
+  switch (::alphs_e[alphabet[0]]) {
+    case 1: for (int i = 0; i < m_motif.ncol(); ++i) {
+              consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
+            }
+            colnames(m_motif) = consensus_tmp;
+            consensus = collapse(consensus_tmp);
+            break;
+    case 2: for (int i = 0; i < m_motif.ncol(); ++i) {
+              consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
+            }
+            colnames(m_motif) = consensus_tmp;
+            consensus = collapse(consensus_tmp);
+            break;
+    case 3: for (int i =0; i < m_motif.ncol(); ++i) {
+              consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
+            }
+            colnames(m_motif) = consensus_tmp;
+            consensus = collapse(consensus_tmp);
+            break;
+    default: {
+               StringVector mot_rownames = rownames(m_motif);
+               colnames(m_motif) = StringVector::create();
+               rownames(m_motif) = mot_rownames;
+               consensus = StringVector::create();
+               break;
+             }
   }
 
   return consensus;
@@ -298,21 +309,21 @@ StringVector check_length(StringVector m_name, StringVector m_altname,
     StringVector m_consensus, StringVector m_strand, NumericVector m_pval,
     NumericVector m_qval, NumericVector m_eval, StringVector msg) {
 
-  if (m_name.length()        != 1) msg.push_back("* name must be length 1");
-  if (m_altname.length()      > 1) msg.push_back("* altname cannot be longer than 1");
-  if (m_family.length()       > 1) msg.push_back("* family cannot be longer than 1");
-  if (m_organism.length()     > 1) msg.push_back("* organism cannot be longer than 1");
-  if (m_alphabet.length()    != 1) msg.push_back("* alphabet must be a single string");
-  if (m_type.length()        != 1) msg.push_back("* type must be length 1");
-  if (m_icscore.length()     != 1) msg.push_back("* icscore must be length 1");
-  if (m_nsites.length()       > 1) msg.push_back("* nsites cannot be longer than 1");
-  if (m_pseudocount.length() != 1) msg.push_back("* pseudocount must be length 1");
-  if (m_bkgsites.length()     > 1) msg.push_back("* bkgsites cannot be longer than 1");
-  if (m_consensus.length()    > 1) msg.push_back("* consensus cannot be longer than 1");
-  if (m_strand.length()      != 1) msg.push_back("* strand must be length 1");
-  if (m_pval.length()         > 1) msg.push_back("* pval cannot be longer than 1");
-  if (m_qval.length()         > 1) msg.push_back("* qval cannot be longer than 1");
-  if (m_eval.length()         > 1) msg.push_back("* eval cannot be longer than 1");
+  if (m_name.size()        != 1) msg.push_back("* name must be length 1");
+  if (m_altname.size()      > 1) msg.push_back("* altname cannot be longer than 1");
+  if (m_family.size()       > 1) msg.push_back("* family cannot be longer than 1");
+  if (m_organism.size()     > 1) msg.push_back("* organism cannot be longer than 1");
+  if (m_alphabet.size()    != 1) msg.push_back("* alphabet must be a single string");
+  if (m_type.size()        != 1) msg.push_back("* type must be length 1");
+  if (m_icscore.size()     != 1) msg.push_back("* icscore must be length 1");
+  if (m_nsites.size()       > 1) msg.push_back("* nsites cannot be longer than 1");
+  if (m_pseudocount.size() != 1) msg.push_back("* pseudocount must be length 1");
+  if (m_bkgsites.size()     > 1) msg.push_back("* bkgsites cannot be longer than 1");
+  if (m_consensus.size()    > 1) msg.push_back("* consensus cannot be longer than 1");
+  if (m_strand.size()      != 1) msg.push_back("* strand must be length 1");
+  if (m_pval.size()         > 1) msg.push_back("* pval cannot be longer than 1");
+  if (m_qval.size()         > 1) msg.push_back("* qval cannot be longer than 1");
+  if (m_eval.size()         > 1) msg.push_back("* eval cannot be longer than 1");
 
   return msg;
 
@@ -323,9 +334,9 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
   LogicalVector failed(blet.size(), true);
 
-  for (unsigned int i = 0; i < blet.size(); ++i) {
+  for (size_t i = 0; i < blet.size(); ++i) {
 
-    for (int j = 0; j < alph.length(); ++j) {
+    for (size_t j = 0; j < alph.size(); ++j) {
 
       std::string alph_j = as<std::string>(alph[j]);
 
@@ -344,8 +355,8 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
 StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
 
-  int blen = bkg.length();
-  int alen = alph.length();
+  size_t blen = bkg.size();
+  size_t alen = alph.size();
 
   SEXP bnames = bkg.attr("names");
 
@@ -363,7 +374,7 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
     bool zero_check = false;
     LogicalVector name_comp;
     StringVector alph_i;
-    for (int i = 0; i < alen; ++i) {
+    for (size_t i = 0; i < alen; ++i) {
       alph_i = rep(StringVector::create(alph[i]), blen);
       name_comp = bnames == alph_i;
       if (is_false(any(name_comp))) zero_check = true;
@@ -391,7 +402,7 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
 
     }
 
-    for (int i = 0; i < blen; ++i) {
+    for (size_t i = 0; i < blen; ++i) {
 
       if (check_bkg_names(alph, as<std::string>(bnames[i]))) {
         msg.push_back("* unknown letters found in bkg names");
@@ -439,33 +450,31 @@ StringVector check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
 
   NumericVector motif_colsums = colSums(m_motif);
 
-  if (m_type[0] == "PCM") {
-
-    if (m_nsites.length() > 0) {
-      NumericVector colsums_unique = unique(m_nsites);
-      if (colsums_unique.length() > 1)
-        msg.push_back("* for type PCM motif colSums must equal nsites");
-    }
-
-    LogicalVector int_check = (m_motif < 1.0) & (m_motif > 0.0);
-    if (is_true(any(int_check)))
-      msg.push_back("* type PCM motifs cannot contain values between 0 and 1");
-
-  } else if (m_type[0] == "PPM") {
-
-    LogicalVector colsums_1_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
-    if (is_false(all(colsums_1_check)))
-      msg.push_back("* for type PPM colSums must equal 1");
-
-    LogicalVector motif_pos_check = m_motif >= 0;
-    if (is_false(all(motif_pos_check)))
-      msg.push_back("* for type PPM only positive values are allowed");
-
-  } else if (m_type[0] == "ICM") {
-
-    if (is_true(any(m_motif < 0)))
-      msg.push_back("* type ICM motifs cannot contain negative values");
-
+  switch (::types2_e[m_type[0]]) {
+    case 1: {
+              if (m_nsites.size() > 0) {
+                NumericVector colsums_unique = unique(m_nsites);
+                if (colsums_unique.size() > 1)
+                  msg.push_back("* for type PCM motif colSums must equal nsites");
+              }
+              LogicalVector int_check = (m_motif < 1.0) & (m_motif > 0.0);
+              if (is_true(any(int_check)))
+                msg.push_back("* type PCM motifs cannot contain values between 0 and 1");
+              break;
+            }
+    case 2: {
+              LogicalVector colsums_1_check = (motif_colsums > 0.99)
+                & (motif_colsums < 1.01);
+              if (is_false(all(colsums_1_check)))
+                msg.push_back("* for type PPM colSums must equal 1");
+              LogicalVector motif_pos_check = m_motif >= 0;
+              if (is_false(all(motif_pos_check)))
+                msg.push_back("* for type PPM only positive values are allowed");
+              break;
+            }
+    case 4: if (is_true(any(m_motif < 0)))
+              msg.push_back("* type ICM motifs cannot contain negative values");
+            break;
   }
 
   return msg;
@@ -477,42 +486,44 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
 
   StringVector m_rownames = rownames(m_motif);
 
-  if (m_alphabet[0] == "DNA") {
-
-    if (m_motif.nrow() != 4)
-      msg.push_back("* DNA/RNA motifs must have 4 rows");
-    LogicalVector rownames_check = m_rownames == ::dna;
-    if (is_false(all(rownames_check)))
-      msg.push_back("* rownames must be A, C, G, T");
-
-  } else if (m_alphabet[0] == "RNA") {
-
-    if (m_motif.nrow() != 4)
-      msg.push_back("* DNA/RNA motifs must have 4 rows");
-    LogicalVector rownames_check = m_rownames == ::rna;
-    if (is_false(all(rownames_check)))
-      msg.push_back("* rownames must be A, C, G, U");
-
-  } else if (m_alphabet[0] == "AA") {
-
-    if (m_motif.nrow() != 20)
-      msg.push_back("* AA motifs must have 20 rows");
-    LogicalVector rownames_check = m_rownames == ::aa;
-    if (is_false(all(rownames_check)))
-      msg.push_back("* rownames must be ACDEFGHIKLMNPQRSTVWY");
-
-  } else if (m_alphabet[0] != "custom") {
-
-    if (m_motif.nrow() != m_alphabet[0].size())
-      msg.push_back("* alphabet length does not match number of rows in motif");
-    StringVector alph_split;
-    for (int i = 0; i < m_alphabet[0].size(); ++i) {
-      alph_split.push_back(m_alphabet[0][i]);
-    }
-    LogicalVector rownames_check = sort_unique(alph_split) == m_rownames;
-    if (is_false(all(rownames_check)))
-      msg.push_back("* rownames must match alphabet and be in alphabetical order");
-
+  switch (::alphs_e[m_alphabet[0]]) {
+    case 1: {
+              if (m_motif.nrow() != 4)
+                msg.push_back("* DNA/RNA motifs must have 4 rows");
+              LogicalVector rownames_check = m_rownames == ::dna;
+              if (is_false(all(rownames_check)))
+                msg.push_back("* rownames must be A, C, G, T");
+              break;
+            }
+    case 2: {
+              if (m_motif.nrow() != 4)
+                msg.push_back("* DNA/RNA motifs must have 4 rows");
+              LogicalVector rownames_check = m_rownames == ::rna;
+              if (is_false(all(rownames_check)))
+                msg.push_back("* rownames must be A, C, G, U");
+              break;
+            }
+    case 3: {
+              if (m_motif.nrow() != 20)
+                msg.push_back("* AA motifs must have 20 rows");
+              LogicalVector rownames_check = m_rownames == ::aa;
+              if (is_false(all(rownames_check)))
+                msg.push_back("* rownames must be ACDEFGHIKLMNPQRSTVWY");
+              break;
+            }
+    default: {
+               if (m_alphabet[0] == "custom") break;
+               if (m_motif.nrow() != m_alphabet[0].size())
+                 msg.push_back("* alphabet length does not match number of rows in motif");
+               StringVector alph_split;
+               for (int i = 0; i < m_alphabet[0].size(); ++i) {
+                 alph_split.push_back(m_alphabet[0][i]);
+               }
+               LogicalVector rownames_check = sort_unique(alph_split) == m_rownames;
+               if (is_false(all(rownames_check)))
+                 msg.push_back("* rownames must match alphabet and be in alphabetical order");
+               break;
+            }
   }
 
   return msg;
@@ -522,7 +533,7 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
 StringVector check_consensus(StringVector m_consensus, NumericMatrix m_motif,
     StringVector msg) {
 
-  if (m_consensus.length() > 0) {
+  if (m_consensus.size() > 0) {
 
     if (m_consensus[0].size() != m_motif.ncol()) {
 
@@ -605,7 +616,7 @@ StringVector validObject_universalmotif(S4 motif, bool throw_error = true) {
 // [[Rcpp::export(rng = false)]]
 DataFrame summarise_motifs_cpp(List motifs) {
 
-  int n = motifs.length();
+  size_t n = motifs.size();
   StringVector name(n);
   StringVector altname(n);
   StringVector family(n);
@@ -620,7 +631,7 @@ DataFrame summarise_motifs_cpp(List motifs) {
   NumericVector qval(n);
   NumericVector eval(n);
 
-  for (int i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
 
     S4 mot = motifs[i];
 
@@ -628,22 +639,13 @@ DataFrame summarise_motifs_cpp(List motifs) {
     name[i] = name_i[0];
 
     StringVector altname_i = mot.slot("altname");
-    if (altname_i.length() == 1)
-      altname[i] = altname_i[0];
-    else
-      altname[i] = NA_STRING;
+    altname[i] = altname.size() == 1 ? altname_i[0] : NA_STRING;
 
     StringVector family_i = mot.slot("family");
-    if (family_i.length() == 1)
-      family[i] = family_i[0];
-    else
-      family[i] = NA_STRING;
+    family[i] = family_i.size() == 1 ? family_i[0] : NA_STRING;
 
     StringVector organism_i = mot.slot("organism");
-    if (organism_i.length() == 1)
-      organism[i] = organism_i[0];
-    else
-      organism[i] = NA_STRING;
+    organism[i] = organism_i.size() == 1 ? organism_i[0] : NA_STRING;
 
     StringVector alphabet_i = mot.slot("alphabet");
     alphabet[i] = alphabet_i[0];
@@ -652,43 +654,25 @@ DataFrame summarise_motifs_cpp(List motifs) {
     icscore[i] = icscore_i[0];
 
     IntegerVector nsites_i = mot.slot("nsites");
-    if (nsites_i.length() == 1)
-      nsites[i] = nsites_i[0];
-    else
-      nsites[i] = NA_INTEGER;
+    nsites[i] = nsites_i.size() == 1 ? nsites_i[0] : NA_INTEGER;
 
     IntegerVector bkgsites_i = mot.slot("bkgsites");
-    if (bkgsites_i.length() == 1)
-      bkgsites[i] = bkgsites_i[0];
-    else
-      bkgsites[i] = NA_INTEGER;
+    bkgsites[i] = bkgsites_i.size() == 1 ? bkgsites_i[0] : NA_INTEGER;
 
     StringVector consensus_i = mot.slot("consensus");
-    if (consensus_i.length() == 1)
-      consensus[i] = consensus_i[0];
-    else
-      consensus[i] = NA_STRING;
+    consensus[i] = consensus_i.size() == 1 ? consensus_i[0] : NA_STRING;
 
     StringVector strand_i = mot.slot("strand");
     strand[i] = strand_i[0];
 
     NumericVector pval_i = mot.slot("pval");
-    if (pval_i.length() == 1)
-      pval[i] = pval_i[0];
-    else
-      pval[i] = NA_REAL;
+    pval[i] = pval_i.size() == 1 ? pval_i[0] : NA_REAL;
 
     NumericVector qval_i = mot.slot("qval");
-    if (qval_i.length() == 1)
-      qval[i] = qval_i[0];
-    else
-      qval[i] = NA_REAL;
+    qval[i] = qval_i.size() == 1 ? qval_i[0] : NA_REAL;
 
     NumericVector eval_i = mot.slot("eval");
-    if (eval_i.length() == 1)
-      eval[i] = eval_i[0];
-    else
-      eval[i] = NA_REAL;
+    eval[i] = eval_i.size() == 1 ? eval_i[0] : NA_REAL;
 
   }
 

@@ -35,11 +35,8 @@
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
 #'    [shuffle_sequences()].
-#' @param shuffle.method `character(1)` One of `c('euler', 'markov', 'linear', 'random')`.
-#'    See [shuffle_sequences()]. The `'random'` method is deprecated and 
-#'    will be removed in the next minor version.
-#' @param shuffle.leftovers `character(1)` One of `c('asis', 'first', 'split', 'discard')`.
-#'    Only used if `shuffle.method = 'random'`. See [shuffle_sequences()].
+#' @param shuffle.method `character(1)` One of `c('euler', 'markov', 'linear')`.
+#'    See [shuffle_sequences()]. 
 #' @param return.scan.results `logical(1)` Return output from
 #'    [scan_sequences()]. For large jobs, leaving this as
 #'    `FALSE` can save a small amount time by preventing construction of the complete 
@@ -108,7 +105,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           threshold = 0.001, threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "euler",
-                          shuffle.leftovers = "asis",
                           return.scan.results = FALSE, progress = TRUE,
                           BP = FALSE) {
 
@@ -154,19 +150,11 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     shuffle.method_check <- wmsg2(shuffle.method_check, 4, 2)
     all_checks <- c(all_checks, shuffle.method_check)
   }
-  if (!shuffle.leftovers %in% c("asis", "first", "split", "discard")) {
-    shuffle.leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected ",
-                                      "`asis`, `first`, `split` or `discard`; got `",
-                                      shuffle.leftovers, "`")
-    shuffle.leftovers_check <- wmsg2(shuffle.leftovers_check)
-    all_checks <- c(all_checks, shuffle.leftovers_check)
-  }
   char_check <- check_fun_params(list(search.mode = args$search.mode,
                                       qval.method = args$qval.method,
                                       positional.test = args$positional.test,
                                       threshold.type = args$threshold.type,
-                                      shuffle.method = args$shuffle.method,
-                                      shuffle.leftovers = args$shuffle.leftovers),
+                                      shuffle.method = args$shuffle.method),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(max.p = args$max.p, max.q = args$max.q,
                                      max.e = args$max.e,
@@ -217,8 +205,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     if (progress && !BP) cat(" > Shuffling input sequences ...")
     else if ((progress && BP) || verbose > 0) cat(" > Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
-                                       shuffle.leftovers, progress = progress,
-                                       BP = BP)
+                                       progress = progress, BP = BP)
   } 
 
   if (!is.list(motifs)) motifs <- list(motifs)

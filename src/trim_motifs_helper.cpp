@@ -2,8 +2,8 @@
 using namespace Rcpp;
 
 // [[Rcpp::export(rng = false)]]
-NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores,
-    double min_ic) {
+NumericMatrix trim_motif_internal(const NumericMatrix &motif,
+    const NumericVector &ic_scores, double min_ic) {
 
   int n_row = motif.nrow();
   int n = motif.ncol();
@@ -13,14 +13,14 @@ NumericMatrix trim_motif_internal(NumericMatrix motif, NumericVector ic_scores,
 
   for (int i = 0; i < n; ++i) {
     if (ic_scores[i] < min_ic) {
-      new_cols -= 1;
-      cut_left += 1;
+      --new_cols;
+      ++cut_left;
     } else break;
   }
 
   for (int i = 0; i < n; ++i) {
     if (ic_scores[n - i - 1] < min_ic) {
-      new_cols -= 1;
+      --new_cols;
     } else break;
   }
 

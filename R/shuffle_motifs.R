@@ -8,11 +8,7 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param k `numeric(1)` K-let size.
-#' @param method `character(1)` One of `c('linear', 'random')`.
-#'    Only relevant if `k > 1`. See details. The `'random'` method will
-#'    be removed in the next minor version.
-#' @param leftovers `character(1)` For \code{method = 'random'}. One of
-#'    `c('asis', 'first', 'split', 'discard')`. See details.
+#' @param method `character(1)` Currently only 'linear' is accepted.
 #'
 #' @return Motifs. See [convert_motifs()] for available output
 #'    formats.
@@ -20,8 +16,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [shuffle_sequences()]
 #' @export
-shuffle_motifs <- function(motifs, k = 2, method = "linear",
-                           leftovers = "asis") {
+shuffle_motifs <- function(motifs, k = 2, method = "linear") {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -32,15 +27,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
-  if (!leftovers %in% c("asis", "first", "split", "discard")) {
-    leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected `asis`,",
-                              " `first`, `split` or `discard`; got `",
-                              leftovers, "`")
-    leftovers_check <- wmsg2(leftovers_check, 4, 2)
-    all_checks <- c(all_checks, leftovers_check)
-  }
-  char_check <- check_fun_params(list(method = args$method,
-                                      leftovers = args$leftovers),
+  char_check <- check_fun_params(list(method = args$method),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(k = args$k), 1, FALSE, TYPE_NUM)
   all_checks <- c(all_checks, char_check, num_check)
@@ -72,9 +59,9 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear",
         new.order <- as.numeric(new.order)
       },
       "random" = {
-        warning("The 'random' method option will be removed in the next minor version update",
+        warning("The 'random' method option has been deprecated, using 'linear'",
                 immediate. = TRUE)
-        new.order <- shuffle_random(col.order, k, leftovers, mode = 2)
+        new.order <- shuffle_linear(col.order, k, mode = 2)
         new.order <- as.numeric(new.order)
       },
       stop("only 'linear' and 'random' are supported")

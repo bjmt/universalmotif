@@ -32,18 +32,14 @@ NumericVector consensus_to_ppmAAC(String letter);
 String get_consensusAAC(NumericVector position, String type="PPM",
     double pseudocount=0.0);
 
-String all_checks_collapse(StringVector checks);
+String all_checks_collapse(const StringVector &checks);
 
-StringVector collapse_rows_mat(CharacterMatrix seqs_k);
-
-extern StringVector rdna;
+StringVector collapse_rows_mat(const CharacterMatrix &seqs_k);
 
 extern StringVector dna;
 
 extern StringVector rna;
 
 extern StringVector aa;
-
-extern StringVector types;
 
 #endif

@@ -1,52 +1,64 @@
 #include <Rcpp.h>
+#include <unordered_map>
 #include <sstream>  // needed for `to_string` work around
 using namespace Rcpp;
 
-StringVector dna = StringVector::create(
+StringVector dna = StringVector::create("A", "C", "G", "T");
 
-    "A", "C", "G", "T"
-
-);
-
-StringVector rna = StringVector::create(
-
-    "A", "C", "G", "U"
-
-);
-
-StringVector types = StringVector::create(
-
-    "PCM", "PPM", "PWM", "ICM"
-
-);
-
-StringVector rdna = StringVector::create(
-
-    "A", "C", "G", "T",
-    "U", "R", "Y", "M",
-    "K", "S", "W", "H",
-    "B", "V", "D", "N"
-
-);
+StringVector rna = StringVector::create("A", "C", "G", "U");
 
 StringVector aa = StringVector::create(
-
-    "A", "C", "D", "E",
-    "F", "G", "H", "I",
-    "K", "L", "M", "N",
-    "P", "Q", "R", "S",
-    "T", "V", "W", "Y"
-
+  "A", "C", "D", "E",
+  "F", "G", "H", "I",
+  "K", "L", "M", "N",
+  "P", "Q", "R", "S",
+  "T", "V", "W", "Y"
 );
+
+std::unordered_map<String, int> dna_e = {
+  {"A", 1}, {"C", 2},
+  {"G", 3}, {"T", 4}
+};
+
+std::unordered_map<String, int> rna_e = {
+  {"A", 1}, {"C", 2},
+  {"G", 3}, {"U", 4}
+};
+
+std::unordered_map<String, int> types_e = {
+  {"PCM", 1}, {"PPM", 2},
+  {"PWM", 3}, {"ICM", 4}
+};
+
+std::unordered_map<String, int> rdna_e = {
+  {"A", 1}, {"C", 2},
+  {"G", 3}, {"T", 4},
+  {"U", 5}, {"R", 6},
+  {"Y", 7}, {"M", 8},
+  {"K", 9}, {"S", 10},
+  {"W", 11}, {"H", 12},
+  {"B", 13}, {"V", 14},
+  {"D", 15}, {"N", 16}
+};
+
+std::unordered_map<String, int> aa_e = {
+  {"A", 1}, {"C", 2},
+  {"D", 3}, {"E", 4},
+  {"F", 5}, {"G", 6},
+  {"H", 7}, {"I", 8},
+  {"K", 9}, {"L", 10},
+  {"M", 11}, {"N", 12},
+  {"P", 13}, {"Q", 14},
+  {"R", 15}, {"S", 16},
+  {"T", 17}, {"V", 18},
+  {"W", 19}, {"Y", 20}
+};
 
 namespace std {
   template<typename T>
   std::string to_string(const T &n) {
 
-  // This is required to get around `to_string` g++ compiler error
-
-  // https://stackoverflow.com/questions/19122574/to-string-isnt-a-member-of-std/19122592
-  // https://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-g-mingw
+    // skip having to use c++11
 
     std::ostringstream s;
     s << n;
@@ -55,19 +67,19 @@ namespace std {
 }
 
 // [[Rcpp::export(rng = false)]]
-StringVector sort_unique_cpp(StringVector x) {
+StringVector sort_unique_cpp(const StringVector &x) {
   // Exporting this is unfortunately necessary, as base::sort() works differently
-  // VS Rcpp::sort_unique() with mixed lower/upper-case sequences
+  // VS Rcpp::sort_unique() with mixed lower/upper-case sequences by default
   return sort_unique(x);
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector table_cpp(StringVector x) {
+IntegerVector table_cpp(const StringVector &x) {
   return table(x);
 }
 
 // [[Rcpp::export(rng = false)]]
-StringVector collapse_rows_mat(CharacterMatrix seqs_k) {
+StringVector collapse_rows_mat(const CharacterMatrix &seqs_k) {
 
   // ~10 times as fast as apply(seqs_k_matrix, 1, collapse_cpp)
   // ~15 faster than collapse_rows_df(seqs_k_df)
@@ -83,7 +95,7 @@ StringVector collapse_rows_mat(CharacterMatrix seqs_k) {
 }
 
 // [[Rcpp::export(rng = false)]]
-StringVector collapse_cols_mat(CharacterMatrix seqs_k) {
+StringVector collapse_cols_mat(const CharacterMatrix &seqs_k) {
 
   StringVector out(seqs_k.ncol());
 
@@ -96,13 +108,13 @@ StringVector collapse_cols_mat(CharacterMatrix seqs_k) {
 }
 
 // [[Rcpp::export(rng = false)]]
-StringVector collapse_rows_df(DataFrame seqs_k) {
+StringVector collapse_rows_df(const DataFrame &seqs_k) {
 
   // >2 times as fast as apply(seqs_k_df, 1, collapse_cpp)
 
   CharacterMatrix seqs_k_mat(seqs_k.nrow(), seqs_k.size());
 
-  for (int i = 0; i < seqs_k.size(); ++i)
+  for (R_xlen_t i = 0; i < seqs_k.size(); ++i)
     seqs_k_mat(_, i) = StringVector(seqs_k[i]);
 
   return collapse_rows_mat(seqs_k_mat);
@@ -112,7 +124,7 @@ StringVector collapse_rows_df(DataFrame seqs_k) {
 //' @rdname utils-sequence
 //' @export
 // [[Rcpp::export(rng = false)]]
-StringVector get_klets(StringVector lets, int k = 1) {
+StringVector get_klets(const StringVector &lets, int k = 1) {
 
   // ~5 times faster and ~1/2 the memory allocations versus:
   //
@@ -130,14 +142,14 @@ StringVector get_klets(StringVector lets, int k = 1) {
 
   if (k <= 0) stop("`k` must be greater than 0");
 
-  lets = sort_unique(lets);
+  StringVector lets2 = sort_unique(lets);
 
-  int n1 = lets.length();
+  size_t n1 = lets2.size();
   int n2 = pow(n1, k);
   StringMatrix out(n2, k + 1);
 
   for (int i = 0; i < k ; ++i) {
-    out(_, i) = rep(rep_each(lets, pow(n1, k - i - 1)), pow(n1, i + 1));
+    out(_, i) = rep(rep_each(lets2, pow(n1, k - i - 1)), pow(n1, i + 1));
   }
 
   return collapse_rows_mat(out);
@@ -145,7 +157,7 @@ StringVector get_klets(StringVector lets, int k = 1) {
 }
 
 // [[Rcpp::export(rng = false)]]
-String collapse_cpp(StringVector x) {
+String collapse_cpp(const StringVector &x) {
 
   // collapse_cpp(x) is about 3 times faster than base::paste(x, collapse = "")
   // collapse_cpp(c(x, y)) about 2 times faster than base::paste0(x, y)
@@ -190,23 +202,14 @@ void update_pb(int i, int max) {
 
 }
 
-StringVector strsplit_cpp(std::string x) {  // slightly slower than
-  int n = x.size();                         // strsplit(x, "")[[1]]
-  StringVector out(n);
-  for (int i = 0; i < n; ++i) {
-    out[i] = x.substr(i, 1);
-  }
-  return out;
-}
-
 // [[Rcpp::export(rng = false)]]
-String all_checks_collapse(StringVector checks) {
+String all_checks_collapse(const StringVector &checks) {
 
-  int n = checks.length();
+  size_t n = checks.size();
 
   StringVector out_pre(n * 2);
   int i_ = 0;
-  for (int i = 0; i < n * 2; ++i) {
+  for (size_t i = 0; i < n * 2; ++i) {
     if (i % 2 == 0) {
       out_pre[i] = "\n";
     } else {
@@ -223,7 +226,7 @@ String all_checks_collapse(StringVector checks) {
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
   double possum = sum(position);
-  int num = position.size();
+  size_t num = position.size();
   NumericVector out(num);
 
   if (pseudocount != 0) {
@@ -244,8 +247,8 @@ NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
 
   if (nsites == 0) nsites = 100;
-  int n = position.size();
-  for (int i = 0; i < n; ++i) {
+  size_t n = position.size();
+  for (size_t i = 0; i < n; ++i) {
     position[i] = round(position[i] * nsites);
   }
 
@@ -264,10 +267,10 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
 NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
     double pseudocount=0, NumericVector nsites=NumericVector::create()) {
 
-  int n_pos = position.size();
-  int n_bkg = bkg.size();
+  size_t n_pos = position.size();
+  size_t n_bkg = bkg.size();
 
-  if (nsites.length() == 0) nsites = 100;
+  if (nsites.size() == 0) nsites = 100;
   else if (nsites[0] == 0) nsites = 100;
 
   double n_pos2 = n_pos;
@@ -279,7 +282,7 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
     position = pcm_to_ppmC(position, pseudocount);
   }
 
-  for (int i = 0; i < n_pos; ++i) {
+  for (size_t i = 0; i < n_pos; ++i) {
     position[i] = log2(position[i] / bkg[i]);
   }
 
@@ -290,14 +293,14 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
 // [[Rcpp::export(rng = false)]]
 NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 
-  int n_pos = position.size();
-  int n_bkg = bkg.size();
+  size_t n_pos = position.size();
+  size_t n_bkg = bkg.size();
   double n_pos2 = n_pos;
 
   NumericVector bkg2(n_pos, 1.0 / n_pos2);
   if (n_pos != n_bkg) bkg = bkg2;
 
-  for (int i = 0; i < n_pos; ++i) {
+  for (size_t i = 0; i < n_pos; ++i) {
     position[i] = pow(2.0, position[i]);
   }
 
@@ -320,8 +323,8 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
     bool relative_entropy=false) {
 
-  int n_pos = position.size();
-  int n_bkg = bkg.size();
+  size_t n_pos = position.size();
+  size_t n_bkg = bkg.size();
 
   double n_pos2 = n_pos;
   if (n_pos != n_bkg) bkg = rep(1.0 / n_pos2, n_pos);
@@ -332,7 +335,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
   }
 
   if (relative_entropy) {
-    for (int i = 0; i < n_pos; ++i) {
+    for (size_t i = 0; i < n_pos; ++i) {
       position[i] = position[i] * log2(position[i] / bkg[i]);
       if (NumericVector::is_na(position[i])) position[i] = 0;
       if (position[i] < 0) position[i] = 0;
@@ -340,7 +343,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
     return position;
   } else {
     NumericVector heights(n_pos);
-    for (int i = 0; i < n_pos; ++i) {
+    for (size_t i = 0; i < n_pos; ++i) {
       heights[i] = -position[i] * log2(position[i]);
       if (NumericVector::is_na(heights[i])) heights[i] = 0;
     }
@@ -359,15 +362,14 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
 
   if (nsites == 1) nsites = 100;
 
-  int n_pos = position.size();
-  int n_bkg = bkg.size();
+  size_t n_pos = position.size();
+  size_t n_bkg = bkg.size();
 
   double n_pos2 = n_pos;
   NumericVector bkg2(n_pos, 1.0 / n_pos2);
   if (n_pos != n_bkg) bkg = bkg2;
 
-  int ntype = match(StringVector::create(type), ::types)[0];
-  switch (ntype) {
+  switch (::types_e[type]) {
     case  1: position = pcm_to_ppmC(position, pseudocount);
              break;
     case  2: position = ppm_to_pcmC(position, nsites);
@@ -380,7 +382,7 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
   }
 
   if (relative_entropy) {
-    for (int i = 0; i < n_pos; ++i) {
+    for (size_t i = 0; i < n_pos; ++i) {
       position[i] *= log2(position[i] / bkg[i]);
       if (NumericVector::is_na(position[i])) position[i] = 0.0;
       if (position[i] < 0) position[i] = 0.0;
@@ -388,7 +390,7 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
     return sum(position);
   } else {
     NumericVector heights(n_pos);
-    for (int i = 0; i < n_pos; ++i) {
+    for (size_t i = 0; i < n_pos; ++i) {
       heights[i] = -position[i] * log2(position[i]);
       if (NumericVector::is_na(heights[i])) heights[i] = 0.0;
     }
@@ -413,10 +415,8 @@ NumericVector icm_to_ppmC(NumericVector position) {
 String get_consensusC(NumericVector pos, String alphabet="DNA",
     String type="PPM", double pseudocount=1) {
 
-  int ntype = match(StringVector::create(type), ::types)[0];
-  switch (ntype) {
+  switch (::types_e[type]) {
     case 1: pos = pcm_to_ppmC(pos, pseudocount); break;
-    case 2: break;
     case 3: pos = pwm_to_ppmC(pos); break;
     case 4: pos = icm_to_ppmC(pos); break;
   }
@@ -455,8 +455,7 @@ String get_consensusC(NumericVector pos, String alphabet="DNA",
 // [[Rcpp::export(rng = false)]]
 NumericVector consensus_to_ppmC(String letter) {
 
-  int let = match(StringVector::create(letter), ::rdna)[0];
-  switch (let) {
+  switch (::rdna_e[letter]) {
 
     case  1: return NumericVector::create(0.997, 0.001, 0.001, 0.001);  // A
     case  2: return NumericVector::create(0.001, 0.997, 0.001, 0.001);  // C
@@ -483,10 +482,10 @@ NumericVector consensus_to_ppmC(String letter) {
 // [[Rcpp::export(rng = false)]]
 NumericVector consensus_to_ppmAAC(String letter) {
 
-  int let = match(StringVector::create(letter), ::aa)[0];
+  int let = ::aa_e[letter];
   NumericVector out(20, 0.001);
 
-  if (IntegerVector::is_na(let)) {
+  if (let == 0) {
 
     if (letter == "B") {
       out[2] = 0.491;
@@ -515,8 +514,7 @@ NumericVector consensus_to_ppmAAC(String letter) {
 String get_consensusAAC(NumericVector position, String type="PPM",
     double pseudocount=0.0) {
 
-  int ntype = match(StringVector::create(type), ::types)[0];
-  switch (ntype) {
+  switch (::types_e[type]) {
     case 1: position = pcm_to_ppmC(position, pseudocount);
             break;
     case 2: break;
@@ -543,10 +541,10 @@ String get_consensusAAC(NumericVector position, String type="PPM",
 // [[Rcpp::export(rng = false)]]
 StringVector clean_up_check(StringVector fails) {
 
-  int fails_len = fails.length();
+  size_t fails_len = fails.size();
   LogicalVector fails_keep(fails_len, true);
 
-  for (int i = 0; i < fails_len; ++i) {
+  for (size_t i = 0; i < fails_len; ++i) {
     if (fails[i] == "") fails_keep[i] = false;
   }
 
@@ -574,24 +572,24 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   // expected_type: Expected type integer. One of 16 (character),
   //             14 (numeric), 10 (logical), 25 (S4).
 
-  int arg_len = param_args.length();
+  size_t arg_len = param_args.size();
   StringVector fails(arg_len * 2);
   StringVector param_names = param_args.names();
 
   IntegerVector param_len2;
   LogicalVector param_null2;
 
-  if (param_len.length() == 0) {
+  if (param_len.size() == 0) {
     param_len2 = rep(1, arg_len);
-  } else if (param_len.length() == 1 && arg_len > 1) {
+  } else if (param_len.size() == 1 && arg_len > 1) {
     param_len2 = rep(param_len[0], arg_len);
   } else {
     param_len2 = param_len;
   }
 
-  if (param_null.length() == 0) {
+  if (param_null.size() == 0) {
     param_null2 = rep(false, arg_len);
-  } else if (param_null.length() == 1 && arg_len > 1) {
+  } else if (param_null.size() == 1 && arg_len > 1) {
     param_null2 = rep(param_null[0], arg_len);
   } else {
     param_null2 = param_null;
@@ -604,7 +602,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   String fail_string2 = "': expected ";
   String fail_string3 = "; got ";
 
-  for (int i = 0; i < arg_len; ++i) {
+  for (size_t i = 0; i < arg_len; ++i) {
 
     RObject arg = param_args[i];
     int arg_type = arg.sexp_type();
@@ -650,22 +648,26 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
 
       int arg_len;
 
-      // {} are required for each case here or otherwise gives error at comp
       switch (arg_type) {
-        case 10: {LogicalVector arg_ = as<LogicalVector>(arg);
-                  arg_len = arg_.length();
-                  break;}
-        case 14: {NumericVector arg_ = as<NumericVector>(arg);
-                  arg_len = arg_.length();
-                  break;}
-        case 16: {StringVector arg_ = as<StringVector>(arg);
-                  arg_len = arg_.length();
-                  break;}
+        case 10: {
+                   LogicalVector arg_ = as<LogicalVector>(arg);
+                   arg_len = arg_.length();
+                   break;
+                 }
+        case 14: {
+                   NumericVector arg_ = as<NumericVector>(arg);
+                   arg_len = arg_.length();
+                   break;
+                 }
+        case 16: {
+                   StringVector arg_ = as<StringVector>(arg);
+                   arg_len = arg_.length();
+                   break;
+                 }
         default: stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
       }
 
       int exp_len = param_len2[i];
-      // g++ compiler error with to_string! (but not with clang++)
       exp_len_c = std::to_string(exp_len);
       obs_len_c = std::to_string(arg_len);
 

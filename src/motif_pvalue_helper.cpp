@@ -3,7 +3,8 @@
 using namespace Rcpp;
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
+IntegerVector calc_scores_cpp(const IntegerMatrix &paths,
+    const IntegerMatrix &score_mat) {
 
   IntegerVector final_scores(paths.nrow());
   int tmp_score;
@@ -21,8 +22,8 @@ IntegerVector calc_scores_cpp(IntegerMatrix paths, IntegerMatrix score_mat) {
 }
 
 // [[Rcpp::export(rng = false)]]
-NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
-    IntegerMatrix alph_sort) {
+NumericVector kmer_mat_to_probs_k1_cpp(const IntegerMatrix &bb_mat,
+    const NumericVector &bkg, const IntegerMatrix &alph_sort) {
 
   // This function calculates the probability of finding a string of letters.
   // The only thing I'm unsure of is taking into account the length of the
@@ -103,7 +104,7 @@ NumericVector kmer_mat_to_probs_k1_cpp(IntegerMatrix bb_mat, NumericVector bkg,
 // }
 
 // [[Rcpp::export(rng = false)]]
-IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score,
+IntegerMatrix init_paths_cpp(const IntegerMatrix &score_mat, int score,
     int max_score) {
 
   int alph_len = score_mat.nrow();
@@ -130,8 +131,8 @@ IntegerMatrix init_paths_cpp(IntegerMatrix score_mat, int score,
 
 }
 
-IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry,
-    IntegerVector scores_tmp, int score) {
+IntegerMatrix calc_next_subworker_cpp(const IntegerMatrix &paths_totry,
+    const IntegerVector &scores_tmp, int score) {
 
   int numrows = 0;
 
@@ -154,7 +155,7 @@ IntegerMatrix calc_next_subworker_cpp(IntegerMatrix paths_totry,
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerMatrix list_to_matrix(List paths) {
+IntegerMatrix list_to_matrix(const List &paths) {
 
   IntegerMatrix tmp = paths[0];
   int n_rows = 0, n_cols = tmp.ncol();
@@ -180,8 +181,8 @@ IntegerMatrix list_to_matrix(List paths) {
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
-    int score, int max_score) {
+IntegerMatrix calc_next_path_cpp(const IntegerMatrix &score_mat,
+    const IntegerMatrix &paths, int score, int max_score) {
 
   int alph_len = score_mat.nrow();
   IntegerMatrix next_paths(alph_len, 1);
@@ -216,13 +217,14 @@ IntegerMatrix calc_next_path_cpp(IntegerMatrix score_mat, IntegerMatrix paths,
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector expand_scores(IntegerMatrix scores) {
+IntegerVector expand_scores(const IntegerMatrix &scores) {
 
   int n_row = scores.nrow(), n_col = scores.ncol();
   IntegerMatrix expanded(pow(n_row, n_col), n_col);
 
   for (int i = 0; i < n_col; ++i) {
-    expanded(_, i) = rep(rep_each(scores(_, i), pow(n_row, n_col - i - 1)), pow(n_row, i + 1));
+    expanded(_, i) = rep(rep_each(scores(_, i), pow(n_row, n_col - i - 1)),
+        pow(n_row, i + 1));
   }
 
   return rowSums(expanded);
@@ -230,7 +232,7 @@ IntegerVector expand_scores(IntegerMatrix scores) {
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerMatrix paths_alph_unsort(IntegerMatrix paths, IntegerMatrix alph) {
+IntegerMatrix paths_alph_unsort(IntegerMatrix paths, const IntegerMatrix &alph) {
 
   for (int i = 0; i < paths.ncol(); ++i) {
     for (int j = 0; j < paths.nrow(); ++j) {
@@ -243,7 +245,7 @@ IntegerMatrix paths_alph_unsort(IntegerMatrix paths, IntegerMatrix alph) {
 }
 
 // [[Rcpp::export(rng = false)]]
-StringVector paths_to_alph(IntegerMatrix paths, StringVector alph) {
+StringVector paths_to_alph(const IntegerMatrix &paths, const StringVector &alph) {
 
   StringMatrix out(paths.nrow(), paths.ncol());
 

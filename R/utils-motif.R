@@ -31,7 +31,6 @@
 #' @param shuffle.db `logical(1)` Shuffle `db.motifs` rather than
 #'    generate random motifs with [create_motif()].
 #' @param shuffle.k `numeric(1)` See [shuffle_motifs()].
-#' @param shuffle.leftovers `character(1)` See [shuffle_motifs()].
 #' @param shuffle.method `character(1)` See [shuffle_motifs()].
 #' @param smooth `logical(1)` Apply pseudocount correction.
 #' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
@@ -286,15 +285,14 @@ icm_to_ppm <- function(position) {
 #' @export
 make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
-                          shuffle.leftovers = "asis", rand.tries = 1000,
+                          rand.tries = 1000,
                           normalise.scores = TRUE, min.overlap = 6,
                           min.mean.ic = 0, progress = TRUE, BP = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(method = args$method,
-                                      shuffle.method = args$shuffle.method,
-                                      shuffle.leftovers = args$shuffle.leftovers),
+                                      shuffle.method = args$shuffle.method),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(shuffle.k = args$shuffle.k,
                                      rand.tries = args$rand.tries,
@@ -314,14 +312,12 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 
   if (shuffle.db) {
     rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
-                                method = shuffle.method,
-                                leftovers = shuffle.leftovers) 
+                                method = shuffle.method) 
     if (length(rand.mots) != rand.tries) {
       if (length(rand.mots) < rand.tries) {
         while (length(rand.mots) < rand.tries) {
           more.rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
-                                           method = shuffle.method,
-                                           leftovers = shuffle.leftovers) 
+                                           method = shuffle.method) 
           rand.mots <- c(rand.mots, more.rand.mots)
         }
       }

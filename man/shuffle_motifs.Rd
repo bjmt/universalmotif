@@ -4,19 +4,14 @@
 \alias{shuffle_motifs}
 \title{Shuffle motifs by column.}
 \usage{
-shuffle_motifs(motifs, k = 2, method = "linear", leftovers = "asis")
+shuffle_motifs(motifs, k = 2, method = "linear")
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{k}{\code{numeric(1)} K-let size.}
 
-\item{method}{\code{character(1)} One of \code{c('linear', 'random')}.
-Only relevant if \code{k > 1}. See details. The \code{'random'} method will
-be removed in the next minor version.}
-
-\item{leftovers}{\code{character(1)} For \code{method = 'random'}. One of
-\code{c('asis', 'first', 'split', 'discard')}. See details.}
+\item{method}{\code{character(1)} Currently only 'linear' is accepted.}
 }
 \value{
 Motifs. See \code{\link[=convert_motifs]{convert_motifs()}} for available output

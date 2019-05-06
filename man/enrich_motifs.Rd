@@ -9,8 +9,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler",
-  shuffle.leftovers = "asis", return.scan.results = FALSE,
-  progress = TRUE, BP = FALSE)
+  return.scan.results = FALSE, progress = TRUE, BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -58,12 +57,8 @@ then they can be used to scan the sequences. See \code{\link[=scan_sequences]{sc
 sequences. Only used if no background sequences are input. See
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
-\item{shuffle.method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear', 'random')}.
-See \code{\link[=shuffle_sequences]{shuffle_sequences()}}. The \code{'random'} method is deprecated and
-will be removed in the next minor version.}
-
-\item{shuffle.leftovers}{\code{character(1)} One of \code{c('asis', 'first', 'split', 'discard')}.
-Only used if \code{shuffle.method = 'random'}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+\item{shuffle.method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear')}.
+See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{return.scan.results}{\code{logical(1)} Return output from
 \code{\link[=scan_sequences]{scan_sequences()}}. For large jobs, leaving this as

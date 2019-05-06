@@ -6,11 +6,8 @@
 #' @param sequences \code{\link{XStringSet}} Set of sequences to shuffle. Works
 #'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
-#' @param method `character(1)` One of `c('euler', 'markov', 'linear', 'random')`.
-#'    Only relevant is `k > 1`. See details. The `'random'` method is deprecated
-#'    and will be removed in the next minor version.
-#' @param leftovers `character(1)` For `method = 'random'`. One of
-#'    `c('asis', 'first', 'split', 'discard')`.
+#' @param method `character(1)` One of `c('euler', 'markov', 'linear')`.
+#'    Only relevant is `k > 1`. See details. 
 #' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
 #' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
 #'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
@@ -64,8 +61,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "euler",
-                               leftovers = "asis", progress = FALSE,
-                               BP = FALSE) {
+                               progress = FALSE, BP = FALSE) {
 
   # Idea: Moving-window markov shuffling. Get k-let frequencies in windows,
   #       and generate new letters based on local probabilities.
@@ -105,15 +101,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
     method_check <- wmsg2(method_check)
     all_checks <- c(all_checks, method_check)
   }
-  if (!leftovers %in% c("asis", "first", "split", "discard")) {
-    leftovers_check <- paste0(" * Incorrect 'shuffle.leftovers': expected ",
-                              "`asis`, `first`, `split` or `discard`; got `",
-                              leftovers, "`")
-    leftovers_check <- wmsg2(leftovers_check)
-    all_checks <- c(all_checks, leftovers_check)
-  }
-  char_check <- check_fun_params(list(method = args$method,
-                                      leftovers = args$leftovers),
+  char_check <- check_fun_params(list(method = args$method),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(k = args$k), 1, FALSE, TYPE_NUM)
   s4_check <- check_fun_params(list(sequences = args$sequences),
@@ -134,8 +122,8 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   } else {
     switch(method,
       "euler" = {
-      sequences <- lapply_(as.character(sequences), shuffle_euler, k = k,
-                           PB = progress, BP = BP)
+        sequences <- lapply_(as.character(sequences), shuffle_euler, k = k,
+                             PB = progress, BP = BP)
       },
       "markov" = {
         if (seqtype(sequences) %in% c("DNA", "RNA"))
@@ -146,10 +134,10 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
                                k = k, PB = progress, BP = BP)
       },
       "random" = {
-        warning("The 'random' method is deprecated, please use 'euler', 'linear' or 'markov'",
+        warning("The 'random' method has been deprecated, using 'euler'",
                 immediate. = TRUE)
-        sequences <- lapply_(as.character(sequences), shuffle_random, k = k,
-                             leftover = leftovers, PB = progress, BP = BP)
+        sequences <- lapply_(as.character(sequences), shuffle_euler, k = k,
+                             PB = progress, BP = BP)
       },
       "linear" = {
         sequences <- lapply_(as.character(sequences), shuffle_linear, k = k,
@@ -174,95 +162,6 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
 
 shuffle_k1 <- function(sequence) {
   intToUtf8(sample(utf8ToInt(sequence)))
-}
-
-# this creates truly random k-lets; unfortunately this has the side effect of
-# leaving behind 'leftover'-lets smaller than k
-shuffle_random <- function(sequence, k, leftover.strat = "asis", mode = 1) {
-  # - benchmark timings: >200 times slower than shuffle_k1/shuffle_linear
-  # - runtime decreases with increasing k!
-  # -  _very_  memory inefficient!!! lots of gc
-
-  if (mode == 1) {
-    seq.len <- nchar(sequence)
-    seqs1 <- safeExplode(sequence)
-  } else if (mode == 2) {
-    seq.len <- length(sequence)
-    seqs1 <- sequence
-  }
-
-  seqs.k <- lapply(seq_len(k),
-                   function(k) {
-                     k <- k - 1
-                     if (k > 0) {
-                       seqs.k <- seqs1[-seq_len(k)]
-                       seqs.k <- c(seqs.k, character(k))
-                       matrix(seqs.k)
-                     } else matrix(seqs1)
-                   })
-  seqs.k <- do.call(cbind, seqs.k)
-  seqs.k.n <- nrow(seqs.k)
-  seqs.k <- seqs.k[-c((seqs.k.n - k + 2):seqs.k.n), ]
-
-  seqs.k.n <- nrow(seqs.k)
-  seqs.k.n.len <- seq_len(seqs.k.n)
-  new.seq <- matrix(character(round((seqs.k.n + 0.1) / 2) * k), nrow = k)
-
-  seqs.k.new.i <- sample(seqs.k.n.len)
-
-  # major time + mem sink:
-  new.seq <- shuffle_random_loop(seqs.k.n - 1, k, seqs.k.new.i - 1, new.seq,
-                                 seqs.k)
-
-  seqs2 <- !seqs1 %in% new.seq
-
-  new.seq <- as.character(new.seq)
-
-  leftover <- seqs1[seqs2]
-
-  if (length(leftover) > 0)
-    switch(leftover.strat,
-      "last" = {
-        new.seq <- c(new.seq, leftover)
-      },
-      "asis" = {
-        new.seq <- new.seq[new.seq != ""]
-        leftover <- seqs1
-        leftover[!seqs2] <- ""
-        toadd <- length(leftover) - length(new.seq)
-        toadd.left <- round((toadd + 0.1) / 2)
-        toadd.right <- toadd - toadd.left
-        toadd.left <- character(toadd.left)
-        toadd.right <- character(toadd.right)
-        new.seq <- c(toadd.left, new.seq, toadd.right)
-        new.seq <- matrix(c(leftover, new.seq), nrow = 2, byrow = TRUE)
-        new.seq <- as.character(new.seq)
-      },
-      "first" = {
-        new.seq <- c(leftover, new.seq)
-      },
-      "split" = {
-        if (length(leftover) == 1) {
-          new.seq <- c(leftover, new.seq)
-        } else {
-          left.len <- length(leftover)
-          left.left <- round((left.len + 0.1) / 2)
-          left.right <- left.len - left.left
-          new.seq <- c(leftover[seq_len(left.left)], new.seq,
-                       leftover[left.right:length(leftover)])
-        }
-      },
-      "discard" = {
-        # do nothing
-      },
-      stop("unknown 'leftovers' arg")
-    )
-
-  if (mode == 1) new.seq <- collapse_cpp(new.seq)
-  else new.seq <- new.seq[new.seq != ""]
-
-  new.seq
-
 }
 
 # this function won't leave any 'leftover' letters behind, but the k-lets are

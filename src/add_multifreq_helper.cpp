@@ -8,7 +8,7 @@ StringVector single_to_k(StringVector seq1, int k) {
   //       slightly faster for smaller sequences (<1000), but slower for bigger
   //       sequences.
 
-  int n = seq1.length();
+  int n = seq1.size();
   int n2 = n - k + 1;
   StringMatrix seq_mat(k, n2);
   StringVector out(n2);
