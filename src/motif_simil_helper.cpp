@@ -77,7 +77,7 @@ double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
   NumericVector mot1_colsums = colSums(mot1);
   NumericVector mot2_colsums = colSums(mot2);
   NumericVector bottom(mot1.ncol());
-  for (size_t i = 0; i < mot1_colsums.size(); ++i) {
+  for (R_xlen_t i = 0; i < mot1_colsums.size(); ++i) {
     bottom[i] = mot1_colsums[i] * mot2_colsums[i];
     bottom[i] = sqrt(bottom[i]);
   }
@@ -120,7 +120,7 @@ double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
   NumericVector mot1_colsums = colSums(mot1);
   NumericVector mot2_colsums = colSums(mot2);
   NumericVector bottom(mot1.ncol());
-  for (size_t i = 0; i < mot1_colsums.size(); ++i) {
+  for (R_xlen_t i = 0; i < mot1_colsums.size(); ++i) {
     bottom[i] = mot1_colsums[i] * mot2_colsums[i];
     bottom[i] = sqrt(bottom[i]);
   }
@@ -526,12 +526,12 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
   else if (method == "MSW")
     out.fill_diag(2.0);
 
-  size_t n = comparisons.size();
-  for (size_t i = 0; i < n; ++i) {
+  R_xlen_t n = comparisons.size();
+  for (R_xlen_t i = 0; i < n; ++i) {
 
     NumericVector toadd = comparisons(i);
-    size_t n_ = toadd.size();
-    for (size_t j = 0; j < n_; ++j) {
+    R_xlen_t n_ = toadd.size();
+    for (R_xlen_t j = 0; j < n_; ++j) {
       out(j + i + 1, i) = toadd[j];
       out(i, j+ i + 1) = toadd[j];
     }

@@ -35,7 +35,7 @@ StringVector universalmotif_alphabet(StringVector alphabet,
              }
     default: {
                StringVector alph_split;
-               for (size_t i = 0; i < alphabet[0].size(); ++i) {
+               for (R_xlen_t i = 0; i < alphabet[0].size(); ++i) {
                  alph_split.push_back(alphabet[0][i]);
                }
                if (alph_split.size() != m_motif.nrow())
@@ -141,7 +141,7 @@ NumericVector universalmotif_bkg(NumericVector bkg, NumericMatrix m_motif) {
   // NOTE: Assumes the vector is already properly alphabetically sorted.
 
   int alph_len = m_motif.nrow();
-  size_t bkg_len = bkg.size();
+  R_xlen_t bkg_len = bkg.size();
 
   if (NumericVector::is_na(bkg[0]) || bkg_len == 0) {
 
@@ -334,9 +334,9 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
   LogicalVector failed(blet.size(), true);
 
-  for (size_t i = 0; i < blet.size(); ++i) {
+  for (size_t i = 0; i < blet.length(); ++i) {
 
-    for (size_t j = 0; j < alph.size(); ++j) {
+    for (R_xlen_t j = 0; j < alph.size(); ++j) {
 
       std::string alph_j = as<std::string>(alph[j]);
 
@@ -355,8 +355,8 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
 StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
 
-  size_t blen = bkg.size();
-  size_t alen = alph.size();
+  R_xlen_t blen = bkg.size();
+  R_xlen_t alen = alph.size();
 
   SEXP bnames = bkg.attr("names");
 
@@ -374,7 +374,7 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
     bool zero_check = false;
     LogicalVector name_comp;
     StringVector alph_i;
-    for (size_t i = 0; i < alen; ++i) {
+    for (R_xlen_t i = 0; i < alen; ++i) {
       alph_i = rep(StringVector::create(alph[i]), blen);
       name_comp = bnames == alph_i;
       if (is_false(any(name_comp))) zero_check = true;
@@ -402,7 +402,7 @@ StringVector check_bkg(NumericVector bkg, StringVector alph, StringVector msg) {
 
     }
 
-    for (size_t i = 0; i < blen; ++i) {
+    for (R_xlen_t i = 0; i < blen; ++i) {
 
       if (check_bkg_names(alph, as<std::string>(bnames[i]))) {
         msg.push_back("* unknown letters found in bkg names");
@@ -616,7 +616,7 @@ StringVector validObject_universalmotif(S4 motif, bool throw_error = true) {
 // [[Rcpp::export(rng = false)]]
 DataFrame summarise_motifs_cpp(List motifs) {
 
-  size_t n = motifs.size();
+  R_xlen_t n = motifs.size();
   StringVector name(n);
   StringVector altname(n);
   StringVector family(n);
@@ -631,7 +631,7 @@ DataFrame summarise_motifs_cpp(List motifs) {
   NumericVector qval(n);
   NumericVector eval(n);
 
-  for (size_t i = 0; i < n; ++i) {
+  for (R_xlen_t i = 0; i < n; ++i) {
 
     S4 mot = motifs[i];
 

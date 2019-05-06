@@ -144,7 +144,7 @@ StringVector get_klets(const StringVector &lets, int k = 1) {
 
   StringVector lets2 = sort_unique(lets);
 
-  size_t n1 = lets2.size();
+  R_xlen_t n1 = lets2.size();
   int n2 = pow(n1, k);
   StringMatrix out(n2, k + 1);
 
@@ -205,11 +205,11 @@ void update_pb(int i, int max) {
 // [[Rcpp::export(rng = false)]]
 String all_checks_collapse(const StringVector &checks) {
 
-  size_t n = checks.size();
+  R_xlen_t n = checks.size();
 
   StringVector out_pre(n * 2);
   int i_ = 0;
-  for (size_t i = 0; i < n * 2; ++i) {
+  for (R_xlen_t i = 0; i < n * 2; ++i) {
     if (i % 2 == 0) {
       out_pre[i] = "\n";
     } else {
@@ -226,7 +226,7 @@ String all_checks_collapse(const StringVector &checks) {
 NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 
   double possum = sum(position);
-  size_t num = position.size();
+  R_xlen_t num = position.size();
   NumericVector out(num);
 
   if (pseudocount != 0) {
@@ -247,8 +247,8 @@ NumericVector pcm_to_ppmC(NumericVector position, double pseudocount=0) {
 NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
 
   if (nsites == 0) nsites = 100;
-  size_t n = position.size();
-  for (size_t i = 0; i < n; ++i) {
+  R_xlen_t n = position.size();
+  for (R_xlen_t i = 0; i < n; ++i) {
     position[i] = round(position[i] * nsites);
   }
 
@@ -267,8 +267,8 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
 NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
     double pseudocount=0, NumericVector nsites=NumericVector::create()) {
 
-  size_t n_pos = position.size();
-  size_t n_bkg = bkg.size();
+  R_xlen_t n_pos = position.size();
+  R_xlen_t n_bkg = bkg.size();
 
   if (nsites.size() == 0) nsites = 100;
   else if (nsites[0] == 0) nsites = 100;
@@ -282,7 +282,7 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
     position = pcm_to_ppmC(position, pseudocount);
   }
 
-  for (size_t i = 0; i < n_pos; ++i) {
+  for (R_xlen_t i = 0; i < n_pos; ++i) {
     position[i] = log2(position[i] / bkg[i]);
   }
 
@@ -293,14 +293,14 @@ NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg=0,
 // [[Rcpp::export(rng = false)]]
 NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 
-  size_t n_pos = position.size();
-  size_t n_bkg = bkg.size();
+  R_xlen_t n_pos = position.size();
+  R_xlen_t n_bkg = bkg.size();
   double n_pos2 = n_pos;
 
   NumericVector bkg2(n_pos, 1.0 / n_pos2);
   if (n_pos != n_bkg) bkg = bkg2;
 
-  for (size_t i = 0; i < n_pos; ++i) {
+  for (R_xlen_t i = 0; i < n_pos; ++i) {
     position[i] = pow(2.0, position[i]);
   }
 
@@ -323,8 +323,8 @@ NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg=0) {
 NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
     bool relative_entropy=false) {
 
-  size_t n_pos = position.size();
-  size_t n_bkg = bkg.size();
+  R_xlen_t n_pos = position.size();
+  R_xlen_t n_bkg = bkg.size();
 
   double n_pos2 = n_pos;
   if (n_pos != n_bkg) bkg = rep(1.0 / n_pos2, n_pos);
@@ -335,7 +335,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
   }
 
   if (relative_entropy) {
-    for (size_t i = 0; i < n_pos; ++i) {
+    for (R_xlen_t i = 0; i < n_pos; ++i) {
       position[i] = position[i] * log2(position[i] / bkg[i]);
       if (NumericVector::is_na(position[i])) position[i] = 0;
       if (position[i] < 0) position[i] = 0;
@@ -343,7 +343,7 @@ NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg=0,
     return position;
   } else {
     NumericVector heights(n_pos);
-    for (size_t i = 0; i < n_pos; ++i) {
+    for (R_xlen_t i = 0; i < n_pos; ++i) {
       heights[i] = -position[i] * log2(position[i]);
       if (NumericVector::is_na(heights[i])) heights[i] = 0;
     }
@@ -362,8 +362,8 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
 
   if (nsites == 1) nsites = 100;
 
-  size_t n_pos = position.size();
-  size_t n_bkg = bkg.size();
+  R_xlen_t n_pos = position.size();
+  R_xlen_t n_bkg = bkg.size();
 
   double n_pos2 = n_pos;
   NumericVector bkg2(n_pos, 1.0 / n_pos2);
@@ -382,7 +382,7 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
   }
 
   if (relative_entropy) {
-    for (size_t i = 0; i < n_pos; ++i) {
+    for (R_xlen_t i = 0; i < n_pos; ++i) {
       position[i] *= log2(position[i] / bkg[i]);
       if (NumericVector::is_na(position[i])) position[i] = 0.0;
       if (position[i] < 0) position[i] = 0.0;
@@ -390,7 +390,7 @@ double position_icscoreC(NumericVector position, NumericVector bkg=0,
     return sum(position);
   } else {
     NumericVector heights(n_pos);
-    for (size_t i = 0; i < n_pos; ++i) {
+    for (R_xlen_t i = 0; i < n_pos; ++i) {
       heights[i] = -position[i] * log2(position[i]);
       if (NumericVector::is_na(heights[i])) heights[i] = 0.0;
     }
@@ -541,10 +541,10 @@ String get_consensusAAC(NumericVector position, String type="PPM",
 // [[Rcpp::export(rng = false)]]
 StringVector clean_up_check(StringVector fails) {
 
-  size_t fails_len = fails.size();
+  R_xlen_t fails_len = fails.size();
   LogicalVector fails_keep(fails_len, true);
 
-  for (size_t i = 0; i < fails_len; ++i) {
+  for (R_xlen_t i = 0; i < fails_len; ++i) {
     if (fails[i] == "") fails_keep[i] = false;
   }
 
@@ -572,7 +572,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   // expected_type: Expected type integer. One of 16 (character),
   //             14 (numeric), 10 (logical), 25 (S4).
 
-  size_t arg_len = param_args.size();
+  R_xlen_t arg_len = param_args.size();
   StringVector fails(arg_len * 2);
   StringVector param_names = param_args.names();
 
@@ -602,7 +602,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
   String fail_string2 = "': expected ";
   String fail_string3 = "; got ";
 
-  for (size_t i = 0; i < arg_len; ++i) {
+  for (R_xlen_t i = 0; i < arg_len; ++i) {
 
     RObject arg = param_args[i];
     int arg_type = arg.sexp_type();
