@@ -27,12 +27,12 @@ IntegerVector scan_seq_internal2(const IntegerVector &sequence,
   IntegerVector to_keep(sequence.size());
 
   int tmp_score;
-  int max_step = sequence.size() - score_mat.ncol() + 1;
+  R_xlen_t max_step = sequence.size() - score_mat.ncol() + 1;
 
-  for (int i = 0; i < max_step; ++i) {
+  for (R_xlen_t i = 0; i < max_step; ++i) {
 
     tmp_score = 0;
-    for (int j = 0; j < score_mat.ncol(); ++j) {
+    for (R_xlen_t j = 0; j < score_mat.ncol(); ++j) {
       bool na_check = IntegerVector::is_na(sequence[i + j]);
       if (na_check)
         tmp_score += -999999;
@@ -54,12 +54,12 @@ IntegerVector scan_seq_internal(const IntegerVector &sequence,
   IntegerVector to_keep(sequence.size());
 
   int tmp_score;
-  int max_step = sequence.size() - score_mat.ncol() + 1;
+  R_xlen_t max_step = sequence.size() - score_mat.ncol() + 1;
 
-  for (int i = 0; i < max_step; ++i) {
+  for (R_xlen_t i = 0; i < max_step; ++i) {
 
     tmp_score = 0;
-    for (int j = 0; j < score_mat.ncol(); ++j) {
+    for (R_xlen_t j = 0; j < score_mat.ncol(); ++j) {
       tmp_score += score_mat(sequence[i + j], j);
     }
     if (tmp_score >= min_score) to_keep[i] = 1;
@@ -76,7 +76,7 @@ IntegerVector LETTER_to_int(const IntegerVector &seqs, int k,
 
   IntegerVector out(seqs.size() / k, 0);
   int out_i, l_;
-  int let_length = letters.size();
+  R_xlen_t let_length = letters.size();
 
   if (k == 1) {
 
@@ -133,13 +133,13 @@ IntegerVector res_to_index(IntegerVector x) {
 
 // [[Rcpp::export(rng = false)]]
 List parse_k_res_helper_1(const IntegerVector &seqs, const IntegerVector &to_keep,
-    int mot_len, int k) {
+    R_xlen_t mot_len, int k) {
 
   List out(to_keep.size());
 
   for (R_xlen_t i = 0; i < to_keep.size(); ++i) {
     IntegerVector tmp(mot_len - k + 1);
-    for (int j = 0; j < mot_len - k + 1; ++j) {
+    for (R_xlen_t j = 0; j < mot_len - k + 1; ++j) {
       tmp[j] = seqs[to_keep[i] - 1 + j];
     }
     out[i] = tmp;
@@ -151,13 +151,13 @@ List parse_k_res_helper_1(const IntegerVector &seqs, const IntegerVector &to_kee
 
 // [[Rcpp::export(rng = false)]]
 List parse_k_res_helper_2(const StringVector &sequence, const IntegerVector &to_keep,
-    int mot_len) {
+    R_xlen_t mot_len) {
 
   List out(to_keep.size());
 
   for (R_xlen_t i = 0; i < to_keep.size(); ++i) {
     StringVector tmp(mot_len);
-    for (int j = 0; j < mot_len; ++j) {
+    for (R_xlen_t j = 0; j < mot_len; ++j) {
       tmp[j] = sequence[to_keep[i] - 1 + j];
     }
     out[i] = tmp;
@@ -168,15 +168,15 @@ List parse_k_res_helper_2(const StringVector &sequence, const IntegerVector &to_
 }
 
 StringVector create_col_sequence(const StringVector &seq_names,
-    const IntegerVector &n_rows, R_xlen_t n, int rows_all) {
+    const IntegerVector &n_rows, R_xlen_t n, R_xlen_t rows_all) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   StringVector out(rows_all);
 
   for (R_xlen_t i = 0; i < n; ++i) {
     if (n_rows[i] == 0) continue;
     String seq_names_i = seq_names[i];
-    for (int j = 0; j < n_rows[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
       out[j + row_offset] = seq_names_i;
     }
     row_offset += n_rows[i];
@@ -187,9 +187,9 @@ StringVector create_col_sequence(const StringVector &seq_names,
 }
 
 IntegerVector create_col_start(const List &to_keep, const IntegerVector &n_rows,
-    R_xlen_t n, int rows_all, int k, int mot_lens, String strand) {
+    R_xlen_t n, R_xlen_t rows_all, int k, R_xlen_t mot_lens, String strand) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   IntegerVector out(rows_all);
 
   if (strand == "+") {
@@ -197,7 +197,7 @@ IntegerVector create_col_start(const List &to_keep, const IntegerVector &n_rows,
     for (R_xlen_t i = 0; i < n; ++i) {
       if (n_rows[i] == 0) continue;
       IntegerVector to_keep_i = to_keep[i];
-      for (int j = 0; j < n_rows[i]; ++j) {
+      for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
         out[j + row_offset] = to_keep_i[j];
       }
       row_offset += n_rows[i];
@@ -208,7 +208,7 @@ IntegerVector create_col_start(const List &to_keep, const IntegerVector &n_rows,
     for (R_xlen_t i = 0; i < n; ++i) {
       if (n_rows[i] == 0) continue;
       IntegerVector to_keep_i = to_keep[i];
-      for (int j = 0; j < n_rows[i]; ++j) {
+      for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
         out[j + row_offset] = to_keep_i[j] + mot_lens + k - 2;
       }
       row_offset += n_rows[i];
@@ -225,9 +225,9 @@ IntegerVector create_col_start(const List &to_keep, const IntegerVector &n_rows,
 }
 
 IntegerVector create_col_stop(const List &to_keep, const IntegerVector &n_rows,
-    R_xlen_t n, int rows_all, int k, int mot_lens, String strand) {
+    R_xlen_t n, R_xlen_t rows_all, int k, R_xlen_t mot_lens, String strand) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   IntegerVector out(rows_all);
 
   if (strand == "+") {
@@ -235,7 +235,7 @@ IntegerVector create_col_stop(const List &to_keep, const IntegerVector &n_rows,
     for (R_xlen_t i = 0; i < n; ++i) {
       if (n_rows[i] == 0) continue;
       IntegerVector to_keep_i = to_keep[i];
-      for (int j = 0; j < n_rows[i]; ++j) {
+      for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
         out[j + row_offset] = to_keep_i[j] + mot_lens + k - 2;
       }
       row_offset += n_rows[i];
@@ -246,7 +246,7 @@ IntegerVector create_col_stop(const List &to_keep, const IntegerVector &n_rows,
     for (R_xlen_t i = 0; i < n; ++i) {
       if (n_rows[i] == 0) continue;
       IntegerVector to_keep_i = to_keep[i];
-      for (int j = 0; j < n_rows[i]; ++j) {
+      for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
         out[j + row_offset] = to_keep_i[j];
       }
       row_offset += n_rows[i];
@@ -263,10 +263,10 @@ IntegerVector create_col_stop(const List &to_keep, const IntegerVector &n_rows,
 }
 
 NumericVector create_col_score(const List &to_keep, const IntegerVector &n_rows,
-    R_xlen_t n, int rows_all, const List &seq_ints, const IntegerMatrix &score_mats,
-    int mot_lens, int k) {
+    R_xlen_t n, R_xlen_t rows_all, const List &seq_ints, const IntegerMatrix &score_mats,
+    R_xlen_t mot_lens, int k) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   NumericVector out(rows_all);
 
   for (R_xlen_t i = 0; i < n; ++i) {
@@ -274,10 +274,10 @@ NumericVector create_col_score(const List &to_keep, const IntegerVector &n_rows,
     IntegerVector seq_ints_i = seq_ints[i];
     IntegerVector to_keep_i = to_keep[i];
     List hits_i = parse_k_res_helper_1(seq_ints_i, to_keep_i, mot_lens, k);
-    for (int j = 0; j < n_rows[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
       out[j + row_offset] = score_seq(hits_i[j], score_mats);
     }
-    for (int j = 0; j < n_rows[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
       out[j + row_offset] /= 1000.0;
     }
     row_offset += n_rows[i];
@@ -288,7 +288,7 @@ NumericVector create_col_score(const List &to_keep, const IntegerVector &n_rows,
 }
 
 NumericVector create_col_score_pct(const NumericVector &col_score, double min_scores,
-    double max_scores, int rows_all) {
+    double max_scores, R_xlen_t rows_all) {
 
   double min_scores_abs = abs(min_scores);
   double total_score = min_scores_abs + abs(max_scores);
@@ -300,9 +300,9 @@ NumericVector create_col_score_pct(const NumericVector &col_score, double min_sc
 }
 
 StringVector create_col_match(const List &to_keep, const List &seqs_aschar,
-    int mot_lens, const IntegerVector &n_rows, R_xlen_t n, int rows_all) {
+    R_xlen_t mot_lens, const IntegerVector &n_rows, R_xlen_t n, R_xlen_t rows_all) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   StringVector out(rows_all);
 
   for (R_xlen_t i = 0; i < n; ++i) {
@@ -310,7 +310,7 @@ StringVector create_col_match(const List &to_keep, const List &seqs_aschar,
     IntegerVector to_keep_i = to_keep[i];
     StringVector seqs_aschar_i = seqs_aschar[i];
     List matches_i = parse_k_res_helper_2(seqs_aschar_i, to_keep_i, mot_lens);
-    for (int j = 0; j < n_rows[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_rows[i]; ++j) {
       StringVector matches_i_j = matches_i[j];
       out[j + row_offset] = collapse(matches_i_j);
     }
@@ -323,7 +323,7 @@ StringVector create_col_match(const List &to_keep, const List &seqs_aschar,
 
 // [[Rcpp::export(rng = false)]]
 List get_res_cpp(const List &to_keep, const List &seqs_aschar, const List &seq_ints,
-    int mot_lens, double min_scores, double max_scores, String mot_names,
+    R_xlen_t mot_lens, double min_scores, double max_scores, String mot_names,
     const StringVector &seq_names, const IntegerMatrix &score_mats, String strand,
     const IntegerVector &seq_lens, int k) {
 
@@ -332,7 +332,7 @@ List get_res_cpp(const List &to_keep, const List &seqs_aschar, const List &seq_i
     IntegerVector tmp = to_keep(i);
     n_rows[i] = tmp.size();
   }
-  int rows_all = sum(n_rows);
+  R_xlen_t rows_all = sum(n_rows);
   R_xlen_t n = to_keep.size();
 
   StringVector  col_motif(rows_all, mot_names);
@@ -371,9 +371,9 @@ List get_res_cpp(const List &to_keep, const List &seqs_aschar, const List &seq_i
 }
 
 IntegerVector join_int_vecs(const List &x, String list_name,
-    const IntegerVector &n_per, R_xlen_t n, int out_len) {
+    const IntegerVector &n_per, R_xlen_t n, R_xlen_t out_len) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   List tmp;
   IntegerVector tmp_vec;
   IntegerVector out(out_len);
@@ -381,7 +381,7 @@ IntegerVector join_int_vecs(const List &x, String list_name,
   for (R_xlen_t i = 0; i < n; ++i) {
     tmp = x[i];
     tmp_vec = tmp[list_name];
-    for (int j = 0; j < n_per[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_per[i]; ++j) {
       out[j + row_offset] = tmp_vec[j];
     }
     row_offset += n_per[i];
@@ -392,9 +392,9 @@ IntegerVector join_int_vecs(const List &x, String list_name,
 }
 
 NumericVector join_num_vecs(const List &x, String list_name,
-    const IntegerVector &n_per, R_xlen_t n, int out_len) {
+    const IntegerVector &n_per, R_xlen_t n, R_xlen_t out_len) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   List tmp;
   NumericVector tmp_vec;
   NumericVector out(out_len);
@@ -402,7 +402,7 @@ NumericVector join_num_vecs(const List &x, String list_name,
   for (R_xlen_t i = 0; i < n; ++i) {
     tmp = x[i];
     tmp_vec = tmp[list_name];
-    for (int j = 0; j < n_per[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_per[i]; ++j) {
       out[j + row_offset] = tmp_vec[j];
     }
     row_offset += n_per[i];
@@ -413,9 +413,9 @@ NumericVector join_num_vecs(const List &x, String list_name,
 }
 
 StringVector join_str_vecs(const List &x, String list_name,
-    const IntegerVector &n_per, R_xlen_t n, int out_len) {
+    const IntegerVector &n_per, R_xlen_t n, R_xlen_t out_len) {
 
-  int row_offset = 0;
+  R_xlen_t row_offset = 0;
   List tmp;
   StringVector tmp_vec;
   StringVector out(out_len);
@@ -423,7 +423,7 @@ StringVector join_str_vecs(const List &x, String list_name,
   for (R_xlen_t i = 0; i < n; ++i) {
     tmp = x[i];
     tmp_vec = tmp[list_name];
-    for (int j = 0; j < n_per[i]; ++j) {
+    for (R_xlen_t j = 0; j < n_per[i]; ++j) {
       out[j + row_offset] = tmp_vec[j];
     }
     row_offset += n_per[i];
@@ -445,7 +445,7 @@ DataFrame res_list_to_df_cpp(const List &res) {
     n_per[i] = tmp2.size();
   }
 
-  int n_all = sum(n_per);
+  R_xlen_t n_all = sum(n_per);
 
   StringVector  col_motif     = join_str_vecs(res, "motif", n_per, n, n_all);
   StringVector  col_sequence  = join_str_vecs(res, "sequence", n_per, n, n_all);
@@ -480,23 +480,23 @@ DataFrame index_list_to_df_cpp(const List &to_keep, const StringVector &seq_name
     const IntegerVector &lens_each) {
 
   R_xlen_t n_seq = seq_names.size();
-  int total_len = sum(lens_each);
+  R_xlen_t total_len = sum(lens_each);
 
   StringVector seq_names_out(total_len);
   IntegerVector hits_out(total_len);
 
-  int row_offset = 0;
-  int lens_i;
+  R_xlen_t row_offset = 0;
+  R_xlen_t lens_i;
   IntegerVector to_keep_i;
 
   for (R_xlen_t i = 0; i < n_seq; ++i) {
     lens_i = lens_each[i];
     if (lens_i > 0) {
-      for (int j = row_offset; j < row_offset + lens_i; ++j) {
+      for (R_xlen_t j = row_offset; j < row_offset + lens_i; ++j) {
         seq_names_out[j] = seq_names[i];
       }
       to_keep_i = to_keep[i];
-      for (int j = row_offset; j < row_offset + lens_i; ++j) {
+      for (R_xlen_t j = row_offset; j < row_offset + lens_i; ++j) {
         hits_out[j] = to_keep_i[j - row_offset];
       }
       row_offset += lens_i;

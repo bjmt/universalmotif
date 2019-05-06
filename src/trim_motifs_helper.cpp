@@ -5,20 +5,20 @@ using namespace Rcpp;
 NumericMatrix trim_motif_internal(const NumericMatrix &motif,
     const NumericVector &ic_scores, double min_ic) {
 
-  int n_row = motif.nrow();
-  int n = motif.ncol();
+  R_xlen_t n_row = motif.nrow();
+  R_xlen_t n = motif.ncol();
 
-  int new_cols = n;
-  int cut_left = 0;
+  R_xlen_t new_cols = n;
+  R_xlen_t cut_left = 0;
 
-  for (int i = 0; i < n; ++i) {
+  for (R_xlen_t i = 0; i < n; ++i) {
     if (ic_scores[i] < min_ic) {
       --new_cols;
       ++cut_left;
     } else break;
   }
 
-  for (int i = 0; i < n; ++i) {
+  for (R_xlen_t i = 0; i < n; ++i) {
     if (ic_scores[n - i - 1] < min_ic) {
       --new_cols;
     } else break;
@@ -30,7 +30,7 @@ NumericMatrix trim_motif_internal(const NumericMatrix &motif,
   }
 
   NumericMatrix out(n_row, new_cols);
-  for (int i = 0; i < new_cols; ++i) {
+  for (R_xlen_t i = 0; i < new_cols; ++i) {
     out(_, i) = motif(_, i + cut_left);
   }
 

@@ -43,7 +43,7 @@ IntegerVector peakfinder_cpp(const NumericVector &x, int m = 3) {
 // [[Rcpp::export(rng = false)]]
 IntegerVector linbin_cpp(const IntegerVector &x, const IntegerVector &gpoints) {
 
-  int M = gpoints.size();
+  R_xlen_t M = gpoints.size();
   IntegerVector gcnts(M);
 
   double delta = (gpoints[M - 1] - gpoints[0]) / (M - 1);

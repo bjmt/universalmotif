@@ -70,7 +70,7 @@ StringVector universalmotif_type(NumericMatrix &m_motif, StringVector type,
       type = StringVector::create("PWM");
   } else if (type[0] == "PPM" && is_false(all(mat_099_101_check)) &&
       is_true(all(mat_pos_check))) {
-    for (int i = 0; i < m_motif.ncol(); ++i) {
+    for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
       m_motif(_, i) = m_motif(_, i) / motif_colsums[i];
     }
   }
@@ -90,11 +90,11 @@ NumericVector universalmotif_nsites(NumericVector nsites, StringVector type,
   } else if (type[0] == "PCM" && is_true(any(motif_colsums != nsites[0]))) {
 
     double possum, fix;
-    int tochange;
+    R_xlen_t tochange;
 
-    for (int i = 0; i < m_motif.ncol(); ++i) {
+    for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
 
-      for (int j = 0; j < m_motif.nrow(); ++j) {
+      for (R_xlen_t j = 0; j < m_motif.nrow(); ++j) {
         m_motif(j, i) = m_motif(j, i) / motif_colsums[i];
         m_motif(j, i) = round(m_motif(j, i) * nsites[0]);
       }
@@ -118,14 +118,14 @@ NumericVector universalmotif_icscore(NumericVector icscore,
     NumericVector nsites, NumericMatrix m_motif, NumericVector bkg,
     StringVector type, double pseudocount) {
 
-  int alph_len = m_motif.nrow();
+  R_xlen_t alph_len = m_motif.nrow();
   IntegerVector bkg_i = seq_len(alph_len) - 1;
 
   if (NumericVector::is_na(icscore[0]) || icscore.size() == 0) {
     double tmp_nsites = 0;
     if (nsites.size() != 0) tmp_nsites = nsites[0];
     NumericVector icscore_tmp(m_motif.ncol());
-    for (int i = 0; i < m_motif.ncol(); ++i) {
+    for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
       icscore_tmp[i] = position_icscoreC(m_motif(_, i), bkg[bkg_i], type[0],
           pseudocount, tmp_nsites);
     }
@@ -140,7 +140,7 @@ NumericVector universalmotif_bkg(NumericVector bkg, NumericMatrix m_motif) {
 
   // NOTE: Assumes the vector is already properly alphabetically sorted.
 
-  int alph_len = m_motif.nrow();
+  R_xlen_t alph_len = m_motif.nrow();
   R_xlen_t bkg_len = bkg.size();
 
   if (NumericVector::is_na(bkg[0]) || bkg_len == 0) {
@@ -171,19 +171,19 @@ StringVector universalmotif_consensus(NumericMatrix &m_motif, StringVector alpha
   StringVector consensus_tmp(m_motif.ncol());
 
   switch (::alphs_e[alphabet[0]]) {
-    case 1: for (int i = 0; i < m_motif.ncol(); ++i) {
+    case 1: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
               consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
             }
             colnames(m_motif) = consensus_tmp;
             consensus = collapse(consensus_tmp);
             break;
-    case 2: for (int i = 0; i < m_motif.ncol(); ++i) {
+    case 2: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
               consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
             }
             colnames(m_motif) = consensus_tmp;
             consensus = collapse(consensus_tmp);
             break;
-    case 3: for (int i =0; i < m_motif.ncol(); ++i) {
+    case 3: for (R_xlen_t i =0; i < m_motif.ncol(); ++i) {
               consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
             }
             colnames(m_motif) = consensus_tmp;
@@ -334,7 +334,7 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
   LogicalVector failed(blet.size(), true);
 
-  for (size_t i = 0; i < blet.length(); ++i) {
+  for (R_xlen_t i = 0; i < blet.length(); ++i) {
 
     for (R_xlen_t j = 0; j < alph.size(); ++j) {
 
@@ -516,7 +516,7 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
                if (m_motif.nrow() != m_alphabet[0].size())
                  msg.push_back("* alphabet length does not match number of rows in motif");
                StringVector alph_split;
-               for (int i = 0; i < m_alphabet[0].size(); ++i) {
+               for (R_xlen_t i = 0; i < m_alphabet[0].size(); ++i) {
                  alph_split.push_back(m_alphabet[0][i]);
                }
                LogicalVector rownames_check = sort_unique(alph_split) == m_rownames;
@@ -544,7 +544,7 @@ StringVector check_consensus(StringVector m_consensus, NumericMatrix m_motif,
       StringVector consensus_split;
       StringVector motif_colnames = colnames(m_motif);
 
-      for (int i = 0; i < m_consensus[0].size(); ++i) {
+      for (R_xlen_t i = 0; i < m_consensus[0].size(); ++i) {
         consensus_split.push_back(m_consensus[0][i]);
         if (consensus_split[i] != motif_colnames[i])
           msg.push_back("* consensus string must match colnames");

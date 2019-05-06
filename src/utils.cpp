@@ -58,7 +58,7 @@ namespace std {
   template<typename T>
   std::string to_string(const T &n) {
 
-    // skip having to use c++11
+    // skip having to use C++11
 
     std::ostringstream s;
     s << n;
@@ -86,7 +86,7 @@ StringVector collapse_rows_mat(const CharacterMatrix &seqs_k) {
 
   StringVector out(seqs_k.nrow());
 
-  for (int i = 0; i < seqs_k.nrow(); ++i) {
+  for (R_xlen_t i = 0; i < seqs_k.nrow(); ++i) {
     out[i] = collapse(seqs_k(i, _));
   }
 
@@ -99,7 +99,7 @@ StringVector collapse_cols_mat(const CharacterMatrix &seqs_k) {
 
   StringVector out(seqs_k.ncol());
 
-  for (int i = 0; i < seqs_k.ncol(); ++i) {
+  for (R_xlen_t i = 0; i < seqs_k.ncol(); ++i) {
     out[i] = collapse(seqs_k(_, i));
   }
 
@@ -145,7 +145,7 @@ StringVector get_klets(const StringVector &lets, int k = 1) {
   StringVector lets2 = sort_unique(lets);
 
   R_xlen_t n1 = lets2.size();
-  int n2 = pow(n1, k);
+  R_xlen_t n2 = pow(n1, k);
   StringMatrix out(n2, k + 1);
 
   for (int i = 0; i < k ; ++i) {
@@ -167,7 +167,7 @@ String collapse_cpp(const StringVector &x) {
 }
 
 // [[Rcpp::export(rng = false)]]
-void print_pb(int out) {
+void print_pb(R_xlen_t out) {
   if (out >= 10 && out < 100) {
     Rprintf("\b\b\b\b %i%%", out);
     return;
@@ -185,9 +185,9 @@ void print_pb(int out) {
 }
 
 // [[Rcpp::export(rng = false)]]
-void update_pb(int i, int max) {
+void update_pb(R_xlen_t i, R_xlen_t max) {
 
-  int out, prev = i - 1;
+  R_xlen_t out, prev = i - 1;
   if (i == max)
     out = -1;
   else
@@ -208,7 +208,7 @@ String all_checks_collapse(const StringVector &checks) {
   R_xlen_t n = checks.size();
 
   StringVector out_pre(n * 2);
-  int i_ = 0;
+  R_xlen_t i_ = 0;
   for (R_xlen_t i = 0; i < n * 2; ++i) {
     if (i % 2 == 0) {
       out_pre[i] = "\n";
@@ -255,7 +255,7 @@ NumericVector ppm_to_pcmC(NumericVector position, double nsites=0) {
   double possum = sum(position);
   if (possum != nsites) {
     double fix = nsites - possum;
-    int tochange = which_max(position);
+    R_xlen_t tochange = which_max(position);
     position[tochange] += fix;
   }
 
@@ -646,7 +646,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
     // S4 objects can't be length checked
     if (!arg_fail && arg_type != 0 && !null_check && arg_type != 25) {
 
-      int arg_len;
+      R_xlen_t arg_len;
 
       switch (arg_type) {
         case 10: {
@@ -667,7 +667,7 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
         default: stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
       }
 
-      int exp_len = param_len2[i];
+      R_xlen_t exp_len = param_len2[i];
       exp_len_c = std::to_string(exp_len);
       obs_len_c = std::to_string(arg_len);
 

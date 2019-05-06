@@ -9,9 +9,9 @@ IntegerVector calc_scores_cpp(const IntegerMatrix &paths,
   IntegerVector final_scores(paths.nrow());
   int tmp_score;
 
-  for (int i = 0; i < paths.nrow(); ++i) {
+  for (R_xlen_t i = 0; i < paths.nrow(); ++i) {
     tmp_score = 0;
-    for (int j = 0; j < paths.ncol(); ++j) {
+    for (R_xlen_t j = 0; j < paths.ncol(); ++j) {
       tmp_score += score_mat(paths(i, j) - 1, j);
     }
     final_scores[i] = tmp_score;
@@ -34,9 +34,9 @@ NumericVector kmer_mat_to_probs_k1_cpp(const IntegerMatrix &bb_mat,
 
   NumericVector probs_out(bb_mat.nrow(), 1.0);
 
-  for (int i = 0; i < bb_mat.nrow(); ++i) {
+  for (R_xlen_t i = 0; i < bb_mat.nrow(); ++i) {
 
-    for (int j = 0; j < bb_mat.ncol(); ++j) {
+    for (R_xlen_t j = 0; j < bb_mat.ncol(); ++j) {
 
       probs_out[i] *= bkg[alph_sort(bb_mat(i, j) - 1, j) - 1];
 
@@ -107,10 +107,10 @@ NumericVector kmer_mat_to_probs_k1_cpp(const IntegerMatrix &bb_mat,
 IntegerMatrix init_paths_cpp(const IntegerMatrix &score_mat, int score,
     int max_score) {
 
-  int alph_len = score_mat.nrow();
+  R_xlen_t alph_len = score_mat.nrow();
 
   IntegerVector path(alph_len);
-  for (int i = 0; i < alph_len; ++i) {
+  for (R_xlen_t i = 0; i < alph_len; ++i) {
     path[i] = i + 1;
   }
 
@@ -118,7 +118,7 @@ IntegerMatrix init_paths_cpp(const IntegerMatrix &score_mat, int score,
 
   int tmp_score;
 
-  for (int i = 0; i < alph_len; ++i) {
+  for (R_xlen_t i = 0; i < alph_len; ++i) {
     tmp_score = score_mat(i, 0) + max_score;
     if (tmp_score >= score) tokeep[i] = true;
   }
@@ -134,16 +134,16 @@ IntegerMatrix init_paths_cpp(const IntegerMatrix &score_mat, int score,
 IntegerMatrix calc_next_subworker_cpp(const IntegerMatrix &paths_totry,
     const IntegerVector &scores_tmp, int score) {
 
-  int numrows = 0;
+  R_xlen_t numrows = 0;
 
-  for (int i = 0; i < scores_tmp.length(); ++i) {
+  for (R_xlen_t i = 0; i < scores_tmp.length(); ++i) {
     if (scores_tmp[i] >= score) numrows += 1;
   }
 
   IntegerMatrix new_mat(numrows, paths_totry.ncol());
 
-  int currentrow = 0;
-  for (int i = 0; i < paths_totry.nrow(); ++i) {
+  R_xlen_t currentrow = 0;
+  for (R_xlen_t i = 0; i < paths_totry.nrow(); ++i) {
     if (scores_tmp[i] >= score) {
       new_mat(currentrow, _) = paths_totry(i, _);
       currentrow += 1;
@@ -158,19 +158,19 @@ IntegerMatrix calc_next_subworker_cpp(const IntegerMatrix &paths_totry,
 IntegerMatrix list_to_matrix(const List &paths) {
 
   IntegerMatrix tmp = paths[0];
-  int n_rows = 0, n_cols = tmp.ncol();
+  R_xlen_t n_rows = 0, n_cols = tmp.ncol();
 
-  for (int i = 0; i < paths.length(); ++i) {
+  for (R_xlen_t i = 0; i < paths.length(); ++i) {
     IntegerMatrix tmp = paths[i];
     n_rows += tmp.nrow();
   }
 
   IntegerMatrix out(n_rows, n_cols);
 
-  int pos = 0;
-  for (int i = 0; i < paths.length(); ++i) {
+  R_xlen_t pos = 0;
+  for (R_xlen_t i = 0; i < paths.length(); ++i) {
     IntegerMatrix tmp = paths[i];
-    for (int j = pos; j < pos + tmp.nrow(); ++j) {
+    for (R_xlen_t j = pos; j < pos + tmp.nrow(); ++j) {
       out(j, _) = tmp(j - pos, _);
     }
     pos += tmp.nrow();
@@ -184,9 +184,9 @@ IntegerMatrix list_to_matrix(const List &paths) {
 IntegerMatrix calc_next_path_cpp(const IntegerMatrix &score_mat,
     const IntegerMatrix &paths, int score, int max_score) {
 
-  int alph_len = score_mat.nrow();
+  R_xlen_t alph_len = score_mat.nrow();
   IntegerMatrix next_paths(alph_len, 1);
-  for (int i = 0; i < alph_len; ++i) {
+  for (R_xlen_t i = 0; i < alph_len; ++i) {
     next_paths(i, 0) = i + 1;
   }
 
@@ -196,10 +196,10 @@ IntegerMatrix calc_next_path_cpp(const IntegerMatrix &score_mat,
 
   IntegerVector scores_tmp;
 
-  for (int i = 0; i < paths.nrow(); ++i) {
+  for (R_xlen_t i = 0; i < paths.nrow(); ++i) {
 
-    for (int j = 0; j < paths_totry.nrow(); ++j) {
-      for (int b = 0; b < paths_totry.ncol() - 1; ++b) {
+    for (R_xlen_t j = 0; j < paths_totry.nrow(); ++j) {
+      for (R_xlen_t b = 0; b < paths_totry.ncol() - 1; ++b) {
         paths_totry(j, b) = paths(i, b);
       }
     }
@@ -219,10 +219,10 @@ IntegerMatrix calc_next_path_cpp(const IntegerMatrix &score_mat,
 // [[Rcpp::export(rng = false)]]
 IntegerVector expand_scores(const IntegerMatrix &scores) {
 
-  int n_row = scores.nrow(), n_col = scores.ncol();
+  R_xlen_t n_row = scores.nrow(), n_col = scores.ncol();
   IntegerMatrix expanded(pow(n_row, n_col), n_col);
 
-  for (int i = 0; i < n_col; ++i) {
+  for (R_xlen_t i = 0; i < n_col; ++i) {
     expanded(_, i) = rep(rep_each(scores(_, i), pow(n_row, n_col - i - 1)),
         pow(n_row, i + 1));
   }
@@ -234,8 +234,8 @@ IntegerVector expand_scores(const IntegerMatrix &scores) {
 // [[Rcpp::export(rng = false)]]
 IntegerMatrix paths_alph_unsort(IntegerMatrix paths, const IntegerMatrix &alph) {
 
-  for (int i = 0; i < paths.ncol(); ++i) {
-    for (int j = 0; j < paths.nrow(); ++j) {
+  for (R_xlen_t i = 0; i < paths.ncol(); ++i) {
+    for (R_xlen_t j = 0; j < paths.nrow(); ++j) {
       paths(j, i) = alph(paths(j, i) - 1, i);
     }
   }
@@ -249,8 +249,8 @@ StringVector paths_to_alph(const IntegerMatrix &paths, const StringVector &alph)
 
   StringMatrix out(paths.nrow(), paths.ncol());
 
-  for (int i = 0; i < paths.nrow(); ++i) {
-    for (int j = 0; j < paths.ncol(); ++j) {
+  for (R_xlen_t i = 0; i < paths.nrow(); ++i) {
+    for (R_xlen_t j = 0; j < paths.ncol(); ++j) {
       out(i, j) = alph[paths(i, j) - 1];
     }
   }

@@ -1,14 +1,22 @@
 #include <Rcpp.h>
+#include <unordered_map>
 using namespace Rcpp;
+
+std::unordered_map<String, int> metrics_e = {
+  {"EUCL", 1}, {"MEUCL", 2},
+  {"PCC", 3}, {"MPCC", 4},
+  {"KL", 5}, {"MKL", 8},
+  {"MSW", 6}, {"SW", 7}
+};
 
 double motif_euclidean(const NumericMatrix &mot1, const NumericMatrix &mot2) {
 
   // Initially adapted from TFBSTools:::PWMEuclidean
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix diff_mat(mot1.nrow(), mot1.ncol());
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     diff_mat[i] = mot1[i] - mot2[i];
     diff_mat[i] = pow(diff_mat[i], 2.0);
   }
@@ -30,10 +38,10 @@ double motif_euclidean_norm(const NumericMatrix &mot1, const NumericMatrix &mot2
 
   // Initially adapted from TFBSTools:::PWMEuclidean
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix diff_mat(mot1.nrow(), mot1.ncol());
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     diff_mat[i] = mot1[i] - mot2[i];
     diff_mat[i] = pow(diff_mat[i], 2.0);
   }
@@ -55,21 +63,21 @@ double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
 
   // Initially adapted from TFBSTools:::PWMPearson
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     mot1[i] -= 1.0 / mot1.nrow();
     mot2[i] -= 1.0 / mot1.nrow();
   }
 
   NumericMatrix mult_mat(mot1.nrow(), mot1.ncol());
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     mult_mat[i] = mot1[i] * mot2[i];
   }
 
   NumericVector top = colSums(mult_mat);
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     mot1[i] = pow(mot1[i], 2.0);
     mot2[i] = pow(mot2[i], 2.0);
   }
@@ -83,7 +91,7 @@ double motif_pearson(NumericMatrix mot1, NumericMatrix mot2) {
   }
 
   NumericVector top_bot(mot1.ncol());
-  for (int i = 0; i < mot1.ncol(); ++i) {
+  for (R_xlen_t i = 0; i < mot1.ncol(); ++i) {
     top_bot[i] = top[i] / bottom[i];
   }
 
@@ -97,22 +105,22 @@ double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
 
   // Initially adapted from TFBSTools:::PWMPearson
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
 
   // should this be turned off for ICM?
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     mot1[i] -= 1.0 / mot1.nrow();
     mot2[i] -= 1.0 / mot1.nrow();
   }
 
   NumericMatrix mult_mat(mot1.nrow(), mot1.ncol());
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     mult_mat[i] = mot1[i] * mot2[i];
   }
 
   NumericVector top = colSums(mult_mat);
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     mot1[i] = pow(mot1[i], 2.0);
     mot2[i] = pow(mot2[i], 2.0);
   }
@@ -126,7 +134,7 @@ double motif_pearson_norm(NumericMatrix mot1, NumericMatrix mot2) {
   }
 
   NumericVector top_bot(mot1.ncol());
-  for (int i = 0; i < mot1.ncol(); ++i) {
+  for (R_xlen_t i = 0; i < mot1.ncol(); ++i) {
     top_bot[i] = top[i] / bottom[i];
   }
 
@@ -140,10 +148,10 @@ double motif_kl(const NumericMatrix &mot1, const NumericMatrix &mot2) {
 
   // Initially adapted from TFBSTools:::PWMKL
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix new_mat(mot1.nrow(), mot1.ncol());
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     new_mat[i] = mot1[i] * log(mot1[i] / mot2[i]);
     new_mat[i] += mot2[i] * log(mot2[i] / mot1[i]);
   }
@@ -161,10 +169,10 @@ double motif_kl_norm(const NumericMatrix &mot1, const NumericMatrix &mot2) {
 
   // Initially adapted from TFBSTools:::PWMKL
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix new_mat(mot1.nrow(), mot1.ncol());
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     new_mat[i] = mot1[i] * log(mot1[i] / mot2[i]);
     new_mat[i] += mot2[i] * log(mot2[i] / mot1[i]);
   }
@@ -182,10 +190,10 @@ double motif_sw(const NumericMatrix &mot1, const NumericMatrix &mot2) {
 
   // Adapted from RSAT compare-matrices
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix res_mat(mot1.nrow(), mot1.ncol());
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     res_mat[i] = pow(mot1[i] - mot2[i], 2);
   }
 
@@ -203,10 +211,10 @@ double motif_sw_norm(const NumericMatrix &mot1, const NumericMatrix &mot2) {
 
   // Adapted from RSAT compare-matrices
 
-  int mat_size = mot1.nrow() * mot1.ncol();
+  R_xlen_t mat_size = mot1.nrow() * mot1.ncol();
   NumericMatrix res_mat(mot1.nrow(), mot1.ncol());
 
-  for (int i = 0; i < mat_size; ++i) {
+  for (R_xlen_t i = 0; i < mat_size; ++i) {
     res_mat[i] = pow(mot1[i] - mot2[i], 2);
   }
 
@@ -226,13 +234,13 @@ List add_cols(const NumericMatrix &mot1, const NumericMatrix &mot2,
 
   List out;
 
-  int ncol_1 = mot1.ncol(), nrow_1 = mot1.nrow();
-  int total_1 = ncol_1 * nrow_1;
+  R_xlen_t ncol_1 = mot1.ncol(), nrow_1 = mot1.nrow();
+  R_xlen_t total_1 = ncol_1 * nrow_1;
 
-  int ncol_2 = mot2.ncol(), nrow_2 = mot2.nrow();
-  int total_2 = ncol_2 * nrow_2;
+  R_xlen_t ncol_2 = mot2.ncol(), nrow_2 = mot2.nrow();
+  R_xlen_t total_2 = ncol_2 * nrow_2;
 
-  int overlap1 = overlap, overlap2 = overlap;
+  R_xlen_t overlap1 = overlap, overlap2 = overlap;
   if (overlap < 1) {
     overlap1 = overlap * ncol_1;
     overlap2 = overlap * ncol_2;
@@ -241,11 +249,11 @@ List add_cols(const NumericMatrix &mot1, const NumericMatrix &mot2,
     overlap2 = overlap;
   }
 
-  int ncol_1_toadd;
+  R_xlen_t ncol_1_toadd;
   if (overlap1 > ncol_2) ncol_1_toadd = 0;
   else ncol_1_toadd = ncol_2 - overlap1;
 
-  int ncol_2_toadd;
+  R_xlen_t ncol_2_toadd;
   if (overlap2 > ncol_1) ncol_2_toadd = 0;
   else ncol_2_toadd = ncol_1 - overlap2;
 
@@ -256,19 +264,19 @@ List add_cols(const NumericMatrix &mot1, const NumericMatrix &mot2,
 
   if (mot2.ncol() >= mot1.ncol()) {
 
-    int total_1_toadd = ncol_1_toadd * nrow_1;
-    int total_1_new = total_1_toadd * 2 + total_1;
+    R_xlen_t total_1_toadd = ncol_1_toadd * nrow_1;
+    R_xlen_t total_1_new = total_1_toadd * 2 + total_1;
     NumericMatrix mot1_new(nrow_1, ncol_1_toadd * 2 + ncol_1);
     NumericVector ic1_new(ic1.size() + ncol_1_toadd * 2, NA_REAL);
 
-    for (int i = 0; i < total_1_new; ++i) {
+    for (R_xlen_t i = 0; i < total_1_new; ++i) {
       mot1_new[i] = NA_REAL;
     }
-    for (int i = ncol_1_toadd; i < ncol_1_toadd + ncol_1; ++i) {
+    for (R_xlen_t i = ncol_1_toadd; i < ncol_1_toadd + ncol_1; ++i) {
       mot1_new(_, i) = mot1(_, i - ncol_1_toadd);
     }
 
-    for (int i = ncol_1_toadd; i < ncol_1_toadd + ic1.size(); ++i) {
+    for (R_xlen_t i = ncol_1_toadd; i < ncol_1_toadd + ic1.size(); ++i) {
       ic1_new[i] = ic1[i - ncol_1_toadd];
     }
 
@@ -276,19 +284,19 @@ List add_cols(const NumericMatrix &mot1, const NumericMatrix &mot2,
 
   } else {
 
-    int total_2_toadd = ncol_2_toadd * nrow_2;
-    int total_2_new = total_2_toadd * 2 + total_2;
+    R_xlen_t total_2_toadd = ncol_2_toadd * nrow_2;
+    R_xlen_t total_2_new = total_2_toadd * 2 + total_2;
     NumericMatrix mot2_new(nrow_2, ncol_2_toadd * 2 + ncol_2);
     NumericVector ic2_new(ic2.size() + ncol_2_toadd * 2, NA_REAL);
 
-    for (int i = 0; i < total_2_new; ++i) {
+    for (R_xlen_t i = 0; i < total_2_new; ++i) {
       mot2_new[i] = NA_REAL;
     }
-    for (int i = ncol_2_toadd; i < ncol_2_toadd + ncol_2; ++i) {
+    for (R_xlen_t i = ncol_2_toadd; i < ncol_2_toadd + ncol_2; ++i) {
       mot2_new(_, i) = mot2(_, i - ncol_2_toadd);
     }
 
-    for (int i = ncol_2_toadd; i < ncol_2_toadd + ic2.size(); ++i) {
+    for (R_xlen_t i = ncol_2_toadd; i < ncol_2_toadd + ic2.size(); ++i) {
       ic2_new[i] = ic2[i - ncol_2_toadd];
     }
 
@@ -303,11 +311,11 @@ List add_cols(const NumericMatrix &mot1, const NumericMatrix &mot2,
 NumericMatrix rev_motif(const NumericMatrix &motif) {
 
   NumericMatrix out(motif.nrow(), motif.ncol());
-  for (int i = 0; i < motif.nrow(); ++i) {
+  for (R_xlen_t i = 0; i < motif.nrow(); ++i) {
     out(i, _) = motif(motif.nrow() - i - 1, _);
   }
   NumericMatrix out2 = Rcpp::clone(out);
-  for (int i = 0; i < motif.ncol(); ++i) {
+  for (R_xlen_t i = 0; i < motif.ncol(); ++i) {
     out(_, i) = out2(_, motif.ncol() - i - 1);
   }
 
@@ -315,14 +323,14 @@ NumericMatrix rev_motif(const NumericMatrix &motif) {
 
 }
 
-int get_align_len(const NumericMatrix &mot1, const NumericMatrix &mot2) {
+R_xlen_t get_align_len(const NumericMatrix &mot1, const NumericMatrix &mot2) {
 
   NumericVector mot1_ = mot1(1, _);
   NumericVector mot2_ = mot2(1, _);
 
-  int out = 0;
+  R_xlen_t out = 0;
 
-  for (int i = 0; i < mot1.ncol(); ++i) {
+  for (R_xlen_t i = 0; i < mot1.ncol(); ++i) {
     if (!NumericVector::is_na(mot1_[i]) && !NumericVector::is_na(mot2_[i]))
       out += 1;
   }
@@ -377,9 +385,9 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector widths(2);
   widths[0] = mot1_new.ncol();
   widths[1] = mot2_new.ncol();
-  int min_width = min(widths);
-  int for_i = 1 + mot1_new.ncol() - min_width;
-  int for_j = 1 + mot2_new.ncol() - min_width;
+  R_xlen_t min_width = min(widths);
+  R_xlen_t for_i = 1 + mot1_new.ncol() - min_width;
+  R_xlen_t for_j = 1 + mot2_new.ncol() - min_width;
   NumericMatrix mot1_tmp(mot1_new.nrow(), min_width);
   NumericMatrix mot2_tmp(mot2_new.nrow(), min_width);
   NumericVector ic1_tmp(min_width);
@@ -387,23 +395,14 @@ double motif_simil_internal(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector ans(for_i + for_j - 1);
   double align_len;
 
-  int method_i = 0;
+  int method_i = ::metrics_e[method];
   double ic1_mean, ic2_mean;
   bool low_ic = false;
 
-       if (method == "EUCL")  method_i = 1;
-  else if (method == "MEUCL") method_i = 2;
-  else if (method == "PCC")   method_i = 3;
-  else if (method == "MPCC")  method_i = 4;
-  else if (method == "KL")    method_i = 5;
-  else if (method == "MSW")   method_i = 6;
-  else if (method == "SW")    method_i = 7;
-  else if (method == "MKL")   method_i = 8;
+  for (R_xlen_t i = 0; i < for_i; ++i) {
+    for (R_xlen_t j = 0; j < for_j; ++j) {
 
-  for (int i = 0; i < for_i; ++i) {
-    for (int j = 0; j < for_j; ++j) {
-
-      for (int k = 0; k < min_width; ++k) {
+      for (R_xlen_t k = 0; k < min_width; ++k) {
         mot1_tmp(_, k) = mot1_new(_, k + i);
         mot2_tmp(_, k) = mot2_new(_, k + j);
         ic1_tmp[k] = ic1_new[k + i];
@@ -517,14 +516,14 @@ NumericMatrix list_to_matrix_simil(List comparisons, StringVector mot_names,
 
   NumericMatrix out(mot_names.size(), mot_names.size());
 
-  if (method == "EUCL" || method == "MEUCL" ||
-      method == "SW"   || method == "PCC"   ||
-      method == "KL"   || method == "MKL")
-    out.fill_diag(0.0);
-  else if (method == "MPCC")
-    out.fill_diag(1.0);
-  else if (method == "MSW")
-    out.fill_diag(2.0);
+  switch (::metrics_e[method]) {
+    case 4: out.fill_diag(1.0);
+            break;
+    case 6: out.fill_diag(2.0);
+            break;
+    default: out.fill_diag(0.0);
+             break;
+  }
 
   R_xlen_t n = comparisons.size();
   for (R_xlen_t i = 0; i < n; ++i) {
@@ -550,8 +549,8 @@ NumericMatrix merge_mats(const NumericMatrix &mat1, const NumericMatrix &mat2,
 
   NumericMatrix new_mat(mat1.nrow(), mat1.ncol());
 
-  for (int i = 0; i < mat1.nrow(); ++i) {
-    for (int j = 0; j < mat1.ncol(); ++j) {
+  for (R_xlen_t i = 0; i < mat1.nrow(); ++i) {
+    for (R_xlen_t j = 0; j < mat1.ncol(); ++j) {
 
       if (NumericVector::is_na(mat1(i, j)) && NumericVector::is_na(mat2(i, j)))
         new_mat(i, j) = NA_REAL;
@@ -574,13 +573,13 @@ List merge_add_cols(List out) {
 
   NumericMatrix mot1 = out(0);
   NumericMatrix mot2 = out(1);
-  int offset = out(2);
+  R_xlen_t offset = out(2);
 
-  int ncol1 = mot1.ncol();
-  int nrow1 = mot1.nrow();
-  int ncol2 = mot2.ncol();
+  R_xlen_t ncol1 = mot1.ncol();
+  R_xlen_t nrow1 = mot1.nrow();
+  R_xlen_t ncol2 = mot2.ncol();
 
-  int inner_mat, ncol3;
+  R_xlen_t inner_mat, ncol3;
   bool dontskip = true;
   NumericMatrix tmp_mat;
 
@@ -598,20 +597,20 @@ List merge_add_cols(List out) {
 
     NumericMatrix new_mat(nrow1, ncol3); 
 
-    for (int i = 0; i < offset; ++i) {
-      for (int j = 0; j < nrow1; ++j) {
+    for (R_xlen_t i = 0; i < offset; ++i) {
+      for (R_xlen_t j = 0; j < nrow1; ++j) {
         new_mat(j, i) = NA_REAL;
       }
     }
 
-    for (int i = offset; i < offset + inner_mat; ++i) {
-      for (int j = 0; j < nrow1; ++j) {
+    for (R_xlen_t i = offset; i < offset + inner_mat; ++i) {
+      for (R_xlen_t j = 0; j < nrow1; ++j) {
         new_mat(j, i) = tmp_mat(j, i - offset);
       }
     }
 
-    for (int i = offset + inner_mat; i < ncol3; ++i) {
-      for (int j = 0; j < nrow1; ++j) {
+    for (R_xlen_t i = offset + inner_mat; i < ncol3; ++i) {
+      for (R_xlen_t j = 0; j < nrow1; ++j) {
         new_mat(j, i) = NA_REAL;
       }
     }
@@ -648,9 +647,9 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector widths(2);
   widths[0] = mot1_new.ncol();
   widths[1] = mot2_new.ncol();
-  int min_width = min(widths);
-  int for_i = 1 + mot1_new.ncol() - min_width;
-  int for_j = 1 + mot2_new.ncol() - min_width;
+  R_xlen_t min_width = min(widths);
+  R_xlen_t for_i = 1 + mot1_new.ncol() - min_width;
+  R_xlen_t for_j = 1 + mot2_new.ncol() - min_width;
   NumericMatrix mot1_tmp(mot1_new.nrow(), min_width);
   NumericMatrix mot2_tmp(mot2_new.nrow(), min_width);
   NumericVector ic1_tmp(min_width);
@@ -658,24 +657,15 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
   NumericVector ans(for_i + for_j - 1);
   double align_len;
 
-  int method_i = 0;
+  int method_i = ::metrics_e[method];
   double ic1_mean;
   double ic2_mean;
   bool low_ic = false;
 
-       if (method == "EUCL")  method_i = 1;
-  else if (method == "MEUCL") method_i = 2;
-  else if (method == "PCC")   method_i = 3;
-  else if (method == "MPCC")  method_i = 4;
-  else if (method == "KL")    method_i = 5;
-  else if (method == "MSW")   method_i = 6;
-  else if (method == "SW")    method_i = 7;
-  else if (method == "MKL")   method_i = 8;
+  for (R_xlen_t i = 0; i < for_i; ++i) {
+    for (R_xlen_t j = 0; j < for_j; ++j) {
 
-  for (int i = 0; i < for_i; ++i) {
-    for (int j = 0; j < for_j; ++j) {
-
-      for (int k = 0; k < min_width; ++k) {
+      for (R_xlen_t k = 0; k < min_width; ++k) {
         mot1_tmp(_, k) = mot1_new(_, k + i);
         mot2_tmp(_, k) = mot2_new(_, k + j);
         ic1_tmp[k] = ic1_new[k + i];
@@ -731,7 +721,7 @@ List merge_motifs_get_offset(NumericMatrix mot1, NumericMatrix mot2,
     }
   }
 
-  int offset;
+  R_xlen_t offset;
   double score;
   switch(method_i) {
 
