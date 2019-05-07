@@ -334,7 +334,7 @@ bool check_bkg_names(StringVector alph, std::string blet) {
 
   LogicalVector failed(blet.size(), true);
 
-  for (R_xlen_t i = 0; i < blet.length(); ++i) {
+  for (size_t i = 0; i < blet.length(); ++i) {
 
     for (R_xlen_t j = 0; j < alph.size(); ++j) {
 
