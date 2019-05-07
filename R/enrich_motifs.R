@@ -378,7 +378,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     inf.check <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
     if (any(inf.check)) {
       warning("-Inf values found in motifs, normalizing")
-      motifs <- mapply(function(x, y) if (x) normalize(y) else y, inf.check, motif,
+      motifs <- mapply(function(x, y) if (x) normalize(y) else y, inf.check, motifs,
                        SIMPLIFY = FALSE)
     }
     score.mats <- lapply(motifs, function(x) x@motif)
