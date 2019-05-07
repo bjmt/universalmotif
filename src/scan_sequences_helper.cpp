@@ -75,7 +75,6 @@ IntegerVector LETTER_to_int(const IntegerVector &seqs, int k,
     const IntegerVector &letters) {
 
   IntegerVector out(seqs.size() / k, 0);
-  int out_i, l_;
   R_xlen_t let_length = letters.size();
 
   if (k == 1) {
@@ -88,12 +87,7 @@ IntegerVector LETTER_to_int(const IntegerVector &seqs, int k,
       if (i % k == 0) {
 
         for (int l = 0; l < k; ++l) {
-
-          l_ = pow(let_length, k - l - 1);
-          out_i = seqs[i + l];
-          out_i *= l_;
-          out[i / k] += out_i;
-
+          out[i / k] += seqs[i + l] * pow(let_length, k - l - 1);
         }
 
       }
