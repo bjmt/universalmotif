@@ -7,6 +7,13 @@ MINOR CHANGES
 
     o Various C++ optimisations.
 
+CHANGES IN VERSION 1.2.1
+------------------------
+
+BUG FIXES
+
+    o Mispelled variable in enrich_motifs()
+
 CHANGES IN VERSION 1.2.0
 ------------------------
 
