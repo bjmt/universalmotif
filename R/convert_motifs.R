@@ -224,19 +224,19 @@ convert_to_tfbstools_matrix <- function(motifs, out_class) {
 
 convert_to_tfbstools_tffmfirst <- function(motifs) {
   motifs <- convert_type(motifs, "PPM")
-  if (!`2` %in% names(motifs@multifreq)) {
+  if (!"2" %in% names(motifs@multifreq)) {
     stop("cannot convert without filled multifreq slot")
   }
   if (motifs["alphabet"] != "DNA") stop("alphabet must be DNA")
   bkg <- motifs["bkg"][DNA_BASES]
   emission <- list(length = ncol(motifs@multifreq[["2"]]) + 1)
   emission[[1]] <- bkg
-  transition <- matrix(rep(0, (ncol(motifs@multifreq$`2`) + 1) *
-                               ncol(motifs@multifreq$`2`)),
-                       nrow = ncol(motifs@multifreq$`2`) + 1,
-                       ncol = ncol(motifs@multifreq$`2`))
-  for (i in seq_len(ncol(motifs@multifreq$`2`))) {
-    emission[[i + 1]] <- motifs@multifreq$`2`[, i]
+  transition <- matrix(rep(0, (ncol(motifs@multifreq$"2") + 1) *
+                               ncol(motifs@multifreq$"2")),
+                       nrow = ncol(motifs@multifreq$"2") + 1,
+                       ncol = ncol(motifs@multifreq$"2"))
+  for (i in seq_len(ncol(motifs@multifreq$"2"))) {
+    emission[[i + 1]] <- motifs@multifreq$"2"[, i]
     transition[i, i] <- 1
   }
   names(emission) <- rep("state", length(emission))
