@@ -638,17 +638,17 @@ StringVector check_fun_params(List param_args, IntegerVector param_len,
       switch (arg_type) {
         case 10: {
                    LogicalVector arg_ = as<LogicalVector>(arg);
-                   arg_len = arg_.length();
+                   arg_len = arg_.size();
                    break;
                  }
         case 14: {
                    NumericVector arg_ = as<NumericVector>(arg);
-                   arg_len = arg_.length();
+                   arg_len = arg_.size();
                    break;
                  }
         case 16: {
                    StringVector arg_ = as<StringVector>(arg);
-                   arg_len = arg_.length();
+                   arg_len = arg_.size();
                    break;
                  }
         default: stop("utils.cpp: Unrecognised param type [INTERNAL ERROR]");
