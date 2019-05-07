@@ -1,6 +1,5 @@
 #include <Rcpp.h>
 #include <unordered_map>
-#include <sstream>  // needed for `to_string` work around
 using namespace Rcpp;
 
 StringVector dna = StringVector::create("A", "C", "G", "T");
@@ -53,18 +52,6 @@ std::unordered_map<String, int> aa_e = {
   {"T", 17}, {"V", 18},
   {"W", 19}, {"Y", 20}
 };
-
-namespace std {
-  template<typename T>
-  std::string to_string(const T &n) {
-
-    // skip having to use C++11
-
-    std::ostringstream s;
-    s << n;
-    return s.str();
-  }
-}
 
 // [[Rcpp::export(rng = false)]]
 StringVector sort_unique_cpp(const StringVector &x) {
