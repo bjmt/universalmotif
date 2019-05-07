@@ -85,11 +85,9 @@ IntegerVector LETTER_to_int(const IntegerVector &seqs, int k,
 
     for (R_xlen_t i = 0; i < seqs.size(); ++i) {
       if (i % k == 0) {
-
         for (int l = 0; l < k; ++l) {
           out[i / k] += seqs[i + l] * pow(let_length, k - l - 1);
         }
-
       }
     }
 
@@ -123,8 +121,8 @@ IntegerVector res_to_index(IntegerVector x) {
 }
 
 // [[Rcpp::export(rng = false)]]
-List parse_k_res_helper_1(const IntegerVector &seqs, const IntegerVector &to_keep,
-    R_xlen_t mot_len, int k) {
+List parse_k_res_helper_1(const IntegerVector &seqs,
+    const IntegerVector &to_keep, R_xlen_t mot_len, int k) {
 
   List out(to_keep.size());
 
@@ -141,8 +139,8 @@ List parse_k_res_helper_1(const IntegerVector &seqs, const IntegerVector &to_kee
 }
 
 // [[Rcpp::export(rng = false)]]
-List parse_k_res_helper_2(const StringVector &sequence, const IntegerVector &to_keep,
-    R_xlen_t mot_len) {
+List parse_k_res_helper_2(const StringVector &sequence,
+    const IntegerVector &to_keep, R_xlen_t mot_len) {
 
   List out(to_keep.size());
 
@@ -254,8 +252,8 @@ IntegerVector create_col_stop(const List &to_keep, const IntegerVector &n_rows,
 }
 
 NumericVector create_col_score(const List &to_keep, const IntegerVector &n_rows,
-    R_xlen_t n, R_xlen_t rows_all, const List &seq_ints, const IntegerMatrix &score_mats,
-    R_xlen_t mot_lens, int k) {
+    R_xlen_t n, R_xlen_t rows_all, const List &seq_ints,
+    const IntegerMatrix &score_mats, R_xlen_t mot_lens, int k) {
 
   R_xlen_t row_offset = 0;
   NumericVector out(rows_all);
@@ -278,8 +276,8 @@ NumericVector create_col_score(const List &to_keep, const IntegerVector &n_rows,
 
 }
 
-NumericVector create_col_score_pct(const NumericVector &col_score, double min_scores,
-    double max_scores, R_xlen_t rows_all) {
+NumericVector create_col_score_pct(const NumericVector &col_score,
+    double min_scores, double max_scores, R_xlen_t rows_all) {
 
   double min_scores_abs = abs(min_scores);
   double total_score = min_scores_abs + abs(max_scores);
@@ -291,7 +289,8 @@ NumericVector create_col_score_pct(const NumericVector &col_score, double min_sc
 }
 
 StringVector create_col_match(const List &to_keep, const List &seqs_aschar,
-    R_xlen_t mot_lens, const IntegerVector &n_rows, R_xlen_t n, R_xlen_t rows_all) {
+    R_xlen_t mot_lens, const IntegerVector &n_rows, R_xlen_t n,
+    R_xlen_t rows_all) {
 
   R_xlen_t row_offset = 0;
   StringVector out(rows_all);
@@ -331,17 +330,17 @@ List get_res_cpp(const List &to_keep, const List &seqs_aschar, const List &seq_i
   NumericVector col_max_score(rows_all, max_scores);
 
   StringVector  col_sequence  = create_col_sequence(seq_names, n_rows, n,
-                                rows_all);
+                                                    rows_all);
   IntegerVector col_start     = create_col_start(to_keep, n_rows, n, rows_all, k,
-                                mot_lens, strand);
+                                                 mot_lens, strand);
   IntegerVector col_stop      = create_col_stop(to_keep, n_rows, n, rows_all, k,
-                                mot_lens, strand);
+                                                mot_lens, strand);
   NumericVector col_score     = create_col_score(to_keep, n_rows, n, rows_all,
-                                seq_ints, score_mats, mot_lens, k);
+                                                 seq_ints, score_mats, mot_lens, k);
   NumericVector col_score_pct = create_col_score_pct(col_score, min_scores,
-                                max_scores, rows_all);
+                                                     max_scores, rows_all);
   StringVector  col_match     = create_col_match(to_keep, seqs_aschar, mot_lens,
-                                n_rows, n, rows_all);
+                                                 n_rows, n, rows_all);
 
   List out = List::create(
 
@@ -467,8 +466,8 @@ DataFrame res_list_to_df_cpp(const List &res) {
 }
 
 // [[Rcpp::export(rng = false)]]
-DataFrame index_list_to_df_cpp(const List &to_keep, const StringVector &seq_names,
-    const IntegerVector &lens_each) {
+DataFrame index_list_to_df_cpp(const List &to_keep,
+    const StringVector &seq_names, const IntegerVector &lens_each) {
 
   R_xlen_t n_seq = seq_names.size();
   R_xlen_t total_len = sum(lens_each);
