@@ -265,14 +265,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// string_to_factor
-IntegerVector string_to_factor(const StringVector& x, const StringVector& y);
-RcppExport SEXP _universalmotif_string_to_factor(SEXP xSEXP, SEXP ySEXP) {
+// string_to_int
+IntegerVector string_to_int(const StringVector& x, const StringVector& y);
+RcppExport SEXP _universalmotif_string_to_int(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const StringVector& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const StringVector& >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(string_to_factor(x, y));
+    rcpp_result_gen = Rcpp::wrap(string_to_int(x, y));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -742,7 +742,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_scan_seq_internal2", (DL_FUNC) &_universalmotif_scan_seq_internal2, 3},
     {"_universalmotif_scan_seq_internal", (DL_FUNC) &_universalmotif_scan_seq_internal, 3},
     {"_universalmotif_LETTER_to_int", (DL_FUNC) &_universalmotif_LETTER_to_int, 3},
-    {"_universalmotif_string_to_factor", (DL_FUNC) &_universalmotif_string_to_factor, 2},
+    {"_universalmotif_string_to_int", (DL_FUNC) &_universalmotif_string_to_int, 2},
     {"_universalmotif_res_to_index", (DL_FUNC) &_universalmotif_res_to_index, 1},
     {"_universalmotif_parse_k_res_helper_1", (DL_FUNC) &_universalmotif_parse_k_res_helper_1, 4},
     {"_universalmotif_parse_k_res_helper_2", (DL_FUNC) &_universalmotif_parse_k_res_helper_2, 3},

@@ -106,13 +106,10 @@ IntegerVector LETTER_to_int(const IntegerVector &seqs, int k,
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector string_to_factor(const StringVector &x, const StringVector &y) {
+IntegerVector string_to_int(const StringVector &x, const StringVector &y) {
 
   StringVector lvls = sort_unique(y);
   IntegerVector out = match(x, lvls);
-
-  out.attr("levels") = as<CharacterVector>(lvls);
-  out.attr("class") = "factor";
 
   return out;
 

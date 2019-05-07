@@ -246,12 +246,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 #-------------------------------------------------------------------------------
 # SEQS --> SPLIT SEQS
 
-  # Idea: The safeExplode() step could be skipped by using:
-  #       as.integer(factor(utf8ToInt(sequence), levels = utf8ToInt(alph))
-  #       (Order of letters in 'alph' is important!)
-  #
-  #       This would allow for a quick jump from SEQS --> FACTORS --> MATRICES.
-
   if (verbose > 0) cat(" * Processing sequences\n")
 
   if (verbose > 1) {
@@ -259,14 +253,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     cat("   * Mean sequence width:", mean(width(sequences)), "\n")
   }
 
-  seqs.aschar <- as.character(sequences)
+  seqs <- as.character(sequences)
 
   if (progress && !BP && verbose > 0)
     cat("   * Splitting up sequences ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Splitting up sequences\n")
 
-  seqs.aschar <- lapply_(seqs.aschar, safeExplode, BP = BP, PB = progress)
+  seqs.char <- lapply_(seqs, safeExplode, BP = BP, PB = progress)
 
 #-------------------------------------------------------------------------------
 # SEQS --> SEQ MATRICES
@@ -280,7 +274,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Creating sequence matrices\n")
 
-  seq.matrices <- mapply_(scan_process_seqs, seq.matrices, seqs.aschar, BP = BP,
+  seqs <- mapply_(scan_process_seqs, seq.matrices, seqs.char, BP = BP,
                            MoreArgs = list(k = use.freq), SIMPLIFY = FALSE,
                            PB = progress)
 
@@ -296,7 +290,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     },
     "custom" = {
       if (RC) stop("RC search is only available for DNA/RNA")
-      mot.alphs <- lapply(seqs.aschar, unique)
+      mot.alphs <- lapply(seqs, unique)
       mot.alphs <- unique(unlist(mot.alphs))
     },
     {
@@ -308,16 +302,15 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   alph.int <- as.integer(seq_along(mot.alphs))
 
 #-------------------------------------------------------------------------------
-# STRINGS --> FACTORS
+# STRINGS --> INTS
 
   if (progress && !BP && verbose > 0)
-    cat("   * Converting sequences to factors ...")
+    cat("   * Converting sequences to integers ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
-    cat("   * Converting sequences to factors\n")
+    cat("   * Converting sequences to integers\n")
 
-  seq.matrices <- lapply_(seq.matrices,
-                          function(x) string_to_factor(x, mot.alphs),
-                          BP = BP, PB = progress)
+  seqs <- lapply_(seqs, function(x) string_to_int(x, mot.alphs),
+                  BP = BP, PB = progress)
 
 #-------------------------------------------------------------------------------
 # CHECK FOR NAs
@@ -328,25 +321,21 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Checking for non-standard letters\n")
 
-  na.check <- lapply_(seq.matrices,
-                      function(x) any(is.na(x)),
-                      BP = BP, PB = progress)
+  na.check <- lapply_(seqs, function(x) any(is.na(x)), BP = BP, PB = progress)
   na.check <- any(as.logical(na.check))
   if (na.check) warning("Non-standard letters found, these will be ignored",
                         immediate. = TRUE, call. = FALSE)
 
 #-------------------------------------------------------------------------------
-# FACTORS --> INTEGERS
+# HIGHER K
 
   if (progress && !BP && verbose > 0)
-    cat("   * Converting sequences to integers ...")
+    cat("   * Final sequence preparation ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
-    cat("   * Converting sequences to integers\n")
+    cat("   * Final sequence preparation\n")
 
-  seq.ints <- lapply_(seq.matrices,
-                      function(x) LETTER_to_int(as.integer(x) - 1,
-                                                use.freq, alph.int),
-                      BP = BP, PB = progress)
+  seqs <- lapply_(seqs, function(x) LETTER_to_int(x - 1, use.freq, alph.int),
+                  BP = BP, PB = progress)
 
 #-------------------------------------------------------------------------------
 # SCANNING
@@ -371,12 +360,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (!na.check) {
     to.keep <- lapply_(seq_along(score.mats),
-                       function(x) scan_score_motif(seq.ints, score.mats[[x]],
+                       function(x) scan_score_motif(seqs, score.mats[[x]],
                                                     thresholds.int[x]),
                        BP = BP, PB = progress)
   } else {
     to.keep <- lapply_(seq_along(score.mats),
-                       function(x) scan_score_motif2(seq.ints, score.mats[[x]],
+                       function(x) scan_score_motif2(seqs, score.mats[[x]],
                                                      thresholds.int[x]),
                        BP = BP, PB = progress)
   }
@@ -403,7 +392,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   #          function(x, y) create_col_score(x, vapply(matches[[i]], length, integer(1)),
   #                                          length(to.keep[[i]]),
   #                                          sum(vapply(matches[[i]], length, integer(1)),
-  #                                          seq.ints, score.mats[[i]], ncol(score.mats[[i]]),
+  #                                          seqs, score.mats[[i]], ncol(score.mats[[i]]),
   #                                          use.freq),
   #          to.keep[[i]], score.mats[[i]], SIMPLIFY = FALSE
   #       )
@@ -429,13 +418,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
     if (!na.check) {
       to.keep.rc <- lapply_(seq_along(score.mats.rc),
-                            function(x) scan_score_motif(seq.ints, score.mats.rc[[x]],
-                                                     thresholds.int[x]),
+                            function(x) scan_score_motif(seqs, score.mats.rc[[x]],
+                                                         thresholds.int[x]),
                             BP = BP, PB = progress)
     } else {
       to.keep.rc <- lapply_(seq_along(score.mats.rc),
-                            function(x) scan_score_motif2(seq.ints, score.mats.rc[[x]],
-                                                      thresholds.int[x]),
+                            function(x) scan_score_motif2(seqs, score.mats.rc[[x]],
+                                                          thresholds.int[x]),
                             BP = BP, PB = progress)
     }
 
@@ -465,7 +454,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   res.len <- length(res)
   for (i in seq_along(res)) {
     to.keep[[i]] <- lapply(to.keep[[i]], res_to_index)
-    res[[i]] <- get_res_cpp(to.keep[[i]], seqs.aschar, seq.ints, mot.lens[i],
+    res[[i]] <- get_res_cpp(to.keep[[i]], seqs.char, seqs, mot.lens[i],
                             min.scores[i], max.scores[i], mot.names[i],
                             seq.names, score.mats[[i]], "+",
                             seq.lens, use.freq)
@@ -484,7 +473,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     res.rc.len <- length(res.rc)
     for (i in seq_along(res.rc)) {
       to.keep.rc[[i]] <- lapply(to.keep.rc[[i]], res_to_index)
-      res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.aschar, seq.ints,
+      res.rc[[i]] <- get_res_cpp(to.keep.rc[[i]], seqs.char, seqs,
                                  mot.lens[i], min.scores[i], max.scores[i],
                                  mot.names[i], seq.names, score.mats.rc[[i]],
                                  "-", seq.lens, use.freq)
@@ -583,14 +572,14 @@ scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
     cat("   * Mean sequence width:", mean(width(sequences)), "\n")
   }
 
-  seqs.aschar <- as.character(sequences)
+  seqs <- as.character(sequences)
 
   if (progress && !BP && verbose > 0)
     cat("   * Splitting up sequences ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Splitting up sequences\n")
 
-  seqs.aschar <- lapply_(seqs.aschar, safeExplode, BP = BP, PB = PB)
+  seqs.char <- lapply_(seqs, safeExplode, BP = BP, PB = PB)
 
 #-------------------------------------------------------------------------------
 # SEQS --> SEQ MATRICES
@@ -605,22 +594,21 @@ scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Creating sequence matrices\n")
 
-  seq.matrices <- mapply_(scan_process_seqs, seq.matrices, seqs.aschar,
-                          MoreArgs = list(k = k), SIMPLIFY = FALSE,
-                          BP = BP, PB = PB)
+  seqs <- mapply_(scan_process_seqs, seq.matrices, seqs.char,
+                  MoreArgs = list(k = k), SIMPLIFY = FALSE,
+                  BP = BP, PB = PB)
 
   alph.int <- as.integer(seq_along(alph))
 
 #-------------------------------------------------------------------------------
-# STRINGS --> FACTORS
+# STRINGS --> INTS
 
   if (progress && !BP && verbose > 0)
-    cat("   * Converting sequences to factors ...")
+    cat("   * Converting sequences to integers ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
-    cat("   * Converting sequences to factors\n")
+    cat("   * Converting sequences to integers\n")
 
-  seq.matrices <- lapply_(seq.matrices, function(x) string_to_factor(x, alph),
-                          BP = BP, PB = PB)
+  seqs <- lapply_(seqs, function(x) string_to_int(x, alph), BP = BP, PB = PB)
 
 #-------------------------------------------------------------------------------
 # CHECK FOR NAs
@@ -631,20 +619,19 @@ scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
   else if ((progress && BP && verbose > 0) || verbose > 1)
     cat("   * Checking for non-standard letters\n")
 
-  na.check <- lapply_(seq.matrices, function(x) any(is.na(x)), BP = BP, PB = PB)
+  na.check <- lapply_(seqs, function(x) any(is.na(x)), BP = BP, PB = PB)
   na.check <- any(as.logical(na.check))
 
 #-------------------------------------------------------------------------------
-# FACTORS --> INTEGERS
+# HIGHER K SCANNING
 
   if (progress && !BP && verbose > 0)
-    cat("   * Converting sequences to integers ...")
+    cat("   * Final sequence preparation ...")
   else if ((progress && BP && verbose > 0) || verbose > 1)
-    cat("   * Converting sequences to integers\n")
+    cat("   * Final sequence preparation\n")
 
-  seq.ints <- lapply_(seq.matrices, function(x) LETTER_to_int(as.integer(x) - 1,
-                                                              k, alph.int),
-                      BP = BP, PB = PB)
+  seqs <- lapply_(seqs, function(x) LETTER_to_int(x - 1, k, alph.int),
+                  BP = BP, PB = PB)
 
 #-------------------------------------------------------------------------------
 # SCANNING
@@ -661,12 +648,12 @@ scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
 
   if (!na.check) {
     to.keep <- lapply_(seq_along(score.mats),
-                       function(x) scan_score_motif(seq.ints, score.mats[[x]],
+                       function(x) scan_score_motif(seqs, score.mats[[x]],
                                                     thresholds.int[x]),
                        BP = BP, PB = PB)
   } else {
     to.keep <- lapply_(seq_along(score.mats),
-                       function(x) scan_score_motif2(seq.ints, score.mats[[x]],
+                       function(x) scan_score_motif2(seqs, score.mats[[x]],
                                                      thresholds.int[x]),
                        BP = BP, PB = PB)
   }
@@ -688,12 +675,12 @@ scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
 
     if (!na.check) {
       to.keep.rc <- lapply_(seq_along(score.mats),
-                            function(x) scan_score_motif(seq.ints, score.mats.rc[[x]],
+                            function(x) scan_score_motif(seqs, score.mats.rc[[x]],
                                                          thresholds.int[x]),
                             BP = BP, PB = PB)
     } else {
       to.keep.rc <- lapply_(seq_along(score.mats),
-                            function(x) scan_score_motif2(seq.ints, score.mats.rc[[x]],
+                            function(x) scan_score_motif2(seqs, score.mats.rc[[x]],
                                                           thresholds.int[x]),
                             BP = BP, PB = PB)
     }
@@ -745,8 +732,6 @@ scan_sequences_slim <- function(score.mats, sequences, thresholds.int, k,
     # COMBINE FORWARD + REVERSE
     for (i in seq_along(to.keep)) {
       to.keep.rc[[i]]$start <- to.keep.rc[[i]]$start + ncol(score.mats[[i]]) - 1
-      # to.keep[[i]]$strand <- rep("+", nrow(to.keep[[i]]))
-      # to.keep.rc[[i]]$strand <- rep("-", nrow(to.keep.rc[[i]]))
       to.keep[[i]] <- rbind(to.keep[[i]], to.keep.rc[[i]])  # potential bottleneck?
     }
 

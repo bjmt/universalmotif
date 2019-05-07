@@ -85,8 +85,8 @@ LETTER_to_int <- function(seqs, k, letters) {
     .Call('_universalmotif_LETTER_to_int', PACKAGE = 'universalmotif', seqs, k, letters)
 }
 
-string_to_factor <- function(x, y) {
-    .Call('_universalmotif_string_to_factor', PACKAGE = 'universalmotif', x, y)
+string_to_int <- function(x, y) {
+    .Call('_universalmotif_string_to_int', PACKAGE = 'universalmotif', x, y)
 }
 
 res_to_index <- function(x) {
