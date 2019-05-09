@@ -40,6 +40,7 @@ env:
   global:
   - _R_CHECK_FORCE_SUGGESTS_=false
   - MAKEFLAGS="-j 2"
+  - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
 #services
 services:
