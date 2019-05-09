@@ -3,6 +3,8 @@
 #include <string>
 #include <cmath>
 
+typedef std::vector<double> vec_num_t;
+typedef std::vector<std::string> vec_str_t;
 typedef std::vector<int> vec_int_t;
 typedef std::vector<char> vec_char_t;
 typedef std::vector<std::vector<int>> list_int_t;
@@ -163,10 +165,10 @@ list_int_t format_results(const list_mat_t &out_pre, const vec_int_t &scores,
 
 }
 
-std::vector<std::string> get_matches(const list_int_t &res,
-    const std::vector<std::string> seq_vecs, list_mat_t motifs) {
+vec_str_t get_matches(const list_int_t &res, const vec_str_t seq_vecs,
+    list_mat_t motifs) {
 
-  std::vector<std::string> out;
+  vec_str_t out;
   out.reserve(res[0].size());
 
   for (std::size_t i = 0; i < res[0].size(); ++i) {
@@ -211,12 +213,12 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
 
   list_int_t res = format_results(out_pre, min_scores2, score2_mats);
 
-  std::vector<double> scores2 = std::vector<double>(res[4].begin(), res[4].end());
+  vec_num_t scores2 = vec_num_t(res[4].begin(), res[4].end());
   for (std::size_t i = 0; i < scores2.size(); ++i) {
     scores2[i] /= 1000;
   }
 
-  std::vector<std::string> matches = get_matches(res, seq_vecs, score2_mats);
+  vec_str_t matches = get_matches(res, seq_vecs, score2_mats);
 
   return Rcpp::DataFrame::create(
         Rcpp::_["motif"] = res[0],
