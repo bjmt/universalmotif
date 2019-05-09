@@ -91,7 +91,7 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            threshold.type = "pvalue", RC = FALSE,
                            use.freq = 1, verbose = 0,
-                           progress = TRUE, BP = FALSE) {
+                           progress = TRUE, BP = FALSE, ncores = 1) {
 
   # TODO: Work with Masked*String objects. Masked letters show up as "#" after
   #       as.character() calls, which should just cause scan_sequences() to
@@ -255,7 +255,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (verbose > 0) cat(" * Scanning\n")
 
-  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds)
+  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds, ncores)
 
   if (verbose > 1) cat ("   * Number of matches: ", nrow(res), "\n", sep = "")
   if (verbose > 0) cat(" * Processing results\n")

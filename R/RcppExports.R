@@ -69,8 +69,8 @@ merge_motifs_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, i
     .Call('_universalmotif_merge_motifs_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2, norm)
 }
 
-scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores) {
-    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores)
+scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, ncores) {
+    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, ncores)
 }
 
 shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols) {

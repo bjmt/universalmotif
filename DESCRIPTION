@@ -19,7 +19,7 @@ Imports: methods, stats, utils, ggplot2, ape, ggtree, ggseqlogo, gtools, Rcpp,
 Suggests: spelling, knitr, BiocStyle, TFBSTools, rmarkdown, MotifDb, testthat,
     Logolas, BiocParallel, seqLogo, motifStack
 Enhances: MotIV, PWMEnrich, rGADEM, motifRG
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppThread
 RdMacros: Rdpack
 VignetteBuilder: knitr
 biocViews: MotifAnnotation, MotifDiscovery, DataImport, GeneRegulation
