@@ -6,8 +6,7 @@ after_install: R -q -e 'tic::after_install()'
 before_script: R -q -e 'tic::before_script()'
 script:
   - R -q -e 'tic::script()'
-  - ln -s /usr/bin/g++-7 /usr/local/bin/g++
-  - export CXX=/usr/bin/g++-7
+  - export CXX=g++-7
   - g++ -v
 after_success:
   - R -q -e 'covr::codecov(type=c("tests","examples"),quiet=FALSE)'
