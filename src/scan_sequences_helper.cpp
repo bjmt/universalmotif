@@ -3,14 +3,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
-
-typedef std::vector<double> vec_num_t;
-typedef std::vector<std::string> vec_str_t;
-typedef std::vector<int> vec_int_t;
-typedef std::vector<char> vec_char_t;
-typedef std::vector<std::vector<int>> list_int_t;
-typedef std::vector<std::vector<char>> list_char_t;
-typedef std::vector<std::vector<std::vector<int>>> list_mat_t;
+#include "types.h"
 
 void deal_with_higher_k_NA(list_int_t &seq_ints, const int &k, const int &let_len) {
 

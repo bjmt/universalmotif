@@ -108,7 +108,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
                                      verbose = args$verbose,
-                                     ncores = args$ncores),
+                                     nthreads = args$nthreads),
                                 c(0, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC),
                                  numeric(), logical(), TYPE_LOGI)
