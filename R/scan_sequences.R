@@ -90,7 +90,7 @@
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            threshold.type = "pvalue", RC = FALSE,
-                           use.freq = 1, verbose = 1,
+                           use.freq = 1, verbose = 0,
                            progress = TRUE, BP = FALSE) {
 
   # TODO: Work with Masked*String objects. Masked letters show up as "#" after
@@ -190,9 +190,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   max.scores <- vapply(motifs, function(x) motif_score(x, 1), numeric(1))
   min.scores <- vapply(motifs, function(x) motif_score(x, 0), numeric(1))
-
-#-------------------------------------------------------------------------------
-# PVALUES --> THRESHOLDS
 
   switch(threshold.type,
 

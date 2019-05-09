@@ -122,6 +122,7 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
       for (std::size_t j = 0; j < seq_vecs.size(); ++j) {
         out[i].push_back(scan_single_seq_NA(score_mats[i], seq_ints[j], k));
       }
+      Rcpp::checkUserInterrupt();
     }
   } else {
     for (std::size_t i = 0; i < score_mats.size(); ++i) {
@@ -129,6 +130,7 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
       for (std::size_t j = 0; j < seq_vecs.size(); ++j) {
         out[i].push_back(scan_single_seq(score_mats[i], seq_ints[j], k));
       }
+      Rcpp::checkUserInterrupt();
     }
   }
 
