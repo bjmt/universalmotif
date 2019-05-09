@@ -89,7 +89,7 @@ vec_int_t scan_single_seq(const list_int_t &motif, const vec_int_t &sequence,
 
 list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
     const list_char_t &seq_vecs, const int &k, vec_char_t &alph,
-    const int &ncores) {
+    const int &nthreads) {
 
   bool na_let = true, use_na_fun = false;
   list_int_t seq_ints(seq_vecs.size());
@@ -136,7 +136,7 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
           for (std::size_t j = 0; j < seq_ints.size(); ++j) {
             out[i].push_back(scan_single_seq_NA(score_mats[i], seq_ints[j], k));
           }
-        }, ncores);
+        }, nthreads);
 
   } else {
 
@@ -154,7 +154,7 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
           for (std::size_t j = 0; j < seq_ints.size(); ++j) {
             out[i].push_back(scan_single_seq(score_mats[i], seq_ints[j], k));
           }
-        }, ncores);
+        }, nthreads);
 
   }
 
@@ -204,7 +204,7 @@ vec_str_t get_matches(const list_int_t &res, const vec_str_t seq_vecs,
 // [[Rcpp::export(rng = false)]]
 Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     const std::vector<std::string> &seq_vecs, const int &k, const std::string &alph,
-    const std::vector<double> &min_scores, const int &ncores) {
+    const std::vector<double> &min_scores, const int &nthreads) {
 
   vec_char_t alph2(alph.begin(), alph.end());
 
@@ -231,7 +231,7 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     }
   }
 
-  list_mat_t out_pre = scan_sequences_cpp_internal(score2_mats, seq2_vecs, k, alph2, ncores);
+  list_mat_t out_pre = scan_sequences_cpp_internal(score2_mats, seq2_vecs, k, alph2, nthreads);
 
   list_int_t res = format_results(out_pre, min_scores2, score2_mats);
 

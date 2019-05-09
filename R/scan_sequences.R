@@ -17,16 +17,12 @@
 #'    `motif['multifreq']` slot is used. See [add_multifreq()].
 #' @param verbose `numeric(1)` Describe progress, from none (`0`) to 
 #'    verbose (`3`).
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#'    Set to `FALSE` if `verbose = 0`.
-#' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
-#'    [scan_sequences()]. See [BiocParallel::register()] to change the
-#'    default backend. Setting `BP = TRUE` is only recommended for
-#'    exceptionally large jobs. Keep in mind however that this function
-#'    will not attempt to limit its memory usage. Furthermore, the
-#'    behaviour of `porgress = TRUE` is changed if `BP = TRUE`; the
-#'    default \pkg{BiocParallel} progress bar will be shown (which
-#'    unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `ncores`.
+#' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
+#'    The work is split by motif, so no speed up will occur for jobs with a
+#'    single motif.
 #'
 #' @return `data.frame` with each row representing one hit; if the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -90,8 +86,8 @@
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            threshold.type = "pvalue", RC = FALSE,
-                           use.freq = 1, verbose = 0,
-                           progress = TRUE, BP = FALSE, ncores = 1) {
+                           use.freq = 1, verbose = 0, progress = FALSE,
+                           BP = FALSE, nthreads = 1) {
 
   # TODO: Work with Masked*String objects. Masked letters show up as "#" after
   #       as.character() calls, which should just cause scan_sequences() to
@@ -111,8 +107,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                  1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
-                                     verbose = args$verbose),
-                                c(0, 1, 1), logical(), TYPE_NUM)
+                                     verbose = args$verbose,
+                                     ncores = args$ncores),
+                                c(0, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
@@ -120,6 +117,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (progress)
+    warning("'progress' is deprecated and does nothing")
+  if (BP)
+    warning("'BP' is deprecated; use 'ncores' instead")
 
   if (verbose <= 0) progress <- FALSE
 
@@ -255,7 +257,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (verbose > 0) cat(" * Scanning\n")
 
-  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds, ncores)
+  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds, nthreads)
 
   if (verbose > 1) cat ("   * Number of matches: ", nrow(res), "\n", sep = "")
   if (verbose > 0) cat(" * Processing results\n")

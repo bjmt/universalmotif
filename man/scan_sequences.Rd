@@ -6,7 +6,7 @@
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  progress = TRUE, BP = FALSE)
+  progress = FALSE, BP = FALSE, nthreads = 1)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -29,17 +29,14 @@ number is used, then the matching k-let matrix from the
 \item{verbose}{\code{numeric(1)} Describe progress, from none (\code{0}) to
 verbose (\code{3}).}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.
-Set to \code{FALSE} if \code{verbose = 0}.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
-\code{\link[=scan_sequences]{scan_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
-default backend. Setting \code{BP = TRUE} is only recommended for
-exceptionally large jobs. Keep in mind however that this function
-will not attempt to limit its memory usage. Furthermore, the
-behaviour of \code{porgress = TRUE} is changed if \code{BP = TRUE}; the
-default \pkg{BiocParallel} progress bar will be shown (which
-unfortunately is much less informative).}
+\item{BP}{\code{logical(1)} Deprecated. See \code{ncores}.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.
+The work is split by motif, so no speed up will occur for jobs with a
+single motif.}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input
