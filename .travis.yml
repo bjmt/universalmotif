@@ -1,13 +1,12 @@
 before_install:
+  - export CXX=g++-7
+  - g++ -v
   - echo 'add_package_checks()' > /home/travis/build/bjmt/universalmotif/tic.R
   - R -q -e 'install.packages(c("remotes", "curl", "covr")); remotes::install_github("ropenscilabs/tic"); remotes::install_github("GuangchuangYu/ggtree"); tic::prepare_all_stages(); tic::before_install()'
 install: R -q -e 'tic::install()'
 after_install: R -q -e 'tic::after_install()'
 before_script: R -q -e 'tic::before_script()'
-script:
-  - export CXX=g++-7
-  - g++ -v
-  - R -q -e 'tic::script()'
+script: R -q -e 'tic::script()'
 after_success:
   - R -q -e 'covr::codecov(type=c("tests","examples"),quiet=FALSE)'
   - R -q -e 'BiocManager::install("BiocCheck")'
