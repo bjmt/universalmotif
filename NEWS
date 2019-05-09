@@ -5,7 +5,12 @@ MINOR CHANGES
 
     o Removed 'random' shuffling method.
 
-    o Various C++ optimisations.
+    o New much faster and more efficient scan_sequences() implementation.
+
+    o New scan_sequences(..., threshold.type) option: 'logodds.abs'. Allows
+      the exact threshold scores to be provided.
+
+    o Various C++ refactoring.
 
 CHANGES IN VERSION 1.2.1
 ------------------------

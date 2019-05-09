@@ -16,8 +16,7 @@ should match motif.}
 
 \item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 
-\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}.
-See details.}
+\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
 
 \item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
 sequences.}
@@ -27,7 +26,7 @@ the \code{motif['motif']} slot) to search for sequences. If a higher
 number is used, then the matching k-let matrix from the
 \code{motif['multifreq']} slot is used. See \code{\link[=add_multifreq]{add_multifreq()}}.}
 
-\item{verbose}{\code{numeric(1)} Describe progress, from none (\code{0}) to very
+\item{verbose}{\code{numeric(1)} Describe progress, from none (\code{0}) to
 verbose (\code{3}).}
 
 \item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.
@@ -62,12 +61,13 @@ to the length of the motif, the scores for each base are summed. If the
 score sum is above the desired threshold, it is kept.
 
 If \code{threshold.type = 'logodds'}, then to calculate the minimum
-allowed score the total possible score for a motif is multiplied
-by the value set by \code{threshold}. To determine the maximum and minimum
+allowed score the max possible score for a motif is multiplied
+by the value set by \code{threshold}. To determine the maximum
 possible scores a motif (of type PWM), run
-\code{sum(apply(motif['motif'], 2, max))} and
-\code{sum(apply(motif['motif'], 2, min))}. If \code{threshold.type = 'pvalue'},
+\code{motif_score(motif, 1)}. If \code{threshold.type = 'pvalue'},
 then threshold logodds scores are generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
+Finaly, if \code{threshold.type = 'logodds.abs'}, then the exact values
+provided will be used as thresholds.
 
 Non-standard letters (such as "N", "+", "-", ".", etc in \code{DNAString}
 objects) will be safely ignored, resulting only in a warning and a very

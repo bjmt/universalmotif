@@ -69,48 +69,8 @@ merge_motifs_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, i
     .Call('_universalmotif_merge_motifs_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2, norm)
 }
 
-numeric_to_integer_matrix <- function(mat) {
-    .Call('_universalmotif_numeric_to_integer_matrix', PACKAGE = 'universalmotif', mat)
-}
-
-scan_seq_internal2 <- function(sequence, score_mat, min_score) {
-    .Call('_universalmotif_scan_seq_internal2', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
-}
-
-scan_seq_internal <- function(sequence, score_mat, min_score) {
-    .Call('_universalmotif_scan_seq_internal', PACKAGE = 'universalmotif', sequence, score_mat, min_score)
-}
-
-LETTER_to_int <- function(seqs, k, letters) {
-    .Call('_universalmotif_LETTER_to_int', PACKAGE = 'universalmotif', seqs, k, letters)
-}
-
-string_to_int <- function(x, y) {
-    .Call('_universalmotif_string_to_int', PACKAGE = 'universalmotif', x, y)
-}
-
-res_to_index <- function(x) {
-    .Call('_universalmotif_res_to_index', PACKAGE = 'universalmotif', x)
-}
-
-parse_k_res_helper_1 <- function(seqs, to_keep, mot_len, k) {
-    .Call('_universalmotif_parse_k_res_helper_1', PACKAGE = 'universalmotif', seqs, to_keep, mot_len, k)
-}
-
-parse_k_res_helper_2 <- function(sequence, to_keep, mot_len) {
-    .Call('_universalmotif_parse_k_res_helper_2', PACKAGE = 'universalmotif', sequence, to_keep, mot_len)
-}
-
-get_res_cpp <- function(to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, max_scores, mot_names, seq_names, score_mats, strand, seq_lens, k) {
-    .Call('_universalmotif_get_res_cpp', PACKAGE = 'universalmotif', to_keep, seqs_aschar, seq_ints, mot_lens, min_scores, max_scores, mot_names, seq_names, score_mats, strand, seq_lens, k)
-}
-
-res_list_to_df_cpp <- function(res) {
-    .Call('_universalmotif_res_list_to_df_cpp', PACKAGE = 'universalmotif', res)
-}
-
-index_list_to_df_cpp <- function(to_keep, seq_names, lens_each) {
-    .Call('_universalmotif_index_list_to_df_cpp', PACKAGE = 'universalmotif', to_keep, seq_names, lens_each)
+scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores) {
+    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores)
 }
 
 shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols) {
