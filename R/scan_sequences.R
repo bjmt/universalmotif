@@ -18,7 +18,7 @@
 #' @param verbose `numeric(1)` Describe progress, from none (`0`) to 
 #'    verbose (`3`).
 #' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `ncores`.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    The work is split by motif, so no speed up will occur for jobs with a
@@ -160,13 +160,15 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (verbose > 1) cat("   * Motif alphabet:", mot.alphs, "\n")
 
   seq.names <- names(sequences)
-  if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
+  if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
 
   seq.alph <- seqtype(sequences)
   if (seq.alph != "B" && seq.alph != mot.alphs)
     stop("Motif and Sequence alphabets do not match")
   else if (seq.alph == "B")
     seq.alph <- mot.alphs
+  if (RC && !seq.alph %in% c("DNA", "RNA"))
+    stop("`RC = TRUE` is only valid for DNA/RNA motifs")
 
   if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))
@@ -283,8 +285,8 @@ adjust_rc_hits <- function(res, alph) {
   if (any(rev.strand)) {
     start <- res$stop[rev.strand]
     stop <- res$start[rev.strand]
-    res$stop <- stop
-    res$start <- start
+    res$stop[rev.strand] <- stop
+    res$start[rev.strand] <- start
     matches <- res$match[rev.strand]
     if (alph == "DNA")
       matches <- as.character(reverseComplement(DNAStringSet(matches)))

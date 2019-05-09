@@ -41,16 +41,12 @@
 #'    [scan_sequences()]. For large jobs, leaving this as
 #'    `FALSE` can save a small amount time by preventing construction of the complete 
 #'    results `data.frame` from [scan_sequences()].
-#' @param progress `logical(1)` Show progress. Note recommended if `BP = TRUE`.
-#'    Set to `FALSE` if `verbose = 0`
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [enrich_motifs()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for exceptionally large jobs
-#'    (be wary of memory usage however, as [enrich_motifs()] does not try and
-#'    limit itself in this regard).
-#'    Furthermore, the behaviour of `progress = TRUE` is
-#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
-#'    be shown (which unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
+#'    The work is split by motif, so no speed up will occur for jobs with a
+#'    single motif.
 #'
 #' @return `data.frame` Motif enrichment results. The resulting 
 #'    `data.frame` contains the following columns:
@@ -105,8 +101,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           threshold = 0.001, threshold.type = "pvalue",
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "euler",
-                          return.scan.results = FALSE, progress = TRUE,
-                          BP = FALSE) {
+                          return.scan.results = FALSE, progress = FALSE,
+                          BP = FALSE, nthreads = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -136,9 +132,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     positional.test_check <- wmsg2(positional.test_check, 4, 2)
     all_checks <- c(all_checks, positional.test_check)
   }
-  if (!threshold.type %in% c("logodds", "pvalue")) {
+  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs")) {
     threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected ",
-                                   "`logodds` or `pvalue`; got `",
+                                   "`logodds`, `logodds.abs` or `pvalue`; got `",
                                    threshold.type, "`")
     threshold.type_check <- wmsg2(threshold.type_check, 4, 2)
     all_checks <- c(all_checks, threshold.type_check)
@@ -160,8 +156,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                      max.e = args$max.e,
                                      threshold = args$threshold,
                                      verbose = args$verbose, use.freq = args$use.freq,
-                                     shuffle.k = args$shuffle.k),
-                                c(1, 1, 1, 0, 1, 1, 1), logical(), TYPE_NUM)
+                                     shuffle.k = args$shuffle.k,
+                                     nthreads = args$nthreads),
+                                c(1, 1, 1, 0, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, progress = args$progress,
                                       return.scan.results = args$return.scan.results,
                                       BP = args$BP),
@@ -172,8 +169,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (verbose <= 0) progress <- FALSE
 
   if (verbose > 2) {
     cat(" > Input parameters\n")
@@ -230,8 +225,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
       cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                               k = 6, progress = progress, BP = BP)
-    max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), numeric(1))
-    min.scores <- vapply(score.mats, function(x) sum(apply(x, 2, min)), numeric(1))
+    max.scores <- vapply(motifs, function(x) motif_score(x, 1), numeric(1))
+    min.scores <- vapply(motifs, function(x) motif_score(x, 0), numeric(1))
     for (i in seq_along(threshold)) {
       if (threshold[i] > max.scores[i]) threshold[i] <- max.scores[i]
     }
@@ -242,8 +237,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
             ", threshold.score = ", threshold[i], "\n", sep = "")
       }
     }
-    threshold <- (threshold + abs(min.scores)) / (abs(max.scores) + abs(min.scores))
-    threshold.type <- "logodds"
+    threshold.type <- "logodds.abs"
   }
 
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
@@ -330,62 +324,19 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   seq.widths <- width(sequences)
   bkg.widths <- width(bkg.sequences)
 
-  if (return.scan.results) {
+  if (verbose > 0) cat(" > Scanning input sequences\n")
+  results <- scan_sequences(motifs, sequences, threshold, threshold.type,
+                            RC, use.freq, progress = FALSE,
+                            verbose = verbose - 1, BP = FALSE)
 
-    if (verbose > 0) cat(" > Scanning input sequences\n")
-    results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                              RC, use.freq, progress = progress,
-                              verbose = verbose - 1, BP = BP)
+  if (verbose > 0) cat(" > Scanning background sequences\n")
+  results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
+                                threshold.type, RC, use.freq,
+                                verbose = verbose - 1, progress = FALSE,
+                                BP = FALSE)
 
-    if (verbose > 0) cat(" > Scanning background sequences\n")
-    results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
-                                  threshold.type, RC, use.freq,
-                                  verbose = verbose - 1, progress = progress,
-                                  BP = BP)
-
-    results2 <- split_by_motif_enrich(motifs, results)
-    results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
-
-  } else {
-
-    seq.alph <- seqtype(sequences)
-    bkg.alph <- seqtype(bkg.sequences)
-    if (seq.alph != bkg.alph)
-      stop("'sequences' and 'bkg.sequences' alphabets do not match")
-    mot.alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
-    if (length(mot.alph) > 1)
-      stop("Not all motifs share the same alphabet")
-    if (seq.alph != mot.alph && !mot.alph %in% c("DNA", "RNA", "AA"))
-      stop("Motif and sequence alphabets differ")
-    alph <- switch(mot.alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES,
-                   "AA" = AA_STANDARD, safeExplode(mot.alph))
-
-    mot.names <- vapply(motifs, function(x) x@name, character(1))
-
-    inf.check <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
-    if (any(inf.check)) {
-      warning("-Inf values found in motifs, normalizing")
-      motifs <- mapply(function(x, y) if (x) normalize(y) else y, inf.check, motifs,
-                       SIMPLIFY = FALSE)
-    }
-    score.mats <- lapply(motifs, function(x) x@motif)
-    score.mats <- lapply(score.mats, numeric_to_integer_matrix)
-    max.scores <- vapply(score.mats, function(x) sum(apply(x, 2, max)), integer(1))
-    min.scores <- vapply(score.mats, function(x) sum(apply(x, 2, min)), integer(1))
-    total.scores <- abs(max.scores) + abs(min.scores)
-    threshold <- total.scores * threshold - abs(min.scores)
-
-    if (verbose > 0) cat(" > Scanning input sequences\n")
-    results2 <- scan_sequences_slim(score.mats, sequences, threshold,
-                                    use.freq, alph, verbose - 1, mot.names,
-                                    RC, progress, BP)
-
-    if (verbose > 0) cat(" > Scanning background sequences\n")
-    results.bkg2 <- scan_sequences_slim(score.mats, bkg.sequences, threshold,
-                                        use.freq, alph, verbose - 1, mot.names,
-                                        RC, progress, BP)
-
-  }
+  results2 <- split_by_motif_enrich(motifs, results)
+  results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
 
   if (length(results2) == 0) {
     return(data.frame())

@@ -36,10 +36,10 @@ String all_checks_collapse(const StringVector &checks);
 
 StringVector collapse_rows_mat(const CharacterMatrix &seqs_k);
 
-extern StringVector dna;
+extern const StringVector dna;
 
-extern StringVector rna;
+extern const StringVector rna;
 
-extern StringVector aa;
+extern const StringVector aa;
 
 #endif

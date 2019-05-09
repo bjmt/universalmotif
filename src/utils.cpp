@@ -2,11 +2,11 @@
 #include <unordered_map>
 using namespace Rcpp;
 
-StringVector dna = StringVector::create("A", "C", "G", "T");
+extern const StringVector dna = StringVector::create("A", "C", "G", "T");
 
-StringVector rna = StringVector::create("A", "C", "G", "U");
+extern const StringVector rna = StringVector::create("A", "C", "G", "U");
 
-StringVector aa = StringVector::create(
+extern const StringVector aa = StringVector::create(
   "A", "C", "D", "E",
   "F", "G", "H", "I",
   "K", "L", "M", "N",
