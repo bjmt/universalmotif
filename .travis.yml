@@ -23,10 +23,13 @@ r: bioc-devel
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - libgsl0-dev
       - ghostscript
       - texlive-fonts-recommended
+      - g++-7
 
 branches:
   only:
