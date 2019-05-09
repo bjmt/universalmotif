@@ -35,8 +35,8 @@ verbose (\code{3}).}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.
-The work is split by motif, so no speed up will occur for jobs with a
-single motif.}
+Note that no speed up will occur for jobs with only a single motif and
+sequence.}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input

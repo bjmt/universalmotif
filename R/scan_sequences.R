@@ -21,8 +21,8 @@
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
-#'    The work is split by motif, so no speed up will occur for jobs with a
-#'    single motif.
+#'    Note that no speed up will occur for jobs with only a single motif and
+#'    sequence.
 #'
 #' @return `data.frame` with each row representing one hit; if the input
 #'    sequences are \code{\link{DNAStringSet}} or

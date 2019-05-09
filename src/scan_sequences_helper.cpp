@@ -2,6 +2,7 @@
 #include <RcppThread.h>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <cmath>
 #include "types.h"
 
@@ -84,25 +85,33 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
     const list_char_t &seq_vecs, const int &k, vec_char_t &alph,
     const int &nthreads) {
 
-  bool na_let = true, use_na_fun = false;
+  bool use_na_fun = false;
   list_int_t seq_ints(seq_vecs.size());
-  for (std::size_t i = 0; i < seq_vecs.size(); ++i) {
-    seq_ints[i].reserve(seq_vecs[i].size());
-    for (std::size_t j = 0; j < seq_vecs[i].size(); ++j) {
-      na_let = true;
-      for (std::size_t a = 0; a < alph.size(); ++a) {
-        if (seq_vecs[i][j] == alph[a]) {
-          seq_ints[i].push_back(a);
-          na_let = false;
-          break;
+
+  vec_int_t na_index(seq_vecs.size(), 0);
+  RcppThread::parallelFor(0, seq_vecs.size(),
+      [&seq_ints, &alph, &na_index, &seq_vecs] (std::size_t i) {
+
+        seq_ints[i].reserve(seq_vecs[i].size());
+        for (std::size_t j = 0; j < seq_vecs[i].size(); ++j) {
+          bool na_check = true;
+          for (std::size_t a = 0; a < alph.size(); ++a) {
+            if (seq_vecs[i][j] == alph[a]) {
+              seq_ints[i].push_back(a);
+              na_check = false;
+              break;
+            }
+          }
+          if (na_check) {
+            seq_ints[i].push_back(-1);
+            na_index[i] = 1;
+          }
         }
-      }
-      if (na_let) {
-        seq_ints[i].push_back(-1);
-        use_na_fun = true;
-      }
-    }
-  }
+
+      }, nthreads);
+
+  if (std::accumulate(na_index.begin(), na_index.end(), 0) > 0)
+    use_na_fun = true;
 
   if (k > 1 && use_na_fun)
     deal_with_higher_k_NA(seq_ints, k, alph.size());
@@ -111,17 +120,7 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
 
   list_mat_t out(score_mats.size());
 
-  /* Potential RcppParallel entry point */
-
   if (use_na_fun) {
-
-    // for (std::size_t i = 0; i < score_mats.size(); ++i) {
-    //   out[i].reserve(seq_vecs.size());
-    //   for (std::size_t j = 0; j < seq_vecs.size(); ++j) {
-    //     out[i].push_back(scan_single_seq_NA(score_mats[i], seq_ints[j], k));
-    //   }
-    //   Rcpp::checkUserInterrupt();
-    // }
 
     RcppThread::parallelFor(0, out.size(),
         [&out, &score_mats, &seq_ints, &k] (std::size_t i) {
@@ -132,14 +131,6 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
         }, nthreads);
 
   } else {
-
-    // for (std::size_t i = 0; i < score_mats.size(); ++i) {
-    //   out[i].reserve(seq_vecs.size());
-    //   for (std::size_t j = 0; j < seq_vecs.size(); ++j) {
-    //     out[i].push_back(scan_single_seq(score_mats[i], seq_ints[j], k));
-    //   }
-    //   Rcpp::checkUserInterrupt();
-    // }
 
     RcppThread::parallelFor(0, out.size(),
         [&out, &score_mats, &seq_ints, &k] (std::size_t i) {

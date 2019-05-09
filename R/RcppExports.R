@@ -81,6 +81,10 @@ eulerian_walk_cpp <- function(edgelist, firstl, seqlen, k, last, indices) {
     .Call('_universalmotif_eulerian_walk_cpp', PACKAGE = 'universalmotif', edgelist, firstl, seqlen, k, last, indices)
 }
 
+shuffle_euler_cpp <- function(sequences, alph, k) {
+    .Call('_universalmotif_shuffle_euler_cpp', PACKAGE = 'universalmotif', sequences, alph, k)
+}
+
 trim_motif_internal <- function(motif, ic_scores, min_ic) {
     .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
 }
