@@ -41,8 +41,10 @@
 #'    [scan_sequences()]. For large jobs, leaving this as
 #'    `FALSE` can save a small amount time by preventing construction of the complete 
 #'    results `data.frame` from [scan_sequences()].
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [enrich_motifs()]. See [BiocParallel::register()] to change the default
+#'    backend.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    The work is split by motif, so no speed up will occur for jobs with a

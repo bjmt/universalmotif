@@ -31,7 +31,7 @@ verbose (\code{3}).}
 
 \item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Deprecated. See \code{ncores}.}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

@@ -9,7 +9,8 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   positional.test = "t.test", threshold = 0.001,
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler",
-  return.scan.results = FALSE, progress = TRUE, BP = FALSE)
+  return.scan.results = FALSE, progress = FALSE, BP = FALSE,
+  nthreads = 1)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -65,17 +66,16 @@ See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 \code{FALSE} can save a small amount time by preventing construction of the complete
 results \code{data.frame} from \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{progress}{\code{logical(1)} Show progress. Note recommended if \code{BP = TRUE}.
-Set to \code{FALSE} if \code{verbose = 0}}
+\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
 
 \item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
 \code{\link[=enrich_motifs]{enrich_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for exceptionally large jobs
-(be wary of memory usage however, as \code{\link[=enrich_motifs]{enrich_motifs()}} does not try and
-limit itself in this regard).
-Furthermore, the behaviour of \code{progress = TRUE} is
-changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
-be shown (which unfortunately is much less informative).}
+backend.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.
+The work is split by motif, so no speed up will occur for jobs with a
+single motif.}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting
