@@ -372,48 +372,96 @@ get_lastlets <- function(edgematrix, last, k, kletsm1, alph) {
 #'    and/or 'counts' (data.frame).
 #'
 #' @noRd
-letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
-                         as.prob = TRUE, alph = NULL) {
-  # ~3 times slower than Biostrings::oligonucleotideTransitions
+# letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
+#                          as.prob = TRUE, alph = NULL) {
+#   # ~3 times slower than Biostrings::oligonucleotideTransitions
+#
+#   if (is.null(alph)) lets.uniq <- sort_unique_cpp(seqs1)
+#   else lets.uniq <- sort_unique_cpp(alph)
+#
+#   possible.lets <- get_klets(lets.uniq, k)
+#   possible.lets <- data.frame(lets = possible.lets, order = seq_along(possible.lets),
+#                               stringsAsFactors = FALSE)
+#
+#   seqs.let <- single_to_k(seqs1, k)
+#
+#   # R and Rcpp have different sorting methods for upper/lower case... furthermore,
+#   # merge() messes with row order!!!
+#
+#   seqs.counts <- table_cpp(seqs.let)
+#   seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts),
+#                             stringsAsFactors = FALSE)
+#   final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE, sort = FALSE)
+#   final.table$counts[is.na(final.table$counts)] <- 0
+#   final.table <- final.table[order(final.table$order), ]
+#   final.table <- final.table[, -2]
+#
+#   total.counts <- sum(final.table$counts)
+#   final.table$freqs <- final.table$counts / total.counts
+#
+#   out <- list()
+#
+#   if ("freqs" %in% to.return) {
+#     if (as.prob) out$frequencies <- final.table[, -2]
+#     else out$counts <- final.table[, -3]
+#   }
+#
+#   if ("trans" %in% to.return) {
+#     trans <- t(matrix(final.table$counts, nrow = length(lets.uniq)))
+#     letskm1 <- get_klets(lets.uniq, k - 1)
+#     colnames(trans) <- lets.uniq
+#     rownames(trans) <- letskm1
+#     trans.sums <- rowSums(trans)
+#     if (as.prob)
+#       for (i in seq_len(nrow(trans))) trans[i, ] <- trans[i, ] / trans.sums[i]
+#     trans[is.nan(trans)] <- 0
+#     out$transitions <- trans
+#   }
+#
+#   out
+#
+# }
 
-  if (is.null(alph)) lets.uniq <- sort_unique_cpp(seqs1)
+letter_freqs <- function(string, k = 1, to.return = c("freqs", "trans"),
+                          as.prob = TRUE, alph = NULL) {
+
+  if (is.null(alph)) lets.uniq <- sort_unique_cpp(string)
   else lets.uniq <- sort_unique_cpp(alph)
 
-  possible.lets <- get_klets(lets.uniq, k)
-  possible.lets <- data.frame(lets = possible.lets, order = seq_along(possible.lets),
-                              stringsAsFactors = FALSE)
+  counts <- count_klets_cpp(collapse_cpp(string), k, 1)[[1]]
+  klets1 <- get_klets_cpp(sort_unique_cpp(string), k)
+  freqs <- data.frame(lets = klets1, counts = counts, stringsAsFactors = FALSE)
 
-  seqs.let <- single_to_k(seqs1, k)
-
-  # R and Rcpp have different sorting methods for upper/lower case... furthermore,
-  # merge() messes with row order!!!
-
-  seqs.counts <- table_cpp(seqs.let)
-  seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts),
-                            stringsAsFactors = FALSE)
-  final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE, sort = FALSE)
-  final.table$counts[is.na(final.table$counts)] <- 0
-  final.table <- final.table[order(final.table$order), ]
-  final.table <- final.table[, -2]
-
-  total.counts <- sum(final.table$counts)
-  final.table$freqs <- final.table$counts / total.counts
+  if (!is.null(alph)) {
+    klets2 <- get_klets_cpp(alph, k)
+    if (length(klets1) != length(klets2)) {
+      freqs$order <- seq_len(nrow(freqs))
+      freqs <- merge(data.frame(lets = klets2), freqs, all.x = TRUE,
+                     by = "lets", sort = FALSE)
+      freqs$counts[is.na(freqs$counts)] <- 0
+      freqs <- freqs[order(freqs$order), ]
+      freqs <- freqs[, -which(colnames(freqs) == "order")]
+    }
+  }
 
   out <- list()
 
   if ("freqs" %in% to.return) {
-    if (as.prob) out$frequencies <- final.table[, -2]
-    else out$counts <- final.table[, -3]
+    if (as.prob) out$freqs <- data.frame(lets = freqs$lets,
+                                         frequencies = freqs$counts / sum(freqs$counts),
+                                         stringsAsFactors = FALSE)
+    else out$counts <- freqs
   }
 
   if ("trans" %in% to.return) {
-    trans <- t(matrix(final.table$counts, nrow = length(lets.uniq)))
-    letskm1 <- get_klets(lets.uniq, k - 1)
+    trans <- t(matrix(freqs$counts, nrow = length(lets.uniq)))
+    mlets <- get_klets_cpp(lets.uniq, k - 1)
     colnames(trans) <- lets.uniq
-    rownames(trans) <- letskm1
-    trans.sums <- rowSums(trans)
-    if (as.prob)
+    rownames(trans) <- mlets
+    if (as.prob) {
+      trans.sums <- rowSums(trans)
       for (i in seq_len(nrow(trans))) trans[i, ] <- trans[i, ] / trans.sums[i]
+    }
     trans[is.nan(trans)] <- 0
     out$transitions <- trans
   }
