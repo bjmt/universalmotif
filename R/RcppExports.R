@@ -73,14 +73,6 @@ scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthrea
     .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads)
 }
 
-shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols) {
-    .Call('_universalmotif_shuffle_markov_loop', PACKAGE = 'universalmotif', seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols)
-}
-
-eulerian_walk_cpp <- function(edgelist, firstl, seqlen, k, last, indices) {
-    .Call('_universalmotif_eulerian_walk_cpp', PACKAGE = 'universalmotif', edgelist, firstl, seqlen, k, last, indices)
-}
-
 shuffle_markov_cpp <- function(sequences, k, nthreads, seed) {
     .Call('_universalmotif_shuffle_markov_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads, seed)
 }

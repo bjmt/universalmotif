@@ -234,38 +234,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// shuffle_markov_loop
-String shuffle_markov_loop(R_xlen_t seq_i_l, R_xlen_t seq_i_r, int k, StringVector seqout, const StringVector& lets, const NumericMatrix& trans, const StringVector& trans_cols);
-RcppExport SEXP _universalmotif_shuffle_markov_loop(SEXP seq_i_lSEXP, SEXP seq_i_rSEXP, SEXP kSEXP, SEXP seqoutSEXP, SEXP letsSEXP, SEXP transSEXP, SEXP trans_colsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< R_xlen_t >::type seq_i_l(seq_i_lSEXP);
-    Rcpp::traits::input_parameter< R_xlen_t >::type seq_i_r(seq_i_rSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type seqout(seqoutSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type lets(letsSEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type trans(transSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type trans_cols(trans_colsSEXP);
-    rcpp_result_gen = Rcpp::wrap(shuffle_markov_loop(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eulerian_walk_cpp
-StringVector eulerian_walk_cpp(const StringVector& edgelist, const StringVector& firstl, R_xlen_t seqlen, int k, const StringVector& last, IntegerVector indices);
-RcppExport SEXP _universalmotif_eulerian_walk_cpp(SEXP edgelistSEXP, SEXP firstlSEXP, SEXP seqlenSEXP, SEXP kSEXP, SEXP lastSEXP, SEXP indicesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const StringVector& >::type edgelist(edgelistSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type firstl(firstlSEXP);
-    Rcpp::traits::input_parameter< R_xlen_t >::type seqlen(seqlenSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type last(lastSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type indices(indicesSEXP);
-    rcpp_result_gen = Rcpp::wrap(eulerian_walk_cpp(edgelist, firstl, seqlen, k, last, indices));
-    return rcpp_result_gen;
-END_RCPP
-}
 // shuffle_markov_cpp
 std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string>& sequences, const int& k, const int& nthreads, const int& seed);
 RcppExport SEXP _universalmotif_shuffle_markov_cpp(SEXP sequencesSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
@@ -670,8 +638,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_merge_motifs_get_offset", (DL_FUNC) &_universalmotif_merge_motifs_get_offset, 8},
     {"_universalmotif_merge_motifs_internal", (DL_FUNC) &_universalmotif_merge_motifs_internal, 11},
     {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 6},
-    {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
-    {"_universalmotif_eulerian_walk_cpp", (DL_FUNC) &_universalmotif_eulerian_walk_cpp, 6},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},
     {"_universalmotif_shuffle_linear_cpp", (DL_FUNC) &_universalmotif_shuffle_linear_cpp, 4},
