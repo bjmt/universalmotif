@@ -22,8 +22,8 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
   args <- as.list(environment())
   all_checks <- character(0)
   if (!method %in% c("linear", "random")) {
-    method_check <- paste0(" * Incorrect 'shuffle.method': expected `linear` ",
-                           "or `random`; got `", method, "`")
+    method_check <- paste0(" * Incorrect 'shuffle.method': expected `linear`;",
+                           " got `", method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
@@ -55,16 +55,10 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
   } else {
     switch(method,
       "linear" = {
-        new.order <- shuffle_linear(col.order, k, mode = 2)
-        new.order <- as.numeric(new.order)
+        new.order <- shuffle_linear(collapse_cpp(as.character(col.order)), k, mode = 2)
+        new.order <- as.numeric(safeExplode(new.order))
       },
-      "random" = {
-        warning("The 'random' method option has been deprecated, using 'linear'",
-                immediate. = TRUE)
-        new.order <- shuffle_linear(col.order, k, mode = 2)
-        new.order <- as.numeric(new.order)
-      },
-      stop("only 'linear' and 'random' are supported")
+      stop("only 'linear' is currently supported")
     )
   }
   mot.cols <- mot.cols[, new.order]

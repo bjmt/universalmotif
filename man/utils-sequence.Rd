@@ -25,10 +25,12 @@ considered a single unit.}
 \item{method}{\code{character(1)} Shuffling method. One of \code{c("euler", "linear", "markov")}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
-in \code{\link[=shuffle_sequences]{shuffle_sequences()}} can occur simultaneously in multiple threads using C++, it cannot communicate
-with the regular \code{R} randome number generator state and thus requires an
-independent seed. Each individual sequence in an \code{XStringSet} object will be
-given the following seed: \code{rng.seed * index}.}
+in \code{\link[=shuffle_sequences]{shuffle_sequences()}} can occur simultaneously in multiple threads using C++,
+it cannot communicate
+with the regular \code{R} random number generator state and thus requires an
+independent seed. Since \code{\link[=shuffle_string]{shuffle_string()}} uses the same underlying code
+as \code{\link[=shuffle_sequences]{shuffle_sequences()}}, it also requires a separate seed even if it is
+run in serial.}
 }
 \value{
 For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns \code{lets} and \code{counts}.
