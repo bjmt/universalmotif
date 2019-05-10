@@ -425,11 +425,12 @@ get_lastlets <- function(edgematrix, last, k, kletsm1, alph) {
 letter_freqs <- function(string, k = 1, to.return = c("freqs", "trans"),
                           as.prob = TRUE, alph = NULL) {
 
-  if (is.null(alph)) lets.uniq <- sort_unique_cpp(string)
+  lets.inseq <- sort_unique_cpp(string)
+  if (is.null(alph)) lets.uniq <- lets.inseq
   else lets.uniq <- sort_unique_cpp(alph)
 
   counts <- count_klets_cpp(collapse_cpp(string), k, 1)[[1]]
-  klets1 <- get_klets_cpp(sort_unique_cpp(string), k)
+  klets1 <- get_klets_cpp(lets.inseq, k)
   freqs <- data.frame(lets = klets1, counts = counts, stringsAsFactors = FALSE)
 
   if (!is.null(alph)) {
