@@ -8,13 +8,16 @@
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('euler', 'markov', 'linear')`.
 #'    Only relevant is `k > 1`. See details. 
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [shuffle_sequences()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for large jobs (such as
-#'    shuffling billions of letters). Furthermore, the behaviour of `progress = TRUE`
-#'    is changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
-#'    be shown (which unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [shuffle_sequences()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
+#'    Note that no speed up will occur for jobs with only a single sequence.
+#' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
+#'    can occur simultaneously in multiple threads using C++, it cannot communicate
+#'    with the regular `R` randome number generator state and thus requires an
+#'    independent seed. Each individual sequence in an `XStringSet` object will be
+#'    given the following seed: `rng.seed * index`.
 #'
 #' @return \code{\link{XStringSet}} The input sequences will be returned with 
 #'    identical names and lengths.
@@ -61,7 +64,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "euler",
-                               progress = FALSE, BP = FALSE) {
+                               progress = FALSE, BP = FALSE,
+                               nthreads = 1, rng.seed = sample.int(1e9, 1)) {
 
   # Idea: Moving-window markov shuffling. Get k-let frequencies in windows,
   #       and generate new letters based on local probabilities.
@@ -103,7 +107,10 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   }
   char_check <- check_fun_params(list(method = args$method),
                                  numeric(), logical(), TYPE_CHAR)
-  num_check <- check_fun_params(list(k = args$k), 1, FALSE, TYPE_NUM)
+  num_check <- check_fun_params(list(k = args$k,
+                                     nthreads = args$nthreads,
+                                     rng.seed = args$rng.seed),
+                                     numeric(), logical(), TYPE_NUM)
   s4_check <- check_fun_params(list(sequences = args$sequences),
                                numeric(), logical(), TYPE_S4)
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
@@ -112,42 +119,31 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (progress)
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
+  if (BP)
+    warning("'BP' is deprecated, see 'nthreads'", immediate. = TRUE)
+
   alph <- seqtype(sequences)
 
   seq.names <- names(sequences)
 
-  if (k == 1) {
-    sequences <- lapply_(as.character(sequences), shuffle_k1,
-                         PB = progress, BP = BP)
-  } else {
-    switch(method,
-      "euler" = {
-        sequences <- lapply_(as.character(sequences), shuffle_euler, k = k,
-                             PB = progress, BP = BP)
-      },
-      "markov" = {
-        if (seqtype(sequences) %in% c("DNA", "RNA"))
-          sequences <- lapply_(sequences, shuffle_markov, k = k,
-                               PB = progress, BP = BP)
-        else
-          sequences <- lapply_(as.character(sequences), shuffle_markov_any,
-                               k = k, PB = progress, BP = BP)
-      },
-      "random" = {
-        warning("The 'random' method has been deprecated, using 'euler'",
-                immediate. = TRUE)
-        sequences <- lapply_(as.character(sequences), shuffle_euler, k = k,
-                             PB = progress, BP = BP)
-      },
-      "linear" = {
-        sequences <- lapply_(as.character(sequences), shuffle_linear, k = k,
-                             PB = progress, BP = BP)
-      },
-      stop("incorrect 'k' and 'method' combination")
-    )
-  }
+  sequences <- as.character(sequences)
+  seed <- as.integer(abs(rng.seed))
+  if (nthreads < 0) stop("'nthreads' cannot be less than 0")
+  nthreads <- as.integer(nthreads)
+  if (k < 1) stop("'k' must be greater than 0")
+  k <- as.integer(k)
 
-  sequences <- unlist(sequences)
+  if (k == 1) {
+    sequences <- shuffle_k1_cpp(sequences, nthreads, rng.seed)
+  } else {
+    sequences <- switch(method,
+                         "euler" = shuffle_euler_cpp(sequences, k, nthreads, seed),
+                         "markov" = shuffle_markov_cpp(sequences, k, nthreads, seed),
+                         "linear" = shuffle_linear_cpp(sequences, k, nthreads, seed)
+                       )
+  }
 
   sequences <- switch(alph, "DNA" = DNAStringSet(sequences),
                       "RNA" = RNAStringSet(sequences),

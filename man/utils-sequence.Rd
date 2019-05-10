@@ -11,7 +11,8 @@ get_klets(lets, k = 1L)
 
 count_klets(string, k = 1)
 
-shuffle_string(string, k = 1, method = c("euler", "linear", "markov"))
+shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
+  nthreads = 1, rng.seed = sample.int(1e+09, 1))
 }
 \arguments{
 \item{lets}{\code{character} A character vector where each element will be
@@ -19,9 +20,20 @@ considered a single unit.}
 
 \item{k}{\code{integer(1)} K-let size.}
 
-\item{string}{\code{character(1)} A string of characters.}
+\item{string}{\code{character} A character vector of strings. Each entry is
+shuffled individually.}
 
 \item{method}{\code{character(1)} Shuffling method. One of \code{c("euler", "linear", "markov")}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=shuffle_string]{shuffle_string()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.
+Note that no speed up will occur for jobs with a length one character vector.}
+
+\item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
+can occur simultaneously in multiple threads using C++, it cannot communicate
+with the regular \code{R} randome number generator state and thus requires an
+independent seed. Each individual sequence in an \code{XStringSet} object will be
+given the following seed: \code{rng.seed * index}.}
 }
 \value{
 For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns \code{lets} and \code{counts}.

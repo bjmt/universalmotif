@@ -5,7 +5,8 @@
 \title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, k = 1, method = "euler",
-  progress = FALSE, BP = FALSE)
+  progress = FALSE, BP = FALSE, nthreads = 1,
+  rng.seed = sample.int(1e+09, 1))
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Set of sequences to shuffle. Works
@@ -16,14 +17,19 @@ with any set of characters.}
 \item{method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear')}.
 Only relevant is \code{k > 1}. See details.}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=shuffle_sequences]{shuffle_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for large jobs (such as
-shuffling billions of letters). Furthermore, the behaviour of \code{progress = TRUE}
-is changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
-be shown (which unfortunately is much less informative).}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=shuffle_sequences]{shuffle_sequences()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.
+Note that no speed up will occur for jobs with only a single sequence.}
+
+\item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
+can occur simultaneously in multiple threads using C++, it cannot communicate
+with the regular \code{R} randome number generator state and thus requires an
+independent seed. Each individual sequence in an \code{XStringSet} object will be
+given the following seed: \code{rng.seed * index}.}
 }
 \value{
 \code{\link{XStringSet}} The input sequences will be returned with

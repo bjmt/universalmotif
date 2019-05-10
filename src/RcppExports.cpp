@@ -266,16 +266,54 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// shuffle_euler_cpp
-std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string>& sequences, const std::string& alph, const int& k);
-RcppExport SEXP _universalmotif_shuffle_euler_cpp(SEXP sequencesSEXP, SEXP alphSEXP, SEXP kSEXP) {
+// shuffle_markov_cpp
+std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string>& sequences, const int& k, const int& nthreads, const int& seed);
+RcppExport SEXP _universalmotif_shuffle_markov_cpp(SEXP sequencesSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
     Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(shuffle_euler_cpp(sequences, alph, k));
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_markov_cpp(sequences, k, nthreads, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// shuffle_euler_cpp
+std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string>& sequences, const int& k, const int& nthreads, const int& seed);
+RcppExport SEXP _universalmotif_shuffle_euler_cpp(SEXP sequencesSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_euler_cpp(sequences, k, nthreads, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// shuffle_linear_cpp
+std::vector<std::string> shuffle_linear_cpp(const std::vector<std::string>& sequences, const int& k, const int& nthreads, const int& seed);
+RcppExport SEXP _universalmotif_shuffle_linear_cpp(SEXP sequencesSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_linear_cpp(sequences, k, nthreads, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// shuffle_k1_cpp
+std::vector<std::string> shuffle_k1_cpp(const std::vector<std::string>& sequences, const int& nthreads, const int& seed);
+RcppExport SEXP _universalmotif_shuffle_k1_cpp(SEXP sequencesSEXP, SEXP nthreadsSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_k1_cpp(sequences, nthreads, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -634,7 +672,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 6},
     {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
     {"_universalmotif_eulerian_walk_cpp", (DL_FUNC) &_universalmotif_eulerian_walk_cpp, 6},
-    {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 3},
+    {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
+    {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},
+    {"_universalmotif_shuffle_linear_cpp", (DL_FUNC) &_universalmotif_shuffle_linear_cpp, 4},
+    {"_universalmotif_shuffle_k1_cpp", (DL_FUNC) &_universalmotif_shuffle_k1_cpp, 3},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},

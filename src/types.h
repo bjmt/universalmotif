@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+typedef std::vector<bool> vec_bool_t;
 typedef std::vector<double> vec_num_t;
 typedef std::vector<std::string> vec_str_t;
 typedef std::vector<int> vec_int_t;
