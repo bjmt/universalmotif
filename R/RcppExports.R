@@ -89,6 +89,18 @@ shuffle_k1_cpp <- function(sequences, nthreads, seed) {
     .Call('_universalmotif_shuffle_k1_cpp', PACKAGE = 'universalmotif', sequences, nthreads, seed)
 }
 
+count_klets_cpp <- function(sequences, k, nthreads) {
+    .Call('_universalmotif_count_klets_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads)
+}
+
+get_klets_cpp <- function(alph, k) {
+    .Call('_universalmotif_get_klets_cpp', PACKAGE = 'universalmotif', alph, k)
+}
+
+shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols) {
+    .Call('_universalmotif_shuffle_markov_loop', PACKAGE = 'universalmotif', seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols)
+}
+
 trim_motif_internal <- function(motif, ic_scores, min_ic) {
     .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
 }
@@ -131,12 +143,6 @@ collapse_cols_mat <- function(seqs_k) {
 
 collapse_rows_df <- function(seqs_k) {
     .Call('_universalmotif_collapse_rows_df', PACKAGE = 'universalmotif', seqs_k)
-}
-
-#' @rdname utils-sequence
-#' @export
-get_klets <- function(lets, k = 1L) {
-    .Call('_universalmotif_get_klets', PACKAGE = 'universalmotif', lets, k)
 }
 
 collapse_cpp <- function(x) {

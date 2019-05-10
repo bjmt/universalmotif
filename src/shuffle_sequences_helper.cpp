@@ -396,6 +396,61 @@ std::string shuffle_linear_one (const std::string &single_seq, const int &k,
 
 }
 
+vec_int_t klet_counter_from_string(const str_t &single_seq, const int &k) {
+
+  std::set<int> alph_s;
+  for (std::size_t i = 0; i < single_seq.size(); ++i) {
+    alph_s.insert(single_seq[i]);
+  }
+  str_t alph;
+  alph.assign(alph_s.begin(), alph_s.end());
+  std::size_t alphlen = alph.size();
+  std::size_t nlets = pow(alph.size(), k);
+
+  vec_int_t seq_ints(single_seq.size());
+  for (std::size_t i = 0; i < single_seq.size(); ++i) {
+    for (std::size_t a = 0; a < alphlen; ++a) {
+      if (single_seq[i] == alph[a]) {
+        seq_ints[i] = a;
+        break;
+      }
+    }
+  }
+
+  vec_int_t counts = klet_counter(seq_ints, k, nlets, alphlen);
+
+  return counts;
+
+}
+
+vec_str_t get_klet_strings(const vec_str_t &alph, const int &k) {
+
+  int alphlen = alph.size();
+  int nlets = pow(alphlen, k);
+  vec_str_t out(nlets, "");
+  int let, counter, step;
+
+  for (int i = k - 1; i >= 0; --i) {
+    counter = 0; let = 0;
+    step = pow(alphlen, i);
+    while (counter < nlets) {
+      for (int j = 0; j < step; ++j) {
+        out[counter] += alph[let];
+        ++counter;
+      }
+      if (let == alphlen - 1)
+        let = 0;
+      else
+        ++let;
+    }
+  }
+
+  return out;
+
+}
+
+// C++ ENTRY ---------------------------------------------------------------- //
+
 // [[Rcpp::export(rng = false)]]
 std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string> &sequences,
     const int &k, const int &nthreads, const int &seed) {
@@ -460,5 +515,59 @@ std::vector<std::string> shuffle_k1_cpp(const std::vector<std::string> &sequence
       }, nthreads);
 
   return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+std::vector<std::vector<int>> count_klets_cpp(const std::vector<std::string> &sequences,
+    const int &k, const int &nthreads) {
+
+  list_int_t counts(sequences.size());
+  RcppThread::parallelFor(0, sequences.size(),
+      [&counts, &sequences, &k] (std::size_t i) {
+        counts[i] = klet_counter_from_string(sequences[i], k);
+      }, nthreads);
+
+  return counts;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+std::vector<std::string> get_klets_cpp(std::vector<std::string> &alph,
+    const int &k) {
+
+  vec_str_t klets = get_klet_strings(alph, k);
+
+  return klets;
+
+}
+
+// [[Rcpp::export]]
+Rcpp::String shuffle_markov_loop(R_xlen_t seq_i_l, R_xlen_t seq_i_r, int k,
+    Rcpp::StringVector seqout, const Rcpp::StringVector &lets,
+    const Rcpp::NumericMatrix &trans, const Rcpp::StringVector &trans_cols) {
+
+  /* TODO: make a replacement */
+
+  Rcpp::StringVector prev_k_split;
+  R_xlen_t trans_i;
+  Rcpp::String prev_k, seq_i;
+  Rcpp::IntegerVector prev_i;
+  Rcpp::NumericVector curr_prob;
+
+  for (R_xlen_t i = seq_i_l; i < seq_i_r; ++i) {
+
+    prev_i = Rcpp::seq(i - k + 1, i - 1);
+    prev_k_split = seqout[prev_i];
+    prev_k = Rcpp::collapse(prev_k_split);
+
+    trans_i = trans_cols.findName(prev_k);
+    curr_prob = trans(Rcpp::_, trans_i);
+
+    seqout[i] = Rcpp::sample(lets, 1, false, curr_prob)[0];
+
+  }
+
+  return Rcpp::collapse(seqout);
 
 }

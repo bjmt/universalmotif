@@ -285,6 +285,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// count_klets_cpp
+std::vector<std::vector<int>> count_klets_cpp(const std::vector<std::string>& sequences, const int& k, const int& nthreads);
+RcppExport SEXP _universalmotif_count_klets_cpp(SEXP sequencesSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_klets_cpp(sequences, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_klets_cpp
+std::vector<std::string> get_klets_cpp(std::vector<std::string>& alph, const int& k);
+RcppExport SEXP _universalmotif_get_klets_cpp(SEXP alphSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string>& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_klets_cpp(alph, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// shuffle_markov_loop
+Rcpp::String shuffle_markov_loop(R_xlen_t seq_i_l, R_xlen_t seq_i_r, int k, Rcpp::StringVector seqout, const Rcpp::StringVector& lets, const Rcpp::NumericMatrix& trans, const Rcpp::StringVector& trans_cols);
+RcppExport SEXP _universalmotif_shuffle_markov_loop(SEXP seq_i_lSEXP, SEXP seq_i_rSEXP, SEXP kSEXP, SEXP seqoutSEXP, SEXP letsSEXP, SEXP transSEXP, SEXP trans_colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< R_xlen_t >::type seq_i_l(seq_i_lSEXP);
+    Rcpp::traits::input_parameter< R_xlen_t >::type seq_i_r(seq_i_rSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type seqout(seqoutSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type lets(letsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type trans(transSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type trans_cols(trans_colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_markov_loop(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // trim_motif_internal
 NumericMatrix trim_motif_internal(const NumericMatrix& motif, const NumericVector& ic_scores, double min_ic);
 RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
@@ -414,17 +454,6 @@ BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const DataFrame& >::type seqs_k(seqs_kSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_rows_df(seqs_k));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_klets
-StringVector get_klets(const StringVector& lets, int k);
-RcppExport SEXP _universalmotif_get_klets(SEXP letsSEXP, SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const StringVector& >::type lets(letsSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_klets(lets, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -642,6 +671,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},
     {"_universalmotif_shuffle_linear_cpp", (DL_FUNC) &_universalmotif_shuffle_linear_cpp, 4},
     {"_universalmotif_shuffle_k1_cpp", (DL_FUNC) &_universalmotif_shuffle_k1_cpp, 3},
+    {"_universalmotif_count_klets_cpp", (DL_FUNC) &_universalmotif_count_klets_cpp, 3},
+    {"_universalmotif_get_klets_cpp", (DL_FUNC) &_universalmotif_get_klets_cpp, 2},
+    {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
@@ -653,7 +685,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_cols_mat", (DL_FUNC) &_universalmotif_collapse_cols_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
-    {"_universalmotif_get_klets", (DL_FUNC) &_universalmotif_get_klets, 2},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
     {"_universalmotif_print_pb", (DL_FUNC) &_universalmotif_print_pb, 1},
     {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 2},

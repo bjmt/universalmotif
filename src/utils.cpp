@@ -108,9 +108,6 @@ StringVector collapse_rows_df(const DataFrame &seqs_k) {
 
 }
 
-//' @rdname utils-sequence
-//' @export
-// [[Rcpp::export(rng = false)]]
 StringVector get_klets(const StringVector &lets, int k = 1) {
 
   // ~5 times faster and ~1/2 the memory allocations versus:
