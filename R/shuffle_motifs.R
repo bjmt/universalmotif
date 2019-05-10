@@ -55,8 +55,8 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
   } else {
     switch(method,
       "linear" = {
-        new.order <- shuffle_linear(collapse_cpp(as.character(col.order)), k, mode = 2)
-        new.order <- as.numeric(safeExplode(new.order))
+        new.order <- shuffle_linear(col.order, k, mode = 2)
+        new.order <- as.numeric(new.order)
       },
       stop("only 'linear' is currently supported")
     )
