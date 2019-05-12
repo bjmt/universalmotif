@@ -20,10 +20,15 @@
 #'    a good tradeoff between speed and accuracy for jobs requiring repeated
 #'    calculations.
 #' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
+#'    [motif_pvalue()]. See [BiocParallel::register()] to change the default
+#'    backend. Setting `BP = TRUE` is only recommended for exceptionally large
+#'    jobs. Note that this is only used for calculating scores from P-values
+#'    (in other words, when the `pvalue` argument is provided).
 #' @param nthreads `numeric(1)` Run [motif_pvalues()] in parallel with `nthreads`
-#'    threads. `nthreads = 0` uses all available threads.
-#'    Note that no speed up will occur for jobs with only a single motif.
+#'    threads. `nthreads = 0` uses all available threads. Note that this is only
+#'    used for calculating P-values from scores (in other words, when the `score`
+#'    argument is provided).
 #'
 #' @return `numeric` A vector of scores/p-values.
 #'
@@ -165,8 +170,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   if (progress)
     warning("'progress' is deprecated and does nothing")
-  if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead")
+  progres <- FALSE
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")

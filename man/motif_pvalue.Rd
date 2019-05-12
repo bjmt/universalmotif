@@ -33,11 +33,16 @@ calculations.}
 
 \item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
+\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
+\code{\link[=motif_pvalue]{motif_pvalue()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
+backend. Setting \code{BP = TRUE} is only recommended for exceptionally large
+jobs. Note that this is only used for calculating scores from P-values
+(in other words, when the \code{pvalue} argument is provided).}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalues]{motif_pvalues()}} in parallel with \code{nthreads}
-threads. \code{nthreads = 0} uses all available threads.
-Note that no speed up will occur for jobs with only a single motif.}
+threads. \code{nthreads = 0} uses all available threads. Note that this is only
+used for calculating P-values from scores (in other words, when the \code{score}
+argument is provided).}
 }
 \value{
 \code{numeric} A vector of scores/p-values.

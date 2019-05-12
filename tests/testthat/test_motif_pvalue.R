@@ -12,6 +12,6 @@ test_that("scores from p-values are ok", {
 
   m <- create_motif("SGDGNTGGAY", pseudocount = 1, nsites = 88)
   res <- motif_pvalue(m, pvalue = 0.001, progress = FALSE)
-  expect_equal(round(res, 4), 0.5509)
+  expect_equal(round(res, 4), 0.7778)
 
 })
