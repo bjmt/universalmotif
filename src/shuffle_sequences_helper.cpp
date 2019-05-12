@@ -1,7 +1,5 @@
 #include <Rcpp.h>
 #include <RcppThread.h>
-#include <vector>
-#include <string>
 #include <cmath>
 #include <random>
 #include <set>

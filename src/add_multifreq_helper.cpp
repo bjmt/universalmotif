@@ -1,6 +1,4 @@
 #include <Rcpp.h>
-#include <vector>
-#include <string>
 #include "types.h"
 
 // [[Rcpp::export(rng = false)]]

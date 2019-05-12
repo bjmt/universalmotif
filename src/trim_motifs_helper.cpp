@@ -1,9 +1,8 @@
 #include <Rcpp.h>
-using namespace Rcpp;
 
 // [[Rcpp::export(rng = false)]]
-NumericMatrix trim_motif_internal(const NumericMatrix &motif,
-    const NumericVector &ic_scores, double min_ic) {
+Rcpp::NumericMatrix trim_motif_internal(const Rcpp::NumericMatrix &motif,
+    const Rcpp::NumericVector &ic_scores, double min_ic) {
 
   R_xlen_t n_row = motif.nrow();
   R_xlen_t n = motif.ncol();
@@ -25,17 +24,17 @@ NumericMatrix trim_motif_internal(const NumericMatrix &motif,
   }
 
   if (new_cols <= 0) {
-    NumericMatrix out;
+    Rcpp::NumericMatrix out;
     return out;
   }
 
-  NumericMatrix out(n_row, new_cols);
+  Rcpp::NumericMatrix out(n_row, new_cols);
   for (R_xlen_t i = 0; i < new_cols; ++i) {
-    out(_, i) = motif(_, i + cut_left);
+    out(Rcpp::_, i) = motif(Rcpp::_, i + cut_left);
   }
 
-  CharacterVector rown = rownames(motif);
-  rownames(out) = rown;
+  Rcpp::CharacterVector rown = Rcpp::rownames(motif);
+  Rcpp::rownames(out) = rown;
 
   return out;
 

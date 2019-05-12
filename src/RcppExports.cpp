@@ -293,12 +293,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // trim_motif_internal
-NumericMatrix trim_motif_internal(const NumericMatrix& motif, const NumericVector& ic_scores, double min_ic);
+Rcpp::NumericMatrix trim_motif_internal(const Rcpp::NumericMatrix& motif, const Rcpp::NumericVector& ic_scores, double min_ic);
 RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type motif(motifSEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type ic_scores(ic_scoresSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type motif(motifSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type ic_scores(ic_scoresSEXP);
     Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
     rcpp_result_gen = Rcpp::wrap(trim_motif_internal(motif, ic_scores, min_ic));
     return rcpp_result_gen;

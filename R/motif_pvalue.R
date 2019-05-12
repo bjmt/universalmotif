@@ -214,6 +214,14 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     bkg.probs <- mapply(motif_pvalue_bkg, motifs2, bkg.probs,
                         MoreArgs = list(use.freq = use.freq),
                         SIMPLIFY = FALSE)
+    
+    l1 <- length(motifs)
+    l2 <- length(bkg.probs)
+    l3 <- length(score)
+    lall <- max(c(l1, l2, l3))
+    motifs <- rep_len(motifs, lall)
+    bkg.probs <- rep_len(bkg.probs, lall)
+    score <- rep_len(score, lall)
 
     out <- motif_pvalue_cpp(motifs, bkg.probs, score, k, nthreads)
 
