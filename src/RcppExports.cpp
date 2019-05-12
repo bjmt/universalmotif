@@ -6,12 +6,12 @@
 using namespace Rcpp;
 
 // single_to_k
-StringVector single_to_k(StringVector seq1, int k);
+std::vector<std::string> single_to_k(const std::vector<std::string>& seq1, const int& k);
 RcppExport SEXP _universalmotif_single_to_k(SEXP seq1SEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< StringVector >::type seq1(seq1SEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type seq1(seq1SEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
     rcpp_result_gen = Rcpp::wrap(single_to_k(seq1, k));
     return rcpp_result_gen;
 END_RCPP
@@ -125,6 +125,45 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const IntegerMatrix& >::type paths(pathsSEXP);
     Rcpp::traits::input_parameter< const StringVector& >::type alph(alphSEXP);
     rcpp_result_gen = Rcpp::wrap(paths_to_alph(paths, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// branch_and_bound_kmers_cpp
+std::vector<std::vector<int>> branch_and_bound_kmers_cpp(const std::vector<std::vector<int>>& mot, const int& minscore, const std::size_t& alphlen);
+RcppExport SEXP _universalmotif_branch_and_bound_kmers_cpp(SEXP motSEXP, SEXP minscoreSEXP, SEXP alphlenSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::vector<int>>& >::type mot(motSEXP);
+    Rcpp::traits::input_parameter< const int& >::type minscore(minscoreSEXP);
+    Rcpp::traits::input_parameter< const std::size_t& >::type alphlen(alphlenSEXP);
+    rcpp_result_gen = Rcpp::wrap(branch_and_bound_kmers_cpp(mot, minscore, alphlen));
+    return rcpp_result_gen;
+END_RCPP
+}
+// motif_pvalue_single
+long double motif_pvalue_single(std::vector<std::vector<int>> mot, const double& score, const int& k, const std::vector<double>& bkg);
+RcppExport SEXP _universalmotif_motif_pvalue_single(SEXP motSEXP, SEXP scoreSEXP, SEXP kSEXP, SEXP bkgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< std::vector<std::vector<int>> >::type mot(motSEXP);
+    Rcpp::traits::input_parameter< const double& >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type bkg(bkgSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_pvalue_single(mot, score, k, bkg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// motif_pvalue_cpp
+std::vector<long double> motif_pvalue_cpp(const Rcpp::List& motifs, const Rcpp::List& bkg, const std::vector<double>& scores, const int& k, const int& nthreads);
+RcppExport SEXP _universalmotif_motif_pvalue_cpp(SEXP motifsSEXP, SEXP bkgSEXP, SEXP scoresSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_pvalue_cpp(motifs, bkg, scores, k, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -660,6 +699,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
+    {"_universalmotif_branch_and_bound_kmers_cpp", (DL_FUNC) &_universalmotif_branch_and_bound_kmers_cpp, 3},
+    {"_universalmotif_motif_pvalue_single", (DL_FUNC) &_universalmotif_motif_pvalue_single, 4},
+    {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},
     {"_universalmotif_add_cols", (DL_FUNC) &_universalmotif_add_cols, 5},
     {"_universalmotif_motif_simil_internal", (DL_FUNC) &_universalmotif_motif_simil_internal, 9},
     {"_universalmotif_list_to_matrix_simil", (DL_FUNC) &_universalmotif_list_to_matrix_simil, 3},

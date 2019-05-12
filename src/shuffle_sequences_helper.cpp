@@ -449,7 +449,7 @@ vec_str_t get_klet_strings(const vec_str_t &alph, const int &k) {
 
 }
 
-// C++ ENTRY ---------------------------------------------------------------- //
+/* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
 std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string> &sequences,

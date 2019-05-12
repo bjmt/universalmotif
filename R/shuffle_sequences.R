@@ -372,58 +372,11 @@ get_lastlets <- function(edgematrix, last, k, kletsm1, alph) {
 #'    and/or 'counts' (data.frame).
 #'
 #' @noRd
-# letter_freqs <- function(seqs1, k, to.return = c("freqs", "trans"),
-#                          as.prob = TRUE, alph = NULL) {
-#   # ~3 times slower than Biostrings::oligonucleotideTransitions
-#
-#   if (is.null(alph)) lets.uniq <- sort_unique_cpp(seqs1)
-#   else lets.uniq <- sort_unique_cpp(alph)
-#
-#   possible.lets <- get_klets(lets.uniq, k)
-#   possible.lets <- data.frame(lets = possible.lets, order = seq_along(possible.lets),
-#                               stringsAsFactors = FALSE)
-#
-#   seqs.let <- single_to_k(seqs1, k)
-#
-#   # R and Rcpp have different sorting methods for upper/lower case... furthermore,
-#   # merge() messes with row order!!!
-#
-#   seqs.counts <- table_cpp(seqs.let)
-#   seqs.counts <- data.frame(lets = names(seqs.counts), counts = as.numeric(seqs.counts),
-#                             stringsAsFactors = FALSE)
-#   final.table <- merge(possible.lets, seqs.counts, by = "lets", all.x = TRUE, sort = FALSE)
-#   final.table$counts[is.na(final.table$counts)] <- 0
-#   final.table <- final.table[order(final.table$order), ]
-#   final.table <- final.table[, -2]
-#
-#   total.counts <- sum(final.table$counts)
-#   final.table$freqs <- final.table$counts / total.counts
-#
-#   out <- list()
-#
-#   if ("freqs" %in% to.return) {
-#     if (as.prob) out$frequencies <- final.table[, -2]
-#     else out$counts <- final.table[, -3]
-#   }
-#
-#   if ("trans" %in% to.return) {
-#     trans <- t(matrix(final.table$counts, nrow = length(lets.uniq)))
-#     letskm1 <- get_klets(lets.uniq, k - 1)
-#     colnames(trans) <- lets.uniq
-#     rownames(trans) <- letskm1
-#     trans.sums <- rowSums(trans)
-#     if (as.prob)
-#       for (i in seq_len(nrow(trans))) trans[i, ] <- trans[i, ] / trans.sums[i]
-#     trans[is.nan(trans)] <- 0
-#     out$transitions <- trans
-#   }
-#
-#   out
-#
-# }
-
 letter_freqs <- function(string, k = 1, to.return = c("freqs", "trans"),
                           as.prob = TRUE, alph = NULL) {
+
+  # The output for this is a mess, but a lot of functions depend on it
+  # currently
 
   lets.inseq <- sort_unique_cpp(string)
   if (is.null(alph)) lets.uniq <- lets.inseq
