@@ -45,18 +45,6 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
-branch_and_bound_kmers_cpp <- function(mot, minscore, alphlen) {
-    .Call('_universalmotif_branch_and_bound_kmers_cpp', PACKAGE = 'universalmotif', mot, minscore, alphlen)
-}
-
-motif_pvalue_single <- function(mot, score, k, bkg) {
-    .Call('_universalmotif_motif_pvalue_single', PACKAGE = 'universalmotif', mot, score, k, bkg)
-}
-
-motif_pvalue_cpp <- function(motifs, bkg, scores, k = 6L, nthreads = 1L) {
-    .Call('_universalmotif_motif_pvalue_cpp', PACKAGE = 'universalmotif', motifs, bkg, scores, k, nthreads)
-}
-
 add_cols <- function(mot1, mot2, ic1, ic2, overlap) {
     .Call('_universalmotif_add_cols', PACKAGE = 'universalmotif', mot1, mot2, ic1, ic2, overlap)
 }
