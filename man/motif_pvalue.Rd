@@ -39,7 +39,7 @@ backend. Setting \code{BP = TRUE} is only recommended for exceptionally large
 jobs. Note that this is only used for calculating scores from P-values
 (in other words, when the \code{pvalue} argument is provided).}
 
-\item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalues]{motif_pvalues()}} in parallel with \code{nthreads}
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalue]{motif_pvalue()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads. Note that this is only
 used for calculating P-values from scores (in other words, when the \code{score}
 argument is provided).}
@@ -71,7 +71,7 @@ calculating exact p-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
 To calculate a score based on a given p-value, the means and variances of
-each motif subsets are combined to estimate the distribution of all
+each motif subsets are combined to estimate the normal distribution of all
 possible scores using \code{\link[stats:Normal]{stats::qnorm()}}:
 
 \code{qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))}
@@ -81,13 +81,9 @@ used:
 
 \code{quantile(ecdf(scores), probs = pvalue)}
 
-It is important to keep in mind that both approximate and exact score
-calculations assume uniform backgrounds, so do not use this function for
-motifs with extremely imbalanced backgrounds. To get all possible scores for
-each subset, \code{\link[=expand.grid]{expand.grid()}} is used instead of the branch-and-bound
-algorithm used for calculating p-values. Keep this in mind for determining
-the best \code{k} value for motifs with alphabets longer than those of DNA/RNA
-motifs.
+It is important to keep in mind that the approximate
+calculation assumes a normal distribution of scores, which is rarely
+accurate.
 }
 \examples{
 data(examplemotif)

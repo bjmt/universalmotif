@@ -25,7 +25,7 @@
 #'    backend. Setting `BP = TRUE` is only recommended for exceptionally large
 #'    jobs. Note that this is only used for calculating scores from P-values
 #'    (in other words, when the `pvalue` argument is provided).
-#' @param nthreads `numeric(1)` Run [motif_pvalues()] in parallel with `nthreads`
+#' @param nthreads `numeric(1)` Run [motif_pvalue()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads. Note that this is only
 #'    used for calculating P-values from scores (in other words, when the `score`
 #'    argument is provided).
@@ -57,7 +57,7 @@
 #' setting `k = 12`.
 #'
 #' To calculate a score based on a given p-value, the means and variances of
-#' each motif subsets are combined to estimate the distribution of all
+#' each motif subsets are combined to estimate the normal distribution of all
 #' possible scores using \code{\link[stats:Normal]{stats::qnorm()}}:
 #'
 #' `qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))`
@@ -67,13 +67,9 @@
 #'
 #' `quantile(ecdf(scores), probs = pvalue)`
 #'
-#' It is important to keep in mind that both approximate and exact score
-#' calculations assume uniform backgrounds, so do not use this function for
-#' motifs with extremely imbalanced backgrounds. To get all possible scores for
-#' each subset, [expand.grid()] is used instead of the branch-and-bound
-#' algorithm used for calculating p-values. Keep this in mind for determining
-#' the best `k` value for motifs with alphabets longer than those of DNA/RNA
-#' motifs.
+#' It is important to keep in mind that the approximate
+#' calculation assumes a normal distribution of scores, which is rarely
+#' accurate.
 #'
 #' @examples
 #' data(examplemotif)

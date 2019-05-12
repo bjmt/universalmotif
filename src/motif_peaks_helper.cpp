@@ -1,7 +1,6 @@
 #include <Rcpp.h>
-using namespace Rcpp;
 
-int peakfinder_single_cpp(int i, const NumericVector &x, int m) {
+int peakfinder_single_cpp(int i, const Rcpp::NumericVector &x, int m) {
 
   int z = i - m;
   if (z < 0) z = 0;
@@ -9,13 +8,13 @@ int peakfinder_single_cpp(int i, const NumericVector &x, int m) {
   int w = i + m;
   if (w > x.size() - 1) w = x.size() - 1;
 
-  IntegerVector x1 = seq(z, i);
-  IntegerVector x2 = seq(i, w);
+  Rcpp::IntegerVector x1 = Rcpp::seq(z, i);
+  Rcpp::IntegerVector x2 = Rcpp::seq(i, w);
 
-  NumericVector x_1 = x[x1];
-  NumericVector x_2 = x[x2];
+  Rcpp::NumericVector x_1 = x[x1];
+  Rcpp::NumericVector x_2 = x[x2];
 
-  if (is_true(all(x_1 <= x[i])) && is_true(all(x_2 <= x[i])))
+  if (Rcpp::is_true(Rcpp::all(x_1 <= x[i])) && Rcpp::is_true(Rcpp::all(x_2 <= x[i])))
     return i + 1;
   else
     return NA_INTEGER;
@@ -23,14 +22,14 @@ int peakfinder_single_cpp(int i, const NumericVector &x, int m) {
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector peakfinder_cpp(const NumericVector &x, int m = 3) {
+Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector &x, int m = 3) {
 
-  IntegerVector shape = diff(sign(diff(x)));
+  Rcpp::IntegerVector shape = Rcpp::diff(Rcpp::sign(Rcpp::diff(x)));
 
-  IntegerVector shape_count = seq(0, shape.size() - 1);
-  IntegerVector shape_which = shape_count[shape < 0];
+  Rcpp::IntegerVector shape_count = Rcpp::seq(0, shape.size() - 1);
+  Rcpp::IntegerVector shape_which = shape_count[shape < 0];
 
-  IntegerVector pks(shape_which.size());
+  Rcpp::IntegerVector pks(shape_which.size());
 
   for (R_xlen_t i = 0; i < shape_which.size(); ++i) {
     pks[i] = peakfinder_single_cpp(shape_which[i] + 1, x, m);
@@ -41,10 +40,11 @@ IntegerVector peakfinder_cpp(const NumericVector &x, int m = 3) {
 }
 
 // [[Rcpp::export(rng = false)]]
-IntegerVector linbin_cpp(const IntegerVector &x, const IntegerVector &gpoints) {
+Rcpp::IntegerVector linbin_cpp(const Rcpp::IntegerVector &x,
+    const Rcpp::IntegerVector &gpoints) {
 
   R_xlen_t M = gpoints.size();
-  IntegerVector gcnts(M);
+  Rcpp::IntegerVector gcnts(M);
 
   double delta = (gpoints[M - 1] - gpoints[0]) / (M - 1);
 

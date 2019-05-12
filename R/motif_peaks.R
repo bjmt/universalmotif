@@ -104,7 +104,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
                                              replace = TRUE))
   # this is the slowest step
   rand.kern <- lapply_(rand.hits, function(x) kern_fun(x, bandwidth, seq.length,
-                                                     seq.length),
+                                                       seq.length),
                        BP = BP, PB = FALSE)
   # second slowest
   rand.peaks <- lapply_(rand.kern, function(x) x$y[peakfinder_cpp(x$y, peak.width)],

@@ -17,23 +17,23 @@ BEGIN_RCPP
 END_RCPP
 }
 // peakfinder_cpp
-IntegerVector peakfinder_cpp(const NumericVector& x, int m);
+Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     rcpp_result_gen = Rcpp::wrap(peakfinder_cpp(x, m));
     return rcpp_result_gen;
 END_RCPP
 }
 // linbin_cpp
-IntegerVector linbin_cpp(const IntegerVector& x, const IntegerVector& gpoints);
+Rcpp::IntegerVector linbin_cpp(const Rcpp::IntegerVector& x, const Rcpp::IntegerVector& gpoints);
 RcppExport SEXP _universalmotif_linbin_cpp(SEXP xSEXP, SEXP gpointsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerVector& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type gpoints(gpointsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type gpoints(gpointsSEXP);
     rcpp_result_gen = Rcpp::wrap(linbin_cpp(x, gpoints));
     return rcpp_result_gen;
 END_RCPP
