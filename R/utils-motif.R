@@ -265,11 +265,11 @@ get_matches <- function(motif, score) {
   col.sort <- order(apply(score.mat, 2, max), decreasing = TRUE)
   score.mat <- score.mat[, col.sort]
 
-  all.paths <- branch_and_bound_kmers(score.mat, score)
+  all.paths <- branch_and_bound_cpp_exposed(score.mat, score)
 
   all.paths <- all.paths[, order(col.sort), drop = FALSE]
 
-  all.paths <- paths_alph_unsort(all.paths, alph.sort)
+  all.paths <- paths_alph_unsort(all.paths, alph.sort - 1)
 
   paths_to_alph(all.paths, alph)
 

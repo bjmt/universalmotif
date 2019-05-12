@@ -38,92 +38,59 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_scores_cpp
-IntegerVector calc_scores_cpp(const IntegerMatrix& paths, const IntegerMatrix& score_mat);
-RcppExport SEXP _universalmotif_calc_scores_cpp(SEXP pathsSEXP, SEXP score_matSEXP) {
+// motif_pvalue_cpp
+std::vector<long double> motif_pvalue_cpp(const Rcpp::List& motifs, const Rcpp::List& bkg, const std::vector<double>& scores, const int& k, const int& nthreads);
+RcppExport SEXP _universalmotif_motif_pvalue_cpp(SEXP motifsSEXP, SEXP bkgSEXP, SEXP scoresSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type paths(pathsSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type score_mat(score_matSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_scores_cpp(paths, score_mat));
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_pvalue_cpp(motifs, bkg, scores, k, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
-// kmer_mat_to_probs_k1_cpp
-NumericVector kmer_mat_to_probs_k1_cpp(const IntegerMatrix& bb_mat, const NumericVector& bkg, const IntegerMatrix& alph_sort);
-RcppExport SEXP _universalmotif_kmer_mat_to_probs_k1_cpp(SEXP bb_matSEXP, SEXP bkgSEXP, SEXP alph_sortSEXP) {
+// branch_and_bound_cpp_exposed
+Rcpp::IntegerMatrix branch_and_bound_cpp_exposed(Rcpp::IntegerMatrix mat, const int score);
+RcppExport SEXP _universalmotif_branch_and_bound_cpp_exposed(SEXP matSEXP, SEXP scoreSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type bb_mat(bb_matSEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type bkg(bkgSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type alph_sort(alph_sortSEXP);
-    rcpp_result_gen = Rcpp::wrap(kmer_mat_to_probs_k1_cpp(bb_mat, bkg, alph_sort));
-    return rcpp_result_gen;
-END_RCPP
-}
-// init_paths_cpp
-IntegerMatrix init_paths_cpp(const IntegerMatrix& score_mat, int score, int max_score);
-RcppExport SEXP _universalmotif_init_paths_cpp(SEXP score_matSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type score_mat(score_matSEXP);
-    Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
-    Rcpp::traits::input_parameter< int >::type max_score(max_scoreSEXP);
-    rcpp_result_gen = Rcpp::wrap(init_paths_cpp(score_mat, score, max_score));
-    return rcpp_result_gen;
-END_RCPP
-}
-// list_to_matrix
-IntegerMatrix list_to_matrix(const List& paths);
-RcppExport SEXP _universalmotif_list_to_matrix(SEXP pathsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const List& >::type paths(pathsSEXP);
-    rcpp_result_gen = Rcpp::wrap(list_to_matrix(paths));
-    return rcpp_result_gen;
-END_RCPP
-}
-// calc_next_path_cpp
-IntegerMatrix calc_next_path_cpp(const IntegerMatrix& score_mat, const IntegerMatrix& paths, int score, int max_score);
-RcppExport SEXP _universalmotif_calc_next_path_cpp(SEXP score_matSEXP, SEXP pathsSEXP, SEXP scoreSEXP, SEXP max_scoreSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type score_mat(score_matSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type paths(pathsSEXP);
-    Rcpp::traits::input_parameter< int >::type score(scoreSEXP);
-    Rcpp::traits::input_parameter< int >::type max_score(max_scoreSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_next_path_cpp(score_mat, paths, score, max_score));
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< const int >::type score(scoreSEXP);
+    rcpp_result_gen = Rcpp::wrap(branch_and_bound_cpp_exposed(mat, score));
     return rcpp_result_gen;
 END_RCPP
 }
 // expand_scores
-IntegerVector expand_scores(const IntegerMatrix& scores);
+Rcpp::IntegerVector expand_scores(const Rcpp::IntegerMatrix& scores);
 RcppExport SEXP _universalmotif_expand_scores(SEXP scoresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type scores(scoresSEXP);
     rcpp_result_gen = Rcpp::wrap(expand_scores(scores));
     return rcpp_result_gen;
 END_RCPP
 }
 // paths_alph_unsort
-IntegerMatrix paths_alph_unsort(IntegerMatrix paths, const IntegerMatrix& alph);
+Rcpp::IntegerMatrix paths_alph_unsort(const Rcpp::IntegerMatrix& paths, const Rcpp::IntegerMatrix& alph);
 RcppExport SEXP _universalmotif_paths_alph_unsort(SEXP pathsSEXP, SEXP alphSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< IntegerMatrix >::type paths(pathsSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type paths(pathsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type alph(alphSEXP);
     rcpp_result_gen = Rcpp::wrap(paths_alph_unsort(paths, alph));
     return rcpp_result_gen;
 END_RCPP
 }
 // paths_to_alph
-StringVector paths_to_alph(const IntegerMatrix& paths, const StringVector& alph);
+Rcpp::StringVector paths_to_alph(const Rcpp::IntegerMatrix& paths, const Rcpp::StringVector& alph);
 RcppExport SEXP _universalmotif_paths_to_alph(SEXP pathsSEXP, SEXP alphSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type paths(pathsSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type paths(pathsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type alph(alphSEXP);
     rcpp_result_gen = Rcpp::wrap(paths_to_alph(paths, alph));
     return rcpp_result_gen;
 END_RCPP
@@ -652,11 +619,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
-    {"_universalmotif_calc_scores_cpp", (DL_FUNC) &_universalmotif_calc_scores_cpp, 2},
-    {"_universalmotif_kmer_mat_to_probs_k1_cpp", (DL_FUNC) &_universalmotif_kmer_mat_to_probs_k1_cpp, 3},
-    {"_universalmotif_init_paths_cpp", (DL_FUNC) &_universalmotif_init_paths_cpp, 3},
-    {"_universalmotif_list_to_matrix", (DL_FUNC) &_universalmotif_list_to_matrix, 1},
-    {"_universalmotif_calc_next_path_cpp", (DL_FUNC) &_universalmotif_calc_next_path_cpp, 4},
+    {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},
+    {"_universalmotif_branch_and_bound_cpp_exposed", (DL_FUNC) &_universalmotif_branch_and_bound_cpp_exposed, 2},
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},

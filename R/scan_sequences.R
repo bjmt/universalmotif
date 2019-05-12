@@ -121,7 +121,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (progress)
     warning("'progress' is deprecated and does nothing")
   if (BP)
-    warning("'BP' is deprecated; use 'ncores' instead")
+    warning("'BP' is deprecated; use 'nthreads' instead")
 
   if (verbose <= 0) progress <- FALSE
 
@@ -223,7 +223,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
         cat(" * Converting P-values to logodds thresholds\n")
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                                 k = 6, progress = progress, BP = BP)
+                                 k = 8, progress = progress, BP = BP)
       for (i in seq_along(thresholds)) {
         if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }

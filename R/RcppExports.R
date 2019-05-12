@@ -13,24 +13,12 @@ linbin_cpp <- function(x, gpoints) {
     .Call('_universalmotif_linbin_cpp', PACKAGE = 'universalmotif', x, gpoints)
 }
 
-calc_scores_cpp <- function(paths, score_mat) {
-    .Call('_universalmotif_calc_scores_cpp', PACKAGE = 'universalmotif', paths, score_mat)
+motif_pvalue_cpp <- function(motifs, bkg, scores, k = 6L, nthreads = 1L) {
+    .Call('_universalmotif_motif_pvalue_cpp', PACKAGE = 'universalmotif', motifs, bkg, scores, k, nthreads)
 }
 
-kmer_mat_to_probs_k1_cpp <- function(bb_mat, bkg, alph_sort) {
-    .Call('_universalmotif_kmer_mat_to_probs_k1_cpp', PACKAGE = 'universalmotif', bb_mat, bkg, alph_sort)
-}
-
-init_paths_cpp <- function(score_mat, score, max_score) {
-    .Call('_universalmotif_init_paths_cpp', PACKAGE = 'universalmotif', score_mat, score, max_score)
-}
-
-list_to_matrix <- function(paths) {
-    .Call('_universalmotif_list_to_matrix', PACKAGE = 'universalmotif', paths)
-}
-
-calc_next_path_cpp <- function(score_mat, paths, score, max_score) {
-    .Call('_universalmotif_calc_next_path_cpp', PACKAGE = 'universalmotif', score_mat, paths, score, max_score)
+branch_and_bound_cpp_exposed <- function(mat, score) {
+    .Call('_universalmotif_branch_and_bound_cpp_exposed', PACKAGE = 'universalmotif', mat, score)
 }
 
 expand_scores <- function(scores) {

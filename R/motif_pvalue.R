@@ -16,16 +16,14 @@
 #' @param k `numeric(1)` For speed, scores/p-values can be approximated after
 #'    subsetting the motif every `k` columns. If `k` is a value
 #'    equal or higher to the size of input motif(s), then the calculations
-#'    are (nearly) exact. The default, 6, is recommended to those looking for
+#'    are (nearly) exact. The default, 8, is recommended to those looking for
 #'    a good tradeoff between speed and accuracy for jobs requiring repeated
 #'    calculations.
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [motif_pvalue()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for exceptionally large
-#'    jobs. Furthermore, the behaviour of `progress = TRUE` is changed
-#'    if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will be
-#'    shown (which unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [motif_pvalues()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
+#'    Note that no speed up will occur for jobs with only a single motif.
 #'
 #' @return `numeric` A vector of scores/p-values.
 #'
@@ -107,8 +105,7 @@
 #' @seealso [motif_score()]
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
-                         k = 6, progress = ifelse(length(motifs) > 1, TRUE, FALSE),
-                         BP = FALSE) {
+                         k = 8, progress = FALSE, BP = FALSE, nthreads = 1) {
 
   # NOTE: The calculated P-value is the chance of getting a certain score at
   #       one position. To get a P-value from scanning a 2000 bp stretch for
@@ -144,8 +141,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   # param check --------------------------------------------
   args <- as.list(environment())
   num_check <- check_fun_params(list(score = args$score, pvalue = args$pvalue,
-                                     use.freq = args$use.freq, k = args$k),
-                                c(0, 0, 1, 1), c(TRUE, TRUE, FALSE, FALSE),
+                                     use.freq = args$use.freq, k = args$k,
+                                     nthreads = args$nthreads),
+                                c(0, 0, 1, 1, 1), c(TRUE, TRUE, FALSE, FALSE, FALSE),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
                                  numeric(), logical(), TYPE_LOGI)
@@ -164,6 +162,11 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   all_checks <- c(num_check, bkg_check, logi_check, use.freq_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (progress)
+    warning("'progress' is deprecated and does nothing")
+  if (BP)
+    warning("'BP' is deprecated; use 'nthreads' instead")
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
@@ -208,8 +211,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                         MoreArgs = list(use.freq = use.freq),
                         SIMPLIFY = FALSE)
 
-    out <- mapply_(motif_pval, motifs, score, bkg.probs, k, PB = progress,
-                   BP = BP)
+    out <- motif_pvalue_cpp(motifs, bkg.probs, score, k, nthreads)
 
   } else if (missing(score) && !missing(pvalue)) {
 
@@ -257,144 +259,6 @@ motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
   }
 
   out
-
-}
-
-motif_pval <- function(score.mat, score, bkg.probs, k = 6, num2int = TRUE,
-                       return_scores = FALSE) {
-
-  if (num2int) {
-    if (!return_scores) score <- as.integer(score * 1000)
-    score.mat <- matrix(as.integer(score.mat * 1000), nrow = nrow(score.mat))
-  }
-  total.max <- sum(apply(score.mat, 2, max))
-  if (score > total.max) stop(wmsg("input score '", score / 1000,
-                                   "' is higher than max possible score: '",
-                                   total.max / 1000, "'"))
-  total.min <- sum(apply(score.mat, 2, min))
-  if (return_scores) score <- total.min
-
-  if (missing(bkg.probs)) bkg.probs <- rep(1 / nrow(score.mat), nrow(score.mat))
-
-  score.mat <- score.mat[, order(apply(score.mat, 2, max), decreasing = TRUE)]
-  alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
-  for (i in seq_len(ncol(score.mat))) {
-    score.mat[, i] <- score.mat[alph.sort[, i], i]
-  }
-  mot.len <- ncol(score.mat)
-  alph.len <- nrow(score.mat)
-
-  splitl <- 1
-
-  if (mot.len > k) {
-
-    times.tosplit <- mot.len %/% k
-    leftover.split <- mot.len %% k
-    splitl <- times.tosplit + ifelse(leftover.split > 0, 1, 0)
-    mot.split <- vector("list", splitl)
-    alph.sort.split <- mot.split
-    mot.split[[1]] <- score.mat[, seq_len(k)]
-    alph.sort.split[[1]] <- alph.sort[, seq_len(k)]
-
-    if (times.tosplit > 1) {
-      for (i in seq_len(times.tosplit - 1)) {
-        mot.split[[i + 1]] <- score.mat[, (i * k + 1):(i * k + k)]
-        alph.sort.split[[i + 1]] <- alph.sort[, (i * k + 1):(i * k + k)]
-      }
-    }
-
-    if (leftover.split > 0) {
-      mot.split[[splitl]] <- score.mat[, (mot.len - leftover.split + 1):mot.len]
-      alph.sort.split[[splitl]] <- alph.sort[, (mot.len - leftover.split + 1):mot.len]
-      if (!is.matrix(mot.split[[splitl]])) {
-        mot.split[[splitl]] <- matrix(mot.split[[splitl]])
-        alph.sort.split[[splitl]] <- matrix(alph.sort.split[[splitl]])
-      }
-
-    }
-
-  } else {
-    mot.split <- list(score.mat)
-    alph.sort.split <- list(alph.sort)
-  }
-
-  split.max <- vapply(mot.split, function(x) sum(apply(x, 2, max)), integer(1))
-
-  split.min <- vector("integer", length(split.max))
-  for (i in seq_along(split.max)) {
-    split.min[i] <- score - sum(split.max[-i])
-  }
-
-  all.paths <- vector("list", splitl)
-  for (i in seq_along(all.paths)) {
-    all.paths[[i]] <-  branch_and_bound_kmers(mot.split[[i]], split.min[i])
-  }
-
-  all.scores <- vector("list", splitl)
-  for (i in seq_along(all.scores)) {
-    all.scores[[i]] <- calc_scores_cpp(all.paths[[i]], mot.split[[i]])
-  }
-
-  all.probs <- vector("list", splitl)
-  for (i in seq_along(all.probs)) {
-    all.probs[[i]] <- kmer_mat_to_probs_k1_cpp(all.paths[[i]], bkg.probs,
-                                               alph.sort.split[[i]])
-  }
-
-  max.scores5 <- vapply(all.scores, max, numeric(1))
-
-  if (splitl > 2) {
-
-    times.toloop <- splitl - 2
-
-    for (i in seq_len(times.toloop)) {
-
-      for (j in seq_along(all.probs[[i + 1]])) {
-
-        all.probs[[i + 1]][j] <- all.probs[[i + 1]][j] *
-          sum(all.probs[[i + 2]][all.scores[[i + 2]] >
-              score - all.scores[[i + 1]][i] - sum(max.scores5[seq_len(i)])])
-
-      }
-
-    }
-
-  }
-
-  if (splitl > 1) {
-    final.probs <- vector("numeric", length(all.scores[[1]]))
-    for (i in seq_along(final.probs)) {
-      final.probs[i] <- all.probs[[1]][i] *
-        sum(all.probs[[2]][all.scores[[2]] > score - all.scores[[1]][i]])
-    }
-      # final.probs[i] <- prod(
-          # all.probs[[1]][i],
-          # Reduce("+", all.probs[[2]][all.scores[[2]] > score - all.scores[[1]][i]])
-      # )
-  }
-
-  if (splitl == 1) {
-    final.probs <- all.probs[[1]]
-  }
-
-  if (!return_scores) sum(final.probs) else all.scores
-
-}
-
-branch_and_bound_kmers <- function(score.mat, min.score) {
-
-  max.scores <- c(rev(cumsum(rev(apply(score.mat, 2, max)))), 0L)
-
-  mot_len <- ncol(score.mat)
-
-  paths <- init_paths_cpp(score.mat, min.score, max.scores[2])
-  if (mot_len == 1) return(paths)
-
-  for (i in seq_len(mot_len - 1) + 1) {
-    paths <- calc_next_path_cpp(score.mat, paths, min.score, max.scores[i + 1])
-  }
-
-  paths
 
 }
 

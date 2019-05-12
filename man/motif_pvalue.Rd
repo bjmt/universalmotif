@@ -4,8 +4,8 @@
 \alias{motif_pvalue}
 \title{Motif P-value and scoring utility}
 \usage{
-motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 6,
-  progress = ifelse(length(motifs) > 1, TRUE, FALSE), BP = FALSE)
+motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 8,
+  progress = FALSE, BP = FALSE, nthreads = 1)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -27,18 +27,17 @@ otherwise uses the corresponding \code{multifreq} matrix. Max is 3.}
 \item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after
 subsetting the motif every \code{k} columns. If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
-are (nearly) exact. The default, 6, is recommended to those looking for
+are (nearly) exact. The default, 8, is recommended to those looking for
 a good tradeoff between speed and accuracy for jobs requiring repeated
 calculations.}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=motif_pvalue]{motif_pvalue()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for exceptionally large
-jobs. Furthermore, the behaviour of \code{progress = TRUE} is changed
-if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will be
-shown (which unfortunately is much less informative).}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalues]{motif_pvalues()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.
+Note that no speed up will occur for jobs with only a single motif.}
 }
 \value{
 \code{numeric} A vector of scores/p-values.

@@ -185,6 +185,8 @@ vec_str_t get_matches(const list_int_t &res, const vec_str_t seq_vecs,
 
 }
 
+/* C++ ENTRY ---------------------------------------------------------------- */
+
 // [[Rcpp::export(rng = false)]]
 Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     const std::vector<std::string> &seq_vecs, const int &k, const std::string &alph,
