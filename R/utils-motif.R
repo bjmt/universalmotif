@@ -38,6 +38,7 @@
 #' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
 #'    representing score percentage.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM' 'ICM')`.
+#' @param widths `numeric` Motif widths to use in P-value database calculation.
 #'
 #' @return
 #'    For [consensus_to_ppm()] and [consensus_to_ppmAA()]: a numeric

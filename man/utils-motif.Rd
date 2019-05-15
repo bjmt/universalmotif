@@ -34,7 +34,7 @@ get_matches(motif, score)
 icm_to_ppm(position)
 
 make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
-  shuffle.method = "linear", rand.tries = 100,
+  shuffle.method = "linear", rand.tries = 100, widths = 5:30,
   normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0.25,
   progress = TRUE, BP = FALSE, nthreads = 1)
 
@@ -89,6 +89,8 @@ generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
 
 \item{rand.tries}{\code{numeric(1)} Number of random motifs to create for
 P-value computation.}
+
+\item{widths}{\code{numeric} Motif widths to use in P-value database calculation.}
 
 \item{normalise.scores}{\code{logical(1)} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
