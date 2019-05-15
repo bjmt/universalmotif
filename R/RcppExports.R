@@ -5,12 +5,12 @@ single_to_k <- function(seq1, k) {
     .Call('_universalmotif_single_to_k', PACKAGE = 'universalmotif', seq1, k)
 }
 
-compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads) {
-    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads)
+compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic) {
+    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic)
 }
 
-compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads) {
-    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads)
+compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic) {
+    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic)
 }
 
 get_comparison_matrix <- function(ans, index1, index2, method, motnames) {

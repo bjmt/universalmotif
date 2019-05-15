@@ -25,6 +25,11 @@
 #' @param min.mean.ic `numeric(1)` Minimum mean information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
 #'    alignments between low information content regions of two motifs.
+#' @param min.position.ic `numeric(1)` Minimum information content required between
+#'    individual alignment positions for it to be counted in the final alignment
+#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
+#'    as this will help punish scores resulting from only a fraction of an
+#'    alignment.
 #' @param relative_entropy `logical(1)` For ICM calculation. See
 #'    [convert_type()].
 #' @param normalise.scores `logical(1)` Favour alignments which leave fewer
@@ -140,6 +145,7 @@
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "MPCC", tryRC = TRUE,
                            min.overlap = 6, min.mean.ic = 0.25,
+                           min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,
                            max.p = 0.01, max.e = 10, progress = FALSE,
                            BP = FALSE, nthreads = 1) {
@@ -155,7 +161,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                      min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic,
                                      max.p = args$max.p, max.e = args$max.e,
-                                     nthreads = args$nthreads),
+                                     nthreads = args$nthreads,
+                                     min.position.ic = args$min.position.ic),
                                 c(0, rep(1, 6)), c(TRUE, rep(FALSE, 6)),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
@@ -220,7 +227,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     comparisons <- compare_motifs_all(mot.mats, method, min.overlap,
                                       tryRC, min.mean.ic, normalise.scores,
                                       nthreads, mot.bkgs, mot.type,
-                                      relative_entropy, mot.names)
+                                      relative_entropy, mot.names,
+                                      min.position.ic)
 
     if (method == "PCC") comparisons <- fix_pcc_diag(comparisons, mot.mats)
 
@@ -246,7 +254,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     comparisons <- compare_motifs_cpp(mot.mats, comps[, 1] - 1, comps[, 2] - 1,
                                       method, min.overlap, tryRC, mot.bkgs,
                                       mot.type, relative_entropy,
-                                      min.mean.ic, normalise.scores, nthreads)
+                                      min.mean.ic, normalise.scores, nthreads,
+                                      min.position.ic)
 
     pvals <- vector("list", length(compare.to))
     for (i in seq_along(compare.to)) {
@@ -353,11 +362,12 @@ get_rid_of_dupes <- function(comparisons) {
 
 compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
                                normalise.scores, nthreads, mot.bkgs,
-                               mot.type, relative, mot.names) {
+                               mot.type, relative, mot.names,
+                               min.position.ic) {
 
   ans <- compare_motifs_all_cpp(mot.mats, method, min.overlap, RC, mot.bkgs,
                                 mot.type, relative, min.mean.ic,
-                                normalise.scores, nthreads)
+                                normalise.scores, nthreads, min.position.ic)
 
   n <- length(mot.mats)
   comp <- comb2_cpp(n)

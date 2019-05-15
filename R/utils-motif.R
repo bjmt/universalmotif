@@ -8,9 +8,15 @@
 #' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
 #' @param match `character(1)` Sequence string to calculate score from.
-#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-#'    'SW', 'MSW', 'KL', 'MKL')`. See [compare_motifs()].
+#' @param method `character` Any of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
+#'    'SW', 'MSW', 'KL', 'MKL')`. See [compare_motifs()]. If multiple methods
+#'    are provided, each result will be in its own list.
 #' @param min.mean.ic `numeric(1)` See [compare_motifs()].
+#' @param min.position.ic `numeric(1)` Minimum information content required between
+#'    individual alignment positions for it to be counted in the final alignment
+#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
+#'    as this will help punish scores resulting from only a fraction of an
+#'    alignment.
 #' @param min.overlap `numeric(1)` Minimum required motif overlap. See
 #'    [compare_motifs()].
 #' @param motif Motif object to calculate scores from.
@@ -50,7 +56,8 @@
 #'    For [get_matches()]: a `character` vector of motif matches.
 #'
 #'    For [make_DBscores()]: a `data.frame` with score distributions for the
-#'    input database.
+#'    input database, or a `list` with a `data.frame` for each method and
+#'    an additional `list` entry logging function parameters.
 #'
 #'    For [motif_score()]: a named `numeric` vector of motif scores.
 #'
@@ -289,20 +296,35 @@ icm_to_ppm <- function(position) {
 make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 100, widths = 5:30,
+                          min.position.ic = 0,
                           normalise.scores = TRUE, min.overlap = 6,
                           min.mean.ic = 0.25, progress = TRUE, BP = FALSE,
                           nthreads = 1) {
+
+  if (length(method) > 1) {
+    out <- vector("list", length(method) + 1)
+    names(out) <- c(method, "args")
+    for (m in method) {
+      out[[m]] <- make_DBscores(db.motifs, m, shuffle.db, shuffle.k, shuffle.method,
+                                rand.tries, widths, min.position.ic,
+                                normalise.scores, min.overlap, min.mean.ic,
+                                progress, BP, nthreads)
+    }
+    out$args <- args[-1]
+    return(out)
+  }
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(method = args$method,
                                       shuffle.method = args$shuffle.method),
-                                 numeric(), logical(), TYPE_CHAR)
+                                 c(0, 1), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(shuffle.k = args$shuffle.k,
                                      rand.tries = args$rand.tries,
                                      min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic,
-                                     nthreads = args$nthreads),
+                                     nthreads = args$nthreads,
+                                     min.position.ic = args$min.position.ic),
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
                                       progress = args$progress, BP = args$BP,
@@ -314,6 +336,7 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
 
   db.motifs <- convert_motifs(db.motifs)
   db.motifs <- convert_type(db.motifs, "PPM")
+
   db.ncols <- vapply(db.motifs, function(x) ncol(x@motif), numeric(1))
 
   rand.mots <- vector("list", length(widths))
@@ -370,7 +393,8 @@ make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
     res[[as.character(i)]] <- compare_motifs_cpp(mtmp, comps[, 1] - 1, comps[, 2] - 1,
                                                  method, min.overlap, FALSE,
                                                  btmp, 1, FALSE, min.mean.ic,
-                                                 normalise.scores, nthreads)
+                                                 normalise.scores, nthreads,
+                                                 min.position.ic)
 
     if (progress) update_pb(counter, total)
     counter <- counter + 1

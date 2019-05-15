@@ -6,7 +6,7 @@
 \usage{
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   use.type = "PPM", method = "MPCC", tryRC = TRUE, min.overlap = 6,
-  min.mean.ic = 0.25, relative_entropy = FALSE,
+  min.mean.ic = 0.25, min.position.ic = 0, relative_entropy = FALSE,
   normalise.scores = FALSE, max.p = 0.01, max.e = 10,
   progress = FALSE, BP = FALSE, nthreads = 1)
 }
@@ -37,6 +37,12 @@ representing the minimum fraction that the motifs must overlap.}
 \item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
 two motifs for an alignment to be scored. This helps prevent scoring
 alignments between low information content regions of two motifs.}
+
+\item{min.position.ic}{\code{numeric(1)} Minimum information content required between
+individual alignment positions for it to be counted in the final alignment
+score. It is recommended to use this together with \code{normalise.scores = TRUE},
+as this will help punish scores resulting from only a fraction of an
+alignment.}
 
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link[=convert_type]{convert_type()}}.}

@@ -44,6 +44,11 @@
 #'    two motifs for an alignment to be scored. This helps prevent scoring
 #'    alignments between low information content regions of two motifs. See
 #'    [compare_motifs()].
+#' @param min.position.ic `numeric(1)` Minimum information content required between
+#'    individual alignment positions for it to be counted in the final alignment
+#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
+#'    as this will help punish scores resulting from only a fraction of an
+#'    alignment.
 #' @param relative_entropy `logical(1)` For ICM calculation. See
 #'    [convert_type()].
 #' @param progress `logical(1)` Deprecated. Does nothing.
@@ -97,7 +102,8 @@
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
                        branch.length = "none", db.scores, method = "MEUCL",
-                       use.type = "PPM", min.overlap = 6, tryRC = TRUE,
+                       use.type = "PPM", min.overlap = 6,
+                       min.position.ic = 0, tryRC = TRUE,
                        min.mean.ic = 0.25, relative_entropy = FALSE,
                        progress = FALSE, BP = FALSE, nthreads = 1, ...) {
 
@@ -134,7 +140,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                                       method = args$method, use.type = args$use.type),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
-                                     min.mean.ic = args$min.mean.ic),
+                                     min.mean.ic = args$min.mean.ic,
+                                     min.position.ic = args$min.position.ic),
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(legend = args$legend, tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,

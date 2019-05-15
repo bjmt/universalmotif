@@ -7,9 +7,9 @@
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
   branch.length = "none", db.scores, method = "MEUCL",
-  use.type = "PPM", min.overlap = 6, tryRC = TRUE,
-  min.mean.ic = 0.25, relative_entropy = FALSE, progress = FALSE,
-  BP = FALSE, nthreads = 1, ...)
+  use.type = "PPM", min.overlap = 6, min.position.ic = 0,
+  tryRC = TRUE, min.mean.ic = 0.25, relative_entropy = FALSE,
+  progress = FALSE, BP = FALSE, nthreads = 1, ...)
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
@@ -48,6 +48,12 @@ motifs. Setting this to a number higher then the width of the motifs
 will not allow any overhangs. Can also be a number less than 1,
 representing the minimum fraction that the motifs must overlap. See
 \code{\link[=compare_motifs]{compare_motifs()}}.}
+
+\item{min.position.ic}{\code{numeric(1)} Minimum information content required between
+individual alignment positions for it to be counted in the final alignment
+score. It is recommended to use this together with \code{normalise.scores = TRUE},
+as this will help punish scores resulting from only a fraction of an
+alignment.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score. See \code{\link[=compare_motifs]{compare_motifs()}}.}

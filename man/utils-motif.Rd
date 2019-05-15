@@ -35,8 +35,8 @@ icm_to_ppm(position)
 
 make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
   shuffle.method = "linear", rand.tries = 100, widths = 5:30,
-  normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0.25,
-  progress = TRUE, BP = FALSE, nthreads = 1)
+  min.position.ic = 0, normalise.scores = TRUE, min.overlap = 6,
+  min.mean.ic = 0.25, progress = TRUE, BP = FALSE, nthreads = 1)
 
 motif_score(motif, threshold = c(0, 1))
 
@@ -78,7 +78,8 @@ probability for each alphabet letter at a specific position.}
 
 \item{db.motifs}{\code{list} Database motifs.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{method}{\code{character} Any of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}. If multiple methods
+are provided, each result will be in its own list.}
 
 \item{shuffle.db}{\code{logical(1)} Shuffle \code{db.motifs} rather than
 generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
@@ -91,6 +92,12 @@ generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
 P-value computation.}
 
 \item{widths}{\code{numeric} Motif widths to use in P-value database calculation.}
+
+\item{min.position.ic}{\code{numeric(1)} Minimum information content required between
+individual alignment positions for it to be counted in the final alignment
+score. It is recommended to use this together with \code{normalise.scores = TRUE},
+as this will help punish scores resulting from only a fraction of an
+alignment.}
 
 \item{normalise.scores}{\code{logical(1)} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
@@ -137,7 +144,8 @@ of length 1.
 For \code{\link[=get_matches]{get_matches()}}: a \code{character} vector of motif matches.
 
 For \code{\link[=make_DBscores]{make_DBscores()}}: a \code{data.frame} with score distributions for the
-input database.
+input database, or a \code{list} with a \code{data.frame} for each method and
+an additional \code{list} entry logging function parameters.
 
 For \code{\link[=motif_score]{motif_score()}}: a named \code{numeric} vector of motif scores.
 

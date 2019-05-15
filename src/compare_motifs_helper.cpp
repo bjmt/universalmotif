@@ -311,9 +311,32 @@ list_num_t get_motif_rc(const list_num_t &mot) {
 
 }
 
+void fix_lowic_pos(list_num_t &tmot1, list_num_t &tmot2,
+    vec_num_t &tic1, vec_num_t &tic2, const double posic) {
+
+  for (std::size_t i = 0; i < tmot1.size(); ++i) {
+    if (tic1[i] < posic) {
+      for (std::size_t j = 0; j < tmot1[0].size(); ++j) {
+        tmot1[i][j] = -1.0;
+      }
+      tic1[i] = -1.0;
+    }
+    if (tic2[i] < posic) {
+      for (std::size_t j = 0; j < tmot1[0].size(); ++j) {
+        tmot2[i][j] = -1.0;
+      }
+      tic2[i] = -1.0;
+    }
+  }
+
+  return;
+
+}
+
 double compare_motif_pair(list_num_t mot1, list_num_t mot2,
     const std::string method, const int moverlap, const bool RC,
-    vec_num_t ic1, vec_num_t ic2, const double minic, const bool norm) {
+    vec_num_t ic1, vec_num_t ic2, const double minic, const bool norm,
+    const double posic) {
 
   double ans_rc;
   if (RC) {
@@ -323,7 +346,7 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
       rcic2[rcic2.size() - 1 - i] = ic2[i];
     }
     ans_rc = compare_motif_pair(mot1, rcmot2, method, moverlap, false,
-        ic1, rcic2, minic, norm);
+        ic1, rcic2, minic, norm, posic);
   }
 
   switch (::metrics_enum[method]) {
@@ -355,6 +378,8 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
         tic1[k] = ic1[k + i];
         tic2[k] = ic2[k + j];
       }
+
+      if (posic > 0) fix_lowic_pos(tmot1, tmot2, tic1, tic2, posic);
 
       alignlen = norm ? get_alignlen(tmot1, tmot2) : tlen;
 
@@ -452,14 +477,16 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
     const std::vector<int> &index1, const std::vector<int> &index2,
     const std::string &method, int minoverlap, const bool RC,
     std::vector<std::vector<double>> &bkg, const int type, const bool relative,
-    const double minic, const bool norm, const int nthreads) {
+    const double minic, const bool norm, const int nthreads, const double posic) {
 
   if (minoverlap < 1) minoverlap = 1;
 
   if (type != 1 && type != 2)
     Rcpp::stop("type must be 1 or 2");
   if (minic < 0)
-    Rcpp::stop("minic must be positive");
+    Rcpp::stop("min.mean.ic must be positive");
+  if (posic < 0)
+    Rcpp::stop("min.position.ic must be positive");
   if (mots.size() == 0)
     Rcpp::stop("empty motif list");
   if (bkg.size() == 0)
@@ -488,10 +515,10 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
 
   vec_num_t answers(index1.size());
   RcppThread::parallelFor(0, answers.size(),
-      [&answers, &vmots, &index1, &index2, &icscores, &method, minoverlap, RC, minic, norm]
+      [&answers, &vmots, &index1, &index2, &icscores, &method, minoverlap, RC, minic, norm, posic]
       (std::size_t i) {
         answers[i] = compare_motif_pair(vmots[index1[i]], vmots[index2[i]], method,
-            minoverlap, RC, icscores[index1[i]], icscores[index2[i]], minic, norm);
+            minoverlap, RC, icscores[index1[i]], icscores[index2[i]], minic, norm, posic);
       }, nthreads);
 
   return answers;
@@ -502,14 +529,16 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
 std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
     const std::string &method, int minoverlap, const bool RC,
     std::vector<std::vector<double>> &bkg, const int type, const bool relative,
-    const double minic, const bool norm, const int nthreads) {
+    const double minic, const bool norm, const int nthreads, const double posic) {
 
   if (minoverlap < 1) minoverlap = 1;
 
   if (type != 1 && type != 2)
     Rcpp::stop("type must be 1 or 2");
   if (minic < 0)
-    Rcpp::stop("minic must be positive");
+    Rcpp::stop("min.mean.ic must be positive");
+  if (posic < 0)
+    Rcpp::stop("min.position.ic must be positive");
   if (mots.size() == 0)
     Rcpp::stop("empty motif list");
   if (bkg.size() == 0)
@@ -536,12 +565,12 @@ std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
 
   list_num_t answers(vmots.size());
   RcppThread::parallelFor(0, answers.size() - 1,
-      [&answers, &vmots, &icscores, &method, minoverlap, RC, minic, norm]
+      [&answers, &vmots, &icscores, &method, minoverlap, RC, minic, norm, posic]
       (std::size_t i) {
         answers[i].reserve(vmots.size() - i + 1);
         for (std::size_t j = i + 1; j < vmots.size(); ++j) {
           answers[i].push_back(compare_motif_pair(vmots[i], vmots[j], method,
-              minoverlap, RC, icscores[i], icscores[j], minic, norm));
+              minoverlap, RC, icscores[i], icscores[j], minic, norm, posic));
         }
       }, nthreads);
 
