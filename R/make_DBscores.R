@@ -46,7 +46,10 @@
 #'
 #' @seealso [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
-make_DBscores <- function(db.motifs, method, shuffle.db = TRUE,
+#' @export
+make_DBscores <- function(db.motifs,
+                          method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL"),
+                          shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 100, widths = 5:30,
                           min.position.ic = 0,

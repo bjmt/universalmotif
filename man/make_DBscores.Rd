@@ -4,7 +4,8 @@
 \alias{make_DBscores}
 \title{Create P-value databases.}
 \usage{
-make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
+make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
+  "MSW", "KL", "MKL"), shuffle.db = TRUE, shuffle.k = 3,
   shuffle.method = "linear", rand.tries = 100, widths = 5:30,
   min.position.ic = 0, normalise.scores = TRUE, min.overlap = 6,
   min.mean.ic = 0.25, progress = TRUE, BP = FALSE, nthreads = 1)
@@ -61,7 +62,8 @@ Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-valu
 \dontrun{
 library(MotifDb)
 motifs <- convert_motifs(MotifDb[1:100])
-make_DBscores(motifs, method = "PCC")
+scores <- make_DBscores(motifs, method = "PCC")
+compare_motifs(motifs, 1:100, db.scores = scores)
 }
 
 }
