@@ -8,7 +8,7 @@ compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   use.type = "PPM", method = "MPCC", tryRC = TRUE, min.overlap = 6,
   min.mean.ic = 0.25, min.position.ic = 0, relative_entropy = FALSE,
   normalise.scores = FALSE, max.p = 0.01, max.e = 10,
-  progress = FALSE, BP = FALSE, nthreads = 1)
+  progress = FALSE, BP = FALSE, nthreads = 1, db.version = 2)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -66,6 +66,10 @@ by the number of input motifs times two.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}
+
+\item{db.version}{\code{numeric(1)} Select internal P-value database. \code{1} is the
+database created in v1.0.0 of the package, and \code{2} is the database
+created in v1.4.0 of the package.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.

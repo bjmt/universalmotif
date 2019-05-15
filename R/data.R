@@ -15,7 +15,7 @@
 #' @format [universalmotif-class]
 "examplemotif2"
 
-#' JASPAR2018 CORE database scores.
+#' JASPAR2018 CORE database scores (universalmotif v1.0.0).
 #'
 #' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
 #' These scores were
@@ -24,12 +24,13 @@
 #' as a list, with each list item being a `data.frame` of scores for a specific comparison
 #' method. In each `data.frame` is the mean and sd of scores resulting between
 #' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
-#' `subject` and `target` motif length.
+#' `subject` and `target` motif length. Created using [make_DBscores()] from
+#' universalmotif v1.0.0.
 #'
 #' @format `list` with eight `data.frames`
 "JASPAR2018_CORE_DBSCORES"
 
-#' JASPAR2018 CORE database scores (normalised).
+#' JASPAR2018 CORE database scores (normalised) (universalmotif v1.0.0).
 #'
 #' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
 #' These scores were generated
@@ -38,10 +39,41 @@
 #' as a list, with each list item being a `data.frame` of scores for a specific comparison
 #' method. In each `data.frame` is the mean and sd of scores resulting between
 #' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
-#' `subject` and `target` motif length.
+#' `subject` and `target` motif length. Created using [make_DBscores()] from
+#' universalmotif v1.0.0.
 #'
 #' @format `list` with eight `data.frames`
 "JASPAR2018_CORE_DBSCORES_NORM"
+
+#' JASPAR2018 CORE database scores (universalmotif v1.4.0).
+#'
+#' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
+#' These scores were
+#' generated using [make_DBscores()] with the JASPAR2018 CORE motif set,
+#' with `normalise.scores = FALSE`. This particular set of scores is organized
+#' as a list, with each list item being a `data.frame` of scores for a specific comparison
+#' method. In each `data.frame` is the mean and sd of scores resulting between
+#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
+#' `subject` and `target` motif length. Created using [make_DBscores()] from
+#' universalmotif v1.4.0.
+#'
+#' @format `list` with eight `data.frames` and an additional list of parameters.
+"JASPAR2018_CORE_DBSCORES_2"
+
+#' JASPAR2018 CORE database scores (normalised) (universalmotif v1.4.0).
+#'
+#' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
+#' These scores were generated
+#' using [make_DBscores()] with the JASPAR2018 CORE motif set, with
+#' `normalise.scores = TRUE`. This particular set of scores is organized
+#' as a list, with each list item being a `data.frame` of scores for a specific comparison
+#' method. In each `data.frame` is the mean and sd of scores resulting between
+#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
+#' `subject` and `target` motif length. Created using [make_DBscores()] from
+#' universalmotif v1.4.0.
+#'
+#' @format `list` with eight `data.frames` and an additional list of parameters.
+"JASPAR2018_CORE_DBSCORES_NORM_2"
 
 #' Arabidopsis promoters as a `DNAStringSet`.
 #'

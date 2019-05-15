@@ -46,6 +46,9 @@
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
+#' @param db.version `numeric(1)` Select internal P-value database. `1` is the
+#'    database created in v1.0.0 of the package, and `2` is the database
+#'    created in v1.4.0 of the package.
 #'
 #' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
 #' * PCC: The number of positions in the shorter motif represents the max possible
@@ -148,7 +151,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,
                            max.p = 0.01, max.e = 10, progress = FALSE,
-                           BP = FALSE, nthreads = 1) {
+                           BP = FALSE, nthreads = 1, db.version = 2) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -162,8 +165,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                      min.mean.ic = args$min.mean.ic,
                                      max.p = args$max.p, max.e = args$max.e,
                                      nthreads = args$nthreads,
-                                     min.position.ic = args$min.position.ic),
-                                c(0, rep(1, 6)), c(TRUE, rep(FALSE, 6)),
+                                     min.position.ic = args$min.position.ic,
+                                     db.version = args$db.version),
+                                c(0, rep(1, 7)), c(TRUE, rep(FALSE, 7)),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
@@ -189,6 +193,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   }
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (!db.version %in% 1:2)
+    stop("db.scores can only be 1 or 2")
 
   if (progress)
     warning("'progress' is deprecated and does nothing")
@@ -235,8 +242,18 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   } else {
 
     if (missing(db.scores)) {
-      if (!normalise.scores) db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
-      else db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
+      if (db.version == 2) {
+        if (!normalise.scores)
+          db.scores <- JASPAR2018_CORE_DBSCORES_2[[method]]
+        else
+          db.scores <- JASPAR2018_CORE_DBSCORES_NORM_2[[method]]
+      } else if (db.version == 1) {
+        if (!normalise.scores)
+          db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
+        else
+          db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
+      }
+
       if (use.freq != 1)
         warning(wmsg("Using the internal P-value database with `use.freq > 1`",
                      " will result in incorrect P-values"),
@@ -246,6 +263,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
         warning(wmsg("Using the internal P-value database with non-DNA motifs ",
                      "will result in incorrect P-values"),
                 immediate. = TRUE)
+
     } else {
       db.scores <- check_db_scores(db.scores, method, normalise.scores)
     }
