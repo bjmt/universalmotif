@@ -46,14 +46,10 @@
 #'    [compare_motifs()].
 #' @param relative_entropy `logical(1)` For ICM calculation. See
 #'    [convert_type()].
-#' @param progress `logical(1)` Show progress of [compare_motifs()]. Not
-#'    recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [compare_motifs()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for comparing large numbers
-#'    of motifs (>10,000). Furthermore, the behaviour of `progress = TRUE` is
-#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
-#'    be shown (which unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
 #' @param ... \pkg{ggtree} params. See [ggtree::ggtree()].
 #'
 #' @return ggplot object.
@@ -100,10 +96,10 @@
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
-                       branch.length = "none", db.scores, method = "MPCC",
+                       branch.length = "none", db.scores, method = "MEUCL",
                        use.type = "PPM", min.overlap = 6, tryRC = TRUE,
-                       min.mean.ic = 0.5, relative_entropy = FALSE,
-                       progress = TRUE, BP = FALSE, ...) {
+                       min.mean.ic = 0.25, relative_entropy = FALSE,
+                       progress = FALSE, BP = FALSE, nthreads = 1, ...) {
 
   # TODO: allow for user-provided linecol, labels, tipsize instead of just
   #       pulling from motif slots.
@@ -148,7 +144,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (method %in% c("PCC", "SW")) stop("'PCC', 'SW' are not allowed")
+  if (method %in% c("PCC", "SW"))
+    stop("'PCC', 'SW' are not allowed; please use 'MPCC' and 'MSW' instead")
 
   if (is(motifs, "dist")) {
     tree <- ape::as.phylo(hclust(motifs))

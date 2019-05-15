@@ -38,5 +38,6 @@ typedef std::vector<std::vector<std::string>> list_str_t;
 
 /* list of lists of integer vectors OR list of matrices */
 typedef std::vector<std::vector<std::vector<int>>> list_mat_t;
+typedef std::vector<std::vector<std::vector<double>>> list_nmat_t;
 
 #endif

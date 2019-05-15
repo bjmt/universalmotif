@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include <unordered_map>
+#include "types.h"
 using namespace Rcpp;
 
 extern const StringVector dna = StringVector::create("A", "C", "G", "T");
@@ -52,6 +53,26 @@ std::unordered_map<String, int> aa_e = {
   {"T", 17}, {"V", 18},
   {"W", 19}, {"Y", 20}
 };
+
+// [[Rcpp::export(rng = false)]]
+std::vector<std::vector<int>> comb2_cpp(const int n) {
+
+  int outlen = n * (n - 1) / 2;
+  list_int_t out(2, vec_int_t(outlen));
+
+  int counter = 0;
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = i + 1; j < n; ++j) {
+      out[0][counter] = i;
+      out[1][counter] = j;
+      ++counter;
+    }
+  }
+
+  return out;
+
+}
 
 // [[Rcpp::export(rng = false)]]
 StringVector sort_unique_cpp(const StringVector &x) {

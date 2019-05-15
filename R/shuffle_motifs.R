@@ -65,10 +65,6 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
 
   mot.offsets <- cumsum(c(0, mot.lens[-length(mot.lens)]))
 
-  # new.mats <- vector("list", length(mot.mats))
-  # for (i in seq_along(mot.mats)) {
-    # new.mats[[i]] <- mot.cols[, seq_len(mot.lens[i]) + mot.offsets[i]]
-  # }
   new.mats <- lapply(seq_along(mot.mats),
                      function(x) mot.cols[, (1 + mot.offsets[x]):(mot.lens[x] + mot.offsets[x])])
 

@@ -6,9 +6,9 @@
 \usage{
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   use.type = "PPM", method = "MPCC", tryRC = TRUE, min.overlap = 6,
-  min.mean.ic = 0.5, relative_entropy = FALSE,
+  min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, max.p = 0.01, max.e = 10,
-  progress = TRUE, BP = FALSE)
+  progress = FALSE, BP = FALSE, nthreads = 1)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -54,20 +54,19 @@ Only used if \code{compare.to} is set.}
 Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=compare_motifs]{compare_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for comparing large numbers
-of motifs (>10,000). Furthermore, the behaviour of \code{progress = TRUE} is
-changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
-be shown (which unfortunately is much less informative).}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
 \itemize{
-\item PCC: 0 represents complete distance, >0 similarity.
-\item MPCC: 0 represents complete distance, 1 complete similarity.
+\item PCC: The number of positions in the shorter motif represents the max possible
+score. Values below that represent dissimilarity.
+\item MPCC: 1 represents complete similarity, <1 dissimilarity.
 \item EUCL: 0 represents complete similarity, >0 distance.
 \item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
 \item SW: 0 represents complete distance, >0 similarity.
@@ -96,7 +95,7 @@ scores.
 
 Per position:
 
-\code{PCC = sum(col1 * col2) / sqrt(sum(col1^2) * sum(col2^2))}
+\code{PCC = (nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)) / sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) * (nrow * sum(pos2)^2 - sum(pos2^2)))}
 \item MPCC: Mean PCC
 
 \code{MPCC = mean(PCC)}

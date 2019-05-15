@@ -41,10 +41,8 @@
 #'    [scan_sequences()]. For large jobs, leaving this as
 #'    `FALSE` can save a small amount time by preventing construction of the complete 
 #'    results `data.frame` from [scan_sequences()].
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [enrich_motifs()]. See [BiocParallel::register()] to change the default
-#'    backend.
+#' @param progress `logical(1)` Show progress.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single motif and
@@ -356,7 +354,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, verbose),
                           results2, results.bkg2, motifs,
-                          SIMPLIFY = FALSE, BP = BP, PB = tmp_pb)
+                          SIMPLIFY = FALSE, BP = FALSE, PB = tmp_pb)
 
   results.all <- do.call(rbind, results.all)
 

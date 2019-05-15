@@ -37,17 +37,15 @@
 #' @param max.e `numeric(1)` Maximum E-value allowed in reporting matches.
 #'    Only used if `compare.to` is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [compare_motifs()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for comparing large numbers
-#'    of motifs (>10,000). Furthermore, the behaviour of `progress = TRUE` is
-#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
-#'    be shown (which unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
 #'
 #' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
-#' * PCC: 0 represents complete distance, >0 similarity.
-#' * MPCC: 0 represents complete distance, 1 complete similarity.
+#' * PCC: The number of positions in the shorter motif represents the max possible
+#'   score. Values below that represent dissimilarity.
+#' * MPCC: 1 represents complete similarity, <1 dissimilarity.
 #' * EUCL: 0 represents complete similarity, >0 distance.
 #' * MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
 #' * SW: 0 represents complete distance, >0 similarity.
@@ -68,7 +66,9 @@
 #'
 #'    Per position:
 #'
-#'    `PCC = sum(col1 * col2) / sqrt(sum(col1^2) * sum(col2^2))`
+#'    `PCC = (nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)) /
+#'           sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) *
+#'                (nrow * sum(pos2)^2 - sum(pos2^2)))`
 #'
 #' * MPCC: Mean PCC
 #'
@@ -139,10 +139,10 @@
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "MPCC", tryRC = TRUE,
-                           min.overlap = 6, min.mean.ic = 0.5,
+                           min.overlap = 6, min.mean.ic = 0.25,
                            relative_entropy = FALSE, normalise.scores = FALSE,
-                           max.p = 0.01, max.e = 10, progress = TRUE,
-                           BP = FALSE) {
+                           max.p = 0.01, max.e = 10, progress = FALSE,
+                           BP = FALSE, nthreads = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -154,8 +154,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                      use.freq = args$use.freq,
                                      min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic,
-                                     max.p = args$max.p, max.e = args$max.e),
-                                c(0, rep(1, 5)), c(TRUE, rep(FALSE, 5)),
+                                     max.p = args$max.p, max.e = args$max.e,
+                                     nthreads = args$nthreads),
+                                c(0, rep(1, 6)), c(TRUE, rep(FALSE, 6)),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
@@ -182,6 +183,11 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (progress)
+    warning("'progress' is deprecated and does nothing")
+  if (BP)
+    warning("'BP' is deprecated; use 'nthreads' instead")
+
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
 
@@ -196,23 +202,27 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     mot.names[duplicated(mot.names)] <- mot.dup
   }
 
-
   if (use.freq == 1) {
     mot.mats <- lapply(motifs, function(x) x@motif)
   } else {
     mot.mats <- lapply(motifs, function(x) x@multifreq[[as.character(use.freq)]])
   }
-  mot.ics <- mapply(function(x, y) .pos_iscscores(x, y, relative_entropy),
-                      motifs, mot.mats, SIMPLIFY = FALSE)
+
+  check.nrow <- vapply(mot.mats, nrow, integer(1))
+  if (length(unique(check.nrow)) > 1)
+    stop("all motifs must have the same number of rows")
+
+  mot.type <- switch(use.type, "PPM" = 1, "ICM" = 2)
+  mot.bkgs <- lapply(motifs, function(x) x@bkg)
 
   if (missing(compare.to)) {
 
-    comparisons <- lapply_(seq_along(motifs)[-length(motifs)],
-                            function(x) .compare(x, mot.mats, method,
-                                                 min.overlap, tryRC,
-                                                 min.mean.ic, mot.ics,
-                                                 normalise.scores),
-                            PB = progress, BP = BP)
+    comparisons <- compare_motifs_all(mot.mats, method, min.overlap,
+                                      tryRC, min.mean.ic, normalise.scores,
+                                      nthreads, mot.bkgs, mot.type,
+                                      relative_entropy, mot.names)
+
+    if (method == "PCC") comparisons <- fix_pcc_diag(comparisons, mot.mats)
 
   } else {
 
@@ -232,53 +242,28 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       db.scores <- check_db_scores(db.scores, method, normalise.scores)
     }
 
-    comparisons <- vector("list", length(compare.to))
+    comps <- get_comp_indices(compare.to, length(motifs))
+    comparisons <- compare_motifs_cpp(mot.mats, comps[, 1] - 1, comps[, 2] - 1,
+                                      method, min.overlap, tryRC, mot.bkgs,
+                                      mot.type, relative_entropy,
+                                      min.mean.ic, normalise.scores, nthreads)
+
     pvals <- vector("list", length(compare.to))
-
-    if (progress) print_pb(0)
-    for (i in compare.to) {
-      comparisons[[i]] <- lapply_(seq_along(motifs)[-i],
-              function(x) motif_simil_internal(mot.mats[[i]],
-                                               mot.mats[[x]], method,
-                                               min.overlap, tryRC,
-                                               mot.ics[[i]],
-                                               mot.ics[[x]], min.mean.ic,
-                                               normalise.scores), BP = BP)
-      comparisons[[i]] <- do.call(c, comparisons[[i]])
-      if (!is.null(db.scores)) {
-        pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-i],
-                                    db.scores, comparisons[[i]], method)
-      } else {
-        pvals[[i]] <- rep(NA, length(motifs[-i]))
-      }
-      if (progress) update_pb(i, length(compare.to))
+    for (i in seq_along(compare.to)) {
+      pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-compare.to[i]],
+                                  db.scores, comparisons[comps[, 1] == compare.to[i]],
+                                  method)
     }
+    pvals <- unlist(pvals)
 
-  }
+    comparisons <- data.frame(subject = mot.names[comps[, 1]],
+                              target = mot.names[comps[, 2]],
+                              score = comparisons,
+                              logPval = pvals,
+                              Pval = exp(1)^pvals,
+                              Eval = exp(1)^pvals * length(motifs) * 2,
+                              stringsAsFactors = FALSE)
 
-
-  if (missing(compare.to)) {
-
-    comparisons <- list_to_matrix_simil(comparisons, mot.names, method)
-    
-    if (method == "PCC") {
-      comparisons <- fix_pcc_diag(comparisons, mot.mats)
-    }
-
-  } else {
-
-    comparisons <- lapply(seq_along(compare.to),
-                            function(i) {
-                         data.frame(subject = rep(mot.names[compare.to[i]],
-                                                  length(comparisons[[i]])),
-                                    target = mot.names[-compare.to[i]],
-                                    score = comparisons[[i]],
-                                    logPval = pvals[[i]],
-                                    Pval = exp(1)^pvals[[i]],
-                                    Eval = exp(1)^pvals[[i]] * length(motifs) * 2,
-                                    stringsAsFactors = FALSE)
-                            })
-    comparisons <- do.call(rbind, comparisons)
     if (!is.null(db.scores)) {
       comparisons <- comparisons[order(comparisons$logPval, decreasing = FALSE), ]
       comparisons <- comparisons[comparisons$Pval <= max.p &
@@ -337,28 +322,28 @@ check_db_scores <- function(db.scores, method, normalise.scores) {
 
 }
 
+get_comp_indices <- function(compare.to, n) {
+
+  out <- vector("list", length(compare.to))
+  for (i in seq_along(compare.to)) {
+    out[[i]] <- data.frame(rep(compare.to[i], n - 1), seq_len(n)[-compare.to[i]])
+  }
+
+  do.call(rbind, out)
+
+}
+
 fix_pcc_diag <- function(comparisons, mot.mats) {
 
   mot.lens <- vapply(mot.mats, ncol, numeric(1))
-  diag(comparisons) <- mot.lens^2
+  diag(comparisons) <- mot.lens
 
   comparisons
 
 }
 
-#' get_rid_of_dupes
-#'
-#' Get rid of entries where comparison is an inverted repeat of a
-#' previous comparison. [potential bottleneck?]
-#'
-#' @param comparisons Data frame of results.
-#'
-#' @noRd
 get_rid_of_dupes <- function(comparisons) {
   comparisons.sorted <- character(nrow(comparisons))
-  # for (i in seq_len(nrow(comparisons))) {
-    # comparisons.sorted[i] <- paste(sort(comparisons[i, 1:2]), collapse = " ")
-  # }
   comparisons.sorted <- vapply(seq_len(nrow(comparisons)),
                                function(x) paste0(sort(comparisons[x, 1:2]),
                                                   collapse = " "),
@@ -366,83 +351,46 @@ get_rid_of_dupes <- function(comparisons) {
   comparisons[!duplicated(comparisons.sorted), ]
 } 
 
-#' compare
-#'
-#' Compare motifs for matrix output. Avoids repeat comparisons.
-#'
-#' @param x Index to start comparison.
-#' @param mot.mats Motif matrices.
-#' @param min.overlap Minimum allowed overlap.
-#' @param tryRC Compare RC as well.
-#' @param min.mean.ic Minimum mean IC for comparison.
-#' @param mot.ics Vector of ICs for each position in motifs.
-#' @param normalise.scores Normalise scores, logical.
-#'
-#' @return 1d vector of scores.
-#'
-#' @noRd
-.compare <- function(x, mot.mats, method, min.overlap, tryRC, min.mean.ic,
-                     mot.ics, normalise.scores) {
-  if (x < length(mot.mats)) x2 <- x + 1 else x2 <- x
-  y <- vector("numeric", length = length(mot.mats) - x2)
-  index <- 1
-  for (j in seq(x2, length(mot.mats))) {
-    y[index] <- motif_simil_internal(mot.mats[[x]], mot.mats[[j]], method,
-                                 min.overlap, tryRC, mot.ics[[x]],
-                                 mot.ics[[j]], min.mean.ic,
-                                 normalise.scores)
-    index <- index + 1
-  }
-  y
-}
+compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
+                               normalise.scores, nthreads, mot.bkgs,
+                               mot.type, relative, mot.names) {
 
-#' pos_icscores
-#'
-#' Calculate IC for each postion in the motif.
-#'
-#' @param motif universalmotif class motif.
-#' @param mot.mats Motif matrix.
-#' @param relative Calculate IC as KL divergence.
-#'
-#' @noRd
-.pos_iscscores <- function(motif, mot.mats, relative = FALSE) {
+  ans <- compare_motifs_all_cpp(mot.mats, method, min.overlap, RC, mot.bkgs,
+                                mot.type, relative, min.mean.ic,
+                                normalise.scores, nthreads)
 
-  bkg <- motif@bkg[rownames(motif@motif)]
-  pseudo <- motif@pseudocount
-  nsites <- motif@nsites
-  if (length(nsites) == 0) nsites <- 100
-  apply(mot.mats, 2, function(x) position_icscoreC(x, bkg, "PPM", pseudo,
-                                                   nsites, relative))
+  n <- length(mot.mats)
+  comp <- comb2_cpp(n)
+  get_comparison_matrix(unlist(ans), comp[[1]], comp[[2]], method, mot.names)
 
 }
 
-#' pvals_from_db
-#'
-#' Calculate pval for a match from database scores.
-#'
-#' @param subject Subject motif.
-#' @param target Target motifs.
-#' @param db DB scores in a data frame.
-#' @param scores Scores between subject motif and target motifs.
-#' @param method Comparison metric.
-#'
-#' @return Vector of pvals.
-#'
-#' @noRd
 pvals_from_db <- function(subject, target, db, scores, method) {
 
-  if (method %in% c("PCC", "MPCC", "SW", "MSW")) ltail <- FALSE else ltail <- TRUE
+  if (method %in% c("PCC", "MPCC", "SW", "MSW"))
+    ltail <- FALSE
+  else
+    ltail <- TRUE
+
   pvals <- vector("numeric", length(target))
+
   subject.ncol <- ncol(subject[[1]]@motif)
+
   if (subject.ncol < db$subject[1]) subject.ncol <- db$subject[1]
   if (subject.ncol > db$subject[nrow(db)]) subject.ncol <- db$subject[nrow(db)]
+
   possible.ncols <- sort(unique(db$target))
   possible.sub <- sort(unique(db$subject))
+
   for (i in seq_along(target)) {
+
     ncol2 <- ncol(target[[i]]@motif)
+
     if (ncol2 < db$target[1]) ncol2 <- db$target[1]
     if (ncol2 > db$target[nrow(db)]) ncol2 <- db$target[nrow(db)]
+
     tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
+
     if (length(tmp.mean) == 0) {
       ncol2 <- sort(possible.ncols[possible.ncols <= ncol2])
       ncol2 <- ncol2[length(ncol2)]
@@ -450,8 +398,10 @@ pvals_from_db <- function(subject, target, db, scores, method) {
       subject.ncol <- subject.ncol[length(subject.ncol)]
       tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
     }
+
     tmp.sd <- db$sd[db$subject == subject.ncol & db$target == ncol2]
     pvals[i] <- pnorm(scores[i], tmp.mean, tmp.sd, ltail, TRUE)
+
   }
 
   pvals

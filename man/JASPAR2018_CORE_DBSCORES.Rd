@@ -4,7 +4,7 @@
 \name{JASPAR2018_CORE_DBSCORES}
 \alias{JASPAR2018_CORE_DBSCORES}
 \title{JASPAR2018 CORE database scores.}
-\format{\code{list} with three \code{data.frames}}
+\format{\code{list} with eight \code{data.frames}}
 \usage{
 JASPAR2018_CORE_DBSCORES
 }

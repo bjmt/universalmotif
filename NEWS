@@ -5,12 +5,15 @@ MINOR CHANGES
 
     o Removed 'random' shuffling method.
 
-    o New much faster and more efficient scan_sequences() implementation.
-
     o New scan_sequences(..., threshold.type) option: 'logodds.abs'. Allows
       the exact threshold scores to be provided.
 
-    o Various C++ refactoring.
+    o Using RcppThread instead of BiocParallel in several functions.
+
+    o Many performance improvements to functions relying on internal C++ code.
+
+    o Changed behaviour of make_DBscores(). Re-calculated internal P-value
+      databases.
 
 CHANGES IN VERSION 1.2.1
 ------------------------

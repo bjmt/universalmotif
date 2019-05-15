@@ -26,7 +26,7 @@
 #' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
 #' `subject` and `target` motif length.
 #'
-#' @format `list` with three `data.frames`
+#' @format `list` with eight `data.frames`
 "JASPAR2018_CORE_DBSCORES"
 
 #' JASPAR2018 CORE database scores (normalised).
@@ -40,7 +40,7 @@
 #' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
 #' `subject` and `target` motif length.
 #'
-#' @format `list` with three `data.frames`
+#' @format `list` with eight `data.frames`
 "JASPAR2018_CORE_DBSCORES_NORM"
 
 #' Arabidopsis promoters as a `DNAStringSet`.

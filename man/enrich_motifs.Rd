@@ -66,11 +66,9 @@ See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 \code{FALSE} can save a small amount time by preventing construction of the complete
 results \code{data.frame} from \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Show progress.}
 
-\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=enrich_motifs]{enrich_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend.}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

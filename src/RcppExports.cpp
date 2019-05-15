@@ -16,6 +16,60 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compare_motifs_cpp
+std::vector<double> compare_motifs_cpp(const Rcpp::List& mots, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads);
+RcppExport SEXP _universalmotif_compare_motifs_cpp(SEXP motsSEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type index1(index1SEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type index2(index2SEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const int >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const bool >::type relative(relativeSEXP);
+    Rcpp::traits::input_parameter< const double >::type minic(minicSEXP);
+    Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_cpp(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compare_motifs_all_cpp
+std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List& mots, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads);
+RcppExport SEXP _universalmotif_compare_motifs_all_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const int >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const bool >::type relative(relativeSEXP);
+    Rcpp::traits::input_parameter< const double >::type minic(minicSEXP);
+    Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_all_cpp(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_comparison_matrix
+Rcpp::NumericMatrix get_comparison_matrix(const std::vector<double>& ans, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, const Rcpp::StringVector& motnames);
+RcppExport SEXP _universalmotif_get_comparison_matrix(SEXP ansSEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP methodSEXP, SEXP motnamesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type ans(ansSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type index1(index1SEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type index2(index2SEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type motnames(motnamesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_comparison_matrix(ans, index1, index2, method, motnames));
+    return rcpp_result_gen;
+END_RCPP
+}
 // peakfinder_cpp
 Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
@@ -374,6 +428,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// comb2_cpp
+std::vector<std::vector<int>> comb2_cpp(const int n);
+RcppExport SEXP _universalmotif_comb2_cpp(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(comb2_cpp(n));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sort_unique_cpp
 StringVector sort_unique_cpp(const StringVector& x);
 RcppExport SEXP _universalmotif_sort_unique_cpp(SEXP xSEXP) {
@@ -617,6 +681,9 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
+    {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 12},
+    {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 10},
+    {"_universalmotif_get_comparison_matrix", (DL_FUNC) &_universalmotif_get_comparison_matrix, 5},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},
@@ -644,6 +711,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},
+    {"_universalmotif_comb2_cpp", (DL_FUNC) &_universalmotif_comb2_cpp, 1},
     {"_universalmotif_sort_unique_cpp", (DL_FUNC) &_universalmotif_sort_unique_cpp, 1},
     {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},

@@ -6,10 +6,10 @@
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", db.scores, method = "MPCC",
+  branch.length = "none", db.scores, method = "MEUCL",
   use.type = "PPM", min.overlap = 6, tryRC = TRUE,
-  min.mean.ic = 0.5, relative_entropy = FALSE, progress = TRUE,
-  BP = FALSE, ...)
+  min.mean.ic = 0.25, relative_entropy = FALSE, progress = FALSE,
+  BP = FALSE, nthreads = 1, ...)
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
@@ -60,15 +60,12 @@ alignments between low information content regions of two motifs. See
 \item{relative_entropy}{\code{logical(1)} For ICM calculation. See
 \code{\link[=convert_type]{convert_type()}}.}
 
-\item{progress}{\code{logical(1)} Show progress of \code{\link[=compare_motifs]{compare_motifs()}}. Not
-recommended if \code{BP = TRUE}.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=compare_motifs]{compare_motifs()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for comparing large numbers
-of motifs (>10,000). Furthermore, the behaviour of \code{progress = TRUE} is
-changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
-be shown (which unfortunately is much less informative).}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.}
 
 \item{...}{\pkg{ggtree} params. See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 }

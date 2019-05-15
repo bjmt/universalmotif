@@ -9,4 +9,10 @@ list_int_t R_to_cpp_motif(const Rcpp::NumericMatrix &motif);
 
 list_int_t R_to_cpp_motif(const Rcpp::IntegerMatrix &motif);
 
+list_num_t R_to_cpp_motif_num(const Rcpp::NumericMatrix &motif);
+
+Rcpp::NumericMatrix cpp_to_R_motif(const list_int_t &motif);
+
+Rcpp::NumericMatrix cpp_to_R_motif(const list_num_t &motif);
+
 #endif

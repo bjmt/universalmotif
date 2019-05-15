@@ -5,6 +5,18 @@ single_to_k <- function(seq1, k) {
     .Call('_universalmotif_single_to_k', PACKAGE = 'universalmotif', seq1, k)
 }
 
+compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads) {
+    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads)
+}
+
+compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads) {
+    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads)
+}
+
+get_comparison_matrix <- function(ans, index1, index2, method, motnames) {
+    .Call('_universalmotif_get_comparison_matrix', PACKAGE = 'universalmotif', ans, index1, index2, method, motnames)
+}
+
 peakfinder_cpp <- function(x, m = 3L) {
     .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
 }
@@ -111,6 +123,10 @@ summarise_motifs_cpp <- function(motifs) {
 
 universalmotif_to_list <- function(motif) {
     .Call('_universalmotif_universalmotif_to_list', PACKAGE = 'universalmotif', motif)
+}
+
+comb2_cpp <- function(n) {
+    .Call('_universalmotif_comb2_cpp', PACKAGE = 'universalmotif', n)
 }
 
 sort_unique_cpp <- function(x) {

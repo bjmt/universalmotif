@@ -48,7 +48,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
-                        tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.5,
+                        tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
                         ...) {
 

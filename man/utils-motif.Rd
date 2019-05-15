@@ -34,9 +34,9 @@ get_matches(motif, score)
 icm_to_ppm(position)
 
 make_DBscores(db.motifs, method, shuffle.db = TRUE, shuffle.k = 3,
-  shuffle.method = "linear", rand.tries = 1000,
-  normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0,
-  progress = TRUE, BP = FALSE)
+  shuffle.method = "linear", rand.tries = 100,
+  normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0.25,
+  progress = TRUE, BP = FALSE, nthreads = 1)
 
 motif_score(motif, threshold = c(0, 1))
 
@@ -101,6 +101,9 @@ P-value computation.}
 
 \item{BP}{\code{logical(1)} Use the \pkg{BiocParallel} package. See
 \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default backend.}
+
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.}
 
 \item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
 representing score percentage.}

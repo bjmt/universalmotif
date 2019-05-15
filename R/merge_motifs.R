@@ -202,3 +202,14 @@ merge_mot_list <- function(motifs, tryRC, min.overlap, min.mean.ic, method,
   mot.new
 
 }
+
+.pos_iscscores <- function(motif, mot.mats, relative = FALSE) {
+
+  bkg <- motif@bkg[rownames(motif@motif)]
+  pseudo <- motif@pseudocount
+  nsites <- motif@nsites
+  if (length(nsites) == 0) nsites <- 100
+  apply(mot.mats, 2, function(x) position_icscoreC(x, bkg, "PPM", pseudo,
+                                                   nsites, relative))
+
+}
