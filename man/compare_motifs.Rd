@@ -167,7 +167,8 @@ as.dist(1 - motif1vs2)
 \insertRef{wasserman}{universalmotif}
 }
 \seealso{
-\code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}}
+\code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}},
+\code{\link[=make_DBscores]{make_DBscores()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

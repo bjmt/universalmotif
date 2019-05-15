@@ -63,7 +63,7 @@ by the value set by \code{threshold}. To determine the maximum
 possible scores a motif (of type PWM), run
 \code{motif_score(motif, 1)}. If \code{threshold.type = 'pvalue'},
 then threshold logodds scores are generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
-Finaly, if \code{threshold.type = 'logodds.abs'}, then the exact values
+Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
 provided will be used as thresholds.
 
 Non-standard letters (such as "N", "+", "-", ".", etc in \code{DNAString}

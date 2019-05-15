@@ -15,7 +15,7 @@
 #'    Note that no speed up will occur for jobs with only a single sequence.
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    can occur simultaneously in multiple threads using C++, it cannot communicate
-#'    with the regular `R` randome number generator state and thus requires an
+#'    with the regular `R` random number generator state and thus requires an
 #'    independent seed. Each individual sequence in an `XStringSet` object will be
 #'    given the following seed: `rng.seed * index`.
 #'

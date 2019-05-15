@@ -44,7 +44,7 @@
 #'    possible scores a motif (of type PWM), run
 #'    `motif_score(motif, 1)`. If \code{threshold.type = 'pvalue'},
 #'    then threshold logodds scores are generated using [motif_pvalue()].
-#'    Finaly, if \code{threshold.type = 'logodds.abs'}, then the exact values
+#'    Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
 #'    provided will be used as thresholds.
 #'
 #'    Non-standard letters (such as "N", "+", "-", ".", etc in `DNAString`
@@ -119,9 +119,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   #---------------------------------------------------------
 
   if (progress)
-    warning("'progress' is deprecated and does nothing")
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
   if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead")
+    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   if (verbose <= 0) progress <- FALSE
 

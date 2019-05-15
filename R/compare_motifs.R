@@ -143,7 +143,8 @@
 #'    \insertRef{wasserman}{universalmotif}
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
-#' @seealso [convert_motifs()], [motif_tree()], [view_motifs()]
+#' @seealso [convert_motifs()], [motif_tree()], [view_motifs()],
+#'    [make_DBscores()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "MPCC", tryRC = TRUE,
@@ -198,9 +199,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     stop("db.scores can only be 1 or 2")
 
   if (progress)
-    warning("'progress' is deprecated and does nothing")
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
   if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead")
+    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
@@ -242,6 +243,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   } else {
 
     if (missing(db.scores)) {
+
       if (db.version == 2) {
         if (!normalise.scores)
           db.scores <- JASPAR2018_CORE_DBSCORES_2[[method]]
