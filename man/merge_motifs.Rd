@@ -30,8 +30,8 @@ alignments between low information content regions of two motifs.}
 \item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
 report the best score.}
 
-\item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link[=convert_type]{convert_type()}}.}
+\item{relative_entropy}{\code{logical(1)} Change the ICM calculation affecting
+\code{min.position.ic} and \code{min.mean.ic}. See \code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions, as well as alignments between motifs of similar length.
@@ -53,6 +53,8 @@ available formats.
 Aligns the motifs using \code{\link[=compare_motifs]{compare_motifs()}}, then averages the
 motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped. Only 0-order background probabilities will be kept.
+Motifs are merged one at a time, starting with the first entry in the
+list.
 }
 \examples{
 \dontrun{

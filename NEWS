@@ -28,6 +28,9 @@ MINOR CHANGES
       compare_motifs(), the diagonal entries now properly show the max
       possible similarity score.
 
+    o New merge_motifs() implementation. This also fixes a previous bug
+      with incorrect PPM averaging.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 

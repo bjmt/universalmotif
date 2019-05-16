@@ -44,8 +44,8 @@ score. It is recommended to use this together with \code{normalise.scores = TRUE
 as this will help punish scores resulting from only a fraction of an
 alignment.}
 
-\item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link[=convert_type]{convert_type()}}.}
+\item{relative_entropy}{\code{logical(1)} Change the ICM calculation affecting
+\code{min.position.ic} and \code{min.mean.ic}. See \code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions, as well as alignments between motifs of similar length.
@@ -79,7 +79,8 @@ score. Values below that represent dissimilarity.
 \item MPCC: 1 represents complete similarity, <1 dissimilarity.
 \item EUCL: 0 represents complete similarity, >0 distance.
 \item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-\item SW: 0 represents complete distance, >0 similarity.
+\item SW: The number of positions in the shorter motif times two represents the
+max possible score. Values below that represent dissimilarity.
 \item MSW: 0 represents complete distance, 2 complete similarity.
 \item KL: 0 represents complete similarity, >0 distance.
 \item MKL: 0 represents complete similarity, >0 complete distance.

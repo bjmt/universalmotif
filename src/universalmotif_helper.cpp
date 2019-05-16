@@ -230,6 +230,7 @@ S4 universalmotif_cpp(
   // sometimes nsites can slip through (?) as nan (not R_NaN)
   if (std::isnan(nsites[0])) nsites = NumericVector::create();
 
+  if (StringVector::is_na(StringVector::create(name)[0])) name = "[no name]";
   // name
   x.slot("name") = name;
 

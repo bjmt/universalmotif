@@ -268,8 +268,8 @@ setMethod("show", signature = "universalmotif",
 
     for (i in seq_along(extrainfo)) {
 
-      if (!is.null(names(extrainfo)))
-        to_show <- collapse_cpp(c(names(extrainfo[i]), ": ", extrainfo[i]))
+      if (!is.null(names(extrainfo)[i]) && names(extrainfo)[i] != "...")
+        to_show <- collapse_cpp(c("[", names(extrainfo[i]), "] ", extrainfo[i]))
       else
         to_show <- extrainfo[i]
 
