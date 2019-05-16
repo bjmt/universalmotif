@@ -30,8 +30,8 @@
 #'    score. It is recommended to use this together with `normalise.scores = TRUE`,
 #'    as this will help punish scores resulting from only a fraction of an
 #'    alignment.
-#' @param relative_entropy `logical(1)` For ICM calculation. See
-#'    [convert_type()].
+#' @param relative_entropy `logical(1)` Change the ICM calculation affecting
+#'    `min.position.ic` and `min.mean.ic`. See [convert_type()].
 #' @param normalise.scores `logical(1)` Favour alignments which leave fewer
 #'    unaligned positions, as well as alignments between motifs of similar length.
 #'    Similarity scores are multiplied by the ratio of
@@ -56,7 +56,8 @@
 #' * MPCC: 1 represents complete similarity, <1 dissimilarity.
 #' * EUCL: 0 represents complete similarity, >0 distance.
 #' * MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-#' * SW: 0 represents complete distance, >0 similarity.
+#' * SW: The number of positions in the shorter motif times two represents the
+#'    max possible score. Values below that represent dissimilarity.
 #' * MSW: 0 represents complete distance, 2 complete similarity.
 #' * KL: 0 represents complete similarity, >0 distance.
 #' * MKL: 0 represents complete similarity, >0 complete distance.
@@ -74,9 +75,11 @@
 #'
 #'    Per position:
 #'
-#'    `PCC = (nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)) /
-#'           sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) *
-#'                (nrow * sum(pos2)^2 - sum(pos2^2)))`
+#'    `num = nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)`
+#'
+#'    `denom = sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) * (nrow * sum(pos2)^2 - sum(pos2^2)))`
+#'
+#'    `PCC = num / denom`
 #'
 #' * MPCC: Mean PCC
 #'
@@ -245,6 +248,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       min.position.ic)
 
     if (method == "PCC") comparisons <- fix_pcc_diag(comparisons, mot.mats)
+    if (method == "SW") comparisons <- fix_sw_diag(comparisons, mot.mats)
 
   } else {
 
@@ -372,6 +376,15 @@ fix_pcc_diag <- function(comparisons, mot.mats) {
 
   mot.lens <- vapply(mot.mats, ncol, numeric(1))
   diag(comparisons) <- mot.lens
+
+  comparisons
+
+}
+
+fix_sw_diag <- function(comparisons, mot.mats) {
+
+  mot.lens <- vapply(mot.mats, ncol, numeric(1))
+  diag(comparisons) <- mot.lens * 2
 
   comparisons
 

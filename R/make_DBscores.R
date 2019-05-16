@@ -177,6 +177,8 @@ make_DBscores <- function(db.motifs,
 
 }
 
+#-------------------------------------------------------------------------------
+
 make_DBscores_v1 <- function(db.motifs, method, shuffle.db = TRUE,
                              shuffle.k = 3, shuffle.method = "linear",
                              shuffle.leftovers = "asis", rand.tries = 1000,

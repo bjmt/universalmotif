@@ -105,7 +105,11 @@ scores.
 
 Per position:
 
-\code{PCC = (nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)) / sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) * (nrow * sum(pos2)^2 - sum(pos2^2)))}
+\code{num = nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)}
+
+\code{denom = sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) * (nrow * sum(pos2)^2 - sum(pos2^2)))}
+
+\code{PCC = num / denom}
 \item MPCC: Mean PCC
 
 \code{MPCC = mean(PCC)}

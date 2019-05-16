@@ -24,6 +24,9 @@ MINOR CHANGES
 
     o For merge_motifs(..., use.type): now only accepts 'PPM'.
 
+    o When comparing all motifs to all motifs with the SW method in
+      compare_motifs(), the diagonal entries now properly show the max
+      possible similarity score.
 
 CHANGES IN VERSION 1.2.1
 ------------------------

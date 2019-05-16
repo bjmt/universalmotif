@@ -46,8 +46,8 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
   #---------------------------------------------------------
 
   if (use.type != "PPM")
-    stop("currently `use.type = \"PPM\"` is the only acceptable option [use.type=",
-         use.type, "]")
+    stop(wmsg("deprecated, as `use.type = \"PPM\"` is now the only acceptable ",
+              "option [use.type=", use.type, "]"))
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
@@ -76,8 +76,8 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   mot.mats <- lapply(motifs, function(x) x@motif)
   mot.bkgs <- lapply(motifs, function(x) x@bkg[seq_along(alph2)])
 
-  mot.names <- vapply(motifs, function(x) x@name, character(1))
-  mot.altnames <- do.call(c, sapply(motifs, function(x) x@altname, simplify = FALSE))
+  mot.names <- unique(vapply(motifs, function(x) x@name, character(1)))
+  mot.altnames <- unique(do.call(c, sapply(motifs, function(x) x@altname, simplify = FALSE)))
   mot.families <- unique(do.call(c, sapply(motifs, function(x) x@family, simplify = FALSE)))
   mot.orgs <- unique(do.call(c, sapply(motifs, function(x) x@organism, simplify = FALSE)))
   mot.bkgsites <- do.call(c, sapply(motifs, function(x) x@bkgsites, simplify = FALSE))
@@ -106,7 +106,8 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   if (length(unique(mot.strands)) > 1) {
     new.strand <- "+-"
   } else new.strand <- unique(mot.strands)
-  new.extrainfo <- unique(do.call(c, mot.extrainfo))
+  new.extrainfo <- do.call(c, mot.extrainfo)
+  new.extrainfo <- new.extrainfo[!duplicated(new.extrainfo)]
   new.pseudo <- ifelse(length(mot.pseudo) > 0, mean(mot.pseudo, na.rm = TRUE), numeric())
   new.nsites <- ifelse(length(mot.nsites) > 0, max(mot.nsites, na.rm = TRUE), numeric())
   new.pvals <- ifelse(length(mot.pvals) > 0, max(mot.pvals, na.rm = TRUE), numeric())
@@ -130,7 +131,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
 #-------------------------------------------------------------------------------
 
 merge_motifs_v1 <- function(motifs, method = "MPCC", use.type = "PPM",
-                            min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
+                            min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
                             relative_entropy = FALSE, normalise.scores = FALSE) {
 
   # param check --------------------------------------------
@@ -176,6 +177,7 @@ merge_motifs_v1 <- function(motifs, method = "MPCC", use.type = "PPM",
   mot
 
 }
+
 merge_mot_pair <- function(mot1, mot2, weight1, weight2, ic1, ic2, tryRC,
                            min.overlap, min.mean.ic, method, relative_entropy,
                            normalise.scores) {

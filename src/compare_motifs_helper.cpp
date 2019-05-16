@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 #include <RcppThread.h>
 #include <unordered_map>
+#include <algorithm>
 #include <cmath>
 #include "types.h"
 #include "utils-internal.h"
@@ -299,13 +300,10 @@ double calc_mic(const vec_num_t &tic) {
 
 list_num_t get_motif_rc(const list_num_t &mot) {
 
-  std::size_t ncol = mot.size(), nrow = mot[0].size();
-
-  list_num_t rcmot(ncol, vec_num_t(nrow));
-  for (std::size_t i = 0; i < nrow; ++i) {
-    for (std::size_t j = 0; j < nrow; ++j) {
-      rcmot[ncol - 1 - i][nrow - 1 - j] = mot[i][j];
-    }
+  list_num_t rcmot = mot;
+  std::reverse(rcmot.begin(), rcmot.end());
+  for (std::size_t i = 0; i < rcmot.size(); ++i) {
+    std::reverse(rcmot[i].begin(), rcmot[i].end());
   }
 
   return rcmot;
@@ -341,19 +339,19 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
 
   switch (::metrics_enum[method]) {
 
-    case 1: ans[i] = lowic ? sqrt(2.0)
+    case 1: ans[i] = lowic ? sqrt(2.0) * double(alignlen)
                              : compare_eucl(tmot1, tmot2, false)
                                * double(tlen) / double(alignlen);
             break;
-    case 2: ans[i] = lowic ? sqrt(2.0) * double(alignlen)
+    case 2: ans[i] = lowic ? sqrt(2.0)
                              : compare_eucl(tmot1, tmot2, true)
                                * double(tlen) / double(alignlen);
             break;
-    case 3: ans[i] = lowic ? 0.0
+    case 3: ans[i] = lowic ? -1.0 * double(alignlen)
                              : compare_pcc(tmot1, tmot2, false)
                                * double(alignlen) / double(tlen);
             break;
-    case 4: ans[i] = lowic ? 0.0
+    case 4: ans[i] = lowic ? -1.0
                              : compare_pcc(tmot1, tmot2, true)
                                * double(alignlen) / double(tlen);
             break;
@@ -361,11 +359,11 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
                              : compare_kl(tmot1, tmot2, false)
                                * double(tlen) / double(alignlen);
             break;
-    case 6: ans[i] = lowic ? 0.0
+    case 6: ans[i] = lowic ? -2.0
                              : compare_sw(tmot1, tmot2, true)
                                * double(alignlen) / double(tlen);
             break;
-    case 7: ans[i] = lowic ? 0.0
+    case 7: ans[i] = lowic ? -2.0 * double(alignlen)
                              : compare_sw(tmot1, tmot2, false)
                                * double(alignlen) / double(tlen);
             break;
@@ -408,9 +406,7 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
   if (RC) {
     list_num_t rcmot2 = get_motif_rc(mot2);
     vec_num_t rcic2(ic2.size());
-    for (std::size_t i = 0; i < rcic2.size(); ++i) {
-      rcic2[rcic2.size() - 1 - i] = ic2[i];
-    }
+    std::reverse(rcic2.begin(), rcic2.end());
     ans_rc = compare_motif_pair(mot1, rcmot2, method, moverlap, false,
         ic1, rcic2, minic, norm, posic);
   }
@@ -493,20 +489,19 @@ double internal_posIC(vec_num_t pos, const vec_num_t &bkg,
 list_num_t get_merged_motif(const list_num_t &mot1, const list_num_t &mot2,
     const int weight) {
 
-  list_num_t out(mot1.size(), vec_num_t(mot1[0].size()));
-  for (std::size_t i = 0; i < out.size(); ++i) {
-    if (mot1[i][0] < 0 && mot2[i][0] < 0) {
-      for (std::size_t j = 0; j < out[0].size(); ++j) {
-        out[i][j] = 1.0 / double(mot1[0].size());
+  list_num_t out;
+  out.reserve(mot1.size());
+  for (std::size_t i = 0; i < mot1.size(); ++i) {
+    if (mot1[i][0] < 0 && mot2[i][0] >= 0) {
+      out.push_back(mot2[i]);
+    } else if (mot2[i][0] < 0 && mot1[i][0] >= 0) {
+      out.push_back(mot1[i]);
+    } else if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      vec_num_t tmp(mot1[0].size());
+      for (std::size_t j = 0; j < mot1[0].size(); ++j) {
+        tmp[j] = (mot1[i][j] * double(weight) + mot2[i][j]) / (double(weight) + 1);
       }
-    } else if (mot1[i][0] < 0) {
-      out[i] = mot2[i];
-    } else if (mot2[i][0] < 0) {
-      out[i] = mot1[i];
-    } else {
-      for (std::size_t j = 0; j < out[0].size(); ++j) {
-        out[i][j] = (mot1[i][j] * double(weight) + mot2[i][j]) / (double(weight) + 1);
-      }
+      out.push_back(tmp);
     }
   }
 
@@ -600,11 +595,20 @@ list_num_t add_motif_columns(const list_num_t &mot, const int tlen,
 
 list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     const std::string &method, const int minoverlap, const bool RC,
-    const vec_num_t &ic1, const vec_num_t &ic2, const int weight,
+    vec_num_t ic1, vec_num_t ic2, const int weight,
     const bool norm, const double posic, const double minic) {
 
   double score;
   int offset;
+
+  std::size_t ncol1 = mot1.size();
+  std::size_t ncol2 = mot2.size();
+  std::size_t overlap1 = minoverlap, overlap2 = minoverlap;
+
+  if (minoverlap < 1) {
+    overlap1 *= ncol1;
+    overlap2 *= ncol2;
+  }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
       posic, minic, score, offset);
@@ -614,9 +618,7 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     int offset_rc;
     list_num_t rcmot2 = get_motif_rc(mot2);
     vec_num_t rcic2(ic2.size());
-    for (std::size_t i = 0; i < rcic2.size(); ++i) {
-      rcic2[rcic2.size() - 1 - i] = ic2[i];
-    }
+    std::reverse(rcic2.begin(), rcic2.end());
     merge_motif_pair_subworker(mot1, rcmot2, method, minoverlap, ic1, rcic2,
         norm, posic, minic, score_rc, offset_rc);
     if (score_rc > score) {
@@ -625,14 +627,19 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     }
   }
 
-  int ncol1 = mot1.size(), ncol2 = mot2.size();
+  equalize_mot_cols(mot1, mot2, ic1, ic2, minoverlap);
+
+  int ncol1t = mot1.size(), ncol2t = mot2.size();
   int minw = ncol1 <= ncol2 ? ncol1 : ncol2;
   int total = (1 + ncol1 - minw) * (1 + ncol2 - minw);
   int add1 = offset / total, add2 = offset % total;
-  int tlen = (add1 + ncol1) >= (add2 + ncol2) ? add1 + ncol1 : add2 + ncol2;
+  int tlen = ncol1t >= ncol2t ? ncol1t : ncol2t;
 
-  mot1 = add_motif_columns(mot1, tlen, add1);
-  mot2 = add_motif_columns(mot2, tlen, add2);
+  if (ncol2t > ncol1t) {
+    mot1 = add_motif_columns(mot1, tlen, abs(add2 - add1));
+  } else if (ncol1t > ncol2t) {
+    mot2 = add_motif_columns(mot2, tlen, abs(add1 - add2));
+  }
 
   list_num_t merged = get_merged_motif(mot1, mot2, weight);
 
