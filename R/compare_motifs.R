@@ -227,8 +227,14 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (length(unique(check.nrow)) > 1)
     stop("all motifs must have the same number of rows")
 
+  alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
+  if (length(alph) > 1) stop("all motifs must have the same alphabet")
+
+  alph <- switch(alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES, "AA" = AA_STANDARD,
+                 sort_unique_cpp(safeExplode(alph)))
+
   mot.type <- switch(use.type, "PPM" = 1, "ICM" = 2)
-  mot.bkgs <- lapply(motifs, function(x) x@bkg)
+  mot.bkgs <- lapply(motifs, function(x) x@bkg[seq_along(alph)])
 
   if (missing(compare.to)) {
 

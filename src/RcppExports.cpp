@@ -72,6 +72,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// merge_motifs_cpp
+Rcpp::List merge_motifs_cpp(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm);
+RcppExport SEXP _universalmotif_merge_motifs_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
+    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< const double >::type minic(minicSEXP);
+    Rcpp::traits::input_parameter< const double >::type posic(posicSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const bool >::type relative(relativeSEXP);
+    Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_motifs_cpp(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm));
+    return rcpp_result_gen;
+END_RCPP
+}
 // peakfinder_cpp
 Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
@@ -686,6 +704,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 13},
     {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 11},
     {"_universalmotif_get_comparison_matrix", (DL_FUNC) &_universalmotif_get_comparison_matrix, 5},
+    {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 9},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},

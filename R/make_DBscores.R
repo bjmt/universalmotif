@@ -12,6 +12,7 @@
 #'    generate random motifs with [create_motif()].
 #' @param shuffle.k `numeric(1)` See [shuffle_motifs()].
 #' @param shuffle.method `character(1)` See [shuffle_motifs()].
+#' @param shuffle.leftovers Deprecated. Does nothing.
 #' @param rand.tries `numeric(1)` Number of random motifs to create for
 #'    P-value computation.
 #' @param widths `numeric` Motif widths to use in P-value database calculation.
@@ -31,7 +32,8 @@
 #'
 #' @return A `data.frame` with score distributions for the
 #'    input database, or a `list` with a `data.frame` for each method and
-#'    an additional `list` entry logging function parameters.
+#'    an additional `list` entry logging function parameters if more than one
+#'    method is provided.
 #'
 #' @examples
 #' \dontrun{
@@ -51,6 +53,7 @@ make_DBscores <- function(db.motifs,
                           method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL"),
                           shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
+                          shuffle.leftovers = NULL,
                           rand.tries = 100, widths = 5:30,
                           min.position.ic = 0,
                           normalise.scores = TRUE, min.overlap = 6,
@@ -91,6 +94,8 @@ make_DBscores <- function(db.motifs,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (!is.null(shuffle.leftovers))
+    warning("'shuffle.leftovers' is deprecated and does nothing", immediate. = TRUE)
   if (BP) warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   db.motifs <- convert_motifs(db.motifs)
@@ -202,14 +207,12 @@ make_DBscores_v1 <- function(db.motifs, method, shuffle.db = TRUE,
 
   if (shuffle.db) {
     rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
-                                method = shuffle.method,
-                                leftovers = shuffle.leftovers) 
+                                method = shuffle.method) 
     if (length(rand.mots) != rand.tries) {
       if (length(rand.mots) < rand.tries) {
         while (length(rand.mots) < rand.tries) {
           more.rand.mots <- shuffle_motifs(db.motifs, k = shuffle.k,
-                                           method = shuffle.method,
-                                           leftovers = shuffle.leftovers) 
+                                           method = shuffle.method) 
           rand.mots <- c(rand.mots, more.rand.mots)
         }
       }

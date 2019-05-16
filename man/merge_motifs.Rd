@@ -5,8 +5,9 @@
 \title{Merge motifs.}
 \usage{
 merge_motifs(motifs, method = "MPCC", use.type = "PPM",
-  min.overlap = 6, min.mean.ic = 0.5, tryRC = TRUE,
-  relative_entropy = FALSE, normalise.scores = FALSE)
+  min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
+  relative_entropy = FALSE, normalise.scores = FALSE,
+  min.position.ic = 0)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -37,6 +38,12 @@ unaligned positions, as well as alignments between motifs of similar length.
 Similarity scores are multiplied by the ratio of
 aligned positions to the total number of positions in the larger motif,
 and the inverse for distance scores.}
+
+\item{min.position.ic}{\code{numeric(1)} Minimum information content required between
+individual alignment positions for it to be counted in the final alignment
+score. It is recommended to use this together with \code{normalise.scores = TRUE},
+as this will help punish scores resulting from only a fraction of an
+alignment.}
 }
 \value{
 A single motif object. See \code{\link[=convert_motifs]{convert_motifs()}} for
@@ -48,9 +55,9 @@ motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped. Only 0-order background probabilities will be kept.
 }
 \examples{
-if (requireNamespace("MotifDb", quietly = TRUE) && .Platform$OS.type == "unix") {
-  library(MotifDb)
-  merged.motif <- merge_motifs(MotifDb[1:5])
+\dontrun{
+library(MotifDb)
+merged.motif <- merge_motifs(MotifDb[1:5])
 }
 
 }

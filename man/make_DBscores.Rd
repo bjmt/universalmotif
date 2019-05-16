@@ -6,9 +6,10 @@
 \usage{
 make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
   "MSW", "KL", "MKL"), shuffle.db = TRUE, shuffle.k = 3,
-  shuffle.method = "linear", rand.tries = 100, widths = 5:30,
-  min.position.ic = 0, normalise.scores = TRUE, min.overlap = 6,
-  min.mean.ic = 0.25, progress = TRUE, BP = FALSE, nthreads = 1)
+  shuffle.method = "linear", shuffle.leftovers = NULL,
+  rand.tries = 100, widths = 5:30, min.position.ic = 0,
+  normalise.scores = TRUE, min.overlap = 6, min.mean.ic = 0.25,
+  progress = TRUE, BP = FALSE, nthreads = 1)
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
@@ -22,6 +23,8 @@ generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
 \item{shuffle.k}{\code{numeric(1)} See \code{\link[=shuffle_motifs]{shuffle_motifs()}}.}
 
 \item{shuffle.method}{\code{character(1)} See \code{\link[=shuffle_motifs]{shuffle_motifs()}}.}
+
+\item{shuffle.leftovers}{Deprecated. Does nothing.}
 
 \item{rand.tries}{\code{numeric(1)} Number of random motifs to create for
 P-value computation.}
@@ -51,7 +54,8 @@ threads. \code{nthreads = 0} uses all available threads.}
 \value{
 A \code{data.frame} with score distributions for the
 input database, or a \code{list} with a \code{data.frame} for each method and
-an additional \code{list} entry logging function parameters.
+an additional \code{list} entry logging function parameters if more than one
+method is provided.
 }
 \description{
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,

@@ -17,6 +17,10 @@ get_comparison_matrix <- function(ans, index1, index2, method, motnames) {
     .Call('_universalmotif_get_comparison_matrix', PACKAGE = 'universalmotif', ans, index1, index2, method, motnames)
 }
 
+merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm) {
+    .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm)
+}
+
 peakfinder_cpp <- function(x, m = 3L) {
     .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
 }
