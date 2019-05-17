@@ -57,13 +57,13 @@ test_that("basic comparison works", {
   expect_equal(round(as.vector(res.meucl2), 0),
                c(0, 1, 1, 0))
   expect_equal(round(as.vector(res.sw2), 0),
-               c(12, -12, -12, 12))
+               c(12, -9, -9, 12))
   expect_equal(round(as.vector(res.msw2), 1),
-               c(2, -2, -2, 2))
-  expect_equal(round(as.vector(res.kl2), digits = 2),
-               c(0, 30, 30, 0))
-  expect_equal(round(as.vector(res.mkl2), digits = 3),
-               c(0, 5, 5, 0))
+               c(2, -1.5, -1.5, 2))
+  expect_equal(round(as.vector(res.kl2), digits = 1),
+               c(0, 27.8, 27.8, 0))
+  expect_equal(round(as.vector(res.mkl2), digits = 2),
+               c(0, 4.64, 4.64, 0))
 
   res.mpcc <- compare_motifs(list(motif1, motif2), method = "MPCC",
                              normalise.scores = TRUE)

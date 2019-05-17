@@ -17,6 +17,10 @@ get_comparison_matrix <- function(ans, index1, index2, method, motnames) {
     .Call('_universalmotif_get_comparison_matrix', PACKAGE = 'universalmotif', ans, index1, index2, method, motnames)
 }
 
+view_motifs_prep <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames) {
+    .Call('_universalmotif_view_motifs_prep', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames)
+}
+
 merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm) {
     .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm)
 }
@@ -47,30 +51,6 @@ paths_alph_unsort <- function(paths, alph) {
 
 paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
-}
-
-add_cols <- function(mot1, mot2, ic1, ic2, overlap) {
-    .Call('_universalmotif_add_cols', PACKAGE = 'universalmotif', mot1, mot2, ic1, ic2, overlap)
-}
-
-motif_simil_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, norm) {
-    .Call('_universalmotif_motif_simil_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, norm)
-}
-
-list_to_matrix_simil <- function(comparisons, mot_names, method) {
-    .Call('_universalmotif_list_to_matrix_simil', PACKAGE = 'universalmotif', comparisons, mot_names, method)
-}
-
-merge_add_cols <- function(out) {
-    .Call('_universalmotif_merge_add_cols', PACKAGE = 'universalmotif', out)
-}
-
-merge_motifs_get_offset <- function(mot1, mot2, method, min_overlap, ic1, ic2, min_ic, norm) {
-    .Call('_universalmotif_merge_motifs_get_offset', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, ic1, ic2, min_ic, norm)
-}
-
-merge_motifs_internal <- function(mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2, norm) {
-    .Call('_universalmotif_merge_motifs_internal', PACKAGE = 'universalmotif', mot1, mot2, method, min_overlap, tryRC, ic1, ic2, min_ic, weight1, weight2, norm)
 }
 
 scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads) {

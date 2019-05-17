@@ -20,6 +20,11 @@
 #'    [convert_type()].
 #' @param normalise.scores `logical(1)` Favour alignments which leave fewer
 #'    unaligned positions. See [compare_motifs()].
+#' @param min.position.ic `numeric(1)` Minimum information content required between
+#'    individual alignment positions for it to be counted in the final alignment
+#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
+#'    as this will help punish scores resulting from only a fraction of an
+#'    alignment.
 #' @param ... Additional options for [ggseqlogo::geom_logo()].
 #'
 #' @return A ggplot object.
@@ -50,7 +55,14 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
-                        ...) {
+                        min.position.ic = 0, ...) {
+
+  # Idea for multifreq plotting: just manually assign heights for all letters
+  # in a multifreq position. Perhaps also manually add spacing between
+  # individual multifreq positions (which are really just multiple positions
+  # in sync).
+
+  # Possible bug: min.overlap not being respected?
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -74,7 +86,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                                       method = args$method),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
-                                     min.mean.ic = args$min.mean.ic),
+                                     min.mean.ic = args$min.mean.ic,
+                                     min.position.ic = args$min.position.ic),
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
@@ -85,7 +98,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   #---------------------------------------------------------
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
+  motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
   if (use.type == "ICM" && !relative_entropy) {
@@ -150,7 +163,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
     }
   )
 
+  mot.bkgs <- lapply(motifs, function(x) x@bkg[seq_along(alph)])
+  mot.nsites <- lapply(motifs, function(x) x@nsites)
+  mot.pseudo <- lapply(motifs, function(x) x@pseudocount)
+
   if (length(motifs) == 1) {
+    mot.mats[[1]] <- convert_mat_type_from_ppm(mot.mats[[1]], use.type, mot.nsites[[1]],
+                                               mot.bkgs[[1]], mot.pseudo[[1]],
+                                               relative_entropy)
     if (use.custom) {
       p <- ggseqlogo(mot.mats[[1]], method = plot.method,
                      seq_type = seq_type, namespace = alph, ...) +
@@ -162,46 +182,18 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
     return(p)
   }
 
-  motifs.rc <- motif_rc(motifs)
-  mot.mats.rc <- lapply(motifs.rc, function(x) x@motif)
+  res <- view_motifs_prep(mot.mats, method, tryRC, min.overlap, min.mean.ic,
+                          min.position.ic, mot.bkgs, relative_entropy,
+                          normalise.scores, alph)
+  which.rc <- res[[1]]
+  mots <- res[[2]]
 
-  mot.ics <- mapply(function(x, y) as.numeric(.pos_iscscores(x, y, relative_entropy)),
-                      motifs, mot.mats, SIMPLIFY = FALSE)
-  mot.ics.rc <- lapply(mot.ics, rev)
+  mots <- mapply(function(x1, x2, x3, x4)
+                   convert_mat_type_from_ppm(x1, use.type, x2, x3, x4, relative_entropy),
+                 mots, mot.nsites, mot.bkgs, mot.pseudo, SIMPLIFY = FALSE)
 
-  mot.alns <- lapply(seq_along(mot.mats)[-1],
-                       function(x) {
-                         y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats[[x]],
-                                                      method, min.overlap,
-                                                      mot.ics[[1]], mot.ics[[x]],
-                                                      min.mean.ic, normalise.scores)
-                         merge_add_cols(y)
-                         y})
-  if (tryRC) {
-    mot.alns.rc <- lapply(seq_along(mot.mats)[-1],
-                         function(x) {
-                           y <- merge_motifs_get_offset(mot.mats[[1]], mot.mats.rc[[x]],
-                                                        method, min.overlap,
-                                                        mot.ics[[1]], mot.ics.rc[[x]],
-                                                        min.mean.ic, normalise.scores)
-                           merge_add_cols(y)
-                           y})
-  } else mot.alns.rc <- NULL
-
-  mot.alns <- lapply(mot.alns, function(x) {
-                       x[1:2] <- fix_blank_pos(x[[1]], x[[2]]); x
-                         })
-  mot.alns.rc <- lapply(mot.alns.rc, function(x) {
-                          x[1:2] <- fix_blank_pos(x[[1]], x[[2]]); x
-                            })
-
-  if (length(mot.alns.rc) == 0) mot.alns.rc <- NULL
-  mots <- realign_all_mots(alph, mot.alns, mot.alns.rc)
-  if (!is.null(mot.alns.rc)) {
-    which.rc <- mots[[2]]
-    mots <- mots[[1]]
-    mot.names[which(which.rc) + 1] <- paste(mot.names[which(which.rc) + 1],
-                                            "[RC]")
+  for (i in seq_along(which.rc)) {
+    if (which.rc[i]) mot.names[i] <- paste(mot.names[i], "[RC]")
   }
   names(mots) <- mot.names
 
@@ -218,113 +210,26 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
 
 }
 
-#' fix_blank_pos
-#'
-#' Get rid of columns with NAs.
-#'
-#' @param motif1 Matrix of motif 1.
-#' @param motif2 Matrix of motif 2.
-#'
-#' @noRd
-fix_blank_pos <- function(motif1, motif2) {
+convert_mat_type_from_ppm <- function(mot.mat, type, nsites, bkg, pseudocount,
+                                      relative_entropy) {
 
-  na1 <- vapply(motif1[1, ], is.na, logical(1))
-  na2 <- vapply(motif2[1, ], is.na, logical(1))
+  which.zero <- apply(mot.mat, 2, function(x) all(x == 0))
 
-  tokeep <- rep(TRUE, ncol(motif1))
+  if (length(nsites) == 0) nsites <- 100
+  if (length(pseudocount) == 0) pseudocount <- 1
 
-  for (i in seq_along(na1)) {
-    if (na1[i] && na2[i]) {
-      tokeep[i] <- FALSE
-    } else break
-  }
-  for (i in rev(seq_along(na1))) {
-    if (na1[i] && na2[i]) {
-      tokeep[i] <- FALSE
-    } else break
-  }
+  mot.mat[, which.zero] <- switch(type,
+                             "PCM" = apply(mot.mat[, which.zero, drop = FALSE], 2,
+                                           ppm_to_pcmC, nsites = nsites),
+                             "PWM" = apply(mot.mat[, which.zero, drop = FALSE], 2,
+                                           ppm_to_pwmC, bkg = bkg,
+                                           pseudocount = pseudocount,
+                                           nsites = nsites),
+                             "ICM" = apply(mot.mat[, which.zero, drop = FALSE], 2,
+                                           ppm_to_icmC, bkg = bkg,
+                                           relative_entropy = relative_entropy)
+                           )
 
-  list(motif1[, tokeep], motif2[, tokeep])
-
-}
-
-#' realign_all_motifs
-#'
-#' Add columns to motifs so that they align properly.
-#'
-#' @param alph Individual letters for motif alphabet.
-#' @param mot.alns List result.
-#' @param mot.alns.rc List result for tryRC, can be NULL.
-#'
-#' @noRd
-realign_all_mots <- function(alph, mot.alns, mot.alns.rc) {
-
-  mots.1 <- lapply(mot.alns, function(x) x$mot1_new)
-  mots.2 <- lapply(mot.alns, function(x) x$mot2_new)
-  num.rows <- nrow(mots.1[[1]])
-
-  if (!is.null(mot.alns.rc)) {
-    mots.1.rc <- lapply(mot.alns.rc, function(x) x$mot1_new)
-    mots.2.rc <- lapply(mot.alns.rc, function(x) x$mot2_new)
-    scores <- vapply(mot.alns, function(x) x$score, numeric(1))
-    scores.rc <- vapply(mot.alns.rc, function(x) x$score, numeric(1))
-    which.rc <- rep(FALSE, length(scores))
-    for (i in seq_along(scores)) {
-      if (scores.rc[i] > scores[i]) {
-        mots.1[[i]] <- mots.1.rc[[i]]
-        mots.2[[i]] <- mots.2.rc[[i]]
-        which.rc[i] <- TRUE
-      }
-    }
-  }
-
-  mots.1.nas <- vapply(mots.1, count_leading_na, numeric(1))
-  mots.2.nas <- vapply(mots.2, count_leading_na, numeric(1))
-  mot1.highest <- order(mots.1.nas, decreasing = TRUE)[1]
-
-  mots.2 <- lapply(seq_along(mots.2),
-                   function(x) {
-                     if (x == mot1.highest) return(mots.2[[x]])
-                     cbind(matrix(rep(NA, num.rows * mots.1.nas[mot1.highest]),
-                                  nrow = num.rows),
-                           mots.2[[x]])
-                   })
-
-  mots <- c(mots.1[mot1.highest], mots.2)
-  mot.lens <- vapply(mots, ncol, numeric(1))
-  mots <- lapply(seq_along(mots),
-                 function(x) {
-                   if (ncol(mots[[x]]) == max(mot.lens)) return(mots[[x]])
-                   cbind(mots[[x]],
-                         matrix(rep(NA, num.rows * (max(mot.lens) - mot.lens[x])),
-                                nrow = num.rows))
-                 })
-  mots <- lapply(mots, function(x) {rownames(x) <- alph; x})
-
-  if (!is.null(mot.alns.rc)) {
-    list(mots, which.rc)
-  } else {
-    mots
-  }
-
-}
-
-#' count_leading_na
-#'
-#' Count left offset.
-#'
-#' @param mat Motif matrix.
-#'
-#' @noRd
-count_leading_na <- function(mat) {
-
-  mat.nas <- vapply(mat[1, ], is.na, logical(1))
-  count.na <- 0
-  for (i in seq_along(mat.nas)) {
-    if (!mat.nas[i]) break
-    count.na <- count.na + 1
-  }
-
-  count.na
+  mot.mat
 
 }

@@ -6,7 +6,7 @@
 \usage{
 view_motifs(motifs, use.type = "ICM", method = "MPCC", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
-  normalise.scores = FALSE, ...)
+  normalise.scores = FALSE, min.position.ic = 0, ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -32,6 +32,12 @@ alignments between low information content regions of two motifs. See
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
 unaligned positions. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+
+\item{min.position.ic}{\code{numeric(1)} Minimum information content required between
+individual alignment positions for it to be counted in the final alignment
+score. It is recommended to use this together with \code{normalise.scores = TRUE},
+as this will help punish scores resulting from only a fraction of an
+alignment.}
 
 \item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }

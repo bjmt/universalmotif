@@ -405,7 +405,7 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
   double ans_rc;
   if (RC) {
     list_num_t rcmot2 = get_motif_rc(mot2);
-    vec_num_t rcic2(ic2.size());
+    vec_num_t rcic2 = ic2;
     std::reverse(rcic2.begin(), rcic2.end());
     ans_rc = compare_motif_pair(mot1, rcmot2, method, moverlap, false,
         ic1, rcic2, minic, norm, posic);
@@ -488,6 +488,8 @@ double internal_posIC(vec_num_t pos, const vec_num_t &bkg,
 
 list_num_t get_merged_motif(const list_num_t &mot1, const list_num_t &mot2,
     const int weight) {
+
+  /* TODO: this is potentially dangerous with min.position.ic !!! */
 
   list_num_t out;
   out.reserve(mot1.size());
@@ -583,8 +585,9 @@ list_num_t add_motif_columns(const list_num_t &mot, const int tlen,
     const int add) {
 
   list_num_t out(tlen, vec_num_t(mot[0].size(), -1.0));
+  int lenadd = add + int(mot.size());
   int counter = 0;
-  for (int i = add; i < add + int(mot.size()); ++i) {
+  for (int i = add; i < lenadd; ++i) {
     out[i] = mot[counter];
     ++counter;
   }
@@ -617,7 +620,7 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     double score_rc;
     int offset_rc;
     list_num_t rcmot2 = get_motif_rc(mot2);
-    vec_num_t rcic2(ic2.size());
+    vec_num_t rcic2 = ic2;
     std::reverse(rcic2.begin(), rcic2.end());
     merge_motif_pair_subworker(mot1, rcmot2, method, minoverlap, ic1, rcic2,
         norm, posic, minic, score_rc, offset_rc);
@@ -669,6 +672,70 @@ vec_num_t calc_ic_motif(const list_num_t &motif, const vec_num_t &bkg,
   }
 
   return out;
+
+}
+
+void find_offsets(list_num_t mot1, list_num_t mot2, int &offset_1,
+    int &offset_2, bool &use_rc, const std::string &method, const int minoverlap,
+    vec_num_t ic1, vec_num_t ic2, const bool norm, const double posic,
+    const double minic, const bool RC) {
+
+  double score;
+  int offset;
+
+  std::size_t ncol1 = mot1.size();
+  std::size_t ncol2 = mot2.size();
+  std::size_t overlap1 = minoverlap, overlap2 = minoverlap;
+
+  if (minoverlap < 1) {
+    overlap1 *= ncol1;
+    overlap2 *= ncol2;
+  }
+
+  merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
+      posic, minic, score, offset);
+
+  if (RC) {
+    double score_rc;
+    int offset_rc;
+    list_num_t rcmot2 = get_motif_rc(mot2);
+    vec_num_t rcic2 = ic2;
+    std::reverse(rcic2.begin(), rcic2.end());
+    merge_motif_pair_subworker(mot1, rcmot2, method, minoverlap, ic1, rcic2,
+        norm, posic, minic, score_rc, offset_rc);
+    if (score_rc > score) {
+      offset = offset_rc;
+      mot2 = rcmot2;
+      use_rc = true;
+    }
+  }
+
+  equalize_mot_cols(mot1, mot2, ic1, ic2, minoverlap);
+
+  int minw = ncol1 <= ncol2 ? ncol1 : ncol2;
+  int total = (1 + ncol1 - minw) * (1 + ncol2 - minw);
+  int add1 = offset / total, add2 = offset % total;
+
+  int ncol1t = mot1.size(), ncol2t = mot2.size();
+  if (ncol2t > ncol1t) {
+    offset_1 = abs(add2 - add1);
+  } else if (ncol1t > ncol2t) {
+    offset_2 = abs(add1 - add2);
+  }
+
+  return;
+
+}
+
+void neg_one_to_zero(list_num_t &mot) {
+
+  for (std::size_t i = 0; i < mot.size(); ++i) {
+    for (std::size_t j = 0; j < mot[0].size(); ++j) {
+      if (mot[i][j] < 0) mot[i][j] = 0;
+    }
+  }
+
+  return;
 
 }
 
@@ -813,6 +880,87 @@ Rcpp::NumericMatrix get_comparison_matrix(const std::vector<double> &ans,
   Rcpp::colnames(out) = motnames;
 
   return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
+    const bool RC, int minoverlap, const double minic, const double posic,
+    std::vector<std::vector<double>> &bkg, const bool relative, const bool norm,
+    const Rcpp::StringVector &rnames) {
+
+  if (minoverlap < 1) minoverlap = 1;
+  if (minic < 0)
+    Rcpp::stop("min.mean.ic must be positive");
+  if (posic < 0)
+    Rcpp::stop("min.position.ic must be positive");
+  if (mots.size() == 0)
+    Rcpp::stop("empty motif list");
+
+  list_nmat_t vmots(mots.size());
+  list_num_t icscores(vmots.size());
+  vec_int_t motlens(mots.size());
+
+  for (std::size_t i = 0; i < vmots.size(); ++i) {
+    Rcpp::NumericMatrix tmp = mots(i);
+    vmots[i] = R_to_cpp_motif_num(tmp);
+    if (vmots[i].size() == 0)
+      Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
+    motlens[i] = vmots[i].size();
+    switch (::metrics_enum[method]) {
+      case 5:
+      case 8: klfix(vmots[i]);
+    }
+  }
+
+  for (std::size_t i = 0; i < vmots.size(); ++i) {
+    icscores[i] = calc_ic_motif(vmots[i], bkg[i], relative);
+  }
+
+  vec_bool_t which_rc(vmots.size(), false);
+  vec_int_t offsets_1(vmots.size(), 0);
+  vec_int_t offsets_2(vmots.size(), 0);
+
+  int off1 = 0, off2 = 0; bool rc_ = false;
+  for (std::size_t i = 1; i < vmots.size(); ++i) {
+
+    off1 = 0; off2 = 0; rc_ = false;
+
+    find_offsets(vmots[0], vmots[i], off1, off2, rc_, method, minoverlap,
+        icscores[0], icscores[i], norm, posic, minic, RC);
+
+    offsets_1[i] = off1;
+    offsets_2[i] = off2;
+    which_rc[i] = rc_;
+
+  }
+
+  for (std::size_t i = 1; i < which_rc.size(); ++i) {
+    if (which_rc[i]) vmots[i] = get_motif_rc(vmots[i]);
+  }
+
+  vec_int_t motlens2(vmots.size());
+  for (std::size_t i = 0; i < vmots.size(); ++i) {
+    motlens2[i] = motlens[i] + offsets_2[i];
+  }
+
+  int tlen = *std::max_element(motlens2.begin(), motlens2.end());
+  tlen += *std::max_element(offsets_1.begin(), offsets_1.end());
+
+  Rcpp::List motlist(vmots.size());
+  for (std::size_t i = 0; i < vmots.size(); ++i) {
+    vmots[i] = add_motif_columns(vmots[i], tlen,
+        offsets_2[i] + *std::max_element(offsets_1.begin(), offsets_1.end()) - offsets_1[i]);
+    neg_one_to_zero(vmots[i]);
+    Rcpp::NumericMatrix tmp = cpp_to_R_motif(vmots[i]);
+    rownames(tmp) = rnames;
+    motlist[i] = tmp;
+  }
+
+  return Rcpp::List::create(
+        Rcpp::_["motIsRC"] = which_rc,
+        Rcpp::_["motifs"] = motlist
+      );
 
 }
 
