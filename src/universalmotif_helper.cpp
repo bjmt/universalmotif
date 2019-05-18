@@ -1,15 +1,22 @@
 #include <Rcpp.h>
-#include "utils.h"
+#include <unordered_map>
+#include "utils-exported.h"
+#include "utils-internal.h"
+#include "types.h"
 using namespace Rcpp;
 
-std::unordered_map<String, int> alphs_e = {
-  {"DNA", 1}, {"RNA", 2},
-  {"AA", 3}, {"custom", 4}
+std::unordered_map<String, int> ALPHS_e = {
+  {"DNA",    1},
+  {"RNA",    2},
+  {"AA",     3},
+  {"custom", 4}
 };
 
-std::unordered_map<String, int> types2_e = {
-  {"PCM", 1}, {"PPM", 2},
-  {"PWM", 3}, {"ICM", 4}
+std::unordered_map<String, int> TYPES2_e = {
+  {"PCM", 1},
+  {"PPM", 2},
+  {"PWM", 3},
+  {"ICM", 4}
 };
 
 
@@ -18,12 +25,12 @@ StringVector universalmotif_alphabet(StringVector alphabet,
 
   // NOTE: assumes motif rows are properly alphabetically sorted
 
-  switch (::alphs_e[alphabet[0]]) {
-    case 1: rownames(m_motif) = ::dna;
+  switch (::ALPHS_e[alphabet[0]]) {
+    case 1: rownames(m_motif) = ::DNA;
             break;
-    case 2: rownames(m_motif) = ::rna;
+    case 2: rownames(m_motif) = ::RNA;
             break;
-    case 3: rownames(m_motif) = ::aa;
+    case 3: rownames(m_motif) = ::AMINOACIDS;
             break;
     case 4: {
               StringVector mat_rownames = rownames(m_motif);
@@ -126,7 +133,9 @@ NumericVector universalmotif_icscore(NumericVector icscore,
     if (nsites.size() != 0) tmp_nsites = nsites[0];
     NumericVector icscore_tmp(m_motif.ncol());
     for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
-      icscore_tmp[i] = position_icscoreC(m_motif(_, i), bkg[bkg_i], type[0],
+      NumericVector tmp = m_motif(_, i);
+      icscore_tmp[i] = position_icscoreC(as<std::vector<double>>(tmp),
+          as<std::vector<double>>(bkg[bkg_i]), as<std::string>(type[0]),
           pseudocount, tmp_nsites);
     }
     icscore[0] = sum(icscore_tmp);
@@ -170,21 +179,27 @@ StringVector universalmotif_consensus(NumericMatrix &m_motif, StringVector alpha
 
   StringVector consensus_tmp(m_motif.ncol());
 
-  switch (::alphs_e[alphabet[0]]) {
+  switch (::ALPHS_e[alphabet[0]]) {
     case 1: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
-              consensus_tmp[i] = get_consensusC(m_motif(_, i), "DNA", type[0], pseudocount);
+              NumericVector tmp = m_motif(_, i);
+              consensus_tmp[i] = get_consensusC(as<std::vector<double>>(tmp), "DNA",
+                  as<std::string>(type[0]), pseudocount);
             }
             colnames(m_motif) = consensus_tmp;
             consensus = collapse(consensus_tmp);
             break;
     case 2: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
-              consensus_tmp[i] = get_consensusC(m_motif(_, i), "RNA", type[0], pseudocount);
+              NumericVector tmp = m_motif(_, i);
+              consensus_tmp[i] = get_consensusC(as<std::vector<double>>(tmp), "RNA",
+                  as<std::string>(type[0]), pseudocount);
             }
             colnames(m_motif) = consensus_tmp;
             consensus = collapse(consensus_tmp);
             break;
     case 3: for (R_xlen_t i =0; i < m_motif.ncol(); ++i) {
-              consensus_tmp[i] = get_consensusAAC(m_motif(_, i), type[0], pseudocount);
+              NumericVector tmp = m_motif(_, i);
+              consensus_tmp[i] = get_consensusAAC(as<std::vector<double>>(tmp),
+                  as<std::string>(type[0]), pseudocount);
             }
             colnames(m_motif) = consensus_tmp;
             consensus = collapse(consensus_tmp);
@@ -199,107 +214,6 @@ StringVector universalmotif_consensus(NumericMatrix &m_motif, StringVector alpha
   }
 
   return consensus;
-
-}
-
-// [[Rcpp::export(rng = false)]]
-S4 universalmotif_cpp(
-    NumericMatrix motif,
-    String name = "new motif",
-    StringVector altname = NA_STRING,
-    StringVector family = NA_STRING,
-    StringVector organism = NA_STRING,
-    StringVector alphabet = "DNA",
-    StringVector type = NA_STRING,
-    NumericVector icscore = NumericVector::create(),
-    NumericVector nsites = NumericVector::create(),
-    double pseudocount = 1.0,
-    NumericVector bkg = NumericVector::create(),
-    NumericVector bkgsites = NumericVector::create(),
-    StringVector consensus = NA_STRING,
-    String strand = "+-",
-    NumericVector pval = NumericVector::create(),
-    NumericVector qval = NumericVector::create(),
-    NumericVector eval = NumericVector::create(),
-    StringVector extrainfo = NA_STRING) {
-
-  S4 x("universalmotif");
-
-  NumericMatrix m_motif = Rcpp::clone(motif);
-  NumericVector motif_colsums = colSums(m_motif);
-  // sometimes nsites can slip through (?) as nan (not R_NaN)
-  if (std::isnan(nsites[0])) nsites = NumericVector::create();
-
-  if (StringVector::is_na(StringVector::create(name)[0])) name = "[no name]";
-  // name
-  x.slot("name") = name;
-
-  // altname
-  if (!StringVector::is_na(altname[0]) && altname.length() > 0)
-    x.slot("altname") = altname;
-
-  // family
-  if (!StringVector::is_na(family[0]) && family.length() > 0)
-    x.slot("family") = family;
-
-  // organism
-  if (!StringVector::is_na(organism[0]) && organism.length() > 0)
-    x.slot("organism") = organism;
-
-  // alphabet (&m_motif)
-  alphabet = universalmotif_alphabet(alphabet, m_motif);
-  x.slot("alphabet") = alphabet;
-
-  // type (&m_motif)
-  type = universalmotif_type(m_motif, type, motif_colsums);
-  x.slot("type") = type;
-
-  // nsites (&m_motif)
-  nsites = universalmotif_nsites(nsites, type, m_motif, motif_colsums);
-  x.slot("nsites") = nsites;
-
-  // pseudocount
-  x.slot("pseudocount") = pseudocount;
-
-  // bkg
-  bkg = universalmotif_bkg(bkg, m_motif);
-  x.slot("bkg") = bkg;
-
-  // icscore
-  icscore = universalmotif_icscore(icscore, nsites, m_motif, bkg, type, pseudocount);
-  x.slot("icscore") = icscore[0];
-
-  // bkgsites
-  if (!NumericVector::is_na(bkgsites[0]))
-    x.slot("bkgsites") = bkgsites;
-
-  // consensus (&m_motif)
-  consensus = universalmotif_consensus(m_motif, alphabet, type, pseudocount, consensus);
-  x.slot("consensus") = consensus;
-
-  // motif
-  x.slot("motif") = m_motif;
-
-  // strand
-  x.slot("strand") = strand;
-
-  // pval
-  if (!NumericVector::is_na(pval[0]))
-    x.slot("pval") = pval;
-
-  // qval
-  if (!NumericVector::is_na(qval[0]))
-    x.slot("qval") = qval;
-
-  // eval
-  if (!NumericVector::is_na(eval[0]))
-    x.slot("eval") = eval;
-
-  // extrainfo
-  if (!StringVector::is_na(extrainfo[0]))
-    x.slot("extrainfo") = extrainfo;
-
-  return x;
 
 }
 
@@ -330,7 +244,6 @@ StringVector check_length(StringVector m_name, StringVector m_altname,
 
 }
 
-// [[Rcpp::export]]
 bool check_bkg_names(StringVector alph, std::string blet) {
 
   LogicalVector failed(blet.size(), true);
@@ -451,7 +364,7 @@ StringVector check_motif_and_type(NumericMatrix m_motif, StringVector m_type,
 
   NumericVector motif_colsums = colSums(m_motif);
 
-  switch (::types2_e[m_type[0]]) {
+  switch (::TYPES2_e[m_type[0]]) {
     case 1: {
               if (m_nsites.size() > 0) {
                 NumericVector colsums_unique = unique(m_nsites);
@@ -487,11 +400,11 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
 
   StringVector m_rownames = rownames(m_motif);
 
-  switch (::alphs_e[m_alphabet[0]]) {
+  switch (::ALPHS_e[m_alphabet[0]]) {
     case 1: {
               if (m_motif.nrow() != 4)
                 msg.push_back("* DNA/RNA motifs must have 4 rows");
-              LogicalVector rownames_check = m_rownames == ::dna;
+              LogicalVector rownames_check = m_rownames == ::DNA;
               if (is_false(all(rownames_check)))
                 msg.push_back("* rownames must be A, C, G, T");
               break;
@@ -499,7 +412,7 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
     case 2: {
               if (m_motif.nrow() != 4)
                 msg.push_back("* DNA/RNA motifs must have 4 rows");
-              LogicalVector rownames_check = m_rownames == ::rna;
+              LogicalVector rownames_check = m_rownames == ::RNA;
               if (is_false(all(rownames_check)))
                 msg.push_back("* rownames must be A, C, G, U");
               break;
@@ -507,7 +420,7 @@ StringVector check_alphabet(NumericMatrix m_motif, StringVector m_alphabet,
     case 3: {
               if (m_motif.nrow() != 20)
                 msg.push_back("* AA motifs must have 20 rows");
-              LogicalVector rownames_check = m_rownames == ::aa;
+              LogicalVector rownames_check = m_rownames == ::AMINOACIDS;
               if (is_false(all(rownames_check)))
                 msg.push_back("* rownames must be ACDEFGHIKLMNPQRSTVWY");
               break;
@@ -556,6 +469,109 @@ StringVector check_consensus(StringVector m_consensus, NumericMatrix m_motif,
   }
 
   return msg;
+
+}
+
+/* C++ ENTRY ---------------------------------------------------------------- */
+
+// [[Rcpp::export(rng = false)]]
+S4 universalmotif_cpp(
+    NumericMatrix motif,
+    String name = "new motif",
+    StringVector altname = NA_STRING,
+    StringVector family = NA_STRING,
+    StringVector organism = NA_STRING,
+    StringVector alphabet = "DNA",
+    StringVector type = NA_STRING,
+    NumericVector icscore = NumericVector::create(),
+    NumericVector nsites = NumericVector::create(),
+    double pseudocount = 1.0,
+    NumericVector bkg = NumericVector::create(),
+    NumericVector bkgsites = NumericVector::create(),
+    StringVector consensus = NA_STRING,
+    String strand = "+-",
+    NumericVector pval = NumericVector::create(),
+    NumericVector qval = NumericVector::create(),
+    NumericVector eval = NumericVector::create(),
+    StringVector extrainfo = NA_STRING) {
+
+  S4 x("universalmotif");
+
+  NumericMatrix m_motif = Rcpp::clone(motif);
+  NumericVector motif_colsums = colSums(m_motif);
+  // sometimes nsites can slip through (?) as nan (not R_NaN)
+  if (std::isnan(nsites[0])) nsites = NumericVector::create();
+
+  if (StringVector::is_na(StringVector::create(name)[0])) name = "[no name]";
+  // name
+  x.slot("name") = name;
+
+  // altname
+  if (!StringVector::is_na(altname[0]) && altname.length() > 0)
+    x.slot("altname") = altname;
+
+  // family
+  if (!StringVector::is_na(family[0]) && family.length() > 0)
+    x.slot("family") = family;
+
+  // organism
+  if (!StringVector::is_na(organism[0]) && organism.length() > 0)
+    x.slot("organism") = organism;
+
+  // alphabet (&m_motif)
+  alphabet = universalmotif_alphabet(alphabet, m_motif);
+  x.slot("alphabet") = alphabet;
+
+  // type (&m_motif)
+  type = universalmotif_type(m_motif, type, motif_colsums);
+  x.slot("type") = type;
+
+  // nsites (&m_motif)
+  nsites = universalmotif_nsites(nsites, type, m_motif, motif_colsums);
+  x.slot("nsites") = nsites;
+
+  // pseudocount
+  x.slot("pseudocount") = pseudocount;
+
+  // bkg
+  bkg = universalmotif_bkg(bkg, m_motif);
+  x.slot("bkg") = bkg;
+
+  // icscore
+  icscore = universalmotif_icscore(icscore, nsites, m_motif, bkg, type, pseudocount);
+  x.slot("icscore") = icscore[0];
+
+  // bkgsites
+  if (!NumericVector::is_na(bkgsites[0]))
+    x.slot("bkgsites") = bkgsites;
+
+  // consensus (&m_motif)
+  consensus = universalmotif_consensus(m_motif, alphabet, type, pseudocount, consensus);
+  x.slot("consensus") = consensus;
+
+  // motif
+  x.slot("motif") = m_motif;
+
+  // strand
+  x.slot("strand") = strand;
+
+  // pval
+  if (!NumericVector::is_na(pval[0]))
+    x.slot("pval") = pval;
+
+  // qval
+  if (!NumericVector::is_na(qval[0]))
+    x.slot("qval") = qval;
+
+  // eval
+  if (!NumericVector::is_na(eval[0]))
+    x.slot("eval") = eval;
+
+  // extrainfo
+  if (!StringVector::is_na(extrainfo[0]))
+    x.slot("extrainfo") = extrainfo;
+
+  return x;
 
 }
 

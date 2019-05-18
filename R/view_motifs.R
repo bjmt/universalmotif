@@ -40,7 +40,7 @@
 #' \dontrun{
 #'   motif <- create_motif()
 #'   motif <- add_multifreq(motif, sample_sites(motif))
-#'   Logolas::logomaker(motif["multifreq"][[as.character(2)]], type = "Logo",
+#'   Logolas::logomaker(motif["multifreq"][["2"]], type = "Logo",
 #'                      color_type = "per_symbol")
 #' }
 #'
@@ -56,11 +56,6 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
                         min.position.ic = 0, ...) {
-
-  # Idea for multifreq plotting: just manually assign heights for all letters
-  # in a multifreq position. Perhaps also manually add spacing between
-  # individual multifreq positions (which are really just multiple positions
-  # in sync).
 
   # Possible bug: min.overlap not being respected?
 

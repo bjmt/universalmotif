@@ -333,18 +333,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// check_bkg_names
-bool check_bkg_names(StringVector alph, std::string blet);
-RcppExport SEXP _universalmotif_check_bkg_names(SEXP alphSEXP, SEXP bletSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< StringVector >::type alph(alphSEXP);
-    Rcpp::traits::input_parameter< std::string >::type blet(bletSEXP);
-    rcpp_result_gen = Rcpp::wrap(check_bkg_names(alph, blet));
-    return rcpp_result_gen;
-END_RCPP
-}
 // validObject_universalmotif
 StringVector validObject_universalmotif(S4 motif, bool throw_error);
 RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP, SEXP throw_errorSEXP) {
@@ -386,62 +374,62 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sort_unique_cpp
-StringVector sort_unique_cpp(const StringVector& x);
-RcppExport SEXP _universalmotif_sort_unique_cpp(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const StringVector& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(sort_unique_cpp(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // table_cpp
-IntegerVector table_cpp(const StringVector& x);
+Rcpp::IntegerVector table_cpp(const Rcpp::StringVector& x);
 RcppExport SEXP _universalmotif_table_cpp(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const StringVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(table_cpp(x));
     return rcpp_result_gen;
 END_RCPP
 }
+// sort_unique_cpp
+Rcpp::StringVector sort_unique_cpp(const Rcpp::StringVector& x);
+RcppExport SEXP _universalmotif_sort_unique_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(sort_unique_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapse_rows_mat
-StringVector collapse_rows_mat(const CharacterMatrix& seqs_k);
+Rcpp::StringVector collapse_rows_mat(const Rcpp::CharacterMatrix& seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_mat(SEXP seqs_kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const CharacterMatrix& >::type seqs_k(seqs_kSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::CharacterMatrix& >::type seqs_k(seqs_kSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_rows_mat(seqs_k));
     return rcpp_result_gen;
 END_RCPP
 }
 // collapse_cols_mat
-StringVector collapse_cols_mat(const CharacterMatrix& seqs_k);
+Rcpp::StringVector collapse_cols_mat(const Rcpp::CharacterMatrix& seqs_k);
 RcppExport SEXP _universalmotif_collapse_cols_mat(SEXP seqs_kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const CharacterMatrix& >::type seqs_k(seqs_kSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::CharacterMatrix& >::type seqs_k(seqs_kSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_cols_mat(seqs_k));
     return rcpp_result_gen;
 END_RCPP
 }
 // collapse_rows_df
-StringVector collapse_rows_df(const DataFrame& seqs_k);
+Rcpp::StringVector collapse_rows_df(const Rcpp::DataFrame& seqs_k);
 RcppExport SEXP _universalmotif_collapse_rows_df(SEXP seqs_kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const DataFrame& >::type seqs_k(seqs_kSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type seqs_k(seqs_kSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_rows_df(seqs_k));
     return rcpp_result_gen;
 END_RCPP
 }
 // collapse_cpp
-String collapse_cpp(const StringVector& x);
+Rcpp::String collapse_cpp(const Rcpp::StringVector& x);
 RcppExport SEXP _universalmotif_collapse_cpp(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const StringVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(collapse_cpp(x));
     return rcpp_result_gen;
 END_RCPP
@@ -466,161 +454,151 @@ BEGIN_RCPP
 END_RCPP
 }
 // all_checks_collapse
-String all_checks_collapse(const StringVector& checks);
+Rcpp::String all_checks_collapse(const Rcpp::StringVector& checks);
 RcppExport SEXP _universalmotif_all_checks_collapse(SEXP checksSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const StringVector& >::type checks(checksSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type checks(checksSEXP);
     rcpp_result_gen = Rcpp::wrap(all_checks_collapse(checks));
     return rcpp_result_gen;
 END_RCPP
 }
 // pcm_to_ppmC
-NumericVector pcm_to_ppmC(NumericVector position, double pseudocount);
-RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP positionSEXP, SEXP pseudocountSEXP) {
+std::vector<double> pcm_to_ppmC(std::vector<double> pos, const double pseudocount);
+RcppExport SEXP _universalmotif_pcm_to_ppmC(SEXP posSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
-    rcpp_result_gen = Rcpp::wrap(pcm_to_ppmC(position, pseudocount));
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
+    rcpp_result_gen = Rcpp::wrap(pcm_to_ppmC(pos, pseudocount));
     return rcpp_result_gen;
 END_RCPP
 }
 // ppm_to_pcmC
-NumericVector ppm_to_pcmC(NumericVector position, double nsites);
-RcppExport SEXP _universalmotif_ppm_to_pcmC(SEXP positionSEXP, SEXP nsitesSEXP) {
+std::vector<double> ppm_to_pcmC(std::vector<double> pos, double nsites);
+RcppExport SEXP _universalmotif_ppm_to_pcmC(SEXP posSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
     Rcpp::traits::input_parameter< double >::type nsites(nsitesSEXP);
-    rcpp_result_gen = Rcpp::wrap(ppm_to_pcmC(position, nsites));
+    rcpp_result_gen = Rcpp::wrap(ppm_to_pcmC(pos, nsites));
     return rcpp_result_gen;
 END_RCPP
 }
 // ppm_to_pwmC
-NumericVector ppm_to_pwmC(NumericVector position, NumericVector bkg, double pseudocount, NumericVector nsites);
-RcppExport SEXP _universalmotif_ppm_to_pwmC(SEXP positionSEXP, SEXP bkgSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP) {
+std::vector<double> ppm_to_pwmC(std::vector<double> pos, std::vector<double> bkg, const double pseudocount, double nsites);
+RcppExport SEXP _universalmotif_ppm_to_pwmC(SEXP posSEXP, SEXP bkgSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
-    Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type nsites(nsitesSEXP);
-    rcpp_result_gen = Rcpp::wrap(ppm_to_pwmC(position, bkg, pseudocount, nsites));
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
+    Rcpp::traits::input_parameter< double >::type nsites(nsitesSEXP);
+    rcpp_result_gen = Rcpp::wrap(ppm_to_pwmC(pos, bkg, pseudocount, nsites));
     return rcpp_result_gen;
 END_RCPP
 }
 // pwm_to_ppmC
-NumericVector pwm_to_ppmC(NumericVector position, NumericVector bkg);
-RcppExport SEXP _universalmotif_pwm_to_ppmC(SEXP positionSEXP, SEXP bkgSEXP) {
+std::vector<double> pwm_to_ppmC(std::vector<double> pos, std::vector<double> bkg);
+RcppExport SEXP _universalmotif_pwm_to_ppmC(SEXP posSEXP, SEXP bkgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
-    rcpp_result_gen = Rcpp::wrap(pwm_to_ppmC(position, bkg));
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type bkg(bkgSEXP);
+    rcpp_result_gen = Rcpp::wrap(pwm_to_ppmC(pos, bkg));
     return rcpp_result_gen;
 END_RCPP
 }
 // ppm_to_icmC
-NumericVector ppm_to_icmC(NumericVector position, NumericVector bkg, bool relative_entropy);
-RcppExport SEXP _universalmotif_ppm_to_icmC(SEXP positionSEXP, SEXP bkgSEXP, SEXP relative_entropySEXP) {
+std::vector<double> ppm_to_icmC(std::vector<double> pos, std::vector<double> bkg, const bool relative_entropy);
+RcppExport SEXP _universalmotif_ppm_to_icmC(SEXP posSEXP, SEXP bkgSEXP, SEXP relative_entropySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
-    Rcpp::traits::input_parameter< bool >::type relative_entropy(relative_entropySEXP);
-    rcpp_result_gen = Rcpp::wrap(ppm_to_icmC(position, bkg, relative_entropy));
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const bool >::type relative_entropy(relative_entropySEXP);
+    rcpp_result_gen = Rcpp::wrap(ppm_to_icmC(pos, bkg, relative_entropy));
     return rcpp_result_gen;
 END_RCPP
 }
 // position_icscoreC
-double position_icscoreC(NumericVector position, NumericVector bkg, String type, double pseudocount, double nsites, bool relative_entropy);
-RcppExport SEXP _universalmotif_position_icscoreC(SEXP positionSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP, SEXP relative_entropySEXP) {
+double position_icscoreC(std::vector<double> pos, std::vector<double> bkg, const std::string type, const double pseudocount, double nsites, const bool relative_entropy);
+RcppExport SEXP _universalmotif_position_icscoreC(SEXP posSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP, SEXP relative_entropySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type bkg(bkgSEXP);
-    Rcpp::traits::input_parameter< String >::type type(typeSEXP);
-    Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
     Rcpp::traits::input_parameter< double >::type nsites(nsitesSEXP);
-    Rcpp::traits::input_parameter< bool >::type relative_entropy(relative_entropySEXP);
-    rcpp_result_gen = Rcpp::wrap(position_icscoreC(position, bkg, type, pseudocount, nsites, relative_entropy));
+    Rcpp::traits::input_parameter< const bool >::type relative_entropy(relative_entropySEXP);
+    rcpp_result_gen = Rcpp::wrap(position_icscoreC(pos, bkg, type, pseudocount, nsites, relative_entropy));
     return rcpp_result_gen;
 END_RCPP
 }
 // icm_to_ppmC
-NumericVector icm_to_ppmC(NumericVector position);
-RcppExport SEXP _universalmotif_icm_to_ppmC(SEXP positionSEXP) {
+std::vector<double> icm_to_ppmC(std::vector<double> pos);
+RcppExport SEXP _universalmotif_icm_to_ppmC(SEXP posSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    rcpp_result_gen = Rcpp::wrap(icm_to_ppmC(position));
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    rcpp_result_gen = Rcpp::wrap(icm_to_ppmC(pos));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_consensusC
-String get_consensusC(NumericVector pos, String alphabet, String type, double pseudocount);
+std::string get_consensusC(std::vector<double> pos, const std::string alphabet, const std::string type, const double pseudocount);
 RcppExport SEXP _universalmotif_get_consensusC(SEXP posSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type pos(posSEXP);
-    Rcpp::traits::input_parameter< String >::type alphabet(alphabetSEXP);
-    Rcpp::traits::input_parameter< String >::type type(typeSEXP);
-    Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type alphabet(alphabetSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
     rcpp_result_gen = Rcpp::wrap(get_consensusC(pos, alphabet, type, pseudocount));
     return rcpp_result_gen;
 END_RCPP
 }
 // consensus_to_ppmC
-NumericVector consensus_to_ppmC(String letter);
+std::vector<double> consensus_to_ppmC(std::string letter);
 RcppExport SEXP _universalmotif_consensus_to_ppmC(SEXP letterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< String >::type letter(letterSEXP);
+    Rcpp::traits::input_parameter< std::string >::type letter(letterSEXP);
     rcpp_result_gen = Rcpp::wrap(consensus_to_ppmC(letter));
     return rcpp_result_gen;
 END_RCPP
 }
 // consensus_to_ppmAAC
-NumericVector consensus_to_ppmAAC(String letter);
+std::vector<double> consensus_to_ppmAAC(std::string letter);
 RcppExport SEXP _universalmotif_consensus_to_ppmAAC(SEXP letterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< String >::type letter(letterSEXP);
+    Rcpp::traits::input_parameter< std::string >::type letter(letterSEXP);
     rcpp_result_gen = Rcpp::wrap(consensus_to_ppmAAC(letter));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_consensusAAC
-String get_consensusAAC(NumericVector position, String type, double pseudocount);
-RcppExport SEXP _universalmotif_get_consensusAAC(SEXP positionSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
+std::string get_consensusAAC(std::vector<double> pos, const std::string type, const double pseudocount);
+RcppExport SEXP _universalmotif_get_consensusAAC(SEXP posSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type position(positionSEXP);
-    Rcpp::traits::input_parameter< String >::type type(typeSEXP);
-    Rcpp::traits::input_parameter< double >::type pseudocount(pseudocountSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_consensusAAC(position, type, pseudocount));
-    return rcpp_result_gen;
-END_RCPP
-}
-// clean_up_check
-StringVector clean_up_check(StringVector fails);
-RcppExport SEXP _universalmotif_clean_up_check(SEXP failsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< StringVector >::type fails(failsSEXP);
-    rcpp_result_gen = Rcpp::wrap(clean_up_check(fails));
+    Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_consensusAAC(pos, type, pseudocount));
     return rcpp_result_gen;
 END_RCPP
 }
 // check_fun_params
-StringVector check_fun_params(List param_args, IntegerVector param_len, LogicalVector param_null, int expected_type);
+std::vector<std::string> check_fun_params(const Rcpp::List& param_args, std::vector<int> param_len, std::vector<bool> param_null, int expected_type);
 RcppExport SEXP _universalmotif_check_fun_params(SEXP param_argsSEXP, SEXP param_lenSEXP, SEXP param_nullSEXP, SEXP expected_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< List >::type param_args(param_argsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type param_len(param_lenSEXP);
-    Rcpp::traits::input_parameter< LogicalVector >::type param_null(param_nullSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type param_args(param_argsSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type param_len(param_lenSEXP);
+    Rcpp::traits::input_parameter< std::vector<bool> >::type param_null(param_nullSEXP);
     Rcpp::traits::input_parameter< int >::type expected_type(expected_typeSEXP);
     rcpp_result_gen = Rcpp::wrap(check_fun_params(param_args, param_len, param_null, expected_type));
     return rcpp_result_gen;
@@ -651,13 +629,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
-    {"_universalmotif_check_bkg_names", (DL_FUNC) &_universalmotif_check_bkg_names, 2},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},
     {"_universalmotif_comb2_cpp", (DL_FUNC) &_universalmotif_comb2_cpp, 1},
-    {"_universalmotif_sort_unique_cpp", (DL_FUNC) &_universalmotif_sort_unique_cpp, 1},
     {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},
+    {"_universalmotif_sort_unique_cpp", (DL_FUNC) &_universalmotif_sort_unique_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_cols_mat", (DL_FUNC) &_universalmotif_collapse_cols_mat, 1},
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
@@ -676,7 +653,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_consensus_to_ppmC", (DL_FUNC) &_universalmotif_consensus_to_ppmC, 1},
     {"_universalmotif_consensus_to_ppmAAC", (DL_FUNC) &_universalmotif_consensus_to_ppmAAC, 1},
     {"_universalmotif_get_consensusAAC", (DL_FUNC) &_universalmotif_get_consensusAAC, 3},
-    {"_universalmotif_clean_up_check", (DL_FUNC) &_universalmotif_clean_up_check, 1},
     {"_universalmotif_check_fun_params", (DL_FUNC) &_universalmotif_check_fun_params, 4},
     {NULL, NULL, 0}
 };

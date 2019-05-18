@@ -298,9 +298,12 @@ pcm_to_ppm <- function(position, pseudocount = 0) {
 
 #' @rdname utils-motif
 #' @export
-position_icscore <- function(position, bkg = 0, type = "PPM", pseudocount = 1,
+position_icscore <- function(position, bkg, type = "PPM", pseudocount = 1,
                              nsites = 100, relative_entropy = FALSE) {
 
+  if (is.null(bkg) || missing(bkg)) {
+    bkg <- rep(1 / length(position), length(position))
+  }
   if (!type %in% c("ICM", "PPM", "PWM", "PCM"))
     stop("type must be one of ICM, PCM, PPM, PWM")
 

@@ -86,7 +86,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC), 1, FALSE, TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences),
-                               c(1, 1), c(FALSE, FALSE), TYPE_S4)
+                               1, FALSE, TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

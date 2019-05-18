@@ -59,7 +59,7 @@ slot using the \pkg{Logolas} package.
 \dontrun{
   motif <- create_motif()
   motif <- add_multifreq(motif, sample_sites(motif))
-  Logolas::logomaker(motif["multifreq"][[as.character(2)]], type = "Logo",
+  Logolas::logomaker(motif["multifreq"][["2"]], type = "Logo",
                      color_type = "per_symbol")
 }
 

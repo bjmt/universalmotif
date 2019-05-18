@@ -29,16 +29,17 @@ test_that("type utilities work", {
   expect_equal(universalmotif:::pcm_to_ppmC(c(1, 1)), c(0.5, 0.5))
   expect_equal(universalmotif:::pcm_to_ppmC(c(1, 0), 1), c(0.75, 0.25))
   expect_equal(universalmotif:::ppm_to_pcmC(c(0.25, 0.75), 10), c(3, 7))
-  expect_equal(round(universalmotif:::ppm_to_pwmC(c(0.25, 0.75)), 3),
+  expect_equal(round(universalmotif:::ppm_to_pwmC(c(0.25, 0.75), numeric()), 3),
                c(-1.000, 0.585))
   expect_equal(round(universalmotif:::ppm_to_pwmC(c(0.25, 0.75), c(0.4, 0.6)), 3),
                c(-0.678, 0.322))
-  expect_equal(round(universalmotif:::pwm_to_ppmC(c(-1, 0.5)), 4), c(0.2612, 0.7388))
-  expect_equal(round(universalmotif:::ppm_to_icmC(c(0.25, 0.75)), 4),
+  expect_equal(round(universalmotif:::pwm_to_ppmC(c(-1, 0.5), numeric()), 4),
+               c(0.2612, 0.7388))
+  expect_equal(round(universalmotif:::ppm_to_icmC(c(0.25, 0.75), numeric()), 4),
                c(0.0472, 0.1415))
-  expect_equal(round(universalmotif:::ppm_to_icmC(c(0.25, 0.75), relative_entropy = TRUE), 4),
+  expect_equal(round(universalmotif:::ppm_to_icmC(c(0.25, 0.75), numeric(), TRUE), 4),
                c(0.0000, 0.4387))
-  expect_equal(round(universalmotif:::position_icscoreC(c(0.25, 0.75)), 3), 0.185)
+  expect_equal(round(universalmotif:::position_icscoreC(c(0.25, 0.75), numeric()), 3), 0.185)
   expect_equal(universalmotif:::icm_to_ppmC(c(0.5, 0.0, 0.3)),
                c(0.625, 0.000, 0.375))
 

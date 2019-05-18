@@ -93,10 +93,6 @@ universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character
     .Call('_universalmotif_universalmotif_cpp', PACKAGE = 'universalmotif', motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo)
 }
 
-check_bkg_names <- function(alph, blet) {
-    .Call('_universalmotif_check_bkg_names', PACKAGE = 'universalmotif', alph, blet)
-}
-
 validObject_universalmotif <- function(motif, throw_error = TRUE) {
     .Call('_universalmotif_validObject_universalmotif', PACKAGE = 'universalmotif', motif, throw_error)
 }
@@ -113,12 +109,12 @@ comb2_cpp <- function(n) {
     .Call('_universalmotif_comb2_cpp', PACKAGE = 'universalmotif', n)
 }
 
-sort_unique_cpp <- function(x) {
-    .Call('_universalmotif_sort_unique_cpp', PACKAGE = 'universalmotif', x)
-}
-
 table_cpp <- function(x) {
     .Call('_universalmotif_table_cpp', PACKAGE = 'universalmotif', x)
+}
+
+sort_unique_cpp <- function(x) {
+    .Call('_universalmotif_sort_unique_cpp', PACKAGE = 'universalmotif', x)
 }
 
 collapse_rows_mat <- function(seqs_k) {
@@ -149,35 +145,35 @@ all_checks_collapse <- function(checks) {
     .Call('_universalmotif_all_checks_collapse', PACKAGE = 'universalmotif', checks)
 }
 
-pcm_to_ppmC <- function(position, pseudocount = 0) {
-    .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', position, pseudocount)
+pcm_to_ppmC <- function(pos, pseudocount = 0.0) {
+    .Call('_universalmotif_pcm_to_ppmC', PACKAGE = 'universalmotif', pos, pseudocount)
 }
 
-ppm_to_pcmC <- function(position, nsites = 0) {
-    .Call('_universalmotif_ppm_to_pcmC', PACKAGE = 'universalmotif', position, nsites)
+ppm_to_pcmC <- function(pos, nsites = 0) {
+    .Call('_universalmotif_ppm_to_pcmC', PACKAGE = 'universalmotif', pos, nsites)
 }
 
-ppm_to_pwmC <- function(position, bkg = 0L, pseudocount = 0, nsites = as.numeric( c())) {
-    .Call('_universalmotif_ppm_to_pwmC', PACKAGE = 'universalmotif', position, bkg, pseudocount, nsites)
+ppm_to_pwmC <- function(pos, bkg, pseudocount = 0.0, nsites = 100) {
+    .Call('_universalmotif_ppm_to_pwmC', PACKAGE = 'universalmotif', pos, bkg, pseudocount, nsites)
 }
 
-pwm_to_ppmC <- function(position, bkg = 0L) {
-    .Call('_universalmotif_pwm_to_ppmC', PACKAGE = 'universalmotif', position, bkg)
+pwm_to_ppmC <- function(pos, bkg) {
+    .Call('_universalmotif_pwm_to_ppmC', PACKAGE = 'universalmotif', pos, bkg)
 }
 
-ppm_to_icmC <- function(position, bkg = 0L, relative_entropy = FALSE) {
-    .Call('_universalmotif_ppm_to_icmC', PACKAGE = 'universalmotif', position, bkg, relative_entropy)
+ppm_to_icmC <- function(pos, bkg, relative_entropy = FALSE) {
+    .Call('_universalmotif_ppm_to_icmC', PACKAGE = 'universalmotif', pos, bkg, relative_entropy)
 }
 
-position_icscoreC <- function(position, bkg = 0L, type = "PPM", pseudocount = 1, nsites = 100, relative_entropy = FALSE) {
-    .Call('_universalmotif_position_icscoreC', PACKAGE = 'universalmotif', position, bkg, type, pseudocount, nsites, relative_entropy)
+position_icscoreC <- function(pos, bkg, type = "PPM", pseudocount = 1.0, nsites = 100.0, relative_entropy = FALSE) {
+    .Call('_universalmotif_position_icscoreC', PACKAGE = 'universalmotif', pos, bkg, type, pseudocount, nsites, relative_entropy)
 }
 
-icm_to_ppmC <- function(position) {
-    .Call('_universalmotif_icm_to_ppmC', PACKAGE = 'universalmotif', position)
+icm_to_ppmC <- function(pos) {
+    .Call('_universalmotif_icm_to_ppmC', PACKAGE = 'universalmotif', pos)
 }
 
-get_consensusC <- function(pos, alphabet = "DNA", type = "PPM", pseudocount = 1) {
+get_consensusC <- function(pos, alphabet = "DNA", type = "PPM", pseudocount = 1.0) {
     .Call('_universalmotif_get_consensusC', PACKAGE = 'universalmotif', pos, alphabet, type, pseudocount)
 }
 
@@ -189,12 +185,8 @@ consensus_to_ppmAAC <- function(letter) {
     .Call('_universalmotif_consensus_to_ppmAAC', PACKAGE = 'universalmotif', letter)
 }
 
-get_consensusAAC <- function(position, type = "PPM", pseudocount = 0.0) {
-    .Call('_universalmotif_get_consensusAAC', PACKAGE = 'universalmotif', position, type, pseudocount)
-}
-
-clean_up_check <- function(fails) {
-    .Call('_universalmotif_clean_up_check', PACKAGE = 'universalmotif', fails)
+get_consensusAAC <- function(pos, type = "PPM", pseudocount = 0.0) {
+    .Call('_universalmotif_get_consensusAAC', PACKAGE = 'universalmotif', pos, type, pseudocount)
 }
 
 check_fun_params <- function(param_args, param_len, param_null, expected_type) {

@@ -165,7 +165,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences,
                                     bkg.sequences = args$bkg.sequences),
-                               numeric(), c(FALSE, TRUE, FALSE), TYPE_S4)
+                               numeric(), c(FALSE, TRUE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------

@@ -15,4 +15,12 @@ Rcpp::NumericMatrix cpp_to_R_motif(const list_int_t &motif);
 
 Rcpp::NumericMatrix cpp_to_R_motif(const list_num_t &motif);
 
+extern const Rcpp::StringVector AMINOACIDS;
+
+extern const vec_str_t AMINOACIDS2;
+
+extern const Rcpp::StringVector DNA;
+
+extern const Rcpp::StringVector RNA;
+
 #endif

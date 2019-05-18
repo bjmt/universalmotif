@@ -188,7 +188,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     for (i in seq_along(score.mats)) {
       score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
                                nsites = motifs[[i]]@nsites,
-                               pseudocount = motifs[[i]]@pseudocount)
+                               pseudocount = motifs[[i]]@pseudocount,
+                               bkg = numeric())
     }
   }
 

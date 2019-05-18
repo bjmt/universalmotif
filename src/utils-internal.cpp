@@ -1,6 +1,20 @@
 #include <Rcpp.h>
 #include "types.h"
 
+extern const vec_str_t AMINOACIDS2 {
+  "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
+  "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"
+};
+
+extern const Rcpp::StringVector AMINOACIDS = Rcpp::StringVector::create(
+  "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
+  "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"
+);
+
+extern const Rcpp::StringVector DNA = Rcpp::StringVector::create("A", "C", "G", "T");
+
+extern const Rcpp::StringVector RNA = Rcpp::StringVector::create("A", "C", "G", "U");
+
 list_int_t R_to_cpp_motif(const Rcpp::NumericMatrix &motif) {
 
   list_int_t mat(motif.ncol(), vec_int_t(motif.nrow()));
