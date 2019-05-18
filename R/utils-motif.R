@@ -298,10 +298,11 @@ pcm_to_ppm <- function(position, pseudocount = 0) {
 
 #' @rdname utils-motif
 #' @export
-position_icscore <- function(position, bkg, type = "PPM", pseudocount = 1,
-                             nsites = 100, relative_entropy = FALSE) {
+position_icscore <- function(position, bkg = numeric(), type = "PPM",
+                             pseudocount = 1, nsites = 100,
+                             relative_entropy = FALSE) {
 
-  if (is.null(bkg) || missing(bkg)) {
+  if (is.null(bkg) || missing(bkg) || length(bkg) == 0) {
     bkg <- rep(1 / length(position), length(position))
   }
   if (!type %in% c("ICM", "PPM", "PWM", "PCM"))
@@ -313,12 +314,12 @@ position_icscore <- function(position, bkg, type = "PPM", pseudocount = 1,
 
 #' @rdname utils-motif
 #' @export
-ppm_to_icm <- function(position, bkg, schneider_correction = FALSE, nsites = 100,
-                       relative_entropy = FALSE) {
+ppm_to_icm <- function(position, bkg = numeric(), schneider_correction = FALSE,
+                       nsites = 100, relative_entropy = FALSE) {
   # NOTE: Basic IC computation assumes uniform bkg frequencies!
   #       For different bkg frequencies: Relative entropy or Kullback-Leibler
   #       (KL) divergence
-  if (is.null(bkg) || missing(bkg)) {
+  if (is.null(bkg) || missing(bkg) || length(bkg) == 0) {
     bkg <- rep(1 / length(position), length(position))
   }
   if (relative_entropy) {
@@ -351,9 +352,10 @@ ppm_to_pcm <- function(position, nsites = 100) {
 
 #' @rdname utils-motif
 #' @export
-ppm_to_pwm <- function(position, bkg, pseudocount = 1, nsites = 100,
+ppm_to_pwm <- function(position, bkg = numeric(), pseudocount = 1, nsites = 100,
                        smooth = TRUE) {
-  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
+  if (missing(bkg) || length(bkg) == 0)
+    bkg <- rep(1 / length(position), length(position))
   if (length(nsites) == 0) nsites <- 100
   if (smooth && pseudocount != 0) {
     position <- ppm_to_pcm(position, nsites = nsites)
@@ -367,8 +369,9 @@ ppm_to_pwm <- function(position, bkg, pseudocount = 1, nsites = 100,
 
 #' @rdname utils-motif
 #' @export
-pwm_to_ppm <- function(position, bkg) {
-  if (missing(bkg)) bkg <- rep(1 / length(position), length(position))
+pwm_to_ppm <- function(position, bkg = numeric()) {
+  if (missing(bkg) || length(bkg) == 0)
+    bkg <- rep(1 / length(position), length(position))
   position <- vapply(position, function(x) 2 ^ x, numeric(1))
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
   for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
