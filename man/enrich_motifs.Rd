@@ -10,7 +10,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   threshold.type = "pvalue", verbose = 1, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler",
   return.scan.results = FALSE, progress = FALSE, BP = FALSE,
-  nthreads = 1)
+  nthreads = 1, rng.seed = sample.int(1e+09, 1))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -66,7 +66,7 @@ See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 \code{FALSE} can save a small amount time by preventing construction of the complete
 results \code{data.frame} from \code{\link[=scan_sequences]{scan_sequences()}}.}
 
-\item{progress}{\code{logical(1)} Show progress.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
 \item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
@@ -74,6 +74,12 @@ results \code{data.frame} from \code{\link[=scan_sequences]{scan_sequences()}}.}
 threads. \code{nthreads = 0} uses all available threads.
 Note that no speed up will occur for jobs with only a single motif and
 sequence.}
+
+\item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
+can occur simultaneously in multiple threads using C++, it cannot communicate
+with the regular \code{R} random number generator state and thus requires an
+independent seed. Each individual sequence in an \code{XStringSet} object will be
+given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting

@@ -27,7 +27,7 @@ install:
 clean:
 	mkdir -p builds;\
 	cd ..;\
-	$(RM) -r $(PKGNAME).Rcheck;\
+	mv -f $(PKGNAME).Rcheck $(PKGSRC)/Rcheck/$(PKGNAME).Rcheck_$(PKGVER); \
 	mv -f $(PKGNAME)_$(PKGVER).tar.gz -t $(PKGNAME)/builds
 
 .PHONY: vignettes benchmarks
@@ -39,8 +39,8 @@ vignettes:
 	R -q -e "rmarkdown::render('IntroductionToSequenceMotifs.Rmd')" &&\
 	R -q -e "rmarkdown::render('MotifManipulation.Rmd')" &&\
 	R -q -e "rmarkdown::render('SequenceSearches.Rmd')" &&\
-	$(RM) -rf *.log &&\
-	$(RM) -rf *_files
+	rm -rf *.log &&\
+	rm -rf *_files
 
 benchmarks:
 	mkdir -p benchmarks/results;\

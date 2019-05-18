@@ -36,18 +36,18 @@ motif_score(motif, threshold = c(0, 1))
 
 pcm_to_ppm(position, pseudocount = 0)
 
-position_icscore(position, bkg, type = "PPM", pseudocount = 1,
-  nsites = 100, relative_entropy = FALSE)
+position_icscore(position, bkg = numeric(), type = "PPM",
+  pseudocount = 1, nsites = 100, relative_entropy = FALSE)
 
-ppm_to_icm(position, bkg, schneider_correction = FALSE, nsites = 100,
-  relative_entropy = FALSE)
+ppm_to_icm(position, bkg = numeric(), schneider_correction = FALSE,
+  nsites = 100, relative_entropy = FALSE)
 
 ppm_to_pcm(position, nsites = 100)
 
-ppm_to_pwm(position, bkg, pseudocount = 1, nsites = 100,
+ppm_to_pwm(position, bkg = numeric(), pseudocount = 1, nsites = 100,
   smooth = TRUE)
 
-pwm_to_ppm(position, bkg)
+pwm_to_ppm(position, bkg = numeric())
 
 score_match(motif, match)
 

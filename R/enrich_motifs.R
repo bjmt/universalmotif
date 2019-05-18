@@ -41,12 +41,17 @@
 #'    [scan_sequences()]. For large jobs, leaving this as
 #'    `FALSE` can save a small amount time by preventing construction of the complete 
 #'    results `data.frame` from [scan_sequences()].
-#' @param progress `logical(1)` Show progress.
+#' @param progress `logical(1)` Deprecated. Does nothing.
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single motif and
 #'    sequence.
+#' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
+#'    can occur simultaneously in multiple threads using C++, it cannot communicate
+#'    with the regular `R` random number generator state and thus requires an
+#'    independent seed. Each individual sequence in an `XStringSet` object will be
+#'    given the following seed: `rng.seed * index`. See [shuffle_sequences()].
 #'
 #' @return `data.frame` Motif enrichment results. The resulting 
 #'    `data.frame` contains the following columns:
@@ -102,7 +107,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           verbose = 1, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "euler",
                           return.scan.results = FALSE, progress = FALSE,
-                          BP = FALSE, nthreads = 1) {
+                          BP = FALSE, nthreads = 1,
+                          rng.seed = sample.int(1e9, 1)) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -170,6 +176,11 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (progress)
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
+  if (BP)
+    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
+
   if (verbose > 2) {
     cat(" > Input parameters\n")
     cat("   > motifs:              ", deparse(substitute(motifs)), "\n")
@@ -197,10 +208,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   motifs <- convert_type_internal(motifs, "PWM")
 
   if (missing(bkg.sequences)) {
-    if (progress && !BP) cat(" > Shuffling input sequences ...")
-    else if ((progress && BP) || verbose > 0) cat(" > Shuffling input sequences\n")
+    if (verbose > 0) cat(" > Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
-                                       progress = progress, BP = BP)
+                                       nthreads = nthreads)
   } 
 
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -219,12 +229,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   }
 
   if (threshold.type == "pvalue") {
-    if (progress && !BP)
-      cat(" > Converting P-values to logodds thresholds ...")
-    else if ((progress && BP) || verbose > 0)
+    if (verbose > 0)
       cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              k = 8, progress = progress, BP = BP)
+                              k = 8)
     max.scores <- vapply(motifs, function(x) motif_score(x, 1), numeric(1))
     min.scores <- vapply(motifs, function(x) motif_score(x, 0), numeric(1))
     for (i in seq_along(threshold)) {
@@ -243,7 +251,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
                           search.mode, threshold.type, motcount,
-                          return.scan.results, progress = progress, BP = BP)
+                          return.scan.results)
 
   if (return.scan.results) {
     res.scan <- res.all[2:3]
@@ -314,7 +322,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                          verbose, RC, use.freq, positional.test,
                          search.mode, threshold.type, motcount,
-                         return.scan.results, progress, BP) {
+                         return.scan.results) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -326,14 +334,12 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
 
   if (verbose > 0) cat(" > Scanning input sequences\n")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                            RC, use.freq, progress = FALSE,
-                            verbose = verbose - 1, BP = FALSE)
+                            RC, use.freq, verbose = verbose - 1)
 
   if (verbose > 0) cat(" > Scanning background sequences\n")
   results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
                                 threshold.type, RC, use.freq,
-                                verbose = verbose - 1, progress = FALSE,
-                                BP = FALSE)
+                                verbose = verbose - 1)
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
@@ -343,18 +349,16 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   }
   if (length(results.bkg2) == 0) results.bkg2 <- data.frame()
 
-  if (progress && !BP) cat(" > Testing motifs for enrichment ...")
-  else if ((progress && BP) || verbose > 0) cat(" > Testing motifs for enrichment\n")
+  if (verbose > 0) cat(" > Testing motifs for enrichment\n")
 
-  tmp_pb <- progress
   if (verbose > 3) tmp_pb <- FALSE
-  results.all <- mapply_(function(x, y, z)
-                           enrich_mots2_subworker(x, y, z, seq.widths,
+  results.all <- mapply(function(x, y, z)
+                          enrich_mots2_subworker(x, y, z, seq.widths,
                                                   bkg.widths, search.mode,
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, verbose),
-                          results2, results.bkg2, motifs,
-                          SIMPLIFY = FALSE, BP = FALSE, PB = tmp_pb)
+                        results2, results.bkg2, motifs,
+                        SIMPLIFY = FALSE)
 
   results.all <- do.call(rbind, results.all)
 
