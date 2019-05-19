@@ -51,6 +51,7 @@ addons:
       - gcc-7
       - g++-7
       - gfortran
+      - r-base-dev
 
 #env
 env:
