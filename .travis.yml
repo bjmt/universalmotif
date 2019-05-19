@@ -38,7 +38,7 @@ addons:
       - ghostscript
       - texlive-fonts-recommended
       - gcc7
-      - g++-7
+      - g++7
 
 branches:
   only:
