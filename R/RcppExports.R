@@ -77,12 +77,16 @@ count_klets_cpp <- function(sequences, k, nthreads) {
     .Call('_universalmotif_count_klets_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads)
 }
 
+count_klets_alph_cpp <- function(sequences, alph, k, nthreads) {
+    .Call('_universalmotif_count_klets_alph_cpp', PACKAGE = 'universalmotif', sequences, alph, k, nthreads)
+}
+
 get_klets_cpp <- function(alph, k) {
     .Call('_universalmotif_get_klets_cpp', PACKAGE = 'universalmotif', alph, k)
 }
 
-shuffle_markov_loop <- function(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols) {
-    .Call('_universalmotif_shuffle_markov_loop', PACKAGE = 'universalmotif', seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols)
+create_sequences_cpp <- function(seqlen, seqnum, alph, k, freqs, nthreads, seed, transitions) {
+    .Call('_universalmotif_create_sequences_cpp', PACKAGE = 'universalmotif', seqlen, seqnum, alph, k, freqs, nthreads, seed, transitions)
 }
 
 trim_motif_internal <- function(motif, ic_scores, min_ic) {

@@ -1,5 +1,7 @@
 #' Sequence-related utility functions.
 #'
+#' @param alph `character(1)` A single character string with the desired
+#'    sequence alphabet. If missing, finds the unique letters in the string.
 #' @param lets `character` A character vector where each element will be
 #'    considered a single unit.
 #' @param k `integer(1)` K-let size.
@@ -49,15 +51,23 @@ NULL
 
 #' @rdname utils-sequence
 #' @export
-count_klets <- function(string, k = 1) {
+count_klets <- function(string, k = 1, alph) {
 
   if (k < 1) stop("k must be greater than 0")
   k <- as.integer(k)
 
   if (length(string) != 1) stop("'string' must be a length 1 character vector")
+  if (nchar(string) < 1) stop("'string' cannot be empty")
 
-  counts <- count_klets_cpp(string, k, 1)[[1]]
-  klets <- get_klets_cpp(sort_unique_cpp(safeExplode(string)), k)
+  if (missing(alph)) {
+    counts <- count_klets_cpp(string, k, 1)[[1]]
+    klets <- get_klets_cpp(sort_unique_cpp(safeExplode(string)), k)
+  } else {
+    if (length(alph) > 1) stop("'alph' must be a single string")
+    if (nchar(alph) < 1) stop("'alph' cannot be empty")
+    counts <- count_klets_alph_cpp(string, alph, k, 1)
+    klets <- get_klets_cpp(sort_unique_cpp(safeExplode(alph)), k)
+  }
 
   data.frame(klets, counts, stringsAsFactors = FALSE)
 

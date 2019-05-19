@@ -270,6 +270,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// count_klets_alph_cpp
+std::vector<std::vector<int>> count_klets_alph_cpp(const std::vector<std::string>& sequences, const std::string& alph, const int& k, const int& nthreads);
+RcppExport SEXP _universalmotif_count_klets_alph_cpp(SEXP sequencesSEXP, SEXP alphSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_klets_alph_cpp(sequences, alph, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_klets_cpp
 std::vector<std::string> get_klets_cpp(std::vector<std::string>& alph, const int& k);
 RcppExport SEXP _universalmotif_get_klets_cpp(SEXP alphSEXP, SEXP kSEXP) {
@@ -281,20 +294,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// shuffle_markov_loop
-Rcpp::String shuffle_markov_loop(R_xlen_t seq_i_l, R_xlen_t seq_i_r, int k, Rcpp::StringVector seqout, const Rcpp::StringVector& lets, const Rcpp::NumericMatrix& trans, const Rcpp::StringVector& trans_cols);
-RcppExport SEXP _universalmotif_shuffle_markov_loop(SEXP seq_i_lSEXP, SEXP seq_i_rSEXP, SEXP kSEXP, SEXP seqoutSEXP, SEXP letsSEXP, SEXP transSEXP, SEXP trans_colsSEXP) {
+// create_sequences_cpp
+std::vector<std::string> create_sequences_cpp(const int seqlen, const int seqnum, const std::vector<std::string>& alph, const int k, const std::vector<double>& freqs, const int nthreads, const int seed, const Rcpp::NumericMatrix& transitions);
+RcppExport SEXP _universalmotif_create_sequences_cpp(SEXP seqlenSEXP, SEXP seqnumSEXP, SEXP alphSEXP, SEXP kSEXP, SEXP freqsSEXP, SEXP nthreadsSEXP, SEXP seedSEXP, SEXP transitionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< R_xlen_t >::type seq_i_l(seq_i_lSEXP);
-    Rcpp::traits::input_parameter< R_xlen_t >::type seq_i_r(seq_i_rSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type seqout(seqoutSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type lets(letsSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type trans(transSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type trans_cols(trans_colsSEXP);
-    rcpp_result_gen = Rcpp::wrap(shuffle_markov_loop(seq_i_l, seq_i_r, k, seqout, lets, trans, trans_cols));
+    Rcpp::traits::input_parameter< const int >::type seqlen(seqlenSEXP);
+    Rcpp::traits::input_parameter< const int >::type seqnum(seqnumSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type freqs(freqsSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type transitions(transitionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_sequences_cpp(seqlen, seqnum, alph, k, freqs, nthreads, seed, transitions));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -629,8 +642,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_shuffle_linear_cpp", (DL_FUNC) &_universalmotif_shuffle_linear_cpp, 4},
     {"_universalmotif_shuffle_k1_cpp", (DL_FUNC) &_universalmotif_shuffle_k1_cpp, 3},
     {"_universalmotif_count_klets_cpp", (DL_FUNC) &_universalmotif_count_klets_cpp, 3},
+    {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_get_klets_cpp", (DL_FUNC) &_universalmotif_get_klets_cpp, 2},
-    {"_universalmotif_shuffle_markov_loop", (DL_FUNC) &_universalmotif_shuffle_markov_loop, 7},
+    {"_universalmotif_create_sequences_cpp", (DL_FUNC) &_universalmotif_create_sequences_cpp, 8},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},

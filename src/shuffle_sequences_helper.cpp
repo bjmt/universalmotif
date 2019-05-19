@@ -4,6 +4,7 @@
 #include <random>
 #include <set>
 #include "types.h"
+#include "utils-internal.h"
 
 vec_int_t klet_counter(const vec_int_t &single_seq, const int &k,
     const std::size_t &nlets, const std::size_t &alphlen) {
@@ -294,14 +295,12 @@ vec_int_t get_next_let_list(const list_int_t &nlet_lists, const int &k,
 
 vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_counts,
     const list_int_t &transitions, std::default_random_engine gen,
-    const std::size_t &nlets, const int &k, const std::size_t &alphlen,
-    const std::size_t &mlets) {
+    const std::size_t &nlets, const int &k, const std::size_t &alphlen) {
 
   vec_int_t out;
   out.reserve(seqsize);
 
   list_int_t nlet_lists = make_klet_lists(nlets, k, alphlen);
-  list_int_t mlet_lists = make_klet_lists(mlets, k, alphlen);
 
   std::discrete_distribution<int> first_gen(nlet_counts.begin(), nlet_counts.end());
   int firstletters = first_gen(gen);
@@ -351,7 +350,7 @@ std::string shuffle_markov_one(const std::string &single_seq, const int &k,
   list_int_t transitions = get_edgecounts(nlet_counts, mlets, alphlen);
 
   vec_int_t out_ints = markov_generator(seq_ints.size(), nlet_counts, transitions,
-      gen, nlets, k, alphlen, mlets);
+      gen, nlets, k, alphlen);
 
   std::string out = make_new_seq(out_ints, alph);
 
@@ -394,6 +393,28 @@ std::string shuffle_linear_one (const std::string &single_seq, const int &k,
 
 }
 
+vec_int_t klet_counter_with_alph(const str_t &single_seq, const str_t &alph,
+    const int &k) {
+
+  std::size_t alphlen = alph.size();
+  std::size_t nlets = pow(alphlen, k);
+
+  vec_int_t seq_ints(single_seq.size());
+  for (std::size_t i = 0; i < single_seq.size(); ++i) {
+    for (std::size_t a = 0; a < alphlen; ++a) {
+      if (single_seq[i] == alph[a]) {
+        seq_ints[i] = a;
+        break;
+      }
+    }
+  }
+
+  vec_int_t counts = klet_counter(seq_ints, k, nlets, alphlen);
+
+  return counts;
+
+}
+
 vec_int_t klet_counter_from_string(const str_t &single_seq, const int &k) {
 
   std::set<int> alph_s;
@@ -403,7 +424,7 @@ vec_int_t klet_counter_from_string(const str_t &single_seq, const int &k) {
   str_t alph;
   alph.assign(alph_s.begin(), alph_s.end());
   std::size_t alphlen = alph.size();
-  std::size_t nlets = pow(alph.size(), k);
+  std::size_t nlets = pow(alphlen, k);
 
   vec_int_t seq_ints(single_seq.size());
   for (std::size_t i = 0; i < single_seq.size(); ++i) {
@@ -531,6 +552,20 @@ std::vector<std::vector<int>> count_klets_cpp(const std::vector<std::string> &se
 }
 
 // [[Rcpp::export(rng = false)]]
+std::vector<std::vector<int>> count_klets_alph_cpp(const std::vector<std::string> &sequences,
+    const std::string &alph, const int &k, const int &nthreads) {
+
+  list_int_t counts(sequences.size());
+  RcppThread::parallelFor(0, sequences.size(),
+      [&counts, &sequences, &k, &alph] (std::size_t i) {
+        counts[i] = klet_counter_with_alph(sequences[i], alph, k);
+      }, nthreads);
+
+  return counts;
+
+}
+
+// [[Rcpp::export(rng = false)]]
 std::vector<std::string> get_klets_cpp(std::vector<std::string> &alph,
     const int &k) {
 
@@ -540,32 +575,71 @@ std::vector<std::string> get_klets_cpp(std::vector<std::string> &alph,
 
 }
 
-// [[Rcpp::export]]
-Rcpp::String shuffle_markov_loop(R_xlen_t seq_i_l, R_xlen_t seq_i_r, int k,
-    Rcpp::StringVector seqout, const Rcpp::StringVector &lets,
-    const Rcpp::NumericMatrix &trans, const Rcpp::StringVector &trans_cols) {
+// [[Rcpp::export(rng = false)]]
+std::vector<std::string> create_sequences_cpp(const int seqlen,
+    const int seqnum, const std::vector<std::string> &alph, const int k,
+    const std::vector<double> &freqs, const int nthreads, const int seed,
+    const Rcpp::NumericMatrix &transitions) {
 
-  /* TODO: make a replacement */
+  std::size_t alphlen = alph.size();
+  std::size_t nlets = pow(alphlen, k);
+  list_int_t nlet_lists = make_klet_lists(nlets, k, alphlen);
 
-  Rcpp::StringVector prev_k_split;
-  R_xlen_t trans_i;
-  Rcpp::String prev_k, seq_i;
-  Rcpp::IntegerVector prev_i;
-  Rcpp::NumericVector curr_prob;
+  list_num_t trans = R_to_cpp_motif_num(transitions);
 
-  for (R_xlen_t i = seq_i_l; i < seq_i_r; ++i) {
+  vec_str_t out(seqnum, "");
 
-    prev_i = Rcpp::seq(i - k + 1, i - 1);
-    prev_k_split = seqout[prev_i];
-    prev_k = Rcpp::collapse(prev_k_split);
+  if (k == 1) {
 
-    trans_i = trans_cols.findName(prev_k);
-    curr_prob = trans(Rcpp::_, trans_i);
+    RcppThread::parallelFor(0, out.size(),
+        [&seqlen, &alph, &seed, &out, &freqs] (std::size_t i) {
 
-    seqout[i] = Rcpp::sample(lets, 1, false, curr_prob)[0];
+          out[i].reserve(seqlen);
+          std::default_random_engine gen(seed * (int(i) + 1));
+          std::discrete_distribution<int> nextlet(freqs.begin(), freqs.end());
+
+          for (int j = 0; j < seqlen; ++j) {
+            out[i] += alph[nextlet(gen)];
+          }
+
+        }, nthreads);
+
+  } else if (k > 1) {
+
+    RcppThread::parallelFor(0, out.size(),
+        [&seqlen, &alph, &seed, &out, &freqs, &trans, &nlet_lists, &k, &alphlen]
+        (std::size_t i) {
+
+          vec_int_t out_i;
+          out_i.reserve(seqlen);
+          std::default_random_engine gen(seed * (int(i) + 1));
+
+          std::discrete_distribution<int> let1(freqs.begin(), freqs.end());
+          int firstletters = let1(gen);
+          for (int j = 0; j < k; ++j) {
+            out_i.push_back(nlet_lists[firstletters][j]);
+          }
+
+          int prevmlet;
+          for (int j = k - 1; j < seqlen; ++j) {
+            prevmlet = 0;
+            for (int b = k - 1; b >= 1; --b) {
+              prevmlet += out_i[j - b] * pow(alphlen, b - 1);
+            }
+            std::discrete_distribution<int> nextlet(trans[prevmlet].begin(),
+                trans[prevmlet].end());
+            out_i.push_back(nextlet(gen));
+          }
+
+          out[i].reserve(seqlen);
+          for (int j = 0; j < seqlen; ++j) {
+            out[i] += alph[out_i[j]];
+          }
+
+        }, nthreads);
 
   }
 
-  return Rcpp::collapse(seqout);
+  return out;
 
 }

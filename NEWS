@@ -17,7 +17,12 @@ MINOR CHANGES
     o Removed 'random' shuffling method.
 
     o Using RcppThread instead of BiocParallel in several functions:
-      compare_motifs(), motif_pvalue(), scan_sequences(), shuffle_sequences().
+      compare_motifs(), create_sequences(), get_bkg(), motif_pvalue(),
+      scan_sequences(), shuffle_sequences(). This means parallelization can
+      occur within C++ code which is much faster than having to jump between
+      R and C++. Currently motif_peaks(), read_motifs() and write_motifs()
+      are the only remaining functions which offer optional BiocParallel
+      usage.
 
     o Many performance improvements to functions relying on internal C++ code.
 
@@ -31,7 +36,7 @@ MINOR CHANGES
       compare_motifs(), the diagonal entries now properly show the max
       possible similarity score.
 
-    o New merge_motifs() implementation. This also fixes a previous bug
+    o New internal merge_motifs() implementation. This also fixes a previous bug
       with incorrect PPM averaging.
 
 CHANGES IN VERSION 1.2.1

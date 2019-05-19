@@ -9,17 +9,16 @@
 #' @param seqlen `numeric(1)` Length of random sequences.
 #' @param freqs `numeric` A named vector of probabilities. The length of the
 #'    vector must be the power of the number of letters in the sequence alphabet.
-#' @param monofreqs `numeric` Deprecated. Use `freqs` instead.
-#' @param difreqs `numeric` Deprecated. Use `freqs` instead.
-#' @param trifreqs `numeric` Deprecated. Use `freqs` instead.
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [create_sequences()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for large jobs (such as
-#'    `create_sequences(seqlen=100000,seqnum=100000)`). Furthermore,
-#'    the behaviour of `progress = TRUE` is
-#'    changed if `BP = TRUE`; the default \pkg{BiocParallel} progress bar will
-#'    be shown (which unfortunately is much less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [create_sequences()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
+#'    Note that no speed up will occur for jobs with `seqnum = 1`.
+#' @param rng.seed `numeric(1)` Set random number generator seed. Since sequence
+#'    creation can occur simultaneously in multiple threads using C++, it cannot
+#'    communicate with the regular `R` random number generator state and thus requires
+#'    an independent seed. Each individual sequence creation instance is
+#'    given the following seed: `rng.seed * index`.
 #'
 #' @return \code{\link{XStringSet}} The returned sequences are _unnamed_.
 #'
@@ -38,25 +37,30 @@
 #' @seealso [create_motif()], [shuffle_sequences()]
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
-                             freqs, monofreqs, difreqs, trifreqs,
-                             progress = FALSE, BP = FALSE) {
+                             freqs, progress = FALSE, BP = FALSE, nthreads = 1,
+                             rng.seed = sample.int(1e9, 1)) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(alphabet = args$alphabet),
                                  1, FALSE, TYPE_CHAR)
-  num_check <- check_fun_params(list(seqnum = args$seqnum, seqlen = args$seqlen,
+  num_check <- check_fun_params(list(seqnum = args$seqnum,
+                                     seqlen = args$seqlen,
                                      freqs = args$freqs,
-                                     monofreqs = args$monofreqs,
-                                     difreqs = args$difreqs,
-                                     trifreqs = args$trifreqs),
-                                c(1, 1, rep(0, 4)), c(FALSE, FALSE, rep(TRUE, 4)),
+                                     nthreads = args$nthreads,
+                                     rng.seed = args$rng.seed),
+                                c(1, 1, rep(0, 3)), c(FALSE, FALSE, rep(TRUE, 3)),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (progress)
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
+  if (BP)
+    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   alph.letters <- switch(alphabet,
                          "DNA" = DNA_BASES,
@@ -65,28 +69,6 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                                  sort_unique_cpp(safeExplode(alphabet)))
 
   if (missing(freqs)) {
-    if (!missing(monofreqs)) {
-      warning("`monofreqs` option is deprecated, please use `freqs`",
-              immediate. = TRUE)
-      freqs <- monofreqs
-    }
-    if (!missing(difreqs)) {
-      warning("`difreqs` option is deprecated, please use `freqs`",
-              immediate. = TRUE)
-      freqs <- difreqs
-    }
-    if (!missing(trifreqs)) {
-      warning("`trifreqs` option is deprecated, please use `freqs`",
-              immediate. = TRUE)
-      freqs <- trifreqs
-    }
-  }
-
-
-  if (missing(monofreqs) &&
-      missing(difreqs) &&
-      missing(trifreqs) &&
-      missing(freqs)) {
     freqs <- rep(1 / length(alph.letters), length(alph.letters))
     names(freqs) <- alph.letters
   } else {
@@ -98,23 +80,11 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   if (k %% 1 != 0)
     stop(wmsg("The length of `freqs` must be the power of the number of letters ",
               "in the sequence alphabet"))
-  seqs <- vector("list", seqnum)
 
-  if (k == 1) {
-    seqs <- lapply_(seq_len(seqnum),
-                     function(x) create_k1(alph.letters = alph.letters,
-                                           seqlen = seqlen, bkg = freqs),
-                    BP = BP, PB = progress)
-  } else  {
-    check_k_lets(alph.letters, freqs, k)
-    seqs <- lapply_(seq_len(seqnum),
-                     function(x) create_kany(alph.letters = alph.letters,
-                                             seqlen = seqlen, freqs = freqs,
-                                             k = k),
-                    BP = BP, PB = progress)
-  }
+  trans <- if (k > 1) matrix(freqs, nrow = length(alph.letters)) else matrix()
 
-  seqs <- unlist(seqs)
+  seqs <- create_sequences_cpp(seqlen, seqnum, alph.letters, k, freqs, nthreads,
+                               rng.seed, trans)
 
   seqs <- switch(alphabet,
                  "DNA" = DNAStringSet(seqs),
@@ -126,12 +96,6 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
 
 }
 
-create_k1 <- function(alph.letters, seqlen, bkg) {
-  seqout <- sample(alph.letters, seqlen, replace = TRUE, prob = bkg)
-  seqout <- collapse_cpp(seqout)
-  seqout
-}
-
 check_k_lets <- function(alph.letters, freqs, k) {
   lets1 <- names(freqs)
   lets2 <- get_klets(alph.letters, k)
@@ -140,27 +104,4 @@ check_k_lets <- function(alph.letters, freqs, k) {
               "probabilities should be provided for:\n",
               paste(lets2, collapse = " ")))
   invisible(NULL)
-}
-
-create_kany <- function(alph.letters, seqlen, freqs, k) {
-
-  seqout <- character(seqlen)
-  lets <- names(freqs)
-  first.k <- sample(lets, 1, prob = freqs)
-  first.k <- safeExplode(first.k)
-  seqout[seq_len(k)] <- first.k
-
-  trans <- t(matrix(freqs, nrow = length(alph.letters)))
-  lets2 <- get_klets(alph.letters, k -1)
-  colnames(trans) <- alph.letters
-  rownames(trans) <- lets2
-
-  trans <- t(trans)
-  trans[trans == 0] <- 1 / nrow(trans) / 1000
-  names(lets2) <- lets2
-
-  seqout <- shuffle_markov_loop(k, seqlen, k, seqout, alph.letters, trans, lets2)
-
-  seqout
-
 }

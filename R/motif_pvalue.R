@@ -20,11 +20,7 @@
 #'    a good tradeoff between speed and accuracy for jobs requiring repeated
 #'    calculations.
 #' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [motif_pvalue()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for exceptionally large
-#'    jobs. Note that this is only used for calculating scores from P-values
-#'    (in other words, when the `pvalue` argument is provided).
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [motif_pvalue()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads. Note that this is only
 #'    used for calculating P-values from scores (in other words, when the `score`
@@ -166,7 +162,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   if (progress)
     warning("'progress' is deprecated and does nothing")
-  progres <- FALSE
+  if (BP)
+    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
@@ -223,7 +220,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    out <- mapply_(motif_score_pval, motifs, pvalue, k, PB = progress, BP = BP)
+    # BP could be used here, but I'd rather not have both BP and nthreads
+    out <- mapply(motif_score_pval, motifs, pvalue, k)
 
   } else if (missing(score) && missing(pvalue)) {
 
@@ -272,11 +270,7 @@ motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
 
 motif_score_pval <- function(score.mat, pval, k = 8) {
 
-  # Assumes a _uniform_ background! (or else distribution no longer normal)
-
-  # Previously used rowSums(expand.grid(as.data.frame(scores)) instead of
-  # expand_scores(scores). The latter function ends up with 1/3 the memory
-  # allocations compared to the expand.grid solution.
+  # Assumes a uniform background!
 
   pval <- 1 - pval
   alph.len <- nrow(score.mat)
@@ -288,6 +282,8 @@ motif_score_pval <- function(score.mat, pval, k = 8) {
   min.score <- sum(apply(score.mat, 2, min)) / 1000
 
   if (mot.len > k) {
+
+    # Assumes a normal distribution, which frankly is probably wrong.
 
     score.mat.split <- split_mat(score.mat, k)
     s.split <- lapply(score.mat.split,

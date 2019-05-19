@@ -7,7 +7,7 @@
 \alias{shuffle_string}
 \title{Sequence-related utility functions.}
 \usage{
-count_klets(string, k = 1)
+count_klets(string, k = 1, alph)
 
 get_klets(lets, k = 1)
 
@@ -18,6 +18,9 @@ shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
 \item{string}{\code{character(1)} A length one character vector.}
 
 \item{k}{\code{integer(1)} K-let size.}
+
+\item{alph}{\code{character(1)} A single character string with the desired
+sequence alphabet. If missing, finds the unique letters in the string.}
 
 \item{lets}{\code{character} A character vector where each element will be
 considered a single unit.}

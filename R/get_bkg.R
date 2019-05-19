@@ -25,13 +25,11 @@
 #'    of the input sequences as well. Only valid for DNA/RNA.
 #' @param list.out `logical(1)` Return background frequencies as list, with an
 #'    entry for each `k`. If `FALSE`, return a single vector.
-#' @param progress `logical(1)` Show progress. Not recommended if `BP = TRUE`.
-#' @param BP `logical(1)` Allows the use of \pkg{BiocParallel} within
-#'    [get_bkg()]. See [BiocParallel::register()] to change the default
-#'    backend. Setting `BP = TRUE` is only recommended for large jobs. Furthermore,
-#'    the behaviour of `progress = TRUE` is changed if `BP = TRUE`; the default
-#'    \pkg{BiocParallel} progress bar will be shown (which unfortunately is much
-#'    less informative).
+#' @param progress `logical(1)` Deprecated. Does nothing.
+#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param nthreads `numeric(1)` Run [get_bkg()] in parallel with `nthreads`
+#'    threads. `nthreads = 0` uses all available threads.
+#'    Note that no speed up will occur for jobs with only a single sequence.
 #'
 #' @return
 #'    If `to.meme = NULL` and `list.out = TRUE`: a list with each entry being a
@@ -62,7 +60,8 @@
 #' @export
 get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                     alphabet = NULL, to.meme = NULL, RC = FALSE,
-                    list.out = TRUE, progress = FALSE, BP = FALSE) {
+                    list.out = TRUE, progress = FALSE, BP = FALSE,
+                    nthreads = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -85,6 +84,11 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (progress)
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
+  if (BP)
+    warning("'BP' is deprecated, see 'nthreads'", immediate. = TRUE)
 
   k <- as.integer(k)
   if (RC && seqtype(sequences) %in% c("DNA", "RNA"))
@@ -111,8 +115,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
-  seqs <- as.character(sequences)
-  seqs <- lapply(seqs, safeExplode)
+  seqs1 <- as.character(sequences)
+  seqs <- lapply(seqs1, safeExplode)
 
   # This function can be made many times faster for processing multiple
   # sequences by combining them into one. However, this introduces a big
@@ -126,35 +130,15 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   # working on sequences individually.
 
   if (no.alph) alphabet <- sort_unique_cpp(do.call(c, lapply(seqs, unique)))
+  alph <- collapse_cpp(alphabet)
 
-  check.k1 <- FALSE
-  if (1 %in% k) {
-    check.k1 <- TRUE
-    k <- k[k != 1]
-    k1 <- vector("list", length(seqs))
-    for (i in seq_along(k1)) {
-      k1[[i]] <- as.numeric(table_cpp(seqs[[i]]))
-    }
-    k1 <- do.call(cbind, k1)
-    k1 <- rowSums(k1)
-    names(k1) <- alphabet
-  }
-
-  counts <- list()
-
-  if (length(k) > 0) {
-    for (i in seq_along(k)) {
-      counts[[as.character(k[i])]] <- lapply_(seqs, get_counts, k = k[i],
-                                              alph = alphabet, BP = BP,
-                                              PB = progress)
-      counts[[as.character(k[i])]] <- do.call(cbind, counts[[as.character(k[i])]])
-      counts[[as.character(k[i])]] <- rowSums(counts[[as.character(k[i])]])
-      names(counts[[as.character(k[i])]]) <- get_klets(alphabet, k[i])
-    }
-  }
-
-  if (check.k1) {
-    counts[["1"]] <- k1
+  counts <- vector("list", length(k))
+  names(counts) <- as.character(k)
+  for (i in seq_along(k)) {
+    counts[[as.character(k[i])]] <- count_klets_alph_cpp(seqs1, alph, k[i], nthreads)
+    counts[[as.character(k[i])]] <- do.call(data.frame, counts[[as.character(k[i])]])
+    counts[[as.character(k[i])]] <- rowSums(counts[[as.character(k[i])]])
+    names(counts[[as.character(k[i])]]) <- get_klets(alphabet, k[i])
   }
 
   if (pseudocount > 0) counts <- lapply(counts, function(x) x + 1)
@@ -172,7 +156,6 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     }
     if (!as.prob) counts <- lapply(counts, function(x) x / sum(x))
     out <- character(0)
-    if (check.k1) k <- c(1, k)
     out <- to_meme_bkg(counts)
     cat(out, sep = "\n", file = to.meme)
 
@@ -189,11 +172,6 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
 
   }
 
-}
-
-get_counts <- function(x, k, alph) {
-  a <- letter_freqs(x, k, to.return = "freqs", as.prob = FALSE, alph = alph)
-  a$counts$counts
 }
 
 to_meme_bkg <- function(counts) {

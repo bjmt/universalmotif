@@ -470,6 +470,10 @@ get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
         ok <- TRUE
       } else {
         n2 <- n2 + 1
+        if (n2 > db.scores$target[nrow(db.scores)]) {
+          n2 <- comps[2, i]
+          n1 <- comps[1, i] - 1
+        }
       }
 
     }

@@ -5,7 +5,8 @@
 \title{Create random sequences.}
 \usage{
 create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, freqs,
-  monofreqs, difreqs, trifreqs, progress = FALSE, BP = FALSE)
+  progress = FALSE, BP = FALSE, nthreads = 1,
+  rng.seed = sample.int(1e+09, 1))
 }
 \arguments{
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of
@@ -18,21 +19,19 @@ characters to be used as the alphabet.}
 \item{freqs}{\code{numeric} A named vector of probabilities. The length of the
 vector must be the power of the number of letters in the sequence alphabet.}
 
-\item{monofreqs}{\code{numeric} Deprecated. Use \code{freqs} instead.}
+\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
-\item{difreqs}{\code{numeric} Deprecated. Use \code{freqs} instead.}
+\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
-\item{trifreqs}{\code{numeric} Deprecated. Use \code{freqs} instead.}
+\item{nthreads}{\code{numeric(1)} Run \code{\link[=create_sequences]{create_sequences()}} in parallel with \code{nthreads}
+threads. \code{nthreads = 0} uses all available threads.
+Note that no speed up will occur for jobs with \code{seqnum = 1}.}
 
-\item{progress}{\code{logical(1)} Show progress. Not recommended if \code{BP = TRUE}.}
-
-\item{BP}{\code{logical(1)} Allows the use of \pkg{BiocParallel} within
-\code{\link[=create_sequences]{create_sequences()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the default
-backend. Setting \code{BP = TRUE} is only recommended for large jobs (such as
-\code{create_sequences(seqlen=100000,seqnum=100000)}). Furthermore,
-the behaviour of \code{progress = TRUE} is
-changed if \code{BP = TRUE}; the default \pkg{BiocParallel} progress bar will
-be shown (which unfortunately is much less informative).}
+\item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since sequence
+creation can occur simultaneously in multiple threads using C++, it cannot
+communicate with the regular \code{R} random number generator state and thus requires
+an independent seed. Each individual sequence creation instance is
+given the following seed: \code{rng.seed * index}.}
 }
 \value{
 \code{\link{XStringSet}} The returned sequences are \emph{unnamed}.
