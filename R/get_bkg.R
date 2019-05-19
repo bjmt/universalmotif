@@ -118,17 +118,6 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   seqs1 <- as.character(sequences)
   seqs <- lapply(seqs1, safeExplode)
 
-  # This function can be made many times faster for processing multiple
-  # sequences by combining them into one. However, this introduces a big
-  # problem: combining sequences means creating new k-lets between them.
-  # (this only matters for k > 1)
-  #
-  # It's probably faster to find out what these new k-lets are, then subtracting,
-  # rather than going back to repeating the letter_freqs() function for every
-  # sequence.
-  # Update: turns out this approach is actually slower. Best to go back to
-  # working on sequences individually.
-
   if (no.alph) alphabet <- sort_unique_cpp(do.call(c, lapply(seqs, unique)))
   alph <- collapse_cpp(alphabet)
 
