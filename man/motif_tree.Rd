@@ -39,15 +39,14 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
 
 \item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
 will not allow any overhangs. Can also be a number less than 1,
-representing the minimum fraction that the motifs must overlap. See
-\code{\link[=compare_motifs]{compare_motifs()}}.}
+representing the minimum fraction that the motifs must overlap.}
 
 \item{min.position.ic}{\code{numeric(1)} Minimum information content required between
 individual alignment positions for it to be counted in the final alignment
@@ -56,15 +55,14 @@ as this will help punish scores resulting from only a fraction of an
 alignment.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
-report the best score. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+report the best score.}
 
-\item{min.mean.ic}{\code{numeric(1)} Minimum information content between the
+\item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
 two motifs for an alignment to be scored. This helps prevent scoring
-alignments between low information content regions of two motifs. See
-\code{\link[=compare_motifs]{compare_motifs()}}.}
+alignments between low information content regions of two motifs.}
 
-\item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link[=convert_type]{convert_type()}}.}
+\item{relative_entropy}{\code{logical(1)} Change the ICM calculation affecting
+\code{min.position.ic} and \code{min.mean.ic}. See \code{\link[=convert_type]{convert_type()}}.}
 
 \item{progress}{\code{logical(1)} Deprecated. Does nothing.}
 
@@ -86,6 +84,9 @@ This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. The purp
 is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \code{\link[ggtree:ggtree]{ggtree::ggtree()}} steps
 into one. For more control over tree creation, it is recommend to do these
 steps separately. See the Advanced Usage vignette for such a workthrough.
+}
+\details{
+See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

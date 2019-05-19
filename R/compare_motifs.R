@@ -15,8 +15,8 @@
 #'    The latter allows for taking into account the background
 #'    frequencies if `relative_entropy = TRUE`.
 #' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-#'    'SW', 'MSW', 'KL', 'MKL')`. See details.
-#' @param tryRC `logical` Try the reverse complement of the motifs as well,
+#'    'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')`. See details.
+#' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
 #'    report the best score.
 #' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
 #'    motifs. Setting this to a number higher then the width of the motifs
@@ -186,8 +186,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     all_checks <- c(all_checks, type_check)
   }
   if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
-                           ", `SW`, `MSW`, `KL`, or `MKL`; got `", method, "`")
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
+                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
+                           method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
   }
@@ -198,6 +199,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   }
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (use.type == "ICM" && method %in% c("ALLR", "MALLR"))
+    stop("'use.type = \"ICM\"' is not allowed for ALLR/MALLR methods")
 
   if (!db.version %in% 1:2)
     stop("db.scores can only be 1 or 2")
@@ -238,7 +242,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                  sort_unique_cpp(safeExplode(alph)))
 
   mot.type <- switch(use.type, "PPM" = 1, "ICM" = 2)
-  mot.bkgs <- lapply(motifs, function(x) x@bkg[seq_along(alph)])
+  mot.bkgs <- get_bkgs(motifs, use.freq)
+  mot.nsites <- get_nsites(motifs)
 
   if (missing(compare.to)) {
 
@@ -246,10 +251,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       tryRC, min.mean.ic, normalise.scores,
                                       nthreads, mot.bkgs, mot.type,
                                       relative_entropy, mot.names,
-                                      min.position.ic)
+                                      min.position.ic, mot.nsites)
 
-    if (method == "PCC") comparisons <- fix_pcc_diag(comparisons, mot.mats)
-    if (method == "SW") comparisons <- fix_sw_diag(comparisons, mot.mats)
+    comparisons <- switch(method,
+                          "PCC" = fix_pcc_diag(comparisons, mot.mats),
+                          "SW" = fix_sw_diag(comparisons, mot.mats),
+                          "ALLR" = fix_allr_diag(comparisons, mot.mats),
+                          comparisons)
 
   } else {
 
@@ -269,12 +277,12 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
       if (use.freq != 1)
         warning(wmsg("Using the internal P-value database with `use.freq > 1`",
-                     " will result in incorrect P-values"),
+                     " will likely result in incorrect P-values"),
                 immediate. = TRUE)
       mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
       if (!all(mot.alphs == "DNA"))
         warning(wmsg("Using the internal P-value database with non-DNA motifs ",
-                     "will result in incorrect P-values"),
+                     "will likely result in incorrect P-values"),
                 immediate. = TRUE)
 
     } else {
@@ -286,15 +294,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       method, min.overlap, tryRC, mot.bkgs,
                                       mot.type, relative_entropy,
                                       min.mean.ic, normalise.scores, nthreads,
-                                      min.position.ic)
+                                      min.position.ic, mot.nsites)
 
-    pvals <- vector("list", length(compare.to))
-    for (i in seq_along(compare.to)) {
-      pvals[[i]] <- pvals_from_db(motifs[compare.to[i]], motifs[-compare.to[i]],
-                                  db.scores, comparisons[comps[, 1] == compare.to[i]],
-                                  method)
-    }
-    pvals <- unlist(pvals)
+    pvals <- get_motif_pvals(mot.mats, comparisons, comps, db.scores, method)
 
     comparisons <- data.frame(subject = mot.names[comps[, 1]],
                               target = mot.names[comps[, 2]],
@@ -331,13 +333,14 @@ check_db_scores <- function(db.scores, method, normalise.scores) {
     stop("'db.scores' must be a data.frame")
   }
 
+  fail <- FALSE
   db_coltypes <- vapply(db.scores, class, character(1))
-  db_coltypes_exp <- c("numeric", "numeric", "numeric", "numeric",
-                       "character", "logical")
-  if (any(db_coltypes != db_coltypes_exp)) {
-    stop("'db.scores' must have column types: ",
-         paste0(db_coltypes_exp, collapse = ", "))
-  }
+  if (any(!db_coltypes[1:2] %in% c("numeric", "integer"))) fail <- TRUE
+  if (any(db_coltypes[3:4] != "numeric")) fail <- TRUE
+  if (db_coltypes[5] != "character") fail <- TRUE
+  if (db_coltypes[6] != "logical") fail <- TRUE
+  if (fail) stop(wmsg("'db.scores' must have column types: integer/numeric, ",
+                      "integer/numeric, numeric, numeric, character, logical"))
 
   db_colnames <- colnames(db.scores)
   db_colnames_exp <- c("subject", "target", "mean", "sd", "method", "normalised")
@@ -373,6 +376,15 @@ get_comp_indices <- function(compare.to, n) {
 
 }
 
+fix_allr_diag <- function(comparisons, mot.mats) {
+
+  mot.lens <- vapply(mot.mats, ncol, numeric(1))
+  diag(comparisons) <- mot.lens * 1.314
+
+  comparisons
+
+}
+
 fix_pcc_diag <- function(comparisons, mot.mats) {
 
   mot.lens <- vapply(mot.mats, ncol, numeric(1))
@@ -403,11 +415,12 @@ get_rid_of_dupes <- function(comparisons) {
 compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
                                normalise.scores, nthreads, mot.bkgs,
                                mot.type, relative, mot.names,
-                               min.position.ic) {
+                               min.position.ic, mot.nsites) {
 
   ans <- compare_motifs_all_cpp(mot.mats, method, min.overlap, RC, mot.bkgs,
                                 mot.type, relative, min.mean.ic,
-                                normalise.scores, nthreads, min.position.ic)
+                                normalise.scores, nthreads, min.position.ic,
+                                mot.nsites)
 
   n <- length(mot.mats)
   comp <- comb2_cpp(n)
@@ -415,42 +428,51 @@ compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
 
 }
 
-pvals_from_db <- function(subject, target, db, scores, method) {
+get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
 
-  if (method %in% c("PCC", "MPCC", "SW", "MSW"))
+  if (method %in% c("PCC", "MPCC", "SW", "MSW", "ALLR", "MALLR"))
     ltail <- FALSE
   else
     ltail <- TRUE
 
-  pvals <- vector("numeric", length(target))
+  n <- nrow(comps)
 
-  subject.ncol <- ncol(subject[[1]]@motif)
+  mot.ncols <- vapply(mot.mats, ncol, numeric(1))
 
-  if (subject.ncol < db$subject[1]) subject.ncol <- db$subject[1]
-  if (subject.ncol > db$subject[nrow(db)]) subject.ncol <- db$subject[nrow(db)]
+  comps[, 1] <- mot.ncols[comps[, 1]]
+  comps[, 2] <- mot.ncols[comps[, 2]]
 
-  possible.ncols <- sort(unique(db$target))
-  possible.sub <- sort(unique(db$subject))
+  # turns the data.frame into a matrix (transposed)
+  comps <- apply(comps, 1, sort)
 
-  for (i in seq_along(target)) {
+  pvals <- numeric(n)
+  for (i in seq_len(n)) {
 
-    ncol2 <- ncol(target[[i]]@motif)
+    ok <- FALSE
 
-    if (ncol2 < db$target[1]) ncol2 <- db$target[1]
-    if (ncol2 > db$target[nrow(db)]) ncol2 <- db$target[nrow(db)]
+    n1 <- comps[1, i]
+    if (n1 < db.scores$subject[1])
+      n1 <- db.scores$subject[1]
+    if (n1 > db.scores$subject[nrow(db.scores)])
+      n1 <- db.scores$subject[nrow(db.scores)]
 
-    tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
+    n2 <- comps[2, i]
+    if (n2 < db.scores$target[1])
+      n2 <- db.scores$target[1]
+    if (n2 > db.scores$target[nrow(db.scores)])
+      n2 <- db.scores$target[nrow(db.scores)]
 
-    if (length(tmp.mean) == 0) {
-      ncol2 <- sort(possible.ncols[possible.ncols <= ncol2])
-      ncol2 <- ncol2[length(ncol2)]
-      subject.ncol <- sort(possible.sub[possible.sub <= subject.ncol])
-      subject.ncol <- subject.ncol[length(subject.ncol)]
-      tmp.mean <- db$mean[db$subject == subject.ncol & db$target == ncol2]
+    while (!ok) {
+
+      ans <- db.scores[db.scores$subject == n1 & db.scores$target == n2, ]
+      if (!is.na(ans[, 1])) {
+        pvals[i] <- pnorm(scores[i], ans$mean[1], ans$sd[1], ltail, TRUE)
+        ok <- TRUE
+      } else {
+        n2 <- n2 + 1
+      }
+
     }
-
-    tmp.sd <- db$sd[db$subject == subject.ncol & db$target == ncol2]
-    pvals[i] <- pnorm(scores[i], tmp.mean, tmp.sd, ltail, TRUE)
 
   }
 

@@ -17,8 +17,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // compare_motifs_cpp
-std::vector<double> compare_motifs_cpp(const Rcpp::List& mots, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic);
-RcppExport SEXP _universalmotif_compare_motifs_cpp(SEXP motsSEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP) {
+std::vector<double> compare_motifs_cpp(const Rcpp::List& mots, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites);
+RcppExport SEXP _universalmotif_compare_motifs_cpp(SEXP motsSEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
@@ -34,13 +34,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
     Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const double >::type posic(posicSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_motifs_cpp(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic));
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type nsites(nsitesSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_cpp(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites));
     return rcpp_result_gen;
 END_RCPP
 }
 // compare_motifs_all_cpp
-std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List& mots, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic);
-RcppExport SEXP _universalmotif_compare_motifs_all_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP) {
+std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List& mots, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites);
+RcppExport SEXP _universalmotif_compare_motifs_all_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
@@ -54,7 +55,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
     Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const double >::type posic(posicSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_motifs_all_cpp(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic));
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type nsites(nsitesSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_all_cpp(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -73,8 +75,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // view_motifs_prep
-Rcpp::List view_motifs_prep(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const Rcpp::StringVector& rnames);
-RcppExport SEXP _universalmotif_view_motifs_prep(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP, SEXP rnamesSEXP) {
+Rcpp::List view_motifs_prep(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const Rcpp::StringVector& rnames, const std::vector<double>& nsites);
+RcppExport SEXP _universalmotif_view_motifs_prep(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP, SEXP rnamesSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
@@ -87,13 +89,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool >::type relative(relativeSEXP);
     Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
     Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type rnames(rnamesSEXP);
-    rcpp_result_gen = Rcpp::wrap(view_motifs_prep(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames));
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type nsites(nsitesSEXP);
+    rcpp_result_gen = Rcpp::wrap(view_motifs_prep(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites));
     return rcpp_result_gen;
 END_RCPP
 }
 // merge_motifs_cpp
-Rcpp::List merge_motifs_cpp(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm);
-RcppExport SEXP _universalmotif_merge_motifs_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP) {
+Rcpp::List merge_motifs_cpp(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const std::vector<double>& nsites);
+RcppExport SEXP _universalmotif_merge_motifs_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
@@ -105,7 +108,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< const bool >::type relative(relativeSEXP);
     Rcpp::traits::input_parameter< const bool >::type norm(normSEXP);
-    rcpp_result_gen = Rcpp::wrap(merge_motifs_cpp(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm));
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type nsites(nsitesSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_motifs_cpp(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -334,32 +338,32 @@ BEGIN_RCPP
 END_RCPP
 }
 // validObject_universalmotif
-Rcpp::StringVector validObject_universalmotif(Rcpp::S4 motif, bool throw_error);
+Rcpp::StringVector validObject_universalmotif(const Rcpp::S4& motif, const bool throw_error);
 RcppExport SEXP _universalmotif_validObject_universalmotif(SEXP motifSEXP, SEXP throw_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< Rcpp::S4 >::type motif(motifSEXP);
-    Rcpp::traits::input_parameter< bool >::type throw_error(throw_errorSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type motif(motifSEXP);
+    Rcpp::traits::input_parameter< const bool >::type throw_error(throw_errorSEXP);
     rcpp_result_gen = Rcpp::wrap(validObject_universalmotif(motif, throw_error));
     return rcpp_result_gen;
 END_RCPP
 }
 // summarise_motifs_cpp
-Rcpp::DataFrame summarise_motifs_cpp(Rcpp::List motifs);
+Rcpp::DataFrame summarise_motifs_cpp(const Rcpp::List& motifs);
 RcppExport SEXP _universalmotif_summarise_motifs_cpp(SEXP motifsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type motifs(motifsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
     rcpp_result_gen = Rcpp::wrap(summarise_motifs_cpp(motifs));
     return rcpp_result_gen;
 END_RCPP
 }
 // universalmotif_to_list
-Rcpp::List universalmotif_to_list(Rcpp::S4 motif);
+Rcpp::List universalmotif_to_list(const Rcpp::S4& motif);
 RcppExport SEXP _universalmotif_universalmotif_to_list(SEXP motifSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< Rcpp::S4 >::type motif(motifSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type motif(motifSEXP);
     rcpp_result_gen = Rcpp::wrap(universalmotif_to_list(motif));
     return rcpp_result_gen;
 END_RCPP
@@ -435,20 +439,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // print_pb
-void print_pb(R_xlen_t out);
+void print_pb(const R_xlen_t& out);
 RcppExport SEXP _universalmotif_print_pb(SEXP outSEXP) {
 BEGIN_RCPP
-    Rcpp::traits::input_parameter< R_xlen_t >::type out(outSEXP);
+    Rcpp::traits::input_parameter< const R_xlen_t& >::type out(outSEXP);
     print_pb(out);
     return R_NilValue;
 END_RCPP
 }
 // update_pb
-void update_pb(R_xlen_t i, R_xlen_t max);
+void update_pb(const R_xlen_t& i, const R_xlen_t& max);
 RcppExport SEXP _universalmotif_update_pb(SEXP iSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
-    Rcpp::traits::input_parameter< R_xlen_t >::type i(iSEXP);
-    Rcpp::traits::input_parameter< R_xlen_t >::type max(maxSEXP);
+    Rcpp::traits::input_parameter< const R_xlen_t& >::type i(iSEXP);
+    Rcpp::traits::input_parameter< const R_xlen_t& >::type max(maxSEXP);
     update_pb(i, max);
     return R_NilValue;
 END_RCPP
@@ -522,13 +526,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // position_icscoreC
-double position_icscoreC(std::vector<double> pos, std::vector<double> bkg, const std::string type, const double pseudocount, double nsites, const bool relative_entropy);
+double position_icscoreC(std::vector<double> pos, std::vector<double> bkg, const std::string& type, const double pseudocount, double nsites, const bool relative_entropy);
 RcppExport SEXP _universalmotif_position_icscoreC(SEXP posSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP pseudocountSEXP, SEXP nsitesSEXP, SEXP relative_entropySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type bkg(bkgSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type type(typeSEXP);
     Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
     Rcpp::traits::input_parameter< double >::type nsites(nsitesSEXP);
     Rcpp::traits::input_parameter< const bool >::type relative_entropy(relative_entropySEXP);
@@ -547,45 +551,45 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_consensusC
-std::string get_consensusC(std::vector<double> pos, const std::string alphabet, const std::string type, const double pseudocount);
+std::string get_consensusC(std::vector<double> pos, const std::string& alphabet, const std::string& type, const double pseudocount);
 RcppExport SEXP _universalmotif_get_consensusC(SEXP posSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type alphabet(alphabetSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type alphabet(alphabetSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type type(typeSEXP);
     Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
     rcpp_result_gen = Rcpp::wrap(get_consensusC(pos, alphabet, type, pseudocount));
     return rcpp_result_gen;
 END_RCPP
 }
 // consensus_to_ppmC
-std::vector<double> consensus_to_ppmC(std::string letter);
+std::vector<double> consensus_to_ppmC(const std::string& letter);
 RcppExport SEXP _universalmotif_consensus_to_ppmC(SEXP letterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< std::string >::type letter(letterSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type letter(letterSEXP);
     rcpp_result_gen = Rcpp::wrap(consensus_to_ppmC(letter));
     return rcpp_result_gen;
 END_RCPP
 }
 // consensus_to_ppmAAC
-std::vector<double> consensus_to_ppmAAC(std::string letter);
+std::vector<double> consensus_to_ppmAAC(const std::string& letter);
 RcppExport SEXP _universalmotif_consensus_to_ppmAAC(SEXP letterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< std::string >::type letter(letterSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type letter(letterSEXP);
     rcpp_result_gen = Rcpp::wrap(consensus_to_ppmAAC(letter));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_consensusAAC
-std::string get_consensusAAC(std::vector<double> pos, const std::string type, const double pseudocount);
+std::string get_consensusAAC(std::vector<double> pos, const std::string& type, const double pseudocount);
 RcppExport SEXP _universalmotif_get_consensusAAC(SEXP posSEXP, SEXP typeSEXP, SEXP pseudocountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< std::vector<double> >::type pos(posSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type type(typeSEXP);
     Rcpp::traits::input_parameter< const double >::type pseudocount(pseudocountSEXP);
     rcpp_result_gen = Rcpp::wrap(get_consensusAAC(pos, type, pseudocount));
     return rcpp_result_gen;
@@ -607,11 +611,11 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
-    {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 13},
-    {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 11},
+    {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 14},
+    {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 12},
     {"_universalmotif_get_comparison_matrix", (DL_FUNC) &_universalmotif_get_comparison_matrix, 5},
-    {"_universalmotif_view_motifs_prep", (DL_FUNC) &_universalmotif_view_motifs_prep, 10},
-    {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 9},
+    {"_universalmotif_view_motifs_prep", (DL_FUNC) &_universalmotif_view_motifs_prep, 11},
+    {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 10},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},

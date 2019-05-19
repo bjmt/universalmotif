@@ -149,7 +149,7 @@ Rcpp::String collapse_cpp(const Rcpp::StringVector &x) {
 }
 
 // [[Rcpp::export(rng = false)]]
-void print_pb(R_xlen_t out) {
+void print_pb(const R_xlen_t &out) {
   if (out >= 10 && out < 100) {
     Rprintf("\b\b\b\b %i%%", out);
     return;
@@ -167,7 +167,7 @@ void print_pb(R_xlen_t out) {
 }
 
 // [[Rcpp::export(rng = false)]]
-void update_pb(R_xlen_t i, R_xlen_t max) {
+void update_pb(const R_xlen_t &i, const R_xlen_t &max) {
 
   R_xlen_t out, prev = i - 1;
   if (i == max)
@@ -349,7 +349,7 @@ std::vector<double> ppm_to_icmC(std::vector<double> pos,
 
 // [[Rcpp::export(rng = false)]]
 double position_icscoreC(std::vector<double> pos,
-    std::vector<double> bkg, const std::string type = "PPM",
+    std::vector<double> bkg, const std::string &type = "PPM",
     const double pseudocount = 1.0, double nsites = 100.0,
     const bool relative_entropy = false) {
 
@@ -393,7 +393,7 @@ std::vector<double> icm_to_ppmC(std::vector<double> pos) {
 
 // [[Rcpp::export(rng = false)]]
 std::string get_consensusC(std::vector<double> pos,
-    const std::string alphabet = "DNA", const std::string type = "PPM",
+    const std::string &alphabet = "DNA", const std::string &type = "PPM",
     const double pseudocount = 1.0) {
 
   switch (::TYPES_e[type]) {
@@ -434,7 +434,7 @@ std::string get_consensusC(std::vector<double> pos,
 }
 
 // [[Rcpp::export(rng = false)]]
-std::vector<double> consensus_to_ppmC(std::string letter) {
+std::vector<double> consensus_to_ppmC(const std::string &letter) {
 
   switch (::RDNA_e[letter]) {
 
@@ -461,7 +461,7 @@ std::vector<double> consensus_to_ppmC(std::string letter) {
 }
 
 // [[Rcpp::export(rng = false)]]
-std::vector<double> consensus_to_ppmAAC(std::string letter) {
+std::vector<double> consensus_to_ppmAAC(const std::string &letter) {
 
   int let = ::AA_e[letter];
   vec_num_t out(20, 0.001);
@@ -492,8 +492,8 @@ std::vector<double> consensus_to_ppmAAC(std::string letter) {
 }
 
 // [[Rcpp::export(rng = false)]]
-std::string get_consensusAAC(std::vector<double> pos, const std::string type = "PPM",
-    const double pseudocount = 0.0) {
+std::string get_consensusAAC(std::vector<double> pos,
+    const std::string &type = "PPM", const double pseudocount = 0.0) {
 
   switch (::TYPES_e[type]) {
     case 1: pos = pcm_to_ppmC(pos, pseudocount); break;
@@ -517,7 +517,8 @@ std::string get_consensusAAC(std::vector<double> pos, const std::string type = "
 
 // [[Rcpp::export(rng = false)]]
 std::vector<std::string> check_fun_params(const Rcpp::List &param_args,
-    std::vector<int> param_len, std::vector<bool> param_null, int expected_type) {
+    std::vector<int> param_len, std::vector<bool> param_null,
+    int expected_type) {
 
   // param_args: A named list of arguments.
   //

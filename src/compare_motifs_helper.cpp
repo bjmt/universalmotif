@@ -6,15 +6,24 @@
 #include "types.h"
 #include "utils-internal.h"
 
-std::unordered_map<std::string, int> metrics_enum = {
-  {"EUCL",  1},
-  {"MEUCL", 2},
-  {"PCC",   3},
-  {"MPCC",  4},
-  {"KL",    5},
-  {"MKL",   8},
-  {"MSW",   6},
-  {"SW",    7}
+std::unordered_map<std::string, int> METRICS_enum = {
+
+  /* distance */
+
+  {"EUCL",   1},
+  {"MEUCL",  2},
+  {"KL",     3},
+  {"MKL",    4},
+
+  /* similarity */
+
+  {"PCC",    5},
+  {"MPCC",   6},
+  {"SW",     7},
+  {"MSW",    8},
+  {"ALLR",   9},
+  {"MALLR", 10}
+
 };
 
 double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
@@ -171,6 +180,45 @@ double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
 
 }
 
+double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2, const double nsites1,
+    const double nsites2, const bool norm) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+  vec_bool_t good(ncol, false);
+  int counter = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++counter;
+    }
+  }
+
+  list_num_t left(ncol, vec_num_t(nrow, 0.0)), right(ncol, vec_num_t(nrow, 0.0));
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        left[i][j] = (mot2[i][j] * nsites2) * log(mot1[i][j] / bkg1[j]);
+        right[i][j] = (mot1[i][j] * nsites1) * log(mot2[i][j] / bkg2[j]);
+      }
+    }
+  }
+
+  vec_num_t answers(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      answers[i] = std::accumulate(left[i].begin(), left[i].end(), 0.0);
+      answers[i] += std::accumulate(right[i].begin(), right[i].end(), 0.0);
+      answers[i] /= nsites1 + nsites2;
+    }
+  }
+
+  double total = std::accumulate(answers.begin(), answers.end(), 0.0);
+
+  return norm ? total / double(counter) : total;
+
+}
+
 double compare_sw(const list_num_t &mot1, const list_num_t &mot2,
     const bool norm = false) {
 
@@ -210,6 +258,22 @@ void klfix(list_num_t &mot) {
   for (std::size_t i = 0; i < mot.size(); ++i) {
     for (std::size_t j = 0; j < mot[0].size(); ++j) {
       mot[i][j] += 0.01;
+    }
+  }
+  return;
+}
+
+void bkgfix(vec_num_t &bkg) {
+  bool fix = false;
+  for (std::size_t i = 0; i < bkg.size(); ++i) {
+    if (bkg[i] == 0) {
+      fix = true;
+      break;
+    }
+  }
+  if (fix) {
+    for (std::size_t i = 0; i < bkg.size(); ++i) {
+      bkg[i] += 0.01 * (1.0 / double(bkg.size()));
     }
   }
   return;
@@ -335,42 +399,53 @@ void fix_lowic_pos(list_num_t &tmot1, list_num_t &tmot2,
 void get_compare_ans(vec_num_t &ans, const std::size_t i,
     const list_num_t &tmot1, const list_num_t &tmot2, const bool lowic,
     const bool norm, const int alignlen, const std::size_t tlen,
-    const std::string &method) {
+    const std::string &method, const double nsites1, const double nsites2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2) {
 
-  switch (::metrics_enum[method]) {
+  switch (::METRICS_enum[method]) {
 
-    case 1: ans[i] = lowic ? sqrt(2.0) * double(alignlen)
-                             : compare_eucl(tmot1, tmot2, false)
-                               * double(tlen) / double(alignlen);
-            break;
-    case 2: ans[i] = lowic ? sqrt(2.0)
-                             : compare_eucl(tmot1, tmot2, true)
-                               * double(tlen) / double(alignlen);
-            break;
-    case 3: ans[i] = lowic ? -1.0 * double(alignlen)
-                             : compare_pcc(tmot1, tmot2, false)
+    case  1: ans[i] = lowic ? sqrt(2.0) * double(alignlen)
+                              : compare_eucl(tmot1, tmot2, false)
+                                * double(tlen) / double(alignlen);
+             break;
+    case  2: ans[i] = lowic ? sqrt(2.0)
+                              : compare_eucl(tmot1, tmot2, true)
+                                * double(tlen) / double(alignlen);
+             break;
+    case  3: ans[i] = lowic ? 5.0 * double(alignlen)
+                              : compare_kl(tmot1, tmot2, false)
+                                * double(tlen) / double(alignlen);
+             break;
+    case  4: ans[i] = lowic ? 5.0
+                              : compare_kl(tmot1, tmot2, true)
+                                * double(tlen) / double(alignlen);
+             break;
+    case  5: ans[i] = lowic ? -1.0 * double(alignlen)
+                              : compare_pcc(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case  6: ans[i] = lowic ? -1.0
+                              : compare_pcc(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
+             break;
+    case  7: ans[i] = lowic ? -2.0 * double(alignlen)
+                              : compare_sw(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case  8: ans[i] = lowic ? -2.0
+                              : compare_sw(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
+             break;
+    case  9: ans[i] = lowic ? -4.0 * double(alignlen)
+                              : compare_allr(tmot1, tmot2, bkg1, bkg2, nsites1,
+                                  nsites2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 10: ans[i] = lowic ? -4.0
+                             : compare_allr(tmot1, tmot2, bkg1, bkg2, nsites1,
+                                 nsites2, true)
                                * double(alignlen) / double(tlen);
-            break;
-    case 4: ans[i] = lowic ? -1.0
-                             : compare_pcc(tmot1, tmot2, true)
-                               * double(alignlen) / double(tlen);
-            break;
-    case 5: ans[i] = lowic ? 5.0 * double(alignlen)
-                             : compare_kl(tmot1, tmot2, false)
-                               * double(tlen) / double(alignlen);
-            break;
-    case 6: ans[i] = lowic ? -2.0
-                             : compare_sw(tmot1, tmot2, true)
-                               * double(alignlen) / double(tlen);
-            break;
-    case 7: ans[i] = lowic ? -2.0 * double(alignlen)
-                             : compare_sw(tmot1, tmot2, false)
-                               * double(alignlen) / double(tlen);
-            break;
-    case 8: ans[i] = lowic ? 5.0
-                             : compare_kl(tmot1, tmot2, true)
-                               * double(tlen) / double(alignlen);
-            break;
+             break;
 
   }
 
@@ -380,16 +455,18 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
 
 double return_best_ans(const vec_num_t &ans, const std::string &method) {
 
-  switch (::metrics_enum[method]) {
+  switch (::METRICS_enum[method]) {
 
-    case 1: return *std::min_element(ans.begin(), ans.end());
-    case 2: return *std::min_element(ans.begin(), ans.end());
-    case 3: return *std::max_element(ans.begin(), ans.end());
-    case 4: return *std::max_element(ans.begin(), ans.end());
-    case 5: return *std::min_element(ans.begin(), ans.end());
-    case 6: return *std::max_element(ans.begin(), ans.end());
-    case 7: return *std::max_element(ans.begin(), ans.end());
-    case 8: return *std::min_element(ans.begin(), ans.end());
+    case  1: return *std::min_element(ans.begin(), ans.end());
+    case  2: return *std::min_element(ans.begin(), ans.end());
+    case  3: return *std::min_element(ans.begin(), ans.end());
+    case  4: return *std::min_element(ans.begin(), ans.end());
+    case  5: return *std::max_element(ans.begin(), ans.end());
+    case  6: return *std::max_element(ans.begin(), ans.end());
+    case  7: return *std::max_element(ans.begin(), ans.end());
+    case  8: return *std::max_element(ans.begin(), ans.end());
+    case  9: return *std::max_element(ans.begin(), ans.end());
+    case 10: return *std::max_element(ans.begin(), ans.end());
 
   }
 
@@ -400,7 +477,8 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
 double compare_motif_pair(list_num_t mot1, list_num_t mot2,
     const std::string method, const int moverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const double minic, const bool norm,
-    const double posic) {
+    const double posic, const vec_num_t &bkg1, const vec_num_t &bkg2,
+    const double nsites1, const double nsites2) {
 
   double ans_rc;
   if (RC) {
@@ -408,13 +486,7 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
     vec_num_t rcic2 = ic2;
     std::reverse(rcic2.begin(), rcic2.end());
     ans_rc = compare_motif_pair(mot1, rcmot2, method, moverlap, false,
-        ic1, rcic2, minic, norm, posic);
-  }
-
-  switch (::metrics_enum[method]) {
-    case 5:
-    case 8: klfix(mot1);
-            klfix(mot2);
+        ic1, rcic2, minic, norm, posic, bkg1, bkg2, nsites1, nsites2);
   }
 
   std::size_t tlen = mot1.size() >= mot2.size() ? mot1.size() : mot2.size();
@@ -450,7 +522,8 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
       mic2 = calc_mic(tic2);
       if (mic1 < minic || mic2 < minic) lowic = true;
 
-      get_compare_ans(ans, counter, tmot1, tmot2, lowic, norm, alignlen, tlen, method);
+      get_compare_ans(ans, counter, tmot1, tmot2, lowic, norm, alignlen, tlen,
+          method, nsites1, nsites2, bkg1, bkg2);
 
       ++counter;
       lowic = false;
@@ -513,16 +586,18 @@ list_num_t get_merged_motif(const list_num_t &mot1, const list_num_t &mot2,
 
 int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
 
-  switch (::metrics_enum[method]) {
+  switch (::METRICS_enum[method]) {
 
-    case 1: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case 2: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case 3: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case 4: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case 5: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case 6: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case 7: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case 8: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case  1: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case  2: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case  3: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case  4: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case  5: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case  6: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case  7: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case  8: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case  9: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case 10: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
 
   }
 
@@ -534,7 +609,8 @@ int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
 void merge_motif_pair_subworker(list_num_t mot1, list_num_t mot2,
     const std::string &method, const int minoverlap, vec_num_t ic1,
     vec_num_t ic2, const bool norm, const double posic, const double minic,
-    double &score, int &offset) {
+    double &score, int &offset, const double nsites1, const double nsites2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2) {
 
   std::size_t tlen = mot1.size() >= mot2.size() ? mot1.size() : mot2.size();
 
@@ -568,7 +644,8 @@ void merge_motif_pair_subworker(list_num_t mot1, list_num_t mot2,
       mic2 = calc_mic(tic2);
       if (mic1 < minic || mic2 < minic) lowic = true;
 
-      get_compare_ans(ans, counter, tmot1, tmot2, lowic, norm, alignlen, tlen, method);
+      get_compare_ans(ans, counter, tmot1, tmot2, lowic, norm, alignlen, tlen,
+          method, nsites1, nsites2, bkg1, bkg2);
 
       ++counter;
       lowic = false;
@@ -599,7 +676,9 @@ list_num_t add_motif_columns(const list_num_t &mot, const int tlen,
 list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     const std::string &method, const int minoverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const int weight,
-    const bool norm, const double posic, const double minic) {
+    const bool norm, const double posic, const double minic,
+    const double nsites1, const double nsites2, const vec_num_t &bkg1,
+    const vec_num_t &bkg2) {
 
   double score;
   int offset;
@@ -614,7 +693,7 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
   }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
-      posic, minic, score, offset);
+      posic, minic, score, offset, nsites1, nsites2, bkg1, bkg2);
 
   if (RC) {
     double score_rc;
@@ -623,7 +702,7 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     vec_num_t rcic2 = ic2;
     std::reverse(rcic2.begin(), rcic2.end());
     merge_motif_pair_subworker(mot1, rcmot2, method, minoverlap, ic1, rcic2,
-        norm, posic, minic, score_rc, offset_rc);
+        norm, posic, minic, score_rc, offset_rc, nsites1, nsites2, bkg1, bkg2);
     if (score_rc > score) {
       offset = offset_rc;
       mot2 = rcmot2;
@@ -678,7 +757,8 @@ vec_num_t calc_ic_motif(const list_num_t &motif, const vec_num_t &bkg,
 void find_offsets(list_num_t mot1, list_num_t mot2, int &offset_1,
     int &offset_2, bool &use_rc, const std::string &method, const int minoverlap,
     vec_num_t ic1, vec_num_t ic2, const bool norm, const double posic,
-    const double minic, const bool RC) {
+    const double minic, const bool RC, const double nsites1, const double nsites2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2) {
 
   double score;
   int offset;
@@ -693,7 +773,7 @@ void find_offsets(list_num_t mot1, list_num_t mot2, int &offset_1,
   }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
-      posic, minic, score, offset);
+      posic, minic, score, offset, nsites1, nsites2, bkg1, bkg2);
 
   if (RC) {
     double score_rc;
@@ -702,7 +782,7 @@ void find_offsets(list_num_t mot1, list_num_t mot2, int &offset_1,
     vec_num_t rcic2 = ic2;
     std::reverse(rcic2.begin(), rcic2.end());
     merge_motif_pair_subworker(mot1, rcmot2, method, minoverlap, ic1, rcic2,
-        norm, posic, minic, score_rc, offset_rc);
+        norm, posic, minic, score_rc, offset_rc, nsites1, nsites2, bkg1, bkg2);
     if (score_rc > score) {
       offset = offset_rc;
       mot2 = rcmot2;
@@ -746,7 +826,8 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
     const std::vector<int> &index1, const std::vector<int> &index2,
     const std::string &method, int minoverlap, const bool RC,
     std::vector<std::vector<double>> &bkg, const int type, const bool relative,
-    const double minic, const bool norm, const int nthreads, const double posic) {
+    const double minic, const bool norm, const int nthreads, const double posic,
+    const std::vector<double> &nsites) {
 
   /* compare motifs by indices, i.e. mots[index1[i]] vs mots[index2[i]] */
 
@@ -775,6 +856,13 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
     vmots[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_cpp()]");
+    switch (::METRICS_enum[method]) {
+      case 3:
+      case 4:
+      case 9:
+      case 10: klfix(vmots[i]);
+               bkgfix(bkg[i]);
+    }
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
@@ -787,11 +875,12 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
   vec_num_t answers(index1.size());
   RcppThread::parallelFor(0, answers.size(),
       [&answers, &vmots, &index1, &index2, &icscores, &method, minoverlap, RC,
-        minic, norm, posic]
+        minic, norm, posic, &bkg, &nsites]
       (std::size_t i) {
         answers[i] = compare_motif_pair(vmots[index1[i]], vmots[index2[i]],
             method, minoverlap, RC, icscores[index1[i]], icscores[index2[i]],
-            minic, norm, posic);
+            minic, norm, posic, bkg[index1[i]], bkg[index1[i]], nsites[index1[i]],
+            nsites[index2[i]]);
       }, nthreads);
 
   return answers;
@@ -802,7 +891,8 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
 std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
     const std::string &method, int minoverlap, const bool RC,
     std::vector<std::vector<double>> &bkg, const int type, const bool relative,
-    const double minic, const bool norm, const int nthreads, const double posic) {
+    const double minic, const bool norm, const int nthreads, const double posic,
+    const std::vector<double> &nsites) {
 
   /* compare all motifs to all motifs (without comparing the same motifs twice) */
 
@@ -829,6 +919,13 @@ std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
     vmots[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
+    switch (::METRICS_enum[method]) {
+      case 3:
+      case 4:
+      case 9:
+      case 10: klfix(vmots[i]);
+               bkgfix(bkg[i]);
+    }
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
@@ -840,12 +937,14 @@ std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
 
   list_num_t answers(vmots.size());
   RcppThread::parallelFor(0, answers.size() - 1,
-      [&answers, &vmots, &icscores, &method, minoverlap, RC, minic, norm, posic]
+      [&answers, &vmots, &icscores, &method, minoverlap, RC, minic, norm, posic,
+      &bkg, &nsites]
       (std::size_t i) {
         answers[i].reserve(vmots.size() - i + 1);
         for (std::size_t j = i + 1; j < vmots.size(); ++j) {
           answers[i].push_back(compare_motif_pair(vmots[i], vmots[j], method,
-              minoverlap, RC, icscores[i], icscores[j], minic, norm, posic));
+              minoverlap, RC, icscores[i], icscores[j], minic, norm, posic,
+              bkg[i], bkg[j], nsites[i], nsites[j]));
         }
       }, nthreads);
 
@@ -862,10 +961,12 @@ Rcpp::NumericMatrix get_comparison_matrix(const std::vector<double> &ans,
 
   Rcpp::NumericMatrix out(motnames.size(), motnames.size());
 
-  switch (::metrics_enum[method]) {
-    case  4: out.fill_diag(1.0);
+  switch (::METRICS_enum[method]) {
+    case  6: out.fill_diag(1.0);
              break;
-    case  6: out.fill_diag(2.0);
+    case  8: out.fill_diag(2.0);
+             break;
+    case 10: out.fill_diag(1.314);
              break;
     default: out.fill_diag(0.0);
              break;
@@ -887,7 +988,7 @@ Rcpp::NumericMatrix get_comparison_matrix(const std::vector<double> &ans,
 Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
     const bool RC, int minoverlap, const double minic, const double posic,
     std::vector<std::vector<double>> &bkg, const bool relative, const bool norm,
-    const Rcpp::StringVector &rnames) {
+    const Rcpp::StringVector &rnames, const std::vector<double> &nsites) {
 
   if (minoverlap < 1) minoverlap = 1;
   if (minic < 0)
@@ -907,9 +1008,12 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
     motlens[i] = vmots[i].size();
-    switch (::metrics_enum[method]) {
-      case 5:
-      case 8: klfix(vmots[i]);
+    switch (::METRICS_enum[method]) {
+      case 3:
+      case 4:
+      case 9:
+      case 10: klfix(vmots[i]);
+               bkgfix(bkg[i]);
     }
   }
 
@@ -927,7 +1031,8 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
     off1 = 0; off2 = 0; rc_ = false;
 
     find_offsets(vmots[0], vmots[i], off1, off2, rc_, method, minoverlap,
-        icscores[0], icscores[i], norm, posic, minic, RC);
+        icscores[0], icscores[i], norm, posic, minic, RC, nsites[0], nsites[i],
+        bkg[0], bkg[i]);
 
     offsets_1[i] = off1;
     offsets_2[i] = off2;
@@ -968,7 +1073,7 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
 Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
     const std::string &method, const bool RC, int minoverlap, const double minic,
     const double posic, std::vector<std::vector<double>> &bkg,
-    const bool relative, const bool norm) {
+    const bool relative, const bool norm, const std::vector<double> &nsites) {
 
   /* merge a list of motifs, as well as their backgrounds */
 
@@ -988,9 +1093,12 @@ Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
     vmots[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
-    switch (::metrics_enum[method]) {
-      case 5:
-      case 8: klfix(vmots[i]);
+    switch (::METRICS_enum[method]) {
+      case 3:
+      case 4:
+      case 9:
+      case 10: klfix(vmots[i]);
+               bkgfix(bkg[i]);
     }
   }
 
@@ -1002,8 +1110,11 @@ Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
   }
 
   int weight = 1;
+  // double nnsites = nsites[0] > nsites[1] ? nsites[0] : nsites[1];
+  double nnsites = nsites[0] + nsites[1];
   list_num_t merged = merge_motif_pair(vmots[0], vmots[1], method, minoverlap,
-      RC, icscores[0], icscores[1], weight, norm, posic, minic);
+      RC, icscores[0], icscores[1], weight, norm, posic, minic, nsites[0],
+      nsites[1], bkg[0], bkg[1]);
   vec_num_t mergedbkg = merge_bkg_pair(bkg[0], bkg[1], weight);
   vec_num_t mergedic = calc_ic_motif(merged, mergedbkg, relative);
 
@@ -1011,9 +1122,12 @@ Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
     for (std::size_t i = 2; i < vmots.size(); ++i) {
       ++weight;
       merged = merge_motif_pair(merged, vmots[i], method, minoverlap, RC,
-          mergedic, icscores[i], weight, norm, posic, minic);
+          mergedic, icscores[i], weight, norm, posic, minic, nnsites,
+          nsites[i], mergedbkg, bkg[i]);
       mergedbkg = merge_bkg_pair(mergedbkg, bkg[i], weight);
       mergedic = calc_ic_motif(merged, mergedbkg, relative);
+      nnsites += nsites[i];
+      // nnsites = nnsites > nsites[i] ? nnsites : nsites[i];
     }
   }
 

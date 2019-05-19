@@ -24,9 +24,9 @@ Otherwise compares all motifs to the specified motif(s).}
 The latter allows for taking into account the background
 frequencies if \code{relative_entropy = TRUE}.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See details.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
 
-\item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
+\item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the

@@ -3,11 +3,14 @@ CHANGES IN VERSION 1.4.0
 
 NEW FEATURES
 
-    o New scan_sequences(..., threshold.type) option: 'logodds.abs'. Allows
+    o scan_sequences(..., threshold.type) option: 'logodds.abs'. Allows
       the exact threshold scores to be provided.
 
-    o New in compare_motifs(): 'min.position.ic'. Prevent low-IC positions in
+    o compare_motifs() option: 'min.position.ic'. Prevent low-IC positions in
       an alignment from contributing to the final alignment score.
+
+    o Motif comparison metrics: average log-likelihood ratio (ALLR) and mean
+      ALLR (MALLR).
 
 MINOR CHANGES
 

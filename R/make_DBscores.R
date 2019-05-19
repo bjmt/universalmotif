@@ -5,9 +5,6 @@
 #' \insertCite{jaspar}{universalmotif}.
 #'
 #' @param db.motifs `list` Database motifs.
-#' @param method `character` Any of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-#'    'SW', 'MSW', 'KL', 'MKL')`. See [compare_motifs()]. If multiple methods
-#'    are provided, each result will be in its own list.
 #' @param shuffle.db `logical(1)` Shuffle `db.motifs` rather than
 #'    generate random motifs with [create_motif()].
 #' @param shuffle.k `numeric(1)` See [shuffle_motifs()].
@@ -15,15 +12,6 @@
 #' @param rand.tries `numeric(1)` Number of random motifs to create for
 #'    P-value computation.
 #' @param widths `numeric` Motif widths to use in P-value database calculation.
-#' @param min.position.ic `numeric(1)` Minimum information content required between
-#'    individual alignment positions for it to be counted in the final alignment
-#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
-#'    as this will help punish scores resulting from only a fraction of an
-#'    alignment.
-#' @param normalise.scores `logical(1)` See [compare_motifs()].
-#' @param min.overlap `numeric(1)` Minimum required motif overlap. See
-#'    [compare_motifs()].
-#' @param min.mean.ic `numeric(1)` See [compare_motifs()].
 #' @param progress `logical(1)` Show progress.
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
@@ -33,6 +21,9 @@
 #'    input database, or a `list` with a `data.frame` for each method and
 #'    an additional `list` entry logging function parameters if more than one
 #'    method is provided.
+#'
+#' @details
+#' See [compare_motifs()] for more info on comparison parameters.
 #'
 #' @examples
 #' \dontrun{
@@ -47,33 +38,41 @@
 #'
 #' @seealso [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams compare_motifs
 #' @export
 make_DBscores <- function(db.motifs,
-                          method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL"),
+                          method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW",
+                                     "KL", "MKL", "ALLR", "MALLR"),
                           shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
-                          rand.tries = 100, widths = 5:30,
+                          rand.tries = 1000, widths = 5:30,
                           min.position.ic = 0,
-                          normalise.scores = TRUE, min.overlap = 6,
-                          min.mean.ic = 0.25, progress = TRUE, BP = FALSE,
-                          nthreads = 1) {
+                          normalise.scores = FALSE, min.overlap = 6,
+                          min.mean.ic = 0, progress = TRUE, BP = FALSE,
+                          nthreads = 1, tryRC = TRUE) {
+
+  # add a use.freq option?
 
   args <- as.list(environment())
 
   if (length(method) > 1) {
     out <- vector("list", length(method) + 1)
     names(out) <- c(method, "args")
+    mc <- 1
     for (m in method) {
+      if (progress) cat("Method:", m, paste0("[", mc, "/", length(method), "] "))
       out[[m]] <- make_DBscores(db.motifs, m, shuffle.db, shuffle.k, shuffle.method,
                                 rand.tries, widths, min.position.ic,
                                 normalise.scores, min.overlap, min.mean.ic,
-                                progress, BP, nthreads)
+                                progress, BP, nthreads, tryRC)
+      mc <- mc + 1
     }
     out$args <- args[-1]
     return(out)
   }
 
   # param check --------------------------------------------
+  if (!method %in% COMPARE_METRICS) stop("Incorrect 'method'")
   char_check <- check_fun_params(list(method = args$method,
                                       shuffle.method = args$shuffle.method),
                                  c(0, 1), logical(), TYPE_CHAR)
@@ -86,93 +85,117 @@ make_DBscores <- function(db.motifs,
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
                                       progress = args$progress, BP = args$BP,
-                                      normalise.scores = args$normalise.scores),
+                                      normalise.scores = args$normalise.scores,
+                                      tryRC = args$tryRC),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  # having min.mean.ic > 0 can really mess with scores sometimes
+
   if (BP) warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
-  db.motifs <- convert_motifs(db.motifs)
-  db.motifs <- convert_type(db.motifs, "PPM")
+  rand.mots <- make_DBscores_motifs(db.motifs, widths, rand.tries, shuffle.k)
 
-  db.ncols <- vapply(db.motifs, function(x) ncol(x@motif), numeric(1))
+  comps <- get_comparisons(widths)
+  total <- nrow(comps)
+  totry <- data.frame(subject = comps[, 1], target = comps[, 2],
+                      mean = rep(NA_real_, total),
+                      sd = rep(NA_real_, total),
+                      method = rep(method, total),
+                      normalised = rep(normalise.scores, total),
+                      stringsAsFactors = FALSE)
 
-  rand.mots <- vector("list", length(widths))
-  names(rand.mots) <- as.character(widths)
-  rand.ncols <- rep(FALSE, length(widths))
-  names(rand.ncols) <- as.character(widths)
-  if (shuffle.db) {
-
-    for (i in widths) {
-      if (!any(db.ncols == i)) next;
-      tmp <- list()
-      while (length(tmp) < rand.tries) {
-        tmp <- c(tmp, shuffle_motifs(db.motifs[db.ncols == i], k = shuffle.k,
-                                     method = shuffle.method))
-      }
-      tmp <- tmp[seq_len(rand.tries)]
-      rand.mots[[as.character(i)]] <- tmp
-      rand.ncols[as.character(i)] <- TRUE
-    }
-
-  } else {
-    for (i in widths) {
-      rand.mots[[as.character(i)]] <- lapply(rand.tries, function(x) create_motif(i))
-    }
+  if (progress) {
+    print_pb(0)
   }
-
-  totry <- expand.grid(list(target = as.numeric(widths[rand.ncols]),
-                            subject = sort(unique(db.ncols))))[, 2:1]
-  totry$mean <- rep(NA_real_, nrow(totry))
-  totry$sd <- rep(NA_real_, nrow(totry))
-
-  res <- vector("list", length(unique(db.ncols)))
-  allcomps <- vector("list", length(unique(db.ncols)))
-  names(res) <- as.character(sort(unique(db.ncols)))
-  names(allcomps) <- as.character(sort(unique(db.ncols)))
-
-  rand.mots <- unlist(rand.mots, recursive = FALSE)
-  randcols <- vapply(rand.mots, function(x) ncol(x@motif), integer(1))
-
-  if (progress) print_pb(0)
   counter <- 1
-  total <- length(unique(db.ncols))
 
-  for (i in sort(unique(db.ncols))) {
+  for (i in seq_len(total)) {
 
-    tmp <- db.motifs[db.ncols == i]
+    subject <- rand.mots[[as.character(totry$subject[i])]]
+    target <- rand.mots[[as.character(totry$target[i])]]
 
-    tmpall <- c(tmp, rand.mots)
+    tmpall <- c(subject, target)
+
     mtmp <- lapply(tmpall, function(x) x@motif)
-    btmp <- lapply(tmpall, function(x) x@bkg)
-    comps <- get_comp_indices(seq_along(tmp), length(tmpall))
-    comps <- comps[!comps[, 2] %in% seq_along(tmp), ]
-    allcomps[[as.character(i)]] <- rep(randcols, length(tmp))
-    res[[as.character(i)]] <- compare_motifs_cpp(mtmp, comps[, 1] - 1, comps[, 2] - 1,
-                                                 method, min.overlap, FALSE,
-                                                 btmp, 1, FALSE, min.mean.ic,
-                                                 normalise.scores, nthreads,
-                                                 min.position.ic)
+
+    comps <- get_comp_indices(seq_along(subject), length(tmpall))
+    comps <- comps[!comps[, 2] %in% seq_along(subject), ]
+
+    res <- compare_motifs_cpp(mtmp, comps[, 1] - 1, comps[, 2] - 1,
+                              method, min.overlap, tryRC,
+                              get_bkgs(tmpall), 1, FALSE, min.mean.ic,
+                              normalise.scores, nthreads,
+                              min.position.ic, get_nsites(tmpall))
+
+    totry$mean[i] <- mean(res)
+    totry$sd[i] <- sd(res)
 
     if (progress) update_pb(counter, total)
     counter <- counter + 1
 
   }
 
-  for (i in seq_len(nrow(totry))) {
-    tmp <- res[[as.character(totry[i, 1])]]
-    totry$mean[i] <- mean(tmp[allcomps[[as.character(totry[i, 1])]] == totry[i, 2]])
-    totry$sd[i] <- sd(tmp[allcomps[[as.character(totry[i, 1])]] == totry[i, 2]])
-  }
-
-  totry$method <- rep(method, nrow(totry))
-  totry$normalised <- rep(normalise.scores, nrow(totry))
   totry
 
 }
 
+get_comparisons <- function(widths) {
+  out <- do.call(rbind, combn(widths, 2, simplify = FALSE))
+  rbind(out, matrix(c(widths, widths), ncol = 2))
+}
+
+make_DBscores_motifs <- function(motifs, widths, rand.tries, shuffle.k) {
+
+  mot.mats <- lapply(motifs, function(x) x@motif)
+  mot.bkg <- get_bkgs(motifs)
+  mot.nsites <- get_nsites(motifs)
+  alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
+  if (length(alph) > 1) stop("all motifs must share the same alphabet")
+
+  comb.mats <- do.call(cbind, mot.mats)
+  if (ncol(comb.mats) < max(widths)) {
+    while (ncol(comb.mats) < max(widths)) {
+      comb.mats <- cbind(comb.mats, comb.mats)
+    }
+  }
+
+  if (shuffle.k == 1) comb.mats <- comb.mats[, sample(seq_len(ncol(comb.mats)))]
+  else {
+    old.order <- as.character(seq_len(ncol(comb.mats)))
+    new.order <- shuffle_linear(old.order, shuffle.k, mode = 2)
+    comb.mats <- comb.mats[, as.numeric(new.order)]
+  }
+
+  nmots <- round(sqrt(rand.tries))
+  out <- vector("list", length(widths))
+  names(out) <- as.character(widths)
+
+  for (i in seq_along(widths)) {
+    j <- sample.int(length(mot.bkg), 1)
+    out[[i]] <- lapply(seq_len(nmots),
+                       function(x) sample_motif_(comb.mats, widths[i],
+                                                 mot.bkg[[j]], mot.nsites[[j]],
+                                                 alph))
+  }
+
+  out
+
+}
+
+sample_motif_ <- function(pool, size, bkg, nsites, alph) {
+
+  n <- ncol(pool)
+  n <- sample.int(n - size + 1, 1)
+  mat <- pool[, seq(n, n + size - 1), drop = FALSE]
+
+  create_motif(mat, alphabet = alph, bkg = bkg, nsites = nsites)
+
+}
+
+#-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
 make_DBscores_v1 <- function(db.motifs, method, shuffle.db = TRUE,

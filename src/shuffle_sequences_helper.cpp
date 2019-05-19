@@ -292,13 +292,13 @@ vec_int_t get_next_let_list(const list_int_t &nlet_lists, const int &k,
 }
 */
 
-vec_int_t markov_generator(const vec_int_t &seq_ints, const vec_int_t &nlet_counts,
+vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_counts,
     const list_int_t &transitions, std::default_random_engine gen,
     const std::size_t &nlets, const int &k, const std::size_t &alphlen,
     const std::size_t &mlets) {
 
   vec_int_t out;
-  out.reserve(seq_ints.size());
+  out.reserve(seqsize);
 
   list_int_t nlet_lists = make_klet_lists(nlets, k, alphlen);
   list_int_t mlet_lists = make_klet_lists(mlets, k, alphlen);
@@ -310,7 +310,7 @@ vec_int_t markov_generator(const vec_int_t &seq_ints, const vec_int_t &nlet_coun
   }
 
   int previous_mlet;
-  for (std::size_t i = k - 1; i < seq_ints.size(); ++i) {
+  for (std::size_t i = k - 1; i < seqsize; ++i) {
     previous_mlet = 0;
     for (int j = k - 1; j >= 1; --j) {
       previous_mlet += out[i - j] * pow(alphlen, j - 1);
@@ -350,8 +350,8 @@ std::string shuffle_markov_one(const std::string &single_seq, const int &k,
   vec_int_t nlet_counts = klet_counter(seq_ints, k, nlets, alphlen);
   list_int_t transitions = get_edgecounts(nlet_counts, mlets, alphlen);
 
-  vec_int_t out_ints = markov_generator(seq_ints, nlet_counts, transitions, gen,
-      nlets, k, alphlen, mlets);
+  vec_int_t out_ints = markov_generator(seq_ints.size(), nlet_counts, transitions,
+      gen, nlets, k, alphlen, mlets);
 
   std::string out = make_new_seq(out_ints, alph);
 

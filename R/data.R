@@ -27,7 +27,7 @@
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.0.0.
 #'
-#' @format `list` with eight `data.frames`
+#' @format `list` with eight `data.frame`s
 "JASPAR2018_CORE_DBSCORES"
 
 #' JASPAR2018 CORE database scores (normalised) (universalmotif v1.0.0).
@@ -42,7 +42,7 @@
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.0.0.
 #'
-#' @format `list` with eight `data.frames`
+#' @format `list` with eight `data.frame`s
 "JASPAR2018_CORE_DBSCORES_NORM"
 
 #' JASPAR2018 CORE database scores (universalmotif v1.4.0).
@@ -57,7 +57,7 @@
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0.
 #'
-#' @format `list` with eight `data.frames` and an additional list of parameters.
+#' @format `list` with ten `data.frame`s and an additional list of parameters.
 "JASPAR2018_CORE_DBSCORES_2"
 
 #' JASPAR2018 CORE database scores (normalised) (universalmotif v1.4.0).
@@ -72,7 +72,7 @@
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0.
 #'
-#' @format `list` with eight `data.frames` and an additional list of parameters.
+#' @format `list` with ten `data.frame`s and an additional list of parameters.
 "JASPAR2018_CORE_DBSCORES_NORM_2"
 
 #' Arabidopsis promoters as a `DNAStringSet`.

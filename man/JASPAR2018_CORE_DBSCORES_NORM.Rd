@@ -4,7 +4,7 @@
 \name{JASPAR2018_CORE_DBSCORES_NORM}
 \alias{JASPAR2018_CORE_DBSCORES_NORM}
 \title{JASPAR2018 CORE database scores (normalised) (universalmotif v1.0.0).}
-\format{\code{list} with eight \code{data.frames}}
+\format{\code{list} with eight \code{data.frame}s}
 \usage{
 JASPAR2018_CORE_DBSCORES_NORM
 }

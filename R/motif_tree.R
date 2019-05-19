@@ -28,29 +28,9 @@
 #' @param branch.length `character(1)` If 'none', draw a cladogram.
 #'    See [ggtree::ggtree()].
 #' @param db.scores `data.frame` See [compare_motifs()].
-#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'SW', 'MSW',
-#'    'KL', 'MKL')`. See [compare_motifs()].
 #' @param use.type `character(1)`c('PPM', 'ICM')`. The latter allows for taking
 #'    into account the background
 #'    frequencies (only if `relative_entropy = TRUE`). See [compare_motifs()].
-#' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
-#'    motifs. Setting this to a number higher then the width of the motifs
-#'    will not allow any overhangs. Can also be a number less than 1,
-#'    representing the minimum fraction that the motifs must overlap. See
-#'    [compare_motifs()].
-#' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
-#'    report the best score. See [compare_motifs()].
-#' @param min.mean.ic `numeric(1)` Minimum information content between the
-#'    two motifs for an alignment to be scored. This helps prevent scoring
-#'    alignments between low information content regions of two motifs. See
-#'    [compare_motifs()].
-#' @param min.position.ic `numeric(1)` Minimum information content required between
-#'    individual alignment positions for it to be counted in the final alignment
-#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
-#'    as this will help punish scores resulting from only a fraction of an
-#'    alignment.
-#' @param relative_entropy `logical(1)` For ICM calculation. See
-#'    [convert_type()].
 #' @param progress `logical(1)` Deprecated. Does nothing.
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
@@ -58,6 +38,9 @@
 #' @param ... \pkg{ggtree} params. See [ggtree::ggtree()].
 #'
 #' @return ggplot object.
+#'
+#' @details
+#'    See [compare_motifs()] for more info on comparison parameters.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -98,6 +81,7 @@
 #' @seealso [motifStack::motifStack()], [compare_motifs()],
 #'    [ggtree::ggtree()], [ggplot2::ggplot()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams compare_motifs
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
@@ -122,8 +106,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     all_checks <- c(all_checks, layout_check)
   }
   if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`,",
-                           " `EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
+                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
                            method, "`")
     method_check <- wmsg2(method_check)
     all_checks <- c(all_checks, method_check)
@@ -151,8 +135,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (method %in% c("PCC", "SW"))
-    stop("'PCC', 'SW' are not allowed; please use 'MPCC' and 'MSW' instead")
+  if (method %in% c("PCC", "SW", "ALLR"))
+    stop("'PCC', 'SW', 'ALLR' are not allowed; please use 'MPCC', 'MSW', or 'MALLR' instead")
 
   if (is(motifs, "dist")) {
     tree <- ape::as.phylo(hclust(motifs))
@@ -174,9 +158,10 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                            min.overlap = min.overlap,
                            min.mean.ic = min.mean.ic,
                            relative_entropy = relative_entropy,
-                           BP = BP, progress = progress)
-    if (method == "MPCC") tree <- 1 - tree
-    else if (method == "MSW") tree <- 2 - tree
+                           BP = BP, progress = progress,
+                           min.position.ic = min.position.ic)
+    tree <- switch(method, "MPCC" = 1 - tree, "MSW" = 2 - tree,
+                   "MALLR" = 1.314 - tree, tree)
     if (progress) cat("Constructing phylogeny...\n")
     tree <- ape::as.phylo(hclust(as.dist(tree)))
     if (labels != "none") {

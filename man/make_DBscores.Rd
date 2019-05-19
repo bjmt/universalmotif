@@ -5,16 +5,16 @@
 \title{Create P-value databases.}
 \usage{
 make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
-  "MSW", "KL", "MKL"), shuffle.db = TRUE, shuffle.k = 3,
-  shuffle.method = "linear", rand.tries = 100, widths = 5:30,
-  min.position.ic = 0, normalise.scores = TRUE, min.overlap = 6,
-  min.mean.ic = 0.25, progress = TRUE, BP = FALSE, nthreads = 1)
+  "MSW", "KL", "MKL", "ALLR", "MALLR"), shuffle.db = TRUE,
+  shuffle.k = 3, shuffle.method = "linear", rand.tries = 1000,
+  widths = 5:30, min.position.ic = 0, normalise.scores = FALSE,
+  min.overlap = 6, min.mean.ic = 0, progress = TRUE, BP = FALSE,
+  nthreads = 1, tryRC = TRUE)
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
 
-\item{method}{\code{character} Any of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}. If multiple methods
-are provided, each result will be in its own list.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
 
 \item{shuffle.db}{\code{logical(1)} Shuffle \code{db.motifs} rather than
 generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
@@ -34,12 +34,20 @@ score. It is recommended to use this together with \code{normalise.scores = TRUE
 as this will help punish scores resulting from only a fraction of an
 alignment.}
 
-\item{normalise.scores}{\code{logical(1)} See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
+unaligned positions, as well as alignments between motifs of similar length.
+Similarity scores are multiplied by the ratio of
+aligned positions to the total number of positions in the larger motif,
+and the inverse for distance scores.}
 
-\item{min.overlap}{\code{numeric(1)} Minimum required motif overlap. See
-\code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
+motifs. Setting this to a number higher then the width of the motifs
+will not allow any overhangs. Can also be a number less than 1,
+representing the minimum fraction that the motifs must overlap.}
 
-\item{min.mean.ic}{\code{numeric(1)} See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
+two motifs for an alignment to be scored. This helps prevent scoring
+alignments between low information content regions of two motifs.}
 
 \item{progress}{\code{logical(1)} Show progress.}
 
@@ -47,6 +55,9 @@ alignment.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}
+
+\item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
+report the best score.}
 }
 \value{
 A \code{data.frame} with score distributions for the
@@ -58,6 +69,9 @@ method is provided.
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,
 \code{\link[=compare_motifs]{compare_motifs()}} uses an internal database based on the JASPAR2018 core motifs
 \insertCite{jaspar}{universalmotif}.
+}
+\details{
+See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 }
 \examples{
 \dontrun{

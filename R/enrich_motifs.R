@@ -5,7 +5,6 @@
 #' background sequences.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
-#' @param sequences \code{\link{XStringSet}} Alphabet should match motif.
 #' @param bkg.sequences \code{\link{XStringSet}} Optional; if missing,
 #'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
@@ -23,15 +22,7 @@
 #'    normality, then only the input sequences are tested for positionality;
 #'    the background sequences are ignored. See [stats::t.test()],
 #'    [stats::wilcox.test()], [stats::chisq.test()], [stats::shapiro.test()].
-#' @param threshold `numeric(1)` Between 1 and 0. See [scan_sequences()].
-#' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`. See
-#'    [scan_sequences()].
 #' @param verbose `numeric(1)` 0 for no output, 4 for max verbosity.
-#' @param RC `logical(1)` Whether to consider the reverse complement of the
-#'    sequences. Only available for \code{\link{DNAStringSet}},
-#'    \code{\link{RNAStringSet}} sequences.
-#' @param use.freq `numeric(1)` If the `multifreq` slot of the motifs are filled,
-#'    then they can be used to scan the sequences. See [scan_sequences()].
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
 #'    [shuffle_sequences()].
@@ -88,6 +79,8 @@
 #' `positional.test = 'shapiro.test'`, then only target sequence
 #' hits are considered.
 #'
+#' See [scan_sequences()] for more info on scanning parameters.
+#'
 #' @examples
 #' data(ArabidopsisPromoters)
 #' data(ArabidopsisMotif)
@@ -99,6 +92,7 @@
 #' @author Benjamin Jean-Marie Tremblay \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [shuffle_sequences()],
 #'    [add_multifreq()], [motif_pvalue()]
+#' @inheritParams scan_sequences
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
@@ -109,6 +103,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           return.scan.results = FALSE, progress = FALSE,
                           BP = FALSE, nthreads = 1,
                           rng.seed = sample.int(1e9, 1)) {
+
+  # Idea: split up hits and postional outputs into their own lists.
 
   # param check --------------------------------------------
   args <- as.list(environment())

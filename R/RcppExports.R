@@ -5,24 +5,24 @@ single_to_k <- function(seq1, k) {
     .Call('_universalmotif_single_to_k', PACKAGE = 'universalmotif', seq1, k)
 }
 
-compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic) {
-    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic)
+compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites) {
+    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites)
 }
 
-compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic) {
-    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic)
+compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites) {
+    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites)
 }
 
 get_comparison_matrix <- function(ans, index1, index2, method, motnames) {
     .Call('_universalmotif_get_comparison_matrix', PACKAGE = 'universalmotif', ans, index1, index2, method, motnames)
 }
 
-view_motifs_prep <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames) {
-    .Call('_universalmotif_view_motifs_prep', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames)
+view_motifs_prep <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites) {
+    .Call('_universalmotif_view_motifs_prep', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites)
 }
 
-merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm) {
-    .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm)
+merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites) {
+    .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites)
 }
 
 peakfinder_cpp <- function(x, m = 3L) {

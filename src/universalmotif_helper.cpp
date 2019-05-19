@@ -56,8 +56,8 @@ Rcpp::StringVector universalmotif_alphabet(Rcpp::StringVector alphabet,
 
 }
 
-Rcpp::StringVector universalmotif_type(Rcpp::NumericMatrix &m_motif, Rcpp::StringVector type,
-    const Rcpp::NumericVector &motif_colsums) {
+Rcpp::StringVector universalmotif_type(Rcpp::NumericMatrix &m_motif,
+    Rcpp::StringVector type, const Rcpp::NumericVector &motif_colsums) {
 
   Rcpp::LogicalVector mat_1_check = m_motif >= 1;
   Rcpp::LogicalVector mat_0_check = m_motif == 0;
@@ -87,7 +87,7 @@ Rcpp::StringVector universalmotif_type(Rcpp::NumericMatrix &m_motif, Rcpp::Strin
 }
 
 Rcpp::NumericVector universalmotif_nsites(Rcpp::NumericVector nsites,
-    Rcpp::StringVector type, Rcpp::NumericMatrix &m_motif,
+    const Rcpp::StringVector &type, Rcpp::NumericMatrix &m_motif,
     const Rcpp::NumericVector &motif_colsums) {
 
   if (Rcpp::NumericVector::is_na(nsites[0]) || nsites.size() == 0) {
@@ -123,8 +123,9 @@ Rcpp::NumericVector universalmotif_nsites(Rcpp::NumericVector nsites,
 }
 
 Rcpp::NumericVector universalmotif_icscore(Rcpp::NumericVector icscore,
-    Rcpp::NumericVector nsites, Rcpp::NumericMatrix m_motif, Rcpp::NumericVector bkg,
-    Rcpp::StringVector type, double pseudocount) {
+    const Rcpp::NumericVector &nsites, const Rcpp::NumericMatrix &m_motif,
+    const Rcpp::NumericVector &bkg, const Rcpp::StringVector &type,
+    double pseudocount) {
 
   R_xlen_t alph_len = m_motif.nrow();
   Rcpp::IntegerVector bkg_i = Rcpp::seq_len(alph_len) - 1;
@@ -147,7 +148,7 @@ Rcpp::NumericVector universalmotif_icscore(Rcpp::NumericVector icscore,
 }
 
 Rcpp::NumericVector universalmotif_bkg(Rcpp::NumericVector bkg,
-    Rcpp::NumericMatrix m_motif) {
+    const Rcpp::NumericMatrix &m_motif) {
 
   // NOTE: Assumes the vector is already properly alphabetically sorted.
 
@@ -177,8 +178,8 @@ Rcpp::NumericVector universalmotif_bkg(Rcpp::NumericVector bkg,
 }
 
 Rcpp::StringVector universalmotif_consensus(Rcpp::NumericMatrix &m_motif,
-    Rcpp::StringVector alphabet, Rcpp::StringVector type, double pseudocount,
-    Rcpp::StringVector consensus) {
+    const Rcpp::StringVector &alphabet, const Rcpp::StringVector &type,
+    double pseudocount, Rcpp::StringVector consensus) {
 
   Rcpp::StringVector consensus_tmp(m_motif.ncol());
 
@@ -220,12 +221,15 @@ Rcpp::StringVector universalmotif_consensus(Rcpp::NumericMatrix &m_motif,
 
 }
 
-Rcpp::StringVector check_length(Rcpp::StringVector m_name, Rcpp::StringVector m_altname,
-    Rcpp::StringVector m_family, Rcpp::StringVector m_organism, Rcpp::StringVector m_alphabet,
-    Rcpp::StringVector m_type, Rcpp::NumericVector m_icscore, Rcpp::NumericVector m_nsites,
-    Rcpp::NumericVector m_pseudocount, Rcpp::NumericVector m_bkgsites,
-    Rcpp::StringVector m_consensus, Rcpp::StringVector m_strand, Rcpp::NumericVector m_pval,
-    Rcpp::NumericVector m_qval, Rcpp::NumericVector m_eval, Rcpp::StringVector msg) {
+Rcpp::StringVector check_length(const Rcpp::StringVector &m_name,
+    const Rcpp::StringVector &m_altname, const Rcpp::StringVector &m_family,
+    const Rcpp::StringVector &m_organism, const Rcpp::StringVector &m_alphabet,
+    const Rcpp::StringVector &m_type, const Rcpp::NumericVector &m_icscore,
+    const Rcpp::NumericVector &m_nsites, const Rcpp::NumericVector &m_pseudocount,
+    const Rcpp::NumericVector &m_bkgsites, const Rcpp::StringVector &m_consensus,
+    const Rcpp::StringVector &m_strand, const Rcpp::NumericVector &m_pval,
+    const Rcpp::NumericVector &m_qval, const Rcpp::NumericVector &m_eval,
+    Rcpp::StringVector msg) {
 
   if (m_name.size()        != 1) msg.push_back("* name must be length 1");
   if (m_altname.size()      > 1) msg.push_back("* altname cannot be longer than 1");
@@ -247,7 +251,7 @@ Rcpp::StringVector check_length(Rcpp::StringVector m_name, Rcpp::StringVector m_
 
 }
 
-bool check_bkg_names(Rcpp::StringVector alph, std::string blet) {
+bool check_bkg_names(const Rcpp::StringVector &alph, const std::string &blet) {
 
   Rcpp::LogicalVector failed(blet.size(), true);
 
@@ -266,12 +270,12 @@ bool check_bkg_names(Rcpp::StringVector alph, std::string blet) {
 
   }
 
-  return Rcpp::is_true(any(failed));
+  return Rcpp::is_true(Rcpp::any(failed));
 
 }
 
-Rcpp::StringVector check_bkg(Rcpp::NumericVector bkg, Rcpp::StringVector alph,
-    Rcpp::StringVector msg) {
+Rcpp::StringVector check_bkg(const Rcpp::NumericVector &bkg,
+    const Rcpp::StringVector &alph, Rcpp::StringVector msg) {
 
   R_xlen_t blen = bkg.size();
   R_xlen_t alen = alph.size();
@@ -335,8 +339,8 @@ Rcpp::StringVector check_bkg(Rcpp::NumericVector bkg, Rcpp::StringVector alph,
 
 }
 
-Rcpp::StringVector check_char_slots(Rcpp::StringVector m_type,
-    Rcpp::StringVector m_strand, Rcpp::StringVector msg) {
+Rcpp::StringVector check_char_slots(const Rcpp::StringVector &m_type,
+    const Rcpp::StringVector &m_strand, Rcpp::StringVector msg) {
 
   SEXP s_type = m_type[0];
   if (Rf_isNull(s_type)) {
@@ -360,8 +364,8 @@ Rcpp::StringVector check_char_slots(Rcpp::StringVector m_type,
 
 }
 
-Rcpp::StringVector check_motif_and_type(Rcpp::NumericMatrix m_motif,
-    Rcpp::StringVector m_type, Rcpp::NumericVector m_nsites,
+Rcpp::StringVector check_motif_and_type(const Rcpp::NumericMatrix &m_motif,
+    const Rcpp::StringVector &m_type, const Rcpp::NumericVector &m_nsites,
     Rcpp::StringVector msg) {
 
   SEXP s_type = m_type[0];
@@ -400,8 +404,8 @@ Rcpp::StringVector check_motif_and_type(Rcpp::NumericMatrix m_motif,
 
 }
 
-Rcpp::StringVector check_alphabet(Rcpp::NumericMatrix m_motif,
-    Rcpp::StringVector m_alphabet, Rcpp::StringVector msg) {
+Rcpp::StringVector check_alphabet(const Rcpp::NumericMatrix &m_motif,
+    const Rcpp::StringVector &m_alphabet, Rcpp::StringVector msg) {
 
   Rcpp::StringVector m_rownames = Rcpp::rownames(m_motif);
 
@@ -449,8 +453,8 @@ Rcpp::StringVector check_alphabet(Rcpp::NumericMatrix m_motif,
 
 }
 
-Rcpp::StringVector check_consensus(Rcpp::StringVector m_consensus,
-    Rcpp::NumericMatrix m_motif, Rcpp::StringVector msg) {
+Rcpp::StringVector check_consensus(const Rcpp::StringVector &m_consensus,
+    const Rcpp::NumericMatrix &m_motif, Rcpp::StringVector msg) {
 
   if (m_consensus.size() > 0) {
 
@@ -582,8 +586,8 @@ Rcpp::S4 universalmotif_cpp(
 }
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::StringVector validObject_universalmotif(Rcpp::S4 motif,
-    bool throw_error = true) {
+Rcpp::StringVector validObject_universalmotif(const Rcpp::S4 &motif,
+    const bool throw_error = true) {
 
   Rcpp::StringVector msg;
 
@@ -638,7 +642,7 @@ Rcpp::StringVector validObject_universalmotif(Rcpp::S4 motif,
 }
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::DataFrame summarise_motifs_cpp(Rcpp::List motifs) {
+Rcpp::DataFrame summarise_motifs_cpp(const Rcpp::List &motifs) {
 
   R_xlen_t n = motifs.size();
   Rcpp::StringVector name(n);
@@ -721,7 +725,7 @@ Rcpp::DataFrame summarise_motifs_cpp(Rcpp::List motifs) {
 }
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::List universalmotif_to_list(Rcpp::S4 motif) {
+Rcpp::List universalmotif_to_list(const Rcpp::S4 &motif) {
 
   return Rcpp::List::create(
 

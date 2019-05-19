@@ -16,7 +16,7 @@
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
 #' @importFrom stats rpois dnorm ecdf var qnorm
-#' @importFrom utils read.table menu packageDescription
+#' @importFrom utils read.table menu packageDescription combn
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD

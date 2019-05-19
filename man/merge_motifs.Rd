@@ -12,7 +12,7 @@ merge_motifs(motifs, method = "MPCC", use.type = "PPM",
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See details.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
 
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
@@ -27,7 +27,7 @@ representing the minimum fraction that the motifs must overlap.}
 two motifs for an alignment to be scored. This helps prevent scoring
 alignments between low information content regions of two motifs.}
 
-\item{tryRC}{\code{logical} Try the reverse complement of the motifs as well,
+\item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
 
 \item{relative_entropy}{\code{logical(1)} Change the ICM calculation affecting
@@ -55,6 +55,9 @@ motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped. Only 0-order background probabilities will be kept.
 Motifs are merged one at a time, starting with the first entry in the
 list.
+}
+\details{
+See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 }
 \examples{
 \dontrun{

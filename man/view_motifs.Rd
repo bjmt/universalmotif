@@ -13,25 +13,28 @@ view_motifs(motifs, use.type = "ICM", method = "MPCC", tryRC = TRUE,
 
 \item{use.type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL')}. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
 
-\item{tryRC}{\code{logical(1)} Check if motif reverse complement leads to a
-better alignment. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
+report the best score.}
 
-\item{min.overlap}{\code{numeric(1)} Minimum alignment overlap between
-motifs. If \code{min.overlap < 1}, this represents the minimum fraction
-between the two motifs during alignment. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
+motifs. Setting this to a number higher then the width of the motifs
+will not allow any overhangs. Can also be a number less than 1,
+representing the minimum fraction that the motifs must overlap.}
 
-\item{min.mean.ic}{\code{numeric(1)} Minimum information content between the
+\item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
 two motifs for an alignment to be scored. This helps prevent scoring
-alignments between low information content regions of two motifs. See
-\code{\link[=compare_motifs]{compare_motifs()}}.}
+alignments between low information content regions of two motifs.}
 
-\item{relative_entropy}{\code{logical(1)} For ICM calculation. See
-\code{\link[=convert_type]{convert_type()}}.}
+\item{relative_entropy}{\code{logical(1)} Change the ICM calculation affecting
+\code{min.position.ic} and \code{min.mean.ic}. See \code{\link[=convert_type]{convert_type()}}.}
 
 \item{normalise.scores}{\code{logical(1)} Favour alignments which leave fewer
-unaligned positions. See \code{\link[=compare_motifs]{compare_motifs()}}.}
+unaligned positions, as well as alignments between motifs of similar length.
+Similarity scores are multiplied by the ratio of
+aligned positions to the total number of positions in the larger motif,
+and the inverse for distance scores.}
 
 \item{min.position.ic}{\code{numeric(1)} Minimum information content required between
 individual alignment positions for it to be counted in the final alignment
@@ -53,6 +56,8 @@ Since the \pkg{ggseqlogo} package can only plot individual
 characters and not strings, plotting the \code{multifreq} slot is not
 supported. See the \code{examples} section for plotting the \code{multifreq}
 slot using the \pkg{Logolas} package.
+
+See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 }
 \examples{
 ## plotting multifreq motifs:

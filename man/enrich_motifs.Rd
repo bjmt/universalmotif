@@ -15,7 +15,8 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{sequences}{\code{\link{XStringSet}} Alphabet should match motif.}
+\item{sequences}{\code{\link{XStringSet}} Sequences to scan. Alphabet
+should match motif.}
 
 \item{bkg.sequences}{\code{\link{XStringSet}} Optional; if missing,
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is used to create background sequences from
@@ -40,19 +41,19 @@ normality, then only the input sequences are tested for positionality;
 the background sequences are ignored. See \code{\link[stats:t.test]{stats::t.test()}},
 \code{\link[stats:wilcox.test]{stats::wilcox.test()}}, \code{\link[stats:chisq.test]{stats::chisq.test()}}, \code{\link[stats:shapiro.test]{stats::shapiro.test()}}.}
 
-\item{threshold}{\code{numeric(1)} Between 1 and 0. See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 
-\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}. See
-\code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
 
 \item{verbose}{\code{numeric(1)} 0 for no output, 4 for max verbosity.}
 
-\item{RC}{\code{logical(1)} Whether to consider the reverse complement of the
-sequences. Only available for \code{\link{DNAStringSet}},
-\code{\link{RNAStringSet}} sequences.}
+\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
+sequences.}
 
-\item{use.freq}{\code{numeric(1)} If the \code{multifreq} slot of the motifs are filled,
-then they can be used to scan the sequences. See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{use.freq}{\code{numeric(1)} The default, 1, uses the motif matrix (from
+the \code{motif['motif']} slot) to search for sequences. If a higher
+number is used, then the matching k-let matrix from the
+\code{motif['multifreq']} slot is used. See \code{\link[=add_multifreq]{add_multifreq()}}.}
 
 \item{shuffle.k}{\code{numeric(1)} The k-let size to use when shuffling input
 sequences. Only used if no background sequences are input. See
@@ -121,6 +122,8 @@ target and background sequences. If \code{search.mode = 'hits'},
 between target and background sequences. However if
 \code{positional.test = 'shapiro.test'}, then only target sequence
 hits are considered.
+
+See \code{\link[=scan_sequences]{scan_sequences()}} for more info on scanning parameters.
 }
 \examples{
 data(ArabidopsisPromoters)

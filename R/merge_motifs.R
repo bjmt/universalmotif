@@ -9,6 +9,9 @@
 #' @return A single motif object. See [convert_motifs()] for
 #'    available formats.
 #'
+#' @details
+#'    See [compare_motifs()] for more info on comparison parameters.
+#'
 #' @examples
 #' \dontrun{
 #' library(MotifDb)
@@ -28,8 +31,8 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
   args <- as.list(environment())
   all_checks <- character(0)
   if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`,",
-                           " `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
+                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
                            method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
@@ -76,7 +79,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
                   sort_unique_cpp(safeExplode(alph)))
 
   mot.mats <- lapply(motifs, function(x) x@motif)
-  mot.bkgs <- lapply(motifs, function(x) x@bkg[seq_along(alph2)])
+  mot.bkgs <- get_bkgs(motifs)
 
   mot.names <- unique(vapply(motifs, function(x) x@name, character(1)))
   mot.altnames <- unique(do.call(c, sapply(motifs, function(x) x@altname, simplify = FALSE)))
@@ -93,7 +96,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
 
   ans <- merge_motifs_cpp(mot.mats, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, mot.bkgs, relative_entropy,
-                          normalise.scores)
+                          normalise.scores, get_nsites(motifs))
 
   new.name <- paste0(mot.names, collapse = "/")
   new.altname <- paste0(mot.altnames, collapse = "/")

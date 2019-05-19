@@ -5,26 +5,6 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param use.type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
-#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-#'    'SW', 'MSW', 'KL', 'MKL')`. See [compare_motifs()].
-#' @param tryRC `logical(1)` Check if motif reverse complement leads to a
-#'    better alignment. See [compare_motifs()].
-#' @param min.overlap `numeric(1)` Minimum alignment overlap between
-#'    motifs. If `min.overlap < 1`, this represents the minimum fraction
-#'    between the two motifs during alignment. See [compare_motifs()].
-#' @param min.mean.ic `numeric(1)` Minimum information content between the
-#'    two motifs for an alignment to be scored. This helps prevent scoring
-#'    alignments between low information content regions of two motifs. See
-#'    [compare_motifs()].
-#' @param relative_entropy `logical(1)` For ICM calculation. See
-#'    [convert_type()].
-#' @param normalise.scores `logical(1)` Favour alignments which leave fewer
-#'    unaligned positions. See [compare_motifs()].
-#' @param min.position.ic `numeric(1)` Minimum information content required between
-#'    individual alignment positions for it to be counted in the final alignment
-#'    score. It is recommended to use this together with `normalise.scores = TRUE`,
-#'    as this will help punish scores resulting from only a fraction of an
-#'    alignment.
 #' @param ... Additional options for [ggseqlogo::geom_logo()].
 #'
 #' @return A ggplot object.
@@ -34,6 +14,8 @@
 #' characters and not strings, plotting the `multifreq` slot is not
 #' supported. See the `examples` section for plotting the `multifreq`
 #' slot using the \pkg{Logolas} package.
+#'
+#' See [compare_motifs()] for more info on comparison parameters.
 #'
 #' @examples
 #' ## plotting multifreq motifs:
@@ -51,6 +33,7 @@
 #'
 #' @seealso [compare_motifs()], [add_multifreq()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @inheritParams compare_motifs
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
@@ -62,10 +45,9 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!method %in% c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL",
-                     "MKL")) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, ",
-                           "`EUCL`, `MEUCL`, `SW`, `MSW`, `KL` or `MKL`; got `",
+  if (!method %in% COMPARE_METRICS) {
+    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
+                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
                            method, "`")
     method_check <- wmsg2(method_check, 4, 2)
     all_checks <- c(all_checks, method_check)
@@ -158,7 +140,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
     }
   )
 
-  mot.bkgs <- lapply(motifs, function(x) x@bkg[seq_along(alph)])
+  mot.bkgs <- get_bkgs(motifs)
   mot.nsites <- lapply(motifs, function(x) x@nsites)
   mot.pseudo <- lapply(motifs, function(x) x@pseudocount)
 
@@ -179,7 +161,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
 
   res <- view_motifs_prep(mot.mats, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, mot.bkgs, relative_entropy,
-                          normalise.scores, alph)
+                          normalise.scores, alph, get_nsites(motifs))
   which.rc <- res[[1]]
   mots <- res[[2]]
 
@@ -210,7 +192,7 @@ convert_mat_type_from_ppm <- function(mot.mat, type, nsites, bkg, pseudocount,
 
   which.zero <- apply(mot.mat, 2, function(x) all(x == 0))
 
-  if (length(nsites) == 0) nsites <- 100
+  if (length(nsites) == 0 || nsites == 1) nsites <- 100
   if (length(pseudocount) == 0) pseudocount <- 1
 
   mot.mat[, which.zero] <- switch(type,

@@ -26,3 +26,5 @@ commit.r
 commit.sh
 ^.*\.Rproj$
 ^\.Rproj\.user$
+Rcheck
+Rcheck/*

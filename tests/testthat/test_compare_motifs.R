@@ -13,6 +13,8 @@ test_that("basic comparison works", {
   res.msw <- compare_motifs(list(motif1, motif2), method = "MSW")
   res.kl <- compare_motifs(list(motif1, motif2), method = "KL")
   res.mkl <- compare_motifs(list(motif1, motif2), method = "MKL")
+  res.allr <- compare_motifs(list(motif1, motif2), method = "ALLR")
+  res.mallr <- compare_motifs(list(motif1, motif2), method = "MALLR")
 
   expect_equal(round(as.vector(res.mpcc), digits = 4),
                c(1, 0.3333, 0.3333, 1))
@@ -26,10 +28,14 @@ test_that("basic comparison works", {
                c(12, 6, 6, 12))
   expect_equal(round(as.vector(res.msw), 0),
                c(2, 1, 1, 2))
-  expect_equal(round(as.vector(res.kl), digits = 2),
-               c(0, 13.85, 13.85, 0))
-  expect_equal(round(as.vector(res.mkl), digits = 3),
-               c(0, 2.308, 2.308, 0))
+  expect_equal(round(as.vector(res.kl), digits = 1),
+               c(0, 13.8, 13.8, 0))
+  expect_equal(round(as.vector(res.mkl), digits = 2),
+               c(0, 2.31, 2.31, 0))
+  expect_equal(round(as.vector(res.allr), digits = 3),
+               c(7.884, -7.916, -7.916, 7.884))
+  expect_equal(round(as.vector(res.mallr), digits = 3),
+               c(1.314, -1.319, -1.319, 1.314))
 
   res.mpcc2 <- compare_motifs(list(motif1, motif2), method = "MPCC",
                               use.type = "ICM")
@@ -81,7 +87,7 @@ test_that("comparisons with p-values works", {
   res <- compare_motifs(list(motif1, motif2), 1:2, max.p = 1,
                         method = "MPCC")
 
-  expect_equal(round(res$Pval, digits = 2), 0.15)
+  expect_equal(round(res$Pval, digits = 2), 0.28)
 
 })
 
@@ -94,7 +100,7 @@ test_that("custom db scores are handled correctly", {
                              rand.tries = 10, progress = FALSE)
 
   res <- compare_motifs(c(motif1, motif2), 1, db.scores, method = "PCC",
-                        normalise.scores = TRUE, max.p = 1)
+                        max.p = 1)
 
   expect_true(res$Pval < 1)
 

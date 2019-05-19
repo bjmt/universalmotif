@@ -51,9 +51,43 @@ UNIVERSALMOTIF_SLOTS <- c(
 
 )
 
-COMPARE_METRICS <- c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL")
+COMPARE_METRICS <- c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL",
+                     "ALLR", "MALLR")
 
 # INTERNAL UTILITIES ----------------------------------------------------------- 
+
+get_nsites <- function(motifs) {
+  out <- numeric(length(motifs))
+  for (i in seq_along(out)) {
+    n <- motifs[[i]]@nsites
+    out[i] <- ifelse(length(n) == 1 && n > 1, n, 100)
+  }
+  out
+}
+
+get_bkgs <- function(motifs, use.freq = 1) {
+
+  if (use.freq == 1) {
+
+    out <- lapply(motifs, function(x) x@bkg[seq_len(nrow(x@motif))])
+
+  } else {
+
+    out <- vector("list", length(motifs))
+    for (i in seq_along(out)) {
+      alph <- rownames(motifs[[i]]@motif)
+      alph <- get_klets(alph, use.freq)
+      bkg <- motifs[[i]]@bkg[alph]
+      if (length(bkg) != nrow(motifs[[i]]@multifreq[[as.character(use.freq)]]))
+        stop("Missing higher order background in motif: ", motifs[[i]]@name)
+      out[[i]] <- bkg
+    }
+
+  }
+
+  out
+
+}
 
 .internal_convert <- function(motifs, class = NULL) {
 
