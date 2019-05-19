@@ -12,6 +12,9 @@ NEW FEATURES
     o Motif comparison metrics: average log-likelihood ratio (ALLR) and mean
       ALLR (MALLR).
 
+    o compare_columns() utility: Compare two 1d numeric vectors using the
+      comparison metrics from compare_motifs().
+
 MINOR CHANGES
 
     o Removed 'random' shuffling method.

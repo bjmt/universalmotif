@@ -1,14 +1,24 @@
 #' Motif-related utility functions.
 #'
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA')`.
-#' @param bkg `Numeric` Should be the same length as the alphabet length.
+#' @param bkg `numeric` Should be the same length as the alphabet length.
+#' @param bkg1 `numeric` Vector of background probabilities for the first column.
+#'    Only relevant if `method = "ALLR"`.
+#' @param bkg2 `numeric` Vector of background probabilities for the second column.
+#'    Only relevant if `method = "ALLR"`.
 #' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
 #' @param match `character(1)` Sequence string to calculate score from.
+#' @param method `character(1)` Column comparison metric. See [compare_motifs()]
+#'    for details.
 #' @param motif Motif object to calculate scores from.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are `NA`.
 #' @param nsites `numeric(1)` Number of sites motif originated from.
+#' @param nsites1 `numeric(1)` Number of sites for the first column. Only relevant
+#'    if `method = "ALLR"`.
+#' @param nsites2 `numeric(1)` Number of sites for the second column. Only relevant
+#'    if `method = "ALLR"`.
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
 #' @param pseudocount `numeric(1)` Used to prevent zeroes in motif matrix.
@@ -20,6 +30,8 @@
 #' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
 #'    representing score percentage.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM' 'ICM')`.
+#' @param x `numeric` First column for comparison.
+#' @param y `numeric` Second column for comparison.
 #'
 #' @return
 #'    For [consensus_to_ppm()] and [consensus_to_ppmAA()]: a numeric
@@ -57,6 +69,11 @@
 #' motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
 #' #######################################################################
 #' 
+#' #######################################################################
+#' ## compare_columns
+#' ## Compare two numeric vectors using the metrics from compare_motifs()
+#' compare_columns(c(0.5, 0.1, 0.1, 0.2), c(0.7, 0.1, 0.1, 0.1), "PCC")
+#'
 #' #######################################################################
 #' ## consensus_to_ppm
 #' ## Do the opposite of get_consensus. Note that loss of information is
@@ -158,6 +175,18 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utils-motif
 NULL
+
+#' @rdname utils-motif
+#' @export
+compare_columns <- function(x, y, method = c("PCC", "EUCL", "KL", "ALLR", "SW"),
+                            bkg1 = rep(1 / length(x), length(x)),
+                            bkg2 = rep(1 / length(y), length(y)),
+                            nsites1 = 100, nsites2 = 100) {
+
+  method <- match.arg(method, c("PCC", "EUCL", "KL", "ALLR", "SW"))
+  compare_columns_cpp(x, y, bkg1, bkg2, nsites1, nsites2, method)
+
+}
 
 #' @rdname utils-motif
 #' @export

@@ -25,6 +25,10 @@ merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, re
     .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites)
 }
 
+compare_columns_cpp <- function(p1, p2, b1, b2, n1 = 100, n2 = 100, m = "PCC") {
+    .Call('_universalmotif_compare_columns_cpp', PACKAGE = 'universalmotif', p1, p2, b1, b2, n1, n2, m)
+}
+
 peakfinder_cpp <- function(x, m = 3L) {
     .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
 }

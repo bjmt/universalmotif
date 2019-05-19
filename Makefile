@@ -20,12 +20,16 @@ bioc-check:
 	cd ..;\
 	R -q -e "BiocCheck::BiocCheck('$(PKGNAME)_$(PKGVER).tar.gz', 'quit-with-status'=TRUE)"
 
+coverage:
+	[[ -f "coverage.R" ]] && ./coverage.R || echo "missing coverage.R file"
+
 install:
 	cd ..;\
 	R CMD INSTALL $(PKGNAME)_$(PKGVER).tar.gz
 
 clean:
 	mkdir -p builds;\
+	mkdir -p Rcheck;\
 	cd ..;\
 	mv -f $(PKGNAME).Rcheck $(PKGSRC)/Rcheck/$(PKGNAME).Rcheck_$(PKGVER); \
 	mv -f $(PKGNAME)_$(PKGVER).tar.gz -t $(PKGNAME)/builds

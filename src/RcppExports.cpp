@@ -113,6 +113,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compare_columns_cpp
+double compare_columns_cpp(const std::vector<double>& p1, const std::vector<double>& p2, const std::vector<double>& b1, const std::vector<double>& b2, const double n1, const double n2, const std::string& m);
+RcppExport SEXP _universalmotif_compare_columns_cpp(SEXP p1SEXP, SEXP p2SEXP, SEXP b1SEXP, SEXP b2SEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type b1(b1SEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type b2(b2SEXP);
+    Rcpp::traits::input_parameter< const double >::type n1(n1SEXP);
+    Rcpp::traits::input_parameter< const double >::type n2(n2SEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_columns_cpp(p1, p2, b1, b2, n1, n2, m));
+    return rcpp_result_gen;
+END_RCPP
+}
 // peakfinder_cpp
 Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
@@ -629,6 +645,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_get_comparison_matrix", (DL_FUNC) &_universalmotif_get_comparison_matrix, 5},
     {"_universalmotif_view_motifs_prep", (DL_FUNC) &_universalmotif_view_motifs_prep, 11},
     {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 10},
+    {"_universalmotif_compare_columns_cpp", (DL_FUNC) &_universalmotif_compare_columns_cpp, 7},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},

@@ -182,7 +182,7 @@ double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
 
 double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
     const vec_num_t &bkg1, const vec_num_t &bkg2, const double nsites1,
-    const double nsites2, const bool norm) {
+    const double nsites2, const bool norm = false) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
@@ -1135,5 +1135,41 @@ Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
   Rcpp::NumericVector outbkg = Rcpp::wrap(mergedbkg);
 
   return Rcpp::List::create(outmotif, outbkg);
+
+}
+
+// [[Rcpp::export(rng = false)]]
+double compare_columns_cpp(const std::vector<double> &p1,
+    const std::vector<double> &p2, const std::vector<double> &b1,
+    const std::vector<double> &b2, const double n1 = 100,
+    const double n2 = 100, const std::string &m = "PCC") {
+
+  if (p1.size() < 2) Rcpp::stop("columns should have at least 2 entries");
+  if (p1.size() != p2.size()) Rcpp::stop("both columns must be equal in size");
+
+  list_num_t pp1(1), pp2(1);
+  pp1[0] = p1; pp2[0] = p2;
+
+  double ans;
+
+  switch (::METRICS_enum[m]) {
+    case 1: ans = compare_eucl(pp1, pp2);
+            break;
+    case 3: ans = compare_kl(pp1, pp2);
+            break;
+    case 5: ans = compare_pcc(pp1, pp2);
+            break;
+    case 7: ans = compare_sw(pp1, pp2);
+            break;
+    case 9: if (b1.size() != p1.size() || b2.size() != p1.size())
+              Rcpp::stop("incorrect background vector length");
+            if (n1 <= 1 || n2 <= 1)
+              Rcpp::stop("nsites1/nsites2 should be greater than 1");
+            ans = compare_allr(pp1, pp2, b1, b2, n1, n2);
+            break;
+    default: Rcpp::stop("unknown metric");
+  }
+
+  return ans;
 
 }

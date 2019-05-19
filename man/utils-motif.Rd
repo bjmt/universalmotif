@@ -2,6 +2,7 @@
 % Please edit documentation in R/utils-motif.R
 \name{utils-motif}
 \alias{utils-motif}
+\alias{compare_columns}
 \alias{consensus_to_ppm}
 \alias{consensus_to_ppmAA}
 \alias{get_consensus}
@@ -19,6 +20,10 @@
 \alias{summarise_motifs}
 \title{Motif-related utility functions.}
 \usage{
+compare_columns(x, y, method = c("PCC", "EUCL", "KL", "ALLR", "SW"),
+  bkg1 = rep(1/length(x), length(x)), bkg2 = rep(1/length(y),
+  length(y)), nsites1 = 100, nsites2 = 100)
+
 consensus_to_ppm(letter)
 
 consensus_to_ppmAA(letter)
@@ -54,6 +59,25 @@ score_match(motif, match)
 summarise_motifs(motifs, na.rm = TRUE)
 }
 \arguments{
+\item{x}{\code{numeric} First column for comparison.}
+
+\item{y}{\code{numeric} Second column for comparison.}
+
+\item{method}{\code{character(1)} Column comparison metric. See \code{\link[=compare_motifs]{compare_motifs()}}
+for details.}
+
+\item{bkg1}{\code{numeric} Vector of background probabilities for the first column.
+Only relevant if \code{method = "ALLR"}.}
+
+\item{bkg2}{\code{numeric} Vector of background probabilities for the second column.
+Only relevant if \code{method = "ALLR"}.}
+
+\item{nsites1}{\code{numeric(1)} Number of sites for the first column. Only relevant
+if \code{method = "ALLR"}.}
+
+\item{nsites2}{\code{numeric(1)} Number of sites for the second column. Only relevant
+if \code{method = "ALLR"}.}
+
 \item{letter}{\code{character(1)} Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 are accepted.}
 
@@ -73,7 +97,7 @@ probability for each alphabet letter at a specific position.}
 \item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
 representing score percentage.}
 
-\item{bkg}{\code{Numeric} Should be the same length as the alphabet length.}
+\item{bkg}{\code{numeric} Should be the same length as the alphabet length.}
 
 \item{nsites}{\code{numeric(1)} Number of sites motif originated from.}
 
@@ -128,6 +152,11 @@ motif.consensus <- apply(motif.ppm, 2, get_consensus)
 motif.aa <- create_motif(alphabet = "AA")["motif"]
 motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
 #######################################################################
+
+#######################################################################
+## compare_columns
+## Compare two numeric vectors using the metrics from compare_motifs()
+compare_columns(c(0.5, 0.1, 0.1, 0.2), c(0.7, 0.1, 0.1, 0.1), "PCC")
 
 #######################################################################
 ## consensus_to_ppm
