@@ -37,7 +37,7 @@ cache:
   - ccache
 latex: false
 
-r: bioc-devel
+r: bioc-release
 
 addons:
   apt:
