@@ -51,6 +51,7 @@ addons:
       - texlive-fonts-recommended
       - gcc-7
       - g++-7
+      - gfortran
 
 #env
 env:

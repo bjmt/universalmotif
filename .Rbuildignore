@@ -28,4 +28,3 @@ commit.sh
 ^\.Rproj\.user$
 Rcheck
 Rcheck/*
-tic.R
