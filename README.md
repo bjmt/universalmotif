@@ -23,11 +23,18 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("universalmotif")
 ```
 
+### Bioconductor development version
+
+```r
+if (!requireNamespace("BiocManager", quietly=TRUE))
+  install.packages("BiocManager")
+BiocManager::install("universalmotif", version = "devel")
+```
+
 ### GitHub development version
 
 ```r
 if (!requireNamespace("remotes", quietly=TRUE))
   install.packages("remotes")
-remotes::install_github("GuangchuangYu/ggtree")
 remotes::install_github("bjmt/universalmotif")
 ```

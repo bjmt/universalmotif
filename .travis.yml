@@ -40,9 +40,6 @@ latex: false
 
 r: bioc-release
 
-r-binary-install:
-  - r-cran-ade4
-
 addons:
   apt:
     sources:
@@ -54,7 +51,7 @@ addons:
       - texlive-fonts-recommended
       - gcc-7
       - g++-7
-      - gfortran
+      - gfortran-7
       - r-base-dev
 
 #env
