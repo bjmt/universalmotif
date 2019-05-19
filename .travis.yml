@@ -39,6 +39,9 @@ latex: false
 
 r: bioc-release
 
+r-binary-install:
+  - r-cran-ade4
+
 addons:
   apt:
     sources:
