@@ -5,7 +5,7 @@
 
 # DO NOT CHANGE THE CODE BELOW
 before_install:
-  - mkdir $HOME/.R && echo -e 'CXX=ccache g++-7\nCC=ccache gcc-7\n' > $HOME/.R/Makevars
+  - mkdir $HOME/.R && echo -e 'CXX=ccache g++-7\nCC=ccache gcc-7\nFC=ccache gfortran' > $HOME/.R/Makevars
   - R -q -e 'if (!requireNamespace("remotes")) install.packages("remotes")'
   - R -q -e 'if (getRversion() < "3.2" && !requireNamespace("curl")) install.packages("curl")'
   - R -q -e 'remotes::install_github("GuangchuangYu/ggtree")'
