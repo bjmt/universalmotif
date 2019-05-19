@@ -1,30 +1,42 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# Default configuration for use with tic package
+# tic documentation to get started: https://ropenscilabs.github.io/tic/
+# Usually you shouldn't need to change the first part of the file
+
+# DO NOT CHANGE THE CODE BELOW
 before_install:
   - mkdir $HOME/.R && echo -e 'CXX=ccache g++-7\nCC=ccache gcc-7\n' > $HOME/.R/Makevars
-  - echo -e 'CXX=ccache g++-7\nCC=ccache gcc-7\nCXX_STD=CXX11' > /home/travis/build/bjmt/universalmotif/src/Makevars
-  - echo 'add_package_checks()' > /home/travis/build/bjmt/universalmotif/tic.R
-  - R -q -e 'install.packages(c("remotes", "curl", "covr")); remotes::install_github("ropenscilabs/tic"); remotes::install_github("GuangchuangYu/ggtree"); tic::prepare_all_stages(); tic::before_install()'
+  - R -q -e 'if (!requireNamespace("remotes")) install.packages("remotes")'
+  - R -q -e 'if (getRversion() < "3.2" && !requireNamespace("curl")) install.packages("curl")'
+  - R -q -e 'remotes::install_github("GuangchuangYu/ggtree")'
+  - R -q -e 'remotes::install_cran("tic", upgrade = "always"); print(tic::dsl_load()); tic::prepare_all_stages()'
+  - R -q -e 'tic::before_install()'
 install: R -q -e 'tic::install()'
 after_install: R -q -e 'tic::after_install()'
 before_script: R -q -e 'tic::before_script()'
 script: R -q -e 'tic::script()'
-after_success:
-  - R -q -e 'covr::codecov(type=c("tests","examples"),quiet=FALSE)'
-  - R -q -e 'BiocManager::install("BiocCheck")'
-  - R -q -e 'BiocCheck::BiocCheck("/home/travis/build/bjmt/universalmotif", `no-check-vignettes`=TRUE, `quit-with-status`=TRUE, `new-package`=TRUE)'
+after_success: R -q -e 'tic::after_success()'
 after_failure: R -q -e 'tic::after_failure()'
+before_deploy: R -q -e 'tic::before_deploy()'
+deploy:
+  provider: script
+  script: R -q -e 'tic::deploy()'
+  on:
+    all_branches: true
+after_deploy: R -q -e 'tic::after_deploy()'
 after_script: R -q -e 'tic::after_script()'
+# DO NOT CHANGE THE CODE ABOVE
+
+# Custom parts:
 
 # Header
 language: r
 sudo: false
-dist: trusty
+dist: xenial
 cache:
   - packages
   - ccache
-latex: true
-
-compiler:
-  - gcc
+latex: false
 
 r: bioc-devel
 
@@ -40,14 +52,9 @@ addons:
       - gcc-7
       - g++-7
 
-branches:
-  only:
-    - master
-
 #env
 env:
   global:
-  - _R_CHECK_FORCE_SUGGESTS_=false
   - MAKEFLAGS="-j 2"
 
 #services
