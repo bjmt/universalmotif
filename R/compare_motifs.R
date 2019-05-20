@@ -46,9 +46,6 @@
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
-#' @param db.version `numeric(1)` Select internal P-value database. `1` is the
-#'    database created in v1.0.0 of the package, and `2` is the database
-#'    created in v1.4.0 of the package.
 #'
 #' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
 #' * PCC: The number of positions in the shorter motif represents the max possible
@@ -155,9 +152,10 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,
                            max.p = 0.01, max.e = 10, progress = FALSE,
-                           BP = FALSE, nthreads = 1, db.version = 2) {
+                           BP = FALSE, nthreads = 1) {
 
   # param check --------------------------------------------
+  method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
   char_check <- check_fun_params(list(use.type = args$use.type,
@@ -170,9 +168,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                      max.p = args$max.p,
                                      max.e = args$max.e,
                                      nthreads = args$nthreads,
-                                     min.position.ic = args$min.position.ic,
-                                     db.version = args$db.version),
-                                c(0, rep(1, 8)), c(TRUE, rep(FALSE, 8)),
+                                     min.position.ic = args$min.position.ic),
+                                c(0, rep(1, 7)), c(TRUE, rep(FALSE, 7)),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
@@ -185,13 +182,6 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                          "got `", use.type, "`")
     all_checks <- c(all_checks, type_check)
   }
-  if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
-                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
-                           method, "`")
-    method_check <- wmsg2(method_check, 4, 2)
-    all_checks <- c(all_checks, method_check)
-  }
   if (!missing(db.scores) && !is.data.frame(db.scores)) {
     dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
                              "`data.frame`; got `", class(db.scores), "`")
@@ -202,9 +192,6 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
   if (use.type == "ICM" && method %in% c("ALLR", "MALLR"))
     stop("'use.type = \"ICM\"' is not allowed for ALLR/MALLR methods")
-
-  if (!db.version %in% 1:2)
-    stop("db.scores can only be 1 or 2")
 
   if (progress)
     warning("'progress' is deprecated and does nothing", immediate. = TRUE)
@@ -253,27 +240,21 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       relative_entropy, mot.names,
                                       min.position.ic, mot.nsites)
 
-    comparisons <- switch(method,
-                          "PCC" = fix_pcc_diag(comparisons, mot.mats),
-                          "SW" = fix_sw_diag(comparisons, mot.mats),
-                          "ALLR" = fix_allr_diag(comparisons, mot.mats),
-                          comparisons)
+    comparisons[comparisons == min_max_doubles()$min
+                | comparisons == min_max_doubles()$max] <- NA_real_
+
+    if (anyNA(comparisons)) 
+      warning(wmsg("Some comparisons failed due to low motif IC"),
+              immediate. = TRUE)
 
   } else {
 
     if (missing(db.scores)) {
 
-      if (db.version == 2) {
-        if (!normalise.scores)
-          db.scores <- JASPAR2018_CORE_DBSCORES_2[[method]]
-        else
-          db.scores <- JASPAR2018_CORE_DBSCORES_NORM_2[[method]]
-      } else if (db.version == 1) {
-        if (!normalise.scores)
-          db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
-        else
-          db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
-      }
+      if (!normalise.scores)
+        db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
+      else
+        db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
 
       if (use.freq != 1)
         warning(wmsg("Using the internal P-value database with `use.freq > 1`",
@@ -295,6 +276,13 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       mot.type, relative_entropy,
                                       min.mean.ic, normalise.scores, nthreads,
                                       min.position.ic, mot.nsites)
+
+    comparisons[comparisons == min_max_doubles()$min
+                | comparisons == min_max_doubles()$max] <- NA_real_
+
+    if (anyNA(comparisons))
+      warning(wmsg("Some comparisons failed due to low motif IC"),
+              immediate. = TRUE)
 
     pvals <- get_motif_pvals(mot.mats, comparisons, comps, db.scores, method)
 
@@ -373,33 +361,6 @@ get_comp_indices <- function(compare.to, n) {
   }
 
   do.call(rbind, out)
-
-}
-
-fix_allr_diag <- function(comparisons, mot.mats) {
-
-  mot.lens <- vapply(mot.mats, ncol, numeric(1))
-  diag(comparisons) <- mot.lens * 1.314
-
-  comparisons
-
-}
-
-fix_pcc_diag <- function(comparisons, mot.mats) {
-
-  mot.lens <- vapply(mot.mats, ncol, numeric(1))
-  diag(comparisons) <- mot.lens
-
-  comparisons
-
-}
-
-fix_sw_diag <- function(comparisons, mot.mats) {
-
-  mot.lens <- vapply(mot.mats, ncol, numeric(1))
-  diag(comparisons) <- mot.lens * 2
-
-  comparisons
 
 }
 

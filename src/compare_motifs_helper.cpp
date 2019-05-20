@@ -3,28 +3,185 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include "types.h"
 #include "utils-internal.h"
 
 std::unordered_map<std::string, int> METRICS_enum = {
 
-  /* distance */
+  /* distance */    // timings from last make_DBscores() run:
 
-  {"EUCL",   1},
-  {"MEUCL",  2},
-  {"KL",     3},
-  {"MKL",    4},
+  {"EUCL",    1},   // 35.78 s
+  {"MEUCL",   2},   // 34.42 s
+  {"KL",      3},   // 21.99 s
+  {"MKL",     4},   // 21.36 s
+  {"HELL",   13},   // 17.37 s
+  {"MHELL",  14},   // 17.85 s
+  {"IS",     15},   // 18.41 s
+  {"MIS",    16},   // 18.53 s
+  {"SEUCL",  17},   // 14.93 s
+  {"MSEUCL", 18},   // 15.05 s
+  {"MAN",    19},   // 14.92 s
+  {"MMAN",   20},   // 15.6 s
 
   /* similarity */
 
-  {"PCC",    5},
-  {"MPCC",   6},
-  {"SW",     7},
-  {"MSW",    8},
-  {"ALLR",   9},
-  {"MALLR", 10}
+  {"PCC",     5},   // 1.231 m
+  {"MPCC",    6},   // 1.29 m
+  {"SW",      7},   // 15.42 s
+  {"MSW",     8},   // 15.8 s
+  {"ALLR",    9},   // 59.88 s
+  {"MALLR",  10},   // 59.53 s
+  {"BHAT",   11},   // 15.67 s
+  {"MBHAT",  12}    // 15.89 s
 
 };
+
+double compare_hell(const list_num_t &mot1, const list_num_t &mot2,
+    const bool norm = false) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t ans(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        ans[i] += pow(sqrt(mot1[i][j]) - sqrt(mot2[i][j]), 2.0);
+      }
+      ans[i] = sqrt(ans[i]) / sqrt(2.0);
+    }
+  }
+
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
+
+  return norm ? total / double(n) : total;
+
+}
+
+double compare_is(const list_num_t &mot1, const list_num_t &mot2,
+    const bool norm = false) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t ans(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        ans[i] += mot1[i][j] / mot2[i][j] - log(mot1[i][j] / mot2[i][j]) - 1.0;
+      }
+    }
+  }
+
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
+
+  return norm ? total / double(n) : total;
+
+}
+
+double compare_seucl(const list_num_t &mot1, const list_num_t &mot2,
+    const bool norm = false) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t ans(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0);
+      }
+    }
+  }
+
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
+
+  return norm ? total / double(n) : total;
+
+}
+
+double compare_man(const list_num_t &mot1, const list_num_t &mot2,
+    const bool norm = false) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t ans(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        ans[i] += abs(mot1[i][j] - mot2[i][j]);
+      }
+    }
+  }
+
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
+
+  return norm ? total / double(n) : total;
+
+}
+
+double compare_bhat(const list_num_t &mot1, const list_num_t &mot2,
+    const bool norm = false) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t ans(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        ans[i] += sqrt(mot1[i][j] * mot2[i][j]);
+      }
+    }
+  }
+
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
+
+  return norm ? total / double(n) : total;
+
+}
 
 double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
     const bool norm = false) {
@@ -32,43 +189,27 @@ double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   list_num_t diffmat(ncol, vec_num_t(nrow, 0.0));
   vec_bool_t good(ncol, false);
+  int n = 0;
   for (std::size_t i = 0; i < ncol; ++i) {
-    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) good[i] = true;
-  }
-
-  for (std::size_t i = 0; i < ncol; ++i) {
-
-    if (good[i]) {
-
-      for (std::size_t j = 0; j < nrow; ++j) {
-        diffmat[i][j] = mot1[i][j] - mot2[i][j];
-        diffmat[i][j] = pow(diffmat[i][j], 2.0);
-      }
-
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
     }
-
   }
 
-  vec_num_t colsums(ncol, 0.0);
+  vec_num_t ans(ncol, 0.0);
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        colsums[i] += diffmat[i][j];
+        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0);
       }
-      colsums[i] = sqrt(colsums[i]);
+      ans[i] = sqrt(ans[i]);
     }
   }
 
-  double k = 0.0;
-  int counter = 0;
-  for (std::size_t i = 0; i < ncol; ++i) {
-    if (good[i]) {
-      ++counter;
-      k += colsums[i];
-    }
-  }
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
 
-  return norm ? k / double(counter) / sqrt(2.0) : k / sqrt(2.0);
+  return norm ? total / double(n) : total;
 
 }
 
@@ -144,39 +285,28 @@ double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
+  int n = 0;
   for (std::size_t i = 0; i < ncol; ++i) {
-    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) good[i] = true;
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
   }
 
-  list_num_t nmat(ncol, vec_num_t(nrow, 0.0));
+  vec_num_t ans(ncol, 0.0);
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        nmat[i][j] = mot1[i][j] * log(mot1[i][j] / mot2[i][j]);
-        nmat[i][j] += mot2[i][j] * log(mot2[i][j] / mot1[i][j]);
+        ans[i] += mot1[i][j] * log(mot1[i][j] / mot2[i][j]);
+        ans[i] += mot2[i][j] * log(mot2[i][j] / mot1[i][j]);
       }
+      ans[i] *= 0.5;
     }
   }
 
-  vec_num_t colsums(ncol, 0.0);
-  int counter = 0;
-  for (std::size_t i = 0; i < ncol; ++i) {
-    if (good[i]) {
-      for (std::size_t j = 0; j < nrow; ++j) {
-        colsums[i] += nmat[i][j];
-      }
-      ++counter;
-    }
-  }
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
 
-  double total = 0.0;
-  for (std::size_t i = 0; i < ncol; ++i) {
-    if (good[i]) {
-      total += colsums[i];
-    }
-  }
-
-  return norm ? 0.5 / double(counter) * total : 0.5 * total;
+  return norm ?  total / double(n) : total;
 
 }
 
@@ -207,7 +337,7 @@ double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
   vec_num_t answers(ncol, 0.0);
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
-      answers[i] = std::accumulate(left[i].begin(), left[i].end(), 0.0);
+      answers[i] += std::accumulate(left[i].begin(), left[i].end(), 0.0);
       answers[i] += std::accumulate(right[i].begin(), right[i].end(), 0.0);
       answers[i] /= nsites1 + nsites2;
     }
@@ -224,33 +354,27 @@ double compare_sw(const list_num_t &mot1, const list_num_t &mot2,
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
+  int n = 0;
   for (std::size_t i = 0; i < ncol; ++i) {
-    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) good[i] = true;
-  }
-
-  list_num_t nmat(ncol, vec_num_t(nrow, 0.0));
-  for (std::size_t i = 0; i < ncol; ++i) {
-    if (good[i]) {
-      for (std::size_t j = 0; j < nrow; ++j) {
-        nmat[i][j] = pow(mot1[i][j] - mot2[i][j], 2.0);
-      }
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
     }
   }
 
-  vec_num_t colsums(ncol, 2.0);
-  double total = 0.0;
-  int counter = 0;
+  vec_num_t ans(ncol, 0.0);
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        colsums[i] -= nmat[i][j];
+        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0);
       }
-      total += colsums[i];
-      ++counter;
+      ans[i] = 2.0 - ans[i];
     }
   }
 
-  return norm ? total / double(counter) : total;
+  double total = std::accumulate(ans.begin(), ans.end(), 0.0);
+
+  return norm ? total / double(n) : total;
 
 }
 
@@ -404,47 +528,87 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
 
   switch (::METRICS_enum[method]) {
 
-    case  1: ans[i] = lowic ? sqrt(2.0) * double(alignlen)
+    case  1: ans[i] = lowic ? std::numeric_limits<double>::max()
                               : compare_eucl(tmot1, tmot2, false)
                                 * double(tlen) / double(alignlen);
              break;
-    case  2: ans[i] = lowic ? sqrt(2.0)
+    case  2: ans[i] = lowic ? std::numeric_limits<double>::max()
                               : compare_eucl(tmot1, tmot2, true)
                                 * double(tlen) / double(alignlen);
              break;
-    case  3: ans[i] = lowic ? 5.0 * double(alignlen)
+    case  3: ans[i] = lowic ? std::numeric_limits<double>::max()
                               : compare_kl(tmot1, tmot2, false)
                                 * double(tlen) / double(alignlen);
              break;
-    case  4: ans[i] = lowic ? 5.0
+    case  4: ans[i] = lowic ? std::numeric_limits<double>::max()
                               : compare_kl(tmot1, tmot2, true)
                                 * double(tlen) / double(alignlen);
              break;
-    case  5: ans[i] = lowic ? -1.0 * double(alignlen)
+    case  5: ans[i] = lowic ? -std::numeric_limits<double>::max()
                               : compare_pcc(tmot1, tmot2, false)
                                 * double(alignlen) / double(tlen);
              break;
-    case  6: ans[i] = lowic ? -1.0
+    case  6: ans[i] = lowic ? -std::numeric_limits<double>::max()
                               : compare_pcc(tmot1, tmot2, true)
                                 * double(alignlen) / double(tlen);
              break;
-    case  7: ans[i] = lowic ? -2.0 * double(alignlen)
+    case  7: ans[i] = lowic ? -std::numeric_limits<double>::max()
                               : compare_sw(tmot1, tmot2, false)
                                 * double(alignlen) / double(tlen);
              break;
-    case  8: ans[i] = lowic ? -2.0
+    case  8: ans[i] = lowic ? -std::numeric_limits<double>::max()
                               : compare_sw(tmot1, tmot2, true)
                                 * double(alignlen) / double(tlen);
              break;
-    case  9: ans[i] = lowic ? -4.0 * double(alignlen)
+    case  9: ans[i] = lowic ? -std::numeric_limits<double>::max()
                               : compare_allr(tmot1, tmot2, bkg1, bkg2, nsites1,
                                   nsites2, false)
                                 * double(alignlen) / double(tlen);
              break;
-    case 10: ans[i] = lowic ? -4.0
+    case 10: ans[i] = lowic ? -std::numeric_limits<double>::max()
                              : compare_allr(tmot1, tmot2, bkg1, bkg2, nsites1,
                                  nsites2, true)
                                * double(alignlen) / double(tlen);
+             break;
+    case 11: ans[i] = lowic ? -std::numeric_limits<double>::max()
+                              : compare_bhat(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 12: ans[i] = lowic ? -std::numeric_limits<double>::max()
+                              : compare_bhat(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 13: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_hell(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 14: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_hell(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 15: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_is(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 16: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_is(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 17: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_seucl(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 18: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_seucl(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 19: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_man(tmot1, tmot2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 20: ans[i] = lowic ? std::numeric_limits<double>::max()
+                              : compare_man(tmot1, tmot2, true)
+                                * double(alignlen) / double(tlen);
              break;
 
   }
@@ -467,6 +631,16 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
     case  8: return *std::max_element(ans.begin(), ans.end());
     case  9: return *std::max_element(ans.begin(), ans.end());
     case 10: return *std::max_element(ans.begin(), ans.end());
+    case 11: return *std::max_element(ans.begin(), ans.end());
+    case 12: return *std::max_element(ans.begin(), ans.end());
+    case 13: return *std::min_element(ans.begin(), ans.end());
+    case 14: return *std::min_element(ans.begin(), ans.end());
+    case 15: return *std::min_element(ans.begin(), ans.end());
+    case 16: return *std::min_element(ans.begin(), ans.end());
+    case 17: return *std::min_element(ans.begin(), ans.end());
+    case 18: return *std::min_element(ans.begin(), ans.end());
+    case 19: return *std::min_element(ans.begin(), ans.end());
+    case 20: return *std::min_element(ans.begin(), ans.end());
 
   }
 
@@ -598,6 +772,16 @@ int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
     case  8: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
     case  9: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
     case 10: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case 11: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case 12: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case 13: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 14: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 15: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 16: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 17: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 18: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 19: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 20: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
 
   }
 
@@ -819,6 +1003,20 @@ void neg_one_to_zero(list_num_t &mot) {
 
 }
 
+void fix_mot_bkg_zeros(list_num_t &mot, vec_num_t &bkg, const std::string &method) {
+
+  switch (::METRICS_enum[method]) {
+    case 3:
+    case 4:
+    case 9:
+    case 10:
+    case 15:
+    case 16: klfix(mot);
+             bkgfix(bkg);
+  }
+
+}
+
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
@@ -856,13 +1054,7 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
     vmots[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_cpp()]");
-    switch (::METRICS_enum[method]) {
-      case 3:
-      case 4:
-      case 9:
-      case 10: klfix(vmots[i]);
-               bkgfix(bkg[i]);
-    }
+    fix_mot_bkg_zeros(vmots[i], bkg[i], method);
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
@@ -919,13 +1111,7 @@ std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
     vmots[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
-    switch (::METRICS_enum[method]) {
-      case 3:
-      case 4:
-      case 9:
-      case 10: klfix(vmots[i]);
-               bkgfix(bkg[i]);
-    }
+    fix_mot_bkg_zeros(vmots[i], bkg[i], method);
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
@@ -936,12 +1122,12 @@ std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
   }
 
   list_num_t answers(vmots.size());
-  RcppThread::parallelFor(0, answers.size() - 1,
+  RcppThread::parallelFor(0, answers.size(),
       [&answers, &vmots, &icscores, &method, minoverlap, RC, minic, norm, posic,
       &bkg, &nsites]
       (std::size_t i) {
-        answers[i].reserve(vmots.size() - i + 1);
-        for (std::size_t j = i + 1; j < vmots.size(); ++j) {
+        answers[i].reserve(vmots.size() - i);
+        for (std::size_t j = i; j < vmots.size(); ++j) {
           answers[i].push_back(compare_motif_pair(vmots[i], vmots[j], method,
               minoverlap, RC, icscores[i], icscores[j], minic, norm, posic,
               bkg[i], bkg[j], nsites[i], nsites[j]));
@@ -960,17 +1146,6 @@ Rcpp::NumericMatrix get_comparison_matrix(const std::vector<double> &ans,
   /* convert the output from compare_motifs_all_cpp() to a matrix */
 
   Rcpp::NumericMatrix out(motnames.size(), motnames.size());
-
-  switch (::METRICS_enum[method]) {
-    case  6: out.fill_diag(1.0);
-             break;
-    case  8: out.fill_diag(2.0);
-             break;
-    case 10: out.fill_diag(1.314);
-             break;
-    default: out.fill_diag(0.0);
-             break;
-  }
 
   for (std::size_t i = 0; i < ans.size(); ++i) {
     out(index1[i], index2[i]) = ans[i];
@@ -1008,13 +1183,7 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
     motlens[i] = vmots[i].size();
-    switch (::METRICS_enum[method]) {
-      case 3:
-      case 4:
-      case 9:
-      case 10: klfix(vmots[i]);
-               bkgfix(bkg[i]);
-    }
+    fix_mot_bkg_zeros(vmots[i], bkg[i], method);
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
@@ -1093,13 +1262,7 @@ Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
     vmots[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
-    switch (::METRICS_enum[method]) {
-      case 3:
-      case 4:
-      case 9:
-      case 10: klfix(vmots[i]);
-               bkgfix(bkg[i]);
-    }
+    fix_mot_bkg_zeros(vmots[i], bkg[i], method);
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
@@ -1153,20 +1316,30 @@ double compare_columns_cpp(const std::vector<double> &p1,
   double ans;
 
   switch (::METRICS_enum[m]) {
-    case 1: ans = compare_eucl(pp1, pp2);
-            break;
-    case 3: ans = compare_kl(pp1, pp2);
-            break;
-    case 5: ans = compare_pcc(pp1, pp2);
-            break;
-    case 7: ans = compare_sw(pp1, pp2);
-            break;
-    case 9: if (b1.size() != p1.size() || b2.size() != p1.size())
-              Rcpp::stop("incorrect background vector length");
-            if (n1 <= 1 || n2 <= 1)
-              Rcpp::stop("nsites1/nsites2 should be greater than 1");
-            ans = compare_allr(pp1, pp2, b1, b2, n1, n2);
-            break;
+    case  1: ans = compare_eucl(pp1, pp2);
+             break;
+    case  3: ans = compare_kl(pp1, pp2);
+             break;
+    case  5: ans = compare_pcc(pp1, pp2);
+             break;
+    case  7: ans = compare_sw(pp1, pp2);
+             break;
+    case  9: if (b1.size() != p1.size() || b2.size() != p1.size())
+               Rcpp::stop("incorrect background vector length");
+             if (n1 <= 1 || n2 <= 1)
+               Rcpp::stop("nsites1/nsites2 should be greater than 1");
+             ans = compare_allr(pp1, pp2, b1, b2, n1, n2);
+             break;
+    case 11: ans = compare_bhat(pp1, pp2);
+             break;
+    case 13: ans = compare_hell(pp1, pp2);
+             break;
+    case 15: ans = compare_is(pp1, pp2);
+             break;
+    case 17: ans = compare_seucl(pp1, pp2);
+             break;
+    case 19: ans = compare_man(pp1, pp2);
+             break;
     default: Rcpp::stop("unknown metric");
   }
 

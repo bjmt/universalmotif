@@ -113,6 +113,10 @@ universalmotif_to_list <- function(motif) {
     .Call('_universalmotif_universalmotif_to_list', PACKAGE = 'universalmotif', motif)
 }
 
+min_max_doubles <- function() {
+    .Call('_universalmotif_min_max_doubles', PACKAGE = 'universalmotif')
+}
+
 comb2_cpp <- function(n) {
     .Call('_universalmotif_comb2_cpp', PACKAGE = 'universalmotif', n)
 }

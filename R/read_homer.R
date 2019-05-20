@@ -1,7 +1,7 @@
 #' Import HOMER motifs.
 #'
 #' Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
-#' Assumed to be DNA motifs.
+#' Assumed to be DNA motifs. The logodds score is converted to a P-value.
 #'
 #' @return `list` [universalmotif-class] objects.
 #'
@@ -73,13 +73,14 @@ read_homer <- function(file, skip = 0) {
                                    as.numeric(x[2])),
                    bkgsites = ifelse(is.na(as.numeric(x[3])), numeric(0),
                                      as.numeric(x[3])),
-                   pval = ifelse(is.na(as.numeric(x[4])), numeric(0),
-                                 as.numeric(x[4])),
+                   # pval = ifelse(is.na(as.numeric(x[4])), numeric(0),
+                   #               as.numeric(x[4])),
+                   pval = exp(1)^-abs(as.numeric(x[5])),
                    motif = t(y),
                    alphabet = "DNA",
                    type = "PPM",
-                   family = x[6],
-                   extrainfo = c(logodds = x[5]))
+                   family = x[6])
+                   # extrainfo = c(logodds = x[5]))
     validObject_universalmotif(mot)
     mot
   }

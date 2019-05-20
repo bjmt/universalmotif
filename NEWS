@@ -9,8 +9,9 @@ NEW FEATURES
     o compare_motifs() option: 'min.position.ic'. Prevent low-IC positions in
       an alignment from contributing to the final alignment score.
 
-    o Motif comparison metrics: average log-likelihood ratio (ALLR) and mean
-      ALLR (MALLR).
+    o Motif comparison metrics: average log-likelihood ratio, squared Euclidean
+      distance, Hellinger distance, Bhattacharyya coefficient, Itakura-Saito
+      distance, Manhattan distance.
 
     o compare_columns() utility: Compare two 1d numeric vectors using the
       comparison metrics from compare_motifs().
@@ -30,17 +31,18 @@ MINOR CHANGES
     o Many performance improvements to functions relying on internal C++ code.
 
     o Changed behaviour of make_DBscores(). Re-calculated internal P-value
-      databases. The old database scores from v1.0.0 can be still be used
-      via the 'db.version' option in compare_motifs().
+      databases.
 
     o For merge_motifs(..., use.type): now only accepts 'PPM'.
 
-    o When comparing all motifs to all motifs with the SW method in
-      compare_motifs(), the diagonal entries now properly show the max
-      possible similarity score.
+    o When comparing all motifs to all motifs with any method in
+      compare_motifs(), the diagonal entries now properly show the max/min
+      possible similarity/distance scores.
 
     o New internal merge_motifs() implementation. This also fixes a previous bug
       with incorrect PPM averaging.
+
+    o read_homer(): the logodds score is converted to a P-value.
 
 CHANGES IN VERSION 1.2.1
 ------------------------

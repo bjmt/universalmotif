@@ -2,6 +2,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <algorithm>
+#include <limits>
 #include "utils-internal.h"
 #include "types.h"
 
@@ -76,18 +77,27 @@ vec_str_t clean_up_check(const vec_str_t &fails) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::List min_max_doubles() {
+
+  return Rcpp::List::create(
+        Rcpp::_["min"] = -std::numeric_limits<double>::max(),
+        Rcpp::_["max"] = std::numeric_limits<double>::max()
+      );
+
+}
+
+// [[Rcpp::export(rng = false)]]
 std::vector<std::vector<int>> comb2_cpp(const int n) {
 
-  int outlen = n * (n - 1) / 2;
-  list_int_t out(2, vec_int_t(outlen));
-
-  int counter = 0;
+  int outlen = pow(n, 2) + n;
+  list_int_t out(2);
+  out[0].reserve(outlen);
+  out[1].reserve(outlen);
 
   for (int i = 0; i < n; ++i) {
-    for (int j = i + 1; j < n; ++j) {
-      out[0][counter] = i;
-      out[1][counter] = j;
-      ++counter;
+    for (int j = i; j < n; ++j) {
+      out[0].push_back(i);
+      out[1].push_back(j);
     }
   }
 

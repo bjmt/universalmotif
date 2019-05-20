@@ -28,15 +28,9 @@ merge_motifs <- function(motifs, method = "MPCC", use.type = "PPM",
                          min.position.ic = 0) {
 
   # param check --------------------------------------------
+  method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
-                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
-                           method, "`")
-    method_check <- wmsg2(method_check, 4, 2)
-    all_checks <- c(all_checks, method_check)
-  }
   char_check <- check_fun_params(list(method = args$method),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,

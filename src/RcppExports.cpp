@@ -397,6 +397,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// min_max_doubles
+Rcpp::List min_max_doubles();
+RcppExport SEXP _universalmotif_min_max_doubles() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    rcpp_result_gen = Rcpp::wrap(min_max_doubles());
+    return rcpp_result_gen;
+END_RCPP
+}
 // comb2_cpp
 std::vector<std::vector<int>> comb2_cpp(const int n);
 RcppExport SEXP _universalmotif_comb2_cpp(SEXP nSEXP) {
@@ -667,6 +676,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},
+    {"_universalmotif_min_max_doubles", (DL_FUNC) &_universalmotif_min_max_doubles, 0},
     {"_universalmotif_comb2_cpp", (DL_FUNC) &_universalmotif_comb2_cpp, 1},
     {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},
     {"_universalmotif_sort_unique_cpp", (DL_FUNC) &_universalmotif_sort_unique_cpp, 1},

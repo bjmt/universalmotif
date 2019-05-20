@@ -88,13 +88,14 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        branch.length = "none", db.scores, method = "MEUCL",
                        use.type = "PPM", min.overlap = 6,
                        min.position.ic = 0, tryRC = TRUE,
-                       min.mean.ic = 0.25, relative_entropy = FALSE,
+                       min.mean.ic = 0, relative_entropy = FALSE,
                        progress = FALSE, BP = FALSE, nthreads = 1, ...) {
 
   # TODO: allow for user-provided linecol, labels, tipsize instead of just
   #       pulling from motif slots.
 
   # param check --------------------------------------------
+  method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
   if (!layout %in% c("rectangular", "slanted", "fan", "circular", "radial",
@@ -104,13 +105,6 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                            " or `daylight`; got `", layout, "`")
     layout_check <- wmsg2(layout_check, 4, 2)
     all_checks <- c(all_checks, layout_check)
-  }
-  if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
-                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
-                           method, "`")
-    method_check <- wmsg2(method_check)
-    all_checks <- c(all_checks, method_check)
   }
   if (!use.type %in% c("PPM", "ICM")) {
     use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM` or `ICM`; got `",
@@ -135,8 +129,9 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (method %in% c("PCC", "SW", "ALLR"))
-    stop("'PCC', 'SW', 'ALLR' are not allowed; please use 'MPCC', 'MSW', or 'MALLR' instead")
+  if (method %in% c("PCC", "SW", "ALLR", "MALLR", "BHAT"))
+    stop(wmsg("'PCC', 'SW', 'ALLR', 'MALLR', 'BHAT' are not allowed, since a distance",
+              "matrix cannot be built"))
 
   if (is(motifs, "dist")) {
     tree <- ape::as.phylo(hclust(motifs))
@@ -160,8 +155,11 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                            relative_entropy = relative_entropy,
                            BP = BP, progress = progress,
                            min.position.ic = min.position.ic)
+    if (anyNA(tree))
+      stop(wmsg("Found NA values in comparison matrix; try again with ",
+               "a smaller min.mean.ic and/or min.position.ic"))
     tree <- switch(method, "MPCC" = 1 - tree, "MSW" = 2 - tree,
-                   "MALLR" = 1.314 - tree, tree)
+                   "MBHAT" = 1 - tree, tree)
     if (progress) cat("Constructing phylogeny...\n")
     tree <- ape::as.phylo(hclust(as.dist(tree)))
     if (labels != "none") {

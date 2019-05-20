@@ -21,9 +21,9 @@ test_that("basic comparison works", {
   expect_equal(as.vector(res.pcc),
                c(6, 2, 2, 6))
   expect_equal(round(as.vector(res.eucl), 0),
-               c(0, 3, 3, 0))
+               c(0, 4, 4, 0))
   expect_equal(round(as.vector(res.meucl), 1),
-               c(0, 0.5, 0.5, 0))
+               c(0, 0.7, 0.7, 0))
   expect_equal(round(as.vector(res.sw), 0),
                c(12, 6, 6, 12))
   expect_equal(round(as.vector(res.msw), 0),
@@ -33,9 +33,9 @@ test_that("basic comparison works", {
   expect_equal(round(as.vector(res.mkl), digits = 2),
                c(0, 2.31, 2.31, 0))
   expect_equal(round(as.vector(res.allr), digits = 3),
-               c(7.884, -7.916, -7.916, 7.884))
+               c(5.929, -7.916, -7.916, 5.929))
   expect_equal(round(as.vector(res.mallr), digits = 3),
-               c(1.314, -1.319, -1.319, 1.314))
+               c(0.988, -1.319, -1.319, 0.988))
 
   res.mpcc2 <- compare_motifs(list(motif1, motif2), method = "MPCC",
                               use.type = "ICM")
@@ -59,7 +59,7 @@ test_that("basic comparison works", {
   expect_equal(round(as.vector(res.pcc2), digits = 1),
                c(6, 2, 2, 6))
   expect_equal(round(as.vector(res.eucl2), 0),
-               c(0, 6, 6, 0))
+               c(0, 8, 8, 0))
   expect_equal(round(as.vector(res.meucl2), 0),
                c(0, 1, 1, 0))
   expect_equal(round(as.vector(res.sw2), 0),
@@ -87,7 +87,7 @@ test_that("comparisons with p-values works", {
   res <- compare_motifs(list(motif1, motif2), 1:2, max.p = 1,
                         method = "MPCC")
 
-  expect_equal(round(res$Pval, digits = 2), 0.28)
+  expect_equal(round(res$Pval, digits = 2), 0.26)
 
 })
 

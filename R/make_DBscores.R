@@ -42,7 +42,9 @@
 #' @export
 make_DBscores <- function(db.motifs,
                           method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW",
-                                     "KL", "MKL", "ALLR", "MALLR"),
+                                     "KL", "MKL", "ALLR", "MALLR", "BHAT",
+                                     "MBHAT", "HELL", "MHELL", "IS", "MIS",
+                                     "SEUCL", "MSEUCL", "MAN", "MMAN"),
                           shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 1000, widths = 5:30,
@@ -60,11 +62,14 @@ make_DBscores <- function(db.motifs,
     names(out) <- c(method, "args")
     mc <- 1
     for (m in method) {
-      if (progress) cat("Method:", m, paste0("[", mc, "/", length(method), "] "))
+      if (progress) cat("Method:", paste0("[", mc, "/", length(method), "]"), m, "")
+      if (progress) start <- Sys.time()
       out[[m]] <- make_DBscores(db.motifs, m, shuffle.db, shuffle.k, shuffle.method,
                                 rand.tries, widths, min.position.ic,
                                 normalise.scores, min.overlap, min.mean.ic,
                                 progress, BP, nthreads, tryRC)
+      if (progress) stop <- Sys.time()
+      if (progress) cat(" >", format(difftime(stop, start)), "\n")
       mc <- mc + 1
     }
     out$args <- args[-1]
@@ -72,7 +77,7 @@ make_DBscores <- function(db.motifs,
   }
 
   # param check --------------------------------------------
-  if (!method %in% COMPARE_METRICS) stop("Incorrect 'method'")
+  method <- match.arg(method, COMPARE_METRICS)
   char_check <- check_fun_params(list(method = args$method,
                                       shuffle.method = args$shuffle.method),
                                  c(0, 1), logical(), TYPE_CHAR)

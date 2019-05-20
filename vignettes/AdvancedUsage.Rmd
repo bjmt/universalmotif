@@ -388,7 +388,7 @@ motifs <- motifs[sample(seq_along(motifs), 25)]
 
 ## Step 1: compare motifs
 
-comparisons <- compare_motifs(motifs, progress = FALSE)
+comparisons <- compare_motifs(motifs, min.mean.ic = 0)
 
 ## Step 2: create a "dist" object
 

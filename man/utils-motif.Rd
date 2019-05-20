@@ -20,9 +20,8 @@
 \alias{summarise_motifs}
 \title{Motif-related utility functions.}
 \usage{
-compare_columns(x, y, method = c("PCC", "EUCL", "KL", "ALLR", "SW"),
-  bkg1 = rep(1/length(x), length(x)), bkg2 = rep(1/length(y),
-  length(y)), nsites1 = 100, nsites2 = 100)
+compare_columns(x, y, method, bkg1 = rep(1/length(x), length(x)),
+  bkg2 = rep(1/length(y), length(y)), nsites1 = 100, nsites2 = 100)
 
 consensus_to_ppm(letter)
 

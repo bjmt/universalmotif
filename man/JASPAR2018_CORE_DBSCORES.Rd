@@ -3,8 +3,8 @@
 \docType{data}
 \name{JASPAR2018_CORE_DBSCORES}
 \alias{JASPAR2018_CORE_DBSCORES}
-\title{JASPAR2018 CORE database scores (universalmotif v1.0.0).}
-\format{\code{list} with eight \code{data.frame}s}
+\title{JASPAR2018 CORE database scores}
+\format{\code{list} with ten \code{data.frame}s and an additional list of parameters.}
 \usage{
 JASPAR2018_CORE_DBSCORES
 }
@@ -17,6 +17,6 @@ as a list, with each list item being a \code{data.frame} of scores for a specifi
 method. In each \code{data.frame} is the mean and sd of scores resulting between
 the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
 \code{subject} and \code{target} motif length. Created using \code{\link[=make_DBscores]{make_DBscores()}} from
-universalmotif v1.0.0.
+universalmotif v1.4.0.
 }
 \keyword{datasets}

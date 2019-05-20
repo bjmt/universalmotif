@@ -176,15 +176,17 @@
 #' @name utils-motif
 NULL
 
+# TODO: rewrite examples
+
 #' @rdname utils-motif
 #' @export
-compare_columns <- function(x, y, method = c("PCC", "EUCL", "KL", "ALLR", "SW"),
+compare_columns <- function(x, y, method,
                             bkg1 = rep(1 / length(x), length(x)),
                             bkg2 = rep(1 / length(y), length(y)),
                             nsites1 = 100, nsites2 = 100) {
 
-  method <- match.arg(method, c("PCC", "EUCL", "KL", "ALLR", "SW"))
-  compare_columns_cpp(x, y, bkg1, bkg2, nsites1, nsites2, method)
+  method <- match.arg(method, COMPARE_METRICS)
+  compare_columns_cpp(x, y, bkg1, bkg2, nsites1, nsites2, method[1])
 
 }
 
