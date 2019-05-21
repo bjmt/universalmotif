@@ -433,22 +433,22 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
       scorelens[i] = scores[i].size();
     }
 
-    int which = scores[0].size() * (1.0 - pval);
-    if (which == int(scores[0].size())) --which;
+    int which = scores0.size() * (1.0 - pval);
+    if (which == int(scores0.size())) --which;
 
     for (int i = 0; i < randtries; ++i) {
 
       for (int j = 1; j < nsplit; ++j) {
-        for (std::size_t b = 0; b < scores[0].size(); ++b) {
-          scores[0][b] += scores[j][gen() % scorelens[j]];
+        for (std::size_t b = 0; b < scores0.size(); ++b) {
+          scores0[b] += scores[j][gen() % scorelens[j]];
         }
       }
 
-      std::nth_element(scores[0].begin(), scores[0].begin() + which, scores[0].end());
+      std::nth_element(scores0.begin(), scores0.begin() + which, scores0.end());
 
-      tquants[i] = scores[0][which];
+      tquants[i] = scores0[which];
 
-      scores[0].assign(scores0.begin(), scores0.end());
+      scores0.assign(scores[0].begin(), scores[0].end());
 
     }
 
