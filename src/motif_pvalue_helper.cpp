@@ -218,7 +218,10 @@ long double motif_pvalue_single(list_int_t mot, const double score,
   }
 
   list_mat_t mot_split;
+  mot_split.reserve(motlen / k);
   list_mat_t alph_indices_split;
+  alph_indices_split.reserve(motlen / k);
+
   if (int(motlen) <= k) {
 
     mot_split.push_back(mot);
@@ -245,29 +248,31 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
   }
 
+  long double pvalue = 0;
+  list_mat_t all_paths(mot_split.size());
+  list_lnum_t all_probs(mot_split.size());
+
+  if (mot_split.size() == 1) {
+    all_paths[0] = branch_and_bound_kmers_cpp(mot_split[0], iscore);
+    all_probs[0] = bb_paths_to_probs(all_paths[0], alph_indices_split[0], bkg);
+    pvalue = std::accumulate(all_probs[0].begin(), all_probs[0].end(), 0.0);
+    return pvalue;
+  }  // --> end function here if ncol(motif) <= k
+
   vec_int_t split_maxsums(mot_split.size());
   for (std::size_t i = 0; i < mot_split.size(); ++i) {
     split_maxsums[i] = get_split_max_sum(mot_split[i]);
   }
 
-  vec_int_t split_minsums = get_split_mins(split_maxsums, score);
+  vec_int_t split_minsums = get_split_mins(split_maxsums, iscore);
 
-  list_mat_t all_paths(mot_split.size());
   for (std::size_t i = 0; i < all_paths.size(); ++i) {
     all_paths[i] = branch_and_bound_kmers_cpp(mot_split[i], split_minsums[i]);
   }
 
-  list_lnum_t all_probs(mot_split.size());
   for (std::size_t i = 0; i < mot_split.size(); ++i) {
     all_probs[i] = bb_paths_to_probs(all_paths[i], alph_indices_split[i], bkg);
   }
-
-  long double pvalue = 0;
-
-  if (mot_split.size() == 1) {
-    pvalue = std::accumulate(all_probs[0].begin(), all_probs[0].end(), 0.0);
-    return pvalue;
-  } /* --> if (k >= motlen), then function end here */
 
   list_int_t all_scores(mot_split.size());
   for (std::size_t i = 0; i < mot_split.size(); ++i) {
