@@ -271,7 +271,7 @@ res <- data.frame(score = scores, pvalue = pvals,
                   score.k8 = scores.approx8)
 knitr::kable(res, format = "markdown", digits = 22)
 ```
-As you can see, results from exact calculations are not _quite_ exact. This is due to the fact that the distributions of P-values and scores are assumed to be continuous, when in reality they are discrete. As for results from approximate calculations: they are fairly close to exact values for larger P-values, but fall off for small P-values (P < 0.001).
+As you can see, results from exact calculations are not _quite_ exact but quite close regardless.
 
 # Advanced motif comparison
 
