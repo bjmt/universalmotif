@@ -9,7 +9,7 @@ make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
   "IS", "MIS", "SEUCL", "MSEUCL", "MAN", "MMAN"), shuffle.db = TRUE,
   shuffle.k = 3, shuffle.method = "linear", rand.tries = 1000,
   widths = 5:30, min.position.ic = 0, normalise.scores = FALSE,
-  min.overlap = 6, min.mean.ic = 0, progress = TRUE, BP = FALSE,
+  min.overlap = 1/3, min.mean.ic = 0, progress = TRUE, BP = FALSE,
   nthreads = 1, tryRC = TRUE)
 }
 \arguments{
@@ -17,15 +17,15 @@ make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
 
 \item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
 
-\item{shuffle.db}{\code{logical(1)} Shuffle \code{db.motifs} rather than
+\item{shuffle.db}{\code{logical(1)} Deprecated. Does nothing.
 generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
 
 \item{shuffle.k}{\code{numeric(1)} See \code{\link[=shuffle_motifs]{shuffle_motifs()}}.}
 
 \item{shuffle.method}{\code{character(1)} See \code{\link[=shuffle_motifs]{shuffle_motifs()}}.}
 
-\item{rand.tries}{\code{numeric(1)} Number of random motifs to create for
-P-value computation.}
+\item{rand.tries}{\code{numeric(1)} Approximate number of comparisons
+to perform for every combination of \code{widths}.}
 
 \item{widths}{\code{numeric} Motif widths to use in P-value database calculation.}
 
@@ -69,7 +69,8 @@ method is provided.
 \description{
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,
 \code{\link[=compare_motifs]{compare_motifs()}} uses an internal database based on the JASPAR2018 core motifs
-\insertCite{jaspar}{universalmotif}.
+\insertCite{jaspar}{universalmotif}. Parameters for a logistic distribution are
+are estimated for every combination of motif \code{widths}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.

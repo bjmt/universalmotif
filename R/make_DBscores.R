@@ -2,15 +2,16 @@
 #'
 #' Generate data used by [compare_motifs()] for P-value calculations. By default,
 #' [compare_motifs()] uses an internal database based on the JASPAR2018 core motifs
-#' \insertCite{jaspar}{universalmotif}.
+#' \insertCite{jaspar}{universalmotif}. Parameters for a logistic distribution are
+#' are estimated for every combination of motif `widths`.
 #'
 #' @param db.motifs `list` Database motifs.
-#' @param shuffle.db `logical(1)` Shuffle `db.motifs` rather than
+#' @param shuffle.db `logical(1)` Deprecated. Does nothing.
 #'    generate random motifs with [create_motif()].
 #' @param shuffle.k `numeric(1)` See [shuffle_motifs()].
 #' @param shuffle.method `character(1)` See [shuffle_motifs()].
-#' @param rand.tries `numeric(1)` Number of random motifs to create for
-#'    P-value computation.
+#' @param rand.tries `numeric(1)` Approximate number of comparisons 
+#'    to perform for every combination of `widths`.
 #' @param widths `numeric` Motif widths to use in P-value database calculation.
 #' @param progress `logical(1)` Show progress.
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
@@ -49,7 +50,7 @@ make_DBscores <- function(db.motifs,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 1000, widths = 5:30,
                           min.position.ic = 0,
-                          normalise.scores = FALSE, min.overlap = 6,
+                          normalise.scores = FALSE, min.overlap = 1/3,
                           min.mean.ic = 0, progress = TRUE, BP = FALSE,
                           nthreads = 1, tryRC = TRUE) {
 
