@@ -416,7 +416,7 @@ void bkgfix(vec_num_t &bkg) {
 }
 
 void equalize_mot_cols(list_num_t &mot1, list_num_t &mot2,
-    vec_num_t &ic1, vec_num_t &ic2, const int overlap) {
+    vec_num_t &ic1, vec_num_t &ic2, const double overlap) {
 
   std::size_t nrow = mot1[0].size();
   std::size_t ncol1 = mot1.size();
@@ -424,8 +424,8 @@ void equalize_mot_cols(list_num_t &mot1, list_num_t &mot2,
   std::size_t overlap1 = overlap, overlap2 = overlap;
 
   if (overlap < 1) {
-    overlap1 *= ncol1;
-    overlap2 *= ncol2;
+    overlap1 = overlap * ncol1;
+    overlap2 = overlap * ncol2;
   }
 
   std::size_t ncol1_toadd = overlap1 > ncol2 ? 0 : ncol2 - overlap1;
@@ -661,7 +661,7 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
 }
 
 double compare_motif_pair(list_num_t mot1, list_num_t mot2,
-    const std::string method, const int moverlap, const bool RC,
+    const std::string method, const double moverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const double minic, const bool norm,
     const double posic, const vec_num_t &bkg1, const vec_num_t &bkg2,
     const double nsites1, const double nsites2) {
@@ -803,7 +803,7 @@ int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
 
 
 void merge_motif_pair_subworker(list_num_t mot1, list_num_t mot2,
-    const std::string &method, const int minoverlap, vec_num_t ic1,
+    const std::string &method, const double minoverlap, vec_num_t ic1,
     vec_num_t ic2, const bool norm, const double posic, const double minic,
     double &score, int &offset, const double nsites1, const double nsites2,
     const vec_num_t &bkg1, const vec_num_t &bkg2) {
@@ -907,7 +907,7 @@ void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
 }
 
 list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
-    const std::string &method, const int minoverlap, const bool RC,
+    const std::string &method, const double minoverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const int weight,
     const bool norm, const double posic, const double minic,
     const double nsites1, const double nsites2, const vec_num_t &bkg1,
@@ -921,8 +921,8 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
   std::size_t overlap1 = minoverlap, overlap2 = minoverlap;
 
   if (minoverlap < 1) {
-    overlap1 *= ncol1;
-    overlap2 *= ncol2;
+    overlap1 = minoverlap * ncol1;
+    overlap2 = minoverlap * ncol2;
   }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
@@ -985,7 +985,7 @@ vec_num_t calc_ic_motif(const list_num_t &motif, const vec_num_t &bkg,
 }
 
 void find_offsets(list_num_t mot1, list_num_t mot2,
-    bool &use_rc, const std::string &method, const int minoverlap,
+    bool &use_rc, const std::string &method, const double minoverlap,
     vec_num_t ic1, vec_num_t ic2, const bool norm, const double posic,
     const double minic, const bool RC, const double nsites1, const double nsites2,
     const vec_num_t &bkg1, const vec_num_t &bkg2, int &offset) {
@@ -997,8 +997,8 @@ void find_offsets(list_num_t mot1, list_num_t mot2,
   std::size_t overlap1 = minoverlap, overlap2 = minoverlap;
 
   if (minoverlap < 1) {
-    overlap1 *= ncol1;
-    overlap2 *= ncol2;
+    overlap1 = minoverlap * ncol1;
+    overlap2 = minoverlap * ncol2;
   }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
@@ -1068,14 +1068,14 @@ int count_left_empty(const list_num_t &m) {
 // [[Rcpp::export(rng = false)]]
 std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
     const std::vector<int> &index1, const std::vector<int> &index2,
-    const std::string &method, int minoverlap, const bool RC,
+    const std::string &method, double minoverlap, const bool RC,
     std::vector<std::vector<double>> &bkg, const int type, const bool relative,
     const double minic, const bool norm, const int nthreads, const double posic,
     const std::vector<double> &nsites) {
 
   /* compare motifs by indices, i.e. mots[index1[i]] vs mots[index2[i]] */
 
-  if (minoverlap < 1) minoverlap = 1;
+  if (minoverlap < 0) minoverlap = 1;
 
   if (type != 1 && type != 2)
     Rcpp::stop("type must be 1 or 2");
@@ -1127,14 +1127,14 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
 
 // [[Rcpp::export(rng = false)]]
 std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
-    const std::string &method, int minoverlap, const bool RC,
+    const std::string &method, double minoverlap, const bool RC,
     std::vector<std::vector<double>> &bkg, const int type, const bool relative,
     const double minic, const bool norm, const int nthreads, const double posic,
     const std::vector<double> &nsites) {
 
   /* compare all motifs to all motifs (without comparing the same motifs twice) */
 
-  if (minoverlap < 1) minoverlap = 1;
+  if (minoverlap < 0) minoverlap = 1;
 
   if (type != 1 && type != 2)
     Rcpp::stop("type must be 1 or 2");
@@ -1207,11 +1207,11 @@ Rcpp::NumericMatrix get_comparison_matrix(const std::vector<double> &ans,
 
 // [[Rcpp::export(rng = false)]]
 Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
-    const bool RC, int minoverlap, const double minic, const double posic,
+    const bool RC, double minoverlap, const double minic, const double posic,
     std::vector<std::vector<double>> &bkg, const bool relative, const bool norm,
     const Rcpp::StringVector &rnames, const std::vector<double> &nsites) {
 
-  if (minoverlap < 1) minoverlap = 1;
+  if (minoverlap < 0) minoverlap = 1;
   if (minic < 0)
     Rcpp::stop("min.mean.ic must be positive");
   if (posic < 0)
@@ -1324,13 +1324,13 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
 
 // [[Rcpp::export(rng = false)]]
 Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
-    const std::string &method, const bool RC, int minoverlap, const double minic,
+    const std::string &method, const bool RC, double minoverlap, const double minic,
     const double posic, std::vector<std::vector<double>> &bkg,
     const bool relative, const bool norm, const std::vector<double> &nsites) {
 
   /* merge a list of motifs, as well as their backgrounds */
 
-  if (minoverlap < 1) minoverlap = 1;
+  if (minoverlap < 0) minoverlap = 1;
   if (minic < 0)
     Rcpp::stop("min.mean.ic must be positive");
   if (posic < 0)

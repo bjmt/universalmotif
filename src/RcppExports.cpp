@@ -17,7 +17,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // compare_motifs_cpp
-std::vector<double> compare_motifs_cpp(const Rcpp::List& mots, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites);
+std::vector<double> compare_motifs_cpp(const Rcpp::List& mots, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, double minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites);
 RcppExport SEXP _universalmotif_compare_motifs_cpp(SEXP motsSEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -25,7 +25,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<int>& >::type index1(index1SEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type index2(index2SEXP);
     Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< double >::type minoverlap(minoverlapSEXP);
     Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< const int >::type type(typeSEXP);
@@ -40,13 +40,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // compare_motifs_all_cpp
-std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List& mots, const std::string& method, int minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites);
+std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List& mots, const std::string& method, double minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites);
 RcppExport SEXP _universalmotif_compare_motifs_all_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< double >::type minoverlap(minoverlapSEXP);
     Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< const int >::type type(typeSEXP);
@@ -75,14 +75,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // view_motifs_prep
-Rcpp::List view_motifs_prep(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const Rcpp::StringVector& rnames, const std::vector<double>& nsites);
+Rcpp::List view_motifs_prep(const Rcpp::List& mots, const std::string& method, const bool RC, double minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const Rcpp::StringVector& rnames, const std::vector<double>& nsites);
 RcppExport SEXP _universalmotif_view_motifs_prep(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP, SEXP rnamesSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
     Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
-    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< double >::type minoverlap(minoverlapSEXP);
     Rcpp::traits::input_parameter< const double >::type minic(minicSEXP);
     Rcpp::traits::input_parameter< const double >::type posic(posicSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
@@ -95,14 +95,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // merge_motifs_cpp
-Rcpp::List merge_motifs_cpp(const Rcpp::List& mots, const std::string& method, const bool RC, int minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const std::vector<double>& nsites);
+Rcpp::List merge_motifs_cpp(const Rcpp::List& mots, const std::string& method, const bool RC, double minoverlap, const double minic, const double posic, std::vector<std::vector<double>>& bkg, const bool relative, const bool norm, const std::vector<double>& nsites);
 RcppExport SEXP _universalmotif_merge_motifs_cpp(SEXP motsSEXP, SEXP methodSEXP, SEXP RCSEXP, SEXP minoverlapSEXP, SEXP minicSEXP, SEXP posicSEXP, SEXP bkgSEXP, SEXP relativeSEXP, SEXP normSEXP, SEXP nsitesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
     Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
-    Rcpp::traits::input_parameter< int >::type minoverlap(minoverlapSEXP);
+    Rcpp::traits::input_parameter< double >::type minoverlap(minoverlapSEXP);
     Rcpp::traits::input_parameter< const double >::type minic(minicSEXP);
     Rcpp::traits::input_parameter< const double >::type posic(posicSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<double>>& >::type bkg(bkgSEXP);
