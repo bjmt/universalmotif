@@ -5,7 +5,7 @@
 \title{Filter a list of motifs.}
 \usage{
 filter_motifs(motifs, name, altname, family, organism, width, alphabet,
-  type, icscore, nsites, strand, pval, qval, eval)
+  type, icscore, nsites, strand, pval, qval, eval, extrainfo)
 }
 \arguments{
 \item{motifs}{\code{list} See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable
@@ -36,6 +36,9 @@ formats.}
 \item{qval}{\code{numeric(1)} Keep motifs by max Q-value.}
 
 \item{eval}{\code{numeric(1)} Keep motifs by max E-val.}
+
+\item{extrainfo}{\code{character} Named character vector of items that must be
+present in motif \code{extrainfo} slots.}
 }
 \value{
 \code{list} Motifs. An attempt will be made to preserve the original
@@ -56,7 +59,8 @@ jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
 if (requireNamespace("MotifDb", quietly = TRUE) && .Platform$OS.type == "unix") {
   library(MotifDb)
   motifs <- convert_motifs(MotifDb)
-  motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))
+  motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"),
+                          extrainfo = c("dataSource" = "cisbp_1.02"))
 }
 
 }

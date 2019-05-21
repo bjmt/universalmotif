@@ -18,6 +18,8 @@ NEW FEATURES
 
     o get_scores() utility: Extract all possible scores from a motif.
 
+    o filter_motifs(): Filter using the 'extrainfo' slot.
+
 MINOR CHANGES
 
     o Removed 'random' shuffling method.
@@ -31,6 +33,7 @@ MINOR CHANGES
       usage.
 
     o Many performance improvements to functions relying on internal C++ code.
+      Several internal R functions have been replaced with C++ versions.
 
     o Changed behaviour of make_DBscores() and motif comparison P-values.
       Re-calculated internal P-value databases.

@@ -19,6 +19,8 @@
 #' @param pval `numeric(1)` Keep motifs by max P-value.
 #' @param qval `numeric(1)` Keep motifs by max Q-value.
 #' @param eval `numeric(1)` Keep motifs by max E-val.
+#' @param extrainfo `character` Named character vector of items that must be
+#'    present in motif `extrainfo` slots.
 #'
 #' @return `list` Motifs. An attempt will be made to preserve the original
 #'    class, see [convert_motifs()] for limitations.
@@ -33,22 +35,23 @@
 #' if (requireNamespace("MotifDb", quietly = TRUE) && .Platform$OS.type == "unix") {
 #'   library(MotifDb)
 #'   motifs <- convert_motifs(MotifDb)
-#'   motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"))
+#'   motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"),
+#'                           extrainfo = c("dataSource" = "cisbp_1.02"))
 #' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 filter_motifs <- function(motifs, name, altname, family, organism, width,
                           alphabet, type, icscore, nsites, strand, pval, qval,
-                          eval) {
+                          eval, extrainfo) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(name = args$name, altname = args$altname,
                                       family = args$family, organism = args$organism,
                                       alphabet = args$alphabet, type = args$type,
-                                      strand = args$strand),
-                                 rep(0, 7), rep(TRUE, 7), TYPE_CHAR)
+                                      strand = args$strand, extrainfo = args$extrainfo),
+                                 rep(0, 8), rep(TRUE, 8), TYPE_CHAR)
   num_check <- check_fun_params(list(width = args$width, icscore = args$icscore,
                                      nsites = args$nsites, pval = args$pval,
                                      qval = args$qval, eval = args$eval),
@@ -127,8 +130,33 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
     motifs <- motifs[motif_evals <= eval]
   }
 
+  if (!missing(extrainfo)) {
+    motif_extrainfo <- lapply(motifs, function(x) x@extrainfo[names(extrainfo)])
+    motif_extrainfo <- vapply(motif_extrainfo,
+                              function(x) check_extrainfo(x, extrainfo),
+                              logical(1))
+    motifs <- motifs[motif_extrainfo]
+  }
+
   motifs <- .internal_convert(motifs, unique(CLASS_IN))
 
   motifs
+
+}
+
+check_extrainfo <- function(x, extrainfo) {
+
+  if (any(is.na(x))) return(FALSE)
+
+  en <- names(extrainfo)
+  ok <- TRUE
+  for (i in seq_along(extrainfo)) {
+    if (x[en[i]] != extrainfo[en[i]]) {
+      ok <- FALSE
+      break
+    }
+  }
+
+  ok
 
 }
