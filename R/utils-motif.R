@@ -104,6 +104,11 @@
 #' get_matches(m, 10)
 #'
 #' #######################################################################
+#' ## get_scores
+#' ## Get all possible scores for a motif
+#' length(get_scores(m))
+#'
+#' #######################################################################
 #' ## icm_to_ppm
 #' ## Do the opposite of ppm_to_icm.
 #' motif.ppm <- apply(motif.icm, 2, icm_to_ppm)
@@ -273,6 +278,25 @@ get_matches <- function(motif, score) {
   all.paths <- paths_alph_unsort(all.paths, alph.sort - 1)
 
   paths_to_alph(all.paths, alph)
+
+}
+
+#' @rdname utils-motif
+#' @export
+get_scores <- function(motif) {
+
+  motif <- convert_motifs(motif)
+  if (is.list(motif) && length(motif) > 1)
+    stop("please only input a single motif")
+  else if (is.list(motif)) motif <- motif[[1]]
+
+  motif <- convert_type_internal(motif, "PWM")
+  if (any(motif@motif == 0)) motif <- normalize(motif)
+
+  m <- motif@motif
+  m <- matrix(as.integer(m * 1000), nrow = nrow(m))
+
+  sort(expand_scores(m) / 1000)
 
 }
 

@@ -41,6 +41,10 @@ motif_pvalue_cpp <- function(motifs, bkg, scores, k = 6L, nthreads = 1L) {
     .Call('_universalmotif_motif_pvalue_cpp', PACKAGE = 'universalmotif', motifs, bkg, scores, k, nthreads)
 }
 
+motif_score_cpp <- function(motifs, pvals, seed = 1L, k = 6L, nthreads = 1L, randtries = 100L) {
+    .Call('_universalmotif_motif_score_cpp', PACKAGE = 'universalmotif', motifs, pvals, seed, k, nthreads, randtries)
+}
+
 branch_and_bound_cpp_exposed <- function(mat, score) {
     .Call('_universalmotif_branch_and_bound_cpp_exposed', PACKAGE = 'universalmotif', mat, score)
 }

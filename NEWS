@@ -16,6 +16,8 @@ NEW FEATURES
     o compare_columns() utility: Compare two 1d numeric vectors using the
       comparison metrics from compare_motifs().
 
+    o get_scores() utility: Extract all possible scores from a motif.
+
 MINOR CHANGES
 
     o Removed 'random' shuffling method.
@@ -47,6 +49,11 @@ MINOR CHANGES
     o Reworked score calculator in motif_pvalue() again. No longer assumes
       scores follow a normal distribution, instead approximates all possible
       scores for direct use in quantile() when ncol(motif) < k.
+
+    o motif_pvalue(): New score calculator. Exact scores are still calculated
+      the same (but with a faster C++ function), but approximate scores are
+      now calculated by randomly generating score distributions from size 'k'
+      motif score blocks.
 
 CHANGES IN VERSION 1.2.1
 ------------------------

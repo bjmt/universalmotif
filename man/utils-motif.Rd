@@ -8,6 +8,7 @@
 \alias{get_consensus}
 \alias{get_consensusAA}
 \alias{get_matches}
+\alias{get_scores}
 \alias{icm_to_ppm}
 \alias{motif_score}
 \alias{pcm_to_ppm}
@@ -33,6 +34,8 @@ get_consensus(position, alphabet = "DNA", type = "PPM",
 get_consensusAA(position, type = "PPM", pseudocount = 0)
 
 get_matches(motif, score)
+
+get_scores(motif)
 
 icm_to_ppm(position)
 
@@ -185,6 +188,11 @@ motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
 ## get_match
 ## Get all possible motif matches above input score
 get_matches(m, 10)
+
+#######################################################################
+## get_scores
+## Get all possible scores for a motif
+length(get_scores(m))
 
 #######################################################################
 ## icm_to_ppm

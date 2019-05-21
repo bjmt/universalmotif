@@ -22,9 +22,18 @@
 #' @param progress `logical(1)` Deprecated. Does nothing.
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [motif_pvalue()] in parallel with `nthreads`
-#'    threads. `nthreads = 0` uses all available threads. Note that this is only
-#'    used for calculating P-values from scores (in other words, when the `score`
-#'    argument is provided).
+#'    threads. `nthreads = 0` uses all available threads.
+#' @param rand.tries `numeric(1)` When `ncol(motif) < k`, an approximation is
+#'    used. This involves randomly approximating the overall 
+#'    motif score distribution. To increase accuracy, the distribution is
+#'    approximated `rand.tries` times and the final scores averaged.
+#' @param rng.seed `numeric(1)` In order to allow [motif_pvalue()] to perform
+#'    C++ level parallelisation, it must work independently from R. This means
+#'    it cannot communicate with R to get/set the R RNG state. To get around
+#'    this, the RNG seed used by the C++ function can be set with `rng.seed`.
+#'    To make sure each thread gets a different seed however, the seed
+#'    is multiplied with the iteration count. For example: when working with
+#'    two motifs, the second motif gets the following seed: `rng.seed * 2`.
 #'
 #' @return `numeric` A vector of scores/p-values.
 #'
@@ -52,16 +61,20 @@
 #' calculating exact p-values can be done individually in reasonable time by
 #' setting `k = 12`.
 #'
-#' To calculate a score from a P-value, the [stats::quantile()] function
-#' can be used after calculating all possible scores for a motif:
-#'
-#' `quantile(scores, probs = pvalue)`
-#'
-#' When `k < ncol(motif)`, the complete set of scores is approximated
-#' instead by randomly adding all possible scores from each subset.
-#'
+#' To calculate a score from a P-value, all possible scores are calculated
+#' and the `1 - pvalue`nth percentile score returned.
+#' When `k < ncol(motif)`, the complete set of scores is instead approximated
+#' by randomly adding up all possible scores from each subset.
 #' It is important to keep in mind that no consideration is given to
-#' background frequencies.
+#' background frequencies in the score calculator. Note that this approximation
+#' can actually be potentially quite expensive at times and even slower than
+#' the exact version; for jobs requiring lots of repeat calculations, a bit of
+#' benchmarking beforehand can be useful to find the optimal settings.
+#'
+#' To get an idea as to how the score calculator works (without approximation),
+#' try the following code with your motif (be careful with longer motifs):
+#'
+#' `quantile(get_scores(motif), probs = 0.99)`
 #'
 #' @examples
 #' data(examplemotif)
@@ -98,7 +111,8 @@
 #' @seealso [motif_score()]
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
-                         k = 8, progress = FALSE, BP = FALSE, nthreads = 1) {
+                         k = 8, progress = FALSE, BP = FALSE, nthreads = 1,
+                         rand.tries = 10, rng.seed = sample.int(1e9, 1)) {
 
   # NOTE: The calculated P-value is the chance of getting a certain score at
   #       one position. To get a P-value from scanning a 2000 bp stretch for
@@ -216,8 +230,13 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    # BP could be used here, but I'd rather not have both BP and nthreads
-    out <- mapply(motif_score_pval, motifs, pvalue, k)
+    l1 <- length(motifs)
+    l3 <- length(pvalue)
+    lall <- max(c(l1, l3))
+    motifs <- rep_len(motifs, lall)
+    pvalue <- rep_len(pvalue, lall)
+
+    out <- motif_score_cpp(motifs, pvalue, rng.seed, k, nthreads, rand.tries)
 
   } else if (missing(score) && missing(pvalue)) {
 
@@ -261,96 +280,5 @@ motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
   }
 
   out
-
-}
-
-motif_score_pval <- function(score.mat, pval, k = 8) {
-
-  # Assumes a uniform background!
-
-  pval <- 1 - pval
-  alph.len <- nrow(score.mat)
-  mot.len <- ncol(score.mat)
-
-  score.mat <- matrix(as.integer(score.mat * 1000), nrow = alph.len)
-
-  max.score <- sum(apply(score.mat, 2, max)) / 1000
-  min.score <- sum(apply(score.mat, 2, min)) / 1000
-
-  if (mot.len > k) {
-
-    rem <- ncol(score.mat) %% k
-    score.mat <- score.mat[, sample.int(ncol(score.mat))]
-    score.mat.split <- split_mat(score.mat, k)
-    s.split <- lapply(score.mat.split,
-                      function(x) expand_scores(x) / 1000)
-
-    if (rem > 0) {
-      s.r <- s.split[[length(s.split)]]
-      s.r <- s.r[sample(seq_along(s.r), length(s.split[[1]]), replace = TRUE)]
-      s.split[[length(s.split)]] <- s.r
-    }
-
-    ans10 <- vector("list", 500)
-    ans <- numeric(500)
-    for (i in seq_len(500)) {
-
-      s.split <- lapply(s.split, function(x) x[sample(seq_along(x))])
-
-      ans10[[i]] <- s.split[[1]]
-      for (j in seq_along(s.split)[-1]) {
-        ans10[[i]] <- ans10[[i]] + s.split[[j]]
-      }
-
-      ans[i] <- quantile(ans10[[i]], probs = pval)
-
-    }
-
-    answer <- mean(ans)
-
-    if (answer < min.score) answer <- min.score
-    else if (answer > max.score) answer <- max.score
-
-  } else {
-
-    s <- expand_scores(score.mat) / 1000
-
-    answer <- unname(quantile(s, probs = pval))
-
-  }
-
-  answer
-
-}
-
-split_mat <- function(score.mat, k) {
-
-  mot.len <- ncol(score.mat)
-
-  times.tosplit <- mot.len %/% k
-  leftover.split <- mot.len %% k
-  splitl <- times.tosplit + ifelse(leftover.split > 0, 1, 0)
-  mot.split <- vector("list", splitl)
-  mot.split[[1]] <- score.mat[, seq_len(k)]
-
-  if (times.tosplit > 1) {
-
-    for (i in seq_len(times.tosplit - 1)) {
-      mot.split[[i + 1]] <- score.mat[, (i * k + 1):(i * k + k)]
-    }
-
-  }
-
-  if (leftover.split > 0) {
-
-    mot.split[[splitl]] <- score.mat[, (mot.len - leftover.split + 1):mot.len]
-
-    if (!is.matrix(mot.split[[splitl]])) {
-      mot.split[[splitl]] <- matrix(mot.split[[splitl]])
-    }
-
-  }
-
-  mot.split
 
 }

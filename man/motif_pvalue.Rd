@@ -5,7 +5,8 @@
 \title{Motif P-value and scoring utility}
 \usage{
 motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 8,
-  progress = FALSE, BP = FALSE, nthreads = 1)
+  progress = FALSE, BP = FALSE, nthreads = 1, rand.tries = 10,
+  rng.seed = sample.int(1e+09, 1))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -36,9 +37,20 @@ calculations.}
 \item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalue]{motif_pvalue()}} in parallel with \code{nthreads}
-threads. \code{nthreads = 0} uses all available threads. Note that this is only
-used for calculating P-values from scores (in other words, when the \code{score}
-argument is provided).}
+threads. \code{nthreads = 0} uses all available threads.}
+
+\item{rand.tries}{\code{numeric(1)} When \code{ncol(motif) < k}, an approximation is
+used. This involves randomly approximating the overall
+motif score distribution. To increase accuracy, the distribution is
+approximated \code{rand.tries} times and the final scores averaged.}
+
+\item{rng.seed}{\code{numeric(1)} In order to allow \code{\link[=motif_pvalue]{motif_pvalue()}} to perform
+C++ level parallelisation, it must work independently from R. This means
+it cannot communicate with R to get/set the R RNG state. To get around
+this, the RNG seed used by the C++ function can be set with \code{rng.seed}.
+To make sure each thread gets a different seed however, the seed
+is multiplied with the iteration count. For example: when working with
+two motifs, the second motif gets the following seed: \code{rng.seed * 2}.}
 }
 \value{
 \code{numeric} A vector of scores/p-values.
@@ -66,16 +78,20 @@ controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
 calculating exact p-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
-To calculate a score from a P-value, the \code{\link[stats:quantile]{stats::quantile()}} function
-can be used after calculating all possible scores for a motif:
-
-\code{quantile(scores, probs = pvalue)}
-
-When \code{k < ncol(motif)}, the complete set of scores is approximated
-instead by randomly adding all possible scores from each subset.
-
+To calculate a score from a P-value, all possible scores are calculated
+and the \code{1 - pvalue}nth percentile score returned.
+When \code{k < ncol(motif)}, the complete set of scores is instead approximated
+by randomly adding up all possible scores from each subset.
 It is important to keep in mind that no consideration is given to
-background frequencies.
+background frequencies in the score calculator. Note that this approximation
+can actually be potentially quite expensive at times and even slower than
+the exact version; for jobs requiring lots of repeat calculations, a bit of
+benchmarking beforehand can be useful to find the optimal settings.
+
+To get an idea as to how the score calculator works (without approximation),
+try the following code with your motif (be careful with longer motifs):
+
+\code{quantile(get_scores(motif), probs = 0.99)}
 }
 \examples{
 data(examplemotif)

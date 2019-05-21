@@ -2,6 +2,8 @@
 #include <RcppThread.h>
 #include <algorithm>
 #include <numeric>
+#include <random>
+#include <cmath>
 #include "types.h"
 #include "utils-internal.h"
 
@@ -217,10 +219,13 @@ long double motif_pvalue_single(list_int_t mot, const double score,
     std::sort(mot[i].begin(), mot[i].end(), alph_sort);
   }
 
+  int nsplit = int(motlen) / k;
+  if (int(motlen) % k > 0 || nsplit == 0) ++nsplit;
+
   list_mat_t mot_split;
-  mot_split.reserve(motlen / k);
+  mot_split.reserve(nsplit);
   list_mat_t alph_indices_split;
-  alph_indices_split.reserve(motlen / k);
+  alph_indices_split.reserve(nsplit);
 
   if (int(motlen) <= k) {
 
@@ -229,8 +234,6 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
   } else {
 
-    int nsplit = motlen / k;
-    if (motlen % k > 0) ++nsplit;
     int counter = 0;
 
     mot_split = list_mat_t(nsplit);
@@ -341,6 +344,161 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
 }
 
+list_int_t expand_scores_cpp(const list_int_t &mot) {
+
+  std::size_t nrow = mot[0].size();
+  int npaths = pow(nrow, mot.size());
+
+  list_int_t expanded(mot.size(), vec_int_t(npaths));
+
+  std::size_t step;
+  int counter;
+  for (std::size_t i = 0; i < expanded.size(); ++i) {
+
+    step = pow(nrow, i);
+    counter = 0;
+
+    while (counter < npaths) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        for (std::size_t b = 0; b < step; ++b) {
+          expanded[i][counter] = mot[i][j];
+          ++counter;
+        }
+      }
+    }
+
+  }
+
+  return expanded;
+
+}
+
+vec_int_t rowsums_cpp(const list_int_t &mot) {
+
+  std::size_t nrow = mot[0].size();
+  vec_int_t rowsums(nrow, 0);
+
+  for (std::size_t i = 0; i < nrow; ++i) {
+    for (std::size_t j = 0; j < mot.size(); ++j) {
+      rowsums[i] += mot[j][i];
+    }
+  }
+
+  return rowsums;
+
+}
+
+double motif_score_single(const list_int_t &mot, const int k, const int randtries,
+    std::default_random_engine gen, const double pval) {
+
+  std::size_t motlen = mot.size();
+
+  if (k < 1)
+    Rcpp::stop("k must be greater than 0");
+
+  if (mot.size() == 0 || mot[0].size() == 0)
+    Rcpp::stop("empty motif");
+
+  if (randtries < 1)
+    Rcpp::stop("rand.tries must be greater than zero");
+
+  if (int(motlen) > k) {
+
+    int nsplit = int(motlen) / k;
+    if (int(motlen) % k > 0 || nsplit == 0) ++nsplit;
+
+    list_mat_t mot_split = list_mat_t(nsplit);
+
+    int counter = 0;
+
+    for (int i = 0; i < nsplit; ++i) {
+      mot_split[i].reserve(k);
+      for (int j = 0; j < k; ++j) {
+        if (counter == int(motlen)) break;
+        mot_split[i].push_back(mot[counter]);
+        ++counter;
+      }
+    }
+
+    list_mat_t paths(nsplit);
+    list_int_t scores(nsplit);
+
+    for (int i = 0; i < nsplit; ++i) {
+      paths[i] = expand_scores_cpp(mot_split[i]);
+    }
+
+    for (int i = 0; i < nsplit; ++i) {
+      scores[i] = rowsums_cpp(paths[i]);
+    }
+
+    list_int_t scores2;
+    vec_int_t tquants(randtries);
+
+    int toadd = 0;
+    int lastlen = scores[nsplit - 1].size();
+    if (scores[nsplit - 1].size() < scores[0].size()) {
+      toadd = scores[0].size() - scores[nsplit - 1].size();
+    }
+
+    for (int i = 0; i < randtries; ++i) {
+
+      /* TODO: quite an expensive operation; think about how to optimise */
+
+      scores2.assign(scores.begin(), scores.end());
+
+      if (toadd > 0) {
+        scores2[nsplit - 1].reserve(toadd);
+        for (int j = 0; j < toadd; ++j) {
+          scores2[nsplit - 1].push_back(scores2[nsplit - 1][gen() % lastlen]);
+        }
+      }
+
+      for (int j = 0; j < nsplit; ++j) {
+        std::shuffle(scores2[j].begin(), scores2[j].end(), gen);
+      }
+
+      for (int j = 1; j < nsplit; ++j) {
+        for (std::size_t b = 0; b < scores2[0].size(); ++b) {
+          scores2[0][b] += scores2[j][b];
+        }
+      }
+
+      int which = scores2[0].size() * (1.0 - pval);
+      if (which == int(scores2[0].size())) --which;
+
+      std::nth_element(scores2[0].begin(), scores2[0].begin() + which, scores2[0].end());
+
+      tquants[i] = scores2[0][which];
+
+    }
+
+    double final_score = 0.0;
+    for (std::size_t i = 0; i < tquants.size(); ++i) {
+      final_score += tquants[i];
+    }
+
+    final_score /= double(tquants.size());
+    final_score /= 1000.0;
+
+    return final_score;
+
+  }
+
+  list_int_t paths = expand_scores_cpp(mot);
+  vec_int_t scores = rowsums_cpp(paths);
+
+  int which = scores.size() * (1.0 - pval);
+  if (which == int(scores.size())) --which;
+
+  std::nth_element(scores.begin(), scores.begin() + which, scores.end());
+
+  double final_score = scores[which];
+  final_score /= 1000.0;
+
+  return final_score;
+
+}
+
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
@@ -370,6 +528,28 @@ std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
 }
 
 // [[Rcpp::export(rng = false)]]
+std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
+    const std::vector<double> &pvals, const int seed = 1, const int k = 6,
+    const int nthreads = 1, const int randtries = 100) {
+
+  list_mat_t vmots(motifs.size());
+  for (R_xlen_t i = 0; i < motifs.size(); ++i) {
+    Rcpp::NumericMatrix single = motifs[i];
+    vmots[i] = R_to_cpp_motif(single);
+  }
+
+  vec_num_t scores(pvals.size());
+  RcppThread::parallelFor(0, scores.size(),
+      [&vmots, &scores, &seed, &k, &randtries, &pvals] (std::size_t i) {
+      std::default_random_engine gen(seed * (int(i) + 1));
+        scores[i] = motif_score_single(vmots[i], k, randtries, gen, pvals[i]);
+      }, nthreads);
+
+  return scores;
+
+}
+
+// [[Rcpp::export(rng = false)]]
 Rcpp::IntegerMatrix branch_and_bound_cpp_exposed(Rcpp::IntegerMatrix mat,
     const int score) {
 
@@ -390,15 +570,11 @@ Rcpp::IntegerMatrix branch_and_bound_cpp_exposed(Rcpp::IntegerMatrix mat,
 // [[Rcpp::export(rng = false)]]
 Rcpp::IntegerVector expand_scores(const Rcpp::IntegerMatrix &scores) {
 
-  R_xlen_t n_row = scores.nrow(), n_col = scores.ncol();
-  Rcpp::IntegerMatrix expanded(pow(n_row, n_col), n_col);
+  list_int_t scores2 = R_to_cpp_motif(scores);
+  list_int_t scores3 = expand_scores_cpp(scores2);
+  vec_int_t scores4 = rowsums_cpp(scores3);
 
-  for (R_xlen_t i = 0; i < n_col; ++i) {
-    expanded(Rcpp::_, i) = Rcpp::rep(Rcpp::rep_each(scores(Rcpp::_, i),
-          pow(n_row, n_col - i - 1)), pow(n_row, i + 1));
-  }
-
-  return Rcpp::rowSums(expanded);
+  return Rcpp::wrap(scores4);
 
 }
 

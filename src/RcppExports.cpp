@@ -165,6 +165,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// motif_score_cpp
+std::vector<double> motif_score_cpp(const Rcpp::List& motifs, const std::vector<double>& pvals, const int seed, const int k, const int nthreads, const int randtries);
+RcppExport SEXP _universalmotif_motif_score_cpp(SEXP motifsSEXP, SEXP pvalsSEXP, SEXP seedSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP randtriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type pvals(pvalsSEXP);
+    Rcpp::traits::input_parameter< const int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< const int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int >::type randtries(randtriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_score_cpp(motifs, pvals, seed, k, nthreads, randtries));
+    return rcpp_result_gen;
+END_RCPP
+}
 // branch_and_bound_cpp_exposed
 Rcpp::IntegerMatrix branch_and_bound_cpp_exposed(Rcpp::IntegerMatrix mat, const int score);
 RcppExport SEXP _universalmotif_branch_and_bound_cpp_exposed(SEXP matSEXP, SEXP scoreSEXP) {
@@ -658,6 +673,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},
+    {"_universalmotif_motif_score_cpp", (DL_FUNC) &_universalmotif_motif_score_cpp, 6},
     {"_universalmotif_branch_and_bound_cpp_exposed", (DL_FUNC) &_universalmotif_branch_and_bound_cpp_exposed, 2},
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
