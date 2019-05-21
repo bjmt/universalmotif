@@ -166,6 +166,12 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MALLR",
   mots <- res$motifs
   mots <- check_mot_sizes(mots)
 
+  if (method %in% c("KL", "MKL", "ALLR", "MALLR", "IS", "MIS")) {
+    for (i in seq_along(mots)) {
+      mots[[i]][mots[[i]] > 0] <- mots[[i]][mots[[i]] > 0] - 0.01
+    }
+  }
+
   mots <- mapply(function(x1, x2, x3, x4)
                    convert_mat_type_from_ppm(x1, use.type, x2, x3, x4, relative_entropy),
                  mots, mot.nsites, mot.bkgs, mot.pseudo, SIMPLIFY = FALSE)
