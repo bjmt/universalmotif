@@ -1394,8 +1394,7 @@ double compare_columns_cpp(const std::vector<double> &p1,
   if (p1.size() < 2) Rcpp::stop("columns should have at least 2 entries");
   if (p1.size() != p2.size()) Rcpp::stop("both columns must be equal in size");
 
-  list_num_t pp1(1), pp2(1);
-  pp1[0] = p1; pp2[0] = p2;
+  list_num_t pp1(1, p1), pp2(1, p2);
 
   double ans;
 

@@ -23,7 +23,7 @@
 #' @inheritParams compare_motifs
 #' @export
 merge_motifs <- function(motifs, method = "MALLR", use.type = "PPM",
-                         min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
+                         min.overlap = 1/3, min.mean.ic = 0.25, tryRC = TRUE,
                          relative_entropy = FALSE, normalise.scores = FALSE,
                          min.position.ic = 0) {
 

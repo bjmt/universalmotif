@@ -36,7 +36,7 @@
 #' @inheritParams compare_motifs
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "MALLR",
-                        tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
+                        tryRC = TRUE, min.overlap = 1/3, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
                         min.position.ic = 0, ...) {
 
