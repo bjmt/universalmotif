@@ -219,48 +219,40 @@ long double motif_pvalue_single(list_int_t mot, const double score,
     std::sort(mot[i].begin(), mot[i].end(), alph_sort);
   }
 
+  long double pvalue = 0;
+
+  if (int(motlen) <= k) {
+
+    list_int_t paths = branch_and_bound_kmers_cpp(mot, iscore);
+    vec_lnum_t probs = bb_paths_to_probs(paths, sorted_alph_indices, bkg);
+    pvalue = std::accumulate(probs.begin(), probs.end(), 0.0);
+    return pvalue;
+
+  }
+
   int nsplit = int(motlen) / k;
   if (int(motlen) % k > 0 || nsplit == 0) ++nsplit;
 
   list_mat_t mot_split;
-  mot_split.reserve(nsplit);
   list_mat_t alph_indices_split;
+
+  mot_split.reserve(nsplit);
   alph_indices_split.reserve(nsplit);
 
-  if (int(motlen) <= k) {
+  int counter = 0;
 
-    mot_split.push_back(mot);
-    alph_indices_split.push_back(sorted_alph_indices);
-
-  } else {
-
-    int counter = 0;
-
-    mot_split = list_mat_t(nsplit);
-    alph_indices_split = list_mat_t(nsplit);
-    for (int i = 0; i < nsplit; ++i) {
-      mot_split[i].reserve(k);
-      alph_indices_split[i].reserve(k);
-      for (int j = 0; j < k; ++j) {
-        if (counter == int(motlen)) break;
-        mot_split[i].push_back(mot[counter]);
-        alph_indices_split[i].push_back(sorted_alph_indices[counter]);
-        ++counter;
-      }
+  mot_split = list_mat_t(nsplit);
+  alph_indices_split = list_mat_t(nsplit);
+  for (int i = 0; i < nsplit; ++i) {
+    mot_split[i].reserve(k);
+    alph_indices_split[i].reserve(k);
+    for (int j = 0; j < k; ++j) {
+      if (counter == int(motlen)) break;
+      mot_split[i].push_back(mot[counter]);
+      alph_indices_split[i].push_back(sorted_alph_indices[counter]);
+      ++counter;
     }
-
   }
-
-  long double pvalue = 0;
-  list_mat_t all_paths(mot_split.size());
-  list_lnum_t all_probs(mot_split.size());
-
-  if (mot_split.size() == 1) {
-    all_paths[0] = branch_and_bound_kmers_cpp(mot_split[0], iscore);
-    all_probs[0] = bb_paths_to_probs(all_paths[0], alph_indices_split[0], bkg);
-    pvalue = std::accumulate(all_probs[0].begin(), all_probs[0].end(), 0.0);
-    return pvalue;
-  }  // --> end function here if ncol(motif) <= k
 
   vec_int_t split_maxsums(mot_split.size());
   for (std::size_t i = 0; i < mot_split.size(); ++i) {
@@ -269,10 +261,12 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
   vec_int_t split_minsums = get_split_mins(split_maxsums, iscore);
 
+  list_mat_t all_paths(mot_split.size());
   for (std::size_t i = 0; i < all_paths.size(); ++i) {
     all_paths[i] = branch_and_bound_kmers_cpp(mot_split[i], split_minsums[i]);
   }
 
+  list_lnum_t all_probs(mot_split.size());
   for (std::size_t i = 0; i < mot_split.size(); ++i) {
     all_probs[i] = bb_paths_to_probs(all_paths[i], alph_indices_split[i], bkg);
   }
@@ -431,51 +425,34 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
       scores[i] = rowsums_cpp(paths[i]);
     }
 
-    list_int_t scores2;
+    vec_int_t scores0 = scores[0];
     vec_int_t tquants(randtries);
 
-    int toadd = 0;
-    int lastlen = scores[nsplit - 1].size();
-    if (scores[nsplit - 1].size() < scores[0].size()) {
-      toadd = scores[0].size() - scores[nsplit - 1].size();
+    vec_int_t scorelens(scores.size());
+    for (std::size_t i = 0; i < scores.size(); ++i) {
+      scorelens[i] = scores[i].size();
     }
 
     for (int i = 0; i < randtries; ++i) {
 
-      /* TODO: quite an expensive operation; think about how to optimise */
-
-      scores2.assign(scores.begin(), scores.end());
-
-      if (toadd > 0) {
-        scores2[nsplit - 1].reserve(toadd);
-        for (int j = 0; j < toadd; ++j) {
-          scores2[nsplit - 1].push_back(scores2[nsplit - 1][gen() % lastlen]);
-        }
-      }
-
-      for (int j = 0; j < nsplit; ++j) {
-        std::shuffle(scores2[j].begin(), scores2[j].end(), gen);
-      }
-
       for (int j = 1; j < nsplit; ++j) {
-        for (std::size_t b = 0; b < scores2[0].size(); ++b) {
-          scores2[0][b] += scores2[j][b];
+        for (std::size_t b = 0; b < scores[0].size(); ++b) {
+          scores[0][b] += scores[j][gen() % scorelens[j]];
         }
       }
 
-      int which = scores2[0].size() * (1.0 - pval);
-      if (which == int(scores2[0].size())) --which;
+      int which = scores[0].size() * (1.0 - pval);
+      if (which == int(scores[0].size())) --which;
 
-      std::nth_element(scores2[0].begin(), scores2[0].begin() + which, scores2[0].end());
+      std::nth_element(scores[0].begin(), scores[0].begin() + which, scores[0].end());
 
-      tquants[i] = scores2[0][which];
+      tquants[i] = scores[0][which];
+
+      scores[0].assign(scores0.begin(), scores0.end());
 
     }
 
-    double final_score = 0.0;
-    for (std::size_t i = 0; i < tquants.size(); ++i) {
-      final_score += tquants[i];
-    }
+    double final_score = std::accumulate(tquants.begin(), tquants.end(), 0.0);
 
     final_score /= double(tquants.size());
     final_score /= 1000.0;
