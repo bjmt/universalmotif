@@ -869,6 +869,43 @@ list_num_t add_motif_columns(const list_num_t &mot, const int tlen,
 
 }
 
+void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
+
+  std::size_t mlen = m1.size();
+  std::size_t tleft = 0;
+
+  for (std::size_t i = 0; i < m1.size(); ++i) {
+    if (m1[i][0] < 0 && m2[i][0] < 0) {
+      --mlen;
+      ++tleft;
+    } else {
+      break;
+    }
+  }
+
+  for (std::size_t i = m1.size() - 1; i >= 0; --i) {
+    if (m1[i][0] < 0 && m2[i][0] < 0) {
+      --mlen;
+    } else {
+      break;
+    }
+  }
+
+  if (mlen > 0) {
+
+    list_num_t tm1(mlen), tm2(mlen);
+    for(std::size_t i = tleft; i < tleft + mlen; ++i) {
+      tm1[i - tleft] = m1[i];
+      tm2[i - tleft] = m2[i];
+    }
+
+    m1 = tm1;
+    m2 = tm2;
+
+  }
+
+}
+
 list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
     const std::string &method, const int minoverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const int weight,
@@ -907,18 +944,15 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
 
   equalize_mot_cols(mot1, mot2, ic1, ic2, minoverlap);
 
-  int ncol1t = mot1.size(), ncol2t = mot2.size();
-  int minw = ncol1 <= ncol2 ? ncol1 : ncol2;
-  int total = (1 + ncol1 - minw) * (1 + ncol2 - minw);
-  int add1 = offset / total, add2 = offset % total;
-  int tlen = ncol1t >= ncol2t ? ncol1t : ncol2t;
-
-  if (ncol2t > ncol1t) {
-    mot1 = add_motif_columns(mot1, tlen, abs(add2 - add1));
-  } else if (ncol1t > ncol2t) {
-    mot2 = add_motif_columns(mot2, tlen, abs(add1 - add2));
+  if (mot1.size() > mot2.size()) {
+    mot2 = add_motif_columns(mot2, mot1.size(),
+        offset % mot1.size() - offset / mot1.size());
+  } else if (mot2.size() > mot1.size()) {
+    mot1 = add_motif_columns(mot1, mot2.size(),
+        offset % mot2.size() - offset / mot2.size());
   }
 
+  trim_both_motifs(mot1, mot2);
   list_num_t merged = get_merged_motif(mot1, mot2, weight);
 
   return merged;
@@ -1011,43 +1045,6 @@ void fix_mot_bkg_zeros(list_num_t &mot, vec_num_t &bkg, const std::string &metho
     case 15:
     case 16: klfix(mot);
              bkgfix(bkg);
-  }
-
-}
-
-void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
-
-  std::size_t mlen = m1.size();
-  std::size_t tleft = 0;
-
-  for (std::size_t i = 0; i < m1.size(); ++i) {
-    if (m1[i][0] < 0 && m2[i][0] < 0) {
-      --mlen;
-      ++tleft;
-    } else {
-      break;
-    }
-  }
-
-  for (std::size_t i = m1.size() - 1; i >= 0; --i) {
-    if (m1[i][0] < 0 && m2[i][0] < 0) {
-      --mlen;
-    } else {
-      break;
-    }
-  }
-
-  if (mlen > 0) {
-
-    list_num_t tm1(mlen), tm2(mlen);
-    for(std::size_t i = tleft; i < tleft + mlen; ++i) {
-      tm1[i - tleft] = m1[i];
-      tm2[i - tleft] = m2[i];
-    }
-
-    m1 = tm1;
-    m2 = tm2;
-
   }
 
 }
@@ -1305,7 +1302,8 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
 
     list_num_t tttmot = ttmots[i];
     if (maxadd - toadd[i] > 0) {
-      tttmot = add_motif_columns(tttmot, tttmot.size() + maxadd - toadd[i], maxadd - toadd[i]);
+      tttmot = add_motif_columns(tttmot, tttmot.size() + maxadd - toadd[i],
+          maxadd - toadd[i]);
     }
 
     neg_one_to_zero(tttmot);
