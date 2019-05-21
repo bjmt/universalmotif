@@ -14,8 +14,9 @@ These scores were
 generated using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE motif set,
 with \code{normalise.scores = FALSE}. This particular set of scores is organized
 as a list, with each list item being a \code{data.frame} of scores for a specific comparison
-method. In each \code{data.frame} is the mean and sd of scores resulting between
-the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
+method. In each \code{data.frame} is the location and scale of scores resulting from a
+logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
+randomized motifs of the specified
 \code{subject} and \code{target} motif length. Created using \code{\link[=make_DBscores]{make_DBscores()}} from
 universalmotif v1.4.0.
 }

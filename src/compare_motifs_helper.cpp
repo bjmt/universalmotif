@@ -11,27 +11,37 @@ std::unordered_map<std::string, int> METRICS_enum = {
 
   /* distance */    // timings from last make_DBscores() run:
 
+  // Euclidean distance
   {"EUCL",    1},   // 35.78 s
   {"MEUCL",   2},   // 34.42 s
+  // Kullback-Leibler divergence
   {"KL",      3},   // 21.99 s
   {"MKL",     4},   // 21.36 s
+  // Hellinger distance
   {"HELL",   13},   // 17.37 s
   {"MHELL",  14},   // 17.85 s
+  // Itakura-Saito distance
   {"IS",     15},   // 18.41 s
   {"MIS",    16},   // 18.53 s
+  // Squared Euclidean distance
   {"SEUCL",  17},   // 14.93 s
   {"MSEUCL", 18},   // 15.05 s
+  // Manhattan distance
   {"MAN",    19},   // 14.92 s
   {"MMAN",   20},   // 15.6 s
 
   /* similarity */
 
+  // Pearson correlation coefficient
   {"PCC",     5},   // 1.231 m
   {"MPCC",    6},   // 1.29 m
+  // Smith-Waterman similarity
   {"SW",      7},   // 15.42 s
   {"MSW",     8},   // 15.8 s
+  // Average log-likelihood ratio
   {"ALLR",    9},   // 59.88 s
   {"MALLR",  10},   // 59.53 s
+  // Bhattacharyya coefficient
   {"BHAT",   11},   // 15.67 s
   {"MBHAT",  12}    // 15.89 s
 
@@ -215,6 +225,8 @@ double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
 
 double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
     const bool norm = false) {
+
+  // expensive!
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
@@ -938,14 +950,13 @@ vec_num_t calc_ic_motif(const list_num_t &motif, const vec_num_t &bkg,
 
 }
 
-void find_offsets(list_num_t mot1, list_num_t mot2, int &offset_1,
-    int &offset_2, bool &use_rc, const std::string &method, const int minoverlap,
+void find_offsets(list_num_t mot1, list_num_t mot2,
+    bool &use_rc, const std::string &method, const int minoverlap,
     vec_num_t ic1, vec_num_t ic2, const bool norm, const double posic,
     const double minic, const bool RC, const double nsites1, const double nsites2,
-    const vec_num_t &bkg1, const vec_num_t &bkg2) {
+    const vec_num_t &bkg1, const vec_num_t &bkg2, int &offset) {
 
   double score;
-  int offset;
 
   std::size_t ncol1 = mot1.size();
   std::size_t ncol2 = mot2.size();
@@ -972,19 +983,6 @@ void find_offsets(list_num_t mot1, list_num_t mot2, int &offset_1,
       mot2 = rcmot2;
       use_rc = true;
     }
-  }
-
-  equalize_mot_cols(mot1, mot2, ic1, ic2, minoverlap);
-
-  int minw = ncol1 <= ncol2 ? ncol1 : ncol2;
-  int total = (1 + ncol1 - minw) * (1 + ncol2 - minw);
-  int add1 = offset / total, add2 = offset % total;
-
-  int ncol1t = mot1.size(), ncol2t = mot2.size();
-  if (ncol2t > ncol1t) {
-    offset_1 = abs(add2 - add1);
-  } else if (ncol1t > ncol2t) {
-    offset_2 = abs(add1 - add2);
   }
 
   return;
@@ -1014,6 +1012,57 @@ void fix_mot_bkg_zeros(list_num_t &mot, vec_num_t &bkg, const std::string &metho
     case 16: klfix(mot);
              bkgfix(bkg);
   }
+
+}
+
+void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
+
+  std::size_t mlen = m1.size();
+  std::size_t tleft = 0;
+
+  for (std::size_t i = 0; i < m1.size(); ++i) {
+    if (m1[i][0] < 0 && m2[i][0] < 0) {
+      --mlen;
+      ++tleft;
+    } else {
+      break;
+    }
+  }
+
+  for (std::size_t i = m1.size() - 1; i >= 0; --i) {
+    if (m1[i][0] < 0 && m2[i][0] < 0) {
+      --mlen;
+    } else {
+      break;
+    }
+  }
+
+  if (mlen > 0) {
+
+    list_num_t tm1(mlen), tm2(mlen);
+    for(std::size_t i = tleft; i < tleft + mlen; ++i) {
+      tm1[i - tleft] = m1[i];
+      tm2[i - tleft] = m2[i];
+    }
+
+    m1 = tm1;
+    m2 = tm2;
+
+  }
+
+}
+
+int count_left_empty(const list_num_t &m) {
+
+  int left = 0;
+  for (std::size_t i = 0; i < m.size(); ++i) {
+    if (m[i][0] < 0)
+      ++left;
+    else
+      break;
+  }
+
+  return left;
 
 }
 
@@ -1190,50 +1239,87 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
     icscores[i] = calc_ic_motif(vmots[i], bkg[i], relative);
   }
 
-  vec_bool_t which_rc(vmots.size(), false);
-  vec_int_t offsets_1(vmots.size(), 0);
-  vec_int_t offsets_2(vmots.size(), 0);
+  vec_bool_t which_rc(vmots.size() - 1, false);
+  vec_int_t offsets(vmots.size() - 1, 0);
 
-  int off1 = 0, off2 = 0; bool rc_ = false;
+  bool rc_ = false;
   for (std::size_t i = 1; i < vmots.size(); ++i) {
 
-    off1 = 0; off2 = 0; rc_ = false;
+    rc_ = false;
 
-    find_offsets(vmots[0], vmots[i], off1, off2, rc_, method, minoverlap,
+    find_offsets(vmots[0], vmots[i],  rc_, method, minoverlap,
         icscores[0], icscores[i], norm, posic, minic, RC, nsites[0], nsites[i],
-        bkg[0], bkg[i]);
+        bkg[0], bkg[i], offsets[i - 1]);
 
-    offsets_1[i] = off1;
-    offsets_2[i] = off2;
-    which_rc[i] = rc_;
+    which_rc[i - 1] = rc_;
 
   }
 
-  for (std::size_t i = 1; i < which_rc.size(); ++i) {
-    if (which_rc[i]) vmots[i] = get_motif_rc(vmots[i]);
+  for (std::size_t i = 0; i < which_rc.size(); ++i) {
+    if (which_rc[i]) vmots[i + 1] = get_motif_rc(vmots[i + 1]);
   }
 
-  vec_int_t motlens2(vmots.size());
-  for (std::size_t i = 0; i < vmots.size(); ++i) {
-    motlens2[i] = motlens[i] + offsets_2[i];
+  vec_int_t toadd(vmots.size() - 1);
+  list_nmat_t ttmots(vmots.size() - 1);
+
+  for (std::size_t i = 1; i < vmots.size(); ++i) {
+
+    list_num_t tmot1 = vmots[0], tmot2 = vmots[i];
+    vec_num_t tic1 = icscores[0], tic2 = icscores[i];
+
+    equalize_mot_cols(tmot1, tmot2, tic1, tic2, minoverlap);
+
+    if (tmot1.size() > tmot2.size()) {
+      tmot2 = add_motif_columns(tmot2, tmot1.size(),
+          offsets[i - 1] % tmot1.size() - offsets[i - 1] / tmot1.size());
+    } else if (tmot2.size() > tmot1.size()) {
+      tmot1 = add_motif_columns(tmot1, tmot2.size(),
+          offsets[i - 1] % tmot2.size() - offsets[i - 1] / tmot2.size());
+    }
+
+    trim_both_motifs(tmot1, tmot2);
+
+    int left = count_left_empty(tmot1);
+    toadd[i - 1] = left;
+
+    ttmots[i - 1] = tmot2;
+
   }
 
-  int tlen = *std::max_element(motlens2.begin(), motlens2.end());
-  tlen += *std::max_element(offsets_1.begin(), offsets_1.end());
+  list_num_t mmot1 = vmots[0];
+
+  int maxadd = *std::max_element(toadd.begin(), toadd.end());
+
+  if (maxadd > 0) {
+    mmot1 = add_motif_columns(mmot1, mmot1.size() + maxadd, maxadd);
+  }
+
+  neg_one_to_zero(mmot1);
+
+  Rcpp::NumericMatrix mot1 = cpp_to_R_motif(mmot1);
+  Rcpp::rownames(mot1) = rnames;
 
   Rcpp::List motlist(vmots.size());
-  for (std::size_t i = 0; i < vmots.size(); ++i) {
-    vmots[i] = add_motif_columns(vmots[i], tlen,
-        offsets_2[i] + *std::max_element(offsets_1.begin(), offsets_1.end()) - offsets_1[i]);
-    neg_one_to_zero(vmots[i]);
-    Rcpp::NumericMatrix tmp = cpp_to_R_motif(vmots[i]);
-    rownames(tmp) = rnames;
-    motlist[i] = tmp;
+  motlist[0] = mot1;
+  for (std::size_t i = 0; i < vmots.size() - 1; ++i) {
+
+    list_num_t tttmot = ttmots[i];
+    if (maxadd - toadd[i] > 0) {
+      tttmot = add_motif_columns(tttmot, tttmot.size() + maxadd - toadd[i], maxadd - toadd[i]);
+    }
+
+    neg_one_to_zero(tttmot);
+
+    Rcpp::NumericMatrix tttmot2 = cpp_to_R_motif(tttmot);
+    Rcpp::rownames(tttmot2) = rnames;
+
+    motlist[i + 1] = tttmot2;
+
   }
 
   return Rcpp::List::create(
-        Rcpp::_["motIsRC"] = which_rc,
-        Rcpp::_["motifs"] = motlist
+        Rcpp::_["motifs"] = motlist,
+        Rcpp::_["motIsRC"] = which_rc
       );
 
 }

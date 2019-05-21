@@ -147,7 +147,7 @@
 #'    [make_DBscores()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
-                           use.type = "PPM", method = "MPCC", tryRC = TRUE,
+                           use.type = "PPM", method = "MALLR", tryRC = TRUE,
                            min.overlap = 6, min.mean.ic = 0.25,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,
@@ -331,7 +331,7 @@ check_db_scores <- function(db.scores, method, normalise.scores) {
                       "integer/numeric, numeric, numeric, character, logical"))
 
   db_colnames <- colnames(db.scores)
-  db_colnames_exp <- c("subject", "target", "mean", "sd", "method", "normalised")
+  db_colnames_exp <- c("subject", "target", "location", "scale", "method", "normalised")
   if (!all(db_colnames_exp %in% db_colnames)) {
     stop(paste0("'db.scores' must have columns: ",
                paste0(db_colnames_exp, collapse = ", ")))
@@ -427,7 +427,7 @@ get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
 
       ans <- db.scores[db.scores$subject == n1 & db.scores$target == n2, ]
       if (!is.na(ans[, 1])) {
-        pvals[i] <- pnorm(scores[i], ans$mean[1], ans$sd[1], ltail, TRUE)
+        pvals[i] <- plogis(scores[i], ans$location[1], ans$scale[1], ltail, TRUE)
         ok <- TRUE
       } else {
         n2 <- n2 + 1

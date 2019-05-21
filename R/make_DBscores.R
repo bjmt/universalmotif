@@ -106,8 +106,8 @@ make_DBscores <- function(db.motifs,
   comps <- get_comparisons(widths)
   total <- nrow(comps)
   totry <- data.frame(subject = comps[, 1], target = comps[, 2],
-                      mean = rep(NA_real_, total),
-                      sd = rep(NA_real_, total),
+                      location = rep(NA_real_, total),
+                      scale = rep(NA_real_, total),
                       method = rep(method, total),
                       normalised = rep(normalise.scores, total),
                       stringsAsFactors = FALSE)
@@ -135,8 +135,13 @@ make_DBscores <- function(db.motifs,
                               normalise.scores, nthreads,
                               min.position.ic, get_nsites(tmpall))
 
-    totry$mean[i] <- mean(res)
-    totry$sd[i] <- sd(res)
+    if (length(unique(res)) == 1)
+      stop(wmsg("failed to estimate logistic distribution due to uniform random scores ",
+                "at comparison: ", totry$subject[i], " - ", totry$target[i], " ; ",
+                "perhaps too few reference motifs"))
+    a <- suppressWarnings(fitdistr(res, "logistic"))
+    totry$location[i] <- a$estimate["location"]
+    totry$scale[i] <- a$estimate["scale"]
 
     if (progress) update_pb(counter, total)
     counter <- counter + 1

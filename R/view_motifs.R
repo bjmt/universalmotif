@@ -35,7 +35,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
-view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
+view_motifs <- function(motifs, use.type = "ICM", method = "MALLR",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
                         min.position.ic = 0, ...) {
@@ -162,15 +162,16 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
   res <- view_motifs_prep(mot.mats, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, mot.bkgs, relative_entropy,
                           normalise.scores, alph, get_nsites(motifs))
-  which.rc <- res[[1]]
-  mots <- res[[2]]
+  which.rc <- res$motIsRC
+  mots <- res$motifs
+  mots <- check_mot_sizes(mots)
 
   mots <- mapply(function(x1, x2, x3, x4)
                    convert_mat_type_from_ppm(x1, use.type, x2, x3, x4, relative_entropy),
                  mots, mot.nsites, mot.bkgs, mot.pseudo, SIMPLIFY = FALSE)
 
   for (i in seq_along(which.rc)) {
-    if (which.rc[i]) mot.names[i] <- paste(mot.names[i], "[RC]")
+    if (which.rc[i]) mot.names[i + 1] <- paste(mot.names[i + 1], "[RC]")
   }
   names(mots) <- mot.names
 
@@ -187,25 +188,74 @@ view_motifs <- function(motifs, use.type = "ICM", method = "MPCC",
 
 }
 
+check_mot_sizes <- function(mots) {
+
+  sizes <- vapply(mots, ncol, integer(1))
+  msize <- max(sizes)
+
+  if (length(unique(sizes)) == 1) {
+    mots <- check_right_side(mots, msize)
+    return(mots)
+  }
+
+  for (i in seq_along(sizes)) {
+    if (sizes[i] < msize) {
+      mots[[i]] <- cbind(mots[[i]], matrix(0, nrow = nrow(mots[[i]]),
+                                           ncol = msize - sizes[i]))
+    }
+  }
+
+  check_right_side(mots, msize)
+
+}
+
+check_right_side <- function(mots, msize) {
+
+  ok <- FALSE
+  thiscol <- msize
+
+  while (!ok) {
+
+    for (i in seq_along(mots)) {
+      if (any(mots[[i]][, thiscol] > 0)) ok <- TRUE
+    }
+
+    if (!ok) {
+      for (i in seq_along(mots)) {
+        mots[[i]] <- mots[[i]][, -thiscol]
+      }
+      thiscol <- thiscol - 1
+    }
+
+  }
+
+  mots
+
+}
+
 convert_mat_type_from_ppm <- function(mot.mat, type, nsites, bkg, pseudocount,
                                       relative_entropy) {
 
-  which.zero <- apply(mot.mat, 2, function(x) all(x == 0))
+  which.zero <- apply(mot.mat, 2, function(x) any(x != 0))
 
   if (length(nsites) == 0 || nsites == 1) nsites <- 100
   if (length(pseudocount) == 0) pseudocount <- 1
 
-  mot.mat[, which.zero] <- switch(type,
-                             "PCM" = apply(mot.mat[, which.zero, drop = FALSE], 2,
-                                           ppm_to_pcmC, nsites = nsites),
-                             "PWM" = apply(mot.mat[, which.zero, drop = FALSE], 2,
-                                           ppm_to_pwmC, bkg = bkg,
-                                           pseudocount = pseudocount,
-                                           nsites = nsites),
-                             "ICM" = apply(mot.mat[, which.zero, drop = FALSE], 2,
-                                           ppm_to_icmC, bkg = bkg,
-                                           relative_entropy = relative_entropy)
-                           )
+  mot.mat2 <- mot.mat[, which.zero, drop = FALSE]
+  mot.mat2 <- switch(type,
+                       "PCM" = apply(mot.mat2,  2,
+                                     ppm_to_pcmC, nsites = nsites),
+                       "PWM" = apply(mot.mat2, 2,
+                                     ppm_to_pwmC, bkg = bkg,
+                                     pseudocount = pseudocount,
+                                     nsites = nsites),
+                       "ICM" = apply(mot.mat2, 2,
+                                     ppm_to_icmC, bkg = bkg,
+                                     relative_entropy = relative_entropy),
+                        mot.mat2
+                     )
+
+  mot.mat[, which.zero] <- mot.mat2
 
   mot.mat
 

@@ -30,8 +30,8 @@ MINOR CHANGES
 
     o Many performance improvements to functions relying on internal C++ code.
 
-    o Changed behaviour of make_DBscores(). Re-calculated internal P-value
-      databases.
+    o Changed behaviour of make_DBscores() and motif comparison P-values.
+      Re-calculated internal P-value databases.
 
     o For merge_motifs(..., use.type): now only accepts 'PPM'.
 

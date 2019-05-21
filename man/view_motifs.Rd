@@ -4,7 +4,7 @@
 \alias{view_motifs}
 \title{Plot motif logos.}
 \usage{
-view_motifs(motifs, use.type = "ICM", method = "MPCC", tryRC = TRUE,
+view_motifs(motifs, use.type = "ICM", method = "MALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, ...)
 }

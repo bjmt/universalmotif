@@ -22,8 +22,9 @@
 #' generated using [make_DBscores()] with the JASPAR2018 CORE motif set,
 #' with `normalise.scores = FALSE`. This particular set of scores is organized
 #' as a list, with each list item being a `data.frame` of scores for a specific comparison
-#' method. In each `data.frame` is the mean and sd of scores resulting between
-#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
+#' method. In each `data.frame` is the location and scale of scores resulting from a
+#' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
+#' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0.
 #'
@@ -37,8 +38,9 @@
 #' using [make_DBscores()] with the JASPAR2018 CORE motif set, with
 #' `normalise.scores = TRUE`. This particular set of scores is organized
 #' as a list, with each list item being a `data.frame` of scores for a specific comparison
-#' method. In each `data.frame` is the mean and sd of scores resulting between
-#' the comparisons of JASPAR2018 CORE motifs with randomized motifs of the specified
+#' method. In each `data.frame` is the location and scale of scores resulting from a
+#' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
+#' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0.
 #'

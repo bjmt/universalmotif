@@ -87,7 +87,7 @@ test_that("comparisons with p-values works", {
   res <- compare_motifs(list(motif1, motif2), 1:2, max.p = 1,
                         method = "MPCC")
 
-  expect_equal(round(res$Pval, digits = 2), 0.26)
+  expect_equal(round(res$Pval, digits = 2), 0.19)
 
 })
 
@@ -96,8 +96,8 @@ test_that("custom db scores are handled correctly", {
   motif1 <- create_motif("TTTWWW", name = "mot1")
   motif2 <- create_motif("GGGWWW", name = "mot2")
 
-  db.scores <- make_DBscores(c(motif1, motif2), method = "PCC",
-                             rand.tries = 10, progress = FALSE)
+  db.scores <- suppressWarnings(make_DBscores(c(motif1, motif2), method = "PCC",
+                             rand.tries = 50, widths = 5:7, progress = FALSE))
 
   res <- compare_motifs(c(motif1, motif2), 1, db.scores, method = "PCC",
                         max.p = 1)
