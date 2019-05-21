@@ -7,7 +7,7 @@
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
   branch.length = "none", db.scores, method = "MEUCL",
-  use.type = "PPM", min.overlap = 1/3, min.position.ic = 0,
+  use.type = "PPM", min.overlap = 6, min.position.ic = 0,
   tryRC = TRUE, min.mean.ic = 0, relative_entropy = FALSE,
   progress = FALSE, BP = FALSE, nthreads = 1, ...)
 }

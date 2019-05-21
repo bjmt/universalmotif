@@ -5,7 +5,7 @@
 \title{Plot motif logos.}
 \usage{
 view_motifs(motifs, use.type = "ICM", method = "MALLR", tryRC = TRUE,
-  min.overlap = 1/3, min.mean.ic = 0.25, relative_entropy = FALSE,
+  min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, ...)
 }
 \arguments{

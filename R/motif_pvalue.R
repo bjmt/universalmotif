@@ -52,20 +52,16 @@
 #' calculating exact p-values can be done individually in reasonable time by
 #' setting `k = 12`.
 #'
-#' To calculate a score based on a given p-value, the means and variances of
-#' each motif subsets are combined to estimate the normal distribution of all
-#' possible scores using \code{\link[stats:Normal]{stats::qnorm()}}:
+#' To calculate a score from a P-value, the [stats::quantile()] function
+#' can be used after calculating all possible scores for a motif:
 #'
-#' `qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))`
+#' `quantile(scores, probs = pvalue)`
 #'
-#' For calculating exact scores, [stats::ecdf()] and [stats::quantile()] are
-#' used:
+#' When `k < ncol(motif)`, the complete set of scores is approximated
+#' instead by randomly adding all possible scores from each subset.
 #'
-#' `quantile(ecdf(scores), probs = pvalue)`
-#'
-#' It is important to keep in mind that the approximate
-#' calculation assumes a normal distribution of scores, which is rarely
-#' accurate.
+#' It is important to keep in mind that no consideration is given to
+#' background frequencies.
 #'
 #' @examples
 #' data(examplemotif)
@@ -283,16 +279,34 @@ motif_score_pval <- function(score.mat, pval, k = 8) {
 
   if (mot.len > k) {
 
-    # Assumes a normal distribution, which frankly is probably wrong.
-
+    rem <- ncol(score.mat) %% k
+    score.mat <- score.mat[, sample.int(ncol(score.mat))]
     score.mat.split <- split_mat(score.mat, k)
     s.split <- lapply(score.mat.split,
                       function(x) expand_scores(x) / 1000)
 
-    mean.split <- vapply(s.split, mean, numeric(1))
-    var.split <- vapply(s.split, var, numeric(1))
+    if (rem > 0) {
+      s.r <- s.split[[length(s.split)]]
+      s.r <- s.r[sample(seq_along(s.r), length(s.split[[1]]), replace = TRUE)]
+      s.split[[length(s.split)]] <- s.r
+    }
 
-    answer <- qnorm(pval, sum(mean.split), sqrt(sum(var.split)))
+    ans10 <- vector("list", 500)
+    ans <- numeric(500)
+    for (i in seq_len(500)) {
+
+      s.split <- lapply(s.split, function(x) x[sample(seq_along(x))])
+
+      ans10[[i]] <- s.split[[1]]
+      for (j in seq_along(s.split)[-1]) {
+        ans10[[i]] <- ans10[[i]] + s.split[[j]]
+      }
+
+      ans[i] <- quantile(ans10[[i]], probs = pval)
+
+    }
+
+    answer <- mean(ans)
 
     if (answer < min.score) answer <- min.score
     else if (answer > max.score) answer <- max.score
@@ -300,9 +314,8 @@ motif_score_pval <- function(score.mat, pval, k = 8) {
   } else {
 
     s <- expand_scores(score.mat) / 1000
-    e <- ecdf(s)
 
-    answer <- unname(quantile(e, probs = pval))
+    answer <- unname(quantile(s, probs = pval))
 
   }
 

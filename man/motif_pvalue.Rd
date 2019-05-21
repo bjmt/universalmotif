@@ -66,20 +66,16 @@ controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
 calculating exact p-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
-To calculate a score based on a given p-value, the means and variances of
-each motif subsets are combined to estimate the normal distribution of all
-possible scores using \code{\link[stats:Normal]{stats::qnorm()}}:
+To calculate a score from a P-value, the \code{\link[stats:quantile]{stats::quantile()}} function
+can be used after calculating all possible scores for a motif:
 
-\code{qnorm(pvalue, mean = sum(subset.means), sd = sqrt(sum(subset.vars)))}
+\code{quantile(scores, probs = pvalue)}
 
-For calculating exact scores, \code{\link[stats:ecdf]{stats::ecdf()}} and \code{\link[stats:quantile]{stats::quantile()}} are
-used:
+When \code{k < ncol(motif)}, the complete set of scores is approximated
+instead by randomly adding all possible scores from each subset.
 
-\code{quantile(ecdf(scores), probs = pvalue)}
-
-It is important to keep in mind that the approximate
-calculation assumes a normal distribution of scores, which is rarely
-accurate.
+It is important to keep in mind that no consideration is given to
+background frequencies.
 }
 \examples{
 data(examplemotif)

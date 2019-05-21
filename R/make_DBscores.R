@@ -50,7 +50,7 @@ make_DBscores <- function(db.motifs,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 1000, widths = 5:30,
                           min.position.ic = 0,
-                          normalise.scores = FALSE, min.overlap = 1/3,
+                          normalise.scores = FALSE, min.overlap = 6,
                           min.mean.ic = 0, progress = TRUE, BP = FALSE,
                           nthreads = 1, tryRC = TRUE) {
 

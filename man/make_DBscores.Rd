@@ -9,7 +9,7 @@ make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
   "IS", "MIS", "SEUCL", "MSEUCL", "MAN", "MMAN"), shuffle.db = TRUE,
   shuffle.k = 3, shuffle.method = "linear", rand.tries = 1000,
   widths = 5:30, min.position.ic = 0, normalise.scores = FALSE,
-  min.overlap = 1/3, min.mean.ic = 0, progress = TRUE, BP = FALSE,
+  min.overlap = 6, min.mean.ic = 0, progress = TRUE, BP = FALSE,
   nthreads = 1, tryRC = TRUE)
 }
 \arguments{
