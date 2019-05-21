@@ -433,6 +433,9 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
       scorelens[i] = scores[i].size();
     }
 
+    int which = scores[0].size() * (1.0 - pval);
+    if (which == int(scores[0].size())) --which;
+
     for (int i = 0; i < randtries; ++i) {
 
       for (int j = 1; j < nsplit; ++j) {
@@ -440,9 +443,6 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
           scores[0][b] += scores[j][gen() % scorelens[j]];
         }
       }
-
-      int which = scores[0].size() * (1.0 - pval);
-      if (which == int(scores[0].size())) --which;
 
       std::nth_element(scores[0].begin(), scores[0].begin() + which, scores[0].end());
 
