@@ -46,10 +46,6 @@ MINOR CHANGES
 
     o read_homer(): the logodds score is converted to a P-value.
 
-    o Reworked score calculator in motif_pvalue() again. No longer assumes
-      scores follow a normal distribution, instead approximates all possible
-      scores for direct use in quantile() when ncol(motif) < k.
-
     o motif_pvalue(): New score calculator. Exact scores are still calculated
       the same (but with a faster C++ function), but approximate scores are
       now calculated by randomly generating score distributions from size 'k'
