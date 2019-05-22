@@ -37,9 +37,6 @@
 #'
 #' @return `numeric` A vector of scores/p-values.
 #'
-#' @references
-#'    \insertRef{pvalues}{universalmotif}
-#'
 #' @details
 #'
 #' Calculating p-values for motifs can be very computationally intensive. This
@@ -75,6 +72,9 @@
 #' try the following code with your motif (be careful with longer motifs):
 #'
 #' `quantile(get_scores(motif), probs = 0.99)`
+#'
+#' @references
+#'    \insertRef{pvalues}{universalmotif}
 #'
 #' @examples
 #' data(examplemotif)

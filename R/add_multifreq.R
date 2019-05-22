@@ -10,17 +10,15 @@
 #'    that of the motif. If
 #'    these sequences are all the same length as the motif, then they are all
 #'    used to generate the multi-freq matrices. Otherwise
-#'    [scan_sequences()] is first run to find the right sequence.
+#'    [scan_sequences()] is first run to find the right sequence stretches
+#'    within.
 #' @param add.k `numeric(1)` The k-let lengths to add.
-#' @param threshold `numeric(1)` Between 0 and 1. See [scan_sequences()].
-#' @param threshold.type `character(1)` One of `c('logodds', 'pvalue')`.
-#'    See [scan_sequences()].
-#' @param RC `logical(1)` Check the reverse complement of a DNA sequence.
-#'    See [scan_sequences()].
 #' @param motifs.perseq `numeric(1)` If [scan_sequences()] is run,
 #'    then this indicates how many hits from each sequence is to be used.
 #'
 #' @details
+#'    See [scan_sequences()] for more info on scanning parameters.
+#'
 #'    At each position in the motif, then the probability of each k-let 
 #'    covering from the initial position to ncol - 1 is calculated. Only
 #'    positions within the motif are considered; this means that the
@@ -64,6 +62,7 @@
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [convert_motifs()], [write_motifs()]
+#' @inheritParams scan_sequences
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0.01, threshold.type = "pvalue",
@@ -72,9 +71,9 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!threshold.type %in% c("logodds", "pvalue")) {
+  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs")) {
     threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected ",
-                                   "`logodds` or `pvalue`; got `",
+                                   "`logodds`, `logodds.abs`, or `pvalue`; got `",
                                    threshold.type, "`")
     all_checks <- c(all_checks, threshold.type_check)
   }
@@ -116,8 +115,21 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
   } else {
 
-    seqs.out <- sequences
+    seqs.out <- as.character(sequences)
 
+  }
+
+  seqlen <- unique(vapply(seqs.out, nchar, integer(1)))
+  if (length(seqlen) > 1) stop("something went wrong with extracting motif matches")
+
+  counter  <- 1
+  for (i in seq_along(add.k)) {
+    if (seqlen < add.k[i]) {
+      warning("motif is not long enough for use.freq>=", add.k[i],
+              immediate. = TRUE)
+      add.k <- add.k[seq_len(counter)]
+    }
+    counter <- counter + 1
   }
 
   seqs.out <- seqs.out[!is.na(seqs.out)]
@@ -126,7 +138,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     stop("No motif matches found in sequences; consider lowering the minimum threshold")
 
   alph <- rownames(motif@motif)
-  multifreq <- lapply(add.k, function(x) add_multi_ANY(seqs.out, x, alph))
+  multifreq <- lapply(add.k, function(x) add_multi_cpp(seqs.out, x, alph))
 
   names(multifreq) <- add.k
   prev.multifreq <- motif@multifreq
@@ -151,86 +163,5 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   motif@bkg <- c(motif@bkg, new.bkg)
 
   motif
-
-}
-
-add_multi <- function(sequences, k) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < k - 1) {
-    warning("motif is not long enough for k = ", k)
-    return(matrix(nrow = 0, ncol = 0))
-  }
-
-  emissions <- matrix(nrow = 4^k, ncol = seq.width - k + 1)
-
-  multi_rows <- matrix(nrow = k, ncol = 4^k)
-  for (i in seq_len(k)) {
-    j <- rep(DNA_BASES, each = 4^(k - i + 1) / 4)
-    if (length(j) != 4^k) j <- rep(j, 4^k / length(j))
-    multi_rows[i, ] <- j
-  }
-  multi_rows <- collapse_cols_mat(multi_rows)
-
-  rownames(emissions) <- multi_rows
-  colnames(emissions) <- seq_len(ncol(emissions))
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, safeExplode)
-  seqs.split <- t(seqs.split)
-
-  for (i in seq_len(seq.width - k + 1)) {
-    current.seqs <- seqs.split[, i:(i + k - 1)]
-    current.seqs <- collapse_rows_mat(current.seqs)
-    current.seqs <- DNAStringSet(current.seqs)
-    emissions.i <- colSums(oligonucleotideFrequency(current.seqs, k, 1))
-    emissions.i <- emissions.i / sum(emissions.i)
-    emissions[, i] <- emissions.i
-  }
-
-  emissions
-
-}
-
-add_multi_ANY <- function(sequences, k, alph) {
-
-  seq.width <- unique(width(sequences))
-  if (seq.width < k - 1) {
-    warning("motif is not long enough for k = ", k)
-    return(matrix())
-  }
-
-  alph.len <- length(alph)
-  emissions <- matrix(rep(0, alph.len^k * (seq.width - k + 1)),
-                      nrow = alph.len^k, ncol = seq.width - k + 1)
-
-  alph.comb <- get_klets(alph, k)
-
-  rownames(emissions) <- alph.comb
-  colnames(emissions) <- seq_len(ncol(emissions))
-
-  seqs.split <- matrix(as.character(sequences), ncol = 1)
-  seqs.split <- apply(seqs.split, 1, safeExplode)
-
-  seq.list <- lapply(seq_len(ncol(seqs.split)),
-                     function(x) single_to_k(seqs.split[, x], k))
-
-  seq.list.i <- character(length(seq.list[[1]]))
-  em.lets <- rownames(emissions)
-  for (i in seq_along(seq.list[[1]])) {
-
-    for (j in seq_along(seq.list)) {
-      seq.list.i[j] <- seq.list[[j]][i]
-    }
-
-    seq.list.t <- table_cpp(seq.list.i)
-    emissions[, i] <- seq.list.t[em.lets]
-    emissions[is.na(emissions[, i]), i] <- 0
-
-    emissions[, i] <- emissions[, i] / sum(emissions[, i])
-
-  }
-
-  emissions
 
 }

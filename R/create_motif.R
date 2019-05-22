@@ -432,8 +432,7 @@ setMethod("create_motif", signature(input = "character"),
   if (!missing(add.multifreq) && length(input) > 1) {
 
     for (i in add.multifreq) {
-      motif@multifreq[[as.character(i)]] <- add_multi_ANY(BStringSet(input), i,
-                                                          rownames(motif@motif))
+      motif@multifreq[[as.character(i)]] <- add_multi_cpp(input, i, rownames(motif@motif))
     }
 
     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
@@ -568,8 +567,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
-      motif@multifreq[[as.character(i)]] <- add_multi_ANY(DNAStringSet(input),
-                                                          i, DNA_BASES)
+      motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i, DNA_BASES)
     }
     new.bkg <- get_bkg(DNAStringSet(input), k = add.multifreq, list.out = FALSE,
                        pseudocount = pseudocount, alphabet = DNA_BASES)
@@ -615,7 +613,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
-      motif@multifreq[[as.character(i)]] <- add_multi_ANY(RNAStringSet(input),
+      motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), 
                                                           i, RNA_BASES)
     }
     new.bkg <- get_bkg(RNAStringSet(input), k = add.multifreq, list.out = FALSE,
@@ -666,8 +664,7 @@ setMethod("create_motif", signature(input = "AAStringSet"),
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
-      motif@multifreq[[as.character(i)]] <- add_multi_ANY(input, i,
-                                                          AA_STANDARD)
+      motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i, AA_STANDARD)
     }
     new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq, list.out = FALSE,
                        pseudocount = pseudocount, alphabet = AA_STANDARD)
@@ -738,7 +735,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
-      motif@multifreq[[as.character(i)]] <- add_multi_ANY(input, i,
+      motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i,
                                                           rownames(motif@motif))
     }
     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,

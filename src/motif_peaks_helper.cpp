@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include "types.h"
 
 int peakfinder_single_cpp(int i, const Rcpp::NumericVector &x, int m) {
 
@@ -40,19 +41,22 @@ Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector &x, int m = 3) {
 }
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::IntegerVector linbin_cpp(const Rcpp::IntegerVector &x,
-    const Rcpp::IntegerVector &gpoints) {
+std::vector<int> linbin_cpp(const std::vector<int> &x,
+    const std::vector<int> &gpoints) {
 
-  R_xlen_t M = gpoints.size();
-  Rcpp::IntegerVector gcnts(M);
+  int M = gpoints.size();
+  vec_int_t gcnts(M);
 
   double delta = (gpoints[M - 1] - gpoints[0]) / (M - 1);
 
-  for (R_xlen_t i = 0; i < x.size(); ++i) {
+  double lxi, rem;
+  int li;
 
-    double lxi = (x[i] - gpoints[0]) / delta;
-    int li = lxi;
-    double rem = lxi - li;
+  for (std::size_t i = 0; i < x.size(); ++i) {
+
+    lxi = (x[i] - gpoints[0]) / delta;
+    li = lxi;
+    rem = lxi - li;
 
     if (li >= 0 && li < M) {
       gcnts[li] += 1 - rem;

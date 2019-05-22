@@ -5,14 +5,15 @@
 
 using namespace Rcpp;
 
-// single_to_k
-std::vector<std::string> single_to_k(const std::vector<std::string>& seq1, const int& k);
-RcppExport SEXP _universalmotif_single_to_k(SEXP seq1SEXP, SEXP kSEXP) {
+// add_multi_cpp
+Rcpp::NumericMatrix add_multi_cpp(const std::vector<std::string>& seqs, const int k, const std::vector<std::string>& alph);
+RcppExport SEXP _universalmotif_add_multi_cpp(SEXP seqsSEXP, SEXP kSEXP, SEXP alphSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type seq1(seq1SEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(single_to_k(seq1, k));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type seqs(seqsSEXP);
+    Rcpp::traits::input_parameter< const int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_multi_cpp(seqs, k, alph));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -141,12 +142,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // linbin_cpp
-Rcpp::IntegerVector linbin_cpp(const Rcpp::IntegerVector& x, const Rcpp::IntegerVector& gpoints);
+std::vector<int> linbin_cpp(const std::vector<int>& x, const std::vector<int>& gpoints);
 RcppExport SEXP _universalmotif_linbin_cpp(SEXP xSEXP, SEXP gpointsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type gpoints(gpointsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type gpoints(gpointsSEXP);
     rcpp_result_gen = Rcpp::wrap(linbin_cpp(x, gpoints));
     return rcpp_result_gen;
 END_RCPP
@@ -663,7 +664,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_universalmotif_single_to_k", (DL_FUNC) &_universalmotif_single_to_k, 2},
+    {"_universalmotif_add_multi_cpp", (DL_FUNC) &_universalmotif_add_multi_cpp, 3},
     {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 14},
     {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 12},
     {"_universalmotif_get_comparison_matrix", (DL_FUNC) &_universalmotif_get_comparison_matrix, 5},

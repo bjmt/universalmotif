@@ -54,7 +54,8 @@ motif density.
 \details{
 Kernel smoothing is used to calculate motif position density. The
 implementation for this process is based on code from the
-\pkg{KernSmooth} R package. These density estimates are used to
+\pkg{KernSmooth} R package \insertCite{kern}{universalmotif}. These
+density estimates are used to
 determine peak locations and heights. To calculate the P-values of
 these peaks, a null distribution is calculated from peak heights of
 randomly generated motif positions.
@@ -78,6 +79,9 @@ res$Plot
 # The raw plot data can be found in:
 res$Plot$data
 
+}
+\references{
+\insertRef{kern}{universalmotif}
 }
 \seealso{
 \code{\link[=scan_sequences]{scan_sequences()}}

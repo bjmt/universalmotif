@@ -16,17 +16,17 @@ converted.}
 that of the motif. If
 these sequences are all the same length as the motif, then they are all
 used to generate the multi-freq matrices. Otherwise
-\code{\link[=scan_sequences]{scan_sequences()}} is first run to find the right sequence.}
+\code{\link[=scan_sequences]{scan_sequences()}} is first run to find the right sequence stretches
+within.}
 
 \item{add.k}{\code{numeric(1)} The k-let lengths to add.}
 
-\item{RC}{\code{logical(1)} Check the reverse complement of a DNA sequence.
-See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
+sequences.}
 
-\item{threshold}{\code{numeric(1)} Between 0 and 1. See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 
-\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'pvalue')}.
-See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
 
 \item{motifs.perseq}{\code{numeric(1)} If \code{\link[=scan_sequences]{scan_sequences()}} is run,
 then this indicates how many hits from each sequence is to be used.}
@@ -40,6 +40,8 @@ If the original sequences are available for a particular motif, then they
 can be used to generate higher-order PPM matrices.
 }
 \details{
+See \code{\link[=scan_sequences]{scan_sequences()}} for more info on scanning parameters.
+
 At each position in the motif, then the probability of each k-let
 covering from the initial position to ncol - 1 is calculated. Only
 positions within the motif are considered; this means that the

@@ -871,10 +871,10 @@ list_num_t add_motif_columns(const list_num_t &mot, const int tlen,
 
 void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
 
-  std::size_t mlen = m1.size();
-  std::size_t tleft = 0;
+  int mlen = m1.size();
+  int tleft = 0;
 
-  for (std::size_t i = 0; i < m1.size(); ++i) {
+  for (int i = 0; i < mlen; ++i) {
     if (m1[i][0] < 0 && m2[i][0] < 0) {
       --mlen;
       ++tleft;
@@ -883,7 +883,7 @@ void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
     }
   }
 
-  for (std::size_t i = m1.size() - 1; i >= 0; --i) {
+  for (int i = mlen - 1; i >= 0; --i) {
     if (m1[i][0] < 0 && m2[i][0] < 0) {
       --mlen;
     } else {
@@ -894,7 +894,7 @@ void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
   if (mlen > 0) {
 
     list_num_t tm1(mlen), tm2(mlen);
-    for(std::size_t i = tleft; i < tleft + mlen; ++i) {
+    for(int i = tleft; i < tleft + mlen; ++i) {
       tm1[i - tleft] = m1[i];
       tm2[i - tleft] = m2[i];
     }

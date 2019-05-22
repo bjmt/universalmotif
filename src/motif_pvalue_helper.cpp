@@ -230,6 +230,8 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
   }
 
+  // --- function ends here if ncol(motif) <= k ----------------------------- //
+
   int nsplit = int(motlen) / k;
   if (int(motlen) % k > 0 || nsplit == 0) ++nsplit;
 

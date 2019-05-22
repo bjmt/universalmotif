@@ -32,7 +32,8 @@
 #' @details
 #'    Kernel smoothing is used to calculate motif position density. The
 #'    implementation for this process is based on code from the
-#'    \pkg{KernSmooth} R package. These density estimates are used to
+#'    \pkg{KernSmooth} R package \insertCite{kern}{universalmotif}. These
+#'    density estimates are used to
 #'    determine peak locations and heights. To calculate the P-values of
 #'    these peaks, a null distribution is calculated from peak heights of
 #'    randomly generated motif positions.
@@ -47,6 +48,9 @@
 #' @return A `data.frame` with peak positions and P-values. If `plot = TRUE`,
 #'    then a list is returned with the `data.frame` as the first item and
 #'    the `ggplot2` object as the second item.
+#'
+#' @references
+#'    \insertRef{kern}{universalmotif}
 #'
 #' @examples
 #' data(ArabidopsisMotif)
