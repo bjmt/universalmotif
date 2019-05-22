@@ -67,8 +67,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()]
 #' @export
-motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 10^-6,
-                        peak.width = 3, nrand = 1000, plot = TRUE, BP = FALSE) {
+motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,
+                        peak.width = 3, nrand = 100, plot = TRUE, BP = FALSE) {
 
 # TODO: vignette section + stop peaks from showing up in flat sections
 

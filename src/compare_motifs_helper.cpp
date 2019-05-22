@@ -1399,29 +1399,39 @@ double compare_columns_cpp(const std::vector<double> &p1,
   double ans;
 
   switch (::METRICS_enum[m]) {
-    case  1: ans = compare_eucl(pp1, pp2);
+    case  1:
+    case  2: ans = compare_eucl(pp1, pp2);
              break;
-    case  3: ans = compare_kl(pp1, pp2);
+    case  3:
+    case  4: ans = compare_kl(pp1, pp2);
              break;
-    case  5: ans = compare_pcc(pp1, pp2);
+    case  5:
+    case  6: ans = compare_pcc(pp1, pp2);
              break;
-    case  7: ans = compare_sw(pp1, pp2);
+    case  7:
+    case  8: ans = compare_sw(pp1, pp2);
              break;
-    case  9: if (b1.size() != p1.size() || b2.size() != p1.size())
+    case  9:
+    case 10: if (b1.size() != p1.size() || b2.size() != p1.size())
                Rcpp::stop("incorrect background vector length");
              if (n1 <= 1 || n2 <= 1)
                Rcpp::stop("nsites1/nsites2 should be greater than 1");
              ans = compare_allr(pp1, pp2, b1, b2, n1, n2);
              break;
-    case 11: ans = compare_bhat(pp1, pp2);
+    case 11:
+    case 12: ans = compare_bhat(pp1, pp2);
              break;
-    case 13: ans = compare_hell(pp1, pp2);
+    case 13:
+    case 14: ans = compare_hell(pp1, pp2);
              break;
-    case 15: ans = compare_is(pp1, pp2);
+    case 15:
+    case 16: ans = compare_is(pp1, pp2);
              break;
-    case 17: ans = compare_seucl(pp1, pp2);
+    case 17:
+    case 18: ans = compare_seucl(pp1, pp2);
              break;
-    case 19: ans = compare_man(pp1, pp2);
+    case 19:
+    case 20: ans = compare_man(pp1, pp2);
              break;
     default: Rcpp::stop("unknown metric");
   }

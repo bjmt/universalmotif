@@ -22,7 +22,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
-merge_motifs <- function(motifs, method = "MALLR", use.type = "PPM",
+merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
                          relative_entropy = FALSE, normalise.scores = FALSE,
                          min.position.ic = 0) {
