@@ -515,10 +515,12 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
     vmots[i] = R_to_cpp_motif(single);
   }
 
+  unsigned int useed = seed;
+
   vec_num_t scores(pvals.size());
   RcppThread::parallelFor(0, scores.size(),
-      [&vmots, &scores, &seed, &k, &randtries, &pvals] (std::size_t i) {
-      std::default_random_engine gen(seed * (int(i) + 1));
+      [&vmots, &scores, &useed, &k, &randtries, &pvals] (std::size_t i) {
+      std::default_random_engine gen(useed * (int(i) + 1));
         scores[i] = motif_score_single(vmots[i], k, randtries, gen, pvals[i]);
       }, nthreads);
 

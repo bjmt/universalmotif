@@ -474,11 +474,13 @@ vec_str_t get_klet_strings(const vec_str_t &alph, const int &k) {
 std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string> &sequences,
     const int &k, const int &nthreads, const int &seed) {
 
+  unsigned int useed = seed;
+
   vec_str_t out(sequences.size());
   RcppThread::parallelFor(0, sequences.size(),
-      [&out, &sequences, &seed, &k] (std::size_t i) {
+      [&out, &sequences, &useed, &k] (std::size_t i) {
 
-        std::default_random_engine gen(seed * (int(i) + 1));
+        std::default_random_engine gen(useed * (int(i) + 1));
         out[i] = shuffle_markov_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -491,11 +493,13 @@ std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string> &sequ
 std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string> &sequences,
     const int &k, const int &nthreads, const int &seed) {
 
+  unsigned int useed = seed;
+
   vec_str_t out(sequences.size());
   RcppThread::parallelFor(0, sequences.size(),
-      [&out, &sequences, &k, &seed] (std::size_t i) {
+      [&out, &sequences, &k, &useed] (std::size_t i) {
 
-        std::default_random_engine gen(seed * (int(i) + 1));
+        std::default_random_engine gen(useed * (int(i) + 1));
         out[i] = shuffle_euler_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -508,11 +512,13 @@ std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string> &seque
 std::vector<std::string> shuffle_linear_cpp(const std::vector<std::string> &sequences,
     const int &k, const int &nthreads, const int &seed) {
 
+  unsigned int useed = seed;
+
   vec_str_t out(sequences.size());
   RcppThread::parallelFor(0, sequences.size(),
-      [&out, &sequences, &k, &seed] (std::size_t i) {
+      [&out, &sequences, &k, &useed] (std::size_t i) {
 
-        std::default_random_engine gen(seed * (int(i) + 1));
+        std::default_random_engine gen(useed * (int(i) + 1));
         out[i] = shuffle_linear_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -525,10 +531,12 @@ std::vector<std::string> shuffle_linear_cpp(const std::vector<std::string> &sequ
 std::vector<std::string> shuffle_k1_cpp(const std::vector<std::string> &sequences,
     const int &nthreads, const int &seed) {
 
+  unsigned int useed = seed;
+
   vec_str_t out(sequences.size());
   RcppThread::parallelFor(0, sequences.size(),
-      [&out, &sequences, &seed] (std::size_t i) {
-        std::default_random_engine gen(seed * (int(i) + 1));
+      [&out, &sequences, &useed] (std::size_t i) {
+        std::default_random_engine gen(useed * (int(i) + 1));
         out[i] = sequences[i];
         shuffle(out[i].begin(), out[i].end(), gen);
       }, nthreads);
@@ -581,6 +589,8 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
     const std::vector<double> &freqs, const int nthreads, const int seed,
     const Rcpp::NumericMatrix &transitions) {
 
+  unsigned int useed = seed;
+
   std::size_t alphlen = alph.size();
   std::size_t nlets = pow(alphlen, k);
   list_int_t nlet_lists = make_klet_lists(nlets, k, alphlen);
@@ -592,10 +602,10 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
   if (k == 1) {
 
     RcppThread::parallelFor(0, out.size(),
-        [&seqlen, &alph, &seed, &out, &freqs] (std::size_t i) {
+        [&seqlen, &alph, &useed, &out, &freqs] (std::size_t i) {
 
           out[i].reserve(seqlen);
-          std::default_random_engine gen(seed * (int(i) + 1));
+          std::default_random_engine gen(useed * (int(i) + 1));
           std::discrete_distribution<int> nextlet(freqs.begin(), freqs.end());
 
           for (int j = 0; j < seqlen; ++j) {
@@ -607,12 +617,12 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
   } else if (k > 1) {
 
     RcppThread::parallelFor(0, out.size(),
-        [&seqlen, &alph, &seed, &out, &freqs, &trans, &nlet_lists, &k, &alphlen]
+        [&seqlen, &alph, &useed, &out, &freqs, &trans, &nlet_lists, &k, &alphlen]
         (std::size_t i) {
 
           vec_int_t out_i;
           out_i.reserve(seqlen);
-          std::default_random_engine gen(seed * (int(i) + 1));
+          std::default_random_engine gen(useed * (int(i) + 1));
 
           std::discrete_distribution<int> let1(freqs.begin(), freqs.end());
           int firstletters = let1(gen);
