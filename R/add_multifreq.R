@@ -65,7 +65,7 @@
 #' @inheritParams scan_sequences
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
-                          threshold = 0.01, threshold.type = "pvalue",
+                          threshold = 0.001, threshold.type = "pvalue",
                           motifs.perseq = 1) {
 
   # param check --------------------------------------------
@@ -119,8 +119,12 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
 
   }
 
+  seqs.out <- seqs.out[!is.na(seqs.out)]
+
   seqlen <- unique(vapply(seqs.out, nchar, integer(1)))
-  if (length(seqlen) > 1) stop("something went wrong with extracting motif matches")
+  if (length(seqlen) > 1)
+    stop(wmsg("something went wrong with extracting motif matches, ",
+              "check input carefully"))
 
   counter  <- 1
   for (i in seq_along(add.k)) {
@@ -132,7 +136,6 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     counter <- counter + 1
   }
 
-  seqs.out <- seqs.out[!is.na(seqs.out)]
 
   if (length(seqs.out) == 0)
     stop("No motif matches found in sequences; consider lowering the minimum threshold")

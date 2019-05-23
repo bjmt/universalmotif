@@ -54,6 +54,10 @@ MINOR CHANGES
       now calculated by randomly generating score distributions from size 'k'
       motif score blocks.
 
+    o motif_pvalue(): Added a safety check when trying to use this function
+      with large motifs. Will throw a warning when nrow(matrix)^k > 1e8 and
+      reduce k accordingly before continuing.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 

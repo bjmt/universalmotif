@@ -98,7 +98,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr", positional.test = "t.test",
                           threshold = 0.001, threshold.type = "pvalue",
-                          verbose = 1, RC = FALSE, use.freq = 1,
+                          verbose = 0, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "euler",
                           return.scan.results = FALSE, progress = FALSE,
                           BP = FALSE, nthreads = 1,

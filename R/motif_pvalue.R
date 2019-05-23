@@ -114,6 +114,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                          k = 8, progress = FALSE, BP = FALSE, nthreads = 1,
                          rand.tries = 10, rng.seed = sample.int(1e9, 1)) {
 
+  # TODO: Need to work on support for use.freq > 1.
+
   # NOTE: The calculated P-value is the chance of getting a certain score at
   #       one position. To get a P-value from scanning a 2000 bp stretch for
   #       example, the P-value is multiplied by the number of possible positions
@@ -198,6 +200,20 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                                           pseudocount = y@pseudocount,
                                           nsites = y@nsites),
                        mots, motifs, SIMPLIFY = FALSE)
+  }
+
+  motnrows <- vapply(motifs, nrow, integer(1))
+  motnrows.k <- motnrows^k
+  if (any(motnrows.k > 1e8)) {
+    while (any(motnrows.k > 1e8)) {
+      k <- k - 1
+      motnrows.k <- motnrows^k
+    }
+    warning(wmsg("Be careful when using motif_pvalue() for motifs with large ",
+                 "alphabets or with use.freq > 1 in combination with high k ",
+                 "values. Currently this function does not allow use cases when ",
+                 "nrow(motif)^k > 1e8 (or the respective use.freq slot). ",
+                 "Continuing with k=", k, "."), immediate. = TRUE)
   }
 
   if (!missing(score) && missing(pvalue)) {
