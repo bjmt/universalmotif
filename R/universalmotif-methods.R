@@ -189,10 +189,10 @@ setMethod("show", signature = "universalmotif",
   obj.check <- tryCatch(validObject_universalmotif(object, FALSE),
                         error = function(e) return("error"))
   if (length(obj.check) > 0)
-    stop(wmsg("Something is wrong with the universalmotif object and it ",
-              "cannot be displayed. Run validObject(motif)",
-              " to diagnose the problem."),
-         call. = FALSE)
+    warning(wmsg("Something is wrong with the universalmotif object and it ",
+                 "may display incorrectly. Run validObject(motif)",
+                 " to diagnose the problem."),
+            immediate. = FALSE, call. = FALSE)
 
   name <- object@name
   if (nchar(name) > 40) name <- collapse_cpp(c(substr(name, 1, 40), "..."))
