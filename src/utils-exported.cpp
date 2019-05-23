@@ -78,7 +78,7 @@ Rcpp::NumericVector generate_pos(const std::vector<double> &bkg) {
 
   Rcpp::NumericVector rgam(bkg.size());
   for (std::size_t i = 0; i < bkg.size(); ++i) {
-    rgam[i] = Rcpp::rgamma(bkg.size(), bkg[i])[0];
+    rgam[i] = R::rgamma(bkg[i], 1.0);
   }
 
   double rgam_s = std::accumulate(rgam.begin(), rgam.end(), 0.0);
