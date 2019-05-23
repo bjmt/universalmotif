@@ -118,7 +118,7 @@ Rcpp::List min_max_doubles() {
 // [[Rcpp::export(rng = false)]]
 std::vector<std::vector<int>> comb2_cpp(const int n) {
 
-  int outlen = pow(n, 2) + n;
+  int outlen = pow(n, 2) / 2 + n / 2 + 1;
   list_int_t out(2);
   out[0].reserve(outlen);
   out[1].reserve(outlen);
@@ -477,23 +477,23 @@ std::vector<double> consensus_to_ppmC(const std::string &letter) {
 
   switch (::RDNA_e[letter]) {
 
-    case  1: return {0.997, 0.001, 0.001, 0.001};  // A
-    case  2: return {0.001, 0.997, 0.001, 0.001};  // C
-    case  3: return {0.001, 0.001, 0.997, 0.001};  // G
-    case  4: return {0.001, 0.001, 0.001, 0.997};  // T
-    case  5: return {0.001, 0.001, 0.001, 0.997};  // U
-    case  6: return {0.499, 0.001, 0.499, 0.001};  // R
-    case  7: return {0.001, 0.499, 0.001, 0.449};  // Y
-    case  8: return {0.499, 0.499, 0.001, 0.001};  // M
-    case  9: return {0.001, 0.001, 0.499, 0.499};  // K
-    case 10: return {0.001, 0.499, 0.499, 0.001};  // S
-    case 11: return {0.499, 0.001, 0.001, 0.499};  // W
-    case 12: return {0.333, 0.333, 0.001, 0.333};  // H
-    case 13: return {0.001, 0.333, 0.333, 0.333};  // B
-    case 14: return {0.333, 0.333, 0.333, 0.001};  // V
-    case 15: return {0.333, 0.001, 0.333, 0.333};  // D
-    case 16: return { 0.25,  0.25,  0.25,  0.25};  // N
-    default: return { 0.25,  0.25,  0.25,  0.25};
+    case  1: return { 0.997, 0.001, 0.001, 0.001 };  // A
+    case  2: return { 0.001, 0.997, 0.001, 0.001 };  // C
+    case  3: return { 0.001, 0.001, 0.997, 0.001 };  // G
+    case  4: return { 0.001, 0.001, 0.001, 0.997 };  // T
+    case  5: return { 0.001, 0.001, 0.001, 0.997 };  // U
+    case  6: return { 0.499, 0.001, 0.499, 0.001 };  // R
+    case  7: return { 0.001, 0.499, 0.001, 0.449 };  // Y
+    case  8: return { 0.499, 0.499, 0.001, 0.001 };  // M
+    case  9: return { 0.001, 0.001, 0.499, 0.499 };  // K
+    case 10: return { 0.001, 0.499, 0.499, 0.001 };  // S
+    case 11: return { 0.499, 0.001, 0.001, 0.499 };  // W
+    case 12: return { 0.333, 0.333, 0.001, 0.333 };  // H
+    case 13: return { 0.001, 0.333, 0.333, 0.333 };  // B
+    case 14: return { 0.333, 0.333, 0.333, 0.001 };  // V
+    case 15: return { 0.333, 0.001, 0.333, 0.333 };  // D
+    case 16: return {  0.25,  0.25,  0.25,  0.25 };  // N
+    default: return {  0.25,  0.25,  0.25,  0.25 };
 
   }
 
