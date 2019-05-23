@@ -224,15 +224,13 @@ setMethod("create_motif", signature(input = "numeric"),
                         safeExplode(alphabet))
   alph_len <- length(alph.split)
 
-  mot <- matrix(rep(NA_real_, alph_len * input), nrow = alph_len)
+  # mot <- matrix(rep(NA_real_, alph_len * input), nrow = alph_len)
 
   if (missing(bkg)) {
 
     bkg <- rpois(alph_len, 1000 / alph_len) / 1000
     bkg <- bkg / sum(bkg)
-    for (i in seq_len(input)) {
-      mot[, i] <- rdirichlet(1, bkg)
-    }
+    mot <- generate_motif(input, bkg)
 
   } else {
 
@@ -244,7 +242,7 @@ setMethod("create_motif", signature(input = "numeric"),
     if (length(bkg) < alph_len)
       stop("'bkg' must be at least ", alph_len, " elements long")
 
-    for (i in seq_len(input)) mot[, i] <- rdirichlet(1, bkg[alph.split])
+    mot <- generate_motif(input, bkg[alph.split])
 
   }
 

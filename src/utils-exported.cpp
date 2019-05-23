@@ -74,7 +74,36 @@ vec_str_t clean_up_check(const vec_str_t &fails) {
 
 }
 
+Rcpp::NumericVector generate_pos(const std::vector<double> &bkg) {
+
+  Rcpp::NumericVector rgam(bkg.size());
+  for (std::size_t i = 0; i < bkg.size(); ++i) {
+    rgam[i] = Rcpp::rgamma(bkg.size(), bkg[i])[0];
+  }
+
+  double rgam_s = std::accumulate(rgam.begin(), rgam.end(), 0.0);
+
+  for (std::size_t i = 0; i < bkg.size(); ++i) {
+    rgam[i] /= rgam_s;
+  }
+
+  return rgam;
+
+}
+
 /* C++ ENTRY ---------------------------------------------------------------- */
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::NumericMatrix generate_motif(const int ncol, const std::vector<double> &bkg) {
+
+  Rcpp::NumericMatrix out(bkg.size(), ncol);
+  for (int i = 0; i < ncol; ++i) {
+    out(Rcpp::_, i) = generate_pos(bkg);
+  }
+
+  return out;
+
+}
 
 // [[Rcpp::export(rng = false)]]
 Rcpp::List min_max_doubles() {

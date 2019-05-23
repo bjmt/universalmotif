@@ -27,7 +27,6 @@
 #' @importFrom Biostrings reverseComplement writeXStringSet seqtype AA_ALPHABET
 #' @importFrom ape as.phylo
 #' @importFrom Rdpack reprompt
-#' @importFrom gtools rdirichlet
 #' @importFrom Rcpp sourceCpp
 #' @importFrom processx run
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
