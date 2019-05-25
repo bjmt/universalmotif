@@ -117,6 +117,10 @@ universalmotif_to_list <- function(motif) {
     .Call('_universalmotif_universalmotif_to_list', PACKAGE = 'universalmotif', motif)
 }
 
+split_gapped <- function(mot, gaploc) {
+    .Call('_universalmotif_split_gapped', PACKAGE = 'universalmotif', mot, gaploc)
+}
+
 generate_motif <- function(ncol, bkg) {
     .Call('_universalmotif_generate_motif', PACKAGE = 'universalmotif', ncol, bkg)
 }

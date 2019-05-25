@@ -6,12 +6,18 @@
 #'    Only relevant if `method = "ALLR"`.
 #' @param bkg2 `numeric` Vector of background probabilities for the second column.
 #'    Only relevant if `method = "ALLR"`.
+#' @param gaploc `numeric` Motif gap locations. The gap occurs immediately after
+#'    every position value. If missing, uses `round(ncol(motif) / 2)`.
 #' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
 #' @param match `character(1)` Sequence string to calculate score from.
 #' @param method `character(1)` Column comparison metric. See [compare_motifs()]
 #'    for details.
-#' @param motif Motif object to calculate scores from.
+#' @param mingap `numeric` Minimum gap size. Must have one value for every location.
+#'    If missing, set to 1.
+#' @param maxgap `numeric` Maximum gap size. Must have one value for every location.
+#'    If missing, set to 5.
+#' @param motif Motif object to calculate scores from, or add/remove gap.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are `NA`.
 #' @param nsites `numeric(1)` Number of sites motif originated from.
@@ -69,6 +75,13 @@
 #' motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
 #' #######################################################################
 #' 
+#' #######################################################################
+#' ## add_gap
+#' ## Add gap information to a motif.
+#' m <- create_motif()
+#' # Add a gap size 5-8 between positions 4 and 5:
+#' m <- add_gap(m, gaploc = 4, mingap = 5, maxgap = 8)
+#'
 #' #######################################################################
 #' ## compare_columns
 #' ## Compare two numeric vectors using the metrics from compare_motifs()
@@ -176,12 +189,50 @@
 #' m3 <- create_motif()
 #' summarise_motifs(list(m1, m2, m3))
 #'
+#' #######################################################################
+#' ## ungap
+#' ## Unset motif's gap status. Does not delete actual gap data.
+#' m <- create_motif()
+#' m <- add_gap(m, 3, 2, 4)
+#' m <- ungap(m)
+#' # Restore gap data:
+#' m <- add_gap(m)
+#'
 #' @seealso [create_motif()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @name utils-motif
 NULL
 
 # TODO: rewrite examples
+
+#' @rdname utils-motif
+#' @export
+add_gap <- function(motif, gaploc, mingap, maxgap) {
+
+  motif@gapinfo@isgapped <- TRUE
+
+  if (!missing(gaploc)) motif@gapinfo@gaploc <- gaploc
+  if (!missing(mingap)) motif@gapinfo@mingap <- mingap
+  if (!missing(maxgap)) motif@gapinfo@maxgap <- maxgap
+
+  if (length(motif@gapinfo@gaploc) == 0)
+    motif@gapinfo@gaploc <- round(ncol(motif@motif) / 2)
+  if (length(motif@gapinfo@mingap) == 0)
+    motif@gapinfo@mingap <- rep(1, length(motif@gapinfo@gaploc))
+  if (length(motif@gapinfo@maxgap) == 0)
+    motif@gapinfo@maxgap <- rep(5, length(motif@gapinfo@gaploc))
+
+  lencheck <- c(length(motif@gapinfo@gaploc),
+                length(motif@gapinfo@mingap),
+                length(motif@gapinfo@maxgap))
+  if (length(unique(lencheck)) != 1) 
+    stop("gaploc, mingap and maxgap should have the same number of elements")
+
+  validObject_universalmotif(motif)
+
+  motif
+
+}
 
 #' @rdname utils-motif
 #' @export
@@ -501,4 +552,13 @@ summarise_motifs <- function(motifs, na.rm = TRUE) {
                  "strand", "icscore", "nsites", "bkgsites", "pval", "qval", "eval")]
   if (na.rm) out <- Filter(function(x) !all(is.na(x)), out)
   out
+}
+
+#' @rdname utils-motif
+#' @export
+ungap <- function(motif) {
+
+  motif@gapinfo@isgapped <- FALSE
+  motif
+
 }

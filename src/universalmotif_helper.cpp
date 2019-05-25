@@ -500,7 +500,7 @@ Rcpp::StringVector check_gap(const Rcpp::RObject &gap, const R_xlen_t ncol,
       if (gaploc[i] <= 0)
         msg.push_back("* position 0 gaps or less are not allowed");
       if (gaploc[i] >= ncol) {
-        msg.push_back("* gap location values should not exceed motif size");
+        msg.push_back("* gap location values should not exceed motif size - 1");
       }
     }
   }

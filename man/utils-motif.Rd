@@ -2,6 +2,7 @@
 % Please edit documentation in R/utils-motif.R
 \name{utils-motif}
 \alias{utils-motif}
+\alias{add_gap}
 \alias{compare_columns}
 \alias{consensus_to_ppm}
 \alias{consensus_to_ppmAA}
@@ -19,8 +20,11 @@
 \alias{pwm_to_ppm}
 \alias{score_match}
 \alias{summarise_motifs}
+\alias{ungap}
 \title{Motif-related utility functions.}
 \usage{
+add_gap(motif, gaploc, mingap, maxgap)
+
 compare_columns(x, y, method, bkg1 = rep(1/length(x), length(x)),
   bkg2 = rep(1/length(y), length(y)), nsites1 = 100, nsites2 = 100)
 
@@ -59,8 +63,21 @@ pwm_to_ppm(position, bkg = numeric())
 score_match(motif, match)
 
 summarise_motifs(motifs, na.rm = TRUE)
+
+ungap(motif)
 }
 \arguments{
+\item{motif}{Motif object to calculate scores from, or add/remove gap.}
+
+\item{gaploc}{\code{numeric} Motif gap locations. The gap occurs immediately after
+every position value. If missing, uses \code{round(ncol(motif) / 2)}.}
+
+\item{mingap}{\code{numeric} Minimum gap size. Must have one value for every location.
+If missing, set to 1.}
+
+\item{maxgap}{\code{numeric} Maximum gap size. Must have one value for every location.
+If missing, set to 5.}
+
 \item{x}{\code{numeric} First column for comparison.}
 
 \item{y}{\code{numeric} Second column for comparison.}
@@ -91,8 +108,6 @@ probability for each alphabet letter at a specific position.}
 \item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM' 'ICM')}.}
 
 \item{pseudocount}{\code{numeric(1)} Used to prevent zeroes in motif matrix.}
-
-\item{motif}{Motif object to calculate scores from.}
 
 \item{score}{\code{numeric(1)} Logodds motif score.}
 
@@ -154,6 +169,13 @@ motif.consensus <- apply(motif.ppm, 2, get_consensus)
 motif.aa <- create_motif(alphabet = "AA")["motif"]
 motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
 #######################################################################
+
+#######################################################################
+## add_gap
+## Add gap information to a motif.
+m <- create_motif()
+# Add a gap size 5-8 between positions 4 and 5:
+m <- add_gap(m, gaploc = 4, mingap = 5, maxgap = 8)
 
 #######################################################################
 ## compare_columns
@@ -261,6 +283,15 @@ m1 <- create_motif()
 m2 <- create_motif()
 m3 <- create_motif()
 summarise_motifs(list(m1, m2, m3))
+
+#######################################################################
+## ungap
+## Unset motif's gap status. Does not delete actual gap data.
+m <- create_motif()
+m <- add_gap(m, 3, 2, 4)
+m <- ungap(m)
+# Restore gap data:
+m <- add_gap(m)
 
 }
 \seealso{

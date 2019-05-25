@@ -94,6 +94,68 @@ Rcpp::NumericVector generate_pos(const std::vector<double> &bkg) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::List split_gapped(const Rcpp::NumericMatrix &mot,
+    const std::vector<int> &gaploc) {
+
+  R_xlen_t nrow = mot.nrow(), ncol = mot.ncol();
+
+  Rcpp::StringVector rnames = Rcpp::rownames(mot), cnames = Rcpp::colnames(mot);
+
+  bool has_rnames = true, has_cnames = true;
+  if (rnames[0] == R_NilValue) has_rnames = false;
+  if (cnames[0] == R_NilValue) has_cnames = false;
+
+  vec_int_t gaploc1;
+  vec_int_t gaploc2;
+
+  gaploc1.reserve(gaploc.size() + 1);
+  gaploc2.reserve(gaploc.size() + 1);
+
+  gaploc1.push_back(0);
+
+  for (std::size_t i = 0; i < gaploc.size(); ++i) {
+    gaploc1.push_back(gaploc[i]);
+    gaploc2.push_back(gaploc[i] - 1);
+  }
+
+  gaploc2.push_back(ncol - 1);
+
+  vec_int_t sizes(gaploc.size() + 1);
+  for (std::size_t i = 0; i < gaploc.size() + 1; ++i) {
+    sizes[i] = gaploc2[i] - gaploc1[i] + 1;
+  }
+
+  Rcpp::List out(gaploc.size() + 1);
+
+  int counter;
+
+  for (std::size_t i = 0; i < gaploc.size() + 1; ++i) {
+
+    Rcpp::NumericMatrix tmp(nrow, sizes[i]);
+    counter = 0;
+    for (int j = gaploc1[i]; j <= gaploc2[i]; ++j) {
+      tmp(Rcpp::_, counter) = mot(Rcpp::_, j);
+      ++counter;
+    }
+
+    if (has_rnames) {
+      Rcpp::rownames(tmp) = rnames;
+    }
+
+    if (has_cnames) {
+      Rcpp::StringVector tmp_cnames = cnames[Rcpp::seq(gaploc1[i], gaploc2[i])];
+      Rcpp::colnames(tmp) = tmp_cnames;
+    }
+
+    out[i] = tmp;
+
+  }
+
+  return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
 Rcpp::NumericMatrix generate_motif(const int ncol, const std::vector<double> &bkg) {
 
   Rcpp::NumericMatrix out(bkg.size(), ncol);

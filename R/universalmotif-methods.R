@@ -208,11 +208,16 @@ setMethod("show", signature = "universalmotif",
 
   if (object@gapinfo@isgapped) {
     g <- list(object@gapinfo@mingap, object@gapinfo@maxgap)
-    g <- vapply(seq_along(g[[1]]),
-                function(x) paste(unique(g[[1]][x], g[[2]][x]), sep = "-"),
-                character(1))
+    g <- mapply(function(x, y) paste0(x, "-", y), g[[1]], g[[2]])
     g <- paste0(g, collapse = ", ")
-    cat(collapse_cpp(c("         Gap size:   ", g, "\n")))
+    if (nchar(g) > 40) g <- collapse_cpp(c(substr(g, 1, 40), "..."))
+    l <- object@gapinfo@gaploc
+    l <- list(l, l + 1)
+    l <- mapply(function(x, y) paste0(x, "-", y), l[[1]], l[[2]])
+    l <- paste0(l, collapse = ", ")
+    if (nchar(l) > 40) l <- collapse_cpp(c(substr(l, 1, 40), "..."))
+    cat(collapse_cpp(c("    Gap locations:   ", l, "\n")))
+    cat(collapse_cpp(c("        Gap sizes:   ", g, "\n")))
   }
 
   if (length(object@extrainfo) > 0 ) {
@@ -256,10 +261,8 @@ setMethod("show", signature = "universalmotif",
     gapmat <- matrix(NaN, nrow = nrow(motif), ncol = 1,
                      dimnames = list(rownames(motif), "000"))
 
-    gaploc1 <- c(1, object@gapinfo@gaploc + 1)
-    gaploc2 <- c(object@gapinfo@gaploc, ncol(motif))
+    motif <- split_gapped(motif, object@gapinfo@gaploc)
 
-    motif <- mapply(function(x, y) motif[, x:y], gaploc1, gaploc2, SIMPLIFY = FALSE)
     motif[-length(motif)] <- lapply(motif[-length(motif)], function(x) cbind(x, gapmat))
     motif <- do.call(cbind, motif)
 
