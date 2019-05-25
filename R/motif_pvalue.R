@@ -209,6 +209,10 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
       k <- k - 1
       motnrows.k <- motnrows^k
     }
+
+    # 1e8 bytes = 200 megabytes
+    # 1e9 bytes = 2 gigabytes
+
     warning(wmsg("Be careful when using motif_pvalue() for motifs with large ",
                  "alphabets or with use.freq > 1 in combination with high k ",
                  "values. Currently this function does not allow use cases when ",

@@ -30,7 +30,7 @@
 \S4method{initialize}{universalmotif}(.Object, name, altname, family,
   organism, motif, alphabet = "DNA", type, icscore, nsites,
   pseudocount = 1, bkg, bkgsites, consensus, strand = "+-", pval, qval,
-  eval, multifreq, extrainfo)
+  eval, multifreq, extrainfo, gapinfo)
 
 \S4method{show}{universalmotif}(object)
 
@@ -111,6 +111,8 @@ must be named.}
 \item{extrainfo}{\code{character} Any other extra information, represented as
 a named character vector.}
 
+\item{gapinfo}{\code{universalmotif_gapped(1)} Gapped motif information.}
+
 \item{object}{\linkS4class{universalmotif} Motif.}
 
 \item{select}{\code{numeric} Columns to keep.}
@@ -167,6 +169,8 @@ brief description of available methods, see \code{examples}.
 \item{\code{multifreq}}{\code{list}}
 
 \item{\code{extrainfo}}{\code{character}}
+
+\item{\code{gapinfo}}{\code{universalmotif_gapped(1)}}
 }}
 
 \examples{

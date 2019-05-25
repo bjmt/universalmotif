@@ -77,6 +77,7 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
 #' @param multifreq `list` See [add_multifreq()].
 #' @param extrainfo `character` Any other extra information, represented as
 #'    a named character vector.
+#' @param gapinfo `universalmotif_gapped(1)` Gapped motif information.
 #' @name universalmotif
 #' @rdname universalmotif-class
 #' @aliases initialize,universalmotif-method
@@ -85,95 +86,30 @@ setMethod("initialize", signature = "universalmotif",
                                 alphabet = "DNA", type, icscore, nsites,
                                 pseudocount = 1, bkg, bkgsites, consensus,
                                 strand = "+-", pval, qval, eval, multifreq,
-                                extrainfo) {
+                                extrainfo, gapinfo) {
 
   message("Please use create_motif() instead.")
 
-  if (!missing(name))
-    .Object@name <- name
-  else
-    .Object@name <- character()
-
-  if (!missing(altname))
-    .Object@altname
-  else
-    .Object@altname <- character()
-
-  if (!missing(family))
-    .Object@family <- family
-  else
-    .Object@family <- character()
-
-  if (!missing(organism))
-    .Object@organism <- organism
-  else
-    .Object@organism <- character()
-
-  if (!missing(motif))
-    .Object@motif <- motif
-  else
-    .Object@motif <- matrix(nrow = 0, ncol = 0)
-
+  if (!missing(name)) .Object@name <- name
+  if (!missing(altname)) .Object@altname
+  if (!missing(family)) .Object@family <- family
+  if (!missing(organism)) .Object@organism <- organism
+  if (!missing(motif)) .Object@motif <- motif
   .Object@alphabet <- alphabet
-
-  if (!missing(type))
-    .Object@type <- type
-  else
-    .Object@type <- character()
-
-  if (!missing(icscore))
-    .Object@icscore <- icscore
-  else
-    .Object@icscore <- numeric()
-
-  if (!missing(nsites))
-    .Object@nsites <- nsites
-  else
-    .Object@nsites <- numeric()
-
+  if (!missing(type)) .Object@type <- type
+  if (!missing(icscore)) .Object@icscore <- icscore
+  if (!missing(nsites)) .Object@nsites <- nsites
   .Object@pseudocount <- pseudocount
-
-  if (!missing(bkg))
-    .Object@bkg <- bkg
-  else
-    .Object@bkg <- numeric()
-
-  if (!missing(bkgsites))
-    .Object@bkgsites <- bkgsites
-  else
-    .Object@bkgsites <- numeric()
-
-  if (!missing(consensus))
-    .Object@consensus <- consensus
-  else
-    .Object@consensus <- character()
-
+  if (!missing(bkg)) .Object@bkg <- bkg
+  if (!missing(bkgsites)) .Object@bkgsites <- bkgsites
+  if (!missing(consensus)) .Object@consensus <- consensus
   .Object@strand <- strand
-
-  if (!missing(pval))
-    .Object@pval <- pval
-  else
-    .Object@pval <- numeric()
-
-  if (!missing(qval))
-    .Object@qval <- qval
-  else
-    .Object@qval <- numeric()
-
-  if (!missing(eval))
-    .Object@eval <- eval
-  else
-    .Object@eval <- numeric()
-
-  if (!missing(multifreq))
-    .Object@multifreq <- multifreq
-  else
-    .Object@multifreq <- list()
-
-  if (!missing(extrainfo))
-    .Object@extrainfo <- extrainfo
-  else
-    .Object@extrainfo <- character()
+  if (!missing(pval)) .Object@pval <- pval
+  if (!missing(qval)) .Object@qval <- qval
+  if (!missing(eval)) .Object@eval <- eval
+  if (!missing(multifreq)) .Object@multifreq <- multifreq
+  if (!missing(extrainfo)) .Object@extrainfo <- extrainfo
+  if (!missing(gapinfo)) .Object@gapinfo <- gapinfo
 
   validObject(.Object)
   .Object
@@ -192,7 +128,7 @@ setMethod("show", signature = "universalmotif",
     warning(wmsg("Something is wrong with the universalmotif object and it ",
                  "may display incorrectly. Run validObject(motif)",
                  " to diagnose the problem."),
-            immediate. = FALSE, call. = FALSE)
+            immediate. = TRUE, call. = FALSE)
 
   name <- object@name
   if (nchar(name) > 40) name <- collapse_cpp(c(substr(name, 1, 40), "..."))
@@ -234,6 +170,17 @@ setMethod("show", signature = "universalmotif",
 
   if (length(object@consensus) > 0) {
     consensus <- object@consensus
+    if (object@gapinfo@isgapped) {
+      consensus <- safeExplode(consensus)
+      gaploc1 <- c(1, object@gapinfo@gaploc + 1)
+      gaploc2 <- c(object@gapinfo@gaploc, length(consensus))
+
+      consensus <- mapply(function(x, y) collapse_cpp(consensus[x:y]),
+                          gaploc1, gaploc2, SIMPLIFY = FALSE)
+      consensus[-length(consensus)] <- lapply(consensus[-length(consensus)],
+                                              function(x) paste0(x, ".."))
+      consensus <- collapse_cpp(unlist(consensus))
+    }
     if (nchar(consensus) > 40)
       consensus <- collapse_cpp(c(substr(consensus, 1, 40), "..."))
     cat(collapse_cpp(c("        Consensus:   ", consensus, "\n")))
@@ -257,6 +204,15 @@ setMethod("show", signature = "universalmotif",
   if (length(object@multifreq) > 0) {
     toprint <- paste0(names(object@multifreq), collapse = ", ")
     cat(collapse_cpp(c("   k-letter freqs:   ", toprint, "\n")))
+  }
+
+  if (object@gapinfo@isgapped) {
+    g <- list(object@gapinfo@mingap, object@gapinfo@maxgap)
+    g <- vapply(seq_along(g[[1]]),
+                function(x) paste(unique(g[[1]][x], g[[2]][x]), sep = "-"),
+                character(1))
+    g <- paste0(g, collapse = ", ")
+    cat(collapse_cpp(c("         Gap size:   ", g, "\n")))
   }
 
   if (length(object@extrainfo) > 0 ) {
@@ -289,7 +245,30 @@ setMethod("show", signature = "universalmotif",
 
   cat("\n")
 
-  print(round(object@motif * 100) / 100)
+  motif <- round(object@motif * 100) / 100
+
+  if (!object@gapinfo@isgapped) {
+
+    print(motif)
+
+  } else {
+
+    gapmat <- matrix(NaN, nrow = nrow(motif), ncol = 1,
+                     dimnames = list(rownames(motif), "000"))
+
+    gaploc1 <- c(1, object@gapinfo@gaploc + 1)
+    gaploc2 <- c(object@gapinfo@gaploc, ncol(motif))
+
+    motif <- mapply(function(x, y) motif[, x:y], gaploc1, gaploc2, SIMPLIFY = FALSE)
+    motif[-length(motif)] <- lapply(motif[-length(motif)], function(x) cbind(x, gapmat))
+    motif <- do.call(cbind, motif)
+
+    o <- capture.output(print(motif))
+    o <- gsub("000", "  ", o)
+    o <- gsub("NaN", "..", o)
+    cat(o, sep = "\n")
+
+  }
 
   invisible(NULL)
 

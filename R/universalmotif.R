@@ -17,7 +17,7 @@
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
 #' @importFrom stats rpois dnorm ecdf var qnorm plogis
 #' @importFrom MASS fitdistr
-#' @importFrom utils read.table menu packageDescription combn
+#' @importFrom utils read.table menu packageDescription combn capture.output
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
 #' @importFrom Biostrings PWM DNAStringSet BStringSet AAStringSet
 #' @importFrom Biostrings DNAString RNAString RNAStringSet AA_STANDARD

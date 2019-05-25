@@ -224,8 +224,6 @@ setMethod("create_motif", signature(input = "numeric"),
                         safeExplode(alphabet))
   alph_len <- length(alph.split)
 
-  # mot <- matrix(rep(NA_real_, alph_len * input), nrow = alph_len)
-
   if (missing(bkg)) {
 
     bkg <- rpois(alph_len, 1000 / alph_len) / 1000

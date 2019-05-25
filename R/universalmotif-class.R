@@ -1,3 +1,17 @@
+universalmotif_gapped <- setClass("universalmotif_gapped",
+
+  slots = list(
+
+    isgapped = "logical",
+    gaploc = "numeric",
+    mingap = "numeric",
+    maxgap = "numeric",
+    extrapvals = "numeric"
+
+  )
+
+)
+
 #' universalmotif: Motif class.
 #'
 #' Container for motif objects. See [create_motif()] for creating
@@ -23,6 +37,7 @@
 #' @slot eval `numeric(1)`
 #' @slot multifreq `list`
 #' @slot extrainfo `character`
+#' @slot gapinfo `universalmotif_gapped(1)`
 #'
 #' @return A motif object of class [universalmotif-class].
 #'
@@ -121,7 +136,8 @@ universalmotif <- setClass("universalmotif",
     qval = "numeric",
     eval = "numeric",
     multifreq = "list",
-    extrainfo = "character"
+    extrainfo = "character",
+    gapinfo = "universalmotif_gapped"
 
   )
 

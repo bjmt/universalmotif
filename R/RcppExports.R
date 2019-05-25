@@ -101,8 +101,8 @@ trim_motif_internal <- function(motif, ic_scores, min_ic) {
     .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
 }
 
-universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character_, family = NA_character_, organism = NA_character_, alphabet = "DNA", type = NA_character_, icscore = as.numeric( c()), nsites = as.numeric( c()), pseudocount = 1.0, bkg = as.numeric( c()), bkgsites = as.numeric( c()), consensus = NA_character_, strand = "+-", pval = as.numeric( c()), qval = as.numeric( c()), eval = as.numeric( c()), extrainfo = NA_character_) {
-    .Call('_universalmotif_universalmotif_cpp', PACKAGE = 'universalmotif', motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo)
+universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character_, family = NA_character_, organism = NA_character_, alphabet = "DNA", type = NA_character_, icscore = as.numeric( c()), nsites = as.numeric( c()), pseudocount = 1.0, bkg = as.numeric( c()), bkgsites = as.numeric( c()), consensus = NA_character_, strand = "+-", pval = as.numeric( c()), qval = as.numeric( c()), eval = as.numeric( c()), extrainfo = NA_character_, isgapped = NA_integer_, gaploc = as.numeric( c()), mingap = as.numeric( c()), maxgap = as.numeric( c())) {
+    .Call('_universalmotif_universalmotif_cpp', PACKAGE = 'universalmotif', motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo, isgapped, gaploc, mingap, maxgap)
 }
 
 validObject_universalmotif <- function(motif, throw_error = TRUE) {

@@ -356,8 +356,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // universalmotif_cpp
-Rcpp::S4 universalmotif_cpp(Rcpp::NumericMatrix motif, Rcpp::String name, Rcpp::StringVector altname, Rcpp::StringVector family, Rcpp::StringVector organism, Rcpp::StringVector alphabet, Rcpp::StringVector type, Rcpp::NumericVector icscore, Rcpp::NumericVector nsites, double pseudocount, Rcpp::NumericVector bkg, Rcpp::NumericVector bkgsites, Rcpp::StringVector consensus, Rcpp::String strand, Rcpp::NumericVector pval, Rcpp::NumericVector qval, Rcpp::NumericVector eval, Rcpp::StringVector extrainfo);
-RcppExport SEXP _universalmotif_universalmotif_cpp(SEXP motifSEXP, SEXP nameSEXP, SEXP altnameSEXP, SEXP familySEXP, SEXP organismSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP icscoreSEXP, SEXP nsitesSEXP, SEXP pseudocountSEXP, SEXP bkgSEXP, SEXP bkgsitesSEXP, SEXP consensusSEXP, SEXP strandSEXP, SEXP pvalSEXP, SEXP qvalSEXP, SEXP evalSEXP, SEXP extrainfoSEXP) {
+Rcpp::S4 universalmotif_cpp(Rcpp::NumericMatrix motif, Rcpp::String name, Rcpp::StringVector altname, Rcpp::StringVector family, Rcpp::StringVector organism, Rcpp::StringVector alphabet, Rcpp::StringVector type, Rcpp::NumericVector icscore, Rcpp::NumericVector nsites, double pseudocount, Rcpp::NumericVector bkg, Rcpp::NumericVector bkgsites, Rcpp::StringVector consensus, Rcpp::String strand, Rcpp::NumericVector pval, Rcpp::NumericVector qval, Rcpp::NumericVector eval, Rcpp::StringVector extrainfo, Rcpp::LogicalVector isgapped, Rcpp::NumericVector gaploc, Rcpp::NumericVector mingap, Rcpp::NumericVector maxgap);
+RcppExport SEXP _universalmotif_universalmotif_cpp(SEXP motifSEXP, SEXP nameSEXP, SEXP altnameSEXP, SEXP familySEXP, SEXP organismSEXP, SEXP alphabetSEXP, SEXP typeSEXP, SEXP icscoreSEXP, SEXP nsitesSEXP, SEXP pseudocountSEXP, SEXP bkgSEXP, SEXP bkgsitesSEXP, SEXP consensusSEXP, SEXP strandSEXP, SEXP pvalSEXP, SEXP qvalSEXP, SEXP evalSEXP, SEXP extrainfoSEXP, SEXP isgappedSEXP, SEXP gaplocSEXP, SEXP mingapSEXP, SEXP maxgapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type motif(motifSEXP);
@@ -378,7 +378,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type qval(qvalSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type eval(evalSEXP);
     Rcpp::traits::input_parameter< Rcpp::StringVector >::type extrainfo(extrainfoSEXP);
-    rcpp_result_gen = Rcpp::wrap(universalmotif_cpp(motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo));
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type isgapped(isgappedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type gaploc(gaplocSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mingap(mingapSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type maxgap(maxgapSEXP);
+    rcpp_result_gen = Rcpp::wrap(universalmotif_cpp(motif, name, altname, family, organism, alphabet, type, icscore, nsites, pseudocount, bkg, bkgsites, consensus, strand, pval, qval, eval, extrainfo, isgapped, gaploc, mingap, maxgap));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -700,7 +704,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_get_klets_cpp", (DL_FUNC) &_universalmotif_get_klets_cpp, 2},
     {"_universalmotif_create_sequences_cpp", (DL_FUNC) &_universalmotif_create_sequences_cpp, 8},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
-    {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 18},
+    {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 22},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},

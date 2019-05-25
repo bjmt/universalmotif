@@ -481,6 +481,34 @@ Rcpp::StringVector check_consensus(const Rcpp::StringVector &m_consensus,
 
 }
 
+Rcpp::StringVector check_gap(const Rcpp::RObject &gap, const R_xlen_t ncol,
+    Rcpp::StringVector msg) {
+
+  Rcpp::LogicalVector isgapped = gap.slot("isgapped");
+  if (isgapped.length() != 1)
+    msg.push_back("* isgapped must be a length one logical vector");
+
+  Rcpp::NumericVector gaploc = gap.slot("gaploc");
+  Rcpp::NumericVector mingap = gap.slot("mingap");
+  Rcpp::NumericVector maxgap = gap.slot("maxgap");
+
+  if (gaploc.length() != mingap.length() || gaploc.length() != maxgap.length())
+    msg.push_back("* gaploc, mingap and maxgap should all be the same length");
+
+  if (gaploc.length() > 1) {
+    for (R_xlen_t i = 0; i < gaploc.length(); ++i) {
+      if (gaploc[i] <= 0)
+        msg.push_back("* position 0 gaps or less are not allowed");
+      if (gaploc[i] >= ncol) {
+        msg.push_back("* gap location values should not exceed motif size");
+      }
+    }
+  }
+
+  return msg;
+
+}
+
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
@@ -502,7 +530,11 @@ Rcpp::S4 universalmotif_cpp(
     Rcpp::NumericVector pval = Rcpp::NumericVector::create(),
     Rcpp::NumericVector qval = Rcpp::NumericVector::create(),
     Rcpp::NumericVector eval = Rcpp::NumericVector::create(),
-    Rcpp::StringVector extrainfo = NA_STRING) {
+    Rcpp::StringVector extrainfo = NA_STRING,
+    Rcpp::LogicalVector isgapped = NA_LOGICAL,
+    Rcpp::NumericVector gaploc = Rcpp::NumericVector::create(),
+    Rcpp::NumericVector mingap = Rcpp::NumericVector::create(),
+    Rcpp::NumericVector maxgap = Rcpp::NumericVector::create()) {
 
   Rcpp::S4 x("universalmotif");
 
@@ -581,6 +613,25 @@ Rcpp::S4 universalmotif_cpp(
   if (!Rcpp::StringVector::is_na(extrainfo[0]))
     x.slot("extrainfo") = extrainfo;
 
+  // gapinfo
+  Rcpp::S4 gap("universalmotif_gapped");
+
+  if (!Rcpp::LogicalVector::is_na(isgapped[0]) && isgapped.length() == 1)
+    gap.slot("isgapped") = isgapped;
+  else
+    gap.slot("isgapped") = false;
+
+  if (!Rcpp::NumericVector::is_na(gaploc[0]) && gaploc.length() > 0)
+    gap.slot("gaploc") = mingap;
+
+  if (!Rcpp::NumericVector::is_na(mingap[0]) && mingap.length() > 0)
+    gap.slot("mingap") = mingap;
+
+  if (!Rcpp::NumericVector::is_na(maxgap[0]) && maxgap.length() > 0)
+    gap.slot("maxgap") = maxgap;
+
+  x.slot("gapinfo") = gap;
+
   return x;
 
 }
@@ -608,6 +659,10 @@ Rcpp::StringVector validObject_universalmotif(const Rcpp::S4 &motif,
   Rcpp::NumericVector m_pval        = motif.slot("pval");
   Rcpp::NumericVector m_qval        = motif.slot("qval");
   Rcpp::NumericVector m_eval        = motif.slot("eval");
+  Rcpp::RObject       m_gap         = motif.slot("gapinfo");
+
+  // check gap
+  msg = check_gap(m_gap, m_motif.ncol(), msg);
 
   // slot length checks
   msg = check_length(m_name, m_altname, m_family, m_organism, m_alphabet, m_type,
