@@ -1,6 +1,7 @@
 #' Trim motifs.
 #'
-#' Remove edges of motifs with low information content.
+#' Remove edges of motifs with low information content. Currently does
+#' not trim `multifreq` representations.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param min.ic `numeric(1)` Minimum allowed information content. See

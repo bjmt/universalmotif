@@ -18,6 +18,7 @@ method. In each \code{data.frame} is the location and scale of scores resulting 
 logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 randomized motifs of the specified
 \code{subject} and \code{target} motif length. Created using \code{\link[=make_DBscores]{make_DBscores()}} from
-universalmotif v1.4.0.
+universalmotif v1.4.0. The parameters used can be seen via
+\code{JASPAR2018_CORE_DBSCORES$args}.
 }
 \keyword{datasets}

@@ -80,7 +80,7 @@ Position |    1 |    2 |    3 |    4 |    5 |    6
 
 _(Note that all positions sum to 1.)_
 
-From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM; meaning that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can be somtimes undesirable, as for example  mismatches can be quite common in transcription factor binding sites; this can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation:
+From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM; meaning that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can be sometimes undesirable, as for example  mismatches can be quite common in transcription factor binding sites; this can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation:
 
 \begin{equation}
   PPMp(N) = \frac{C_N + \frac{p}{n}}{\sum{C} + p}

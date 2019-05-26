@@ -6,6 +6,8 @@
 #'    Only relevant if `method = "ALLR"`.
 #' @param bkg2 `numeric` Vector of background probabilities for the second column.
 #'    Only relevant if `method = "ALLR"`.
+#' @param delete `logical(1)` Clear gap information from motif. If `FALSE`, then
+#'    it can be reactivated  simply with `add_gap(motif)`.
 #' @param gaploc `numeric` Motif gap locations. The gap occurs immediately after
 #'    every position value. If missing, uses `round(ncol(motif) / 2)`.
 #' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
@@ -64,18 +66,7 @@
 #'    the [universalmotif-class] slots.
 #'
 #' @examples
-#' #######################################################################
-#' ## Setting up some variables
 #' data(examplemotif)
-#' m <- normalize(examplemotif)
-#' motif <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
-#' motif.icm <- apply(motif, 2, ppm_to_icm, nsites = 100,
-#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
-#' motif.ppm <- apply(motif.icm, 2, icm_to_ppm)
-#' motif.consensus <- apply(motif.ppm, 2, get_consensus)
-#' motif.aa <- create_motif(alphabet = "AA")["motif"]
-#' motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
-#' #######################################################################
 #' 
 #' #######################################################################
 #' ## add_gap
@@ -92,85 +83,86 @@
 #' #######################################################################
 #' ## consensus_to_ppm
 #' ## Do the opposite of get_consensus. Note that loss of information is
-#' ## inevitable.
-#' motif.ppm4 <- sapply(motif.consensus, consensus_to_ppm)
+#' ## inevitable. Generates a sequence matrix.
+#' sapply(c("A", "G", "T", "B"), consensus_to_ppm)
 #'
 #' #######################################################################
 #' ## consensus_to_ppmAA
-#' ## Do the opposite of get_consensusAA.
-#' motif.aa2 <- sapply(motif.aa.consensus, consensus_to_ppmAA)
+#' ## Do the opposite of get_consensusAA and generate a motif matrix.
+#' sapply(c("V", "A", "L"), consensus_to_ppmAA)
 #'
 #' #######################################################################
 #' ## get_consensus
 #' ## Get a consensus string from a DNA/RNA motif.
-#' motif.consensus <- apply(motif.ppm, 2, get_consensus)
+#' m <- create_motif()["motif"]
+#' apply(m, 2, get_consensus)
 #'
 #' #######################################################################
 #' ## get_consensusAA
 #' ## Get a consensus string from an amino acid motif. Unless each position
 #' ## is clearly dominated by a single amino acid, the resulting string will
 #' ## likely be useless.
-#' motif.aa <- create_motif(alphabet = "AA")["motif"]
-#' motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
+#' m <- create_motif(alphabet = "AA")["motif"]
+#' apply(m, 2, get_consensusAA, type = "PPM")
 #'
 #' #######################################################################
 #' ## get_match
 #' ## Get all possible motif matches above input score
-#' get_matches(m, 10)
+#' get_matches(examplemotif, 10)
 #'
 #' #######################################################################
 #' ## get_scores
 #' ## Get all possible scores for a motif
-#' length(get_scores(m))
+#' length(get_scores(examplemotif))
 #'
 #' #######################################################################
 #' ## icm_to_ppm
 #' ## Do the opposite of ppm_to_icm.
-#' motif.ppm <- apply(motif.icm, 2, icm_to_ppm)
+#' m <- create_motif(type = "ICM")["motif"]
+#' apply(m, 2, icm_to_ppm)
 #'
 #' #######################################################################
 #' ## motif_score
 #' ## Calculate motif score from different thresholds
-#' data(examplemotif)
 #' m <- normalize(examplemotif)
 #' motif_score(m, c(0, 0.8, 1))
 #'
 #' #######################################################################
 #' ## pcm_to_ppm
 #' ## Go from a count type motif to a probability type motif.
-#' motif.pcm <- create_motif(type = "PCM", nsites = 50)["motif"]
-#' motif.ppm2 <- apply(motif.pcm, 2, pcm_to_ppm, pseudocount = 1)
+#' m <- create_motif(type = "PCM", nsites = 50)["motif"]
+#' apply(m, 2, pcm_to_ppm, pseudocount = 1)
 #'
 #' #######################################################################
 #' ## position_icscore
-#' ## Similar to ppm_to_icm, except this calculates a sum for the position.
-#' ic.scores <- apply(motif.ppm, 2, position_icscore, type = "PPM",
-#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
+#' ## Similar to ppm_to_icm, except this calculates the position sum.
+#' m <- create_motif()["motif"]
+#' apply(m, 2, position_icscore, type = "PPM", bkg = rep(0.25, 4))
 #'
 #' #######################################################################
 #' ## ppm_to_icm
 #' ## Convert one column from a probability type motif to an information
 #' ## content type motif.
-#' motif <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
-#' motif.icm <- apply(motif, 2, ppm_to_icm, nsites = 100,
-#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
+#' m <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
+#' apply(m, 2, ppm_to_icm, nsites = 100, bkg = rep(0.25, 4))
 #'
 #' #######################################################################
 #' ## ppm_to_pcm
 #' ## Do the opposite of pcm_to_ppm.
-#' motif.pcm2 <- apply(motif.ppm2, 2, ppm_to_pcm, nsites = 50)
+#' m <- create_motif()["motif"]
+#' apply(m, 2, ppm_to_pcm, nsites = 50)
 #'
 #' #######################################################################
 #' ## ppm_to_pwm
 #' ## Go from a probability type motif to a weight type motif.
-#' motif.pwm <- apply(motif.ppm, 2, ppm_to_pwm, nsites = 100,
-#'                    bkg = c(0.25, 0.25, 0.25, 0.25))
+#' m <- create_motif()["motif"]
+#' apply(m, 2, ppm_to_pwm, nsites = 100, bkg = rep(0.25, 4))
 #'
 #' #######################################################################
 #' ## pwm_to_ppm
 #' ## Do the opposite of ppm_to_pwm.
-#' motif.ppm3 <- apply(motif.pwm, 2, pwm_to_ppm,
-#'                     bkg = c(0.25, 0.25, 0.25, 0.25))
+#' m <- create_motif(type = "PWM")["motif"]
+#' apply(m, 2, pwm_to_ppm, bkg = rep(0.25, 4))
 #'
 #' #######################################################################
 #' ## Note that not all type conversions can be done directly; for those
@@ -180,8 +172,8 @@
 #' #######################################################################
 #' ## score_match
 #' ## Calculate score of a particular match
-#' score_match(m, "TATATAT")
-#' score_match(m, "TATATAG")
+#' score_match(examplemotif, "TATATAT")
+#' score_match(examplemotif, "TATATAG")
 #'
 #' #######################################################################
 #' ## summarise_motifs
@@ -193,7 +185,8 @@
 #'
 #' #######################################################################
 #' ## ungap
-#' ## Unset motif's gap status. Does not delete actual gap data.
+#' ## Unset motif's gap status. Does not delete actual gap data unless
+#' ## `delete = TRUE`.
 #' m <- create_motif()
 #' m <- add_gap(m, 3, 2, 4)
 #' m <- ungap(m)
@@ -568,21 +561,35 @@ score_match <- function(motif, match) {
 #' @rdname utils-motif
 #' @export
 summarise_motifs <- function(motifs, na.rm = TRUE) {
+
   # ~0.05 seconds for entire MotifDb library
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   classcheck <- vapply(motifs, function(x) !is(x, "universalmotif"), logical(1))
   if (any(classcheck)) stop("all motifs must be 'universalmotif'")
+
+  # Very strange bug where it fails if there's only a single motif
+  len1 <- if (length(motifs) == 1) TRUE else FALSE
+  if (len1) motifs <- c(motifs, motifs)
+
   out <- summarise_motifs_cpp(motifs)
   out <- out[, c("name", "altname", "family", "organism", "consensus", "alphabet",
                  "strand", "icscore", "nsites", "bkgsites", "pval", "qval", "eval")]
   if (na.rm) out <- Filter(function(x) !all(is.na(x)), out)
+
+  if (len1) out <- out[1, ]
+
   out
+
 }
 
 #' @rdname utils-motif
 #' @export
-ungap <- function(motif) {
+ungap <- function(motif, delete = FALSE) {
+
+  if (delete) {
+    motif@gapinfo <- new("universalmotif_gapped")
+  }
 
   motif@gapinfo@isgapped <- FALSE
   motif

@@ -13,7 +13,9 @@ view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
 
 \item{use.type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
+SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
+these to get the "mean" version. See details.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}

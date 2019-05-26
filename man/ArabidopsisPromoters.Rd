@@ -9,8 +9,9 @@
 ArabidopsisPromoters
 }
 \description{
-50 Arabidopsis promoters, each 1000 bases long. See the 'Advanced usage'
-vignette, section 7, for an example workflow describing extracting promoter
+50 Arabidopsis promoters, each 1000 bases long. See the
+"Sequence manipulation and scanning"
+vignette, section 9, for an example workflow describing extracting promoter
 sequences.
 }
 \keyword{datasets}

@@ -6,7 +6,8 @@
 #' This can be plotted with [ggtree::ggtree()]. The purpose of this function
 #' is simply to combine the [compare_motifs()] and [ggtree::ggtree()] steps
 #' into one. For more control over tree creation, it is recommend to do these
-#' steps separately. See the Advanced Usage vignette for such a workthrough.
+#' steps separately. See the "Motif comparisons and P-values" vignette for such
+#' a workthrough.
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. Alternatively, the resulting comparison matrix from

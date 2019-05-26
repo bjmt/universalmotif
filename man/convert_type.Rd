@@ -15,8 +15,7 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from appearing in PWM matrices. If missing, the pseudocount stored in the
 \linkS4class{universalmotif} 'pseudocount' slot will be
-used, which defaults to 0.8; the suggested value from
-\insertCite{pseudo;textual}{universalmotif}.}
+used, which defaults to 0.}
 
 \item{nsize_correction}{\code{logical(1)} If true, the ICM
 at each position will be corrected to account
@@ -31,7 +30,7 @@ See \code{\link[=convert_motifs]{convert_motifs()}} for possible output motif ob
 \description{
 Switch between position count matrix (PCM), position probability matrix
 (PPM), position weight matrix (PWM), and information count matrix (ICM)
-types.
+types. See the "Introduction to sequence motifs" vignette for details.
 }
 \details{
 Position count matrix (PCM), also known as position frequency matrix

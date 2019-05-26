@@ -79,39 +79,39 @@ sequence.}
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
 can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
-independent seed. Each individual sequence in an \code{XStringSet} object will be
+independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
 given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting
-\code{data.frame} contains the following columns:
-* \code{motif} Motif name.
-* \code{total.seq.hits} Total number of matches across all target
-sequences.
-* \code{num.seqs.hits} Number of target sequences which contain matches.
-* \code{num.seqs.total} Number of target sequences.
-* \code{total.bkg.hits} Total number of matches across all background
-sequences.
-* \code{num.bkg.hits} Number of background sequences which contain
-matches.
-* \code{num.bkg.total} Number of background sequences.
-* \code{Pval.hits} P-value of enrichment. Only shown if
-\code{search.mode = c('hits', 'both')}.
-* \code{Qval.hits} Q-val of enrichment. Only shown if
-\code{search.mode = c('hits', 'both')}.
-* \code{Eval.hits} E-val of enrichment. Only shown if
-\code{search.mode = c('hits', 'both')}.
-* \code{Pval.pos} P-value of positional comparison. Only
-shown if \code{search.mode = c('positional', 'both')}.
-* \code{Qval.pos} Q-value of positional comparison. Only
-shown if \code{search.mode = c('positional', 'both')}.
-* \code{Eval.pos} E-value of positional comparison. Only
-shown if \code{search.mode = c('positional', 'both')}.
+\code{data.frame} contains the following columns:\preformatted{* `motif` Motif name.
+* `total.seq.hits` Total number of matches across all target
+  sequences.
+* `num.seqs.hits` Number of target sequences which contain matches.
+* `num.seqs.total` Number of target sequences.
+* `total.bkg.hits` Total number of matches across all background
+  sequences.
+* `num.bkg.hits` Number of background sequences which contain
+  matches.
+* `num.bkg.total` Number of background sequences.
+* `Pval.hits` P-value of enrichment. Only shown if
+  `search.mode = c('hits', 'both')`.
+* `Qval.hits` Q-val of enrichment. Only shown if
+  `search.mode = c('hits', 'both')`.
+* `Eval.hits` E-val of enrichment. Only shown if
+  `search.mode = c('hits', 'both')`.
+* `Pval.pos` P-value of positional comparison. Only
+  shown if `search.mode = c('positional', 'both')`.
+* `Qval.pos` Q-value of positional comparison. Only
+  shown if `search.mode = c('positional', 'both')`.
+* `Eval.pos` E-value of positional comparison. Only
+  shown if `search.mode = c('positional', 'both')`.
+}
 }
 \description{
 Given a set of target and background sequences, test if the input motifs
 are significantly enriched in the targets sequences relative to the
-background sequences.
+background sequences. See the "Sequence manipulation and scanning" vignette.
 }
 \details{
 To find enriched motifs, \code{\link[=scan_sequences]{scan_sequences()}} is run on both

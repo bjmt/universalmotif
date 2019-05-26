@@ -8,9 +8,9 @@
 
 #' Another example motif in `universalmotif` format.
 #'
-#' A simple DNA motif with a non-empty `multifreq` slot. See
-#' the 'Advanced usage' vignette, section 2, for manually recreating
-#' this motif.
+#' A simple DNA motif with a non-empty `multifreq` slot.
+#' To recreate to this motif:
+#' `add_multifreq(examplemotif, DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3)))`
 #'
 #' @format [universalmotif-class]
 "examplemotif2"
@@ -26,7 +26,8 @@
 #' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 #' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
-#' universalmotif v1.4.0.
+#' universalmotif v1.4.0. The parameters used can be seen via
+#' `JASPAR2018_CORE_DBSCORES$args`.
 #'
 #' @format `list` with ten `data.frame`s and an additional list of parameters.
 "JASPAR2018_CORE_DBSCORES"
@@ -42,15 +43,17 @@
 #' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 #' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
-#' universalmotif v1.4.0.
+#' universalmotif v1.4.0. The parameters used can be seen via
+#' `JASPAR2018_CORE_DBSCORES_NORM$args`.
 #'
 #' @format `list` with ten `data.frame`s and an additional list of parameters.
 "JASPAR2018_CORE_DBSCORES_NORM"
 
 #' Arabidopsis promoters as a `DNAStringSet`.
 #'
-#' 50 Arabidopsis promoters, each 1000 bases long. See the 'Advanced usage'
-#' vignette, section 7, for an example workflow describing extracting promoter
+#' 50 Arabidopsis promoters, each 1000 bases long. See the
+#' "Sequence manipulation and scanning"
+#' vignette, section 9, for an example workflow describing extracting promoter
 #' sequences.
 #'
 #' @format \code{\link{DNAStringSet}}

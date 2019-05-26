@@ -1,9 +1,9 @@
 #' Create a motif.
 #'
 #' Create a motif from a set of sequences, a matrix, or generate a random
-#' motif.
+#' motif. See the "Motif import, export and manipulation" vignette for details.
 #'
-#' @param input `character`, `numberic`, `matrix`,
+#' @param input `character`, `numeric`, `matrix`,
 #'    \code{\link{XStringSet}}, or `missing`
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
 #'    or a combined string representing the letters. If no alphabet is
@@ -174,11 +174,6 @@ setGeneric("create_motif", function(input, alphabet, type = "PPM",
            standardGeneric("create_motif"))
 
 # TODO: Organise the methods better, lots of repeat code
-
-# TODO: Allow for gapped motifs using the "-" character. Would also require
-#       changes to compare_motifs(), motif_pvalue(), view_motifs(),
-#       scan_sequences(), write_*(), lots of utility functions, etc!
-#       Alternatively, create a new class for gapped motifs specifically.
 
 #' @describeIn create_motif Create a random motif of length 10.
 #' @include universalmotif-class.R

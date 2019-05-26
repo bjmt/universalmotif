@@ -31,7 +31,7 @@ motdb <- convert_motifs(MotifDb)
 
 # Introduction
 
-This vignette covers motif comparisons (including metrics, paremeters and clustering) and P-values. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette.
+This vignette covers motif comparisons (including metrics, parameters and clustering) and P-values. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette.
 
 # Motif comparisons
 
@@ -282,11 +282,11 @@ motifs <- motifs[sample(seq_along(motifs), 25)]
 
 ## Step 1: compare motifs
 
-comparisons <- compare_motifs(motifs, min.mean.ic = 0)
+comparisons <- compare_motifs(motifs, method = "MPCC", min.mean.ic = 0)
 
 ## Step 2: create a "dist" object
 
-# The default metric, MPCC, is a similarity metric
+# The current metric, MPCC, is a similarity metric
 comparisons <- 1 - comparisons
 
 comparisons <- as.dist(comparisons)

@@ -11,7 +11,7 @@ NEW FEATURES
 
     o Motif comparison metrics: average log-likelihood ratio, squared Euclidean
       distance, Hellinger distance, Bhattacharyya coefficient, Itakura-Saito
-      distance, Manhattan distance.
+      distance, Manhattan distance, lower limit average log-likelihood ratio.
 
     o compare_columns() utility: Compare two 1d numeric vectors using the
       comparison metrics from compare_motifs().

@@ -2,15 +2,14 @@
 #'
 #' Switch between position count matrix (PCM), position probability matrix
 #' (PPM), position weight matrix (PWM), and information count matrix (ICM)
-#' types.
+#' types. See the "Introduction to sequence motifs" vignette for details.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
 #'   from appearing in PWM matrices. If missing, the pseudocount stored in the
 #'   \linkS4class{universalmotif} 'pseudocount' slot will be
-#'   used, which defaults to 0.8; the suggested value from
-#'   \insertCite{pseudo;textual}{universalmotif}.
+#'   used, which defaults to 0.
 #' @param nsize_correction `logical(1)` If true, the ICM
 #'   at each position will be corrected to account
 #'   for small sample sizes. Only used if `relative_entropy = FALSE`.

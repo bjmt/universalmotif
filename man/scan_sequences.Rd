@@ -66,13 +66,13 @@ then threshold logodds scores are generated using \code{\link[=motif_pvalue]{mot
 Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
 provided will be used as thresholds.
 
-Non-standard letters (such as "N", "+", "-", ".", etc in \code{DNAString}
+Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
 objects) will be safely ignored, resulting only in a warning and a very
 minor performance cost. This can used to scan
 masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
 for masking sequences
-(generating \code{MaskedXString} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
-to recover masked \code{XStringSet} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
+(generating \code{\link{MaskedXString}} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
+to recover masked \code{\link{XStringSet}} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
 }
 \examples{
 ## any alphabet can be used

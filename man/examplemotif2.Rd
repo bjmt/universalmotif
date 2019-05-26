@@ -9,8 +9,8 @@
 examplemotif2
 }
 \description{
-A simple DNA motif with a non-empty \code{multifreq} slot. See
-the 'Advanced usage' vignette, section 2, for manually recreating
-this motif.
+A simple DNA motif with a non-empty \code{multifreq} slot.
+To recreate to this motif:
+\code{add_multifreq(examplemotif, DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3)))}
 }
 \keyword{datasets}

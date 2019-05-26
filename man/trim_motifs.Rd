@@ -17,7 +17,8 @@ Motifs See \code{\link[=convert_motifs]{convert_motifs()}} for available output
 formats.
 }
 \description{
-Remove edges of motifs with low information content.
+Remove edges of motifs with low information content. Currently does
+not trim \code{multifreq} representations.
 }
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

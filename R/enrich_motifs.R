@@ -2,7 +2,7 @@
 #'
 #' Given a set of target and background sequences, test if the input motifs
 #' are significantly enriched in the targets sequences relative to the
-#' background sequences.
+#' background sequences. See the "Sequence manipulation and scanning" vignette.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param bkg.sequences \code{\link{XStringSet}} Optional; if missing,
@@ -41,11 +41,12 @@
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    can occur simultaneously in multiple threads using C++, it cannot communicate
 #'    with the regular `R` random number generator state and thus requires an
-#'    independent seed. Each individual sequence in an `XStringSet` object will be
+#'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
 #'    given the following seed: `rng.seed * index`. See [shuffle_sequences()].
 #'
 #' @return `data.frame` Motif enrichment results. The resulting 
 #'    `data.frame` contains the following columns:
+#'
 #'     * `motif` Motif name.
 #'     * `total.seq.hits` Total number of matches across all target
 #'       sequences.

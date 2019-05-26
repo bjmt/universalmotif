@@ -31,7 +31,9 @@ Note that no speed up will occur for jobs with \code{seqnum = 1}.}
 creation can occur simultaneously in multiple threads using C++, it cannot
 communicate with the regular \code{R} random number generator state and thus requires
 an independent seed. Each individual sequence creation instance is
-given the following seed: \code{rng.seed * index}.}
+given the following seed: \code{rng.seed * index}. The default is to pick a random
+number as chosen by \code{\link[=sample]{sample()}}, which effectively is make \code{\link[=create_sequences]{create_sequences()}}
+dependent on the R RNG state.}
 }
 \value{
 \code{\link{XStringSet}} The returned sequences are \emph{unnamed}.

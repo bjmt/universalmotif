@@ -39,7 +39,9 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
+SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
+these to get the "mean" version. See details.}
 
 \item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
@@ -83,7 +85,8 @@ a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
 This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. The purpose of this function
 is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \code{\link[ggtree:ggtree]{ggtree::ggtree()}} steps
 into one. For more control over tree creation, it is recommend to do these
-steps separately. See the Advanced Usage vignette for such a workthrough.
+steps separately. See the "Motif comparisons and P-values" vignette for such
+a workthrough.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.

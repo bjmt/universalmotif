@@ -50,7 +50,7 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
   organism, bkgsites, strand, pval, qval, eval, extrainfo, add.multifreq)
 }
 \arguments{
-\item{input}{\code{character}, \code{numberic}, \code{matrix},
+\item{input}{\code{character}, \code{numeric}, \code{matrix},
 \code{\link{XStringSet}}, or \code{missing}}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
@@ -99,7 +99,7 @@ run at the same time (with \code{RC = FALSE}).}
 }
 \description{
 Create a motif from a set of sequences, a matrix, or generate a random
-motif.
+motif. See the "Motif import, export and manipulation" vignette for details.
 }
 \details{
 The aim of this function is provide an easy interface to creating

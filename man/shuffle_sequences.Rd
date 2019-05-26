@@ -28,8 +28,10 @@ Note that no speed up will occur for jobs with only a single sequence.}
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
 can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
-independent seed. Each individual sequence in an \code{XStringSet} object will be
-given the following seed: \code{rng.seed * index}.}
+independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
+given the following seed: \code{rng.seed * index}. The default is to pick a random
+number as chosen by \code{\link[=sample]{sample()}}, which effectively is make \code{\link[=shuffle_sequences]{shuffle_sequences()}}
+dependent on the R RNG state.}
 }
 \value{
 \code{\link{XStringSet}} The input sequences will be returned with

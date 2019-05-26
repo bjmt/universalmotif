@@ -50,7 +50,10 @@ it cannot communicate with R to get/set the R RNG state. To get around
 this, the RNG seed used by the C++ function can be set with \code{rng.seed}.
 To make sure each thread gets a different seed however, the seed
 is multiplied with the iteration count. For example: when working with
-two motifs, the second motif gets the following seed: \code{rng.seed * 2}.}
+two motifs, the second motif gets the following seed: \code{rng.seed * 2}.
+The default is to pick a random
+number as chosen by \code{\link[=sample]{sample()}}, which effectively is make \code{\link[=motif_pvalue]{motif_pvalue()}}
+dependent on the R RNG state.}
 }
 \value{
 \code{numeric} A vector of scores/p-values.

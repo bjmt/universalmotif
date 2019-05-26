@@ -64,7 +64,7 @@ score_match(motif, match)
 
 summarise_motifs(motifs, na.rm = TRUE)
 
-ungap(motif)
+ungap(motif, delete = FALSE)
 }
 \arguments{
 \item{motif}{Motif object to calculate scores from, or add/remove gap.}
@@ -133,6 +133,9 @@ relative entropy or Kullback-Leibler divergence.}
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
 
 \item{na.rm}{\code{logical} Remove columns where all values are \code{NA}.}
+
+\item{delete}{\code{logical(1)} Clear gap information from motif. If \code{FALSE}, then
+it can be reactivated  simply with \code{add_gap(motif)}.}
 }
 \value{
 For \code{\link[=consensus_to_ppm]{consensus_to_ppm()}} and \code{\link[=consensus_to_ppmAA]{consensus_to_ppmAA()}}: a numeric
@@ -160,18 +163,7 @@ the \linkS4class{universalmotif} slots.
 Motif-related utility functions.
 }
 \examples{
-#######################################################################
-## Setting up some variables
 data(examplemotif)
-m <- normalize(examplemotif)
-motif <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
-motif.icm <- apply(motif, 2, ppm_to_icm, nsites = 100,
-                   bkg = c(0.25, 0.25, 0.25, 0.25))
-motif.ppm <- apply(motif.icm, 2, icm_to_ppm)
-motif.consensus <- apply(motif.ppm, 2, get_consensus)
-motif.aa <- create_motif(alphabet = "AA")["motif"]
-motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
-#######################################################################
 
 #######################################################################
 ## add_gap
@@ -188,85 +180,86 @@ compare_columns(c(0.5, 0.1, 0.1, 0.2), c(0.7, 0.1, 0.1, 0.1), "PCC")
 #######################################################################
 ## consensus_to_ppm
 ## Do the opposite of get_consensus. Note that loss of information is
-## inevitable.
-motif.ppm4 <- sapply(motif.consensus, consensus_to_ppm)
+## inevitable. Generates a sequence matrix.
+sapply(c("A", "G", "T", "B"), consensus_to_ppm)
 
 #######################################################################
 ## consensus_to_ppmAA
-## Do the opposite of get_consensusAA.
-motif.aa2 <- sapply(motif.aa.consensus, consensus_to_ppmAA)
+## Do the opposite of get_consensusAA and generate a motif matrix.
+sapply(c("V", "A", "L"), consensus_to_ppmAA)
 
 #######################################################################
 ## get_consensus
 ## Get a consensus string from a DNA/RNA motif.
-motif.consensus <- apply(motif.ppm, 2, get_consensus)
+m <- create_motif()["motif"]
+apply(m, 2, get_consensus)
 
 #######################################################################
 ## get_consensusAA
 ## Get a consensus string from an amino acid motif. Unless each position
 ## is clearly dominated by a single amino acid, the resulting string will
 ## likely be useless.
-motif.aa <- create_motif(alphabet = "AA")["motif"]
-motif.aa.consensus <- apply(motif.aa, 2, get_consensusAA, type = "PPM")
+m <- create_motif(alphabet = "AA")["motif"]
+apply(m, 2, get_consensusAA, type = "PPM")
 
 #######################################################################
 ## get_match
 ## Get all possible motif matches above input score
-get_matches(m, 10)
+get_matches(examplemotif, 10)
 
 #######################################################################
 ## get_scores
 ## Get all possible scores for a motif
-length(get_scores(m))
+length(get_scores(examplemotif))
 
 #######################################################################
 ## icm_to_ppm
 ## Do the opposite of ppm_to_icm.
-motif.ppm <- apply(motif.icm, 2, icm_to_ppm)
+m <- create_motif(type = "ICM")["motif"]
+apply(m, 2, icm_to_ppm)
 
 #######################################################################
 ## motif_score
 ## Calculate motif score from different thresholds
-data(examplemotif)
 m <- normalize(examplemotif)
 motif_score(m, c(0, 0.8, 1))
 
 #######################################################################
 ## pcm_to_ppm
 ## Go from a count type motif to a probability type motif.
-motif.pcm <- create_motif(type = "PCM", nsites = 50)["motif"]
-motif.ppm2 <- apply(motif.pcm, 2, pcm_to_ppm, pseudocount = 1)
+m <- create_motif(type = "PCM", nsites = 50)["motif"]
+apply(m, 2, pcm_to_ppm, pseudocount = 1)
 
 #######################################################################
 ## position_icscore
-## Similar to ppm_to_icm, except this calculates a sum for the position.
-ic.scores <- apply(motif.ppm, 2, position_icscore, type = "PPM",
-                   bkg = c(0.25, 0.25, 0.25, 0.25))
+## Similar to ppm_to_icm, except this calculates the position sum.
+m <- create_motif()["motif"]
+apply(m, 2, position_icscore, type = "PPM", bkg = rep(0.25, 4))
 
 #######################################################################
 ## ppm_to_icm
 ## Convert one column from a probability type motif to an information
 ## content type motif.
-motif <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
-motif.icm <- apply(motif, 2, ppm_to_icm, nsites = 100,
-                   bkg = c(0.25, 0.25, 0.25, 0.25))
+m <- create_motif(nsites = 100, pseudocount = 0.8)["motif"]
+apply(m, 2, ppm_to_icm, nsites = 100, bkg = rep(0.25, 4))
 
 #######################################################################
 ## ppm_to_pcm
 ## Do the opposite of pcm_to_ppm.
-motif.pcm2 <- apply(motif.ppm2, 2, ppm_to_pcm, nsites = 50)
+m <- create_motif()["motif"]
+apply(m, 2, ppm_to_pcm, nsites = 50)
 
 #######################################################################
 ## ppm_to_pwm
 ## Go from a probability type motif to a weight type motif.
-motif.pwm <- apply(motif.ppm, 2, ppm_to_pwm, nsites = 100,
-                   bkg = c(0.25, 0.25, 0.25, 0.25))
+m <- create_motif()["motif"]
+apply(m, 2, ppm_to_pwm, nsites = 100, bkg = rep(0.25, 4))
 
 #######################################################################
 ## pwm_to_ppm
 ## Do the opposite of ppm_to_pwm.
-motif.ppm3 <- apply(motif.pwm, 2, pwm_to_ppm,
-                    bkg = c(0.25, 0.25, 0.25, 0.25))
+m <- create_motif(type = "PWM")["motif"]
+apply(m, 2, pwm_to_ppm, bkg = rep(0.25, 4))
 
 #######################################################################
 ## Note that not all type conversions can be done directly; for those
@@ -276,8 +269,8 @@ motif.ppm3 <- apply(motif.pwm, 2, pwm_to_ppm,
 #######################################################################
 ## score_match
 ## Calculate score of a particular match
-score_match(m, "TATATAT")
-score_match(m, "TATATAG")
+score_match(examplemotif, "TATATAT")
+score_match(examplemotif, "TATATAG")
 
 #######################################################################
 ## summarise_motifs
@@ -289,7 +282,8 @@ summarise_motifs(list(m1, m2, m3))
 
 #######################################################################
 ## ungap
-## Unset motif's gap status. Does not delete actual gap data.
+## Unset motif's gap status. Does not delete actual gap data unless
+## `delete = TRUE`.
 m <- create_motif()
 m <- add_gap(m, 3, 2, 4)
 m <- ungap(m)

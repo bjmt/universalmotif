@@ -1,10 +1,7 @@
 #' Compare motifs.
 #'
-#' Compare motifs using four available metrics: Pearson correlation coefficient
-#' \insertCite{pearson}{universalmotif}, Euclidean distance
-#' \insertCite{euclidean}{universalmotif}, Sandelin-Wasserman similarity
-#' \insertCite{wasserman}{universalmotif}, and Kullback-Leibler divergence
-#' \insertCite{kldiv}{universalmotif}.
+#' Compare motifs using any of several available metrics. See the
+#' "Motif comparisons and P-values" vignette for detailed information.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param compare.to `numeric` If missing, compares all motifs to all other motifs.
@@ -13,9 +10,11 @@
 #' @param use.freq `numeric(1)`. For comparing the `multifreq` slot.
 #' @param use.type `character(1)` One of `'PPM'` and `'ICM'`.
 #'    The latter allows for taking into account the background
-#'    frequencies if `relative_entropy = TRUE`.
-#' @param method `character(1)` One of `c('PCC', 'MPCC', 'EUCL', 'MEUCL',
-#'    'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')`. See details.
+#'    frequencies if `relative_entropy = TRUE`. Note that `'ICM'` is not
+#'    allowed when `method = c(ALLR, MALLR, ALLR_LL, MALLR_LL)`.
+#' @param method `character(1)` One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
+#'    SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of 
+#'    these to get the "mean" version. See details.
 #' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
 #'    report the best score.
 #' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
@@ -48,79 +47,48 @@
 #'    threads. `nthreads = 0` uses all available threads.
 #'
 #' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
-#' * PCC: The number of positions in the shorter motif represents the max possible
-#'   score. Values below that represent dissimilarity.
-#' * MPCC: 1 represents complete similarity, <1 dissimilarity.
-#' * EUCL: 0 represents complete similarity, >0 distance.
-#' * MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-#' * SW: The number of positions in the shorter motif times two represents the
-#'    max possible score. Values below that represent dissimilarity.
-#' * MSW: 0 represents complete distance, 2 complete similarity.
-#' * KL: 0 represents complete similarity, >0 distance.
-#' * MKL: 0 represents complete similarity, >0 complete distance.
 #'
 #' @details
+#' The following metrics are available:
+#'
+#' * Euclidean distance (`EUCL`) \insertCite{euclidean}{universalmotif}
+#' * Kullback-Leibler divergence (`KL`) \insertCite{kl,kldiv}{universalmotif}
+#' * Hellinger distance (`HELL`) \insertCite{hellinger}{universalmotif}
+#' * Itakura-Saito distance (`IS`) \insertCite{ISdist}{universalmotif}
+#' * Squared Euclidean distance (`SEUCL`)
+#' * Manhattan distance (`MAN`)
+#' * Pearson correlation coefficient (`PCC`)
+#' * Sandelin-Wasserman similarity (`SW`), or sum of squared distances \insertCite{wasserman}{universalmotif}
+#' * Average log-likelihood ratio (`ALLR`) \insertCite{wang}{universalmotif}
+#' * Lower limit ALLR (`ALLR_LL`) \insertCite{mahony}{universalmotif}
+#' * Bhattacharyya coefficient (`BHAT`) \insertCite{bhatt}{universalmotif}
+#'
 #' Comparisons are calculated between two motifs at a time. All possible alignments
 #' are scored, and the best score is reported. Scores are calculated per position
-#' and summed, unless the 'mean' version of the specific metric is chosen. If using
+#' and summed, unless the "mean" version of the specific metric is chosen. If using
 #' a similarity metric, then the sum of scores will favour comparisons between
 #' longer motifs; and for distance metrics, the sum of scores will favour
-#' comparisons between short motifs. This can be avoided by using the 'mean' of
+#' comparisons between short motifs. This can be avoided by using the "mean" of
 #' scores.
 #'
-#' * PCC: Pearson correlation coefficient
+#' See the "Motif comparisons and P-values" vignette for a description of the
+#' various metrics. Note that PCC, SW, ALLR, ALLR_LL and BHAT are similarity;
+#' higher values mean more similar motifs. For the remaining metrics, values closer
+#' to zero represent more similar motifs.
 #'
-#'    Per position:
+#' Small pseudocounts are automatically added when one of the following methods
+#' is used: KL, MKL, ALLR, MALLR, IS, MIS, ALLR_LL, MALLR_LL. This is avoid
+#' zeros in the calculations.
 #'
-#'    `num = nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)`
-#'
-#'    `denom = sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) * (nrow * sum(pos2)^2 - sum(pos2^2)))`
-#'
-#'    `PCC = num / denom`
-#'
-#' * MPCC: Mean PCC
-#'
-#'    `MPCC = mean(PCC)`
-#'
-#' * EUCL: Euclidian distance
-#'
-#'    Per position:
-#'
-#'    `EUCL = sqrt(sum((col1 - col2)^2)) / sqrt(2)`
-#'
-#' * MEUCL: Mean EUCL
-#'
-#'    `MEUCL = sum(EUCL) / ncol(alignment)`
-#'
-#' * SW: Sandelin-Wasserman similarity
-#'
-#'    Per position:
-#'
-#'    `SW = 2 - sum((col1 - col2)^2)`
-#'
-#' * MSW: Mean SW
-#'
-#'    `MSW = mean(SW)`
-#'
-#' * KL: Kullback-Leibler divergence
-#'
-#'    Per position:
-#'
-#'    `KL = 0.5 * sum(col1 * log(col1/col2) + col2 * log(col2/col1))`
-#'
-#' * MKL: Mean Kullback-Leibler divergence
-#'
-#'    `MKL = mean(KL)`
-#'
-#' To note regarding p-values: p-values are pre-computed using the
-#' `make_DBscores` function. If not given, then uses a set of internal
-#' precomputed p-values from the JASPAR2018 CORE motifs. These precalculated
+#' To note regarding p-values: P-values are pre-computed using the
+#' [make_DBscores()] function. If not given, then uses a set of internal
+#' precomputed P-values from the JASPAR2018 CORE motifs. These precalculated
 #' scores are dependent on the length of the motifs being compared; this takes
 #' into account that comparing small motifs with larger motifs leads to higher
 #' scores, since the probability of finding a higher scoring alignment is
 #' higher.
 #'
-#' The default p-values have been precalculated for regular DNA motifs; they
+#' The default P-values have been precalculated for regular DNA motifs; they
 #' are of little use for motifs with a different number of alphabet letters
 #' (or even the `multifreq` slot).
 #'
@@ -132,15 +100,28 @@
 #' as.dist(1 - motif1vs2)
 #'
 #' @references
+#'
+#'    \insertRef{bhatt}{universalmotif}
+#'
 #'    \insertRef{euclidean}{universalmotif}
 #'
+#'    \insertRef{hellinger}{universalmotif}
+#'
 #'    \insertRef{jaspar}{universalmotif}
+#'
+#'    \insertRef{kl}{universalmotif}
+#'
+#'    \insertRef{ISdist}{universalmotif}
+#'
+#'    \insertRef{mahony}{universalmotif}
 #'
 #'    \insertRef{pearson}{universalmotif}
 #'
 #'    \insertRef{kldiv}{universalmotif}
 #'
 #'    \insertRef{wasserman}{universalmotif}
+#'
+#'    \insertRef{wang}{universalmotif}
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()], [motif_tree()], [view_motifs()],
@@ -190,8 +171,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (use.type == "ICM" && method %in% c("ALLR", "MALLR"))
-    stop("'use.type = \"ICM\"' is not allowed for ALLR/MALLR methods")
+  if (use.type == "ICM" && method %in% c("ALLR", "MALLR", "ALLR_LL", "MALLR_LL"))
+    stop("'use.type = \"ICM\"' is not allowed for ALLR/MALLR/ALLR_LL/MALLR_LL methods")
 
   if (progress)
     warning("'progress' is deprecated and does nothing", immediate. = TRUE)

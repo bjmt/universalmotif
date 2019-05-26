@@ -47,13 +47,13 @@
 #'    Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
 #'    provided will be used as thresholds.
 #'
-#'    Non-standard letters (such as "N", "+", "-", ".", etc in `DNAString`
+#'    Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
 #'    objects) will be safely ignored, resulting only in a warning and a very
 #'    minor performance cost. This can used to scan
 #'    masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
 #'    for masking sequences
-#'    (generating `MaskedXString` objects), and [Biostrings::injectHardMask()]
-#'    to recover masked `XStringSet` objects for use with [scan_sequences()].
+#'    (generating \code{\link{MaskedXString}} objects), and [Biostrings::injectHardMask()]
+#'    to recover masked \code{\link{XStringSet}} objects for use with [scan_sequences()].
 #'
 #' @examples
 #' ## any alphabet can be used

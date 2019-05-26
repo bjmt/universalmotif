@@ -34,6 +34,9 @@
 #'    To make sure each thread gets a different seed however, the seed
 #'    is multiplied with the iteration count. For example: when working with
 #'    two motifs, the second motif gets the following seed: `rng.seed * 2`.
+#'     The default is to pick a random
+#'    number as chosen by [sample()], which effectively is make [motif_pvalue()]
+#'    dependent on the R RNG state.
 #'
 #' @return `numeric` A vector of scores/p-values.
 #'

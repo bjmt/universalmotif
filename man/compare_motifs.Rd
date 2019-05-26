@@ -22,9 +22,12 @@ Otherwise compares all motifs to the specified motif(s).}
 
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
-frequencies if \code{relative_entropy = TRUE}.}
+frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
+allowed when \code{method = c(ALLR, MALLR, ALLR_LL, MALLR_LL)}.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
+SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
+these to get the "mean" version. See details.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -69,82 +72,53 @@ threads. \code{nthreads = 0} uses all available threads.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
-\itemize{
-\item PCC: The number of positions in the shorter motif represents the max possible
-score. Values below that represent dissimilarity.
-\item MPCC: 1 represents complete similarity, <1 dissimilarity.
-\item EUCL: 0 represents complete similarity, >0 distance.
-\item MEUCL: 0 represents complete similarity, sqrt(2) complete distance.
-\item SW: The number of positions in the shorter motif times two represents the
-max possible score. Values below that represent dissimilarity.
-\item MSW: 0 represents complete distance, 2 complete similarity.
-\item KL: 0 represents complete similarity, >0 distance.
-\item MKL: 0 represents complete similarity, >0 complete distance.
-}
 }
 \description{
-Compare motifs using four available metrics: Pearson correlation coefficient
-\insertCite{pearson}{universalmotif}, Euclidean distance
-\insertCite{euclidean}{universalmotif}, Sandelin-Wasserman similarity
-\insertCite{wasserman}{universalmotif}, and Kullback-Leibler divergence
-\insertCite{kldiv}{universalmotif}.
+Compare motifs using any of several available metrics. See the
+"Motif comparisons and P-values" vignette for detailed information.
 }
 \details{
-Comparisons are calculated between two motifs at a time. All possible alignments
-are scored, and the best score is reported. Scores are calculated per position
-and summed, unless the 'mean' version of the specific metric is chosen. If using
-a similarity metric, then the sum of scores will favour comparisons between
-longer motifs; and for distance metrics, the sum of scores will favour
-comparisons between short motifs. This can be avoided by using the 'mean' of
-scores.
+The following metrics are available:
 \itemize{
-\item PCC: Pearson correlation coefficient
-
-Per position:
-
-\code{num = nrow * sum(pos1 * pos2) - sum(pos1) * sum(pos2)}
-
-\code{denom = sqrt((nrow * sum(pos1)^2 - sum(pos1^2)) * (nrow * sum(pos2)^2 - sum(pos2^2)))}
-
-\code{PCC = num / denom}
-\item MPCC: Mean PCC
-
-\code{MPCC = mean(PCC)}
-\item EUCL: Euclidian distance
-
-Per position:
-
-\code{EUCL = sqrt(sum((col1 - col2)^2)) / sqrt(2)}
-\item MEUCL: Mean EUCL
-
-\code{MEUCL = sum(EUCL) / ncol(alignment)}
-\item SW: Sandelin-Wasserman similarity
-
-Per position:
-
-\code{SW = 2 - sum((col1 - col2)^2)}
-\item MSW: Mean SW
-
-\code{MSW = mean(SW)}
-\item KL: Kullback-Leibler divergence
-
-Per position:
-
-\code{KL = 0.5 * sum(col1 * log(col1/col2) + col2 * log(col2/col1))}
-\item MKL: Mean Kullback-Leibler divergence
-
-\code{MKL = mean(KL)}
+\item Euclidean distance (\code{EUCL}) \insertCite{euclidean}{universalmotif}
+\item Kullback-Leibler divergence (\code{KL}) \insertCite{kl,kldiv}{universalmotif}
+\item Hellinger distance (\code{HELL}) \insertCite{hellinger}{universalmotif}
+\item Itakura-Saito distance (\code{IS}) \insertCite{ISdist}{universalmotif}
+\item Squared Euclidean distance (\code{SEUCL})
+\item Manhattan distance (\code{MAN})
+\item Pearson correlation coefficient (\code{PCC})
+\item Sandelin-Wasserman similarity (\code{SW}), or sum of squared distances \insertCite{wasserman}{universalmotif}
+\item Average log-likelihood ratio (\code{ALLR}) \insertCite{wang}{universalmotif}
+\item Lower limit ALLR (\code{ALLR_LL}) \insertCite{mahony}{universalmotif}
+\item Bhattacharyya coefficient (\code{BHAT}) \insertCite{bhatt}{universalmotif}
 }
 
-To note regarding p-values: p-values are pre-computed using the
-\code{make_DBscores} function. If not given, then uses a set of internal
-precomputed p-values from the JASPAR2018 CORE motifs. These precalculated
+Comparisons are calculated between two motifs at a time. All possible alignments
+are scored, and the best score is reported. Scores are calculated per position
+and summed, unless the "mean" version of the specific metric is chosen. If using
+a similarity metric, then the sum of scores will favour comparisons between
+longer motifs; and for distance metrics, the sum of scores will favour
+comparisons between short motifs. This can be avoided by using the "mean" of
+scores.
+
+See the "Motif comparisons and P-values" vignette for a description of the
+various metrics. Note that PCC, SW, ALLR, ALLR_LL and BHAT are similarity;
+higher values mean more similar motifs. For the remaining metrics, values closer
+to zero represent more similar motifs.
+
+Small pseudocounts are automatically added when one of the following methods
+is used: KL, MKL, ALLR, MALLR, IS, MIS, ALLR_LL, MALLR_LL. This is avoid
+zeros in the calculations.
+
+To note regarding p-values: P-values are pre-computed using the
+\code{\link[=make_DBscores]{make_DBscores()}} function. If not given, then uses a set of internal
+precomputed P-values from the JASPAR2018 CORE motifs. These precalculated
 scores are dependent on the length of the motifs being compared; this takes
 into account that comparing small motifs with larger motifs leads to higher
 scores, since the probability of finding a higher scoring alignment is
 higher.
 
-The default p-values have been precalculated for regular DNA motifs; they
+The default P-values have been precalculated for regular DNA motifs; they
 are of little use for motifs with a different number of alphabet letters
 (or even the \code{multifreq} slot).
 }
@@ -157,15 +131,27 @@ as.dist(1 - motif1vs2)
 
 }
 \references{
+\insertRef{bhatt}{universalmotif}
+
 \insertRef{euclidean}{universalmotif}
 
+\insertRef{hellinger}{universalmotif}
+
 \insertRef{jaspar}{universalmotif}
+
+\insertRef{kl}{universalmotif}
+
+\insertRef{ISdist}{universalmotif}
+
+\insertRef{mahony}{universalmotif}
 
 \insertRef{pearson}{universalmotif}
 
 \insertRef{kldiv}{universalmotif}
 
 \insertRef{wasserman}{universalmotif}
+
+\insertRef{wang}{universalmotif}
 }
 \seealso{
 \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}},

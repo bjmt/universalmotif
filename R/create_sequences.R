@@ -18,7 +18,9 @@
 #'    creation can occur simultaneously in multiple threads using C++, it cannot
 #'    communicate with the regular `R` random number generator state and thus requires
 #'    an independent seed. Each individual sequence creation instance is
-#'    given the following seed: `rng.seed * index`.
+#'    given the following seed: `rng.seed * index`. The default is to pick a random
+#'    number as chosen by [sample()], which effectively is make [create_sequences()]
+#'    dependent on the R RNG state.
 #'
 #' @return \code{\link{XStringSet}} The returned sequences are _unnamed_.
 #'

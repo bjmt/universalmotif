@@ -12,11 +12,14 @@ merge_motifs(motifs, method = "ALLR", use.type = "PPM",
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{method}{\code{character(1)} One of \code{c('PCC', 'MPCC', 'EUCL', 'MEUCL', 'SW', 'MSW', 'KL', 'MKL', 'ALLR', 'MALLR')}. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
+SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
+these to get the "mean" version. See details.}
 
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
-frequencies if \code{relative_entropy = TRUE}.}
+frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
+allowed when \code{method = c(ALLR, MALLR, ALLR_LL, MALLR_LL)}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
