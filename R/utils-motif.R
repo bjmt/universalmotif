@@ -36,6 +36,8 @@
 #' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
 #'    representing score percentage.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM' 'ICM')`.
+#' @param use.freq `numeric(1)` Use regular motif or the respective `multifreq`
+#'    representation.
 #' @param x `numeric` First column for comparison.
 #' @param y `numeric` Second column for comparison.
 #'
@@ -359,7 +361,7 @@ icm_to_ppm <- function(position) {
 
 #' @rdname utils-motif
 #' @export
-motif_score <- function(motif, threshold = c(0, 1)) {
+motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
 
   if (any(threshold < 0) || any(threshold > 1))
     stop("For 'threshold', please only use values between 0 and 1")
@@ -374,15 +376,39 @@ motif_score <- function(motif, threshold = c(0, 1)) {
   if (!is(motif, "universalmotif"))
     stop("Unknown motif object")
 
-  motif <- convert_type_internal(motif, "PWM")
+  if (use.freq == 1) {
 
-  if (any(is.infinite(motif@motif))) {
-    warning("Found -Inf values in motif PWM, adding a pseudocount",
-            immediate. = TRUE)
-    motif <- normalize(motif)
+    motif <- convert_type_internal(motif, "PWM")
+
+    if (any(is.infinite(motif@motif))) {
+      warning("Found -Inf values in motif PWM, adding a pseudocount",
+              immediate. = TRUE)
+      motif <- normalize(motif)
+    }
+
+    mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
+
+  } else {
+    if (!as.character(use.freq[1]) %in% names(motif@multifreq))
+      stop("missing appropriate multifreq slot [", use.freq, "]")
+    mat <- motif@multifreq[[as.character(use.freq[1])]]
+    p <- motif@pseudocount
+    if (any(mat == 0) && p == 0) {
+      warning("Found 0 values, adding a pseudocount", immediate. = TRUE)
+      p <- 1
+    }
+    n <- motif@nsites
+    if (length(n) == 0 || n <= 1) n <- 100
+
+    # things can sometimes go quite wrong with bad higher order backgrounds
+    b <- motif@bkg[rownames(mat)]
+    if (anyNA(b)) b <- rep(1 / nrow(mat), nrow(mat))
+    if (any(b == 0)) b <- b + (1 / length(b)) * (1 / 1000)
+
+    mat <- apply(mat, 2, ppm_to_pwmC, pseudocount = p, bkg = b, nsites = n)
+
+    mat <- matrix(as.integer(mat * 1000), nrow = nrow(mat))
   }
-
-  mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
 
   s.max <- sum(apply(mat, 2, max))
   s.min <- sum(apply(mat, 2, min))

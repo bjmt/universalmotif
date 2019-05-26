@@ -43,7 +43,7 @@ get_scores(motif)
 
 icm_to_ppm(position)
 
-motif_score(motif, threshold = c(0, 1))
+motif_score(motif, threshold = c(0, 1), use.freq = 1)
 
 pcm_to_ppm(position, pseudocount = 0)
 
@@ -113,6 +113,9 @@ probability for each alphabet letter at a specific position.}
 
 \item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
 representing score percentage.}
+
+\item{use.freq}{\code{numeric(1)} Use regular motif or the respective \code{multifreq}
+representation.}
 
 \item{bkg}{\code{numeric} Should be the same length as the alphabet length.}
 

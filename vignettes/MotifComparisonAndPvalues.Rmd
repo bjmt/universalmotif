@@ -1,0 +1,482 @@
+---
+title: "Motif comparisons and P-values"
+date: 25 May 2019
+author:
+- name: Benjamin Jean-Marie Tremblay
+  email: b2tremblay@uwaterloo.ca
+bibliography: universalmotif.bib
+abstract: >
+  Two important but not often discussed topics with regards to motifs are motif comparisons and P-values. These are explored here, including implementation details and example use cases.
+vignette: >
+  %\VignetteIndexEntry{Motif comparisons and P-values}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::pdf_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
+suppressPackageStartupMessages(library(universalmotif))
+suppressPackageStartupMessages(library(Biostrings))
+suppressMessages(suppressPackageStartupMessages(library(MotifDb)))
+suppressMessages(suppressPackageStartupMessages(library(ggplot2)))
+suppressMessages(suppressPackageStartupMessages(library(ggtree)))
+suppressMessages(suppressPackageStartupMessages(library(dplyr)))
+suppressMessages(suppressPackageStartupMessages(library(tidyr)))
+data(ArabidopsisPromoters)
+data(ArabidopsisMotif)
+motdb <- convert_motifs(MotifDb)
+```
+
+# Introduction
+
+This vignette covers motif comparisons (including metrics, paremeters and clustering) and P-values. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette.
+
+# Motif comparisons
+
+There a few functions available in other Bioconductor packages which allow for motif comparison. These include `PWMSimlarity()` (`r Biocpkg("TFBSTools")`), `motifDistances()` (`r Biocpkg("MotIV")`), and `motifSimilarity()` (`r Biocpkg("PWMEnrich")`). Unfortunately these functions are not designed for comparing large numbers of motifs, and can result in long run times. Furthermore they are restrictive in their option range. The `r Biocpkg("universalmotif")` package aims to fix this by providing the `compare_motifs()` function.
+
+The main workhorse in `r Biocpkg("universalmotif")` is `compare_motifs()`. Several other functions also make use of these metrics, including `merge_motifs()`, `view_motifs()` and `compare_columns()`.
+
+## An overview of available comparison metrics
+
+This function has been written to allow comparisons using any of the following metrics:
+
+* Euclidean distance (`EUCL`)
+* Kullback-Leibler divergence (`KL`) [@kl; @roepcke]
+* Hellinger distance (`HELL`) [@hellinger]
+* Itakura-Saito distance (`IS`) [@ISdist]
+* Squared Euclidean distance (`SEUCL`)
+* Manhattan distance (`MAN`)
+* Pearson correlation coefficient (`PCC`)
+* Sandelin-Wasserman similarity (`SW`; or sum of squared distances) [@wasserman]
+* Average log-likelihood ratio (`ALLR`) [@wang]
+* Lower limit average log-likelihood ratio (`ALLR_LL`; minimum column score of -2) [@mahony]
+* Bhattacharyya coefficient (`BHAT`) [@bhatt]
+
+For clarity, here are the \R{} implementations of these metrics:
+
+```{r}
+EUCL <- function(c1, c2) {
+  sqrt( sum( (c1 - c2)^2 ) )
+}
+
+KL <- function(c1, c2) {
+  ( sum(c1 * log(c1 / c2)) + sum(c2 * log(c2 / c1)) ) / 2
+}
+
+HELL <- function(c1, c2) {
+  sqrt( sum( ( sqrt(c1) - sqrt(c2) )^2 ) ) / sqrt(2)
+}
+
+IS <- function(c1, c2) {
+  sum( c1 / c2 - log(c1 / c2) - 1 )
+}
+
+SEUCL <- function(c1, c2) {
+  sum( (c1 - c2)^2 )
+}
+
+MAN <- function(c1, c2) {
+  sum ( abs(c1 - c2) )
+}
+
+PCC <- function(c1, c2) {
+  n <- length(c1)
+  top <- n * sum(c1 * c2) - sum(c1) * sum(c2)
+  bot <- sqrt( ( n * sum(c1^2) - sum(c1)^2 ) * ( n * sum(c2^2) - sum(c2)^2 ) )
+  top / bot
+}
+
+SW <- function(c1, c2) {
+  2 - sum( (c1 - c2)^2 )
+}
+
+ALLR <- function(c1, c2, bkg1, bkg2, nsites1, nsites2) {
+  left <- sum( c2 * nsites2 * log(c1 / bkg1) )
+  right <- sum( c1 * nsites1 * log(c2 / bkg2) )
+  ( left + right ) / ( nsites1 + nsites2 )
+}
+
+BHAT <- function(c1, c2) {
+  sum( sqrt(c1 * c2) )
+}
+```
+
+Motif comparison involves comparing a single column from each motif individually, and adding up the scores from all column comparisons. Since this causes the score to be highly dependent on motif length, for each method a 'mean' version is also available (e.g. MPCC is the 'mean' version of PCC and will always report a max score of 1 regardless of motif length).
+
+If you're interested in simply comparing two columns individually, `compare_columns()` can be used:
+
+```{r}
+c1 <- c(0.7, 0.1, 0.1, 0.1)
+c2 <- c(0.5, 0.0, 0.2, 0.3)
+
+compare_columns(c1, c2, "PCC")
+compare_columns(c1, c2, "EUCL")
+```
+
+Note that some metrics do not work well with zero values, and small pseudocounts are automatically added to motifs for the following:
+
+* `KL`
+* `MKL`
+* `ALLR`
+* `MALLR`
+* `IS`
+* `MIS`
+* `ALLR_LL`
+* `MALLR_LL`
+
+As seen in figure \ref{fig:fig1}, the distributions for random individual column comparisons tend to be very skewed. This is usually remedied when comparing the entire motif, though some metrics still perform poorly in this regard (such as `IS`).
+
+```{r,echo=FALSE,fig.wide=TRUE,fig.asp=1,fig.cap="\\label{fig:fig1}Distributions of scores from approximately 5000 random motif and individual column comparisons"}
+atm <- filter_motifs(motdb, organism = "Athaliana")
+pool <- do.call(cbind, atm)@motif
+pool <- pool + 0.01
+metrics <- universalmotif:::COMPARE_METRICS
+metrics2 <- metrics[-c(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)]
+
+res <- vector("list", length(metrics2))
+names(res) <- metrics2
+
+x1 <- pool[, sample(1:ncol(pool), 4950)]
+x2 <- pool[, sample(1:ncol(pool), 4950)]
+for (m in metrics2) {
+  res[[m]] <- numeric(4950)
+  for (i in 1:4950) {
+    res[[m]][i] <- compare_columns(x1[, i], x2[, i], m)
+  }
+}
+res <- gather(as.data.frame(res))
+colnames(res) <- c("key", "score")
+
+res2 <- vector("list", length(metrics))
+names(res2) <- metrics
+
+y1 <- atm[sample(1:length(atm), 100)]
+for (m2 in metrics) {
+  res2[[m2]] <- as.numeric(as.dist(compare_motifs(y1, method=m2, min.mean.ic=0,
+                                                  min.overlap=99)))
+}
+res2 <- gather(as.data.frame(res2))
+colnames(res2) <- c("key", "score")
+
+res$type <- "single column"
+res2$type <- "whole motif"
+res4 <- rbind(res, res2)
+
+dres <- res4 %>%
+          group_by(key, type) %>%
+          summarise(mean = mean(score))
+
+ggplot(res4, aes(x = score, fill = type)) +
+  geom_density(alpha = 0.3) +
+  geom_vline(aes(xintercept = 0), colour = "black", linetype = "dashed") +
+  geom_vline(data=dres, aes(xintercept=mean, colour = type)) +
+  facet_wrap(key ~ ., ncol = 4, scales = "free") +
+  theme_minimal()
+```
+
+## Comparison parameters
+
+There are several key parameters to keep in mind when comparing motifs. These include:
+
+* `method`: one of the metrics listed previously
+* `tryRC`: choose whether to try comparing the reverse complements of each motif as well
+* `min.overlap`: limit the amount of allowed overhang between the two motifs
+* `min.mean.ic`, `min.position.ic`: don't allow low IC alignments or positions to contribute to the final score
+
+See the following example for an idea as to how these settings impact scores:
+
+```{r,echo=FALSE,fig.cap="\\label{fig:fig2}Example scores from comparing two motifs"}
+library(universalmotif)
+library(MotifDb)
+
+motifs <- convert_motifs(MotifDb)
+motifs <- filter_motifs(motifs, altname = c("M0003_1.02", "M0004_1.02"))
+# summarise_motifs(motifs)
+view_motifs(motifs)
+try_all <- function(motifs, ...) {
+  scores <- vector("list", 4)
+  methods <- c("MPCC", "PCC", "MEUCL", "EUCL",
+               "MSW", "SW", "MKL", "KL", "MALLR", "ALLR",
+               "MBHAT", "BHAT", "MHELL", "HELL", "MIS",
+               "IS", "MSEUCL", "SEUCL", "MMAN", "MAN",
+               "MALLR_LL", "ALLR_LL")
+  for (i in seq_along(methods)) {
+    scores[[1]][i] <- compare_motifs(motifs, method = methods[i])[1, 2]
+    scores[[2]][i] <- compare_motifs(motifs, method = methods[i], normalise.scores = TRUE)[1, 2]
+    scores[[3]][i] <- compare_motifs(motifs, method = methods[i], min.overlap = 99)[1, 2]
+    scores[[4]][i] <- compare_motifs(motifs, method = methods[i], min.position.ic=0.25)[1, 2]
+  }
+  res <- data.frame(type = c("similarity", "similarity", "distance", "distance",
+                             "similarity", "similarity", "distance", "distance", "similarity",
+                             "similarity", "similarity", "similarity", "distance",
+                             "distance", "distance", "distance", "distance",
+                             "distance", "distance", "distance", "similarity",
+                             "similarity"),
+                    method = methods,
+                    default = scores[[1]],
+                    normalised = scores[[2]],
+                    # noRC = scores[[3]],
+                    checkIC = scores[[4]])
+  knitr::kable(res, format = "markdown", caption = "Comparing two motifs with various settings")
+}
+try_all(motifs)
+```
+
+Settings used in the previous table:
+
+* normalised: `normalise.scores = TRUE`
+* checkIC: `min.position.ic = 0.25`
+
+## Comparison P-values
+
+By default, `compare_motifs()` will compare all motifs provided and return a matrix. The `compare.to` will cause `compare_motifs()` to return P-values.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+motifs <- filter_motifs(MotifDb, organism = "Athaliana")
+
+# Compare the first motif with everything and return P-values
+head(compare_motifs(motifs, 1))
+```
+
+P-values are made possible by estimating logistic distribution (usually the best fitting distribution for motif comparisons) parameters from randomized motif scores, then using `plogis()` to return P-values. These estimated parameters are pre-computed with `make_DBscores()` and stored as `JASPAR2018_CORE_DBSCORES` and `JASPAR2018_CORE_DBSCORES_NORM`. Since changing any of the settings and motif sizes will affect the estimated distribution parameters, estimated parameters have been pre-computed for a variety of these. See `?make_DBscores` if you would like to generate your own set of pre-computed scores using your own parameters and motifs.
+
+# Motif trees with ggtree
+
+## Using `motif_tree()`
+
+Additionally, this package introduces the `motif_tree()` function for generating basic tree-like diagrams for comparing motifs. This allows for a visual result from `compare_motifs()`. All options from `compare_motifs()` are available in `motif_tree()`. This function uses the `r Biocpkg("ggtree")` package and outputs a `ggplot` object (from the `r CRANpkg("ggplot2")` package), so altering the look of the trees can be done easily after `motif_tree()` has already been run.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+motifs <- filter_motifs(MotifDb, family = c("AP2", "B3", "bHLH", "bZIP",
+                                            "AT hook"))
+motifs <- motifs[sample(seq_along(motifs), 100)]
+tree <- motif_tree(motifs, layout = "daylight", linecol = "family")
+
+## Make some changes to the tree in regular ggplot2 fashion:
+# tree <- tree + ...
+
+tree
+```
+
+## Using `compare_motifs()` and `ggtree()`
+
+While `motif_tree()` works as a quick and convenient tree-building function, it can be inconvenient when more control is required over tree construction. For this purpose, the following code goes through how exactly `motif_tree()` generates trees.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+library(ggtree)
+library(ggplot2)
+
+motifs <- convert_motifs(MotifDb)
+motifs <- filter_motifs(motifs, organism = "Athaliana")
+motifs <- motifs[sample(seq_along(motifs), 25)]
+
+## Step 1: compare motifs
+
+comparisons <- compare_motifs(motifs, min.mean.ic = 0)
+
+## Step 2: create a "dist" object
+
+# The default metric, MPCC, is a similarity metric
+comparisons <- 1 - comparisons
+
+comparisons <- as.dist(comparisons)
+
+# We also want to extract names from the dist object to match annotations
+labels <- attr(comparisons, "Labels")
+
+## Step 3: get the comparisons ready for tree-building
+
+# The R package "ape" provides the necessary "as.phylo" function
+comparisons <- ape::as.phylo(hclust(comparisons))
+
+## Step 4: incorporate annotation data to colour tree lines
+
+family <- sapply(motifs, function(x) x["family"])
+family.unique <- unique(family)
+
+# We need to create a list with an entry for each family; within each entry
+# are the names of the motifs belonging to that family
+family.annotations <- list()
+for (i in seq_along(family.unique)) {
+  family.annotations <- c(family.annotations,
+                          list(labels[family %in% family.unique[i]]))
+}
+names(family.annotations) <- family.unique
+
+# Now add the annotation data:
+comparisons <- ggtree::groupOTU(comparisons, family.annotations)
+
+## Step 5: draw the tree
+
+tree <- ggtree(comparisons, aes(colour = group), layout = "rectangular") +
+          theme(legend.position = "bottom", legend.title = element_blank())
+
+## Step 6: add additional annotations
+
+# If we wish, we can additional annotations such as tip labelling and size
+
+# Tip labels:
+tree <- tree + geom_tiplab()
+
+# Tip size:
+tipsize <- data.frame(label = labels,
+                      icscore = sapply(motifs, function(x) x["icscore"]))
+
+tree <- tree %<+% tipsize + geom_tippoint(aes(size = icscore))
+
+```
+
+# Motif P-values
+
+## Calculating P-values from scores
+
+Motif P-values are not usually discussed outside of the bioinformatics literature, but are actually quite a challenging topic. For illustrate this, consider the following example motif:
+
+```{r}
+library(universalmotif)
+
+m <- matrix(c(0.10,0.27,0.23,0.19,0.29,0.28,0.51,0.12,0.34,0.26,
+              0.36,0.29,0.51,0.38,0.23,0.16,0.17,0.21,0.23,0.36,
+              0.45,0.05,0.02,0.13,0.27,0.38,0.26,0.38,0.12,0.31,
+              0.09,0.40,0.24,0.30,0.21,0.19,0.05,0.30,0.31,0.08),
+            byrow = TRUE, nrow = 4)
+motif <- create_motif(m, alphabet = "DNA", type = "PWM")
+motif
+```
+
+Let us then use this motif with `scan_sequences()`:
+
+```{r}
+data(ArabidopsisPromoters)
+
+res <- scan_sequences(motif, ArabidopsisPromoters, verbose = 0,
+                      progress = FALSE, threshold = 0.8,
+                      threshold.type = "logodds")
+head(res)
+```
+
+Now let us imagine that we wish to rank these matches by P-value. First, we must calculate the match probabilities:
+
+```{r}
+## The second match was CTCTAGAGAC, with a score of 5.869 (max possible = 6.531)
+
+bkg <- get_bkg(ArabidopsisPromoters, 1, list.out = FALSE)
+bkg
+```
+Now, use these to calculate the probability of getting CTCTAGAGAC.
+```{r}
+hit.prob <- bkg["A"]^3 * bkg["C"]^3 * bkg["G"]^2 * bkg["T"]^2
+hit.prob <- unname(hit.prob)
+hit.prob
+```
+
+Calculating the probability of a single match was easy, but then comes the challenging part: calculating the probability of all possible matches with a score higher than 5.869, and then summing these. This final sum then represents the probability of finding a match which scores at least 5.869. One way is to list all possible sequence combinations, then filtering based on score; however this "brute force" approach is unreasonable but for the smallest of motifs.
+
+A few algorithms have been proposed to make this more efficient, but the method adopted by the `r Biocpkg("universalmotif")` package is that of @pvalues. The authors propose using a branch-and-bound^[https://en.wikipedia.org/wiki/Branch_and_bound] algorithm (with a few tricks) alongside a certain approximation. Briefly: motifs are first reorganized so that the highest scoring positions and letters are considered first in the branch-and-bound algorithm. Then, motifs past a certain width (in the original paper, 10) are split in sub-motifs. All possible combinations are found in these sub-motifs using the branch-and-bound algorithm, and P-values calculated for the sub-motifs. Finally, the P-values are combined.
+
+The `motif_pvalue()` function modifies this process slightly by allowing the size of the sub-motifs to be specified via the `k` parameter; and additionally, whereas the original implementation can only calculate P-values for motifs with a maximum of 17 positions (and motifs can only be split in at most two), the `r Biocpkg("universalmotif")` implementation allows for any length of motif to be used (and motifs can be split any number of times). Changing `k` allows one to decide between speed and accuracy; smaller `k` leads to faster but worse approximations, and larger `k` leads to slower but better approximations. If `k` is equal to the width of the motif, then the calculation is _exact_.
+
+Now, let us return to our original example:
+
+```{r}
+res <- res[1:6, ]
+pvals <- motif_pvalue(motif, res$score, bkg.probs = bkg)
+res2 <- data.frame(motif=res$motif,match=res$match,pval=pvals)[order(pvals), ]
+knitr::kable(res2, digits = 22, row.names = FALSE, format = "markdown")
+```
+
+The default `k` in `motif_pvalue()` is 8. I have found this to be a good tradeoff between speed and P-value correctness.
+
+To demonstrate the effect that `k` has on the output P-value, consider the following (and also note that for this motif `k = 10` represents an exact calculation):
+
+```{r}
+scores <- c(-6, -3, 0, 3, 6)
+k <- c(2, 4, 6, 8, 10)
+out <- data.frame(k = c(2, 4, 6, 8, 10),
+                  score.minus6 = rep(0, 5),
+                  score.minus3 = rep(0, 5),
+                  score.0 = rep(0, 5),
+                  score.3 = rep(0, 5),
+                  score.6 = rep(0, 5))
+
+for (i in seq_along(scores)) {
+  for (j in seq_along(k)) {
+    out[j, i + 1] <- motif_pvalue(motif, scores[i], k = k[j], bkg.probs = bkg)
+  }
+}
+
+knitr::kable(out, format = "markdown", digits = 10)
+```
+
+For this particular motif, while the approximation worsens slightly as `k` decreases, it is still quite accurate when the number of motif subsets is limited to two. Usually, you should only have to worry about `k` for longer motifs (such as those sometimes generated by \software{MEME}), where the number of sub-motifs increases.
+
+## Calculating scores from P-values
+
+The `r Biocpkg("universalmotif")` also allows for calculating motifs scores from P-values. Similarly to calculating P-values, exact scores can be calculated from small motifs, and approximate scores from big motifs using subsetting. Unlike the P-value calculation however, a uniform background is assumed. When an exact calculation is performed, all possible scores are extracted and a quantile function extracts the appropriate score. For approximate calculations, the overall set of scores are approximate several times by randomly adding up all possible scores from each `k` subset before a quantile function is used.
+
+Starting from a set of P-values:
+
+```{r}
+bkg <- c(A=0.25, C=0.25, G=0.25, T=0.25)
+pvals <- c(0.1, 0.01, 0.001, 0.0001, 0.00001)
+scores <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 10)
+
+scores.approx6 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 6)
+scores.approx8 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 8)
+
+pvals.exact <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 10)
+
+pvals.approx6 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 6)
+pvals.approx8 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 8)
+
+res <- data.frame(pvalue = pvals, score = scores,
+                  pvalue.exact = pvals.exact,
+                  pvalue.k6 = pvals.approx6,
+                  pvalue.k8 = pvals.approx8,
+                  score.k6 = scores.approx6,
+                  score.k8 = scores.approx8)
+knitr::kable(res, format = "markdown", digits = 22)
+```
+
+Starting from a set of scores:
+
+```{r}
+bkg <- c(A=0.25, C=0.25, G=0.25, T=0.25)
+scores <- -2:6
+pvals <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 10)
+
+scores.exact <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 10)
+
+scores.approx6 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 6)
+scores.approx8 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 8)
+
+pvals.approx6 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 6)
+pvals.approx8 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 8)
+
+res <- data.frame(score = scores, pvalue = pvals,
+                  pvalue.k6 = pvals.approx6,
+                  pvalue.k8 = pvals.approx8,
+                  score.exact = scores.exact,
+                  score.k6 = scores.approx6,
+                  score.k8 = scores.approx8)
+knitr::kable(res, format = "markdown", digits = 22)
+```
+As you can see, results from exact calculations are not _quite_ exact but close regardless.
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References {.unnumbered}

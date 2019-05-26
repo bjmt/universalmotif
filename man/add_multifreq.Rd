@@ -5,7 +5,8 @@
 \title{Add multi-letter information to a motif.}
 \usage{
 add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
-  threshold = 0.001, threshold.type = "pvalue", motifs.perseq = 1)
+  threshold = 0.001, threshold.type = "pvalue", motifs.perseq = 1,
+  add.bkg = FALSE)
 }
 \arguments{
 \item{motif}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats. If the
@@ -30,6 +31,11 @@ sequences.}
 
 \item{motifs.perseq}{\code{numeric(1)} If \code{\link[=scan_sequences]{scan_sequences()}} is run,
 then this indicates how many hits from each sequence is to be used.}
+
+\item{add.bkg}{\code{logical(1)} Indicate whether to add corresponding higher
+order background information to the motif. Can sometimes be detrimental
+when the input consists of few short sequences, which can increase
+the likelihood of adding zero or near-zero probabilities.}
 }
 \value{
 A \linkS4class{universalmotif} object with filled \code{multifreq} slot. The

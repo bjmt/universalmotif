@@ -15,6 +15,10 @@
 #' @param add.k `numeric(1)` The k-let lengths to add.
 #' @param motifs.perseq `numeric(1)` If [scan_sequences()] is run,
 #'    then this indicates how many hits from each sequence is to be used.
+#' @param add.bkg `logical(1)` Indicate whether to add corresponding higher
+#'    order background information to the motif. Can sometimes be detrimental
+#'    when the input consists of few short sequences, which can increase
+#'    the likelihood of adding zero or near-zero probabilities.
 #'
 #' @details
 #'    See [scan_sequences()] for more info on scanning parameters.
@@ -66,7 +70,7 @@
 #' @export
 add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
                           threshold = 0.001, threshold.type = "pvalue",
-                          motifs.perseq = 1) {
+                          motifs.perseq = 1, add.bkg = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -162,8 +166,10 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   }
   motif@multifreq <- multifreq
 
-  new.bkg <- get_bkg(sequences, k = add.k, RC = RC, list.out = FALSE)
-  motif@bkg <- c(motif@bkg, new.bkg)
+  if (add.bkg) {
+    new.bkg <- get_bkg(sequences, k = add.k, RC = RC, list.out = FALSE)
+    motif@bkg <- c(motif@bkg, new.bkg)
+  }
 
   motif
 

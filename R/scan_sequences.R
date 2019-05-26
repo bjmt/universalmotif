@@ -193,8 +193,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     }
   }
 
-  max.scores <- vapply(motifs, function(x) motif_score(x, 1), numeric(1))
-  min.scores <- vapply(motifs, function(x) motif_score(x, 0), numeric(1))
+  max.scores <- vapply(motifs, function(x) motif_score(x, 1, use.freq), numeric(1))
+  min.scores <- vapply(motifs, function(x) motif_score(x, 0, use.freq), numeric(1))
 
   switch(threshold.type,
 

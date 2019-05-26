@@ -1,9 +1,9 @@
 ---
 title: "Introduction to \"universalmotif\""
 shorttitle: "Intro to \"universalmotif\""
+date: 25 May 2019
 author:
 - name: Benjamin Jean-Marie Tremblay
-  affiliation: University of Waterloo, Waterloo, Canada
   email: b2tremblay@uwaterloo.ca
 bibliography: universalmotif.bib
 vignette: >
@@ -31,9 +31,9 @@ BiocManager::install("universalmotif")
 
 For a brief explanation of sequence motifs, see the [Introduction to sequence motifs](IntroductionToSequenceMotifs.pdf) vignette. This broadly covers the different 'types' of motif representation, as well as establishes the nomenclature used by the `r Biocpkg("universalmotif")` package.
 
-Broadly speaking, the capabilities of the `r Biocpkg("universalmotif")` package can be divided into three categories. These are briefly demonstrated in the following vignettes:
+Broadly speaking, the capabilities of the `r Biocpkg("universalmotif")` package can be divided into several categories. These are briefly demonstrated in the following vignettes:
 
 * [Motif import, export, and manipulation](MotifManipulation.pdf)
 * [Sequence scanning and manipulation](SequenceSearches.pdf)
-* [Motif analysis and advanced usage](AdvancedUsage.pdf)
+* [Motif comparisons and P-values](MotifComparisonAndPvalues.pdf)
 

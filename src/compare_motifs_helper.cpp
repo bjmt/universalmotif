@@ -12,38 +12,41 @@ std::unordered_map<std::string, int> METRICS_enum = {
   /* distance */    // timings from last make_DBscores() run:
 
   // Euclidean distance
-  {"EUCL",    1},   // 35.78 s
-  {"MEUCL",   2},   // 34.42 s
+  {"EUCL",      1},   // 35.78 s
+  {"MEUCL",     2},   // 34.42 s
   // Kullback-Leibler divergence
-  {"KL",      3},   // 21.99 s
-  {"MKL",     4},   // 21.36 s
+  {"KL",        3},   // 21.99 s
+  {"MKL",       4},   // 21.36 s
   // Hellinger distance
-  {"HELL",   13},   // 17.37 s
-  {"MHELL",  14},   // 17.85 s
+  {"HELL",     13},   // 17.37 s
+  {"MHELL",    14},   // 17.85 s
   // Itakura-Saito distance
-  {"IS",     15},   // 18.41 s
-  {"MIS",    16},   // 18.53 s
+  {"IS",       15},   // 18.41 s
+  {"MIS",      16},   // 18.53 s
   // Squared Euclidean distance
-  {"SEUCL",  17},   // 14.93 s
-  {"MSEUCL", 18},   // 15.05 s
+  {"SEUCL",    17},   // 14.93 s
+  {"MSEUCL",   18},   // 15.05 s
   // Manhattan distance
-  {"MAN",    19},   // 14.92 s
-  {"MMAN",   20},   // 15.6 s
+  {"MAN",      19},   // 14.92 s
+  {"MMAN",     20},   // 15.6 s
 
   /* similarity */
 
   // Pearson correlation coefficient
-  {"PCC",     5},   // 1.231 m
-  {"MPCC",    6},   // 1.29 m
-  // Smith-Waterman similarity
-  {"SW",      7},   // 15.42 s
-  {"MSW",     8},   // 15.8 s
+  {"PCC",       5},   // 1.231 m
+  {"MPCC",      6},   // 1.29 m
+  // Sandelin-Wasserman similarity (aka SSD)
+  {"SW",        7},   // 15.42 s
+  {"MSW",       8},   // 15.8 s
   // Average log-likelihood ratio
-  {"ALLR",    9},   // 59.88 s
-  {"MALLR",  10},   // 59.53 s
+  {"ALLR",      9},   // 59.88 s
+  {"MALLR",    10},   // 59.53 s
   // Bhattacharyya coefficient
-  {"BHAT",   11},   // 15.67 s
-  {"MBHAT",  12}    // 15.89 s
+  {"BHAT",     11},   // 15.67 s
+  {"MBHAT",    12},   // 15.89 s
+  // Lower limit average log-likelihood ratio
+  {"ALLR_LL",  21},
+  {"MALLR_LL", 22}
 
 };
 
@@ -361,6 +364,46 @@ double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
 
 }
 
+double compare_allr_ll(const list_num_t &mot1, const list_num_t &mot2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2, const double nsites1,
+    const double nsites2, const bool norm = false) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+  vec_bool_t good(ncol, false);
+  int counter = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++counter;
+    }
+  }
+
+  list_num_t left(ncol, vec_num_t(nrow, 0.0)), right(ncol, vec_num_t(nrow, 0.0));
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        left[i][j] = (mot2[i][j] * nsites2) * log(mot1[i][j] / bkg1[j]);
+        right[i][j] = (mot1[i][j] * nsites1) * log(mot2[i][j] / bkg2[j]);
+      }
+    }
+  }
+
+  vec_num_t answers(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      answers[i] += std::accumulate(left[i].begin(), left[i].end(), 0.0);
+      answers[i] += std::accumulate(right[i].begin(), right[i].end(), 0.0);
+      answers[i] /= nsites1 + nsites2;
+      if (answers[i] < -2.0) answers[i] = -2.0;
+    }
+  }
+
+  double total = std::accumulate(answers.begin(), answers.end(), 0.0);
+
+  return norm ? total / double(counter) : total;
+
+}
+
 double compare_sw(const list_num_t &mot1, const list_num_t &mot2,
     const bool norm = false) {
 
@@ -622,6 +665,16 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
                               : compare_man(tmot1, tmot2, true)
                                 * double(alignlen) / double(tlen);
              break;
+    case 21: ans[i] = lowic ? -std::numeric_limits<double>::max()
+                              : compare_allr_ll(tmot1, tmot2, bkg1, bkg2, nsites1,
+                                  nsites2, false)
+                                * double(alignlen) / double(tlen);
+             break;
+    case 22: ans[i] = lowic ? -std::numeric_limits<double>::max()
+                             : compare_allr_ll(tmot1, tmot2, bkg1, bkg2, nsites1,
+                                 nsites2, true)
+                               * double(alignlen) / double(tlen);
+             break;
 
   }
 
@@ -653,6 +706,8 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
     case 18: return *std::min_element(ans.begin(), ans.end());
     case 19: return *std::min_element(ans.begin(), ans.end());
     case 20: return *std::min_element(ans.begin(), ans.end());
+    case 21: return *std::max_element(ans.begin(), ans.end());
+    case 22: return *std::max_element(ans.begin(), ans.end());
 
   }
 
@@ -794,6 +849,8 @@ int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
     case 18: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
     case 19: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
     case 20: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case 21: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case 22: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
 
   }
 
@@ -1043,7 +1100,9 @@ void fix_mot_bkg_zeros(list_num_t &mot, vec_num_t &bkg, const std::string &metho
     case 9:
     case 10:
     case 15:
-    case 16: klfix(mot);
+    case 16:
+    case 21:
+    case 22: klfix(mot);
              bkgfix(bkg);
   }
 
@@ -1432,6 +1491,13 @@ double compare_columns_cpp(const std::vector<double> &p1,
              break;
     case 19:
     case 20: ans = compare_man(pp1, pp2);
+             break;
+    case 21:
+    case 22: if (b1.size() != p1.size() || b2.size() != p1.size())
+               Rcpp::stop("incorrect background vector length");
+             if (n1 <= 1 || n2 <= 1)
+               Rcpp::stop("nsites1/nsites2 should be greater than 1");
+             ans = compare_allr_ll(pp1, pp2, b1, b2, n1, n2);
              break;
     default: Rcpp::stop("unknown metric");
   }

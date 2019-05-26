@@ -38,7 +38,7 @@ clean:
 
 vignettes:
 	cd vignettes;\
-	R -q -e "rmarkdown::render('AdvancedUsage.Rmd')" &&\
+	R -q -e "rmarkdown::render('MotifComparisonAndPvalues.Rmd')" &&\
 	R -q -e "rmarkdown::render('Introduction.Rmd')" &&\
 	R -q -e "rmarkdown::render('IntroductionToSequenceMotifs.Rmd')" &&\
 	R -q -e "rmarkdown::render('MotifManipulation.Rmd')" &&\

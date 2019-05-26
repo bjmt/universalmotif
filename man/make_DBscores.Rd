@@ -6,11 +6,11 @@
 \usage{
 make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
   "MSW", "KL", "MKL", "ALLR", "MALLR", "BHAT", "MBHAT", "HELL", "MHELL",
-  "IS", "MIS", "SEUCL", "MSEUCL", "MAN", "MMAN"), shuffle.db = TRUE,
-  shuffle.k = 3, shuffle.method = "linear", rand.tries = 1000,
-  widths = 5:30, min.position.ic = 0, normalise.scores = FALSE,
-  min.overlap = 6, min.mean.ic = 0, progress = TRUE, BP = FALSE,
-  nthreads = 1, tryRC = TRUE)
+  "IS", "MIS", "SEUCL", "MSEUCL", "MAN", "MMAN", "ALLR_LL", "MALLR_LL"),
+  shuffle.db = TRUE, shuffle.k = 3, shuffle.method = "linear",
+  rand.tries = 1000, widths = 5:30, min.position.ic = 0,
+  normalise.scores = FALSE, min.overlap = 6, min.mean.ic = 0,
+  progress = TRUE, BP = FALSE, nthreads = 1, tryRC = TRUE)
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}

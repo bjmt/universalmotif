@@ -119,10 +119,14 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,
   data.loc <- peakfinder_cpp(data.kern$y, peak.width)
   data.peaks <- data.kern$y[data.loc]
 
-  peak.pvals <- 1 - ecdf(rand.peaks)(data.peaks)
+  pv <- fitdistr(rand.peaks, "normal")
+  peak.pvals <- pnorm(data.peaks, pv$estimate["mean"], pv$estimate["sd"],
+                      lower.tail = FALSE)
 
   if (plot) {
     pval.lim <- quantile(rand.peaks, 1 - max.p)
+    pval.lim <- qnorm(max.p, pv$estimate["mean"], pv$estimate["sd"],
+                      lower.tail = FALSE)
     kern.df <- data.frame(x = data.kern$x, y = data.kern$y)
     p <- ggplot(kern.df, aes(x, y)) +
            geom_line() +
