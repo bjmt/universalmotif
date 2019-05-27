@@ -52,6 +52,8 @@ std::unordered_map<std::string, int> METRICS_enum = {
 
 std::unordered_map<std::string, int> SCORESTRAT_enum = {
 
+  /* possible means to add: harmonic */
+
   {"sum",    1},
   {"a.mean", 2},
   {"g.mean", 3},

@@ -104,7 +104,7 @@ BHAT <- function(c1, c2) {
 }
 ```
 
-Motif comparison involves comparing a single column from each motif individually, and adding up the scores from all column comparisons. Since this causes the score to be highly dependent on motif length, for each method a 'mean' version is also available (e.g. MPCC is the 'mean' version of PCC and will always report a max score of 1 regardless of motif length).
+Motif comparison involves comparing a single column from each motif individually, and adding up the scores from all column comparisons. Since this causes the score to be highly dependent on motif length, the scores can instead be averaged using the arithmetic mean, geometric mean, or median.
 
 If you're interested in simply comparing two columns individually, `compare_columns()` can be used:
 
@@ -125,7 +125,7 @@ Note that some metrics do not work well with zero values, and small pseudocounts
 
 As seen in figure \ref{fig:fig1}, the distributions for random individual column comparisons tend to be very skewed. This is usually remedied when comparing the entire motif, though some metrics still perform poorly in this regard (such as `IS`).
 
-```{r,echo=FALSE,fig.wide=TRUE,fig.asp=1,fig.cap="\\label{fig:fig1}Distributions of scores from approximately 5000 random motif and individual column comparisons"}
+```{r,echo=FALSE,fig.wide=TRUE,fig.asp=1,fig.cap="\\label{fig:fig1}Distributions of scores from approximately 500 random motif and individual column comparisons"}
 atm <- filter_motifs(motdb, organism = "Athaliana")
 pool <- do.call(cbind, atm)@motif
 pool <- pool + 0.01
@@ -134,40 +134,64 @@ metrics <- universalmotif:::COMPARE_METRICS
 res <- vector("list", length(metrics))
 names(res) <- metrics
 
-x1 <- pool[, sample(1:ncol(pool), 4950)]
-x2 <- pool[, sample(1:ncol(pool), 4950)]
+res2 <- vector("list", length(metrics))
+names(res2) <- metrics
+res3 <- vector("list", length(metrics))
+names(res3) <- metrics
+res4 <- vector("list", length(metrics))
+names(res4) <- metrics
+res4 <- res4[!names(res4) %in% c("PCC", "ALLR", "ALLR_LL")]
+res5 <- vector("list", length(metrics))
+names(res5) <- metrics
+
+y1 <- atm[sample(1:length(atm), 33)]
+x1 <- pool[, sample(1:ncol(pool), 528)]
+x2 <- pool[, sample(1:ncol(pool), 528)]
+
 for (m in metrics) {
-  res[[m]] <- numeric(4950)
-  for (i in 1:4950) {
+  res[[m]] <- numeric(528)
+  for (i in 1:528) {
     res[[m]][i] <- compare_columns(x1[, i], x2[, i], m)
   }
+  res2[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
+                                                  min.overlap=99, score.strat="sum")))
+  res3[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
+                                                  min.overlap=99, score.strat="a.mean")))
+  if (!m %in% c("PCC", "ALLR", "ALLR_LL"))
+    res4[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
+                                                    min.overlap=99, score.strat="g.mean")))
+  res5[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
+                                                  min.overlap=99, score.strat="median")))
 }
+
 res <- gather(as.data.frame(res))
 colnames(res) <- c("key", "score")
 
-res2 <- vector("list", length(metrics))
-names(res2) <- metrics
-
-y1 <- atm[sample(1:length(atm), 100)]
-for (m2 in metrics) {
-  res2[[m2]] <- as.numeric(as.dist(compare_motifs(y1, method=m2, min.mean.ic=0,
-                                                  min.overlap=99)))
-}
 res2 <- gather(as.data.frame(res2))
 colnames(res2) <- c("key", "score")
+res3 <- gather(as.data.frame(res3))
+colnames(res3) <- c("key", "score")
+res4 <- gather(as.data.frame(res4))
+colnames(res4) <- c("key", "score")
+res5 <- gather(as.data.frame(res5))
+colnames(res5) <- c("key", "score")
 
-res$type <- "single column"
-res2$type <- "whole motif"
-res4 <- rbind(res, res2)
+res$type <- "RawColumnScores"
+res2$type <- "Sum"
+res3$type <- "ArithMean"
+res4$type <- "GeoMean"
+res5$type <- "Median"
+# res4 <- rbind(res, res2)
+res6 <- rbind(res, res3, res4, res5)
 
-dres <- res4 %>%
+dres <- res6 %>%
           group_by(key, type) %>%
           summarise(mean = mean(score))
 
-ggplot(res4, aes(x = score, fill = type)) +
+ggplot(res6, aes(x = score, fill = type)) +
   geom_density(alpha = 0.3) +
   geom_vline(aes(xintercept = 0), colour = "black", linetype = "dashed") +
-  geom_vline(data=dres, aes(xintercept=mean, colour = type)) +
+  # geom_vline(data=dres, aes(xintercept=mean, colour = type)) +
   facet_wrap(key ~ ., ncol = 4, scales = "free") +
   theme_minimal()
 ```
@@ -180,8 +204,9 @@ There are several key parameters to keep in mind when comparing motifs. These in
 * `tryRC`: choose whether to try comparing the reverse complements of each motif as well
 * `min.overlap`: limit the amount of allowed overhang between the two motifs
 * `min.mean.ic`, `min.position.ic`: don't allow low IC alignments or positions to contribute to the final score
+* `score.strat`: how to combine individual column scores in an alignment
 
-See the following example for an idea as to how these settings impact scores:
+See the following example for an idea as to how some of these settings impact scores:
 
 ```{r,echo=FALSE,fig.cap="\\label{fig:fig2}Example scores from comparing two motifs"}
 library(universalmotif)
@@ -278,7 +303,7 @@ comparisons <- compare_motifs(motifs, method = "PCC", min.mean.ic = 0,
 
 ## Step 2: create a "dist" object
 
-# The current metric, MPCC, is a similarity metric
+# The current metric, PCC, is a similarity metric
 comparisons <- 1 - comparisons
 
 comparisons <- as.dist(comparisons)
