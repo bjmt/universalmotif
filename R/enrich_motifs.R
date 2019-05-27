@@ -47,7 +47,7 @@
 #'    See [motif_pvalue()].
 #'
 #' @return `list` Motif enrichment results as a length four list. Some list entries
-#'    may be `NULL` depending on functin parameters.
+#'    may be `NULL` depending on function parameters.
 #'
 #' * `enrichment.report.hits`
 #' * `enrichment.report.pos`

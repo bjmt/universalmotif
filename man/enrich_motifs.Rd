@@ -87,7 +87,7 @@ See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
 \code{list} Motif enrichment results as a length four list. Some list entries
-may be \code{NULL} depending on functin parameters.
+may be \code{NULL} depending on function parameters.
 \itemize{
 \item \code{enrichment.report.hits}
 \item \code{enrichment.report.pos}
