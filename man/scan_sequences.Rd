@@ -6,7 +6,7 @@
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  progress = FALSE, BP = FALSE, nthreads = 1)
+  progress = FALSE, BP = FALSE, nthreads = 1, motif_pvalue.k = 8)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -37,6 +37,9 @@ verbose (\code{3}).}
 threads. \code{nthreads = 0} uses all available threads.
 Note that no speed up will occur for jobs with only a single motif and
 sequence.}
+
+\item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.
+See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
 \code{data.frame} with each row representing one hit; if the input

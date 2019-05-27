@@ -193,6 +193,7 @@ convert_type_single <- function(motif, type, pseudocount,
   if (is.null(pseudocount)) pseudocount <- motif@pseudocount
   bkg <- motif@bkg[rownames(motif@motif)]
   if (anyNA(bkg)) bkg <- motif@bkg[seq_len(nrow(motif@motif))]
+  if (any(bkg == 0)) bkg <- pcm_to_ppmC(bkg * 1000, 1)
 
   if (length(motif@nsites) == 0) nsites <- 100 else nsites <- motif@nsites
 
@@ -207,6 +208,22 @@ convert_type_single <- function(motif, type, pseudocount,
 
   validObject_universalmotif(motif)
   motif
+
+}
+
+MATRIX_ppm_to_pwm <- function(mat, bkg, pseudocount = 1, nsites = 100) {
+
+  if (missing(bkg) || length(bkg) == 0 || anyNA(bkg) || length(bkg) != nrow(mat))
+    bkg <- rep(1 / nrow(mat), nrow(mat))
+
+  if (length(nsites) == 0 || nsites <= 1) nsites <- 100
+
+  if (any(bkg == 0)) bkg <- pcm_to_ppmC(bkg * 1000, 1)
+
+  mat <- apply(mat, 2, ppm_to_pwmC, bkg = bkg, pseudocount = pseudocount,
+               nsites = nsites)
+
+  mat
 
 }
 

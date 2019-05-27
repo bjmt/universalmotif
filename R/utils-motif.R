@@ -382,25 +382,18 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
     mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
 
   } else {
+
     if (!as.character(use.freq[1]) %in% names(motif@multifreq))
       stop("missing appropriate multifreq slot [", use.freq, "]")
+
     mat <- motif@multifreq[[as.character(use.freq[1])]]
-    p <- motif@pseudocount
-    if (any(mat == 0) && p == 0) {
-      warning("Found 0 values, adding a pseudocount", immediate. = TRUE)
-      p <- 1
-    }
-    n <- motif@nsites
-    if (length(n) == 0 || n <= 1) n <- 100
 
-    # things can sometimes go quite wrong with bad higher order backgrounds
-    b <- motif@bkg[rownames(mat)]
-    if (anyNA(b)) b <- rep(1 / nrow(mat), nrow(mat))
-    if (any(b == 0)) b <- b + (1 / length(b)) * (1 / 1000)
-
-    mat <- apply(mat, 2, ppm_to_pwmC, pseudocount = p, bkg = b, nsites = n)
+    mat <- MATRIX_ppm_to_pwm(mat, bkg = motif@bkg[rownames(mat)],
+                             pseudocount = motif@pseudocount,
+                             nsites = motif@nsites)
 
     mat <- matrix(as.integer(mat * 1000), nrow = nrow(mat))
+
   }
 
   s.max <- sum(apply(mat, 2, max))

@@ -23,6 +23,8 @@
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single motif and
 #'    sequence.
+#' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
+#'    See [motif_pvalue()].
 #'
 #' @return `data.frame` with each row representing one hit; if the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -87,7 +89,7 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            threshold.type = "pvalue", RC = FALSE,
                            use.freq = 1, verbose = 0, progress = FALSE,
-                           BP = FALSE, nthreads = 1) {
+                           BP = FALSE, nthreads = 1, motif_pvalue.k = 8) {
 
   # TODO: Work with Masked*String objects. Masked letters show up as "#" after
   #       as.character() calls, which should just cause scan_sequences() to
@@ -108,8 +110,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
                                      verbose = args$verbose,
-                                     nthreads = args$nthreads),
-                                c(0, 1, 1, 1), logical(), TYPE_NUM)
+                                     nthreads = args$nthreads,
+                                     motif_pvalue.k = args$motif_pvalue.k),
+                                c(0, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
@@ -186,10 +189,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     score.mats <- lapply(motifs,
                          function(x) x@multifreq[[as.character(use.freq)]])
     for (i in seq_along(score.mats)) {
-      score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
-                               nsites = motifs[[i]]@nsites,
-                               pseudocount = motifs[[i]]@pseudocount,
-                               bkg = numeric())
+      score.mats[[i]] <- MATRIX_ppm_to_pwm(score.mats[[i]],
+                                           nsites = motifs[[i]]@nsites,
+                                           pseudocount = motifs[[i]]@pseudocount,
+                                           bkg = motifs[[i]]@bkg[rownames(score.mats[[i]])])
     }
   }
 
@@ -224,7 +227,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
         cat(" * Converting P-values to logodds thresholds\n")
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                                 k = 8, progress = progress, BP = BP)
+                                 k = motif_pvalue.k, progress = progress, BP = BP)
       for (i in seq_along(thresholds)) {
         if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }

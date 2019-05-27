@@ -10,7 +10,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
   threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler",
   return.scan.results = FALSE, progress = FALSE, BP = FALSE,
-  nthreads = 1, rng.seed = sample.int(1e+09, 1))
+  nthreads = 1, rng.seed = sample.int(1e+09, 1), motif_pvalue.k = 8)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -81,6 +81,9 @@ can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
 independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
 given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+
+\item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.
+See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
 \code{data.frame} Motif enrichment results. The resulting

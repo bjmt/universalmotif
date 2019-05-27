@@ -43,6 +43,8 @@
 #'    with the regular `R` random number generator state and thus requires an
 #'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
 #'    given the following seed: `rng.seed * index`. See [shuffle_sequences()].
+#' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
+#'    See [motif_pvalue()].
 #'
 #' @return `data.frame` Motif enrichment results. The resulting 
 #'    `data.frame` contains the following columns:
@@ -103,7 +105,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                           shuffle.k = 2, shuffle.method = "euler",
                           return.scan.results = FALSE, progress = FALSE,
                           BP = FALSE, nthreads = 1,
-                          rng.seed = sample.int(1e9, 1)) {
+                          rng.seed = sample.int(1e9, 1),
+                          motif_pvalue.k = 8) {
 
   # Idea: split up hits and postional outputs into their own lists.
 
@@ -160,8 +163,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                      threshold = args$threshold,
                                      verbose = args$verbose, use.freq = args$use.freq,
                                      shuffle.k = args$shuffle.k,
-                                     nthreads = args$nthreads),
-                                c(1, 1, 1, 0, 1, 1, 1, 1), logical(), TYPE_NUM)
+                                     nthreads = args$nthreads,
+                                     motif_pvalue.k = args$motif_pvalue.k),
+                                c(1, 1, 1, 0, 1, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, progress = args$progress,
                                       return.scan.results = args$return.scan.results,
                                       BP = args$BP),
@@ -207,7 +211,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (missing(bkg.sequences)) {
     if (verbose > 0) cat(" > Shuffling input sequences\n")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
-                                       nthreads = nthreads)
+                                       nthreads = nthreads, rng.seed = rng.seed)
   } 
 
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -219,9 +223,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     score.mats <- lapply(motifs,
                          function(x) x@multifreq[[as.character(use.freq)]])
     for (i in seq_along(score.mats)) {
-      score.mats[[i]] <- apply(score.mats[[i]], 2, ppm_to_pwmC,
-                               nsites = motifs[[i]]@nsites,
-                               pseudocount = motifs[[i]]@pseudocount)
+      score.mats[[i]] <- MATRIX_ppm_to_pwm(score.mats[[i]], nsites = motifs[[i]]@nsites,
+                                           pseudocount = motifs[[i]]@pseudocount,
+                                           bkg = motifs[[i]]@bkg[rownames(score.mats[[i]])])
     }
   }
 
@@ -229,9 +233,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     if (verbose > 0)
       cat(" > Converting P-values to logodds thresholds\n")
     threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              k = 8)
-    max.scores <- vapply(motifs, function(x) motif_score(x, 1), numeric(1))
-    min.scores <- vapply(motifs, function(x) motif_score(x, 0), numeric(1))
+                              k = motif_pvalue.k)
+    max.scores <- vapply(motifs, function(x) motif_score(x, 1, use.freq), numeric(1))
+    min.scores <- vapply(motifs, function(x) motif_score(x, 0, use.freq), numeric(1))
     for (i in seq_along(threshold)) {
       if (threshold[i] > max.scores[i]) threshold[i] <- max.scores[i]
     }

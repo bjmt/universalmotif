@@ -9,6 +9,17 @@
 
 std::unordered_map<std::string, int> METRICS_enum = {
 
+  /**
+   * Instructions for adding a comparison metric:
+   * - Add relevent entries to METRICS_enum
+   * - Write compare_*() function
+   * - Add case entry to get_compare_ans()
+   * - Add case entry to return_best_ans()
+   * - Add case entry to return_best_ans_which()
+   * - If zero values are not allowed, add case entry to fix_mot_bkg_zeros()
+   * - Add case entry to compare_columns_cpp()
+   */
+
   /* distance */    // timings from last make_DBscores() run:
 
   // Euclidean distance

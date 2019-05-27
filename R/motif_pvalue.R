@@ -198,11 +198,11 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   if (use.freq == 1) {
     motifs <- lapply(motifs, function(x) x@motif)
   } else {
-    mots <- lapply(motifs, function(x) x@multifreq[[as.character(use.freq)]])
-    motifs <- mapply(function(x, y) apply(x, 2, ppm_to_pwmC, bkg = numeric(),
-                                          pseudocount = y@pseudocount,
-                                          nsites = y@nsites),
-                       mots, motifs, SIMPLIFY = FALSE)
+    motifs <- lapply(motifs, function(x)
+                      MATRIX_ppm_to_pwm(x@multifreq[[as.character(use.freq)]],
+                                        nsites = x@nsites,
+                                        pseudocount = x@pseudocount,
+                                        bkg = x@bkg[rownames(x@multifreq[[as.character(use.freq)]])]))
   }
 
   motnrows <- vapply(motifs, nrow, integer(1))

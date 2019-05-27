@@ -66,6 +66,9 @@ MINOR CHANGES
     o Adjusted P-value calculation in motif_peaks() to not display Pval = 0
       so easily by instead estimating a normal distribution from random peaks.
 
+    o convert_type(): make sure not to leave any zeros in bkg vector when a
+      pseudocount greater than zero is used.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 
