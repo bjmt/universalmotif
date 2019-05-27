@@ -5,10 +5,11 @@
 \title{Compare motifs.}
 \usage{
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
-  use.type = "PPM", method = "MALLR", tryRC = TRUE,
-  min.overlap = 6, min.mean.ic = 0.25, min.position.ic = 0,
-  relative_entropy = FALSE, normalise.scores = FALSE, max.p = 0.01,
-  max.e = 10, progress = FALSE, BP = FALSE, nthreads = 1)
+  use.type = "PPM", method = "ALLR", tryRC = TRUE, min.overlap = 6,
+  min.mean.ic = 0.25, min.position.ic = 0, relative_entropy = FALSE,
+  normalise.scores = FALSE, max.p = 0.01, max.e = 10,
+  progress = FALSE, BP = FALSE, nthreads = 1,
+  score.strat = "a.mean")
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -16,18 +17,17 @@ compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
 \item{compare.to}{\code{numeric} If missing, compares all motifs to all other motifs.
 Otherwise compares all motifs to the specified motif(s).}
 
-\item{db.scores}{\code{data.frame} See \code{details}.}
+\item{db.scores}{\code{data.frame} or \code{DataFrame}. See \code{details}.}
 
 \item{use.freq}{\code{numeric(1)}. For comparing the \code{multifreq} slot.}
 
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
 frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
-allowed when \code{method = c(ALLR, MALLR, ALLR_LL, MALLR_LL)}.}
+allowed when \code{method = c(ALLR, ALLR_LL)}.}
 
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
-these to get the "mean" version. See details.}
+SEUCL, MAN, ALLR_LL. See details.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -69,6 +69,10 @@ by the number of input motifs times two.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}
+
+\item{score.strat}{\code{character(1)} How to handle column scores calculated from
+motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
+mean. "g.mean": take the geometric mean. "median": take the median.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
@@ -94,12 +98,9 @@ The following metrics are available:
 }
 
 Comparisons are calculated between two motifs at a time. All possible alignments
-are scored, and the best score is reported. Scores are calculated per position
-and summed, unless the "mean" version of the specific metric is chosen. If using
-a similarity metric, then the sum of scores will favour comparisons between
-longer motifs; and for distance metrics, the sum of scores will favour
-comparisons between short motifs. This can be avoided by using the "mean" of
-scores.
+are scored, and the best score is reported. In an alignment scores are calculated
+individually between columns. How those scores are combined to generate the final
+alignment scores depends on \code{score.strat}.
 
 See the "Motif comparisons and P-values" vignette for a description of the
 various metrics. Note that PCC, SW, ALLR, ALLR_LL and BHAT are similarity;
@@ -107,7 +108,7 @@ higher values mean more similar motifs. For the remaining metrics, values closer
 to zero represent more similar motifs.
 
 Small pseudocounts are automatically added when one of the following methods
-is used: KL, MKL, ALLR, MALLR, IS, MIS, ALLR_LL, MALLR_LL. This is avoid
+is used: KL, ALLR, IS, ALLR_LL. This is avoid
 zeros in the calculations.
 
 To note regarding p-values: P-values are pre-computed using the
@@ -125,7 +126,7 @@ are of little use for motifs with a different number of alphabet letters
 \examples{
 motif1 <- create_motif()
 motif2 <- create_motif()
-motif1vs2 <- compare_motifs(list(motif1, motif2), method = "MPCC")
+motif1vs2 <- compare_motifs(list(motif1, motif2), method = "PCC")
 ## to get a dist object:
 as.dist(1 - motif1vs2)
 

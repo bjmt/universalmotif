@@ -4,17 +4,17 @@
 \name{JASPAR2018_CORE_DBSCORES}
 \alias{JASPAR2018_CORE_DBSCORES}
 \title{JASPAR2018 CORE database scores}
-\format{\code{list} with ten \code{data.frame}s and an additional list of parameters.}
+\format{\code{list} of \code{DataFrame}s with an additional list entry for parameters.}
 \usage{
 JASPAR2018_CORE_DBSCORES
 }
 \description{
 For use with \code{\link[=compare_motifs]{compare_motifs()}}. The precomputed scores allow for fast P-value estimation.
 These scores were
-generated using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE motif set,
-with \code{normalise.scores = FALSE}. This particular set of scores is organized
-as a list, with each list item being a \code{data.frame} of scores for a specific comparison
-method. In each \code{data.frame} is the location and scale of scores resulting from a
+generated using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE motif set.
+The scores are organized in a \code{DataTable} in \code{JASPAR2018_CORE_DBSCORES$scores}.
+In this \code{DataTable} is the location and scale
+of scores resulting from a
 logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 randomized motifs of the specified
 \code{subject} and \code{target} motif length. Created using \code{\link[=make_DBscores]{make_DBscores()}} from

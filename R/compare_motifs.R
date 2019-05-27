@@ -6,15 +6,14 @@
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param compare.to `numeric` If missing, compares all motifs to all other motifs.
 #'    Otherwise compares all motifs to the specified motif(s).
-#' @param db.scores `data.frame` See `details`.
+#' @param db.scores `data.frame` or `DataFrame`. See `details`.
 #' @param use.freq `numeric(1)`. For comparing the `multifreq` slot.
 #' @param use.type `character(1)` One of `'PPM'` and `'ICM'`.
 #'    The latter allows for taking into account the background
 #'    frequencies if `relative_entropy = TRUE`. Note that `'ICM'` is not
-#'    allowed when `method = c(ALLR, MALLR, ALLR_LL, MALLR_LL)`.
+#'    allowed when `method = c(ALLR, ALLR_LL)`.
 #' @param method `character(1)` One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-#'    SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of 
-#'    these to get the "mean" version. See details.
+#'    SEUCL, MAN, ALLR_LL. See details.
 #' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
 #'    report the best score.
 #' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
@@ -45,6 +44,9 @@
 #' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
+#' @param score.strat `character(1)` How to handle column scores calculated from
+#'    motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
+#'    mean. "g.mean": take the geometric mean. "median": take the median.
 #'
 #' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
 #'
@@ -64,12 +66,9 @@
 #' * Bhattacharyya coefficient (`BHAT`) \insertCite{bhatt}{universalmotif}
 #'
 #' Comparisons are calculated between two motifs at a time. All possible alignments
-#' are scored, and the best score is reported. Scores are calculated per position
-#' and summed, unless the "mean" version of the specific metric is chosen. If using
-#' a similarity metric, then the sum of scores will favour comparisons between
-#' longer motifs; and for distance metrics, the sum of scores will favour
-#' comparisons between short motifs. This can be avoided by using the "mean" of
-#' scores.
+#' are scored, and the best score is reported. In an alignment scores are calculated
+#' individually between columns. How those scores are combined to generate the final
+#' alignment scores depends on `score.strat`.
 #'
 #' See the "Motif comparisons and P-values" vignette for a description of the
 #' various metrics. Note that PCC, SW, ALLR, ALLR_LL and BHAT are similarity;
@@ -77,7 +76,7 @@
 #' to zero represent more similar motifs.
 #'
 #' Small pseudocounts are automatically added when one of the following methods
-#' is used: KL, MKL, ALLR, MALLR, IS, MIS, ALLR_LL, MALLR_LL. This is avoid
+#' is used: KL, ALLR, IS, ALLR_LL. This is avoid
 #' zeros in the calculations.
 #'
 #' To note regarding p-values: P-values are pre-computed using the
@@ -95,7 +94,7 @@
 #' @examples
 #' motif1 <- create_motif()
 #' motif2 <- create_motif()
-#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "MPCC")
+#' motif1vs2 <- compare_motifs(list(motif1, motif2), method = "PCC")
 #' ## to get a dist object:
 #' as.dist(1 - motif1vs2)
 #'
@@ -128,20 +127,22 @@
 #'    [make_DBscores()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
-                           use.type = "PPM", method = "MALLR", tryRC = TRUE,
+                           use.type = "PPM", method = "ALLR", tryRC = TRUE,
                            min.overlap = 6, min.mean.ic = 0.25,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,
                            max.p = 0.01, max.e = 10, progress = FALSE,
-                           BP = FALSE, nthreads = 1) {
+                           BP = FALSE, nthreads = 1,
+                           score.strat = "a.mean") {
 
   # param check --------------------------------------------
   method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
   char_check <- check_fun_params(list(use.type = args$use.type,
-                                      method = args$method), c(1, 1),
-                                 c(FALSE, FALSE), TYPE_CHAR)
+                                      method = args$method,
+                                      score.strat = args$score.strat),
+                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), TYPE_CHAR)
   num_check <- check_fun_params(list(compare.to = args$compare.to,
                                      use.freq = args$use.freq,
                                      min.overlap = args$min.overlap,
@@ -163,16 +164,30 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                          "got `", use.type, "`")
     all_checks <- c(all_checks, type_check)
   }
-  if (!missing(db.scores) && !is.data.frame(db.scores)) {
+  if (!missing(db.scores) && !is.data.frame(db.scores)
+      && !is(db.scores, "DataFrame")) {
     dbscores_check <- paste0(" * Incorrect type for 'db.scores: expected ",
-                             "`data.frame`; got `", class(db.scores), "`")
+                             "`data.frame` or `DataFrame`; got `",
+                             class(db.scores), "`")
     all_checks <- c(all_checks, dbscores_check)
   }
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (use.type == "ICM" && method %in% c("ALLR", "MALLR", "ALLR_LL", "MALLR_LL"))
-    stop("'use.type = \"ICM\"' is not allowed for ALLR/MALLR/ALLR_LL/MALLR_LL methods")
+  if (use.type == "ICM" && method %in% c("ALLR", "ALLR_LL"))
+    stop("'use.type = \"ICM\"' is not allowed for ALLR/ALLR_LL methods")
+
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+
+  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
+              "ALLR, ALLR_LL, PCC"))
+
+  if (!missing(compare.to) && method == "IC")
+    warning(wmsg("P-values from `method = \"IS\"` will likely be very inaccurate, ",
+                 "as random scores from this method usually very poorly fit a logistic ",
+                 "distribution "), immediate. = TRUE)
 
   if (progress)
     warning("'progress' is deprecated and does nothing", immediate. = TRUE)
@@ -219,7 +234,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       tryRC, min.mean.ic, normalise.scores,
                                       nthreads, mot.bkgs, mot.type,
                                       relative_entropy, mot.names,
-                                      min.position.ic, mot.nsites)
+                                      min.position.ic, mot.nsites, score.strat)
 
     comparisons[comparisons == min_max_doubles()$min
                 | comparisons == min_max_doubles()$max] <- NA_real_
@@ -232,10 +247,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
     if (missing(db.scores)) {
 
-      if (!normalise.scores)
-        db.scores <- JASPAR2018_CORE_DBSCORES[[method]]
-      else
-        db.scores <- JASPAR2018_CORE_DBSCORES_NORM[[method]]
+      db.scores <- JASPAR2018_CORE_DBSCORES$scores
 
       if (use.freq != 1)
         warning(wmsg("Using the internal P-value database with `use.freq > 1`",
@@ -247,16 +259,16 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                      "will likely result in incorrect P-values"),
                 immediate. = TRUE)
 
-    } else {
-      db.scores <- check_db_scores(db.scores, method, normalise.scores)
-    }
+    } 
+
+    db.scores <- check_db_scores(db.scores, method, normalise.scores, score.strat)
 
     comps <- get_comp_indices(compare.to, length(motifs))
     comparisons <- compare_motifs_cpp(mot.mats, comps[, 1] - 1, comps[, 2] - 1,
                                       method, min.overlap, tryRC, mot.bkgs,
                                       mot.type, relative_entropy,
                                       min.mean.ic, normalise.scores, nthreads,
-                                      min.position.ic, mot.nsites)
+                                      min.position.ic, mot.nsites, score.strat)
 
     comparisons[comparisons == min_max_doubles()$min
                 | comparisons == min_max_doubles()$max] <- NA_real_
@@ -296,38 +308,49 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
 }
 
-check_db_scores <- function(db.scores, method, normalise.scores) {
+check_db_scores <- function(db.scores, method, normalise.scores, score.strat) {
 
-  if (!is.data.frame(db.scores)) {
-    stop("'db.scores' must be a data.frame")
+  if (!is.data.frame(db.scores) && !is(db.scores, "DataFrame")) {
+    stop("'db.scores' must be a data.frame or a DataFrame")
   }
 
   fail <- FALSE
   db_coltypes <- vapply(db.scores, class, character(1))
-  if (any(!db_coltypes[1:2] %in% c("numeric", "integer"))) fail <- TRUE
-  if (any(db_coltypes[3:4] != "numeric")) fail <- TRUE
-  if (db_coltypes[5] != "character") fail <- TRUE
-  if (db_coltypes[6] != "logical") fail <- TRUE
-  if (fail) stop(wmsg("'db.scores' must have column types: integer/numeric, ",
-                      "integer/numeric, numeric, numeric, character, logical"))
+  if (any(db_coltypes != "Rle")) {
+    if (any(!db_coltypes[1:2] %in% c("numeric", "integer"))) fail <- TRUE
+    if (any(db_coltypes[3:4] != "numeric")) fail <- TRUE
+    if (db_coltypes[5] != "character") fail <- TRUE
+    if (db_coltypes[6] != "logical") fail <- TRUE
+    if (db_coltypes[7] != "character") fail <- TRUE
+    if (fail) stop(wmsg("'db.scores' must have column types: [integer/numeric, ",
+                        "integer/numeric, numeric, numeric, character, logical, character]",
+                        " OR Rle"))
+  }
 
   db_colnames <- colnames(db.scores)
-  db_colnames_exp <- c("subject", "target", "location", "scale", "method", "normalised")
+  db_colnames_exp <- c("subject", "target", "location", "scale", "method", "normalised",
+                       "strat")
   if (!all(db_colnames_exp %in% db_colnames)) {
     stop(paste0("'db.scores' must have columns: ",
                paste0(db_colnames_exp, collapse = ", ")))
   }
 
-  if (!any(method %in% db.scores$method)) {
+  if (!any(method %in% as.vector(db.scores$method))) {
     stop("could not find method '", method, "' in 'db.scores$method'")
   } else {
     db.scores <- db.scores[db.scores$method == method, ]
   }
 
-  if (!any(normalise.scores %in% db.scores$normalised)) {
+  if (!any(normalise.scores %in% as.vector(db.scores$normalised))) {
     stop("'db.scores' column 'normalised' does not match 'normalise.scores'")
   } else {
     db.scores <- db.scores[db.scores$normalised == normalise.scores, ]
+  }
+
+  if (!any(score.strat %in% as.vector(db.scores$strat))) {
+    stop("'db.scores' column 'strat' does not match 'strat'")
+  } else {
+    db.scores <- db.scores[db.scores$strat == score.strat, ]
   }
 
   db.scores
@@ -357,12 +380,12 @@ get_rid_of_dupes <- function(comparisons) {
 compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
                                normalise.scores, nthreads, mot.bkgs,
                                mot.type, relative, mot.names,
-                               min.position.ic, mot.nsites) {
+                               min.position.ic, mot.nsites, score.strat) {
 
   ans <- compare_motifs_all_cpp(mot.mats, method, min.overlap, RC, mot.bkgs,
                                 mot.type, relative, min.mean.ic,
                                 normalise.scores, nthreads, min.position.ic,
-                                mot.nsites)
+                                mot.nsites, score.strat)
 
   n <- length(mot.mats)
   comp <- comb2_cpp(n)
@@ -372,7 +395,7 @@ compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
 
 get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
 
-  if (method %in% c("PCC", "MPCC", "SW", "MSW", "ALLR", "MALLR"))
+  if (method %in% c("PCC", "SW", "ALLR", "ALLR_LL", "BHAT"))
     ltail <- FALSE
   else
     ltail <- TRUE
@@ -392,29 +415,30 @@ get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
 
     ok <- FALSE
 
-    n1 <- comps[1, i]
-    if (n1 < db.scores$subject[1])
-      n1 <- db.scores$subject[1]
-    if (n1 > db.scores$subject[nrow(db.scores)])
-      n1 <- db.scores$subject[nrow(db.scores)]
+    n1 <- as.vector(comps[1, i])
+    if (n1 < as.vector(db.scores$subject[1]))
+      n1 <- as.vector(db.scores$subject[1])
+    if (n1 > as.vector(db.scores$subject[nrow(db.scores)]))
+      n1 <- as.vector(db.scores$subject[nrow(db.scores)])
 
-    n2 <- comps[2, i]
-    if (n2 < db.scores$target[1])
-      n2 <- db.scores$target[1]
-    if (n2 > db.scores$target[nrow(db.scores)])
-      n2 <- db.scores$target[nrow(db.scores)]
+    n2 <- as.vector(comps[2, i])
+    if (n2 < as.vector(db.scores$target[1]))
+      n2 <- as.vector(db.scores$target[1])
+    if (n2 > as.vector(db.scores$target[nrow(db.scores)]))
+      n2 <- as.vector(db.scores$target[nrow(db.scores)])
 
     while (!ok) {
 
       ans <- db.scores[db.scores$subject == n1 & db.scores$target == n2, ]
-      if (!is.na(ans[, 1])) {
-        pvals[i] <- plogis(scores[i], ans$location[1], ans$scale[1], ltail, TRUE)
+      if (!is.na(as.vector(ans[, 1]))) {
+        pvals[i] <- plogis(scores[i], as.vector(ans$location[1]),
+                           as.vector(ans$scale[1]), ltail, TRUE)
         ok <- TRUE
       } else {
         n2 <- n2 + 1
-        if (n2 > db.scores$target[nrow(db.scores)]) {
-          n2 <- comps[2, i]
-          n1 <- comps[1, i] - 1
+        if (n2 > as.vector(db.scores$target[nrow(db.scores)])) {
+          n2 <- as.vector(comps[2, i])
+          n1 <- as.vector(comps[1, i]) - 1
         }
       }
 

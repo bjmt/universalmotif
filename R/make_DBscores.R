@@ -18,13 +18,28 @@
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'
-#' @return A `data.frame` with score distributions for the
-#'    input database, or a `list` with a `data.frame` for each method and
-#'    an additional `list` entry logging function parameters if more than one
-#'    method is provided.
+#' @return A `DataFrame` with score distributions for the
+#'    input database. If more than one [make_DBscores()] run occurs (i.e. args
+#'    `method`, `normalise.scores` or `score.strat` are longer than 1), then
+#'    a `list` is returned with a `DataFrame` of scores and a `list` of
+#'    function parameters.
 #'
 #' @details
 #' See [compare_motifs()] for more info on comparison parameters.
+#'
+#' To replicate the internal \pkg{universalmotif} DB scores, run
+#' [make_DBscores()] with the default settings. Note that this will be
+#' a slow process.
+#'
+#' Arguments `widths`, `method`, `normalise.scores` and `score.strat` are
+#' vectorized; all combinations will be attempted.
+#'
+#' Randomly generated scores are used to estimate parameters for logistic
+#' distributions. This will occasionally fail for `method = "IS"`, which
+#' can sometimes fit too poorly to estimate parameters. In such cases,
+#' the mean and standard deviation will instead be used. A warning is
+#' given in [compare_motifs()] when P-values are asked for when using
+#' `method = "IS"`.
 #'
 #' @examples
 #' \dontrun{
@@ -42,47 +57,81 @@
 #' @inheritParams compare_motifs
 #' @export
 make_DBscores <- function(db.motifs,
-                          method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW",
-                                     "KL", "MKL", "ALLR", "MALLR", "BHAT",
-                                     "MBHAT", "HELL", "MHELL", "IS", "MIS",
-                                     "SEUCL", "MSEUCL", "MAN", "MMAN", "ALLR_LL",
-                                     "MALLR_LL"),
+                          method = c("PCC", "EUCL", "SW", "KL", "ALLR", "BHAT",
+                                     "HELL", "IS", "SEUCL", "MAN", "ALLR_LL"),
                           shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 1000, widths = 5:30,
                           min.position.ic = 0,
-                          normalise.scores = FALSE, min.overlap = 6,
+                          normalise.scores = c(FALSE, TRUE), min.overlap = 6,
                           min.mean.ic = 0, progress = TRUE, BP = FALSE,
-                          nthreads = 1, tryRC = TRUE) {
-
-  # add a use.freq option?
+                          nthreads = 1, tryRC = TRUE,
+                          score.strat = c("sum", "a.mean", "g.mean", "median")) {
 
   args <- as.list(environment())
 
-  if (length(method) > 1) {
+  if (length(method) > 1 || length(normalise.scores) > 1 || length(score.strat) > 1) {
+
+    # Need to vectorize through all three args and combine into data.frames, one per
+    # method. Finally, all data.frames are kept in a list with an additional entry
+    # for function args.
+
     out <- vector("list", length(method) + 1)
     names(out) <- c(method, "args")
     mc <- 1
+    total <- length(method) * length(normalise.scores) * length(score.strat)
+    
     for (m in method) {
-      if (progress) cat("Method:", paste0("[", mc, "/", length(method), "]"), m, "")
-      if (progress) start <- Sys.time()
-      out[[m]] <- make_DBscores(db.motifs, m, shuffle.db, shuffle.k, shuffle.method,
-                                rand.tries, widths, min.position.ic,
-                                normalise.scores, min.overlap, min.mean.ic,
-                                progress, BP, nthreads, tryRC)
-      if (progress) stop <- Sys.time()
-      if (progress) cat(" >", format(difftime(stop, start)), "\n")
-      mc <- mc + 1
+      out[[m]] <- DataFrame(subject = integer(), target = integer(),
+                             location = numeric(), scale = numeric(),
+                             method = character(), normalised = logical(),
+                             strat = character())
+
+      for (norm in normalise.scores) {
+        for (strat in score.strat) {
+
+          if (progress) cat(paste0("[", mc, "/", total, "]",
+                            " method=", m, " normalise.scores=", norm, " score.strat=",
+                            strat, " "))
+          mc <- mc + 1
+          if (strat == "g.mean" && m %in% c("ALLR", "ALLR_LL", "PCC")) {
+            if (progress) cat("\n > Skipping: g.mean not allowed with ALLR/ALLR_LL/PCC\n")
+            next
+          }
+          if (progress) start <- Sys.time()
+
+          tmp <- make_DBscores(db.motifs, m, shuffle.db, shuffle.k, shuffle.method,
+                               rand.tries, widths, min.position.ic,
+                               norm, min.overlap, min.mean.ic,
+                               progress, BP, nthreads, tryRC, strat)
+          out[[m]] <- rbind(out[[m]], tmp)
+
+          if (progress) stop <- Sys.time()
+          if (progress) cat(" >", format(difftime(stop, start)), "\n")
+
+
+        }
+      }
+
     }
+
+    out <- list(scores = do.call(rbind, out))
+    for (i in colnames(out$scores)) {
+      out$scores[, i] <- Rle(out$scores[, i])
+    }
+    rownames(out$scores) <- NULL
+
     out$args <- args[-1]
     return(out)
+
   }
 
   # param check --------------------------------------------
   method <- match.arg(method, COMPARE_METRICS)
   char_check <- check_fun_params(list(method = args$method,
-                                      shuffle.method = args$shuffle.method),
-                                 c(0, 1), logical(), TYPE_CHAR)
+                                      shuffle.method = args$shuffle.method,
+                                      score.strat = args$score.strat),
+                                 c(0, 1, 1), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(shuffle.k = args$shuffle.k,
                                      rand.tries = args$rand.tries,
                                      min.overlap = args$min.overlap,
@@ -107,12 +156,12 @@ make_DBscores <- function(db.motifs,
 
   comps <- get_comparisons(widths)
   total <- nrow(comps)
-  totry <- data.frame(subject = comps[, 1], target = comps[, 2],
+  totry <- DataFrame(subject = comps[, 1], target = comps[, 2],
                       location = rep(NA_real_, total),
                       scale = rep(NA_real_, total),
                       method = rep(method, total),
                       normalised = rep(normalise.scores, total),
-                      stringsAsFactors = FALSE)
+                      strat = rep(score.strat, total))
 
   if (progress) {
     print_pb(0)
@@ -135,21 +184,33 @@ make_DBscores <- function(db.motifs,
                               method, min.overlap, tryRC,
                               get_bkgs(tmpall), 1, FALSE, min.mean.ic,
                               normalise.scores, nthreads,
-                              min.position.ic, get_nsites(tmpall))
+                              min.position.ic, get_nsites(tmpall),
+                              score.strat)
 
     if (length(unique(res)) == 1)
       stop(wmsg("failed to estimate logistic distribution due to uniform random scores ",
                 "at comparison: ", totry$subject[i], " - ", totry$target[i], " ; ",
                 "perhaps too few reference motifs"))
-    a <- suppressWarnings(fitdistr(res, "logistic"))
-    totry$location[i] <- a$estimate["location"]
-    totry$scale[i] <- a$estimate["scale"]
+    a <- tryCatch(suppressWarnings(fitdistr(res, "logistic")), error = function(e) FALSE)
+    if (isFALSE(a)) {
+      # If it fails, resort to mean/sd. This tends to happen sometimes for IS, which
+      # fits a logistic distribution quite poorly at times.
+      totry$location[i] <- mean(res, na.rm = TRUE)
+      totry$scale[i] <- sd(res, na.rm = TRUE)
+    } else {
+      totry$location[i] <- a$estimate["location"]
+      totry$scale[i] <- a$estimate["scale"]
+    }
 
     if (progress) update_pb(counter, total)
     counter <- counter + 1
 
   }
 
+  for (i in colnames(totry)) {
+    totry[, i] <- Rle(totry[, i])
+  }
+  rownames(totry) <- NULL
   totry
 
 }

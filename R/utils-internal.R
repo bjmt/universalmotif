@@ -51,10 +51,9 @@ UNIVERSALMOTIF_SLOTS <- c(
 
 )
 
-COMPARE_METRICS <- c("PCC", "MPCC", "EUCL", "MEUCL", "SW", "MSW", "KL", "MKL",
-                     "ALLR", "MALLR", "BHAT", "MBHAT", "HELL", "MHELL",
-                     "IS", "MIS", "SEUCL", "MSEUCL", "MAN", "MMAN", "ALLR_LL",
-                     "MALLR_LL")
+COMPARE_METRICS <- c("PCC", "EUCL", "SW", "KL",
+                     "ALLR", "BHAT", "HELL",
+                     "IS", "SEUCL",  "MAN", "ALLR_LL")
 
 # INTERNAL UTILITIES ----------------------------------------------------------- 
 

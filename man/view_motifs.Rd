@@ -6,7 +6,8 @@
 \usage{
 view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
-  normalise.scores = FALSE, min.position.ic = 0, ...)
+  normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
+  ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -14,8 +15,7 @@ view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
 \item{use.type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
 
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
-these to get the "mean" version. See details.}
+SEUCL, MAN, ALLR_LL. See details.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -44,6 +44,10 @@ score. It is recommended to use this together with \code{normalise.scores = TRUE
 as this will help punish scores resulting from only a fraction of an
 alignment.}
 
+\item{score.strat}{\code{character(1)} How to handle column scores calculated from
+motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
+mean. "g.mean": take the geometric mean. "median": take the median.}
+
 \item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }
 \value{
@@ -60,6 +64,10 @@ supported. See the \code{examples} section for plotting the \code{multifreq}
 slot using the \pkg{Logolas} package.
 
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
+
+Note: \code{score.strat = "a.mean"} is NOT recommended, as \code{\link[=view_motifs]{view_motifs()}} will
+not discriminate between two alignments with equal mean scores, even if one
+alignment is longer than the other.
 }
 \examples{
 ## plotting multifreq motifs:

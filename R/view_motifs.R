@@ -17,6 +17,10 @@
 #'
 #' See [compare_motifs()] for more info on comparison parameters.
 #'
+#' Note: `score.strat = "a.mean"` is NOT recommended, as [view_motifs()] will
+#' not discriminate between two alignments with equal mean scores, even if one
+#' alignment is longer than the other.
+#'
 #' @examples
 #' ## plotting multifreq motifs:
 #' \dontrun{
@@ -38,7 +42,7 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
-                        min.position.ic = 0, ...) {
+                        min.position.ic = 0, score.strat = "sum", ...) {
 
   # Possible bug: min.overlap not being respected?
 
@@ -46,10 +50,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   args <- as.list(environment())
   all_checks <- character(0)
   if (!method %in% COMPARE_METRICS) {
-    method_check <- paste0(" * Incorrect 'method': expected `PCC`, `MPCC`, `EUCL`, `MEUCL`",
-                           ", `SW`, `MSW`, `KL`, `MKL`, `ALLR`, or `MALLR`; got `",
-                           method, "`")
-    method_check <- wmsg2(method_check, 4, 2)
+    method_check <- " * Incorrect 'method'"
     all_checks <- c(all_checks, method_check)
   }
   if (!use.type %in% c("PPM", "ICM", "PWM", "PCM")) {
@@ -60,7 +61,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     all_checks <- c(all_checks, use.type_check)
   }
   char_check <- check_fun_params(list(use.type = args$use.type,
-                                      method = args$method),
+                                      method = args$method,
+                                      score.strat = args$score.strat),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic,
@@ -73,6 +75,13 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+
+  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
+              "ALLR, ALLR_LL, PCC"))
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PPM")
@@ -161,7 +170,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
   res <- view_motifs_prep(mot.mats, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, mot.bkgs, relative_entropy,
-                          normalise.scores, alph, get_nsites(motifs))
+                          normalise.scores, alph, get_nsites(motifs),
+                          score.strat)
   which.rc <- res$motIsRC
   mots <- res$motifs
   mots <- check_mot_sizes(mots)

@@ -19,35 +19,18 @@
 #'
 #' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
 #' These scores were
-#' generated using [make_DBscores()] with the JASPAR2018 CORE motif set,
-#' with `normalise.scores = FALSE`. This particular set of scores is organized
-#' as a list, with each list item being a `data.frame` of scores for a specific comparison
-#' method. In each `data.frame` is the location and scale of scores resulting from a
+#' generated using [make_DBscores()] with the JASPAR2018 CORE motif set.
+#' The scores are organized in a `DataTable` in `JASPAR2018_CORE_DBSCORES$scores`.
+#' In this `DataTable` is the location and scale
+#' of scores resulting from a
 #' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 #' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0. The parameters used can be seen via
 #' `JASPAR2018_CORE_DBSCORES$args`.
 #'
-#' @format `list` with ten `data.frame`s and an additional list of parameters.
+#' @format `list` of `DataFrame`s with an additional list entry for parameters.
 "JASPAR2018_CORE_DBSCORES"
-
-#' JASPAR2018 CORE database scores (normalised)
-#'
-#' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
-#' These scores were generated
-#' using [make_DBscores()] with the JASPAR2018 CORE motif set, with
-#' `normalise.scores = TRUE`. This particular set of scores is organized
-#' as a list, with each list item being a `data.frame` of scores for a specific comparison
-#' method. In each `data.frame` is the location and scale of scores resulting from a
-#' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
-#' randomized motifs of the specified
-#' `subject` and `target` motif length. Created using [make_DBscores()] from
-#' universalmotif v1.4.0. The parameters used can be seen via
-#' `JASPAR2018_CORE_DBSCORES_NORM$args`.
-#'
-#' @format `list` with ten `data.frame`s and an additional list of parameters.
-"JASPAR2018_CORE_DBSCORES_NORM"
 
 #' Arabidopsis promoters as a `DNAStringSet`.
 #'

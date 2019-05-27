@@ -12,6 +12,10 @@
 #' @details
 #'    See [compare_motifs()] for more info on comparison parameters.
 #'
+#' Note: `score.strat = "a.mean"` is NOT recommended, as [merge_motifs()] will
+#' not discriminate between two alignments with equal mean scores, even if one
+#' alignment is longer than the other.
+#'
 #' @examples
 #' \dontrun{
 #' library(MotifDb)
@@ -25,13 +29,17 @@
 merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
                          relative_entropy = FALSE, normalise.scores = FALSE,
-                         min.position.ic = 0) {
+                         min.position.ic = 0, score.strat = "sum") {
+
+  # a.mean is NOT recommended! merge_motifs() will not discrimenate between two
+  # alignments which give the same mean score, even if one is a longer alignment
+  # then the other (i.e. higher sum).
 
   # param check --------------------------------------------
   method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
-  char_check <- check_fun_params(list(method = args$method),
+  char_check <- check_fun_params(list(method = args$method, score.strat = args$score.strat),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic),
@@ -44,6 +52,13 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+
+  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
+              "ALLR, ALLR_LL, PCC"))
+      
   if (use.type != "PPM")
     stop(wmsg("deprecated, as `use.type = \"PPM\"` is now the only acceptable ",
               "option [use.type=", use.type, "]"))
@@ -56,7 +71,8 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   motifs <- convert_type_internal(motifs, "PPM")
 
   mot <- merge_motifs_all(motifs, method, tryRC, min.overlap, min.mean.ic,
-                          min.position.ic, relative_entropy, normalise.scores)
+                          min.position.ic, relative_entropy, normalise.scores,
+                          score.strat)
 
   mot <- .internal_convert(mot, unique(CLASS_IN))
   mot
@@ -64,7 +80,8 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
 }
 
 merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
-                             min.position.ic, relative_entropy, normalise.scores) {
+                             min.position.ic, relative_entropy, normalise.scores,
+                             score.strat) {
 
   alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
   if (length(alph) > 1) stop("all motifs must have the same alphabet")
@@ -90,7 +107,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
 
   ans <- merge_motifs_cpp(mot.mats, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, mot.bkgs, relative_entropy,
-                          normalise.scores, get_nsites(motifs))
+                          normalise.scores, get_nsites(motifs), score.strat)
 
   new.name <- paste0(mot.names, collapse = "/")
   new.altname <- paste0(mot.altnames, collapse = "/")

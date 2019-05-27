@@ -4,20 +4,19 @@
 \alias{make_DBscores}
 \title{Create P-value databases.}
 \usage{
-make_DBscores(db.motifs, method = c("PCC", "MPCC", "EUCL", "MEUCL", "SW",
-  "MSW", "KL", "MKL", "ALLR", "MALLR", "BHAT", "MBHAT", "HELL", "MHELL",
-  "IS", "MIS", "SEUCL", "MSEUCL", "MAN", "MMAN", "ALLR_LL", "MALLR_LL"),
-  shuffle.db = TRUE, shuffle.k = 3, shuffle.method = "linear",
-  rand.tries = 1000, widths = 5:30, min.position.ic = 0,
-  normalise.scores = FALSE, min.overlap = 6, min.mean.ic = 0,
-  progress = TRUE, BP = FALSE, nthreads = 1, tryRC = TRUE)
+make_DBscores(db.motifs, method = c("PCC", "EUCL", "SW", "KL", "ALLR",
+  "BHAT", "HELL", "IS", "SEUCL", "MAN", "ALLR_LL"), shuffle.db = TRUE,
+  shuffle.k = 3, shuffle.method = "linear", rand.tries = 1000,
+  widths = 5:30, min.position.ic = 0, normalise.scores = c(FALSE,
+  TRUE), min.overlap = 6, min.mean.ic = 0, progress = TRUE,
+  BP = FALSE, nthreads = 1, tryRC = TRUE, score.strat = c("sum",
+  "a.mean", "g.mean", "median"))
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
 
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
-these to get the "mean" version. See details.}
+SEUCL, MAN, ALLR_LL. See details.}
 
 \item{shuffle.db}{\code{logical(1)} Deprecated. Does nothing.
 generate random motifs with \code{\link[=create_motif]{create_motif()}}.}
@@ -61,12 +60,17 @@ threads. \code{nthreads = 0} uses all available threads.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
+
+\item{score.strat}{\code{character(1)} How to handle column scores calculated from
+motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
+mean. "g.mean": take the geometric mean. "median": take the median.}
 }
 \value{
-A \code{data.frame} with score distributions for the
-input database, or a \code{list} with a \code{data.frame} for each method and
-an additional \code{list} entry logging function parameters if more than one
-method is provided.
+A \code{DataFrame} with score distributions for the
+input database. If more than one \code{\link[=make_DBscores]{make_DBscores()}} run occurs (i.e. args
+\code{method}, \code{normalise.scores} or \code{score.strat} are longer than 1), then
+a \code{list} is returned with a \code{DataFrame} of scores and a \code{list} of
+function parameters.
 }
 \description{
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,
@@ -76,6 +80,20 @@ are estimated for every combination of motif \code{widths}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
+
+To replicate the internal \pkg{universalmotif} DB scores, run
+\code{\link[=make_DBscores]{make_DBscores()}} with the default settings. Note that this will be
+a slow process.
+
+Arguments \code{widths}, \code{method}, \code{normalise.scores} and \code{score.strat} are
+vectorized; all combinations will be attempted.
+
+Randomly generated scores are used to estimate parameters for logistic
+distributions. This will occasionally fail for \code{method = "IS"}, which
+can sometimes fit too poorly to estimate parameters. In such cases,
+the mean and standard deviation will instead be used. A warning is
+given in \code{\link[=compare_motifs]{compare_motifs()}} when P-values are asked for when using
+\code{method = "IS"}.
 }
 \examples{
 \dontrun{

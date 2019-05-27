@@ -7,19 +7,18 @@
 merge_motifs(motifs, method = "ALLR", use.type = "PPM",
   min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
   relative_entropy = FALSE, normalise.scores = FALSE,
-  min.position.ic = 0)
+  min.position.ic = 0, score.strat = "sum")
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
-these to get the "mean" version. See details.}
+SEUCL, MAN, ALLR_LL. See details.}
 
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
 frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
-allowed when \code{method = c(ALLR, MALLR, ALLR_LL, MALLR_LL)}.}
+allowed when \code{method = c(ALLR, ALLR_LL)}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
@@ -47,6 +46,10 @@ individual alignment positions for it to be counted in the final alignment
 score. It is recommended to use this together with \code{normalise.scores = TRUE},
 as this will help punish scores resulting from only a fraction of an
 alignment.}
+
+\item{score.strat}{\code{character(1)} How to handle column scores calculated from
+motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
+mean. "g.mean": take the geometric mean. "median": take the median.}
 }
 \value{
 A single motif object. See \code{\link[=convert_motifs]{convert_motifs()}} for
@@ -61,6 +64,10 @@ list.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
+
+Note: \code{score.strat = "a.mean"} is NOT recommended, as \code{\link[=merge_motifs]{merge_motifs()}} will
+not discriminate between two alignments with equal mean scores, even if one
+alignment is longer than the other.
 }
 \examples{
 \dontrun{

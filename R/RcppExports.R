@@ -5,24 +5,24 @@ add_multi_cpp <- function(seqs, k, alph) {
     .Call('_universalmotif_add_multi_cpp', PACKAGE = 'universalmotif', seqs, k, alph)
 }
 
-compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites) {
-    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites)
+compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites, strat) {
+    .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites, strat)
 }
 
-compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites) {
-    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites)
+compare_motifs_all_cpp <- function(mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites, strat) {
+    .Call('_universalmotif_compare_motifs_all_cpp', PACKAGE = 'universalmotif', mots, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites, strat)
 }
 
 get_comparison_matrix <- function(ans, index1, index2, method, motnames) {
     .Call('_universalmotif_get_comparison_matrix', PACKAGE = 'universalmotif', ans, index1, index2, method, motnames)
 }
 
-view_motifs_prep <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites) {
-    .Call('_universalmotif_view_motifs_prep', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites)
+view_motifs_prep <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites, strat) {
+    .Call('_universalmotif_view_motifs_prep', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, rnames, nsites, strat)
 }
 
-merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites) {
-    .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites)
+merge_motifs_cpp <- function(mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites, strat) {
+    .Call('_universalmotif_merge_motifs_cpp', PACKAGE = 'universalmotif', mots, method, RC, minoverlap, minic, posic, bkg, relative, norm, nsites, strat)
 }
 
 compare_columns_cpp <- function(p1, p2, b1, b2, n1 = 100, n2 = 100, m = "PCC") {

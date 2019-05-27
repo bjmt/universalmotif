@@ -6,10 +6,11 @@
 \usage{
 motif_tree(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", db.scores, method = "MEUCL",
+  branch.length = "none", db.scores, method = "EUCL",
   use.type = "PPM", min.overlap = 6, min.position.ic = 0,
   tryRC = TRUE, min.mean.ic = 0, relative_entropy = FALSE,
-  progress = FALSE, BP = FALSE, nthreads = 1, ...)
+  progress = FALSE, BP = FALSE, nthreads = 1,
+  score.strat = "a.mean", ...)
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
@@ -40,8 +41,7 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. Alternatively, add an "M" to the beginning of any of
-these to get the "mean" version. See details.}
+SEUCL, MAN, ALLR_LL. See details.}
 
 \item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
@@ -72,6 +72,10 @@ alignments between low information content regions of two motifs.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}
+
+\item{score.strat}{\code{character(1)} How to handle column scores calculated from
+motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
+mean. "g.mean": take the geometric mean. "median": take the median.}
 
 \item{...}{\pkg{ggtree} params. See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 }
@@ -106,7 +110,7 @@ library(ggtree)
 library(ggplot2)
 
 motifs <- filter_motifs(MotifDb, organism = "Athaliana")[1:50]
-comparison <- compare_motifs(motifs, method = "MPCC")
+comparison <- compare_motifs(motifs, method = "PCC", score.strat = "a.mean")
 comparison <- as.dist(1 - comparison)
 mot.names <- attr(comparison, "Labels")
 tree <- motif_tree(comparison)

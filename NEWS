@@ -9,6 +9,11 @@ NEW FEATURES
     o compare_motifs() option: 'min.position.ic'. Prevent low-IC positions in
       an alignment from contributing to the final alignment score.
 
+    o compare_motifs() option: 'score.strat'. Instruct the function how to deal
+      with individual column scores in an alignment. This is also replaced
+      the old way of choosing between sum and mean via prepending an 'M' to the
+      metric name.
+
     o Motif comparison metrics: average log-likelihood ratio, squared Euclidean
       distance, Hellinger distance, Bhattacharyya coefficient, Itakura-Saito
       distance, Manhattan distance, lower limit average log-likelihood ratio.

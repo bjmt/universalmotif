@@ -32,7 +32,7 @@
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
 #' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums
 #' @importFrom BiocGenerics as.data.frame
-#' @importFrom S4Vectors safeExplode wmsg
+#' @importFrom S4Vectors safeExplode wmsg DataFrame Rle
 #' @importFrom yaml as.yaml yaml.load
 #' @useDynLib universalmotif
 NULL

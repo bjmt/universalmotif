@@ -58,7 +58,7 @@
 #' library(ggplot2)
 #'
 #' motifs <- filter_motifs(MotifDb, organism = "Athaliana")[1:50]
-#' comparison <- compare_motifs(motifs, method = "MPCC")
+#' comparison <- compare_motifs(motifs, method = "PCC", score.strat = "a.mean")
 #' comparison <- as.dist(1 - comparison)
 #' mot.names <- attr(comparison, "Labels")
 #' tree <- motif_tree(comparison)
@@ -86,11 +86,12 @@
 #' @export
 motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        labels = "none", tipsize = "none", legend = TRUE,
-                       branch.length = "none", db.scores, method = "MEUCL",
+                       branch.length = "none", db.scores, method = "EUCL",
                        use.type = "PPM", min.overlap = 6,
                        min.position.ic = 0, tryRC = TRUE,
                        min.mean.ic = 0, relative_entropy = FALSE,
-                       progress = FALSE, BP = FALSE, nthreads = 1, ...) {
+                       progress = FALSE, BP = FALSE, nthreads = 1,
+                       score.strat = "a.mean", ...) {
 
   # TODO: allow for user-provided linecol, labels, tipsize instead of just
   #       pulling from motif slots.
@@ -116,7 +117,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   char_check <- check_fun_params(list(layout = args$layout, linecol = args$linecol,
                                       labels = args$labels, tipesize = args$tipsize,
                                       branch.length = args$branch.length,
-                                      method = args$method, use.type = args$use.type),
+                                      method = args$method, use.type = args$use.type,
+                                      score.strat = args$score.strat),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic,
@@ -130,8 +132,15 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (method %in% c("PCC", "SW", "ALLR", "MALLR", "BHAT"))
-    stop(wmsg("'PCC', 'SW', 'ALLR', 'MALLR', 'BHAT' are not allowed, since a distance",
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+
+  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
+              "ALLR, ALLR_LL, PCC"))
+
+  if (method %in% c("PCC", "SW", "ALLR", "BHAT"))
+    stop(wmsg("'PCC', 'SW', 'ALLR', 'BHAT' are not allowed, since a distance",
               "matrix cannot be built"))
 
   if (is(motifs, "dist")) {
@@ -155,7 +164,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                            min.mean.ic = min.mean.ic,
                            relative_entropy = relative_entropy,
                            BP = BP, progress = progress,
-                           min.position.ic = min.position.ic)
+                           min.position.ic = min.position.ic,
+                           score.strat = score.strat)
     if (anyNA(tree))
       stop(wmsg("Found NA values in comparison matrix; try again with ",
                "a smaller min.mean.ic and/or min.position.ic"))

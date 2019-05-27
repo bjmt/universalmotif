@@ -119,13 +119,9 @@ compare_columns(c1, c2, "EUCL")
 Note that some metrics do not work well with zero values, and small pseudocounts are automatically added to motifs for the following:
 
 * `KL`
-* `MKL`
 * `ALLR`
-* `MALLR`
 * `IS`
-* `MIS`
 * `ALLR_LL`
-* `MALLR_LL`
 
 As seen in figure \ref{fig:fig1}, the distributions for random individual column comparisons tend to be very skewed. This is usually remedied when comparing the entire motif, though some metrics still perform poorly in this regard (such as `IS`).
 
@@ -134,14 +130,13 @@ atm <- filter_motifs(motdb, organism = "Athaliana")
 pool <- do.call(cbind, atm)@motif
 pool <- pool + 0.01
 metrics <- universalmotif:::COMPARE_METRICS
-metrics2 <- metrics[-c(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)]
 
-res <- vector("list", length(metrics2))
-names(res) <- metrics2
+res <- vector("list", length(metrics))
+names(res) <- metrics
 
 x1 <- pool[, sample(1:ncol(pool), 4950)]
 x2 <- pool[, sample(1:ncol(pool), 4950)]
-for (m in metrics2) {
+for (m in metrics) {
   res[[m]] <- numeric(4950)
   for (i in 1:4950) {
     res[[m]][i] <- compare_columns(x1[, i], x2[, i], m)
@@ -198,23 +193,19 @@ motifs <- filter_motifs(motifs, altname = c("M0003_1.02", "M0004_1.02"))
 view_motifs(motifs)
 try_all <- function(motifs, ...) {
   scores <- vector("list", 4)
-  methods <- c("MPCC", "PCC", "MEUCL", "EUCL",
-               "MSW", "SW", "MKL", "KL", "MALLR", "ALLR",
-               "MBHAT", "BHAT", "MHELL", "HELL", "MIS",
-               "IS", "MSEUCL", "SEUCL", "MMAN", "MAN",
-               "MALLR_LL", "ALLR_LL")
+  methods <- c("PCC", "EUCL", "SW", "KL", "ALLR",
+               "BHAT", "HELL", "IS", "SEUCL", "MAN", "ALLR_LL")
   for (i in seq_along(methods)) {
     scores[[1]][i] <- compare_motifs(motifs, method = methods[i])[1, 2]
     scores[[2]][i] <- compare_motifs(motifs, method = methods[i], normalise.scores = TRUE)[1, 2]
     scores[[3]][i] <- compare_motifs(motifs, method = methods[i], min.overlap = 99)[1, 2]
     scores[[4]][i] <- compare_motifs(motifs, method = methods[i], min.position.ic=0.25)[1, 2]
   }
-  res <- data.frame(type = c("similarity", "similarity", "distance", "distance",
-                             "similarity", "similarity", "distance", "distance", "similarity",
-                             "similarity", "similarity", "similarity", "distance",
-                             "distance", "distance", "distance", "distance",
-                             "distance", "distance", "distance", "similarity",
-                             "similarity"),
+  res <- data.frame(type = c("similarity", "distance", 
+                             "similarity", "distance", "similarity",
+                             "similarity", "distance",
+                             "distance", "distance",
+                             "distance", "similarity"),
                     method = methods,
                     default = scores[[1]],
                     normalised = scores[[2]],
@@ -282,7 +273,8 @@ motifs <- motifs[sample(seq_along(motifs), 25)]
 
 ## Step 1: compare motifs
 
-comparisons <- compare_motifs(motifs, method = "MPCC", min.mean.ic = 0)
+comparisons <- compare_motifs(motifs, method = "PCC", min.mean.ic = 0,
+                              score.strat = "a.mean")
 
 ## Step 2: create a "dist" object
 
