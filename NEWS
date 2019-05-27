@@ -69,6 +69,9 @@ MINOR CHANGES
     o convert_type(): make sure not to leave any zeros in bkg vector when a
       pseudocount greater than zero is used.
 
+    o enrich_motifs(): split up 'hits' and 'positional' resuts into their own
+      data.frames.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 

@@ -46,31 +46,13 @@
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].
 #'
-#' @return `data.frame` Motif enrichment results. The resulting 
-#'    `data.frame` contains the following columns:
+#' @return `list` Motif enrichment results as a length four list. Some list entries
+#'    may be `NULL` depending on functin parameters.
 #'
-#'     * `motif` Motif name.
-#'     * `total.seq.hits` Total number of matches across all target
-#'       sequences.
-#'     * `num.seqs.hits` Number of target sequences which contain matches.
-#'     * `num.seqs.total` Number of target sequences.
-#'     * `total.bkg.hits` Total number of matches across all background
-#'       sequences.
-#'     * `num.bkg.hits` Number of background sequences which contain
-#'       matches.
-#'     * `num.bkg.total` Number of background sequences.
-#'     * `Pval.hits` P-value of enrichment. Only shown if
-#'       `search.mode = c('hits', 'both')`.
-#'     * `Qval.hits` Q-val of enrichment. Only shown if
-#'       `search.mode = c('hits', 'both')`.
-#'     * `Eval.hits` E-val of enrichment. Only shown if
-#'       `search.mode = c('hits', 'both')`.
-#'     * `Pval.pos` P-value of positional comparison. Only
-#'       shown if `search.mode = c('positional', 'both')`.
-#'     * `Qval.pos` Q-value of positional comparison. Only
-#'       shown if `search.mode = c('positional', 'both')`.
-#'     * `Eval.pos` E-value of positional comparison. Only
-#'       shown if `search.mode = c('positional', 'both')`.
+#' * `enrichment.report.hits`
+#' * `enrichment.report.pos`
+#' * `input.scan`
+#' * `bkg.scan`
 #'
 #' @details
 #' To find enriched motifs, [scan_sequences()] is run on both 
@@ -275,6 +257,11 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   res.all$Eval.hits <- res.all$Qval.hits * length(motifs) * 2
   res.all$Eval.pos <- res.all$Qval.pos * length(motifs) * 2
 
+  res.all <- res.all[!is.na(res.all$motif), ]
+  rownames(res.all) <- NULL
+
+  res1 <- NULL
+  res2 <- NULL
   if (search.mode == "hits") {
     res.all <- res.all[order(res.all$Qval.hits), ]
     res.all <- res.all[res.all$Pval.hits < max.p, ]
@@ -284,6 +271,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                                    "bkg.pos.mean", "bkg.pos.sd",
                                                    "Pval.pos", "Qval.pos",
                                                    "Eval.pos")]
+    # TODO: convert bandaid change to complete change
+    colnames(res.all) <- c("motif", "hits", "seq.hits", "n.seqs", "bkg.hits",
+                           "n.bkg.hits", "n.bkg", "Pval", "Qval", "Eval")
+    res1 <- res.all
   } else if (search.mode == "positional") {
     res.all <- res.all[order(res.all$Qval.pos), ]
     res.all <- res.all[res.all$Pval.pos < max.p, ]
@@ -291,32 +282,50 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     res.all <- res.all[res.all$Eval.pos < max.e, ]
     res.all <- res.all[, !colnames(res.all) %in% c("Pval.hits", "Qval.hits",
                                                     "Eval.hits")]
+    # TODO: convert bandaid change to complete change
+    colnames(res.all) <- c("motif", "hits", "seq.hits", "n.seqs", "pos.mean",
+                           "pos.sd", "bkg.hits", "n.bkg.hits", "n.bkg", "bkg.mean",
+                           "bkg.sd", "Pval", "Qval", "Eval")
+    res2 <- res.all
   } else if (search.mode == "both") {
     res.all <- res.all[order(res.all$Qval.hits), ]
     res.all <- res.all[res.all$Pval.hits < max.p | res.all$Pval.pos < max.p, ]
     res.all <- res.all[res.all$Qval.hits < max.q | res.all$Qval.pos < max.q, ]
     res.all <- res.all[res.all$Eval.hits < max.e | res.all$Eval.pos < max.e, ]
+    # TODO: convert bandaid change to complete change
+    res1 <- res.all[, c("motif", "total.seq.hits", "num.seqs.hit", "num.seqs.total",
+                        "total.bkg.hits", "num.bkg.hit", "num.bkg.total",
+                        "Pval.hits", "Qval.hits", "Eval.hits")]
+    colnames(res1) <- c("motif", "hits", "seq.hits", "n.seqs", "bkg.hits",
+                        "n.bkg.hits", "n.bkg", "Pval", "Qval", "Eval")
+    res2 <- res.all[, c("motif", "total.seq.hits", "num.seqs.hit", "num.seqs.total",
+                        "seq.pos.mean", "seq.pos.sd", "total.bkg.hits",
+                        "num.bkg.hit", "num.bkg.total", "bkg.pos.mean",
+                        "bkg.pos.sd", "Pval.pos", "Qval.pos", "Eval.pos")]
+    colnames(res2) <- c("motif", "hits", "seq.hits", "n.seqs", "pos.mean",
+                        "pos.sd", "bkg.hits", "n.bkg.hits", "n.bkg", "bkg.mean",
+                        "bkg.sd", "Pval", "Qval", "Eval")
   } else stop("unknown 'search.mode'")
-
-
-  res.all <- res.all[!is.na(res.all$motif), ]
-  rownames(res.all) <- NULL
 
   if (nrow(res.all) < 1 || is.null(res.all)) {
     message(" ! No enriched motifs")
     if (return.scan.results) {
-      res.all <- c(list(NULL), res.scan)
-      names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
+      res.all <- c(list(NULL), list(NULL), res.scan)
+      names(res.all) <- c("enrichment.report.hits", "enrichment.report.pos",
+                          "input.scan", "bkg.scan")
       return(res.all)
     } else return(invisible(NULL))
   } 
 
   if (return.scan.results) {
-    res.all <- c(list(res.all), res.scan)
-    names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
+    res.all <- c(list(res1, res2), res.scan)
+    names(res.all) <- c("enrichment.report.hits", "enrichment.report.pos",
+                        "input.scan", "bkg.scan")
+    return(res.all) 
   }
 
-  res.all
+  list(enrichment.report.hits = res1, enrichment.report.pos = res2,
+       input.scan = NULL, bkg.scan = NULL)
 
 }
 

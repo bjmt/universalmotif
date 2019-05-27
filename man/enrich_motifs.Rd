@@ -86,29 +86,13 @@ given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequ
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
-\code{data.frame} Motif enrichment results. The resulting
-\code{data.frame} contains the following columns:\preformatted{* `motif` Motif name.
-* `total.seq.hits` Total number of matches across all target
-  sequences.
-* `num.seqs.hits` Number of target sequences which contain matches.
-* `num.seqs.total` Number of target sequences.
-* `total.bkg.hits` Total number of matches across all background
-  sequences.
-* `num.bkg.hits` Number of background sequences which contain
-  matches.
-* `num.bkg.total` Number of background sequences.
-* `Pval.hits` P-value of enrichment. Only shown if
-  `search.mode = c('hits', 'both')`.
-* `Qval.hits` Q-val of enrichment. Only shown if
-  `search.mode = c('hits', 'both')`.
-* `Eval.hits` E-val of enrichment. Only shown if
-  `search.mode = c('hits', 'both')`.
-* `Pval.pos` P-value of positional comparison. Only
-  shown if `search.mode = c('positional', 'both')`.
-* `Qval.pos` Q-value of positional comparison. Only
-  shown if `search.mode = c('positional', 'both')`.
-* `Eval.pos` E-value of positional comparison. Only
-  shown if `search.mode = c('positional', 'both')`.
+\code{list} Motif enrichment results as a length four list. Some list entries
+may be \code{NULL} depending on functin parameters.
+\itemize{
+\item \code{enrichment.report.hits}
+\item \code{enrichment.report.pos}
+\item \code{input.scan}
+\item \code{bkg.scan}
 }
 }
 \description{

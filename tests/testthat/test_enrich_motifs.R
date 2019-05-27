@@ -16,10 +16,11 @@ test_that("motif enrichment works", {
                         search.mode = "both", return.scan.results = TRUE)
         )
 
-  expect_true(is.data.frame(r))
-  expect_equal(nrow(r), 1)
+  expect_true(is.list(r))
+  expect_equal(nrow(r[[1]]), 1)
 
   expect_true(is.list(r2))
-  expect_equal(names(r2), c("enrichment.report", "input.scan", "bkg.scan"))
+  expect_equal(names(r2), c("enrichment.report.hits", "enrichment.report.pos",
+                            "input.scan", "bkg.scan"))
 
 })
