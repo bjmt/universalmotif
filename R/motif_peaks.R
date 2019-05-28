@@ -45,8 +45,8 @@
 #'
 #'    `bandwidth <- del0 * (243 / (35 * length(hits)))^(1 / 5) * sqrt(var(hits))`
 #'
-#' @return A `data.frame` with peak positions and P-values. If `plot = TRUE`,
-#'    then a list is returned with the `data.frame` as the first item and
+#' @return A `DataFrame` with peak positions and P-values. If `plot = TRUE`,
+#'    then a list is returned with the `DataFrame` as the first item and
 #'    the `ggplot2` object as the second item.
 #'
 #' @references
@@ -55,9 +55,8 @@
 #' @examples
 #' data(ArabidopsisMotif)
 #' data(ArabidopsisPromoters)
-#' hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-#'                        verbose = 0, progress = FALSE)
-#' res <- motif_peaks(hits$start, 1000, 50)
+#' hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE)
+#' res <- motif_peaks(as.vector(hits$start), 1000, 50)
 #' # View plot:
 #' res$Plot
 #'
@@ -142,7 +141,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,
            theme_bw()
   }
 
-  out <- data.frame(Peak = data.kern$x[data.loc], Pval = peak.pvals)
+  out <- DataFrame(Peak = data.kern$x[data.loc], Pval = peak.pvals)
   out <- out[order(out$Pval), ]
   out <- out[out$Pval <= max.p, ]
   if (nrow(out) == 0) {

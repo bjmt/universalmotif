@@ -27,6 +27,6 @@ test_that("Results are accurate", {
   r <- scan_sequences(m, s, RC = TRUE, use.freq = 2, threshold = 0.8,
                       threshold.type = "logodds", verbose = 0, progress = FALSE)
 
-  expect_true(is.data.frame(r))
+  expect_true(is(r, "DataFrame"))
 
 })

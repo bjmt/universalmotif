@@ -6,7 +6,7 @@
 #' @docType package
 #' @name universalmotif-pkg
 #'
-#' @importFrom methods getClass is new slot "slot<-" validObject
+#' @importFrom methods getClass is new slot "slot<-" validObject as
 #' @importMethodsFrom methods initialize show
 #' @importFrom ggplot2 aes element_blank facet_wrap ggplot theme ylab xlab
 #' @importFrom ggplot2 geom_line geom_point geom_hline geom_text theme_bw

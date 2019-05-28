@@ -50,7 +50,7 @@ test_that("comparisons with p-values works", {
   res <- compare_motifs(list(motif1, motif2), 1:2, max.p = 1,
                         method = "PCC", score.strat = "a.mean")
 
-  expect_equal(round(res$Pval, digits = 2), 0.22)
+  expect_equal(round(as.vector(res$Pval)[1], digits = 2), 0.22)
 
 })
 
@@ -66,6 +66,6 @@ test_that("custom db scores are handled correctly", {
   res <- compare_motifs(c(motif1, motif2), 1, db.scores, method = "PCC",
                         max.p = 1)
 
-  expect_true(res$Pval < 1)
+  expect_true(as.vector(res$Pval) < 1)
 
 })

@@ -42,8 +42,8 @@ exceptionally large jobs. Keep in mind that this function will not
 attempt to limit its memory usage.}
 }
 \value{
-A \code{data.frame} with peak positions and P-values. If \code{plot = TRUE},
-then a list is returned with the \code{data.frame} as the first item and
+A \code{DataFrame} with peak positions and P-values. If \code{plot = TRUE},
+then a list is returned with the \code{DataFrame} as the first item and
 the \code{ggplot2} object as the second item.
 }
 \description{
@@ -70,9 +70,8 @@ If the \code{bandwidth} option is not supplied, then the following code is used
 \examples{
 data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
-hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-                       verbose = 0, progress = FALSE)
-res <- motif_peaks(hits$start, 1000, 50)
+hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE)
+res <- motif_peaks(as.vector(hits$start), 1000, 50)
 # View plot:
 res$Plot
 

@@ -20,8 +20,8 @@
 #' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
 #' These scores were
 #' generated using [make_DBscores()] with the JASPAR2018 CORE motif set.
-#' The scores are organized in a `DataTable` in `JASPAR2018_CORE_DBSCORES$scores`.
-#' In this `DataTable` is the location and scale
+#' The scores are organized in a `DataFrame` in `JASPAR2018_CORE_DBSCORES$scores`.
+#' In this `DataFrame` is the location and scale
 #' of scores resulting from a
 #' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 #' randomized motifs of the specified

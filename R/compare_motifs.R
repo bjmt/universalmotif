@@ -48,7 +48,8 @@
 #'    motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
 #'    mean. "g.mean": take the geometric mean. "median": take the median.
 #'
-#' @return `matrix` if `compare.to` is missing; `data.frame` otherwise.
+#' @return `matrix` if `compare.to` is missing; `DataFrame` otherwise. For the
+#'    latter, function args are stored in the `metadata` slot.
 #'
 #' @details
 #' The following metrics are available:
@@ -270,22 +271,24 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       min.mean.ic, normalise.scores, nthreads,
                                       min.position.ic, mot.nsites, score.strat)
 
-    comparisons[comparisons == min_max_doubles()$min
-                | comparisons == min_max_doubles()$max] <- NA_real_
+    mot.ncols <- vapply(mot.mats, ncol, integer(1))
+    pvals <- pval_extractor(mot.ncols, comparisons, comps[[1]] - 1,
+                            comps[[2]] - 1, method, as.vector(db.scores$subject),
+                            as.vector(db.scores$target), as.vector(db.scores$paramA),
+                            as.vector(db.scores$paramB), as.vector(db.scores$distribution))
 
-    if (anyNA(comparisons))
+    if (any(abs(comparisons) == min_max_doubles()$max))
       warning(wmsg("Some comparisons failed due to low motif IC"),
               immediate. = TRUE)
 
-    pvals <- get_motif_pvals(mot.mats, comparisons, comps, db.scores, method)
-
-    comparisons <- data.frame(subject = mot.names[comps[, 1]],
-                              target = mot.names[comps[, 2]],
-                              score = comparisons,
-                              logPval = pvals,
-                              Pval = exp(1)^pvals,
-                              Eval = exp(1)^pvals * length(motifs) * 2,
-                              stringsAsFactors = FALSE)
+    comparisons <- DataFrame(subject = mot.names[as.vector(comps[, 1])],
+                             subject.i = as.vector(comps[, 1]),
+                             target = mot.names[as.vector(comps[, 2])],
+                             target.i = as.vector(comps[, 2]),
+                             score = comparisons,
+                             logPval = pvals,
+                             Pval = exp(1)^pvals,
+                             Eval = exp(1)^pvals * length(motifs) * 2)
 
     if (!is.null(db.scores)) {
       comparisons <- comparisons[order(comparisons$logPval, decreasing = FALSE), ]
@@ -294,6 +297,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       comparisons <- comparisons[comparisons$subject != comparisons$target, ]
       comparisons <- comparisons[!is.na(comparisons$subject), ]
     }
+
     comparisons <- get_rid_of_dupes(comparisons)
 
     if (nrow(comparisons) == 0) {
@@ -301,6 +305,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
       return(invisible(NULL))
     }
     rownames(comparisons) <- NULL
+
+    comparisons@metadata <- args[-1]
 
   }
 
@@ -350,7 +356,8 @@ get_comp_indices <- function(compare.to, n) {
 get_rid_of_dupes <- function(comparisons) {
   comparisons.sorted <- character(nrow(comparisons))
   comparisons.sorted <- vapply(seq_len(nrow(comparisons)),
-                               function(x) paste0(sort(comparisons[x, 1:2]),
+                               function(x) paste0(sort(c(as.vector(comparisons[x, 2]),
+                                                         as.vector(comparisons[x, 4]))),
                                                   collapse = " "),
                                character(1))
   comparisons[!duplicated(comparisons.sorted), ]
@@ -369,70 +376,5 @@ compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
   n <- length(mot.mats)
   comp <- comb2_cpp(n)
   get_comparison_matrix(unlist(ans), comp[[1]], comp[[2]], method, mot.names)
-
-}
-
-get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
-
-  if (method %in% c("PCC", "SW", "ALLR", "ALLR_LL", "BHAT"))
-    ltail <- FALSE
-  else
-    ltail <- TRUE
-
-  n <- nrow(comps)
-
-  mot.ncols <- vapply(mot.mats, ncol, numeric(1))
-
-  comps[, 1] <- mot.ncols[comps[, 1]]
-  comps[, 2] <- mot.ncols[comps[, 2]]
-
-  # turns the data.frame into a matrix (transposed)
-  comps <- apply(comps, 1, sort)
-
-  pvals <- numeric(n)
-  for (i in seq_len(n)) {
-
-    ok <- FALSE
-
-    n1 <- as.vector(comps[1, i])
-    if (n1 < as.vector(db.scores$subject[1]))
-      n1 <- as.vector(db.scores$subject[1])
-    if (n1 > as.vector(db.scores$subject[nrow(db.scores)]))
-      n1 <- as.vector(db.scores$subject[nrow(db.scores)])
-
-    n2 <- as.vector(comps[2, i])
-    if (n2 < as.vector(db.scores$target[1]))
-      n2 <- as.vector(db.scores$target[1])
-    if (n2 > as.vector(db.scores$target[nrow(db.scores)]))
-      n2 <- as.vector(db.scores$target[nrow(db.scores)])
-
-    while (!ok) {
-
-      ans <- db.scores[db.scores$subject == n1 & db.scores$target == n2, ]
-      if (!is.na(as.vector(ans[, 1]))) {
-
-        pvals[i] <- switch(as.vector(ans$distribution[1]),
-                           "normal" = pnorm(scores[i], as.vector(ans$paramA[1]),
-                                            as.vector(ans$paramB[1]), ltail, TRUE),
-                           "logistic" = plogis(scores[i], as.vector(ans$paramA[1]),
-                                               as.vector(ans$paramB[1]), ltail, TRUE),
-                           "weibull" = pweibull(scores[i], as.vector(ans$paramA[1]),
-                                                as.vector(ans$paramB[1]), ltail, TRUE))
-
-        ok <- TRUE
-
-      } else {
-        n2 <- n2 + 1
-        if (n2 > as.vector(db.scores$target[nrow(db.scores)])) {
-          n2 <- as.vector(comps[2, i])
-          n1 <- as.vector(comps[1, i]) - 1
-        }
-      }
-
-    }
-
-  }
-
-  pvals
 
 }

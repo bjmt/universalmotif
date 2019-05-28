@@ -66,6 +66,29 @@ std::unordered_map<std::string, int> SCORESTRAT_enum = {
 
 };
 
+std::unordered_map<std::string, int> STRATS_enum = {
+
+  {"normal",   1},
+  {"logistic", 2},
+  {"weibull",  3}
+
+};
+
+double pval_calculator(const double score, const double paramA,
+    const double paramB, const int ltail, const str_t &dist) {
+
+  switch (::STRATS_enum[dist]) {
+
+    case 1: return R::pnorm(score, paramA, paramB, ltail, 1);
+    case 2: return R::plogis(score, paramA, paramB, ltail, 1);
+    case 3: return R::pweibull(score, paramA, paramB, ltail, 1);
+
+    default: Rcpp::stop("distribution must be one of normal, logistic, weibull");
+
+  }
+
+}
+
 double score_sum (const vec_num_t &scores) {
 
   return std::accumulate(scores.begin(), scores.end(), 0.0);
@@ -1486,5 +1509,88 @@ double compare_columns_cpp(const std::vector<double> &p1,
   }
 
   return ans;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+std::vector<double> pval_extractor(const std::vector<int> &ncols,
+    const std::vector<double> &scores, const std::vector<int> &indices1,
+    const std::vector<int> &indices2, const std::string &method,
+    const std::vector<int> &subject, const std::vector<int> &target,
+    const std::vector<double> &paramA, const std::vector<double> &paramB,
+    const std::vector<std::string> &distribution) {
+
+  int ltail = 1;
+  switch (::METRICS_enum[method]) {
+    case  7:
+    case  8:
+    case  9:
+    case 10:
+    case 11: ltail = 0;
+  }
+
+  vec_num_t pvals(scores.size(), 0.0);
+
+  int m1, m2, n1, n2, row;
+  bool ok = false;
+  for (std::size_t i = 0; i < scores.size(); ++i) {
+
+    /* Some notes:
+     * - if the ncol (subject/target) combination is missing in db.scores,
+     *   then +1 is added to each ncol in hopes to find the next possible
+     *   combination. If it fails, then the P-value calculation is skipped
+     *   and the final logPvalue is 0.
+     */
+
+    if (i % 1000 == 0) Rcpp::checkUserInterrupt();
+
+    if (abs(scores[i]) == std::numeric_limits<double>::max())
+      continue;
+
+    ok = false;
+
+    m1 = ncols[indices1[i]];
+    m2 = ncols[indices2[i]];
+
+    n1 = std::min(m1, m2);
+    n2 = std::max(m1, m2);
+
+    if (n1 < subject[0])
+      n1 = subject[0];
+    else if (n1 > subject[subject.size() - 1])
+      n1 = subject[subject.size() - 1];
+
+    if (n2 < target[0])
+      n2 = target[0];
+    else if (n2 > target[target.size() - 1])
+      n2 = target[target.size() - 1];
+
+    while (!ok) {
+
+      for (std::size_t j = 0; j < subject.size(); ++j) {
+        if (n1 == subject[j] && n2 == target[j]) {
+          row = int(j);
+          ok = true;
+          break;
+        }
+      }
+
+      ++n1;
+      ++n2;
+
+      if (n1 > int(subject[subject.size() - 1]) || n2 > int(target[target.size() - 1])) {
+        row = -1;
+      }
+
+    }
+
+    if (row == -1) continue;
+
+    pvals[i] = pval_calculator(scores[i], paramA[row], paramB[row], ltail,
+        distribution[row]);
+
+  }
+
+  return pvals;
 
 }

@@ -75,7 +75,8 @@ motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
 mean. "g.mean": take the geometric mean. "median": take the median.}
 }
 \value{
-\code{matrix} if \code{compare.to} is missing; \code{data.frame} otherwise.
+\code{matrix} if \code{compare.to} is missing; \code{DataFrame} otherwise. For the
+latter, function args are stored in the \code{metadata} slot.
 }
 \description{
 Compare motifs using any of several available metrics. See the

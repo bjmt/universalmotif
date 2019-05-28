@@ -46,8 +46,9 @@
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].
 #'
-#' @return `list` Motif enrichment results as a length four list. Some list entries
-#'    may be `NULL` depending on function parameters.
+#' @return `list` Motif enrichment results in lists. Some list entries
+#'    may be `NULL` depending on function parameters. An additional `args`
+#'    list describes function args.
 #'
 #' * `enrichment.report.hits`
 #' * `enrichment.report.pos`
@@ -234,7 +235,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
                           search.mode, threshold.type, motcount,
-                          return.scan.results)
+                          return.scan.results, nthreads)
 
   if (return.scan.results) {
     res.scan <- res.all[2:3]
@@ -318,21 +319,23 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   } 
 
   if (return.scan.results) {
-    res.all <- c(list(res1, res2), res.scan)
+    res.all <- c(list(as(res1, "DataFrame"), as(res2, "DataFrame")), res.scan)
     names(res.all) <- c("enrichment.report.hits", "enrichment.report.pos",
                         "input.scan", "bkg.scan")
     return(res.all) 
   }
 
-  list(enrichment.report.hits = res1, enrichment.report.pos = res2,
-       input.scan = NULL, bkg.scan = NULL)
+  out <- list(enrichment.report.hits = res1, enrichment.report.pos = res2,
+              input.scan = NULL, bkg.scan = NULL, args = args[-c(1:3)])
+
+  out[!vapply(out, is.null, logical(1))]
 
 }
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                          verbose, RC, use.freq, positional.test,
                          search.mode, threshold.type, motcount,
-                         return.scan.results) {
+                         return.scan.results, nthreads) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -344,20 +347,22 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
 
   if (verbose > 0) message(" > Scanning input sequences")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                            RC, use.freq, verbose = verbose - 1)
+                            RC, use.freq, verbose = verbose - 1,
+                            nthreads = nthreads)
 
   if (verbose > 0) message(" > Scanning background sequences")
   results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
                                 threshold.type, RC, use.freq,
-                                verbose = verbose - 1)
+                                verbose = verbose - 1,
+                                nthreads = nthreads)
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
 
   if (length(results2) == 0) {
-    return(data.frame())
+    return(DataFrame())
   }
-  if (length(results.bkg2) == 0) results.bkg2 <- data.frame()
+  if (length(results.bkg2) == 0) results.bkg2 <- DataFrame()
 
   if (verbose > 0) message(" > Testing motifs for enrichment")
 
@@ -394,12 +399,12 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
                                    positional.test, sequences, RC,
                                    bkg.sequences, verbose) {
 
-  seq.hits <- results$start
+  seq.hits <- as.vector(results$start)
   if (length(seq.hits) == 0 || is.null(seq.hits)) {
     seq.hits.mean <- 0
   } else seq.hits.mean <- mean(seq.hits)
 
-  bkg.hits <- results.bkg$start
+  bkg.hits <- as.vector(results.bkg$start)
   if (length(bkg.hits) == 0 || is.null(bkg.hits)) {
     bkg.hits.mean <- 0
   } else bkg.hits.mean <- mean(bkg.hits)
@@ -473,19 +478,18 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     message("       positional bias p-value: ", pos.p)
   }
 
-  results <- data.frame(motif = motifs@name,
-                        total.seq.hits = length(seq.hits),
-                        num.seqs.hit = length(unique(results$sequence)),
-                        num.seqs.total = length(sequences),
-                        seq.pos.mean = seq.hits.mean / mean(seq.widths),
-                        seq.pos.sd = sd(seq.hits) / mean(seq.widths),
-                        total.bkg.hits = length(bkg.hits),
-                        num.bkg.hit = length(unique(results.bkg$sequence)),
-                        num.bkg.total = length(bkg.sequences),
-                        bkg.pos.mean = bkg.hits.mean / mean(bkg.widths),
-                        bkg.pos.sd = sd(bkg.hits) / mean(bkg.widths),
-                        Pval.hits = hits.p, Pval.pos = pos.p,
-                        stringsAsFactors = FALSE)
+  results <- DataFrame(motif = motifs@name,
+                       total.seq.hits = length(seq.hits),
+                       num.seqs.hit = length(unique(as.vector(results$sequence))),
+                       num.seqs.total = length(sequences),
+                       seq.pos.mean = seq.hits.mean / mean(seq.widths),
+                       seq.pos.sd = sd(seq.hits) / mean(seq.widths),
+                       total.bkg.hits = length(bkg.hits),
+                       num.bkg.hit = length(unique(as.vector(results.bkg$sequence))),
+                       num.bkg.total = length(bkg.sequences),
+                       bkg.pos.mean = bkg.hits.mean / mean(bkg.widths),
+                       bkg.pos.sd = sd(bkg.hits) / mean(bkg.widths),
+                       Pval.hits = hits.p, Pval.pos = pos.p)
 
   results
 

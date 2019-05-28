@@ -86,8 +86,9 @@ given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequ
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
-\code{list} Motif enrichment results as a length four list. Some list entries
-may be \code{NULL} depending on function parameters.
+\code{list} Motif enrichment results in lists. Some list entries
+may be \code{NULL} depending on function parameters. An additional \code{args}
+list describes function args.
 \itemize{
 \item \code{enrichment.report.hits}
 \item \code{enrichment.report.pos}

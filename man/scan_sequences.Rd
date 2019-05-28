@@ -42,10 +42,11 @@ sequence.}
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
-\code{data.frame} with each row representing one hit; if the input
+\code{DataFrame} with each row representing one hit; if the input
 sequences are \code{\link{DNAStringSet}} or
 \code{\link{RNAStringSet}}, then an
-additional column with the strand is included.
+additional column with the strand is included. Function args are stored
+in the \code{metadata} slot.
 }
 \description{
 For sequences of any alphabet, scan them using the PWM matrices of
@@ -95,7 +96,7 @@ seq <- ArabidopsisPromoters[[1]]  # Only works for XString, not XStringSet
 seq <- mask(seq, pattern = "AAAA")  # MaskedDNAString class
 seq <- injectHardMask(seq, letter = "+")  # Recover XString
 seq <- DNAStringSet(seq)  # scan_sequences() needs XStringSet
-scan_sequences(ArabidopsisMotif, seq, verbose = 0, progress = FALSE)
+scan_sequences(ArabidopsisMotif, seq)
 # A warning regarding the presence of non-standard letters will be given,
 # but can be safely ignored in this case.
 

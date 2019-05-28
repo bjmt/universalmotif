@@ -29,6 +29,10 @@ compare_columns_cpp <- function(p1, p2, b1, b2, n1 = 100, n2 = 100, m = "PCC") {
     .Call('_universalmotif_compare_columns_cpp', PACKAGE = 'universalmotif', p1, p2, b1, b2, n1, n2, m)
 }
 
+pval_extractor <- function(ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution) {
+    .Call('_universalmotif_pval_extractor', PACKAGE = 'universalmotif', ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution)
+}
+
 peakfinder_cpp <- function(x, m = 3L) {
     .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
 }

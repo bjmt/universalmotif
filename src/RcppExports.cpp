@@ -134,6 +134,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pval_extractor
+std::vector<double> pval_extractor(const std::vector<int>& ncols, const std::vector<double>& scores, const std::vector<int>& indices1, const std::vector<int>& indices2, const std::string& method, const std::vector<int>& subject, const std::vector<int>& target, const std::vector<double>& paramA, const std::vector<double>& paramB, const std::vector<std::string>& distribution);
+RcppExport SEXP _universalmotif_pval_extractor(SEXP ncolsSEXP, SEXP scoresSEXP, SEXP indices1SEXP, SEXP indices2SEXP, SEXP methodSEXP, SEXP subjectSEXP, SEXP targetSEXP, SEXP paramASEXP, SEXP paramBSEXP, SEXP distributionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type ncols(ncolsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type indices1(indices1SEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type indices2(indices2SEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type subject(subjectSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type target(targetSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type paramA(paramASEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type paramB(paramBSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type distribution(distributionSEXP);
+    rcpp_result_gen = Rcpp::wrap(pval_extractor(ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution));
+    return rcpp_result_gen;
+END_RCPP
+}
 // peakfinder_cpp
 Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
@@ -702,6 +721,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_view_motifs_prep", (DL_FUNC) &_universalmotif_view_motifs_prep, 12},
     {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 11},
     {"_universalmotif_compare_columns_cpp", (DL_FUNC) &_universalmotif_compare_columns_cpp, 7},
+    {"_universalmotif_pval_extractor", (DL_FUNC) &_universalmotif_pval_extractor, 10},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},
