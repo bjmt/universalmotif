@@ -161,8 +161,8 @@ print_pb <- function(out) {
     invisible(.Call('_universalmotif_print_pb', PACKAGE = 'universalmotif', out))
 }
 
-update_pb <- function(i, max) {
-    invisible(.Call('_universalmotif_update_pb', PACKAGE = 'universalmotif', i, max))
+update_pb <- function(i, max, printLF = TRUE) {
+    invisible(.Call('_universalmotif_update_pb', PACKAGE = 'universalmotif', i, max, printLF))
 }
 
 all_checks_collapse <- function(checks) {

@@ -252,26 +252,26 @@ Rcpp::String collapse_cpp(const Rcpp::StringVector &x) {
 // [[Rcpp::export(rng = false)]]
 void print_pb(const R_xlen_t &out) {
   if (out >= 10 && out < 100) {
-    Rprintf("\b\b\b\b %i%%", out);
+    REprintf("\b\b\b\b %i%%", out);
     return;
   }
   if (out > 0 && out < 10) {
-    Rprintf("\b\b\b\b  %i%%", out);
+    REprintf("\b\b\b\b  %i%%", out);
     return;
   }
   switch (out) {
-    case   0: Rprintf("   0%%");            return;
-    case 100: Rprintf("\b\b\b\b%i%%", out); return;
-    case  -1: Rprintf("\b\b\b\b100%%\n");   return;
+    case   0: REprintf("   0%%");            return;
+    case 100: REprintf("\b\b\b\b%i%%", out); return;
+    case  -1: REprintf("\b\b\b\b100%%\n");   return;
   }
   Rcpp::stop("Input must be an integer in between -1 and 100");
 }
 
 // [[Rcpp::export(rng = false)]]
-void update_pb(const R_xlen_t &i, const R_xlen_t &max) {
+void update_pb(const R_xlen_t &i, const R_xlen_t &max, const bool printLF = true) {
 
   R_xlen_t out, prev = i - 1;
-  if (i == max)
+  if (i == max && printLF)
     out = -1;
   else
     out = 100 * i / max;

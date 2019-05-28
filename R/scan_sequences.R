@@ -129,25 +129,25 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (verbose <= 0) progress <- FALSE
 
   if (verbose > 2) {
-    cat(" * Input parameters\n")
-    cat("   * motifs:              ", deparse(substitute(motifs)), "\n")
-    cat("   * sequences:           ", deparse(substitute(sequences)), "\n")
-    cat("   * threshold:           ", ifelse(length(threshold) > 1, "...",
-                                             threshold), "\n")
-    cat("   * threshold.type:      ", threshold.type, "\n")
-    cat("   * RC:                  ", RC, "\n")
-    cat("   * use.freq:            ", use.freq, "\n")
-    cat("   * verbose:             ", verbose, "\n")
+    message(" * Input parameters")
+    message("   * motifs:              ", deparse(substitute(motifs)))
+    message("   * sequences:           ", deparse(substitute(sequences)))
+    message("   * threshold:           ", ifelse(length(threshold) > 1, "...",
+                                                 threshold))
+    message("   * threshold.type:      ", threshold.type)
+    message("   * RC:                  ", RC)
+    message("   * use.freq:            ", use.freq)
+    message("   * verbose:             ", verbose)
   }
 
   if (missing(motifs) || missing(sequences)) {
     stop("need both motifs and sequences")
   }
 
-  if (verbose > 0) cat(" * Processing motifs\n")
+  if (verbose > 0) message(" * Processing motifs")
 
-  if (verbose > 1) cat("   * Scanning", length(motifs),
-                       ifelse(length(motifs) > 1, "motifs\n", "motif\n"))
+  if (verbose > 1) message("   * Scanning ", length(motifs),
+                           ifelse(length(motifs) > 1, " motifs", " motif"))
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -160,7 +160,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   if (length(unique(mot.alphs)) != 1) stop("can only scan using one alphabet")
   mot.alphs <- unique(mot.alphs)
-  if (verbose > 1) cat("   * Motif alphabet:", mot.alphs, "\n")
+  if (verbose > 1) message("   * Motif alphabet: ", mot.alphs)
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
@@ -222,9 +222,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     "pvalue" = {
 
       if (progress && !BP && verbose > 0)
-        cat(" * Converting P-values to logodds thresholds ...")
+        message(" * Converting P-values to logodds thresholds ...", appendLF = FALSE)
       else if ((progress && BP && verbose > 0) || verbose > 0)
-        cat(" * Converting P-values to logodds thresholds\n")
+        message(" * Converting P-values to logodds thresholds")
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                                  k = motif_pvalue.k, progress = progress, BP = BP)
@@ -233,8 +233,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       }
       if (verbose > 3) {
         for (i in seq_along(thresholds)) {
-          cat("   * Motif ", mot.names[i], ": max.score = ", max.scores[i],
-              ", threshold = ", thresholds[i], "\n", sep = "")
+          message("   * Motif ", mot.names[i], ": max.score = ", max.scores[i],
+                  ", threshold = ", thresholds[i])
         }
       }
       thresholds <- unlist(thresholds)
@@ -261,12 +261,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     max.scores <- c(max.scores, max.scores)
   }
 
-  if (verbose > 0) cat(" * Scanning\n")
+  if (verbose > 0) message(" * Scanning")
 
   res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds, nthreads)
 
-  if (verbose > 1) cat ("   * Number of matches: ", nrow(res), "\n", sep = "")
-  if (verbose > 0) cat(" * Processing results\n")
+  if (verbose > 1) message("   * Number of matches: ", nrow(res))
+  if (verbose > 0) message(" * Processing results")
 
   res$thresh.score <- thresholds[res$motif]
   res$min.score <- min.scores[res$motif]

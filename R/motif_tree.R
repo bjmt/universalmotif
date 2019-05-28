@@ -154,9 +154,9 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   } else if (is.list(motifs)) {
     motifs <- convert_motifs(motifs)
     if (progress && !BP)
-      cat("Comparing motifs... ")
+      message("Comparing motifs... ", appendLF = FALSE)
     else if (progress)
-      cat("Comparing motifs...\n")
+      message("Comparing motifs...")
     tree <- compare_motifs(motifs,
                            use.type = use.type,
                            method = method, tryRC = tryRC,
@@ -171,7 +171,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                "a smaller min.mean.ic and/or min.position.ic"))
     tree <- switch(method, "MPCC" = 1 - tree, "MSW" = 2 - tree,
                    "MBHAT" = 1 - tree, tree)
-    if (progress) cat("Constructing phylogeny...\n")
+    if (progress) message("Constructing phylogeny...")
     tree <- ape::as.phylo(hclust(as.dist(tree)))
     if (labels != "none") {
       mot_names <- sapply(motifs, function(x) x[labels])
@@ -188,7 +188,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     if (tipsize != "none") warning("'tipsize' is not available for 'dist' objects")
   }
 
-  if (progress) cat("Building tree...\n")
+  if (progress) message("Building tree...")
 
   if (linecol != "none" && !is(motifs, "dist")) {
 

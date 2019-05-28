@@ -532,12 +532,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // update_pb
-void update_pb(const R_xlen_t& i, const R_xlen_t& max);
-RcppExport SEXP _universalmotif_update_pb(SEXP iSEXP, SEXP maxSEXP) {
+void update_pb(const R_xlen_t& i, const R_xlen_t& max, const bool printLF);
+RcppExport SEXP _universalmotif_update_pb(SEXP iSEXP, SEXP maxSEXP, SEXP printLFSEXP) {
 BEGIN_RCPP
     Rcpp::traits::input_parameter< const R_xlen_t& >::type i(iSEXP);
     Rcpp::traits::input_parameter< const R_xlen_t& >::type max(maxSEXP);
-    update_pb(i, max);
+    Rcpp::traits::input_parameter< const bool >::type printLF(printLFSEXP);
+    update_pb(i, max, printLF);
     return R_NilValue;
 END_RCPP
 }
@@ -734,7 +735,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_collapse_rows_df", (DL_FUNC) &_universalmotif_collapse_rows_df, 1},
     {"_universalmotif_collapse_cpp", (DL_FUNC) &_universalmotif_collapse_cpp, 1},
     {"_universalmotif_print_pb", (DL_FUNC) &_universalmotif_print_pb, 1},
-    {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 2},
+    {"_universalmotif_update_pb", (DL_FUNC) &_universalmotif_update_pb, 3},
     {"_universalmotif_all_checks_collapse", (DL_FUNC) &_universalmotif_all_checks_collapse, 1},
     {"_universalmotif_pcm_to_ppmC", (DL_FUNC) &_universalmotif_pcm_to_ppmC, 2},
     {"_universalmotif_ppm_to_pcmC", (DL_FUNC) &_universalmotif_ppm_to_pcmC, 2},

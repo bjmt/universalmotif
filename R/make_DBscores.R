@@ -80,8 +80,11 @@ make_DBscores <- function(db.motifs,
     names(out) <- c(method, "args")
     mc <- 1
     total <- length(method) * length(normalise.scores) * length(score.strat)
+
+    if (progress) t1 <- Sys.time()
     
     for (m in method) {
+
       out[[m]] <- DataFrame(subject = integer(), target = integer(),
                              paramA = numeric(), paramB = numeric(),
                              method = character(), normalised = logical(),
@@ -90,12 +93,13 @@ make_DBscores <- function(db.motifs,
       for (norm in normalise.scores) {
         for (strat in score.strat) {
 
-          if (progress) cat(paste0("[", mc, "/", total, "]",
-                            " method=\"", m, "\" normalise.scores=", norm, " score.strat=\"",
-                            strat, "\" "))
+          if (progress) message("[", mc, "/", total, "]", " method=\"", m,
+                                "\" normalise.scores=", norm, " score.strat=\"",
+                                strat, "\" ", appendLF = FALSE)
           mc <- mc + 1
           if (strat == "g.mean" && m %in% c("ALLR", "ALLR_LL", "PCC")) {
-            if (progress) cat("\n > Skipping: g.mean not allowed with ALLR/ALLR_LL/PCC\n")
+            if (progress)
+              message("\n > Skipping: g.mean not allowed with ALLR/ALLR_LL/PCC\n")
             next
           }
           if (progress) start <- Sys.time()
@@ -107,13 +111,16 @@ make_DBscores <- function(db.motifs,
           out[[m]] <- rbind(out[[m]], tmp)
 
           if (progress) stop <- Sys.time()
-          if (progress) cat(" >", format(difftime(stop, start)), "\n")
+          if (progress) message(" > ", format(difftime(stop, start)), "\n")
 
 
         }
       }
 
     }
+
+    if (progress) t2 <- Sys.time()
+    if (progress) message(" *** Total runtime: ", format(difftime(t2, t1)), " ***")
 
     out <- list(scores = do.call(rbind, out))
     for (i in colnames(out$scores)) {

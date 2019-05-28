@@ -188,19 +188,19 @@ run_meme <- function(target.sequences, output = NULL,
   if (!is(target.sequences, "XStringSet"))
     stop("'sequences' must be an 'XStringSet' object")
 
-  if (v>0) cat(paste0("Using MEME version ", meme.version, "\n"))
+  if (v>0) message(paste0("Using MEME version ", meme.version))
   if (is.null(output)) {
-    if (v>0) cat("No output folder specified, output will be deleted.\n")
+    if (v>0) message("No output folder specified, output will be deleted.")
     delete.ouput <- TRUE
     output <- tempdir()
   } else {
-    if (v>0) cat(paste0("Output folder: ", output, "\n"))
+    if (v>0) message(paste0("Output folder: ", output))
     delete.ouput <- FALSE
     if (dir.exists(output)) {
       if (!overwrite.dir) {
         stop("Output folder exists but 'overwrite.dir' is set to FALSE")
       } else {
-        if (v>0) cat("NOTE: output folder already exists, will be overwritten\n")
+        if (v>0) message("NOTE: output folder already exists, will be overwritten")
       }
     }
   }
@@ -208,31 +208,31 @@ run_meme <- function(target.sequences, output = NULL,
   if (v>0) {
 
     switch(objfun,
-           "classic" = cat("Search mode: Classic\n"),
-           "de"      = cat("Search mode: Differential Enrichment\n"),
-           "se"      = cat("Search mode: Selective Enrichment\n"),
-           "cd"      = cat("Search mode: Central Distance\n"),
-           "ce"      = cat("Search mode: Central Enrichment\n"),
-           "nc"      = cat("Search mode: Numerically Correct\n"),
-                       cat("Search mode: ", objfun, "\n"))
+           "classic" = message("Search mode: Classic"),
+           "de"      = message("Search mode: Differential Enrichment"),
+           "se"      = message("Search mode: Selective Enrichment"),
+           "cd"      = message("Search mode: Central Distance"),
+           "ce"      = message("Search mode: Central Enrichment"),
+           "nc"      = message("Search mode: Numerically Correct"),
+                       message("Search mode: ", objfun))
 
     if (objfun %in% c("de", "se")) {
-      if (test == "mhg" || is.null(test)) cat("Test: Multiple Hypergeometric\n")
-      else if (test == "mbn") cat("Test: Multiple Binomial\n")
-      else if (test == "mrs") cat("Test: Multiple Rank-Sum\n")
-      else cat(paste0("Test: ", test, "\n"))
+      if (test == "mhg" || is.null(test)) message("Test: Multiple Hypergeometric")
+      else if (test == "mbn") message("Test: Multiple Binomial")
+      else if (test == "mrs") message("Test: Multiple Rank-Sum")
+      else message(paste0("Test: ", test))
     }
 
     if (mod == "zoops" || is.null(mod))
-      cat("Model: Zero or One Occurrence Per Sequence\n")
-    else if (mod == "oops") cat("Model: One Occurrence Per Sequence\n")
-    else if (mod == "anr") cat("Model: Any Number of Repetitions\n")
-    else cat(paste0("Model: ", mod, "\n"))
+      message("Model: Zero or One Occurrence Per Sequence")
+    else if (mod == "oops") message("Model: One Occurrence Per Sequence")
+    else if (mod == "anr") message("Model: Any Number of Repetitions")
+    else message(paste0("Model: ", mod))
 
     if (is.null(nmotifs) || nmotifs == 1)
-      cat("Looking for 1 motif\n")
+      message("Looking for 1 motif")
     else
-      cat("Looking for", nmotifs, "motifs\n")
+      message("Looking for ", nmotifs, " motifs")
 
   }
 
@@ -328,7 +328,7 @@ run_meme <- function(target.sequences, output = NULL,
   if (!is.null(p))            meme.args <- c(meme.args, "-p", p)
   if (!is.null(maxsize))      meme.args <- c(meme.args, "-maxsize", maxsize)
 
-  if (v>0) cat(paste0("\n *** Starting MEME ***\n\n", pdate(), "\n"))
+  if (v>0) message(paste0("\n *** Starting MEME ***\n\n", pdate()))
 
   t.start <- Sys.time()
   run.res <- processx::run(bin, meme.args, error_on_status = FALSE,
@@ -352,7 +352,7 @@ run_meme <- function(target.sequences, output = NULL,
   motifs <- read_meme(paste0(output, "/meme.txt"), readsites = readsites)
 
   t.diff <- format(difftime(t.stop, t.start))
-  if (v>0) cat(paste(pdate(), "\n\n *** Run over ***\n\nTotal runtime:", t.diff, "\n"))
+  if (v>0) message(paste(pdate(), "\n\n *** Run over ***\n\nTotal runtime:", t.diff))
 
   motifs
 
@@ -363,7 +363,7 @@ pdate <- function() paste("[", date(), "]")
 meme_cb <- function(line, proc) {
   if (grepl("motif=", line)) {
     motif.num <- strsplit(line, "=")[[1]][2]
-    cat(pdate(), "\n")
-    cat("Generating motif", motif.num, "\n")
+    message(pdate())
+    message("Generating motif ", motif.num)
   }
 }

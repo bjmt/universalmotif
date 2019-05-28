@@ -77,6 +77,9 @@ MINOR CHANGES
     o enrich_motifs(): split up 'hits' and 'positional' resuts into their own
       data.frames.
 
+    o Replaced several instances of cat() with message() for printing progress
+      updates.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 

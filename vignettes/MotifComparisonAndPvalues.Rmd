@@ -186,7 +186,6 @@ res2$type <- "Sum"
 res3$type <- "ArithMean"
 res4$type <- "GeoMean"
 res5$type <- "Median"
-# res4 <- rbind(res, res2)
 res6 <- rbind(res, res3, res4, res5)
 
 dres <- res6 %>%
