@@ -314,27 +314,6 @@ check_db_scores <- function(db.scores, method, normalise.scores, score.strat) {
     stop("'db.scores' must be a data.frame or a DataFrame")
   }
 
-  fail <- FALSE
-  db_coltypes <- vapply(db.scores, class, character(1))
-  if (any(db_coltypes != "Rle")) {
-    if (any(!db_coltypes[1:2] %in% c("numeric", "integer"))) fail <- TRUE
-    if (any(db_coltypes[3:4] != "numeric")) fail <- TRUE
-    if (db_coltypes[5] != "character") fail <- TRUE
-    if (db_coltypes[6] != "logical") fail <- TRUE
-    if (db_coltypes[7] != "character") fail <- TRUE
-    if (fail) stop(wmsg("'db.scores' must have column types: [integer/numeric, ",
-                        "integer/numeric, numeric, numeric, character, logical, character]",
-                        " OR Rle"))
-  }
-
-  db_colnames <- colnames(db.scores)
-  db_colnames_exp <- c("subject", "target", "location", "scale", "method", "normalised",
-                       "strat")
-  if (!all(db_colnames_exp %in% db_colnames)) {
-    stop(paste0("'db.scores' must have columns: ",
-               paste0(db_colnames_exp, collapse = ", ")))
-  }
-
   if (!any(method %in% as.vector(db.scores$method))) {
     stop("could not find method '", method, "' in 'db.scores$method'")
   } else {
@@ -431,9 +410,17 @@ get_motif_pvals <- function(mot.mats, scores, comps, db.scores, method) {
 
       ans <- db.scores[db.scores$subject == n1 & db.scores$target == n2, ]
       if (!is.na(as.vector(ans[, 1]))) {
-        pvals[i] <- plogis(scores[i], as.vector(ans$location[1]),
-                           as.vector(ans$scale[1]), ltail, TRUE)
+
+        pvals[i] <- switch(as.vector(ans$distribution[1]),
+                           "normal" = pnorm(scores[i], as.vector(ans$paramA[1]),
+                                            as.vector(ans$paramB[1]), ltail, TRUE),
+                           "logistic" = plogis(scores[i], as.vector(ans$paramA[1]),
+                                               as.vector(ans$paramB[1]), ltail, TRUE),
+                           "weibull" = pweibull(scores[i], as.vector(ans$paramA[1]),
+                                                as.vector(ans$paramB[1]), ltail, TRUE))
+
         ok <- TRUE
+
       } else {
         n2 <- n2 + 1
         if (n2 > as.vector(db.scores$target[nrow(db.scores)])) {

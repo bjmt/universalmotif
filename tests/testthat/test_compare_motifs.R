@@ -50,7 +50,7 @@ test_that("comparisons with p-values works", {
   res <- compare_motifs(list(motif1, motif2), 1:2, max.p = 1,
                         method = "PCC", score.strat = "a.mean")
 
-  expect_equal(round(res$Pval, digits = 2), 0.20)
+  expect_equal(round(res$Pval, digits = 2), 0.22)
 
 })
 

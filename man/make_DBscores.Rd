@@ -8,7 +8,7 @@ make_DBscores(db.motifs, method = c("PCC", "EUCL", "SW", "KL", "ALLR",
   "BHAT", "HELL", "IS", "SEUCL", "MAN", "ALLR_LL"), shuffle.db = TRUE,
   shuffle.k = 3, shuffle.method = "linear", rand.tries = 1000,
   widths = 5:30, min.position.ic = 0, normalise.scores = c(FALSE,
-  TRUE), min.overlap = 6, min.mean.ic = 0, progress = TRUE,
+  TRUE), min.overlap = 6, min.mean.ic = 0.25, progress = TRUE,
   BP = FALSE, nthreads = 1, tryRC = TRUE, score.strat = c("sum",
   "a.mean", "g.mean", "median"))
 }
@@ -75,7 +75,7 @@ function parameters.
 \description{
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,
 \code{\link[=compare_motifs]{compare_motifs()}} uses an internal database based on the JASPAR2018 core motifs
-\insertCite{jaspar}{universalmotif}. Parameters for a logistic distribution are
+\insertCite{jaspar}{universalmotif}. Parameters for distributions are
 are estimated for every combination of motif \code{widths}.
 }
 \details{

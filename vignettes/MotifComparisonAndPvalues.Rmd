@@ -23,7 +23,6 @@ suppressMessages(suppressPackageStartupMessages(library(MotifDb)))
 suppressMessages(suppressPackageStartupMessages(library(ggplot2)))
 suppressMessages(suppressPackageStartupMessages(library(ggtree)))
 suppressMessages(suppressPackageStartupMessages(library(dplyr)))
-suppressMessages(suppressPackageStartupMessages(library(tidyr)))
 data(ArabidopsisPromoters)
 data(ArabidopsisMotif)
 motdb <- convert_motifs(MotifDb)
@@ -153,28 +152,34 @@ for (m in metrics) {
   for (i in 1:528) {
     res[[m]][i] <- compare_columns(x1[, i], x2[, i], m)
   }
-  res2[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
-                                                  min.overlap=99, score.strat="sum")))
-  res3[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
-                                                  min.overlap=99, score.strat="a.mean")))
-  if (!m %in% c("PCC", "ALLR", "ALLR_LL"))
-    res4[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
-                                                    min.overlap=99, score.strat="g.mean")))
-  res5[[m]] <- as.numeric(as.dist(compare_motifs(y1, method=m, min.mean.ic=0,
-                                                  min.overlap=99, score.strat="median")))
+  res2[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="sum"))))
+  res3[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="a.mean"))))
+  if (!m %in% c("PCC", "ALLR", "ALLR_LL")) {
+    res4[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="g.mean"))))
+  }
+  res5[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="median"))))
 }
 
-res <- gather(as.data.frame(res))
-colnames(res) <- c("key", "score")
+l_2_df <- function(x) {
 
-res2 <- gather(as.data.frame(res2))
-colnames(res2) <- c("key", "score")
-res3 <- gather(as.data.frame(res3))
-colnames(res3) <- c("key", "score")
-res4 <- gather(as.data.frame(res4))
-colnames(res4) <- c("key", "score")
-res5 <- gather(as.data.frame(res5))
-colnames(res5) <- c("key", "score")
+  d <- data.frame(key = character(), scores = numeric(), stringsAsFactors = FALSE)
+
+  for (i in seq_along(x)) {
+    y <- x[[i]]
+    y <- y[!is.na(y)]
+    d <- rbind(d, data.frame(key = rep(names(x)[i], length(y)), scores = y,
+                             stringsAsFactors = FALSE))
+  }
+
+  d
+
+}
+
+res <- l_2_df(res)
+res2 <- l_2_df(res2)
+res3 <- l_2_df(res3)
+res4 <- l_2_df(res4)
+res5 <- l_2_df(res5)
 
 res$type <- "RawColumnScores"
 res2$type <- "Sum"
@@ -186,13 +191,13 @@ res6 <- rbind(res, res3, res4, res5)
 
 dres <- res6 %>%
           group_by(key, type) %>%
-          summarise(mean = mean(score))
+          summarise(mean = mean(scores, na.rm = TRUE))
 
-ggplot(res6, aes(x = score, fill = type)) +
+ggplot(res6, aes(x = scores, fill = type)) +
   geom_density(alpha = 0.3) +
   geom_vline(aes(xintercept = 0), colour = "black", linetype = "dashed") +
   # geom_vline(data=dres, aes(xintercept=mean, colour = type)) +
-  facet_wrap(key ~ ., ncol = 4, scales = "free") +
+  facet_wrap(key ~ ., ncol = 3, scales = "free") +
   theme_minimal()
 ```
 

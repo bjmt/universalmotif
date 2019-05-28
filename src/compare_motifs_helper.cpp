@@ -52,7 +52,12 @@ std::unordered_map<std::string, int> METRICS_enum = {
 
 std::unordered_map<std::string, int> SCORESTRAT_enum = {
 
-  /* possible means to add: harmonic */
+  /* possible means to add: harmonic mean, weighted means */
+
+  /**
+   * weighted means would have to be handled differently for similarity vs
+   * distance metrics
+   */
 
   {"sum",    1},
   {"a.mean", 2},
@@ -124,7 +129,7 @@ double calc_final_score(const vec_num_t &scores, const str_t &strat,
     case  3: return score_gmean(keep_good(scores, good, n));
     case  4: return score_median(keep_good(scores, good, n));
 
-    default: Rcpp::stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'");
+    default: return -333.333;
 
   }
 

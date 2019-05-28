@@ -2,7 +2,7 @@
 #'
 #' Generate data used by [compare_motifs()] for P-value calculations. By default,
 #' [compare_motifs()] uses an internal database based on the JASPAR2018 core motifs
-#' \insertCite{jaspar}{universalmotif}. Parameters for a logistic distribution are
+#' \insertCite{jaspar}{universalmotif}. Parameters for distributions are
 #' are estimated for every combination of motif `widths`.
 #'
 #' @param db.motifs `list` Database motifs.
@@ -64,7 +64,7 @@ make_DBscores <- function(db.motifs,
                           rand.tries = 1000, widths = 5:30,
                           min.position.ic = 0,
                           normalise.scores = c(FALSE, TRUE), min.overlap = 6,
-                          min.mean.ic = 0, progress = TRUE, BP = FALSE,
+                          min.mean.ic = 0.25, progress = TRUE, BP = FALSE,
                           nthreads = 1, tryRC = TRUE,
                           score.strat = c("sum", "a.mean", "g.mean", "median")) {
 
@@ -83,16 +83,16 @@ make_DBscores <- function(db.motifs,
     
     for (m in method) {
       out[[m]] <- DataFrame(subject = integer(), target = integer(),
-                             location = numeric(), scale = numeric(),
+                             paramA = numeric(), paramB = numeric(),
                              method = character(), normalised = logical(),
-                             strat = character())
+                             strat = character(), distribution = character())
 
       for (norm in normalise.scores) {
         for (strat in score.strat) {
 
           if (progress) cat(paste0("[", mc, "/", total, "]",
-                            " method=", m, " normalise.scores=", norm, " score.strat=",
-                            strat, " "))
+                            " method=\"", m, "\" normalise.scores=", norm, " score.strat=\"",
+                            strat, "\" "))
           mc <- mc + 1
           if (strat == "g.mean" && m %in% c("ALLR", "ALLR_LL", "PCC")) {
             if (progress) cat("\n > Skipping: g.mean not allowed with ALLR/ALLR_LL/PCC\n")
@@ -157,11 +157,12 @@ make_DBscores <- function(db.motifs,
   comps <- get_comparisons(widths)
   total <- nrow(comps)
   totry <- DataFrame(subject = comps[, 1], target = comps[, 2],
-                      location = rep(NA_real_, total),
-                      scale = rep(NA_real_, total),
+                      paramA = rep(NA_real_, total),
+                      paramB = rep(NA_real_, total),
                       method = rep(method, total),
                       normalised = rep(normalise.scores, total),
-                      strat = rep(score.strat, total))
+                      strat = rep(score.strat, total),
+                      distribution = rep("logistic", total))
 
   if (progress) {
     print_pb(0)
@@ -188,19 +189,22 @@ make_DBscores <- function(db.motifs,
                               score.strat)
 
     if (length(unique(res)) == 1)
-      stop(wmsg("failed to estimate logistic distribution due to uniform random scores ",
-                "at comparison: ", totry$subject[i], " - ", totry$target[i], " ; ",
+      stop(wmsg("failed to estimate distribution due to uniform random scores ",
+                "at comparison: ", as.vector(totry$subject[i]), " - ",
+                as.vector(totry$target[i]), " ; ",
                 "perhaps too few reference motifs"))
-    a <- tryCatch(suppressWarnings(fitdistr(res, "logistic")), error = function(e) FALSE)
-    if (isFALSE(a)) {
-      # If it fails, resort to mean/sd. This tends to happen sometimes for IS, which
-      # fits a logistic distribution quite poorly at times.
-      totry$location[i] <- mean(res, na.rm = TRUE)
-      totry$scale[i] <- sd(res, na.rm = TRUE)
-    } else {
-      totry$location[i] <- a$estimate["location"]
-      totry$scale[i] <- a$estimate["scale"]
-    }
+
+    res[res == min_max_doubles()$min | res == min_max_doubles()$max] <- NA_real_
+    res <- res[!is.na(res)]
+    if (length(res) <= 1)
+      stop(wmsg("failed to obtain scores due to low motif IC at comparison: ",
+                as.vector(totry$subject[i]), " - ", as.vector(totry$target[i]),
+                " ; perhaps too few reference motifs or too many low IC motifs"))
+    
+    d <- find_best_dist(res)
+    totry$paramA[i] <- d$paramA
+    totry$paramB[i] <- d$paramB
+    totry$distribution[i] <- d$dist
 
     if (progress) update_pb(counter, total)
     counter <- counter + 1
@@ -212,6 +216,51 @@ make_DBscores <- function(db.motifs,
   }
   rownames(totry) <- NULL
   totry
+
+}
+
+find_best_dist <- function(x) {
+
+  d <- c("normal", "logistic", "weibull")
+
+  pvals <- numeric(length(d))
+
+  # NORMAL
+  n <- tryCatch(suppressWarnings(fitdistr(x, "normal")), error = function(e) FALSE)
+  if (isFALSE(n)) {
+    pvals[1] <- -1
+  } else {
+    pvals[1] <- suppressWarnings(ks.test(x, "pnorm", n$estimate["mean"],
+                                         n$estimate["sd"])$p)
+  }
+
+  # LOGISTIC
+  l <- tryCatch(suppressWarnings(fitdistr(x, "logistic")), error = function(e) FALSE)
+  if (isFALSE(l)) {
+    pvals[2] <- -1
+  } else {
+    pvals[2] <- suppressWarnings(ks.test(x, "plogis", l$estimate["location"],
+                                         l$estimate["scale"])$p)
+  }
+
+  # WEIBULL
+  w <- tryCatch(suppressWarnings(fitdistr(x, "weibull")), error = function(e) FALSE)
+  if (isFALSE(w)) {
+    pvals[3] <- -1
+  } else {
+    pvals[3] <- suppressWarnings(ks.test(x, "pweibull", w$estimate["shape"],
+                                         w$estimate["scale"])$p)
+  }
+
+  dist <- d[which.max(pvals)[1]]
+
+  switch(dist,
+         "normal" = list(dist = "normal", paramA = n$estimate["mean"],
+                         paramB = n$estimate["sd"]),
+         "logistic" = list(dist = "logistic", paramA = l$estimate["location"],
+                           paramB = l$estimate["scale"]),
+         "weibull" = list(dist = "weibull", paramA = w$estimate["shape"],
+                          paramB = w$estimate["scale"]))
 
 }
 
