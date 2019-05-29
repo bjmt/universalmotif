@@ -136,6 +136,20 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            BP = FALSE, nthreads = 1,
                            score.strat = "a.mean") {
 
+  # Some timings:
+  #
+  # ~10,000 comparisons:
+  #    compare_motifs(MotifDb, 1, nthreads = 6)          2.488 sec
+  #
+  # ~100,000 comparisons:
+  #    compare_motifs(MotifDb, 1:10, nthreads = 6)       5.558 sec
+  #
+  # ~1,000,000 comparisons:
+  #    compare_motifs(MotifDb, 1:100, nthreads = 6)     48.941 sec
+  #
+  # ~10,000,000 comparisons:
+  #    compare_motifs(MotifDb, 1:1000, nthreads = 6)   642.968 sec 
+
   # param check --------------------------------------------
   method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
@@ -275,7 +289,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     pvals <- pval_extractor(mot.ncols, comparisons, comps[[1]] - 1,
                             comps[[2]] - 1, method, as.vector(db.scores$subject),
                             as.vector(db.scores$target), as.vector(db.scores$paramA),
-                            as.vector(db.scores$paramB), as.vector(db.scores$distribution))
+                            as.vector(db.scores$paramB), as.vector(db.scores$distribution),
+                            nthreads)
 
     if (any(abs(comparisons) == min_max_doubles()$max))
       warning(wmsg("Some comparisons failed due to low motif IC"),

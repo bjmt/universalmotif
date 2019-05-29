@@ -20,7 +20,7 @@ std::unordered_map<std::string, int> METRICS_enum = {
    * - Add case entry to compare_columns_cpp()
    */
 
-  /* distance */    // timings from last make_DBscores() run:
+  /* distance */      // timings from last make_DBscores() run:
 
   // Euclidean distance
   {"EUCL",      1},   // 35.78 s
@@ -52,10 +52,9 @@ std::unordered_map<std::string, int> METRICS_enum = {
 
 std::unordered_map<std::string, int> SCORESTRAT_enum = {
 
-  /* possible means to add: harmonic mean, weighted means */
+  /* Possible means to add: harmonic mean, weighted means */
 
-  /**
-   * weighted means would have to be handled differently for similarity vs
+  /* Weighted means would have to be handled differently for similarity vs
    * distance metrics
    */
 
@@ -381,9 +380,9 @@ double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       topbot[i] = bot[i] == 0 ? 0.0 : top[i] / bot[i];
-      // topbot[i] = top[i] / bot[i];  // --> get Inf values if both mot1[i] and mot2[i]
-    }                                  //     are uniform (e.g. {0.25, 0.25, 0.25, 0.25})
-  }
+      // topbot[i] = top[i] / bot[i];  // --> Get Inf values if both mot1[i] and mot2[i]
+    }                                  //     are uniform (e.g. {0.25, 0.25, 0.25, 0.25});
+  }                                    //     not sure what best solution is here.
 
   return calc_final_score(topbot, strat, n, good);
 
@@ -670,50 +669,50 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
   switch (::METRICS_enum[method]) {
 
     case  1: ans[i] = lowic ? std::numeric_limits<double>::max()
-                              : compare_eucl(tmot1, tmot2, strat)
-                                * double(tlen) / double(alignlen);
+                            : compare_eucl(tmot1, tmot2, strat)
+                              * double(tlen) / double(alignlen);
              break;
     case  2: ans[i] = lowic ? std::numeric_limits<double>::max()
-                              : compare_kl(tmot1, tmot2, strat)
-                                * double(tlen) / double(alignlen);
+                            : compare_kl(tmot1, tmot2, strat)
+                              * double(tlen) / double(alignlen);
              break;
     case  7: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                              : compare_pcc(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_pcc(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case  8: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                              : compare_sw(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_sw(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case  9: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                              : compare_allr(tmot1, tmot2, bkg1, bkg2, nsites1,
-                                  nsites2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_allr(tmot1, tmot2, bkg1,
+                                bkg2, nsites1, nsites2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case 10: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                              : compare_bhat(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_bhat(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case  3: ans[i] = lowic ? std::numeric_limits<double>::max()
-                              : compare_hell(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_hell(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case  4: ans[i] = lowic ? std::numeric_limits<double>::max()
-                              : compare_is(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_is(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case  5: ans[i] = lowic ? std::numeric_limits<double>::max()
-                              : compare_seucl(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_seucl(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case  6: ans[i] = lowic ? std::numeric_limits<double>::max()
-                              : compare_man(tmot1, tmot2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_man(tmot1, tmot2, strat)
+                              * double(alignlen) / double(tlen);
              break;
     case 11: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                              : compare_allr_ll(tmot1, tmot2, bkg1, bkg2, nsites1,
-                                  nsites2, strat)
-                                * double(alignlen) / double(tlen);
+                            : compare_allr_ll(tmot1, tmot2, bkg1,
+                                bkg2, nsites1, nsites2, strat)
+                              * double(alignlen) / double(tlen);
              break;
 
   }
@@ -740,7 +739,7 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
 
   }
 
-  return -1111.0;
+  return -1111.1111;
 
 }
 
@@ -750,7 +749,7 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
     const double posic, const vec_num_t &bkg1, const vec_num_t &bkg2,
     const double nsites1, const double nsites2, const str_t &strat) {
 
-  double ans_rc;
+  double ans_rc = 0.0;
   if (RC) {
     list_num_t rcmot2 = get_motif_rc(mot2);
     vec_num_t rcic2 = ic2;
@@ -833,7 +832,7 @@ list_num_t get_merged_motif(const list_num_t &mot1, const list_num_t &mot2,
     const int weight) {
 
   /* TODO: this is potentially dangerous with min.position.ic !!! */
-  /* (is it though?) */
+  /* (update: is it though?) */
 
   list_num_t out;
   out.reserve(mot1.size());
@@ -991,15 +990,6 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
 
   double score;
   int offset;
-
-  std::size_t ncol1 = mot1.size();
-  std::size_t ncol2 = mot2.size();
-  std::size_t overlap1 = minoverlap, overlap2 = minoverlap;
-
-  if (minoverlap < 1) {
-    overlap1 = minoverlap * ncol1;
-    overlap2 = minoverlap * ncol2;
-  }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
       posic, minic, score, offset, nsites1, nsites2, bkg1, bkg2, strat);
@@ -1518,7 +1508,7 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
     const std::vector<int> &indices2, const std::string &method,
     const std::vector<int> &subject, const std::vector<int> &target,
     const std::vector<double> &paramA, const std::vector<double> &paramB,
-    const std::vector<std::string> &distribution) {
+    const std::vector<std::string> &distribution, const int nthreads) {
 
   int ltail = 1;
   switch (::METRICS_enum[method]) {
@@ -1531,65 +1521,81 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
 
   vec_num_t pvals(scores.size(), 0.0);
 
-  int m1, m2, n1, n2, row;
-  bool ok = false;
-  for (std::size_t i = 0; i < scores.size(); ++i) {
+  std::size_t n = target.size() - 1;
 
-    /* Some notes:
-     * - if the ncol (subject/target) combination is missing in db.scores,
-     *   then +1 is added to each ncol in hopes to find the next possible
-     *   combination. If it fails, then the P-value calculation is skipped
-     *   and the final logPvalue is 0.
-     */
+  RcppThread::parallelFor(0, scores.size(),
+      [&scores, &n, &pvals, &ncols, &indices1, &indices2, &subject, &target,
+      &paramA, &paramB, &distribution, ltail]
+      (std::size_t i) {
 
-    if (i % 1000 == 0) Rcpp::checkUserInterrupt();
+        int m1, m2, n1, n2, row;
+        bool ok = false;
 
-    if (abs(scores[i]) == std::numeric_limits<double>::max())
-      continue;
+        /* Some notes:
+         * - If the ncol (subject/target) combination is missing in db.scores,
+         *   then +1 is added to each ncol in hopes to find the next possible
+         *   combination. If it fails, then the P-value calculation is skipped
+         *   and the final logPvalue is 0.
+         */
 
-    ok = false;
+        if (abs(scores[i]) != std::numeric_limits<double>::max()) {
 
-    m1 = ncols[indices1[i]];
-    m2 = ncols[indices2[i]];
+          ok = false;
 
-    n1 = std::min(m1, m2);
-    n2 = std::max(m1, m2);
+          m1 = ncols[indices1[i]];
+          m2 = ncols[indices2[i]];
 
-    if (n1 < subject[0])
-      n1 = subject[0];
-    else if (n1 > subject[subject.size() - 1])
-      n1 = subject[subject.size() - 1];
+          n1 = std::min(m1, m2);
+          n2 = std::max(m1, m2);
 
-    if (n2 < target[0])
-      n2 = target[0];
-    else if (n2 > target[target.size() - 1])
-      n2 = target[target.size() - 1];
+          if (n1 < subject[0])
+            n1 = subject[0];
+          else if (n1 > subject[n])
+            n1 = subject[n];
 
-    while (!ok) {
+          if (n2 < target[0])
+            n2 = target[0];
+          else if (n2 > target[n])
+            n2 = target[n];
 
-      for (std::size_t j = 0; j < subject.size(); ++j) {
-        if (n1 == subject[j] && n2 == target[j]) {
-          row = int(j);
-          ok = true;
-          break;
+          while (!ok) {
+
+            for (std::size_t j = 0; j < subject.size(); ++j) {
+              if (n1 == subject[j] && n2 == target[j]) {
+                row = int(j);
+                ok = true;
+                break;
+              }
+            }
+
+            ++n1;
+            ++n2;
+
+            if (n1 > int(subject[n]) || n2 > int(target[n])) {
+              /* indicate failure to find right row */
+              row = -1;
+            }
+
+          }
+
+          if (row != -1) {
+
+            /* only calculate pval if row was found */
+
+            pvals[i] = pval_calculator(scores[i], paramA[row], paramB[row], ltail,
+                distribution[row]);
+
+          }
+
+        } else {
+
+          /* what to do when score is NA (represented as max double) */
+
+          pvals[i] = 0.0;
+
         }
-      }
 
-      ++n1;
-      ++n2;
-
-      if (n1 > int(subject[subject.size() - 1]) || n2 > int(target[target.size() - 1])) {
-        row = -1;
-      }
-
-    }
-
-    if (row == -1) continue;
-
-    pvals[i] = pval_calculator(scores[i], paramA[row], paramB[row], ltail,
-        distribution[row]);
-
-  }
+      }, nthreads);
 
   return pvals;
 
