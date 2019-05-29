@@ -1559,7 +1559,6 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
             n2 = target[n];
 
           while (!ok) {
-
             for (std::size_t j = 0; j < subject.size(); ++j) {
               if (n1 == subject[j] && n2 == target[j]) {
                 row = int(j);
@@ -1567,24 +1566,18 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
                 break;
               }
             }
-
             ++n1;
             ++n2;
-
             if (n1 > int(subject[n]) || n2 > int(target[n])) {
               /* indicate failure to find right row */
               row = -1;
             }
-
           }
 
           if (row != -1) {
-
             /* only calculate pval if row was found */
-
             pvals[i] = pval_calculator(scores[i], paramA[row], paramB[row], ltail,
                 distribution[row]);
-
           }
 
         } else {

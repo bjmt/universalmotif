@@ -220,6 +220,8 @@ MATRIX_ppm_to_pwm <- function(mat, bkg, pseudocount = 1, nsites = 100) {
 
   if (any(bkg == 0)) bkg <- pcm_to_ppmC(bkg * 1000, 1)
 
+  if (pseudocount == 0) pseudocount <- 1
+
   mat <- apply(mat, 2, ppm_to_pwmC, bkg = bkg, pseudocount = pseudocount,
                nsites = nsites)
 
@@ -274,6 +276,7 @@ convert_from_pcm <- function(motif, type, pseudocount, bkg, nsites,
     })
 
   rownames(motif@motif) <- alph
+  motif@motif[is.na(motif@motif)] <- 0
 
   motif
 
@@ -322,6 +325,7 @@ convert_from_ppm <- function(motif, type, pseudocount, bkg, nsites,
     })
 
   rownames(motif@motif) <- alph
+  motif@motif[is.na(motif@motif)] <- 0
 
   motif
 
@@ -372,6 +376,7 @@ convert_from_pwm <- function(motif, type, pseudocount, bkg, nsites,
     })
 
   rownames(motif@motif) <- alph
+  motif@motif[is.na(motif@motif)] <- 0
 
   motif
 
@@ -410,6 +415,7 @@ convert_from_icm <- function(motif, type, pseudocount, bkg, nsites) {
     })
 
   rownames(motif@motif) <- alph
+  motif@motif[is.na(motif@motif)] <- 0
 
   motif
 
