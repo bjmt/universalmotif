@@ -82,7 +82,7 @@ double pval_calculator(const double score, const double paramA,
     case 2: return R::plogis(score, paramA, paramB, ltail, 1);
     case 3: return R::pweibull(score, paramA, paramB, ltail, 1);
 
-    default: Rcpp::stop("distribution must be one of normal, logistic, weibull");
+    default: return -1.0;
 
   }
 
@@ -379,11 +379,14 @@ double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
   vec_num_t topbot(ncol, 0.0);
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
-      topbot[i] = bot[i] == 0 ? 0.0 : top[i] / bot[i];
-      // topbot[i] = top[i] / bot[i];  // --> Get Inf values if both mot1[i] and mot2[i]
-    }                                  //     are uniform (e.g. {0.25, 0.25, 0.25, 0.25});
-  }                                    //     not sure what best solution is here.
-
+      /* Note:
+       *   If both columns are uniform (i.e. {0.25, 0.25, 0.25, 0.25}) then
+       *   bot = 0, leading to top / 0 = Inf. Since both being uniform also
+       *   means they are identical, a perfect score is given (1.0).
+       */
+      topbot[i] = bot[i] == 0 ? 1.0 : top[i] / bot[i];
+    }
+  }
   return calc_final_score(topbot, strat, n, good);
 
 }
@@ -831,8 +834,9 @@ double internal_posIC(vec_num_t pos, const vec_num_t &bkg,
 list_num_t get_merged_motif(const list_num_t &mot1, const list_num_t &mot2,
     const int weight) {
 
-  /* TODO: this is potentially dangerous with min.position.ic !!! */
-  /* (update: is it though?) */
+  /* TODO: Is it possible for the motif to be internally trimmed as a result
+   *       of min.position.ic > 0?
+   */
 
   list_num_t out;
   out.reserve(mot1.size());
@@ -1057,15 +1061,6 @@ void find_offsets(list_num_t mot1, list_num_t mot2,
     const vec_num_t &bkg1, const vec_num_t &bkg2, int &offset, const str_t &strat) {
 
   double score;
-
-  std::size_t ncol1 = mot1.size();
-  std::size_t ncol2 = mot2.size();
-  std::size_t overlap1 = minoverlap, overlap2 = minoverlap;
-
-  if (minoverlap < 1) {
-    overlap1 = minoverlap * ncol1;
-    overlap2 = minoverlap * ncol2;
-  }
 
   merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
       posic, minic, score, offset, nsites1, nsites2, bkg1, bkg2, strat);
