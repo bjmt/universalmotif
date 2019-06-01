@@ -103,8 +103,9 @@ list_int_t bb_path_get_next(const list_int_t &mot, const list_int_t &paths,
   std::size_t npaths = paths[0].size();
 
   list_int_t newpaths(paths.size() + 1);
+
+  // Don't really see any performance improvements from not having this .reserve()
   for (std::size_t i = 0; i < newpaths.size(); ++i) {
-    /* might be a better solution here, ratio of reserved/filled can be huge */
     newpaths[i].reserve(alphlen * npaths);
   }
 
@@ -187,25 +188,27 @@ long double motif_pvalue_single(list_int_t mot, const double score,
   std::size_t alphlen = bkg.size();
   std::size_t motlen = mot.size();
 
-  if (k < 1)
-    Rcpp::stop("k must be greater than 0");
+  /* stop() calls are not thread safe! */
 
-  if (mot.size() == 0 || mot[0].size() == 0)
-    Rcpp::stop("empty motif");
-  if (bkg.size() == 0)
-    Rcpp::stop("empty bkg vector");
+  // if (k < 1)
+  //   Rcpp::stop("k must be greater than 0");
 
-  if (mot[0].size() != bkg.size())
-    Rcpp::stop("bkg vector length does not match motif row number");
+  // if (mot.size() == 0 || mot[0].size() == 0)
+  //   Rcpp::stop("empty motif");
+  // if (bkg.size() == 0)
+  //   Rcpp::stop("empty bkg vector");
 
-  int mmin = 0, mmax = 0;
-  for (std::size_t i = 0; i < motlen; ++i) {
-    mmin += *std::min_element(mot[i].begin(), mot[i].end());
-    mmax += *std::max_element(mot[i].begin(), mot[i].end());
-  }
-  if (iscore > mmax || iscore < mmin) {
-    Rcpp::stop("input score is outside of min/max motif score range");
-  }
+  // if (mot[0].size() != bkg.size())
+  //   Rcpp::stop("bkg vector length does not match motif row number");
+
+  // int mmin = 0, mmax = 0;
+  // for (std::size_t i = 0; i < motlen; ++i) {
+  //   mmin += *std::min_element(mot[i].begin(), mot[i].end());
+  //   mmax += *std::max_element(mot[i].begin(), mot[i].end());
+  // }
+  // if (iscore > mmax || iscore < mmin) {
+  //   Rcpp::stop("input score is outside of min/max motif score range");
+  // }
 
   std::sort(mot.begin(), mot.end(), position_sort);
 
@@ -389,14 +392,16 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
 
   std::size_t motlen = mot.size();
 
-  if (k < 1)
-    Rcpp::stop("k must be greater than 0");
+  /* stop() calls are not thread safe! */
 
-  if (mot.size() == 0 || mot[0].size() == 0)
-    Rcpp::stop("empty motif");
+  // if (k < 1)
+  //   Rcpp::stop("k must be greater than 0");
 
-  if (randtries < 1)
-    Rcpp::stop("rand.tries must be greater than zero");
+  // if (mot.size() == 0 || mot[0].size() == 0)
+  //   Rcpp::stop("empty motif");
+
+  // if (randtries < 1)
+  //   Rcpp::stop("rand.tries must be greater than zero");
 
   if (int(motlen) > k) {
 
