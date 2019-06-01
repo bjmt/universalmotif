@@ -584,9 +584,10 @@ ungap <- function(motif, delete = FALSE) {
 
   if (delete) {
     motif@gapinfo <- new("universalmotif_gapped")
+  } else {
+    motif@gapinfo@isgapped <- FALSE
   }
 
-  motif@gapinfo@isgapped <- FALSE
   motif
 
 }

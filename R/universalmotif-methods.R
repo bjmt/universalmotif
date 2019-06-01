@@ -1,3 +1,9 @@
+setMethod("initialize", signature = "universalmotif_gapped",
+          definition = function(.Object) {
+  .Object@isgapped <- FALSE
+  .Object
+})
+
 #' @param x [universalmotif-class] Motif.
 #' @param i `character` Slot.
 #' @include universalmotif-class.R

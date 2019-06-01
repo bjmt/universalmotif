@@ -188,28 +188,6 @@ long double motif_pvalue_single(list_int_t mot, const double score,
   std::size_t alphlen = bkg.size();
   std::size_t motlen = mot.size();
 
-  /* stop() calls are not thread safe! */
-
-  // if (k < 1)
-  //   Rcpp::stop("k must be greater than 0");
-
-  // if (mot.size() == 0 || mot[0].size() == 0)
-  //   Rcpp::stop("empty motif");
-  // if (bkg.size() == 0)
-  //   Rcpp::stop("empty bkg vector");
-
-  // if (mot[0].size() != bkg.size())
-  //   Rcpp::stop("bkg vector length does not match motif row number");
-
-  // int mmin = 0, mmax = 0;
-  // for (std::size_t i = 0; i < motlen; ++i) {
-  //   mmin += *std::min_element(mot[i].begin(), mot[i].end());
-  //   mmax += *std::max_element(mot[i].begin(), mot[i].end());
-  // }
-  // if (iscore > mmax || iscore < mmin) {
-  //   Rcpp::stop("input score is outside of min/max motif score range");
-  // }
-
   std::sort(mot.begin(), mot.end(), position_sort);
 
   list_int_t sorted_alph_indices(motlen);
@@ -392,17 +370,6 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
 
   std::size_t motlen = mot.size();
 
-  /* stop() calls are not thread safe! */
-
-  // if (k < 1)
-  //   Rcpp::stop("k must be greater than 0");
-
-  // if (mot.size() == 0 || mot[0].size() == 0)
-  //   Rcpp::stop("empty motif");
-
-  // if (randtries < 1)
-  //   Rcpp::stop("rand.tries must be greater than zero");
-
   if (int(motlen) > k) {
 
     int nsplit = int(motlen) / k;
@@ -485,10 +452,19 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
 
 /* C++ ENTRY ---------------------------------------------------------------- */
 
+/*
+ * TODO:
+ *    - Add checks for empty motifs
+ *    - Check for empty background vectors
+ *    - Check min/max input vs actual scores?
+ */
+
 // [[Rcpp::export(rng = false)]]
 std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
     const Rcpp::List &bkg, const std::vector<double> &scores, const int &k = 6,
     const int &nthreads = 1) {
+
+  if (k < 1) Rcpp::stop("k must be at least 1");
 
   list_mat_t vmotifs(motifs.size());
   for (R_xlen_t i = 0; i < motifs.size(); ++i) {
@@ -515,6 +491,9 @@ std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
 std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
     const std::vector<double> &pvals, const int seed = 1, const int k = 6,
     const int nthreads = 1, const int randtries = 100) {
+
+  if (k < 1) Rcpp::stop("k must be at least 1");
+  if (randtries < 1) Rcpp::stop("randtries must be at least 1");
 
   list_mat_t vmots(motifs.size());
   for (R_xlen_t i = 0; i < motifs.size(); ++i) {

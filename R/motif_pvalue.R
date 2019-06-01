@@ -164,7 +164,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     if (!is.list(bkg.probs) && !is.numeric(bkg.probs)) {
       bkg_check <- paste0(" * Incorrect type for 'bkg.probs': ",
                           "expected 'list' or 'numeric'; got `",
-                          class(bkg.probs), "`")
+                          class(bkg.probs)[1], "`")
     }
   }
   use.freq_check <- character()
