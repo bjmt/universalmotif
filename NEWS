@@ -80,6 +80,9 @@ MINOR CHANGES
     o Replaced several instances of cat() with message() for printing progress
       updates.
 
+    o Positional tests have been removed from enrich_motifs(). See
+      motif_peaks() for testing motif-sequence positional preferences.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 

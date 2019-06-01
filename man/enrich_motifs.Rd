@@ -22,8 +22,7 @@ should match motif.}
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is used to create background sequences from
 the input sequences.}
 
-\item{search.mode}{\code{character(1)} One of \code{c('hits', 'positional', 'both')}.
-See details.}
+\item{search.mode}{\code{character(1)} Deprecated. Only 'hits' is accepted.}
 
 \item{max.p}{\code{numeric(1)} P-value threshold.}
 
@@ -36,10 +35,7 @@ P-value with the number of input motifs times two
 
 \item{qval.method}{\code{character(1)} See \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
 
-\item{positional.test}{\code{character(1)} One of \code{c('t.test', 'wilcox.test', 'chisq.test', 'shapiro.test')}. If using the Shapiro test for
-normality, then only the input sequences are tested for positionality;
-the background sequences are ignored. See \code{\link[stats:t.test]{stats::t.test()}},
-\code{\link[stats:wilcox.test]{stats::wilcox.test()}}, \code{\link[stats:chisq.test]{stats::chisq.test()}}, \code{\link[stats:shapiro.test]{stats::shapiro.test()}}.}
+\item{positional.test}{\code{character(1)} Deprecated. See \code{\link[=motif_peaks]{motif_peaks()}}.}
 
 \item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 
@@ -86,15 +82,8 @@ given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequ
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
-\code{list} Motif enrichment results in lists. Some list entries
-may be \code{NULL} depending on function parameters. An additional \code{args}
-list describes function args.
-\itemize{
-\item \code{enrichment.report.hits}
-\item \code{enrichment.report.pos}
-\item \code{input.scan}
-\item \code{bkg.scan}
-}
+\code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and
+(optionally) scan results are stored in the \code{metadata} slot.
 }
 \description{
 Given a set of target and background sequences, test if the input motifs
@@ -103,13 +92,8 @@ background sequences. See the "Sequence manipulation and scanning" vignette.
 }
 \details{
 To find enriched motifs, \code{\link[=scan_sequences]{scan_sequences()}} is run on both
-target and background sequences. If \code{search.mode = 'hits'},
-\code{\link[stats:fisher.test]{stats::fisher.test()}} is run to test for enrichment. If
-\code{search.mode = 'positional'}, then the test as set by
-\code{positional.test} is run to check for positional differences
-between target and background sequences. However if
-\code{positional.test = 'shapiro.test'}, then only target sequence
-hits are considered.
+target and background sequences.
+\code{\link[stats:fisher.test]{stats::fisher.test()}} is run to test for enrichment.
 
 See \code{\link[=scan_sequences]{scan_sequences()}} for more info on scanning parameters.
 }

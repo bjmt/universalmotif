@@ -215,21 +215,10 @@ data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
 
 enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
-              threshold = 0.001, RC = TRUE)[[1]]
+              threshold = 0.001, RC = TRUE)
 ```
 
-Here we can see that the motif is significantly enriched in the target sequences. The `Pval.hits` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package. Another type of test is available which looks for positional enrichment, i.e. whether one area in the target sequences is favoured.
-
-```{r}
-library(universalmotif)
-data(ArabidopsisMotif)
-data(ArabidopsisPromoters)
-
-enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
-              search.mode = "positional", RC = TRUE)[[1]]
-```
-
-In this case however no such bias exists in the target sequences. There are a number of tests available for positional enrichment; see `?enrich_motifs`. Furthermore, the `motif_peaks()` function can be used to identify non-random motif clusters; see the next section for details.
+Here we can see that the motif is significantly enriched in the target sequences. The `Pval` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package.
 
 One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.)
 

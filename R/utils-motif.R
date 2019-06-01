@@ -206,9 +206,9 @@ add_gap <- function(motif, gaploc, mingap, maxgap) {
 
   motif@gapinfo@isgapped <- TRUE
 
-  if (!missing(gaploc)) motif@gapinfo@gaploc <- gaploc
-  if (!missing(mingap)) motif@gapinfo@mingap <- mingap
-  if (!missing(maxgap)) motif@gapinfo@maxgap <- maxgap
+  if (!missing(gaploc)) motif@gapinfo@gaploc <- sort(unique(gaploc))
+  if (!missing(mingap)) motif@gapinfo@mingap <- sort(unique(mingap))
+  if (!missing(maxgap)) motif@gapinfo@maxgap <- sort(unique(maxgap))
 
   if (length(motif@gapinfo@gaploc) == 0)
     motif@gapinfo@gaploc <- round(ncol(motif@motif) / 2)

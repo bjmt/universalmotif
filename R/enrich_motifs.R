@@ -8,8 +8,7 @@
 #' @param bkg.sequences \code{\link{XStringSet}} Optional; if missing,
 #'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
-#' @param search.mode `character(1)` One of `c('hits', 'positional', 'both')`.
-#'    See details.
+#' @param search.mode `character(1)` Deprecated. Only 'hits' is accepted.
 #' @param max.p `numeric(1)` P-value threshold.
 #' @param max.q `numeric(1)` Adjusted P-value threshold. This is only useful
 #'    if multiple motifs are being enriched for.
@@ -17,11 +16,7 @@
 #'    P-value with the number of input motifs times two
 #'    \insertCite{meme2}{universalmotif}.
 #' @param qval.method `character(1)` See [stats::p.adjust()].
-#' @param positional.test `character(1)` One of `c('t.test', 'wilcox.test',
-#'    'chisq.test', 'shapiro.test')`. If using the Shapiro test for
-#'    normality, then only the input sequences are tested for positionality;
-#'    the background sequences are ignored. See [stats::t.test()],
-#'    [stats::wilcox.test()], [stats::chisq.test()], [stats::shapiro.test()].
+#' @param positional.test `character(1)` Deprecated. See [motif_peaks()].
 #' @param verbose `numeric(1)` 0 for no output, 4 for max verbosity.
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
@@ -46,24 +41,13 @@
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].
 #'
-#' @return `list` Motif enrichment results in lists. Some list entries
-#'    may be `NULL` depending on function parameters. An additional `args`
-#'    list describes function args.
-#'
-#' * `enrichment.report.hits`
-#' * `enrichment.report.pos`
-#' * `input.scan`
-#' * `bkg.scan`
+#' @return `DataFrame` Enrichment results in a `DataFrame`. Function args and
+#'    (optionally) scan results are stored in the `metadata` slot.
 #'
 #' @details
 #' To find enriched motifs, [scan_sequences()] is run on both 
-#' target and background sequences. If `search.mode = 'hits'`,
-#' [stats::fisher.test()] is run to test for enrichment. If
-#' `search.mode = 'positional'`, then the test as set by
-#' `positional.test` is run to check for positional differences
-#' between target and background sequences. However if
-#' `positional.test = 'shapiro.test'`, then only target sequence
-#' hits are considered.
+#' target and background sequences. 
+#' [stats::fisher.test()] is run to test for enrichment.
 #'
 #' See [scan_sequences()] for more info on scanning parameters.
 #'
@@ -98,7 +82,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   all_checks <- character(0)
   if (!search.mode %in% c("hits", "positional", "both")) {
     search.mode_check <- paste0(" * Incorrect 'search.mode': expected `hits`,",
-                                " `positional` or `both`; got `",
+                                "; got `",
                                 search.mode, "`")
     search.mode_check <- wmsg2(search.mode_check, 4, 2)
     all_checks <- c(all_checks, search.mode_check)
@@ -160,6 +144,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (search.mode != "hits")
+    warning(wmsg("search.mode = c('both', 'positional') is deprecated; see ",
+                  "motif_peaks() instead"), immediate. = TRUE)
+
   if (progress)
     warning("'progress' is deprecated and does nothing", immediate. = TRUE)
   if (BP)
@@ -172,12 +160,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     message("   > bkg.sequences:       ", ifelse(!missing(bkg.sequences),
                                                  deparse(substitute(bkg.sequences)),
                                                  "none"))
-    message("   > search.mode:         ", search.mode)
     message("   > max.p:               ", max.p)
     message("   > max.q:               ", max.q)
     message("   > max.e:               ", max.e)
     message("   > qval.method:         ", qval.method)
-    message("   > positional.test:     ", positional.test)
     message("   > threshold:           ", threshold)
     message("   > threshold.type:      ", threshold.type)
     message("   > verbose:             ", verbose)
@@ -235,107 +221,36 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
                           search.mode, threshold.type, motcount,
-                          return.scan.results, nthreads)
+                          return.scan.results, nthreads, args[-(1:3)])
 
-  if (return.scan.results) {
-    res.scan <- res.all[2:3]
-    res.all <- res.all[[1]]
-    if (nrow(res.scan[[1]]) == 0) res.scan[[1]] <- NULL
-    if (nrow(res.scan[[2]]) == 0) res.scan[[2]] <- NULL
-  }
-
-  if (nrow(res.all) < 1 || is.null(res.all)) {
+  if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
-    if (return.scan.results) {
-      res.all <- c(list(NULL), res.scan)
-      names(res.all) <- c("enrichment.report", "input.scan", "bkg.scan")
-      return(res.all)
-    } else return(invisible(NULL))
+    return(res.all)
   } 
 
-  res.all$Qval.hits <- p.adjust(res.all$Pval.hits, method = qval.method)
-  res.all$Qval.pos <- p.adjust(res.all$Pval.pos, method = qval.method)
-  res.all$Eval.hits <- res.all$Qval.hits * length(motifs) * 2
-  res.all$Eval.pos <- res.all$Qval.pos * length(motifs) * 2
+  res.all$Qval <- p.adjust(res.all$Pval, method = qval.method)
+  res.all$Eval <- res.all$Qval * length(motifs) * 2
 
   res.all <- res.all[!is.na(res.all$motif), ]
-  rownames(res.all) <- NULL
 
-  res1 <- NULL
-  res2 <- NULL
-  if (search.mode == "hits") {
-    res.all <- res.all[order(res.all$Qval.hits), ]
-    res.all <- res.all[res.all$Pval.hits < max.p, ]
-    res.all <- res.all[res.all$Qval.hits < max.q, ]
-    res.all <- res.all[res.all$Eval.hits < max.e, ]
-    res.all <- res.all[, !colnames(res.all) %in% c("seq.pos.mean", "seq.pos.sd",
-                                                   "bkg.pos.mean", "bkg.pos.sd",
-                                                   "Pval.pos", "Qval.pos",
-                                                   "Eval.pos")]
-    # TODO: convert bandaid change to complete change
-    colnames(res.all) <- c("motif", "hits", "seq.hits", "n.seqs", "bkg.hits",
-                           "n.bkg.hits", "n.bkg", "Pval", "Qval", "Eval")
-    res1 <- res.all
-  } else if (search.mode == "positional") {
-    res.all <- res.all[order(res.all$Qval.pos), ]
-    res.all <- res.all[res.all$Pval.pos < max.p, ]
-    res.all <- res.all[res.all$Qval.pos < max.q, ]
-    res.all <- res.all[res.all$Eval.pos < max.e, ]
-    res.all <- res.all[, !colnames(res.all) %in% c("Pval.hits", "Qval.hits",
-                                                    "Eval.hits")]
-    # TODO: convert bandaid change to complete change
-    colnames(res.all) <- c("motif", "hits", "seq.hits", "n.seqs", "pos.mean",
-                           "pos.sd", "bkg.hits", "n.bkg.hits", "n.bkg", "bkg.mean",
-                           "bkg.sd", "Pval", "Qval", "Eval")
-    res2 <- res.all
-  } else if (search.mode == "both") {
-    res.all <- res.all[order(res.all$Qval.hits), ]
-    res.all <- res.all[res.all$Pval.hits < max.p | res.all$Pval.pos < max.p, ]
-    res.all <- res.all[res.all$Qval.hits < max.q | res.all$Qval.pos < max.q, ]
-    res.all <- res.all[res.all$Eval.hits < max.e | res.all$Eval.pos < max.e, ]
-    # TODO: convert bandaid change to complete change
-    res1 <- res.all[, c("motif", "total.seq.hits", "num.seqs.hit", "num.seqs.total",
-                        "total.bkg.hits", "num.bkg.hit", "num.bkg.total",
-                        "Pval.hits", "Qval.hits", "Eval.hits")]
-    colnames(res1) <- c("motif", "hits", "seq.hits", "n.seqs", "bkg.hits",
-                        "n.bkg.hits", "n.bkg", "Pval", "Qval", "Eval")
-    res2 <- res.all[, c("motif", "total.seq.hits", "num.seqs.hit", "num.seqs.total",
-                        "seq.pos.mean", "seq.pos.sd", "total.bkg.hits",
-                        "num.bkg.hit", "num.bkg.total", "bkg.pos.mean",
-                        "bkg.pos.sd", "Pval.pos", "Qval.pos", "Eval.pos")]
-    colnames(res2) <- c("motif", "hits", "seq.hits", "n.seqs", "pos.mean",
-                        "pos.sd", "bkg.hits", "n.bkg.hits", "n.bkg", "bkg.mean",
-                        "bkg.sd", "Pval", "Qval", "Eval")
-  } else stop("unknown 'search.mode'")
+  res.all <- res.all[order(res.all$Qval), ]
+  res.all <- res.all[res.all$Pval < max.p, ]
+  res.all <- res.all[res.all$Qval < max.q, ]
+  res.all <- res.all[res.all$Eval < max.e, ]
 
   if (nrow(res.all) < 1 || is.null(res.all)) {
     message(" ! No enriched motifs")
-    if (return.scan.results) {
-      res.all <- c(list(NULL), list(NULL), res.scan)
-      names(res.all) <- c("enrichment.report.hits", "enrichment.report.pos",
-                          "input.scan", "bkg.scan")
-      return(res.all)
-    } else return(invisible(NULL))
+    return(res.all)
   } 
 
-  if (return.scan.results) {
-    res.all <- c(list(as(res1, "DataFrame"), as(res2, "DataFrame")), res.scan)
-    names(res.all) <- c("enrichment.report.hits", "enrichment.report.pos",
-                        "input.scan", "bkg.scan")
-    return(res.all) 
-  }
-
-  out <- list(enrichment.report.hits = res1, enrichment.report.pos = res2,
-              input.scan = NULL, bkg.scan = NULL, args = args[-c(1:3)])
-
-  out[!vapply(out, is.null, logical(1))]
+  res.all
 
 }
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                          verbose, RC, use.freq, positional.test,
                          search.mode, threshold.type, motcount,
-                         return.scan.results, nthreads) {
+                         return.scan.results, nthreads, args) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -360,8 +275,16 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
 
   if (length(results2) == 0) {
-    return(DataFrame())
+    out <- DataFrame()
+    if (return.scan.results) {
+      out@metadata <- list(scan.target = results, scan.bkg = results.bkg,
+                           args = args)
+    } else {
+      out@metadata <- list(args = args)
+    }
+    return(out)
   }
+
   if (length(results.bkg2) == 0) results.bkg2 <- DataFrame()
 
   if (verbose > 0) message(" > Testing motifs for enrichment")
@@ -378,7 +301,10 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   results.all <- do.call(rbind, results.all)
 
   if (return.scan.results) {
-    results.all <- list(results.all, results, results.bkg)
+    results.all@metadata <- list(scan.target = results, scan.bkg = results.bkg,
+                                 args = args)
+  } else {
+    results.all@metadata <- list(args = args)
   }
 
   results.all
@@ -440,56 +366,51 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     hits.p <- 0
   }
 
-  pos.p <- NA
+  # pos.p <- NA
+  #
+  # if (search.mode %in% c("both", "positional") && length(seq.hits) > 0 && !skip.calc) {
+  #   if (positional.test == "t.test" && length(bkg.hits) > 0) {
+  #     if (verbose > 3) message("   > Running t.test")
+  #     tryCatch({
+  #       pos.p <- t.test(seq.hits / mean(seq.widths),
+  #                       bkg.hits / mean(bkg.widths))$p.value
+  #     }, error = function(e) warning("t.test failed"))
+  #   } else if (positional.test == "wilcox.test" && length(bkg.hits) > 0) {
+  #     if (verbose > 3) message("   > Running wilcox.test")
+  #     tryCatch({
+  #       pos.p <- wilcox.test(seq.hits / mean(seq.widths),
+  #                            bkg.hits / mean(bkg.widths))$p.value
+  #     }, error = function(e) warning("wilcox.test failed"))
+  #   } else if (positional.test == "chisq.test" && length(bkg.hits) > 0) {
+  #     if (verbose > 3) message("   > Running chisq.test")
+  #     tryCatch({
+  #       pos.p <- chisq.test(seq.hits / mean(seq.widths),
+  #                           bkg.hits / mean(bkg.widths))$p.value
+  #     }, error = function(e) warning("chisq.test failed"))
+  #   } else if (positional.test == "shapiro.test") {
+  #     if (verbose > 3) message("   > Running shapiro.test")
+  #     tryCatch({
+  #     pos.p <- shapiro.test(seq.hits)$p.value
+  #     }, error = function(e) warning("shapiro.test failed"))
+  #   }
+  # } else if (skip.calc) {
+  #   pos.p <- 0
+  # }
 
-  if (search.mode %in% c("both", "positional") && length(seq.hits) > 0 && !skip.calc) {
-    if (positional.test == "t.test" && length(bkg.hits) > 0) {
-      if (verbose > 3) message("   > Running t.test")
-      tryCatch({
-        pos.p <- t.test(seq.hits / mean(seq.widths),
-                        bkg.hits / mean(bkg.widths))$p.value
-      }, error = function(e) warning("t.test failed"))
-    } else if (positional.test == "wilcox.test" && length(bkg.hits) > 0) {
-      if (verbose > 3) message("   > Running wilcox.test")
-      tryCatch({
-        pos.p <- wilcox.test(seq.hits / mean(seq.widths),
-                             bkg.hits / mean(bkg.widths))$p.value
-      }, error = function(e) warning("wilcox.test failed"))
-    } else if (positional.test == "chisq.test" && length(bkg.hits) > 0) {
-      if (verbose > 3) message("   > Running chisq.test")
-      tryCatch({
-        pos.p <- chisq.test(seq.hits / mean(seq.widths),
-                            bkg.hits / mean(bkg.widths))$p.value
-      }, error = function(e) warning("chisq.test failed"))
-    } else if (positional.test == "shapiro.test") {
-      if (verbose > 3) message("   > Running shapiro.test")
-      tryCatch({
-      pos.p <- shapiro.test(seq.hits)$p.value
-      }, error = function(e) warning("shapiro.test failed"))
-    }
-  } else if (skip.calc) {
-    pos.p <- 0
-  }
-
-  if (verbose > 3 && search.mode %in% c("hits", "both")) {
+  if (verbose > 3) {
     message("       occurrences p-value: ", hits.p)
-  }
-  if (verbose > 3 && search.mode %in% c("positional", "both")) {
-    message("       positional bias p-value: ", pos.p)
   }
 
   results <- DataFrame(motif = motifs@name,
-                       total.seq.hits = length(seq.hits),
-                       num.seqs.hit = length(unique(as.vector(results$sequence))),
-                       num.seqs.total = length(sequences),
-                       seq.pos.mean = seq.hits.mean / mean(seq.widths),
-                       seq.pos.sd = sd(seq.hits) / mean(seq.widths),
-                       total.bkg.hits = length(bkg.hits),
-                       num.bkg.hit = length(unique(as.vector(results.bkg$sequence))),
-                       num.bkg.total = length(bkg.sequences),
-                       bkg.pos.mean = bkg.hits.mean / mean(bkg.widths),
-                       bkg.pos.sd = sd(bkg.hits) / mean(bkg.widths),
-                       Pval.hits = hits.p, Pval.pos = pos.p)
+                       target.hits = length(seq.hits),
+                       target.seq.hits = length(unique(as.vector(results$sequence))),
+                       target.seq.count = length(sequences),
+                       bkg.hits = length(bkg.hits),
+                       bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
+                       bkg.seq.count = length(bkg.sequences),
+                       Pval = hits.p,
+                       Qval = NA_real_,
+                       Eval = NA_real_)
 
   results
 

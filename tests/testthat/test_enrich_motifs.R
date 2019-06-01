@@ -16,11 +16,11 @@ test_that("motif enrichment works", {
                         search.mode = "both", return.scan.results = TRUE)
         )
 
-  expect_true(is.list(r))
-  expect_equal(nrow(r[[1]]), 1)
+  expect_true(is(r, "DataFrame"))
+  expect_equal(nrow(r), 1)
 
-  expect_true(is.list(r2))
-  expect_equal(names(r2), c("enrichment.report.hits", "enrichment.report.pos",
-                            "input.scan", "bkg.scan"))
+  expect_true(is(r2, "DataFrame"))
+  expect_equal(names(S4Vectors::metadata(r2)),
+               c("scan.target", "scan.bkg", "args"))
 
 })
