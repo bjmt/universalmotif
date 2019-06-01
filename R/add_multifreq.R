@@ -110,7 +110,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     for (i in seq_len(length(sequences))) {
       seq.out <- seq.res[seq.res$sequence == seq.names[i], ]
       seq.out <- seq.out[order(seq.out$score, decreasing = TRUE), ]
-      seq.out <- seq.out[seq_len(motifs.perseq), ]
+      if (nrow(seq.out) > motifs.perseq)
+        seq.out <- seq.out[seq_len(motifs.perseq), ]
       seqs.out[[i]] <- seq.out
     }
 
