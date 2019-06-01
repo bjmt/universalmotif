@@ -262,7 +262,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
     if (missing(db.scores)) {
 
-      db.scores <- JASPAR2018_CORE_DBSCORES$scores
+      db.scores <- JASPAR2018_CORE_DBSCORES
 
       if (use.freq != 1)
         warning(wmsg("Using the internal P-value database with `use.freq > 1`",

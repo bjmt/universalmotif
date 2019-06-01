@@ -69,8 +69,7 @@ mean. "g.mean": take the geometric mean. "median": take the median.}
 A \code{DataFrame} with score distributions for the
 input database. If more than one \code{\link[=make_DBscores]{make_DBscores()}} run occurs (i.e. args
 \code{method}, \code{normalise.scores} or \code{score.strat} are longer than 1), then
-a \code{list} is returned with a \code{DataFrame} of scores and a \code{list} of
-function parameters.
+the function args are included in the \code{metadata} slot.
 }
 \description{
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,

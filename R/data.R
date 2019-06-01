@@ -20,16 +20,16 @@
 #' For use with [compare_motifs()]. The precomputed scores allow for fast P-value estimation.
 #' These scores were
 #' generated using [make_DBscores()] with the JASPAR2018 CORE motif set.
-#' The scores are organized in a `DataFrame` in `JASPAR2018_CORE_DBSCORES$scores`.
+#' The scores are organized in a `DataFrame`.
 #' In this `DataFrame` is the location and scale
 #' of scores resulting from a
 #' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 #' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0. The parameters used can be seen via
-#' `JASPAR2018_CORE_DBSCORES$args`.
+#' `S4Vectors::metadata(JASPAR2018_CORE_DBSCORES)`.
 #'
-#' @format `list` of `DataFrame`s with an additional list entry for parameters.
+#' @format `DataFrame` with function args in the `metadata` slot.
 "JASPAR2018_CORE_DBSCORES"
 
 #' Arabidopsis promoters as a `DNAStringSet`.

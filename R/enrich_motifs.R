@@ -299,6 +299,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                         SIMPLIFY = FALSE)
 
   results.all <- do.call(rbind, results.all)
+  results.all$motif.i <- as.integer(seq_along(motifs))
 
   if (return.scan.results) {
     results.all@metadata <- list(scan.target = results, scan.bkg = results.bkg,
@@ -326,25 +327,25 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
                                    bkg.sequences, verbose) {
 
   seq.hits <- as.vector(results$start)
-  if (length(seq.hits) == 0 || is.null(seq.hits)) {
-    seq.hits.mean <- 0
-  } else seq.hits.mean <- mean(seq.hits)
 
   bkg.hits <- as.vector(results.bkg$start)
-  if (length(bkg.hits) == 0 || is.null(bkg.hits)) {
-    bkg.hits.mean <- 0
-  } else bkg.hits.mean <- mean(bkg.hits)
 
-  if (seq.hits.mean > 0 && bkg.hits.mean == 0) {
+  if (length(seq.hits) > 0 && length(bkg.hits) == 0) {
     warning(wmsg("Found hits for motif '", motifs@name,
                  "' in target sequences but none in bkg, ",
-                 "significance will not be calculated"))
+                 "significance will not be calculated and instead a ",
+                 "P-value of 0 will be assigned"), immediate. = TRUE)
     skip.calc <- TRUE
   } else {
     skip.calc <- FALSE
   }
 
-  if (length(seq.hits) == 0 && length(bkg.hits) == 0) return(NULL)
+  if (length(seq.hits) == 0 && length(bkg.hits) == 0) 
+    return(DataFrame(motif = motifs@name, target.hits = 0L,
+                     target.seq.hits = 0L, target.seq.count = length(sequences),
+                     bkg.hits = 0L, bkg.seq.hits = 0L,
+                     bkg.seq.count = length(bkg.sequences), Pval = 1.0,
+                     Qval = NA_real_, Eval = NA_real_))
 
   seq.total <- (mean(seq.widths) - ncol(motifs@motif) + 1) * length(sequences)
   if (RC) seq.total <- seq.total * 2
@@ -366,42 +367,12 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     hits.p <- 0
   }
 
-  # pos.p <- NA
-  #
-  # if (search.mode %in% c("both", "positional") && length(seq.hits) > 0 && !skip.calc) {
-  #   if (positional.test == "t.test" && length(bkg.hits) > 0) {
-  #     if (verbose > 3) message("   > Running t.test")
-  #     tryCatch({
-  #       pos.p <- t.test(seq.hits / mean(seq.widths),
-  #                       bkg.hits / mean(bkg.widths))$p.value
-  #     }, error = function(e) warning("t.test failed"))
-  #   } else if (positional.test == "wilcox.test" && length(bkg.hits) > 0) {
-  #     if (verbose > 3) message("   > Running wilcox.test")
-  #     tryCatch({
-  #       pos.p <- wilcox.test(seq.hits / mean(seq.widths),
-  #                            bkg.hits / mean(bkg.widths))$p.value
-  #     }, error = function(e) warning("wilcox.test failed"))
-  #   } else if (positional.test == "chisq.test" && length(bkg.hits) > 0) {
-  #     if (verbose > 3) message("   > Running chisq.test")
-  #     tryCatch({
-  #       pos.p <- chisq.test(seq.hits / mean(seq.widths),
-  #                           bkg.hits / mean(bkg.widths))$p.value
-  #     }, error = function(e) warning("chisq.test failed"))
-  #   } else if (positional.test == "shapiro.test") {
-  #     if (verbose > 3) message("   > Running shapiro.test")
-  #     tryCatch({
-  #     pos.p <- shapiro.test(seq.hits)$p.value
-  #     }, error = function(e) warning("shapiro.test failed"))
-  #   }
-  # } else if (skip.calc) {
-  #   pos.p <- 0
-  # }
-
   if (verbose > 3) {
     message("       occurrences p-value: ", hits.p)
   }
 
   results <- DataFrame(motif = motifs@name,
+                       motif.i = NA_integer_,
                        target.hits = length(seq.hits),
                        target.seq.hits = length(unique(as.vector(results$sequence))),
                        target.seq.count = length(sequences),

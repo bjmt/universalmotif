@@ -237,6 +237,8 @@ compare_columns <- function(x, y, method,
                             nsites1 = 100, nsites2 = 100) {
 
   method <- match.arg(method, COMPARE_METRICS)
+  if (length(x) != length(y))
+    stop("length(x) does not match length(y) [", length(x), ", ", length(y), "]")
   compare_columns_cpp(x, y, bkg1, bkg2, nsites1, nsites2, method[1])
 
 }

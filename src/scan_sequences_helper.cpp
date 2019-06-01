@@ -228,6 +228,7 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
 
   return Rcpp::DataFrame::create(
         Rcpp::_["motif"] = res[0],
+        Rcpp::_["motif.i"] = res[0],
         Rcpp::_["sequence"] = res[1],
         Rcpp::_["start"] = res[2],
         Rcpp::_["stop"] = res[3],

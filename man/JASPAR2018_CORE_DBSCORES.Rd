@@ -4,7 +4,7 @@
 \name{JASPAR2018_CORE_DBSCORES}
 \alias{JASPAR2018_CORE_DBSCORES}
 \title{JASPAR2018 CORE database scores}
-\format{\code{list} of \code{DataFrame}s with an additional list entry for parameters.}
+\format{\code{DataFrame} with function args in the \code{metadata} slot.}
 \usage{
 JASPAR2018_CORE_DBSCORES
 }
@@ -12,13 +12,13 @@ JASPAR2018_CORE_DBSCORES
 For use with \code{\link[=compare_motifs]{compare_motifs()}}. The precomputed scores allow for fast P-value estimation.
 These scores were
 generated using \code{\link[=make_DBscores]{make_DBscores()}} with the JASPAR2018 CORE motif set.
-The scores are organized in a \code{DataFrame} in \code{JASPAR2018_CORE_DBSCORES$scores}.
+The scores are organized in a \code{DataFrame}.
 In this \code{DataFrame} is the location and scale
 of scores resulting from a
 logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
 randomized motifs of the specified
 \code{subject} and \code{target} motif length. Created using \code{\link[=make_DBscores]{make_DBscores()}} from
 universalmotif v1.4.0. The parameters used can be seen via
-\code{JASPAR2018_CORE_DBSCORES$args}.
+\code{S4Vectors::metadata(JASPAR2018_CORE_DBSCORES)}.
 }
 \keyword{datasets}

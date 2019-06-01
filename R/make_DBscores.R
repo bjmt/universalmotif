@@ -21,8 +21,7 @@
 #' @return A `DataFrame` with score distributions for the
 #'    input database. If more than one [make_DBscores()] run occurs (i.e. args
 #'    `method`, `normalise.scores` or `score.strat` are longer than 1), then
-#'    a `list` is returned with a `DataFrame` of scores and a `list` of
-#'    function parameters.
+#'    the function args are included in the `metadata` slot.
 #'
 #' @details
 #' See [compare_motifs()] for more info on comparison parameters.
@@ -122,13 +121,12 @@ make_DBscores <- function(db.motifs,
     if (progress) t2 <- Sys.time()
     if (progress) message(" *** Total runtime: ", format(difftime(t2, t1)), " ***")
 
-    out <- list(scores = do.call(rbind, out))
+    out <- do.call(rbind, out)
     for (i in colnames(out$scores)) {
-      out$scores[, i] <- Rle(out$scores[, i])
+      out[, i] <- Rle(out[, i])
     }
-    rownames(out$scores) <- NULL
 
-    out$args <- args[-1]
+    out@metadata <- args[-1]
     return(out)
 
   }
