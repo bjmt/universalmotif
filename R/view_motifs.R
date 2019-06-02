@@ -44,7 +44,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                         relative_entropy = FALSE, normalise.scores = FALSE,
                         min.position.ic = 0, score.strat = "sum", ...) {
 
-  # Possible bug: min.overlap not being respected?
+  # TODO: y-axis limits don't always play nice for IC matrices
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -163,7 +163,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
              ylab(yname)
     } else {
       p <- ggseqlogo(mot.mats[[1]], method = plot.method,
-                     seq_type = seq_type, ...) + ylab(yname)
+                     seq_type = seq_type, ...) +
+             ylab(yname)
     }
     return(p)
   }
