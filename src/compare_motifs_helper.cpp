@@ -50,6 +50,22 @@ std::unordered_map<std::string, int> METRICS_enum = {
 
 };
 
+enum COMPARE_METRICS {
+
+  EUCL    =  1,
+  KL      =  2,
+  HELL    =  3,
+  IS      =  4,
+  SEUCL   =  5,
+  MAN     =  6,
+  PCC     =  7,
+  SW      =  8,
+  ALLR    =  9,
+  BHAT    = 10,
+  ALLR_LL = 11
+
+};
+
 std::unordered_map<std::string, int> SCORESTRAT_enum = {
 
   /* Possible means to add: harmonic mean, weighted means */
@@ -65,6 +81,15 @@ std::unordered_map<std::string, int> SCORESTRAT_enum = {
 
 };
 
+enum ADDSCORES_STRAT {
+
+  SUM    = 1,
+  AMEAN  = 2,
+  GMEAN  = 3,
+  MEDIAN = 4
+
+};
+
 std::unordered_map<std::string, int> STRATS_enum = {
 
   {"normal",   1},
@@ -73,16 +98,24 @@ std::unordered_map<std::string, int> STRATS_enum = {
 
 };
 
+enum DIST_FUNS {
+
+  NORMAL   = 1,
+  LOGISTIC = 2,
+  WEIBULL  = 3
+
+};
+
 double pval_calculator(const double score, const double paramA,
     const double paramB, const int ltail, const str_t &dist) {
 
   switch (::STRATS_enum[dist]) {
 
-    case 1: return R::pnorm(score, paramA, paramB, ltail, 1);
-    case 2: return R::plogis(score, paramA, paramB, ltail, 1);
-    case 3: return R::pweibull(score, paramA, paramB, ltail, 1);
+    case NORMAL  : return R::pnorm(score, paramA, paramB, ltail, 1);
+    case LOGISTIC: return R::plogis(score, paramA, paramB, ltail, 1);
+    case WEIBULL : return R::pweibull(score, paramA, paramB, ltail, 1);
 
-    default: return -1.0;
+    default      : return -1.0;
 
   }
 
@@ -146,10 +179,10 @@ double calc_final_score(const vec_num_t &scores, const str_t &strat,
 
   switch (::SCORESTRAT_enum[strat]) {
 
-    case  1: return score_sum(scores);
-    case  2: return score_amean(scores, n);
-    case  3: return score_gmean(keep_good(scores, good, n));
-    case  4: return score_median(keep_good(scores, good, n));
+    case SUM   : return score_sum(scores);
+    case AMEAN : return score_amean(scores, n);
+    case GMEAN : return score_gmean(keep_good(scores, good, n));
+    case MEDIAN: return score_median(keep_good(scores, good, n));
 
     default: return -333.333;
 
@@ -671,52 +704,52 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
 
   switch (::METRICS_enum[method]) {
 
-    case  1: ans[i] = lowic ? std::numeric_limits<double>::max()
-                            : compare_eucl(tmot1, tmot2, strat)
-                              * double(tlen) / double(alignlen);
-             break;
-    case  2: ans[i] = lowic ? std::numeric_limits<double>::max()
-                            : compare_kl(tmot1, tmot2, strat)
-                              * double(tlen) / double(alignlen);
-             break;
-    case  7: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                            : compare_pcc(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case  8: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                            : compare_sw(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case  9: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                            : compare_allr(tmot1, tmot2, bkg1,
-                                bkg2, nsites1, nsites2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case 10: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                            : compare_bhat(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case  3: ans[i] = lowic ? std::numeric_limits<double>::max()
-                            : compare_hell(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case  4: ans[i] = lowic ? std::numeric_limits<double>::max()
-                            : compare_is(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case  5: ans[i] = lowic ? std::numeric_limits<double>::max()
-                            : compare_seucl(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case  6: ans[i] = lowic ? std::numeric_limits<double>::max()
-                            : compare_man(tmot1, tmot2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
-    case 11: ans[i] = lowic ? -std::numeric_limits<double>::max()
-                            : compare_allr_ll(tmot1, tmot2, bkg1,
-                                bkg2, nsites1, nsites2, strat)
-                              * double(alignlen) / double(tlen);
-             break;
+    case EUCL   : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_eucl(tmot1, tmot2, strat)
+                                   * double(tlen) / double(alignlen);
+                  break;
+    case KL     : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_kl(tmot1, tmot2, strat)
+                                   * double(tlen) / double(alignlen);
+                  break;
+    case PCC    : ans[i] = lowic ? -std::numeric_limits<double>::max()
+                                 : compare_pcc(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case SW     : ans[i] = lowic ? -std::numeric_limits<double>::max()
+                                 : compare_sw(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case ALLR   : ans[i] = lowic ? -std::numeric_limits<double>::max()
+                                 : compare_allr(tmot1, tmot2, bkg1,
+                                   bkg2, nsites1, nsites2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case BHAT   : ans[i] = lowic ? -std::numeric_limits<double>::max()
+                                 : compare_bhat(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case HELL   : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_hell(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case IS     : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_is(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case SEUCL  : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_seucl(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case MAN    : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_man(tmot1, tmot2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case ALLR_LL: ans[i] = lowic ? -std::numeric_limits<double>::max()
+                                 : compare_allr_ll(tmot1, tmot2, bkg1,
+                                     bkg2, nsites1, nsites2, strat)
+                                   * double(alignlen) / double(tlen);
+                  break;
 
   }
 
@@ -728,17 +761,17 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
 
   switch (::METRICS_enum[method]) {
 
-    case  1: return *std::min_element(ans.begin(), ans.end());
-    case  2: return *std::min_element(ans.begin(), ans.end());
-    case  3: return *std::min_element(ans.begin(), ans.end());
-    case  4: return *std::min_element(ans.begin(), ans.end());
-    case  5: return *std::min_element(ans.begin(), ans.end());
-    case  6: return *std::min_element(ans.begin(), ans.end());
-    case  7: return *std::max_element(ans.begin(), ans.end());
-    case  8: return *std::max_element(ans.begin(), ans.end());
-    case  9: return *std::max_element(ans.begin(), ans.end());
-    case 10: return *std::max_element(ans.begin(), ans.end());
-    case 11: return *std::max_element(ans.begin(), ans.end());
+    case EUCL   : return *std::min_element(ans.begin(), ans.end());
+    case KL     : return *std::min_element(ans.begin(), ans.end());
+    case HELL   : return *std::min_element(ans.begin(), ans.end());
+    case IS     : return *std::min_element(ans.begin(), ans.end());
+    case SEUCL  : return *std::min_element(ans.begin(), ans.end());
+    case MAN    : return *std::min_element(ans.begin(), ans.end());
+    case PCC    : return *std::max_element(ans.begin(), ans.end());
+    case SW     : return *std::max_element(ans.begin(), ans.end());
+    case ALLR   : return *std::max_element(ans.begin(), ans.end());
+    case BHAT   : return *std::max_element(ans.begin(), ans.end());
+    case ALLR_LL: return *std::max_element(ans.begin(), ans.end());
 
   }
 
@@ -862,17 +895,17 @@ int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
 
   switch (::METRICS_enum[method]) {
 
-    case  1: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case  2: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case  3: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case  4: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case  5: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case  6: return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case  7: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case  8: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case  9: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case 10: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case 11: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case EUCL   : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case KL     : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case HELL   : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case IS     : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case SEUCL  : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case MAN    : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case PCC    : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case SW     : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case ALLR   : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case BHAT   : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case ALLR_LL: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
 
   }
 
@@ -1099,11 +1132,11 @@ void neg_one_to_zero(list_num_t &mot) {
 void fix_mot_bkg_zeros(list_num_t &mot, vec_num_t &bkg, const std::string &method) {
 
   switch (::METRICS_enum[method]) {
-    case  2:
-    case  4:
-    case  9:
-    case 11: klfix(mot);
-             bkgfix(bkg);
+    case KL:
+    case IS:
+    case ALLR:
+    case ALLR_LL: klfix(mot);
+                  bkgfix(bkg);
   }
 
 }
@@ -1460,37 +1493,37 @@ double compare_columns_cpp(const std::vector<double> &p1,
   double ans;
 
   switch (::METRICS_enum[m]) {
-    case  1: ans = compare_eucl(pp1, pp2, "sum");
-             break;
-    case  2: ans = compare_kl(pp1, pp2, "sum");
-             break;
-    case  7: ans = compare_pcc(pp1, pp2, "sum");
-             break;
-    case  8: ans = compare_sw(pp1, pp2, "sum");
-             break;
-    case  9: if (b1.size() != p1.size() || b2.size() != p1.size())
-               Rcpp::stop("incorrect background vector length");
-             if (n1 <= 1 || n2 <= 1)
-               Rcpp::stop("nsites1/nsites2 should be greater than 1");
-             ans = compare_allr(pp1, pp2, b1, b2, n1, n2, "sum");
-             break;
-    case 10: ans = compare_bhat(pp1, pp2, "sum");
-             break;
-    case  3: ans = compare_hell(pp1, pp2, "sum");
-             break;
-    case  4: ans = compare_is(pp1, pp2, "sum");
-             break;
-    case  5: ans = compare_seucl(pp1, pp2, "sum");
-             break;
-    case  6: ans = compare_man(pp1, pp2, "sum");
-             break;
-    case 11: if (b1.size() != p1.size() || b2.size() != p1.size())
-               Rcpp::stop("incorrect background vector length");
-             if (n1 <= 1 || n2 <= 1)
-               Rcpp::stop("nsites1/nsites2 should be greater than 1");
-             ans = compare_allr_ll(pp1, pp2, b1, b2, n1, n2, "sum");
-             break;
-    default: Rcpp::stop("unknown metric");
+    case EUCL   : ans = compare_eucl(pp1, pp2, "sum");
+                  break;
+    case KL     : ans = compare_kl(pp1, pp2, "sum");
+                  break;
+    case PCC    : ans = compare_pcc(pp1, pp2, "sum");
+                  break;
+    case SW     : ans = compare_sw(pp1, pp2, "sum");
+                  break;
+    case ALLR   : if (b1.size() != p1.size() || b2.size() != p1.size())
+                    Rcpp::stop("incorrect background vector length");
+                  if (n1 <= 1 || n2 <= 1)
+                    Rcpp::stop("nsites1/nsites2 should be greater than 1");
+                  ans = compare_allr(pp1, pp2, b1, b2, n1, n2, "sum");
+                  break;
+    case BHAT   : ans = compare_bhat(pp1, pp2, "sum");
+                  break;
+    case HELL   : ans = compare_hell(pp1, pp2, "sum");
+                  break;
+    case IS     : ans = compare_is(pp1, pp2, "sum");
+                  break;
+    case SEUCL  : ans = compare_seucl(pp1, pp2, "sum");
+                  break;
+    case MAN    : ans = compare_man(pp1, pp2, "sum");
+                  break;
+    case ALLR_LL: if (b1.size() != p1.size() || b2.size() != p1.size())
+                    Rcpp::stop("incorrect background vector length");
+                  if (n1 <= 1 || n2 <= 1)
+                    Rcpp::stop("nsites1/nsites2 should be greater than 1");
+                  ans = compare_allr_ll(pp1, pp2, b1, b2, n1, n2, "sum");
+                  break;
+    default     : Rcpp::stop("unknown metric");
   }
 
   return ans;
@@ -1507,11 +1540,11 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
 
   int ltail = 1;
   switch (::METRICS_enum[method]) {
-    case  7:
-    case  8:
-    case  9:
-    case 10:
-    case 11: ltail = 0;
+    case PCC:
+    case SW:
+    case ALLR:
+    case BHAT:
+    case ALLR_LL: ltail = 0;
   }
 
   vec_num_t pvals(scores.size(), 0.0);

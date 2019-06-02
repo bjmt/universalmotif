@@ -283,7 +283,7 @@ summarise_motifs(list(m1, m2, m3))
 #######################################################################
 ## ungap
 ## Unset motif's gap status. Does not delete actual gap data unless
-## `delete = TRUE`.
+## delete = TRUE.
 m <- create_motif()
 m <- add_gap(m, 3, 2, 4)
 m <- ungap(m)

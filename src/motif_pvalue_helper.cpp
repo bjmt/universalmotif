@@ -7,6 +7,13 @@
 #include "types.h"
 #include "utils-internal.h"
 
+/* TODO:
+ *    - Benchmarking motif_pvalue() with autobenchR can result in the following
+ *      error:
+ *      'incorrect checksum for freed object - object was probably modified
+ *       after being freed'
+ */
+
 bool alph_sort(int i, int j) {
   return i > j;
 }

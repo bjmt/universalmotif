@@ -176,7 +176,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   #---------------------------------------------------------
 
   if (progress)
-    warning("'progress' is deprecated and does nothing")
+    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
   if (BP)
     warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 

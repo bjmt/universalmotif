@@ -11,6 +11,15 @@ std::unordered_map<Rcpp::String, int> ALPHS_e = {
   {"custom", 4}
 };
 
+enum SEQUENCE_ALPHS {
+
+  DNAe    = 1,
+  RNAe    = 2,
+  AAe     = 3,
+  CUSTOMe = 4
+
+};
+
 std::unordered_map<Rcpp::String, int> TYPES2_e = {
   {"PCM", 1},
   {"PPM", 2},
@@ -18,6 +27,14 @@ std::unordered_map<Rcpp::String, int> TYPES2_e = {
   {"ICM", 4}
 };
 
+enum MATRIX_TYPES {
+
+  PCMe = 1,
+  PPMe = 2,
+  PWMe = 3,
+  ICMe = 4
+
+};
 
 Rcpp::StringVector universalmotif_alphabet(Rcpp::StringVector alphabet,
     Rcpp::NumericMatrix &m_motif) {
@@ -25,13 +42,13 @@ Rcpp::StringVector universalmotif_alphabet(Rcpp::StringVector alphabet,
   // NOTE: assumes motif rows are properly alphabetically sorted
 
   switch (::ALPHS_e[alphabet[0]]) {
-    case 1: Rcpp::rownames(m_motif) = ::DNA;
+    case DNAe: Rcpp::rownames(m_motif) = ::DNA;
             break;
-    case 2: Rcpp::rownames(m_motif) = ::RNA;
+    case RNAe: Rcpp::rownames(m_motif) = ::RNA;
             break;
-    case 3: Rcpp::rownames(m_motif) = ::AMINOACIDS;
+    case AAe: Rcpp::rownames(m_motif) = ::AMINOACIDS;
             break;
-    case 4: {
+    case CUSTOMe: {
               Rcpp::StringVector mat_rownames = Rcpp::rownames(m_motif);
               if (mat_rownames.size() == 0)
                 Rcpp::stop("Error creating universalmotif object; missing alphabet");
@@ -184,7 +201,7 @@ Rcpp::StringVector universalmotif_consensus(Rcpp::NumericMatrix &m_motif,
   Rcpp::StringVector consensus_tmp(m_motif.ncol());
 
   switch (::ALPHS_e[alphabet[0]]) {
-    case 1: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
+    case DNAe: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
               Rcpp::NumericVector tmp = m_motif(Rcpp::_, i);
               consensus_tmp[i] = get_consensusC(Rcpp::as<std::vector<double>>(tmp),
                   "DNA", Rcpp::as<std::string>(type[0]), pseudocount);
@@ -192,7 +209,7 @@ Rcpp::StringVector universalmotif_consensus(Rcpp::NumericMatrix &m_motif,
             Rcpp::colnames(m_motif) = consensus_tmp;
             consensus = Rcpp::collapse(consensus_tmp);
             break;
-    case 2: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
+    case RNAe: for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
               Rcpp::NumericVector tmp = m_motif(Rcpp::_, i);
               consensus_tmp[i] = get_consensusC(Rcpp::as<std::vector<double>>(tmp),
                  "RNA", Rcpp::as<std::string>(type[0]), pseudocount);
@@ -200,7 +217,7 @@ Rcpp::StringVector universalmotif_consensus(Rcpp::NumericMatrix &m_motif,
             Rcpp::colnames(m_motif) = consensus_tmp;
             consensus = Rcpp::collapse(consensus_tmp);
             break;
-    case 3: for (R_xlen_t i =0; i < m_motif.ncol(); ++i) {
+    case AAe: for (R_xlen_t i =0; i < m_motif.ncol(); ++i) {
               Rcpp::NumericVector tmp = m_motif(Rcpp::_, i);
               consensus_tmp[i] = get_consensusAAC(Rcpp::as<std::vector<double>>(tmp),
                   Rcpp::as<std::string>(type[0]), pseudocount);
@@ -374,7 +391,7 @@ Rcpp::StringVector check_motif_and_type(const Rcpp::NumericMatrix &m_motif,
   Rcpp::NumericVector motif_colsums = Rcpp::colSums(m_motif);
 
   switch (::TYPES2_e[m_type[0]]) {
-    case 1: {
+    case PCMe: {
               if (m_nsites.size() > 0) {
                 Rcpp::NumericVector colsums_unique = Rcpp::unique(m_nsites);
                 if (colsums_unique.size() > 1)
@@ -385,7 +402,7 @@ Rcpp::StringVector check_motif_and_type(const Rcpp::NumericMatrix &m_motif,
                 msg.push_back("* type PCM motifs cannot contain values between 0 and 1");
               break;
             }
-    case 2: {
+    case PPMe: {
               Rcpp::LogicalVector colsums_1_check = (motif_colsums > 0.99)
                 & (motif_colsums < 1.01);
               if (Rcpp::is_false(Rcpp::all(colsums_1_check)))
@@ -395,7 +412,7 @@ Rcpp::StringVector check_motif_and_type(const Rcpp::NumericMatrix &m_motif,
                 msg.push_back("* for type PPM only positive values are allowed");
               break;
             }
-    case 4: if (Rcpp::is_true(Rcpp::any(m_motif < 0)))
+    case ICMe: if (Rcpp::is_true(Rcpp::any(m_motif < 0)))
               msg.push_back("* type ICM motifs cannot contain negative values");
             break;
   }
@@ -410,7 +427,7 @@ Rcpp::StringVector check_alphabet(const Rcpp::NumericMatrix &m_motif,
   Rcpp::StringVector m_rownames = Rcpp::rownames(m_motif);
 
   switch (::ALPHS_e[m_alphabet[0]]) {
-    case 1: {
+    case DNAe: {
               if (m_motif.nrow() != 4)
                 msg.push_back("* DNA/RNA motifs must have 4 rows");
               Rcpp::LogicalVector rownames_check = m_rownames == ::DNA;
@@ -418,7 +435,7 @@ Rcpp::StringVector check_alphabet(const Rcpp::NumericMatrix &m_motif,
                 msg.push_back("* rownames must be A, C, G, T");
               break;
             }
-    case 2: {
+    case RNAe: {
               if (m_motif.nrow() != 4)
                 msg.push_back("* DNA/RNA motifs must have 4 rows");
               Rcpp::LogicalVector rownames_check = m_rownames == ::RNA;
@@ -426,7 +443,7 @@ Rcpp::StringVector check_alphabet(const Rcpp::NumericMatrix &m_motif,
                 msg.push_back("* rownames must be A, C, G, U");
               break;
             }
-    case 3: {
+    case AAe: {
               if (m_motif.nrow() != 20)
                 msg.push_back("* AA motifs must have 20 rows");
               Rcpp::LogicalVector rownames_check = m_rownames == ::AMINOACIDS;
