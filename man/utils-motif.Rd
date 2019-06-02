@@ -48,7 +48,8 @@ motif_score(motif, threshold = c(0, 1), use.freq = 1)
 pcm_to_ppm(position, pseudocount = 0)
 
 position_icscore(position, bkg = numeric(), type = "PPM",
-  pseudocount = 1, nsites = 100, relative_entropy = FALSE)
+  pseudocount = 1, nsites = 100, relative_entropy = FALSE,
+  schneider_correction = FALSE)
 
 ppm_to_icm(position, bkg = numeric(), schneider_correction = FALSE,
   nsites = 100, relative_entropy = FALSE)

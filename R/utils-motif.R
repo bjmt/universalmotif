@@ -420,7 +420,8 @@ pcm_to_ppm <- function(position, pseudocount = 0) {
 #' @export
 position_icscore <- function(position, bkg = numeric(), type = "PPM",
                              pseudocount = 1, nsites = 100,
-                             relative_entropy = FALSE) {
+                             relative_entropy = FALSE,
+                             schneider_correction = FALSE) {
 
   if (is.null(bkg) || missing(bkg) || length(bkg) == 0) {
     bkg <- rep(1 / length(position), length(position))
@@ -428,7 +429,13 @@ position_icscore <- function(position, bkg = numeric(), type = "PPM",
   if (!type %in% c("ICM", "PPM", "PWM", "PCM"))
     stop("type must be one of ICM, PCM, PPM, PWM")
 
-  position_icscoreC(position, bkg, type, pseudocount, nsites, relative_entropy)
+  if (relative_entropy && schneider_correction)
+    stop("relative_entropy and schneider_correction cannot both be TRUE")
+
+  if (!schneider_correction)
+    position_icscoreC(position, bkg, type, pseudocount, nsites, relative_entropy)
+  else
+    sum(ppm_to_icm(position, bkg, TRUE, nsites))
 
 }
 
@@ -442,26 +449,45 @@ ppm_to_icm <- function(position, bkg = numeric(), schneider_correction = FALSE,
   if (is.null(bkg) || missing(bkg) || length(bkg) == 0) {
     bkg <- rep(1 / length(position), length(position))
   }
+
+  if (relative_entropy && schneider_correction)
+    stop("relative_entropy and schneider_correction cannot both be TRUE")
+
   if (relative_entropy) {
+
     ppm_to_icmC(position, bkg, TRUE)
+
   } else {
-    height_after <- -sum(vapply(position, function(x) {
-                                            y <- x * log2(x)
-                                            ifelse(is.na(y), 0, y)
-                                          }, numeric(1)))
-    total_ic <- log2(length(position)) - height_after
-    if (schneider_correction && !missing(nsites)) {
-      correction <- ppm_to_pcm(position, nsites = nsites)
+
+    if (schneider_correction) {
+      if (length(position) != 4)
+        stop("schneider correction is only available for motifs where nrow(motif) == 4")
+      p <- as.integer(ppm_to_pcm(position, nsites = nsites))
+      names(bkg) <- DNA_BASES
       if (requireNamespace("TFBSTools", quietly = TRUE)) {
-        correction <- TFBSTools:::schneider_correction(matrix(correction), bkg)
+        total_ic <- TFBSTools::toICM(matrix(p, nrow = 4, dimnames = list(DNA_BASES)),
+                                     pseudocounts = 0, schneider = TRUE,
+                                     bg = bkg)
+        total_ic <- sum(as.vector(total_ic))
       } else {
         stop("The 'TFBSTools' package is required for 'schneider_correction'")
       }
-      total_ic <- total_ic + correction
+
+    } else {
+
+      height_after <- -sum(vapply(position, function(x) {
+                                              y <- x * log2(x)
+                                              ifelse(is.na(y), 0, y)
+                                            }, numeric(1)))
+      total_ic <- log2(length(position)) - height_after
+
     }
+
     ic <- position * total_ic
     ic
+
   }
+
 }
 
 #' @rdname utils-motif
