@@ -65,7 +65,8 @@ make_DBscores <- function(db.motifs,
                           normalise.scores = c(FALSE, TRUE), min.overlap = 6,
                           min.mean.ic = 0.25, progress = TRUE, BP = FALSE,
                           nthreads = 1, tryRC = TRUE,
-                          score.strat = c("sum", "a.mean", "g.mean", "median")) {
+                          score.strat = c("sum", "a.mean", "g.mean", "median",
+                                          "wa.mean", "wg.mean")) {
 
   args <- as.list(environment())
 
@@ -96,9 +97,9 @@ make_DBscores <- function(db.motifs,
                                 "\" normalise.scores=", norm, " score.strat=\"",
                                 strat, "\" ", appendLF = FALSE)
           mc <- mc + 1
-          if (strat == "g.mean" && m %in% c("ALLR", "ALLR_LL", "PCC")) {
+          if (strat %in% c("g.mean", "wg.mean") && m %in% c("ALLR", "ALLR_LL", "PCC")) {
             if (progress)
-              message("\n > Skipping: g.mean not allowed with ALLR/ALLR_LL/PCC\n")
+              message("\n > Skipping: (w)g.mean not allowed with ALLR/ALLR_LL/PCC\n")
             next
           }
           if (progress) start <- Sys.time()
@@ -122,9 +123,14 @@ make_DBscores <- function(db.motifs,
     if (progress) message(" *** Total runtime: ", format(difftime(t2, t1)), " ***")
 
     out <- do.call(rbind, out)
-    for (i in colnames(out$scores)) {
-      out[, i] <- Rle(out[, i])
-    }
+    out <- out[order(as.vector(out$method), as.vector(out$normalised),
+                     as.vector(out$strat), as.vector(out$distribution),
+                     as.vector(out$subject), as.vector(out$target)), ]
+    out[, 1] <- Rle(out[, 1])
+    out[, 5] <- Rle(out[, 5])
+    out[, 6] <- Rle(out[, 6])
+    out[, 7] <- Rle(out[, 7])
+    out[, 8] <- Rle(out[, 8])
 
     out@metadata <- args[-1]
     return(out)
@@ -156,6 +162,13 @@ make_DBscores <- function(db.motifs,
   # having min.mean.ic > 0 can really mess with scores sometimes
 
   if (BP) warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
+
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative ",
+              "values: ALLR, ALLR_LL, PCC"))
+
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', 'wa.mean', 'wg.mean'")
 
   rand.mots <- make_DBscores_motifs(db.motifs, widths, rand.tries, shuffle.k)
 
@@ -216,9 +229,13 @@ make_DBscores <- function(db.motifs,
 
   }
 
-  for (i in colnames(totry)) {
-    totry[, i] <- Rle(totry[, i])
-  }
+  totry <- totry[order(totry$method, totry$normalised, totry$strat,
+                       totry$distribution, totry$subject, totry$target), ]
+  totry[, 1] <- Rle(totry[, 1])
+  totry[, 5] <- Rle(totry[, 5])
+  totry[, 6] <- Rle(totry[, 6])
+  totry[, 7] <- Rle(totry[, 7])
+  totry[, 8] <- Rle(totry[, 8])
   rownames(totry) <- NULL
   totry
 

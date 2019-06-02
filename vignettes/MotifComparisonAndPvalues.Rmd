@@ -142,6 +142,11 @@ names(res4) <- metrics
 res4 <- res4[!names(res4) %in% c("PCC", "ALLR", "ALLR_LL")]
 res5 <- vector("list", length(metrics))
 names(res5) <- metrics
+res9 <- vector("list", length(metrics))
+names(res9) <- metrics
+res8 <- vector("list", length(metrics))
+names(res8) <- metrics
+res8 <- res8[!names(res8) %in% c("PCC", "ALLR", "ALLR_LL")]
 
 y1 <- atm[sample(1:length(atm), 33)]
 x1 <- pool[, sample(1:ncol(pool), 528)]
@@ -152,12 +157,14 @@ for (m in metrics) {
   for (i in 1:528) {
     res[[m]][i] <- compare_columns(x1[, i], x2[, i], m)
   }
-  res2[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="sum"))))
-  res3[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="a.mean"))))
+  res2[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="sum", min.mean.ic=0))))
+  res3[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="a.mean", min.mean.ic=0))))
   if (!m %in% c("PCC", "ALLR", "ALLR_LL")) {
-    res4[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="g.mean"))))
+    res4[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="g.mean", min.mean.ic=0))))
+    res8[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="wg.mean", min.mean.ic=0))))
   }
-  res5[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="median"))))
+  res5[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="median", min.mean.ic=0))))
+  res9[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="wa.mean", min.mean.ic=0))))
 }
 
 l_2_df <- function(x) {
@@ -180,13 +187,17 @@ res2 <- l_2_df(res2)
 res3 <- l_2_df(res3)
 res4 <- l_2_df(res4)
 res5 <- l_2_df(res5)
+res9 <- l_2_df(res9)
+res8 <- l_2_df(res8)
 
 res$type <- "RawColumnScores"
 res2$type <- "Sum"
 res3$type <- "ArithMean"
 res4$type <- "GeoMean"
 res5$type <- "Median"
-res6 <- rbind(res, res3, res4, res5)
+res9$type <- "WeightedArithMean"
+res8$type <- "WeightedGeoMean"
+res6 <- rbind(res, res3, res4, res5, res9, res8)
 
 dres <- res6 %>%
           group_by(key, type) %>%

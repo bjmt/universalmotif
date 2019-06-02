@@ -46,7 +46,9 @@ alignment.}
 
 \item{score.strat}{\code{character(1)} How to handle column scores calculated from
 motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
-mean. "g.mean": take the geometric mean. "median": take the median.}
+mean. "g.mean": take the geometric mean. "median": take the median.
+"wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
+total information content shared between aligned columns.}
 
 \item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }

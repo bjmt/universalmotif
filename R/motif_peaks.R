@@ -127,7 +127,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,
     pval.lim <- qnorm(max.p, pv$estimate["mean"], pv$estimate["sd"],
                       lower.tail = FALSE)
     kern.df <- data.frame(x = data.kern$x, y = data.kern$y)
-    p <- ggplot(kern.df, aes(x, y)) +
+    p <- ggplot(kern.df, aes(.data$x, .data$y)) +
            geom_line() +
            geom_point(data = data.frame(x = data.kern$x[data.loc],
                                         y = data.kern$y[data.loc]),
@@ -135,7 +135,7 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,
            xlab("Sequence location") +
            ylab("Kernel density") +
            geom_hline(yintercept = pval.lim, colour = "blue") +
-           geom_text(data = data.frame(x = 0, y = pval.lim), aes(x, y),
+           geom_text(data = data.frame(x = 0, y = pval.lim), aes(.data$x, .data$y),
                      hjust = 0, vjust = -1,
                      label = paste("Cutoff for P-value =<", max.p)) +
            theme_bw()

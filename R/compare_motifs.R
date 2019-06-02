@@ -47,6 +47,8 @@
 #' @param score.strat `character(1)` How to handle column scores calculated from
 #'    motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
 #'    mean. "g.mean": take the geometric mean. "median": take the median.
+#'    "wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
+#'    total information content shared between aligned columns. 
 #'
 #' @return `matrix` if `compare.to` is missing; `DataFrame` otherwise. For the
 #'    latter, function args are stored in the `metadata` slot.
@@ -192,17 +194,17 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (use.type == "ICM" && method %in% c("ALLR", "ALLR_LL"))
     stop("'use.type = \"ICM\"' is not allowed for ALLR/ALLR_LL methods")
 
-  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
-    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', 'wa.mean', 'wg.mean'")
 
-  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
-    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
-              "ALLR, ALLR_LL, PCC"))
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative ",
+              "values: ALLR, ALLR_LL, PCC"))
 
-  if (!missing(compare.to) && method == "IC")
+  if (!missing(compare.to) && method == "IS")
     warning(wmsg("P-values from `method = \"IS\"` will likely be very inaccurate, ",
-                 "as random scores from this method usually very poorly fit a logistic ",
-                 "distribution "), immediate. = TRUE)
+                 "as random scores from this method are usually very skewed"),
+            immediate. = TRUE)
 
   if (progress)
     warning("'progress' is deprecated and does nothing", immediate. = TRUE)
@@ -286,8 +288,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                       min.position.ic, mot.nsites, score.strat)
 
     mot.ncols <- vapply(mot.mats, ncol, integer(1))
-    pvals <- pval_extractor(mot.ncols, comparisons, comps[[1]] - 1,
-                            comps[[2]] - 1, method, as.vector(db.scores$subject),
+    pvals <- pval_extractor(mot.ncols, comparisons, as.integer(comps[[1]] - 1),
+                            as.integer(comps[[2]] - 1), method, as.vector(db.scores$subject),
                             as.vector(db.scores$target), as.vector(db.scores$paramA),
                             as.vector(db.scores$paramB), as.vector(db.scores$distribution),
                             nthreads)

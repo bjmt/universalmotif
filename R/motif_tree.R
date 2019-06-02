@@ -132,11 +132,11 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
-    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', 'wa.mean', 'wg.mean'")
 
-  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
-    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative values: ",
               "ALLR, ALLR_LL, PCC"))
 
   if (method %in% c("PCC", "SW", "ALLR", "BHAT"))
@@ -206,17 +206,17 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     if (labels != "none") {
 
       if (layout %in% c("rectangular", "slanted")) {
-        p <- ggtree(tree, aes(color = group), layout = layout,
+        p <- ggtree(tree, aes(color = .data$group), layout = layout,
                     branch.length = branch.length, ...) +
                geom_tiplab(align = TRUE, linesize = 0.5)
       } else {
-        p <- ggtree(tree, aes(color = group), layout = layout,
+        p <- ggtree(tree, aes(color = .data$group), layout = layout,
                     branch.length = branch.length, ...) +
                geom_tiplab2(align = TRUE, linesize = 0.5)
       }
 
     } else {
-      p <- ggtree(tree, aes(color = group), layout = layout,
+      p <- ggtree(tree, aes(color = .data$group), layout = layout,
                   branch.length = branch.length, ...)
     }
 
@@ -227,7 +227,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (tipsize %in% c("pval", "qval", "eval")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
-      p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
+      p <- p %<+% anno_df + geom_tippoint(aes(size = .data$icscore))
     }
 
     if (legend) {
@@ -253,7 +253,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (tipsize %in% c("pval", "qval", "eval")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
-      p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
+      p <- p %<+% anno_df + geom_tippoint(aes(size = .data$icscore))
     }
     return(p)
 
@@ -267,7 +267,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (tipsize %in% c("pval", "qval", "eval") && !is(motifs, "dist")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
-      p <- p %<+% anno_df + geom_tippoint(aes(size = icscore))
+      p <- p %<+% anno_df + geom_tippoint(aes(size = .data$icscore))
     }
     return (p)
 

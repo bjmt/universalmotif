@@ -52,12 +52,12 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median"))
-    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median'")
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', 'wa.mean', 'wg.mean'")
 
-  if (score.strat == "g.mean" && method %in% c("ALLR", "ALLR_LL", "PCC"))
-    stop(wmsg("'g.mean' is not allowed for methods which can generate negative values: ",
-              "ALLR, ALLR_LL, PCC"))
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+    stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate ",
+              "negative values: ALLR, ALLR_LL, PCC"))
       
   if (use.type != "PPM")
     stop(wmsg("deprecated, as `use.type = \"PPM\"` is now the only acceptable ",

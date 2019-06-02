@@ -74,10 +74,12 @@ std::unordered_map<std::string, int> SCORESTRAT_enum = {
    * distance metrics
    */
 
-  {"sum",    1},
-  {"a.mean", 2},
-  {"g.mean", 3},
-  {"median", 4}
+  {"sum",     1},
+  {"a.mean",  2},
+  {"g.mean",  3},
+  {"median",  4},
+  {"wa.mean", 5},
+  {"wg.mean", 6}
 
 };
 
@@ -86,7 +88,9 @@ enum ADDSCORES_STRAT {
   SUM    = 1,
   AMEAN  = 2,
   GMEAN  = 3,
-  MEDIAN = 4
+  MEDIAN = 4,
+  WAMEAN = 5,
+  WGMEAN = 6
 
 };
 
@@ -161,6 +165,31 @@ double score_median(vec_num_t scores) {
 
 }
 
+double score_wamean(vec_num_t scores, const vec_num_t &ic) {
+
+  double total_ic = std::accumulate(ic.begin(), ic.end(), 0.0);
+
+  for (std::size_t i = 0; i < scores.size(); ++i) {
+    scores[i] *= ic[i] / total_ic;
+  }
+
+  return std::accumulate(scores.begin(), scores.end(), 0.0);
+
+}
+
+double score_wgmean(vec_num_t scores, const vec_num_t &ic) {
+
+  for (std::size_t i = 0; i < scores.size(); ++i) {
+    if (scores[i] > 0.0) scores[i] = log(scores[i]);
+  }
+
+  if (std::accumulate(scores.begin(), scores.end(), 0.0) == 0.0)
+    return 0.0;
+  else
+    return exp(score_wamean(scores, ic));
+
+}
+
 vec_num_t keep_good(const vec_num_t &scores, const vec_bool_t &good, const int n) {
 
   vec_num_t out;
@@ -174,8 +203,24 @@ vec_num_t keep_good(const vec_num_t &scores, const vec_bool_t &good, const int n
 
 }
 
+vec_num_t combine_good_ic(const vec_num_t &ic1, const vec_num_t &ic2,
+    const vec_bool_t &good, const int n) {
+
+  vec_num_t final_ic;
+  final_ic.reserve(n);
+
+  for (std::size_t i = 0; i < good.size(); ++i) {
+    if (good[i])
+      final_ic.push_back(ic1[i] + ic2[i]);
+  }
+
+  return final_ic;
+
+}
+
 double calc_final_score(const vec_num_t &scores, const str_t &strat,
-    const int n, const vec_bool_t &good) {
+    const int n, const vec_bool_t &good, const vec_num_t &ic1,
+    const vec_num_t &ic2) {
 
   switch (::SCORESTRAT_enum[strat]) {
 
@@ -183,6 +228,10 @@ double calc_final_score(const vec_num_t &scores, const str_t &strat,
     case AMEAN : return score_amean(scores, n);
     case GMEAN : return score_gmean(keep_good(scores, good, n));
     case MEDIAN: return score_median(keep_good(scores, good, n));
+    case WAMEAN: return score_wamean(keep_good(scores, good, n),
+                                     combine_good_ic(ic1, ic2, good, n));
+    case WGMEAN: return score_wgmean(keep_good(scores, good, n),
+                                     combine_good_ic(ic1, ic2, good, n));
 
     default: return -333.333;
 
@@ -191,7 +240,7 @@ double calc_final_score(const vec_num_t &scores, const str_t &strat,
 }
 
 double compare_hell(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
 
@@ -214,12 +263,12 @@ double compare_hell(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_is(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
 
@@ -241,12 +290,12 @@ double compare_is(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_seucl(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
 
@@ -268,12 +317,12 @@ double compare_seucl(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_man(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
 
@@ -295,12 +344,12 @@ double compare_man(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_bhat(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
 
@@ -322,12 +371,12 @@ double compare_bhat(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   list_num_t diffmat(ncol, vec_num_t(nrow, 0.0));
@@ -350,12 +399,12 @@ double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   // expensive!
 
@@ -420,12 +469,12 @@ double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
       topbot[i] = bot[i] == 0 ? 1.0 : top[i] / bot[i];
     }
   }
-  return calc_final_score(topbot, strat, n, good);
+  return calc_final_score(topbot, strat, n, good, ic1, ic2);
 
 }
 
 double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
@@ -448,13 +497,14 @@ double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
 double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
     const vec_num_t &bkg1, const vec_num_t &bkg2, const double nsites1,
-    const double nsites2, const str_t &strat) {
+    const double nsites2, const str_t &strat, const vec_num_t &ic1,
+    const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
@@ -485,13 +535,14 @@ double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(answers, strat, counter, good);
+  return calc_final_score(answers, strat, counter, good, ic1, ic2);
 
 }
 
 double compare_allr_ll(const list_num_t &mot1, const list_num_t &mot2,
     const vec_num_t &bkg1, const vec_num_t &bkg2, const double nsites1,
-    const double nsites2, const str_t &strat) {
+    const double nsites2, const str_t &strat, const vec_num_t &ic1,
+    const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
@@ -523,12 +574,12 @@ double compare_allr_ll(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(answers, strat, counter, good);
+  return calc_final_score(answers, strat, counter, good, ic1, ic2);
 
 }
 
 double compare_sw(const list_num_t &mot1, const list_num_t &mot2,
-    const str_t &strat) {
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
   std::size_t ncol = mot1.size(), nrow = mot1[0].size();
   vec_bool_t good(ncol, false);
@@ -550,7 +601,7 @@ double compare_sw(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
-  return calc_final_score(ans, strat, n, good);
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
 
 }
 
@@ -700,54 +751,55 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
     const list_num_t &tmot1, const list_num_t &tmot2, const bool lowic,
     const bool norm, const int alignlen, const std::size_t tlen,
     const std::string &method, const double nsites1, const double nsites2,
-    const vec_num_t &bkg1, const vec_num_t &bkg2, const str_t &strat) {
+    const vec_num_t &bkg1, const vec_num_t &bkg2, const str_t &strat,
+    const vec_num_t &ic1, const vec_num_t &ic2) {
 
   switch (::METRICS_enum[method]) {
 
     case EUCL   : ans[i] = lowic ? std::numeric_limits<double>::max()
-                                 : compare_eucl(tmot1, tmot2, strat)
+                                 : compare_eucl(tmot1, tmot2, strat, ic1, ic2)
                                    * double(tlen) / double(alignlen);
                   break;
     case KL     : ans[i] = lowic ? std::numeric_limits<double>::max()
-                                 : compare_kl(tmot1, tmot2, strat)
+                                 : compare_kl(tmot1, tmot2, strat, ic1, ic2)
                                    * double(tlen) / double(alignlen);
                   break;
     case PCC    : ans[i] = lowic ? -std::numeric_limits<double>::max()
-                                 : compare_pcc(tmot1, tmot2, strat)
+                                 : compare_pcc(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case SW     : ans[i] = lowic ? -std::numeric_limits<double>::max()
-                                 : compare_sw(tmot1, tmot2, strat)
+                                 : compare_sw(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case ALLR   : ans[i] = lowic ? -std::numeric_limits<double>::max()
                                  : compare_allr(tmot1, tmot2, bkg1,
-                                   bkg2, nsites1, nsites2, strat)
+                                   bkg2, nsites1, nsites2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case BHAT   : ans[i] = lowic ? -std::numeric_limits<double>::max()
-                                 : compare_bhat(tmot1, tmot2, strat)
+                                 : compare_bhat(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case HELL   : ans[i] = lowic ? std::numeric_limits<double>::max()
-                                 : compare_hell(tmot1, tmot2, strat)
+                                 : compare_hell(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case IS     : ans[i] = lowic ? std::numeric_limits<double>::max()
-                                 : compare_is(tmot1, tmot2, strat)
+                                 : compare_is(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case SEUCL  : ans[i] = lowic ? std::numeric_limits<double>::max()
-                                 : compare_seucl(tmot1, tmot2, strat)
+                                 : compare_seucl(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case MAN    : ans[i] = lowic ? std::numeric_limits<double>::max()
-                                 : compare_man(tmot1, tmot2, strat)
+                                 : compare_man(tmot1, tmot2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
     case ALLR_LL: ans[i] = lowic ? -std::numeric_limits<double>::max()
                                  : compare_allr_ll(tmot1, tmot2, bkg1,
-                                     bkg2, nsites1, nsites2, strat)
+                                     bkg2, nsites1, nsites2, strat, ic1, ic2)
                                    * double(alignlen) / double(tlen);
                   break;
 
@@ -828,7 +880,7 @@ double compare_motif_pair(list_num_t mot1, list_num_t mot2,
       if (mic1 < minic || mic2 < minic) lowic = true;
 
       get_compare_ans(ans, counter, tmot1, tmot2, lowic, norm, alignlen, tlen,
-          method, nsites1, nsites2, bkg1, bkg2, strat);
+          method, nsites1, nsites2, bkg1, bkg2, strat, tic1, tic2);
 
       ++counter;
       lowic = false;
@@ -953,7 +1005,7 @@ void merge_motif_pair_subworker(list_num_t mot1, list_num_t mot2,
       if (mic1 < minic || mic2 < minic) lowic = true;
 
       get_compare_ans(ans, counter, tmot1, tmot2, lowic, norm, alignlen, tlen,
-          method, nsites1, nsites2, bkg1, bkg2, strat);
+          method, nsites1, nsites2, bkg1, bkg2, strat, tic1, tic2);
 
       ++counter;
       lowic = false;
@@ -1493,35 +1545,37 @@ double compare_columns_cpp(const std::vector<double> &p1,
   double ans;
 
   switch (::METRICS_enum[m]) {
-    case EUCL   : ans = compare_eucl(pp1, pp2, "sum");
+    case EUCL   : ans = compare_eucl(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case KL     : ans = compare_kl(pp1, pp2, "sum");
+    case KL     : ans = compare_kl(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case PCC    : ans = compare_pcc(pp1, pp2, "sum");
+    case PCC    : ans = compare_pcc(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case SW     : ans = compare_sw(pp1, pp2, "sum");
+    case SW     : ans = compare_sw(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
     case ALLR   : if (b1.size() != p1.size() || b2.size() != p1.size())
                     Rcpp::stop("incorrect background vector length");
                   if (n1 <= 1 || n2 <= 1)
                     Rcpp::stop("nsites1/nsites2 should be greater than 1");
-                  ans = compare_allr(pp1, pp2, b1, b2, n1, n2, "sum");
+                  ans = compare_allr(pp1, pp2, b1, b2, n1, n2, "sum", vec_num_t(),
+                      vec_num_t());
                   break;
-    case BHAT   : ans = compare_bhat(pp1, pp2, "sum");
+    case BHAT   : ans = compare_bhat(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case HELL   : ans = compare_hell(pp1, pp2, "sum");
+    case HELL   : ans = compare_hell(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case IS     : ans = compare_is(pp1, pp2, "sum");
+    case IS     : ans = compare_is(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case SEUCL  : ans = compare_seucl(pp1, pp2, "sum");
+    case SEUCL  : ans = compare_seucl(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
-    case MAN    : ans = compare_man(pp1, pp2, "sum");
+    case MAN    : ans = compare_man(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
     case ALLR_LL: if (b1.size() != p1.size() || b2.size() != p1.size())
                     Rcpp::stop("incorrect background vector length");
                   if (n1 <= 1 || n2 <= 1)
                     Rcpp::stop("nsites1/nsites2 should be greater than 1");
-                  ans = compare_allr_ll(pp1, pp2, b1, b2, n1, n2, "sum");
+                  ans = compare_allr_ll(pp1, pp2, b1, b2, n1, n2, "sum", vec_num_t(),
+                      vec_num_t());
                   break;
     default     : Rcpp::stop("unknown metric");
   }
@@ -1556,7 +1610,8 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
       &paramA, &paramB, &distribution, ltail]
       (std::size_t i) {
 
-        int m1, m2, n1, n2, row;
+        int m1, m2, n1, n2;
+        int row = -1;
         bool ok = false;
 
         /* Some notes:
@@ -1586,8 +1641,10 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
           else if (n2 > target[n])
             n2 = target[n];
 
+          // RcppThread::Rcout << n1 << ' ' << n2 << '\n';
           while (!ok) {
             for (std::size_t j = 0; j < subject.size(); ++j) {
+          // RcppThread::Rcout << subject[j] << ' ' << target[j] << '\n';
               if (n1 == subject[j] && n2 == target[j]) {
                 row = int(j);
                 ok = true;
@@ -1596,11 +1653,12 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
             }
             ++n1;
             ++n2;
-            if (n1 > int(subject[n]) || n2 > int(target[n])) {
+            if (!ok && (n1 > int(subject[n]) || n2 > int(target[n]))) {
               /* indicate failure to find right row */
               row = -1;
             }
           }
+          // RcppThread::Rcout << row << '\n';
 
           if (row != -1) {
             /* only calculate pval if row was found */

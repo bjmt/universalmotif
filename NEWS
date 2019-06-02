@@ -12,7 +12,8 @@ NEW FEATURES
     o compare_motifs() option: 'score.strat'. Instruct the function how to deal
       with individual column scores in an alignment. This is also replaced
       the old way of choosing between sum and mean via prepending an 'M' to the
-      metric name.
+      metric name. Strategies for combining column scores include: sum,
+      arithmetic mean, geometric mean, median, and weighted means.
 
     o Motif comparison metrics: average log-likelihood ratio, squared Euclidean
       distance, Hellinger distance, Bhattacharyya coefficient, Itakura-Saito

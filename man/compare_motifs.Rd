@@ -72,7 +72,9 @@ threads. \code{nthreads = 0} uses all available threads.}
 
 \item{score.strat}{\code{character(1)} How to handle column scores calculated from
 motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
-mean. "g.mean": take the geometric mean. "median": take the median.}
+mean. "g.mean": take the geometric mean. "median": take the median.
+"wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
+total information content shared between aligned columns.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{DataFrame} otherwise. For the
