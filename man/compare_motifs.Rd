@@ -9,7 +9,7 @@ compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
   min.mean.ic = 0.25, min.position.ic = 0, relative_entropy = FALSE,
   normalise.scores = FALSE, max.p = 0.01, max.e = 10,
   progress = FALSE, BP = FALSE, nthreads = 1,
-  score.strat = "a.mean")
+  score.strat = "a.mean", output.report, output.report.max.print = 10)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -75,6 +75,13 @@ motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
 mean. "g.mean": take the geometric mean. "median": take the median.
 "wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
 total information content shared between aligned columns.}
+
+\item{output.report}{\code{character(1)} Provide a filename for \code{\link[=compare_motifs]{compare_motifs()}}
+to write an html ouput report to. The top matches are shown alongside
+figures of the match alignments.}
+
+\item{output.report.max.print}{\code{numeric(1)} Maximum number of top matches to
+print.}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{DataFrame} otherwise. For the

@@ -49,6 +49,12 @@
 #'    mean. "g.mean": take the geometric mean. "median": take the median.
 #'    "wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
 #'    total information content shared between aligned columns. 
+#' @param output.report `character(1)` Provide a filename for [compare_motifs()]
+#'    to write an html ouput report to. The top matches are shown alongside
+#'    figures of the match alignments. This requires the `knitr` and `rmarkdown`
+#'    packages.
+#' @param output.report.max.print `numeric(1)` Maximum number of top matches to
+#'    print.
 #'
 #' @return `matrix` if `compare.to` is missing; `DataFrame` otherwise. For the
 #'    latter, function args are stored in the `metadata` slot.
@@ -136,7 +142,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            relative_entropy = FALSE, normalise.scores = FALSE,
                            max.p = 0.01, max.e = 10, progress = FALSE,
                            BP = FALSE, nthreads = 1,
-                           score.strat = "a.mean") {
+                           score.strat = "a.mean", output.report,
+                           output.report.max.print = 10) {
 
   # Some timings:
   #
@@ -152,14 +159,18 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   # ~10,000,000 comparisons:
   #    compare_motifs(MotifDb, 1:1000, nthreads = 6)   642.968 sec 
 
+  fun.call <- match.call()
+
   # param check --------------------------------------------
   method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method,
-                                      score.strat = args$score.strat),
-                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), TYPE_CHAR)
+                                      score.strat = args$score.strat,
+                                      output.report = args$output.report),
+                                 c(1, 1, 1, 1), c(FALSE, FALSE, FALSE, TRUE),
+                                 TYPE_CHAR)
   num_check <- check_fun_params(list(compare.to = args$compare.to,
                                      use.freq = args$use.freq,
                                      min.overlap = args$min.overlap,
@@ -167,8 +178,9 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                      max.p = args$max.p,
                                      max.e = args$max.e,
                                      nthreads = args$nthreads,
-                                     min.position.ic = args$min.position.ic),
-                                c(0, rep(1, 7)), c(TRUE, rep(FALSE, 7)),
+                                     min.position.ic = args$min.position.ic,
+                                     output.report.max.print = args$output.report.max.print),
+                                c(0, rep(1, 8)), c(TRUE, rep(FALSE, 7), TRUE),
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
@@ -325,6 +337,15 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
 
     comparisons@metadata <- args[-1]
 
+    if (!missing(output.report)) {
+      passed <- tryCatch(compare_motifs_reporter(fun.call, comparisons,
+                                                 output.report,
+                                                 output.report.max.print, args),
+                         error = function(e) FALSE)
+      if (isFALSE(passed))
+        warning("! Failed to generate output report", immediate. = TRUE)
+    }
+
   }
 
   comparisons
@@ -393,5 +414,97 @@ compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
   n <- length(mot.mats)
   comp <- comb2_cpp(n)
   get_comparison_matrix(unlist(ans), comp[[1]], comp[[2]], method, mot.names)
+
+}
+
+compare_motifs_reporter <- function(fun.call, res, output, max.print, args) {
+
+  motifs <- args$motifs
+
+  if (max.print > nrow(res)) max.print <- nrow(res)
+
+  which.m <- c(as.vector(res[seq_len(max.print), 2]),
+               as.vector(res[seq_len(max.print), 4]))
+  motifs <- motifs[which.m]
+
+  f <- tempfile(fileext = ".Rmd")
+  on.exit(unlink(f))
+
+  m <- tempfile(fileext = ".RDS")
+  on.exit(unlink(m))
+
+  saveRDS(motifs, m)
+
+  out <- c("---",
+           "title: universalmotif::compare_motifs() results",
+           paste0("date: ", Sys.time()),
+           "output: html_document",
+           "---",
+           "",
+           "```{r, echo=FALSE}",
+           "library(universalmotif)",
+           paste0("motifs <- readRDS('", m, "')"),
+           "```",
+           "",
+           "### Function call",
+           "",
+           paste0("`", deparse(fun.call), "`"),
+           "",
+           "```{r, eval=FALSE}",
+           strsplit(as.yaml(args[-(1:4)]), "\n", fixed = TRUE)[[1]],
+           "```",
+           "")
+
+  passed <- TRUE
+
+  if (requireNamespace("knitr", quietly = TRUE)) {
+
+    for (i in seq_len(max.print)) {
+      if (motifs[[i]]@name == motifs[[i + max.print]]@name)
+        motifs[[i + max.print]]@name <- paste(motifs[[i + max.print]]@name, "(duplicated)")
+      out <- c(out,
+               "---",
+               "",
+               paste0("## ", i, ": ", motifs[[i]]@name, " [", as.vector(res[i, 2]),
+                      "]", " -- ", motifs[[i + max.print]]@name, " [",
+                      as.vector(res[i, 4]), "]"),
+               "",
+               paste0("**Score:** ", as.vector(res[i, 5])),
+               "",
+               paste0("**logP-value:** ", as.vector(res[i, 6])),
+               "",
+               paste0("**P-value:** ", as.vector(res[i, 7])),
+               "",
+               paste0("**E-value:** ", as.vector(res[i, 8])),
+               "",
+               "```{r, echo=FALSE, out.height=2}",
+               paste0("view_motifs(motifs[c(", i, ",", i + max.print, ")],",
+                      "method='", args$method, "',", "tryRC=", args$tryRC, ",",
+                      "min.overlap=", args$min.overlap, ",", "min.mean.ic=",
+                      args$min.mean.ic, ",relative_entropy=", args$relative_entropy,
+                      ",normalise.scores=", args$normalise.scores, ",min.position.ic=",
+                      args$min.position.ic, ",score.strat='", args$score.strat, "')"),
+               "```",
+               "")
+    }
+
+  } else {
+    warning("knitr is required to generate results report", immediate. = TRUE)
+    passed <- FALSE
+  }
+
+  writeLines(out, f)
+
+  if (passed) {
+    if (requireNamespace("rmarkdown", quietly = TRUE)) {
+      rmarkdown::render(f, output_file = basename(output),
+                        output_dir = dirname(output), quiet = TRUE)
+    } else {
+      warning("rmarkdown is required to generate results report", immediate. = TRUE)
+      passed <- FALSE
+    }
+  }
+
+  passed
 
 }
