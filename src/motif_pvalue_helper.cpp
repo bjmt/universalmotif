@@ -22,7 +22,7 @@ bool position_sort(vec_int_t i, vec_int_t j) {
   return *std::max_element(i.begin(), i.end()) > *std::max_element(j.begin(), j.end());
 }
 
-int get_split_max_sum(const list_int_t mot) {
+int get_split_max_sum(const list_int_t &mot) {
 
   int answer = 0;
   for (std::size_t i = 0; i < mot.size(); ++i) {
@@ -182,14 +182,14 @@ vec_lnum_t bb_paths_to_probs(const list_int_t &paths, const list_int_t &alph_ind
 
 }
 
-bool sort_motpos(std::size_t j, std::size_t b, const vec_int_t mot) {
+bool sort_motpos(std::size_t j, std::size_t b, const vec_int_t &mot) {
 
   return mot[j] > mot[b];
 
 }
 
 long double motif_pvalue_single(list_int_t mot, const double score,
-    const int k, const vec_num_t bkg) {
+    const int k, const vec_num_t &bkg) {
 
   int iscore = score * 1000;
   std::size_t alphlen = bkg.size();

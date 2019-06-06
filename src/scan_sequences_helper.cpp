@@ -169,8 +169,8 @@ list_int_t format_results(const list_mat_t &out_pre, const vec_int_t &scores,
 
 }
 
-vec_str_t get_matches(const list_int_t &res, const vec_str_t seq_vecs,
-    list_mat_t motifs) {
+vec_str_t get_matches(const list_int_t &res, const vec_str_t &seq_vecs,
+    const list_mat_t &motifs) {
 
   vec_str_t out;
   out.reserve(res[0].size());

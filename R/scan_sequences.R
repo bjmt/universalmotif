@@ -1,3 +1,5 @@
+# Last modified:  2019-06-04  22:14:18 (EDT)
+
 #' Scan sequences for matches to input motifs.
 #'
 #' For sequences of any alphabet, scan them using the PWM matrices of

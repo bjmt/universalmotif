@@ -68,7 +68,7 @@ list_int_t get_edgecounts(const vec_int_t &klet_counts, const std::size_t &mlets
 }
 
 vec_bool_t get_emptyvertices(const std::size_t &mlets, const std::size_t &alphlen,
-    const list_int_t edgelist) {
+    const list_int_t &edgelist) {
 
   vec_bool_t emptyvertices;
   emptyvertices.reserve(mlets);

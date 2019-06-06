@@ -832,7 +832,7 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
 }
 
 double compare_motif_pair(list_num_t mot1, list_num_t mot2,
-    const std::string method, const double moverlap, const bool RC,
+    const std::string &method, const double moverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const double minic, const bool norm,
     const double posic, const vec_num_t &bkg1, const vec_num_t &bkg2,
     const double nsites1, const double nsites2, const str_t &strat) {
