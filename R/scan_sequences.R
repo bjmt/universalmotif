@@ -1,4 +1,4 @@
-# Last modified:  2019-06-04  22:14:18 (EDT)
+# Last modified: 2019-06-21 17:22:14 (EDT)
 
 #' Scan sequences for matches to input motifs.
 #'
@@ -81,9 +81,6 @@
 #' scan_sequences(ArabidopsisMotif, seq)
 #' # A warning regarding the presence of non-standard letters will be given,
 #' # but can be safely ignored in this case.
-#'
-#' @references
-#'    \insertRef{biostrings}{universalmotif}
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],

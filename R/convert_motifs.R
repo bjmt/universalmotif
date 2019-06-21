@@ -79,8 +79,6 @@
 #'
 #'    \insertRef{motifstack}{universalmotif}
 #'
-#'    \insertRef{biostrings}{universalmotif}
-#'
 #'    \insertRef{motifdb}{universalmotif}
 #'
 #'    \insertRef{pwmenrich}{universalmotif}

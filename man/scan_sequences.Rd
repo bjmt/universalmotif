@@ -101,9 +101,6 @@ scan_sequences(ArabidopsisMotif, seq)
 # but can be safely ignored in this case.
 
 }
-\references{
-\insertRef{biostrings}{universalmotif}
-}
 \seealso{
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}},
 \code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}

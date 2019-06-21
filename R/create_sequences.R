@@ -32,9 +32,6 @@
 #' ## you can include non-alphabet characters are well, even spaces:
 #' sequences.custom <- create_sequences("!@#$ ")
 #'
-#' @references
-#'    \insertRef{biostrings}{universalmotif}
-#'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [create_motif()], [shuffle_sequences()]
 #' @export

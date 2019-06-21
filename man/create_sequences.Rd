@@ -51,9 +51,6 @@ sequences.QWER <- create_sequences("QWER")
 sequences.custom <- create_sequences("!@#$ ")
 
 }
-\references{
-\insertRef{biostrings}{universalmotif}
-}
 \seealso{
 \code{\link[=create_motif]{create_motif()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }

@@ -182,8 +182,6 @@ MA0003.2.trimmed <- trim_motifs(MA0003.2)
 
 \insertRef{motifstack}{universalmotif}
 
-\insertRef{biostrings}{universalmotif}
-
 \insertRef{motifdb}{universalmotif}
 
 \insertRef{pwmenrich}{universalmotif}
