@@ -40,8 +40,8 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{db.scores}{\code{data.frame} See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
-\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
+SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}
 
 \item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 

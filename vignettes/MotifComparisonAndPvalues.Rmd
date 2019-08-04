@@ -43,12 +43,13 @@ The main workhorse in `r Biocpkg("universalmotif")` is `compare_motifs()`. Sever
 This function has been written to allow comparisons using any of the following metrics:
 
 * Euclidean distance (`EUCL`)
+* Weighted Euclidean distance (`WEUCL`)
 * Kullback-Leibler divergence (`KL`) [@kl; @roepcke]
 * Hellinger distance (`HELL`) [@hellinger]
-* Itakura-Saito distance (`IS`) [@ISdist]
 * Squared Euclidean distance (`SEUCL`)
 * Manhattan distance (`MAN`)
 * Pearson correlation coefficient (`PCC`)
+* Weighted Pearson correlation coefficient (`WPCC`)
 * Sandelin-Wasserman similarity (`SW`; or sum of squared distances) [@wasserman]
 * Average log-likelihood ratio (`ALLR`) [@wang]
 * Lower limit average log-likelihood ratio (`ALLR_LL`; minimum column score of -2) [@mahony]
@@ -61,16 +62,16 @@ EUCL <- function(c1, c2) {
   sqrt( sum( (c1 - c2)^2 ) )
 }
 
+WEUCL <- function(c1, c2, bkg1, bkg2) {
+  sqrt( sum( (bkg1 + bkg2) * (c1 - c2)^2 ) )
+}
+
 KL <- function(c1, c2) {
   ( sum(c1 * log(c1 / c2)) + sum(c2 * log(c2 / c1)) ) / 2
 }
 
 HELL <- function(c1, c2) {
   sqrt( sum( ( sqrt(c1) - sqrt(c2) )^2 ) ) / sqrt(2)
-}
-
-IS <- function(c1, c2) {
-  sum( c1 / c2 - log(c1 / c2) - 1 )
 }
 
 SEUCL <- function(c1, c2) {
@@ -86,6 +87,16 @@ PCC <- function(c1, c2) {
   top <- n * sum(c1 * c2) - sum(c1) * sum(c2)
   bot <- sqrt( ( n * sum(c1^2) - sum(c1)^2 ) * ( n * sum(c2^2) - sum(c2)^2 ) )
   top / bot
+}
+
+WPCC <- function(c1, c2, bkg1, bkg2) {
+  weights <- bkg1 + bkg2
+  mean1 <- sum(weights * c1)
+  mean2 <- sum(weights * c2)
+  var1 <- sum(weights * (c1 - mean1)^2)
+  var2 <- sum(weights * (c2 - mean2)^2)
+  cov <- sum(weights * (c1 - mean1) * (c2 - mean2))
+  cov / sqrt(var1 * var2)
 }
 
 SW <- function(c1, c2) {
@@ -119,10 +130,9 @@ Note that some metrics do not work well with zero values, and small pseudocounts
 
 * `KL`
 * `ALLR`
-* `IS`
 * `ALLR_LL`
 
-As seen in figure \ref{fig:fig1}, the distributions for random individual column comparisons tend to be very skewed. This is usually remedied when comparing the entire motif, though some metrics still perform poorly in this regard (such as `IS`).
+As seen in figure \ref{fig:fig1}, the distributions for random individual column comparisons tend to be very skewed. This is usually remedied when comparing the entire motif, though some metrics still perform poorly in this regard.
 
 ```{r,echo=FALSE,fig.wide=TRUE,fig.asp=1,fig.cap="\\label{fig:fig1}Distributions of scores from approximately 500 random motif and individual column comparisons"}
 atm <- filter_motifs(motdb, organism = "Athaliana")
@@ -238,18 +248,18 @@ motifs <- filter_motifs(motifs, altname = c("M0003_1.02", "M0004_1.02"))
 view_motifs(motifs)
 try_all <- function(motifs, ...) {
   scores <- vector("list", 4)
-  methods <- c("PCC", "EUCL", "SW", "KL", "ALLR",
-               "BHAT", "HELL", "IS", "SEUCL", "MAN", "ALLR_LL")
+  methods <- c("PCC", "WPCC", "EUCL", "SW", "KL", "ALLR",
+               "BHAT", "HELL", "WEUCL", "SEUCL", "MAN", "ALLR_LL")
   for (i in seq_along(methods)) {
     scores[[1]][i] <- compare_motifs(motifs, method = methods[i])[1, 2]
     scores[[2]][i] <- compare_motifs(motifs, method = methods[i], normalise.scores = TRUE)[1, 2]
     scores[[3]][i] <- compare_motifs(motifs, method = methods[i], min.overlap = 99)[1, 2]
     scores[[4]][i] <- compare_motifs(motifs, method = methods[i], min.position.ic=0.25)[1, 2]
   }
-  res <- data.frame(type = c("similarity", "distance", 
+  res <- data.frame(type = c("similarity", "similarity", "distance", 
                              "similarity", "distance", "similarity",
                              "similarity", "distance",
-                             "distance", "distance",
+                             "distance", "distance", 
                              "distance", "similarity"),
                     method = methods,
                     default = scores[[1]],

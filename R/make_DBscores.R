@@ -163,7 +163,8 @@ make_DBscores <- function(db.motifs,
 
   if (BP) warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
-  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in%
+      c("ALLR", "ALLR_LL", "PCC"))
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative ",
               "values: ALLR, ALLR_LL, PCC"))
 

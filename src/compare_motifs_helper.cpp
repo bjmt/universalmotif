@@ -34,6 +34,8 @@ std::unordered_map<std::string, int> METRICS_enum = {
   {"SEUCL",     5},   // 14.93 s
   // Manhattan distance
   {"MAN",       6},   // 14.92 s
+  // Weighted Euclidean distance
+  {"WEUCL",    12},
 
   /* similarity */
 
@@ -47,6 +49,8 @@ std::unordered_map<std::string, int> METRICS_enum = {
   {"BHAT",     10},   // 15.67 s
   // Lower limit average log-likelihood ratio
   {"ALLR_LL",  11},
+  // Weighted Pearson correlation coefficient
+  {"WPCC",     13}
 
 };
 
@@ -58,11 +62,13 @@ enum COMPARE_METRICS {
   IS      =  4,
   SEUCL   =  5,
   MAN     =  6,
+  WEUCL   = 12,
   PCC     =  7,
   SW      =  8,
   ALLR    =  9,
   BHAT    = 10,
-  ALLR_LL = 11
+  ALLR_LL = 11,
+  WPCC    = 13
 
 };
 
@@ -240,6 +246,7 @@ double calc_final_score(const vec_num_t &scores, const str_t &strat,
 
   switch (::SCORESTRAT_enum[strat]) {
 
+    // keep_good() unneeded for SUM + AMEAN?
     case SUM   : return score_sum(keep_good(scores, good, n));
     case AMEAN : return score_amean(keep_good(scores, good, n));
     case GMEAN : return score_gmean(keep_good(scores, good, n));
@@ -490,6 +497,77 @@ double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
 
 }
 
+double compare_wpcc(const list_num_t &mot1, const list_num_t &mot2,
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t weights(nrow, 0.0);
+  for (std::size_t i = 0; i < nrow; ++i) {
+    weights[i] = bkg1[i] + bkg2[i];
+  }
+
+  vec_num_t wmean1(ncol, 0.0);
+  vec_num_t wmean2(ncol, 0.0);
+
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        wmean1[i] += weights[j] * mot1[i][j];
+        wmean2[i] += weights[j] * mot2[i][j];
+      }
+    }
+  }
+
+  vec_num_t wvar1(ncol, 0.0);
+  vec_num_t wvar2(ncol, 0.0);
+
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        wvar1[i] += weights[j] * pow(mot1[i][j] - wmean1[i], 2.0);
+        wvar2[i] += weights[j] * pow(mot2[i][j] - wmean2[i], 2.0);
+      }
+    }
+  }
+
+  vec_num_t wcov(ncol, 0.0);
+
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        wcov[i] += weights[j] * (mot1[i][j] - wmean1[i]) * (mot2[i][j] - wmean2[i]);
+      }
+    }
+  }
+
+  vec_num_t bot(ncol, 0.0);
+
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      bot[i] = sqrt(wvar1[i] * wvar2[i]);
+    }
+  }
+
+  vec_num_t topbot(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      topbot[i] = bot[i] == 0 ? 1.0 : wcov[i] / bot[i];
+    }
+  }
+  return calc_final_score(topbot, strat, n, good, ic1, ic2);
+
+}
+
 double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
     const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2) {
 
@@ -511,6 +589,35 @@ double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
         ans[i] += mot2[i][j] * log(mot2[i][j] / mot1[i][j]);
       }
       ans[i] *= 0.5;
+    }
+  }
+
+  return calc_final_score(ans, strat, n, good, ic1, ic2);
+
+}
+
+double compare_weucl(const list_num_t &mot1, const list_num_t &mot2,
+    const str_t &strat, const vec_num_t &ic1, const vec_num_t &ic2,
+    const vec_num_t &bkg1, const vec_num_t &bkg2) {
+
+  std::size_t ncol = mot1.size(), nrow = mot1[0].size();
+  list_num_t diffmat(ncol, vec_num_t(nrow, 0.0));
+  vec_bool_t good(ncol, false);
+  int n = 0;
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (mot1[i][0] >= 0 && mot2[i][0] >= 0) {
+      good[i] = true;
+      ++n;
+    }
+  }
+
+  vec_num_t ans(ncol, 0.0);
+  for (std::size_t i = 0; i < ncol; ++i) {
+    if (good[i]) {
+      for (std::size_t j = 0; j < nrow; ++j) {
+        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0) * (bkg1[j] + bkg2[j]);
+      }
+      ans[i] = sqrt(ans[i]);
     }
   }
 
@@ -777,12 +884,22 @@ void get_compare_ans(vec_num_t &ans, const std::size_t i,
                                  : compare_eucl(tmot1, tmot2, strat, ic1, ic2)
                                    * double(tlen) / double(alignlen);
                   break;
+    case WEUCL  : ans[i] = lowic ? std::numeric_limits<double>::max()
+                                 : compare_weucl(tmot1, tmot2, strat, ic1, ic2,
+                                     bkg1, bkg2)
+                                   * double(tlen) / double(alignlen);
+                  break;
     case KL     : ans[i] = lowic ? std::numeric_limits<double>::max()
                                  : compare_kl(tmot1, tmot2, strat, ic1, ic2)
                                    * double(tlen) / double(alignlen);
                   break;
     case PCC    : ans[i] = lowic ? -std::numeric_limits<double>::max()
                                  : compare_pcc(tmot1, tmot2, strat, ic1, ic2)
+                                   * double(alignlen) / double(tlen);
+                  break;
+    case WPCC   : ans[i] = lowic ? -std::numeric_limits<double>::max()
+                                 : compare_wpcc(tmot1, tmot2, strat, ic1, ic2,
+                                     bkg1, bkg2)
                                    * double(alignlen) / double(tlen);
                   break;
     case SW     : ans[i] = lowic ? -std::numeric_limits<double>::max()
@@ -830,16 +947,18 @@ double return_best_ans(const vec_num_t &ans, const std::string &method) {
 
   switch (::METRICS_enum[method]) {
 
-    case EUCL   : return *std::min_element(ans.begin(), ans.end());
-    case KL     : return *std::min_element(ans.begin(), ans.end());
-    case HELL   : return *std::min_element(ans.begin(), ans.end());
-    case IS     : return *std::min_element(ans.begin(), ans.end());
-    case SEUCL  : return *std::min_element(ans.begin(), ans.end());
+    case EUCL   :
+    case WEUCL  :
+    case KL     :
+    case HELL   :
+    case IS     :
+    case SEUCL  :
     case MAN    : return *std::min_element(ans.begin(), ans.end());
-    case PCC    : return *std::max_element(ans.begin(), ans.end());
-    case SW     : return *std::max_element(ans.begin(), ans.end());
-    case ALLR   : return *std::max_element(ans.begin(), ans.end());
-    case BHAT   : return *std::max_element(ans.begin(), ans.end());
+    case PCC    :
+    case WPCC   :
+    case SW     :
+    case ALLR   :
+    case BHAT   :
     case ALLR_LL: return *std::max_element(ans.begin(), ans.end());
 
   }
@@ -964,16 +1083,18 @@ int return_best_ans_which(const vec_num_t &ans, const std::string &method) {
 
   switch (::METRICS_enum[method]) {
 
-    case EUCL   : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case KL     : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case HELL   : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case IS     : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case SEUCL  : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
+    case EUCL   :
+    case WEUCL  :
+    case KL     :
+    case HELL   :
+    case IS     :
+    case SEUCL  :
     case MAN    : return std::distance(ans.begin(), std::min_element(ans.begin(), ans.end()));
-    case PCC    : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case SW     : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case ALLR   : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
-    case BHAT   : return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
+    case PCC    :
+    case WPCC   :
+    case SW     :
+    case ALLR   :
+    case BHAT   :
     case ALLR_LL: return std::distance(ans.begin(), std::max_element(ans.begin(), ans.end()));
 
   }
@@ -1564,9 +1685,19 @@ double compare_columns_cpp(const std::vector<double> &p1,
   switch (::METRICS_enum[m]) {
     case EUCL   : ans = compare_eucl(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
+    case WEUCL  : if (b1.size() != p1.size() || b2.size() != p1.size())
+                    Rcpp::stop("incorrect background vector length");
+                  ans = compare_weucl(pp1, pp2, "sum", vec_num_t(), vec_num_t(),
+                      b1, b2);
+                  break;
     case KL     : ans = compare_kl(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
     case PCC    : ans = compare_pcc(pp1, pp2, "sum", vec_num_t(), vec_num_t());
+                  break;
+    case WPCC   : if (b1.size() != p1.size() || b2.size() != p1.size())
+                    Rcpp::stop("incorrect background vector length");
+                  ans = compare_wpcc(pp1, pp2, "sum", vec_num_t(), vec_num_t(),
+                      b1, b2);
                   break;
     case SW     : ans = compare_sw(pp1, pp2, "sum", vec_num_t(), vec_num_t());
                   break;
@@ -1612,6 +1743,7 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
   int ltail = 1;
   switch (::METRICS_enum[method]) {
     case PCC:
+    case WPCC:
     case SW:
     case ALLR:
     case BHAT:

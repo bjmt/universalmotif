@@ -57,7 +57,8 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
     stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', ",
          "'wa.mean', 'wg.mean', 'fzt'")
 
-  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in%
+      c("ALLR", "ALLR_LL", "PCC"))
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate ",
               "negative values: ALLR, ALLR_LL, PCC"))
       

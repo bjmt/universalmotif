@@ -137,11 +137,12 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', ",
          "'wa.mean', 'wg.mean', 'fzt'")
 
-  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in%
+      c("ALLR", "ALLR_LL", "PCC"))
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative values: ",
               "ALLR, ALLR_LL, PCC"))
 
-  if (method %in% c("PCC", "SW", "ALLR", "BHAT"))
+  if (method %in% c("PCC", "SW", "ALLR", "BHAT", "WPCC"))
     stop(wmsg("'PCC', 'SW', 'ALLR', 'BHAT' are not allowed, since a distance",
               "matrix cannot be built"))
 
@@ -171,8 +172,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     if (anyNA(tree))
       stop(wmsg("Found NA values in comparison matrix; try again with ",
                "a smaller min.mean.ic and/or min.position.ic"))
-    tree <- switch(method, "MPCC" = 1 - tree, "MSW" = 2 - tree,
-                   "MBHAT" = 1 - tree, tree)
+    # tree <- switch(method, "WPCC" = 1 - tree, "MSW" = 2 - tree,
+    #                "MBHAT" = 1 - tree, tree)
     if (progress) message("Constructing phylogeny...")
     tree <- ape::as.phylo(hclust(as.dist(tree)))
     if (labels != "none") {

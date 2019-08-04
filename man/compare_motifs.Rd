@@ -26,8 +26,8 @@ The latter allows for taking into account the background
 frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
 allowed when \code{method = c(ALLR, ALLR_LL)}.}
 
-\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
+SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
@@ -97,12 +97,13 @@ Compare motifs using any of several available metrics. See the
 The following metrics are available:
 \itemize{
 \item Euclidean distance (\code{EUCL}) \insertCite{euclidean}{universalmotif}
+\item Weighted Euclidean distance (\code{WEUCL})
 \item Kullback-Leibler divergence (\code{KL}) \insertCite{kl,kldiv}{universalmotif}
 \item Hellinger distance (\code{HELL}) \insertCite{hellinger}{universalmotif}
-\item Itakura-Saito distance (\code{IS}) \insertCite{ISdist}{universalmotif}
 \item Squared Euclidean distance (\code{SEUCL})
 \item Manhattan distance (\code{MAN})
 \item Pearson correlation coefficient (\code{PCC})
+\item Weighted Pearson correlation coefficient (\code{WPCC})
 \item Sandelin-Wasserman similarity (\code{SW}), or sum of squared distances \insertCite{wasserman}{universalmotif}
 \item Average log-likelihood ratio (\code{ALLR}) \insertCite{wang}{universalmotif}
 \item Lower limit ALLR (\code{ALLR_LL}) \insertCite{mahony}{universalmotif}
@@ -115,12 +116,12 @@ individually between columns. How those scores are combined to generate the fina
 alignment scores depends on \code{score.strat}.
 
 See the "Motif comparisons and P-values" vignette for a description of the
-various metrics. Note that PCC, SW, ALLR, ALLR_LL and BHAT are similarity;
+various metrics. Note that PCC, WPCC, SW, ALLR, ALLR_LL and BHAT are similarities;
 higher values mean more similar motifs. For the remaining metrics, values closer
 to zero represent more similar motifs.
 
 Small pseudocounts are automatically added when one of the following methods
-is used: KL, ALLR, IS, ALLR_LL. This is avoid
+is used: KL, ALLR, ALLR_LL. This is avoid
 zeros in the calculations.
 
 To note regarding p-values: P-values are pre-computed using the

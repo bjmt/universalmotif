@@ -15,8 +15,8 @@ make_DBscores(db.motifs, method = c("PCC", "EUCL", "SW", "KL", "ALLR",
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
 
-\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
+SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}
 
 \item{shuffle.db}{\code{logical(1)} Deprecated. Does nothing.
 generate random motifs with \code{\link[=create_motif]{create_motif()}}.}

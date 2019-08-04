@@ -12,8 +12,8 @@
 #'    The latter allows for taking into account the background
 #'    frequencies if `relative_entropy = TRUE`. Note that `'ICM'` is not
 #'    allowed when `method = c(ALLR, ALLR_LL)`.
-#' @param method `character(1)` One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-#'    SEUCL, MAN, ALLR_LL. See details.
+#' @param method `character(1)` One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
+#'    SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.
 #' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
 #'    report the best score.
 #' @param min.overlap `numeric(1)` Minimum overlap required when aligning the
@@ -64,12 +64,13 @@
 #' The following metrics are available:
 #'
 #' * Euclidean distance (`EUCL`) \insertCite{euclidean}{universalmotif}
+#' * Weighted Euclidean distance (`WEUCL`) 
 #' * Kullback-Leibler divergence (`KL`) \insertCite{kl,kldiv}{universalmotif}
 #' * Hellinger distance (`HELL`) \insertCite{hellinger}{universalmotif}
-#' * Itakura-Saito distance (`IS`) \insertCite{ISdist}{universalmotif}
 #' * Squared Euclidean distance (`SEUCL`)
 #' * Manhattan distance (`MAN`)
 #' * Pearson correlation coefficient (`PCC`)
+#' * Weighted Pearson correlation coefficient (`WPCC`)
 #' * Sandelin-Wasserman similarity (`SW`), or sum of squared distances \insertCite{wasserman}{universalmotif}
 #' * Average log-likelihood ratio (`ALLR`) \insertCite{wang}{universalmotif}
 #' * Lower limit ALLR (`ALLR_LL`) \insertCite{mahony}{universalmotif}
@@ -81,12 +82,12 @@
 #' alignment scores depends on `score.strat`.
 #'
 #' See the "Motif comparisons and P-values" vignette for a description of the
-#' various metrics. Note that PCC, SW, ALLR, ALLR_LL and BHAT are similarity;
+#' various metrics. Note that PCC, WPCC, SW, ALLR, ALLR_LL and BHAT are similarities;
 #' higher values mean more similar motifs. For the remaining metrics, values closer
 #' to zero represent more similar motifs.
 #'
 #' Small pseudocounts are automatically added when one of the following methods
-#' is used: KL, ALLR, IS, ALLR_LL. This is avoid
+#' is used: KL, ALLR, ALLR_LL. This is avoid
 #' zeros in the calculations.
 #'
 #' To note regarding p-values: P-values are pre-computed using the
@@ -212,7 +213,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', ",
          "'wa.mean', 'wg.mean', 'fzt'")
 
-  if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
+  if (score.strat %in% c("g.mean", "wg.mean") && method %in%
+      c("ALLR", "ALLR_LL", "PCC"))
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative ",
               "values: ALLR, ALLR_LL, PCC"))
 

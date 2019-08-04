@@ -12,8 +12,8 @@ merge_motifs(motifs, method = "ALLR", use.type = "PPM",
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL, IS,
-SEUCL, MAN, ALLR_LL. See details.}
+\item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
+SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}
 
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
