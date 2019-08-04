@@ -209,7 +209,7 @@ dres <- res6 %>%
           summarise(mean = mean(scores, na.rm = TRUE))
 
 ggplot(res6, aes(x = scores, fill = type)) +
-  geom_density(alpha = 0.3) +
+  geom_density(alpha = 0.3, adjust = 2) +
   geom_vline(aes(xintercept = 0), colour = "black", linetype = "dashed") +
   # geom_vline(data=dres, aes(xintercept=mean, colour = type)) +
   facet_wrap(key ~ ., ncol = 3, scales = "free") +
