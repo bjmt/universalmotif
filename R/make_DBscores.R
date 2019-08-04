@@ -66,7 +66,7 @@ make_DBscores <- function(db.motifs,
                           min.mean.ic = 0.25, progress = TRUE, BP = FALSE,
                           nthreads = 1, tryRC = TRUE,
                           score.strat = c("sum", "a.mean", "g.mean", "median",
-                                          "wa.mean", "wg.mean")) {
+                                          "wa.mean", "wg.mean", "fzt")) {
 
   args <- as.list(environment())
 
@@ -167,8 +167,10 @@ make_DBscores <- function(db.motifs,
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative ",
               "values: ALLR, ALLR_LL, PCC"))
 
-  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
-    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', 'wa.mean', 'wg.mean'")
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean",
+                          "wg.mean", "fzt"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', ",
+         "'wa.mean', 'wg.mean', 'fzt'")
 
   rand.mots <- make_DBscores_motifs(db.motifs, widths, rand.tries, shuffle.k)
 

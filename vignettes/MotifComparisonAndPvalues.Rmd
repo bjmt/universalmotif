@@ -147,6 +147,8 @@ names(res9) <- metrics
 res8 <- vector("list", length(metrics))
 names(res8) <- metrics
 res8 <- res8[!names(res8) %in% c("PCC", "ALLR", "ALLR_LL")]
+res99 <- vector("list", length(metrics))
+names(res99) <- metrics
 
 y1 <- atm[sample(1:length(atm), 33)]
 x1 <- pool[, sample(1:ncol(pool), 528)]
@@ -165,6 +167,7 @@ for (m in metrics) {
   }
   res5[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="median", min.mean.ic=0))))
   res9[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="wa.mean", min.mean.ic=0))))
+  res99[[m]] <- as.numeric(as.dist(suppressWarnings(compare_motifs(y1, method=m, score.strat="fzt", min.mean.ic=0))))
 }
 
 l_2_df <- function(x) {
@@ -189,6 +192,7 @@ res4 <- l_2_df(res4)
 res5 <- l_2_df(res5)
 res9 <- l_2_df(res9)
 res8 <- l_2_df(res8)
+res99 <- l_2_df(res99)
 
 res$type <- "RawColumnScores"
 res2$type <- "Sum"
@@ -196,8 +200,9 @@ res3$type <- "ArithMean"
 res4$type <- "GeoMean"
 res5$type <- "Median"
 res9$type <- "WeightedArithMean"
+res99$type <- "FisherZTrans"
 res8$type <- "WeightedGeoMean"
-res6 <- rbind(res, res3, res4, res5, res9, res8)
+res6 <- rbind(res, res3, res4, res5, res9, res8, res99)
 
 dres <- res6 %>%
           group_by(key, type) %>%

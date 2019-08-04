@@ -79,7 +79,8 @@ std::unordered_map<std::string, int> SCORESTRAT_enum = {
   {"g.mean",  3},
   {"median",  4},
   {"wa.mean", 5},
-  {"wg.mean", 6}
+  {"wg.mean", 6},
+  {"fzt",     7}
 
 };
 
@@ -90,7 +91,8 @@ enum ADDSCORES_STRAT {
   GMEAN  = 3,
   MEDIAN = 4,
   WAMEAN = 5,
-  WGMEAN = 6
+  WGMEAN = 6,
+  FZT    = 7
 
 };
 
@@ -131,9 +133,11 @@ double score_sum (const vec_num_t &scores) {
 
 }
 
-double score_amean(const vec_num_t &scores, const int n) {
+double score_amean(const vec_num_t &scores) {
 
-  return std::accumulate(scores.begin(), scores.end(), 0.0) / double(n);
+  double n = scores.size();
+
+  return std::accumulate(scores.begin(), scores.end(), 0.0) / n;
 
 }
 
@@ -190,6 +194,18 @@ double score_wgmean(vec_num_t scores, const vec_num_t &ic) {
 
 }
 
+double score_fzt(vec_num_t scores) {
+
+  for (std::size_t i = 0; i < scores.size(); ++i) {
+    scores[i] = tanh(scores[i]);
+  }
+
+  double n = scores.size();
+
+  return atanh(std::accumulate(scores.begin(), scores.end(), 0.0) / n);
+
+}
+
 vec_num_t keep_good(const vec_num_t &scores, const vec_bool_t &good, const int n) {
 
   vec_num_t out;
@@ -224,14 +240,15 @@ double calc_final_score(const vec_num_t &scores, const str_t &strat,
 
   switch (::SCORESTRAT_enum[strat]) {
 
-    case SUM   : return score_sum(scores);
-    case AMEAN : return score_amean(scores, n);
+    case SUM   : return score_sum(keep_good(scores, good, n));
+    case AMEAN : return score_amean(keep_good(scores, good, n));
     case GMEAN : return score_gmean(keep_good(scores, good, n));
     case MEDIAN: return score_median(keep_good(scores, good, n));
     case WAMEAN: return score_wamean(keep_good(scores, good, n),
                                      combine_good_ic(ic1, ic2, good, n));
     case WGMEAN: return score_wgmean(keep_good(scores, good, n),
                                      combine_good_ic(ic1, ic2, good, n));
+    case FZT   : return score_fzt(keep_good(scores, good, n));
 
     default: return -333.333;
 

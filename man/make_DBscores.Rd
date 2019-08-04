@@ -10,7 +10,7 @@ make_DBscores(db.motifs, method = c("PCC", "EUCL", "SW", "KL", "ALLR",
   widths = 5:30, min.position.ic = 0, normalise.scores = c(FALSE,
   TRUE), min.overlap = 6, min.mean.ic = 0.25, progress = TRUE,
   BP = FALSE, nthreads = 1, tryRC = TRUE, score.strat = c("sum",
-  "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
+  "a.mean", "g.mean", "median", "wa.mean", "wg.mean", "fzt"))
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}
@@ -64,7 +64,8 @@ report the best score.}
 \item{score.strat}{\code{character(1)} How to handle column scores calculated from
 motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
 mean. "g.mean": take the geometric mean. "median": take the median.
-"wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
+"wa.mean", "wg.mean": weighted arithmetic/geometric mean. "fzt": Fisher
+Z-transform. Weights are the
 total information content shared between aligned columns.}
 }
 \value{

@@ -47,7 +47,8 @@
 #' @param score.strat `character(1)` How to handle column scores calculated from
 #'    motif alignments. "sum": add up all scores. "a.mean": take the arithmetic
 #'    mean. "g.mean": take the geometric mean. "median": take the median.
-#'    "wa.mean", "wg.mean": weighted arithmetic/geometric mean. Weights are the
+#'    "wa.mean", "wg.mean": weighted arithmetic/geometric mean. "fzt": Fisher
+#'    Z-transform. Weights are the
 #'    total information content shared between aligned columns. 
 #' @param output.report `character(1)` Provide a filename for [compare_motifs()]
 #'    to write an html ouput report to. The top matches are shown alongside
@@ -206,8 +207,10 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (use.type == "ICM" && method %in% c("ALLR", "ALLR_LL"))
     stop("'use.type = \"ICM\"' is not allowed for ALLR/ALLR_LL methods")
 
-  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean"))
-    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', 'wa.mean', 'wg.mean'")
+  if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean",
+                          "wg.mean", "fzt"))
+    stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', ",
+         "'wa.mean', 'wg.mean', 'fzt'")
 
   if (score.strat %in% c("g.mean", "wg.mean") && method %in% c("ALLR", "ALLR_LL", "PCC"))
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate negative ",
