@@ -33,13 +33,6 @@
 #' Arguments `widths`, `method`, `normalise.scores` and `score.strat` are
 #' vectorized; all combinations will be attempted.
 #'
-#' Randomly generated scores are used to estimate parameters for logistic
-#' distributions. This will occasionally fail for `method = "IS"`, which
-#' can sometimes fit too poorly to estimate parameters. In such cases,
-#' the mean and standard deviation will instead be used. A warning is
-#' given in [compare_motifs()] when P-values are asked for when using
-#' `method = "IS"`.
-#'
 #' @examples
 #' \dontrun{
 #' library(MotifDb)

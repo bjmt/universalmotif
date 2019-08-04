@@ -89,13 +89,6 @@ a slow process.
 
 Arguments \code{widths}, \code{method}, \code{normalise.scores} and \code{score.strat} are
 vectorized; all combinations will be attempted.
-
-Randomly generated scores are used to estimate parameters for logistic
-distributions. This will occasionally fail for \code{method = "IS"}, which
-can sometimes fit too poorly to estimate parameters. In such cases,
-the mean and standard deviation will instead be used. A warning is
-given in \code{\link[=compare_motifs]{compare_motifs()}} when P-values are asked for when using
-\code{method = "IS"}.
 }
 \examples{
 \dontrun{
