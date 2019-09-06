@@ -17,6 +17,11 @@
 #'    additional list items will be present, one containing site positions
 #'    and P-values, and another containing combined sequence p-values.
 #'
+#' @details
+#' Please note that the typical number precision limit in R is around 1e-308.
+#' This means that motif P-values in MEME files below this limit are rounded
+#' automatically to 0.
+#'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
 #'                                       package = "universalmotif"))
