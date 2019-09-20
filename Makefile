@@ -10,11 +10,11 @@ prep:
 
 build:
 	cd ..;\
-	R CMD BUILD $(PKGSRC)
+	R CMD build $(PKGSRC)
 
 check:
 	cd ..;\
-	R CMD CHECK $(PKGNAME)_$(PKGVER).tar.gz
+	R CMD check $(PKGNAME)_$(PKGVER).tar.gz
 
 bioc-check:
 	cd ..;\
@@ -25,7 +25,7 @@ coverage:
 
 install:
 	cd ..;\
-	R CMD INSTALL $(PKGNAME)_$(PKGVER).tar.gz
+	R CMD install $(PKGNAME)_$(PKGVER).tar.gz
 
 clean:
 	mkdir -p builds;\

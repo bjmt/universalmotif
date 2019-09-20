@@ -119,7 +119,17 @@ read_transfac <- function(file, skip = 0) {
 
   motif_meta <- lapply(motifs, parse_meta)
 
-  motifs <- mapply(function(x, y) {
+  nsites <- lapply(motif_matrix, function(x) max(rowSums(x)))
+  motif_matrix <- lapply(motif_matrix,
+                         function(x) {
+                           cs <- rowSums(x)
+                           for (i in seq_along(cs)) {
+                             x[i, ] <- x[i, ] / cs[i]
+                           }
+                           x
+                         })
+
+  motifs <- mapply(function(x, y, z) {
                       mot <- universalmotif_cpp(name = as.character(y[names(y) == 
                                                          "name"]),
                                      altname = as.character(y[names(y) == 
@@ -130,12 +140,13 @@ read_transfac <- function(file, skip = 0) {
                                                              "organism"]),
                                      motif = t(x),
                                      alphabet = "DNA",
-                                     type = "PCM")
+                                     nsites = z,
+                                     type = "PPM")
                       validObject_universalmotif(mot)
                       mot
-                     }, motif_matrix, motif_meta)
+                     }, motif_matrix, motif_meta, nsites)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
-  motifs
+  convert_type_internal(motifs, "PCM")
 
 }

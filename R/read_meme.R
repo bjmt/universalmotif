@@ -20,7 +20,8 @@
 #' @details
 #' Please note that the typical number precision limit in R is around 1e-308.
 #' This means that motif P-values in MEME files below this limit are rounded
-#' automatically to 0.
+#' automatically to 0. To get around this, the E-value is also stored as a
+#' string in the `extrainfo` slot.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
@@ -93,8 +94,10 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   motif_meta <- lapply(raw_lines[motif_meta],
                          function(x) {
                            x <- strsplit(x, "\\s+")[[1]]
-                           c(nsites = as.numeric(x[8]),
-                             eval = as.numeric(x[10]))
+  #                          c(nsites = as.numeric(x[8]),
+  # # Add a C++ function here to convert long double to log10 values?
+  #                            eval = as.numeric(x[10]))
+                           c(nsites = x[8], eval = x[10])
                          })
   motif_list <- mapply(function(x, y) {
                            z <- raw_lines[x:y]
@@ -107,11 +110,12 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                           mot <- universalmotif_cpp(name = x,
                                            type = "PPM",
                                            altname = x2,
-                                           nsites = y[1],
-                                           eval = y[2],
+                                           nsites = as.numeric(y[1]),
+                                           eval = as.numeric(y[2]),
                                            bkg = bkg,
                                            alphabet = alph,
                                            strand = strands,
+                                           extrainfo = c(eval.string = unname(y[2])),
                                            motif = t(matrix(z, ncol = alph.len,
                                                             byrow = TRUE)))
                           validObject_universalmotif(mot)

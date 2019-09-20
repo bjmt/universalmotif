@@ -89,6 +89,13 @@ MINOR CHANGES
     o Positional tests have been removed from enrich_motifs(). See
       motif_peaks() for testing motif-sequence positional preferences.
 
+    o In read_meme(): E-values are now additionally stored in the extrainfo
+      slot. This is to preserve E-values smaller than the R double precision
+      limit.
+
+    o In read_transfac(): Matrix values are rounded, to prevent errors when
+      reading in matrices with non-integers.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 

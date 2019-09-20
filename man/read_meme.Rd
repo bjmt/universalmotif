@@ -29,6 +29,12 @@ Import MEME formatted motifs, as well as original motif sequences. See
 \url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
 formats are supported.
 }
+\details{
+Please note that the typical number precision limit in R is around 1e-308.
+This means that motif P-values in MEME files below this limit are rounded
+automatically to 0. To get around this, the E-value is also stored as a
+string in the \code{extrainfo} slot.
+}
 \examples{
 meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
                                       package = "universalmotif"))

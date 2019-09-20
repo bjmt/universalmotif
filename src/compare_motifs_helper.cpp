@@ -363,7 +363,7 @@ double compare_man(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += abs(mot1[i][j] - mot2[i][j]);
+        ans[i] += std::abs(mot1[i][j] - mot2[i][j]);
       }
     }
   }
@@ -1770,7 +1770,7 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
          *   and the final logPvalue is 0.
          */
 
-        if (abs(scores[i]) != std::numeric_limits<double>::max()) {
+        if (std::abs(scores[i]) != std::numeric_limits<double>::max()) {
 
           ok = false;
 
