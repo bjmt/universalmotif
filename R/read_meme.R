@@ -84,7 +84,6 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
     bkg.tmp <- as.numeric(bkg.tmp[seq_along(bkg.tmp) %% 2 == 0])
     bkg <- c(bkg, bkg.tmp)
   }
-  print(alph);print(alph.len);print(bkg)
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names_i <- grep("^MOTIF ", raw_lines)
