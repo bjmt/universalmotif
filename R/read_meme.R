@@ -71,9 +71,20 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   if (all(c("+", "-") %in% strands)) {
     strands <- "+-"
   } 
-  bkg <- raw_lines[grep("^Background letter frequencies", raw_lines) + 1]
+  bkg.start <- grep("^Background letter frequencies", raw_lines)
+  # bkg <- raw_lines[grep("^Background letter frequencies", raw_lines) + 1]
+  bkg.offset <- 1
+  bkg <- raw_lines[bkg.start + bkg.offset]
   bkg <- strsplit(bkg, "\\s+")[[1]]
   bkg <- as.numeric(bkg[seq_len(length(bkg)) %% 2 == 0])
+  while (length(bkg) < alph.len) {
+    bkg.offset <- bkg.offset + 1
+    bkg.tmp <- raw_lines[bkg.start + bkg.offset]
+    bkg.tmp <- strsplit(bkg.tmp, "\\s+")[[1]]
+    bkg.tmp <- as.numeric(bkg.tmp[seq_along(bkg.tmp) %% 2 == 0])
+    bkg <- c(bkg, bkg.tmp)
+  }
+  print(alph);print(alph.len);print(bkg)
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names_i <- grep("^MOTIF ", raw_lines)

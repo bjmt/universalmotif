@@ -96,6 +96,11 @@ MINOR CHANGES
     o In read_transfac(): Matrix values are rounded, to prevent errors when
       reading in matrices with non-integers.
 
+BUG FIXES
+
+    o read_meme() will now properly parse background letter frequencies which
+      span more than one line.
+
 CHANGES IN VERSION 1.2.1
 ------------------------
 
