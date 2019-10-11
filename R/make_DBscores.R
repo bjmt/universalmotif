@@ -418,3 +418,58 @@ make_DBscores_v1 <- function(db.motifs, method, shuffle.db = TRUE,
   totry
 
 }
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
+make_DBscores_v3 <- function(db.motifs, rand.tries = 10000, widths = 1:100,
+                             progress = TRUE, BP = FALSE) {
+
+  mots <- lapply(db.motifs, function(x) x@motif)
+  cols <- do.call(cbind, mots)
+
+  if (progress) message("Calculating scores")
+
+  scores <- lapply_(COMPARE_METRICS, function(x) calc_scores(cols, x),
+                    BP = BP, PB = progress)
+  names(scores) <- COMPARE_METRICS
+
+  if (progress) message("Calculating distribution parameters")
+
+  params <- lapply_(scores, function(x) get_params(x, rand.tries, widths),
+                    BP = BP, PB = progress)
+
+}
+
+get_params <- function(scores, n, widths) {
+  means <- numeric(length(widths))
+  sds <- numeric(length(widths))
+  for (i in seq_along(widths)) {
+    ans <- vapply(seq_len(n),
+                  function(x) sum(sample(scores, widths[i])),
+                  numeric(1))
+    means[i] <- mean(ans)
+    sds[i] <- sd(ans)
+  }
+  names(means) <- widths
+  names(sds) <- widths
+  list(mean = means, sd = sds)
+}
+
+calc_scores <- function(cols, method) {
+  columns <- switch(method,
+               KL = columns + 0.01,
+               ALLR = columns + 0.01,
+               ALLR_LL = columns + 0.01,
+               columns
+             )
+  out <- numeric(ncol(columns)^2 / 2 - ncol(columns) / 2)
+  counter <- 0
+  for (i in seq_len(ncol(columns))) {
+    for (j in seq_len(ncol(columns))[-seq_len(i)]) {
+      counter <- counter + 1
+      out[counter] <- compare_columns(columns[, i], columns[, j], method)
+    }
+  }
+  out
+}

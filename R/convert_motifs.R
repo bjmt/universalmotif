@@ -419,7 +419,7 @@ setMethod("convert_motifs", signature(motifs = "PFMatrix"),
   }
   nsites <- sum(motifs@profileMatrix[, 1])
   motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                               family = motifs@tags$family,
+                               family = paste0(motifs@tags$family, collapse = " / "),
                                nsites = nsites,
                                organism = paste0(motifs@tags$species,
                                                  collapse = "/"),
@@ -447,9 +447,9 @@ setMethod("convert_motifs", signature(motifs = "PWMatrix"),
     extrainfo <- character()
   }
   motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                               family = motifs@tags$family,
-                               organism = paste(motifs@tags$species,
-                                                collapse = "/"),
+                               family = paste0(motifs@tags$family, collapse = " / "),
+                               organism = paste0(motifs@tags$species,
+                                                 collapse = "/"),
                                motif = motifs@profileMatrix,
                                alphabet = alphabet, type = "PWM",
                                bkg = motifs@bg,
@@ -474,9 +474,9 @@ setMethod("convert_motifs", signature(motifs = "ICMatrix"),
     extrainfo <- character()
   }
   motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@ID,
-                           family = motifs@tags$family,
-                           organism = paste(motifs@tags$species,
-                                            collapse = "/"),
+                           family = paste0(motifs@tags$family, collapse = " / "),
+                           organism = paste0(motifs@tags$species,
+                                             collapse = "/"),
                            motif = motifs@profileMatrix,
                            alphabet = alphabet, type = "ICM",
                            bkg = motifs@bg,
@@ -497,8 +497,7 @@ setMethod("convert_motifs", signature(motifs = "XMatrixList"),
                        function(i) motifs@listData[[i]])
   motif_names <- unlist(lapply(seq_len(motif_num),
                                function(i) motifs@listData[[i]]@name))
-  names(motifs_out) <- motif_names
-  motifs <- convert_motifs(motifs_out, class = "universalmotif")
+  motifs <- lapply(motifs_out, convert_motifs)
   convert_motifs(motifs, class = class)
 
 })
