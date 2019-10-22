@@ -279,7 +279,7 @@ setMethod("show", signature = "universalmotif",
 
   }
 
-  invisible(NULL)
+  invisible(object)
 
 })
 

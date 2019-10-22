@@ -99,6 +99,9 @@ MINOR CHANGES
     o Update JASPAR2018_CORE_DBSCORES with new compare_motifs() methods and
       params.
 
+    o universalmotif print() method now returns the object invisibly,
+      instead of NULL.
+
 BUG FIXES
 
     o read_meme() will now properly parse background letter frequencies which
