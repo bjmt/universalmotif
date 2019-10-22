@@ -441,6 +441,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pval_str2double
+double pval_str2double(const std::string& pval);
+RcppExport SEXP _universalmotif_pval_str2double(SEXP pvalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type pval(pvalSEXP);
+    rcpp_result_gen = Rcpp::wrap(pval_str2double(pval));
+    return rcpp_result_gen;
+END_RCPP
+}
 // split_gapped
 Rcpp::List split_gapped(const Rcpp::NumericMatrix& mot, const std::vector<int>& gaploc);
 RcppExport SEXP _universalmotif_split_gapped(SEXP motSEXP, SEXP gaplocSEXP) {
@@ -745,6 +755,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},
+    {"_universalmotif_pval_str2double", (DL_FUNC) &_universalmotif_pval_str2double, 1},
     {"_universalmotif_split_gapped", (DL_FUNC) &_universalmotif_split_gapped, 2},
     {"_universalmotif_generate_motif", (DL_FUNC) &_universalmotif_generate_motif, 2},
     {"_universalmotif_min_max_doubles", (DL_FUNC) &_universalmotif_min_max_doubles, 0},

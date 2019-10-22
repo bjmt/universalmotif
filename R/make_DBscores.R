@@ -49,8 +49,9 @@
 #' @inheritParams compare_motifs
 #' @export
 make_DBscores <- function(db.motifs,
-                          method = c("PCC", "EUCL", "SW", "KL", "ALLR", "BHAT",
-                                     "HELL", "IS", "SEUCL", "MAN", "ALLR_LL"),
+                          method = c("PCC", "EUCL", "SW", "KL", "WEUCL",
+                                     "ALLR", "BHAT", "HELL", "WPCC", "SEUCL",
+                                     "MAN", "ALLR_LL"),
                           shuffle.db = TRUE,
                           shuffle.k = 3, shuffle.method = "linear",
                           rand.tries = 1000, widths = 5:30,

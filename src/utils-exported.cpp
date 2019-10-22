@@ -94,6 +94,14 @@ Rcpp::NumericVector generate_pos(const std::vector<double> &bkg) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+double pval_str2double(const std::string &pval) {
+  // error when pval < 1e-4931
+  long double pval2 = std::stold(pval);
+  pval2 = std::log(pval2);
+  return double(pval2);
+}
+
+// [[Rcpp::export(rng = false)]]
 Rcpp::List split_gapped(const Rcpp::NumericMatrix &mot,
     const std::vector<int> &gaploc) {
 

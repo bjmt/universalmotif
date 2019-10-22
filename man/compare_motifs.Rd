@@ -80,7 +80,7 @@ total information content shared between aligned columns.}
 \item{output.report}{\code{character(1)} Provide a filename for \code{\link[=compare_motifs]{compare_motifs()}}
 to write an html ouput report to. The top matches are shown alongside
 figures of the match alignments. This requires the \code{knitr} and \code{rmarkdown}
-packages.}
+packages. (Note: still in development.)}
 
 \item{output.report.max.print}{\code{numeric(1)} Maximum number of top matches to
 print.}

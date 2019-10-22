@@ -75,7 +75,7 @@ read_homer <- function(file, skip = 0) {
                                      as.numeric(x[3])),
                    # pval = ifelse(is.na(as.numeric(x[4])), numeric(0),
                    #               as.numeric(x[4])),
-                   pval = exp(1)^-abs(as.numeric(x[5])),
+                   # pval = exp(1)^-abs(as.numeric(x[5])),
                    motif = t(y),
                    alphabet = "DNA",
                    type = "PPM",
@@ -87,6 +87,11 @@ read_homer <- function(file, skip = 0) {
 
   motifs <- mapply(homer2umot, motif_meta, motif_list,
                      SIMPLIFY = FALSE)
+  pvals <- motif_pvalue(motifs,
+    as.numeric(vapply(motif_meta, function(x) x["threshold"], character(1)))
+  )
+  motifs <- mapply(function(x, y) { x@pval = y ; x },
+                   motifs, pvals)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs

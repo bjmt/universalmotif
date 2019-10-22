@@ -96,6 +96,9 @@ MINOR CHANGES
     o In read_transfac(): Matrix values are rounded, to prevent errors when
       reading in matrices with non-integers.
 
+    o Update JASPAR2018_CORE_DBSCORES with new compare_motifs() methods and
+      params.
+
 BUG FIXES
 
     o read_meme() will now properly parse background letter frequencies which
@@ -103,6 +106,10 @@ BUG FIXES
 
     o convert_motifs() will not error-out when trying to convert a PFMatrix
       with a family character vector longer than one.
+
+    o Fixed P-value calculation when importing HOMER motifs. Peviously it
+      would simply assume the log threshold value was the P-value. Now
+      motif_pvalue() is used to properly calculate a P-value.
 
 CHANGES IN VERSION 1.2.1
 ------------------------

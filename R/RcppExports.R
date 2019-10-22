@@ -121,6 +121,10 @@ universalmotif_to_list <- function(motif) {
     .Call('_universalmotif_universalmotif_to_list', PACKAGE = 'universalmotif', motif)
 }
 
+pval_str2double <- function(pval) {
+    .Call('_universalmotif_pval_str2double', PACKAGE = 'universalmotif', pval)
+}
+
 split_gapped <- function(mot, gaploc) {
     .Call('_universalmotif_split_gapped', PACKAGE = 'universalmotif', mot, gaploc)
 }

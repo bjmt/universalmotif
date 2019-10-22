@@ -53,7 +53,7 @@
 #' @param output.report `character(1)` Provide a filename for [compare_motifs()]
 #'    to write an html ouput report to. The top matches are shown alongside
 #'    figures of the match alignments. This requires the `knitr` and `rmarkdown`
-#'    packages.
+#'    packages. (Note: still in development.)
 #' @param output.report.max.print `numeric(1)` Maximum number of top matches to
 #'    print.
 #'
