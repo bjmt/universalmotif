@@ -5,9 +5,14 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param use.type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
+#' @param return.raw `logical(1)` Instead of returning a plot, return the
+#'    aligned named matrices used to generate the plot. This can be useful
+#'    if you wish to use [view_motifs()] alignment capabilities for custom
+#'    plotting uses. Alignment is performed by adding empty columns to the
+#'    left or right of motifs to generate matrices of equal length.
 #' @param ... Additional options for [ggseqlogo::geom_logo()].
 #'
-#' @return A ggplot object.
+#' @return A ggplot object. If `return.raw = TRUE`, a list.
 #'
 #' @details
 #' Since the \pkg{ggseqlogo} package can only plot individual
@@ -42,7 +47,8 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
-                        min.position.ic = 0, score.strat = "sum", ...) {
+                        min.position.ic = 0, score.strat = "sum", 
+                        return.raw = FALSE, ...) {
 
   # TODO: y-axis limits don't always play nice for IC matrices
 
@@ -70,7 +76,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
-                                      normalise.scores = args$normalise.scores),
+                                      normalise.scores = args$normalise.scores,
+                                      return.raw = args$return.raw),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -160,6 +167,11 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     mot.mats[[1]] <- convert_mat_type_from_ppm(mot.mats[[1]], use.type, mot.nsites[[1]],
                                                mot.bkgs[[1]], mot.pseudo[[1]],
                                                relative_entropy)
+    if (return.raw) {
+      colnames(mot.mats[[1]]) <- NULL
+      names(mot.mats) <- mot.names
+      return(mot.mats)
+    }
     if (use.custom) {
       p <- ggseqlogo(mot.mats[[1]], method = plot.method,
                      seq_type = seq_type, namespace = alph, ...) +
@@ -180,7 +192,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   mots <- res$motifs
   mots <- check_mot_sizes(mots)
 
-  if (method %in% c("KL", "MKL", "ALLR", "MALLR", "IS", "MIS")) {
+  if (method %in% c("KL", "ALLR", "ALLR_LL")) {
     for (i in seq_along(mots)) {
       mots[[i]][mots[[i]] > 0] <- mots[[i]][mots[[i]] > 0] - 0.01
     }
@@ -194,6 +206,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     if (which.rc[i]) mot.names[i + 1] <- paste(mot.names[i + 1], "[RC]")
   }
   names(mots) <- mot.names
+
+  if (return.raw) return(mots)
 
   if (use.custom) {
     ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, 

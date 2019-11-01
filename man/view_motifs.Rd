@@ -7,7 +7,7 @@
 view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
-  ...)
+  return.raw = FALSE, ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -51,10 +51,16 @@ mean. "g.mean": take the geometric mean. "median": take the median.
 Z-transform. Weights are the
 total information content shared between aligned columns.}
 
+\item{return.raw}{\code{logical(1)} Instead of returning a plot, return the
+aligned named matrices used to generate the plot. This can be useful
+if you wish to use \code{\link[=view_motifs]{view_motifs()}} alignment capabilities for custom
+plotting uses. Alignment is performed by adding empty columns to the
+left or right of motifs to generate matrices of equal length.}
+
 \item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }
 \value{
-A ggplot object.
+A ggplot object. If \code{return.raw = TRUE}, a list.
 }
 \description{
 Show sequence logo. If given a list of more than one motif, then the motifs

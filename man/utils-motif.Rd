@@ -12,6 +12,7 @@
 \alias{get_scores}
 \alias{icm_to_ppm}
 \alias{motif_score}
+\alias{log_string_pval}
 \alias{pcm_to_ppm}
 \alias{position_icscore}
 \alias{ppm_to_icm}
@@ -44,6 +45,8 @@ get_scores(motif)
 icm_to_ppm(position)
 
 motif_score(motif, threshold = c(0, 1), use.freq = 1)
+
+log_string_pval(pval)
 
 pcm_to_ppm(position, pseudocount = 0)
 
@@ -118,6 +121,8 @@ representing score percentage.}
 \item{use.freq}{\code{numeric(1)} Use regular motif or the respective \code{multifreq}
 representation.}
 
+\item{pval}{\code{character(1)} String-formatted p-value.}
+
 \item{bkg}{\code{numeric} Should be the same length as the alphabet length.}
 
 \item{nsites}{\code{numeric(1)} Number of sites motif originated from.}
@@ -148,6 +153,8 @@ of length 1.
 For \code{\link[=get_matches]{get_matches()}}: a \code{character} vector of motif matches.
 
 For \code{\link[=motif_score]{motif_score()}}: a named \code{numeric} vector of motif scores.
+
+For \code{\link[=log_string_pval]{log_string_pval()}}: a \code{numeric} vector of length 1.
 
 For \code{\link[=position_icscore]{position_icscore()}}: a \code{numeric} vector of length 1.
 
@@ -224,6 +231,11 @@ apply(m, 2, icm_to_ppm)
 ## Calculate motif score from different thresholds
 m <- normalize(examplemotif)
 motif_score(m, c(0, 0.8, 1))
+
+#######################################################################
+## log_string_pval
+## Get the log of a string-formatted p-value
+log_string_pval("1e-400")
 
 #######################################################################
 ## pcm_to_ppm

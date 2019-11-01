@@ -21,13 +21,17 @@
 #' Please note that the typical number precision limit in R is around 1e-308.
 #' This means that motif P-values in MEME files below this limit are rounded
 #' automatically to 0. To get around this, the E-value is also stored as a
-#' string in the `extrainfo` slot.
+#' string in the `extrainfo` slot. If you require a numeric value for analysis,
+#' use the [log_string_pval()] function to get the log of the string-formatted
+#' p-value.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
 #'                                       package = "universalmotif"))
 #' meme.full <- read_meme(system.file("extdata", "meme_full.txt",
 #'                                    package = "universalmotif"))
+#' ## Get numeric p-value:
+#' log_string_pval(meme.minimal[[1]]["extrainfo"]["eval.string"])
 #'
 #' @references
 #'    \insertRef{meme}{universalmotif}

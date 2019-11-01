@@ -30,6 +30,7 @@
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
 #' @param pseudocount `numeric(1)` Used to prevent zeroes in motif matrix.
+#' @param pval `character(1)` String-formatted p-value.
 #' @param relative_entropy `logical(1)` Calculate information content as
 #'    relative entropy or Kullback-Leibler divergence.
 #' @param schneider_correction `logical(1)` Apply sample size correction.
@@ -53,6 +54,8 @@
 #'    For [get_matches()]: a `character` vector of motif matches.
 #'
 #'    For [motif_score()]: a named `numeric` vector of motif scores.
+#'
+#'    For [log_string_pval()]: a `numeric` vector of length 1.
 #'
 #'    For [position_icscore()]: a `numeric` vector of length 1.
 #'
@@ -126,6 +129,11 @@
 #' ## Calculate motif score from different thresholds
 #' m <- normalize(examplemotif)
 #' motif_score(m, c(0, 0.8, 1))
+#'
+#' #######################################################################
+#' ## log_string_pval
+#' ## Get the log of a string-formatted p-value
+#' log_string_pval("1e-400")
 #'
 #' #######################################################################
 #' ## pcm_to_ppm
@@ -408,6 +416,12 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
 
   out / 1000
 
+}
+
+#' @rdname utils-motif
+#' @export
+log_string_pval <- function(pval) {
+  pval_str2double(as.character(pval))
 }
 
 #' @rdname utils-motif

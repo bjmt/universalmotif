@@ -160,6 +160,12 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   #
   # ~10,000,000 comparisons:
   #    compare_motifs(MotifDb, 1:1000, nthreads = 6)   642.968 sec 
+  #
+  # New timings from UW debian PC:
+  #
+  # ~100,000,000 comparisons:
+  #    compare_motifs(MotifDb, nthreads = 4, score.strat = "fzt")
+  #                                                    883.49 sec
 
   fun.call <- match.call()
 

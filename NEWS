@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.6.0
+------------------------
+
+NEW FEATURES
+
+    o log_string_pval(): small utility function to obtain the log of
+      string-formatted p-values (such as those often carried in
+      MEME-formatted motifs). Likely only a temporary solution.
+
+    o view_motifs(..., return.raw) option: instead of returning a plot
+      type object, return the aligned motif matrices.
+
 CHANGES IN VERSION 1.4.0
 ------------------------
 
