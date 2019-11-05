@@ -10,6 +10,14 @@ NEW FEATURES
     o view_motifs(..., return.raw) option: instead of returning a plot
       type object, return the aligned motif matrices.
 
+CHANGES IN VERSION 1.4.1
+------------------------
+
+BUG FIXES
+
+    o When using create_motif() with an AAStringSet object, amino acid letters
+      will now be properly sorted and match the motif rows.
+
 CHANGES IN VERSION 1.4.0
 ------------------------
 
