@@ -106,7 +106,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     switch(seqtype(sequences),
            "DNA" = alphabet <- DNA_BASES,
            "RNA" = alphabet <- RNA_BASES,
-           "AA" = alphabet <- AA_STANDARD,
+           "AA" = alphabet <- AA_STANDARD2,
            no.alph <- TRUE)
   } else {
     if (length(alphabet) == 1) alphabet <- sort_unique_cpp(safeExplode(alphabet))

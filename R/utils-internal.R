@@ -15,6 +15,8 @@ DNA_DI <- c("AA", "AC", "AG", "AT",
             "GA", "GC", "GG", "GT",
             "TA", "TC", "TG", "TT")
 
+AA_STANDARD2 <- sort(AA_STANDARD)
+
 # TYPE_NULL <- 0L
 # TYPE_SYM  <- 1L
 # TYPE_ENV  <- 4L

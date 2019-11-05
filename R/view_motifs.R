@@ -145,7 +145,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       seq_type <- "rna"
     },
     "AA" = {
-      alph <- AA_STANDARD
+      alph <- AA_STANDARD2
       seq_type <- "aa"
     },
     {

@@ -212,7 +212,7 @@ setMethod("create_motif", signature(input = "numeric"),
   if (missing(alphabet)) alphabet <- "DNA"
 
   alph.split <- switch(alphabet, "DNA" = DNA_BASES,
-                       "RNA" = RNA_BASES, "AA" = AA_STANDARD,
+                       "RNA" = RNA_BASES, "AA" = AA_STANDARD2,
                        "custom" = stop(wmsg("`alphabet = 'custom'` is no longer",
                                             " acceptable; please provide the ",
                                             "actual letters")),
@@ -341,7 +341,7 @@ setMethod("create_motif", signature(input = "character"),
   if (alphabet == "AA" && length(consensus.all) > 1) {
     motif2 <- vector("list", 20)
     mot_len <- ncol(motif)
-    for (i in AA_STANDARD) {
+    for (i in AA_STANDARD2) {
       motif2[[i]] <- motif[rownames(motif) == i, ]
       if (length(motif2[[i]]) == 0) motif2[[i]] <- rep(0, mot_len)
     }
@@ -485,7 +485,7 @@ setMethod("create_motif", signature(input = "matrix"),
     alphabet <- "RNA"
   else if (nrow(matrix) == 20 && missing(alphabet))
     alphabet <- "AA"
-  else if (all(rownames(matrix) %in% AA_STANDARD) &&
+  else if (all(rownames(matrix) %in% AA_STANDARD2) &&
            missing(alphabet) && nrow(matrix) == 20)
     alphabet <- "AA"
   else if (!is.null(rownames(matrix)))
@@ -636,12 +636,12 @@ setMethod("create_motif", signature(input = "AAStringSet"),
   margs <- c(margs, list(name = name), list(pseudocount = pseudocount))
 
   sequences <- consensusMatrix(sequences)
-  if (any(!rownames(sequences) %in% AA_STANDARD))
+  if (any(!rownames(sequences) %in% AA_STANDARD2))
     stop("only ACDEFGHIKLMNPQRSTVWY are accepted for AA")
 
   motif <- vector("list", 20)
   mot_len <- ncol(sequences)
-  for (i in AA_STANDARD) {
+  for (i in AA_STANDARD2) {
     motif[[i]] <- sequences[rownames(sequences) == i, ]
     if (length(motif[[i]]) == 0) motif[[i]] <- rep(0, mot_len)
   }
@@ -655,10 +655,10 @@ setMethod("create_motif", signature(input = "AAStringSet"),
 
   if (length(input) > 1 && !missing(add.multifreq)) {
     for (i in add.multifreq) {
-      motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i, AA_STANDARD)
+      motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i, AA_STANDARD2)
     }
     new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq, list.out = FALSE,
-                       pseudocount = pseudocount, alphabet = AA_STANDARD)
+                       pseudocount = pseudocount, alphabet = AA_STANDARD2)
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
