@@ -255,7 +255,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
   if (length(alph) > 1) stop("all motifs must have the same alphabet")
 
-  alph <- switch(alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES, "AA" = AA_STANDARD,
+  alph <- switch(alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES, "AA" = AA_STANDARD2,
                  sort_unique_cpp(safeExplode(alph)))
 
   mot.type <- switch(use.type, "PPM" = 1, "ICM" = 2)

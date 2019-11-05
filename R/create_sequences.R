@@ -64,7 +64,7 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   alph.letters <- switch(alphabet,
                          "DNA" = DNA_BASES,
                          "RNA" = RNA_BASES,
-                         "AA"  = AA_STANDARD,
+                         "AA"  = AA_STANDARD2,
                                  sort_unique_cpp(safeExplode(alphabet)))
 
   if (missing(freqs)) {

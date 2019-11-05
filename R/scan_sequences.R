@@ -1,4 +1,4 @@
-# Last modified: 2019-06-21 17:22:14 (EDT)
+# Last modified: 2019-11-05 12:41:47 (EST)
 
 #' Scan sequences for matches to input motifs.
 #'
@@ -246,7 +246,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   )
 
   alph <- switch(seq.alph, "DNA" = "ACGT", "RNA" = "ACGU",
-                 "AA" = collapse_cpp(AA_STANDARD), seq.alph)
+                 "AA" = collapse_cpp(AA_STANDARD2), seq.alph)
   sequences <- as.character(sequences)
   strands <- rep("+", length(score.mats))
 

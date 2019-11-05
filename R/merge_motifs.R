@@ -89,7 +89,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
   if (length(alph) > 1) stop("all motifs must have the same alphabet")
 
-  alph2 <- switch(alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES, "AA" = AA_STANDARD,
+  alph2 <- switch(alph, "DNA" = DNA_BASES, "RNA" = RNA_BASES, "AA" = AA_STANDARD2,
                   sort_unique_cpp(safeExplode(alph)))
 
   mot.mats <- lapply(motifs, function(x) x@motif)

@@ -55,7 +55,7 @@ write_jaspar <- function(motifs, file, overwrite = FALSE, append = FALSE) {
     }
 
     alph <- switch(motif@alphabet, "DNA" = DNA_BASES, "RNA" = RNA_BASES,
-                   "AA" = AA_STANDARD, stop("unknown alphabet"))
+                   "AA" = AA_STANDARD2, stop("unknown alphabet"))
 
     nsites <- motif@nsites
     if (length(nsites) == 0) nsites <- 100
