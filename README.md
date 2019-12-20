@@ -23,14 +23,6 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("universalmotif")
 ```
 
-### Bioconductor development version
-
-```r
-if (!requireNamespace("BiocManager", quietly=TRUE))
-  install.packages("BiocManager")
-BiocManager::install("universalmotif", version = "devel")
-```
-
 ### GitHub development version
 
 ```r
