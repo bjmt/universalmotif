@@ -3,8 +3,7 @@ title: "Introduction to sequence motifs"
 shorttitle: "Intro to motifs"
 date: 25 May 2019
 author:
-- name: Benjamin Jean-Marie Tremblay
-  email: b2tremblay@uwaterloo.ca
+- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
   There are four ways to represent sequence motif matrices: as counts, probabilities, logodds scores, or information content. This vignette discusses the relationship between these and how they are obtained.
@@ -13,7 +12,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::pdf_document
+  bookdown::pdf_document2
 ---
 
 ```{r setup, echo=FALSE}
@@ -23,9 +22,9 @@ suppressPackageStartupMessages(library(universalmotif))
 
 # Introduction to sequence motifs
 
-Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same \Rclass{universalmotif} class. Unfortunately, the naming conventions for the various motif types are not unanimous. In order to provide a simple interface to the various types, in this package they are referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM). 
+Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same `universalmotif` class. Unfortunately, the naming conventions for the various motif types are not unanimous. In order to provide a simple interface to the various types, in this package they are referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM). 
 
-These four types will be described here. Furthermore, the actual code used to go between these types can be seen in \Rcode{?'utils-motif'}. They are also reviewed briefly in the [motif manipulation](MotifManipulation.pdf) vignette.
+These four types will be described here. Furthermore, the actual code used to go between these types can be seen in `?'utils-motif'`. They are also reviewed briefly in the [motif manipulation](MotifManipulation.pdf) vignette.
 
 # Position count matrices
 
@@ -62,7 +61,7 @@ Also sometimes known as position frequency matrices and position weight matrices
   (\#eq:pcm2ppm)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 PPM <- function(C) C / sum(C)
@@ -87,7 +86,7 @@ From this type of representation, the probability of any combination of letters 
   (\#eq:ppmpseudo)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 PPMp <- function(C, p) (C + p / length(C)) / (sum(C) + p)
@@ -114,7 +113,7 @@ The position weight matrix, also known as position-specific weight matrix, posit
   (\#eq:ppm2pwm)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 S <- function(C, B) log2(PPM(C) / B)
@@ -146,26 +145,26 @@ Now, the score for AAGAA is 8.46, and the score for AAAAAA is 4.76. Though the s
 
 When searching for instances of this motif using this scoring system, one more consideration is needed: a minimum score. For example, both sequences AAGAAA and ATTTTT have positive scores; but one is much higher than the other. Should ATTTTT then be discarded? In order to answer this a threshold is set; typically this is a certain percent of the highest possible score. For example, in the table \@ref(tab:pwmpseudo) motif, the highest possible score is 8.46; using a threshold of 25%, the minimum score then becomes 2.115. This means that ATTTTT, with a score of 1.112, would indeed be discarded.
 
-Other methods for determining the minimum score include starting from P-values. The package `r CRANpkg("TFMPvalue")` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `r Biocpkg("universalmotif")` package also offers this capability with the `motif_pvalue()` function.
+Other methods for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function.
 
 # Information content matrices
 
 Finally, the information content matrix [@correction; @icm]. This type aims to include another consideration: are some positions more important than others? To explore this, let us consider the table \@ref(tab:ppm) motif. This matrix can be represented as a probability sequence logo as seen in figure \@ref(fig:logo1).
 
-```{r logo1,fig.cap="Sequence logo of a Position Probability Matrix",echo=FALSE,fig.env='smallfigure'}
+```{r logo1,fig.cap="Sequence logo of a Position Probability Matrix",echo=FALSE,fig.height=2.5,fig.width=5}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-view_motifs(motif, use.type="PPM")
+view_motifs(motif, use.type="PPM") 
 ```
 
 In this case, the height of the letters represent their probabilities at each
 position. However, when represented as an ICM, the sequence logo then
 resembles as seen in figure \@ref(fig:logo2).
 
-```{r logo2,fig.cap="Sequence logo of an Information Content Matrix",echo=FALSE,fig.small=TRUE}
+```{r logo2,fig.cap="Sequence logo of an Information Content Matrix",echo=FALSE,fig.height=2.5,fig.width=5}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-view_motifs(motif)
+view_motifs(motif) 
 ```
 
 Now, the total height of each position is scaled using the total _information_ at that position. Simply put, the total information of each position is an indication of the level of conservation; in the example motif, the first position is highly conserved, always being the letter A, whereas the third position is less so conserved, as the probabilities for any one letter are quite lower.
@@ -177,7 +176,7 @@ For every position, the letter heights are calculated as the total possible info
   (\#eq:totalic)
 \end{equation}
 
-The equivalent \R{} code:
+The equivalent `R` code:
 ```{r}
 tIC <- function(C) log2(length(C))
 ```
@@ -189,7 +188,7 @@ For DNA motifs which have an alphabet length of 4, the total IC is 2. To calcula
   (\#eq:posuncer)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 U <- function(C) -sum(PPM(C) * log2(PPM(C)))
@@ -202,7 +201,7 @@ Where the position uncertainty is the sum of the uncertainty of all alphabet let
   (\#eq:ic)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 fIC <- function(C) tIC(C) - U(C)
@@ -215,7 +214,7 @@ In the original implementation described by @correction, an additional error cor
   (\#eq:iccorr)
 \end{equation}
 
-The details for calculating this factor will not be covered here; refer to @correction. The `r Biocpkg("TFBSTools")` package offers the ability to incorporate this error correction (and used in the `r Biocpkg("universalmotif")` package via `convert_type()`).
+The details for calculating this factor will not be covered here; refer to @correction. The `TFBSTools` package offers the ability to incorporate this error correction (and used in the `universalmotif` package via `convert_type()`).
 
 Finally, to get the height of each letter at each position, the final IC is multiplied by the letter and position probabilities:
 
@@ -224,7 +223,7 @@ Finally, to get the height of each letter at each position, the final IC is mult
   (\#eq:finalic)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 IC <- function(C) PPM(C) * fIC(C)
@@ -249,7 +248,7 @@ An alternative to representing information content as Shannon's entropy is relat
   (\#eq:kldiv)
 \end{equation}
 
-The equivalent vectorized \R{} code:
+The equivalent vectorized `R` code:
 
 ```{r}
 IC <- function(C, B) PPM(C) * log2(PPM(C) / B)

@@ -4,9 +4,16 @@
 \alias{create_sequences}
 \title{Create random sequences.}
 \usage{
-create_sequences(alphabet = "DNA", seqnum = 100, seqlen = 100, freqs,
-  progress = FALSE, BP = FALSE, nthreads = 1,
-  rng.seed = sample.int(1e+09, 1))
+create_sequences(
+  alphabet = "DNA",
+  seqnum = 100,
+  seqlen = 100,
+  freqs,
+  progress = FALSE,
+  BP = FALSE,
+  nthreads = 1,
+  rng.seed = sample.int(1e+09, 1)
+)
 }
 \arguments{
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')}, or a string of

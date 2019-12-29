@@ -4,8 +4,16 @@
 \alias{read_matrix}
 \title{Import motifs from raw matrices.}
 \usage{
-read_matrix(file, skip = 0, type, positions = "columns",
-  alphabet = "DNA", sep = "", headers = TRUE, rownames = FALSE)
+read_matrix(
+  file,
+  skip = 0,
+  type,
+  positions = "columns",
+  alphabet = "DNA",
+  sep = "",
+  headers = TRUE,
+  rownames = FALSE
+)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
@@ -41,10 +49,14 @@ Import simply formatted motifs.
 
 }
 \seealso{
-Other read_motifs: \code{\link{read_cisbp}},
-  \code{\link{read_homer}}, \code{\link{read_jaspar}},
-  \code{\link{read_meme}}, \code{\link{read_motifs}},
-  \code{\link{read_transfac}}, \code{\link{read_uniprobe}}
+Other read_motifs: 
+\code{\link{read_cisbp}()},
+\code{\link{read_homer}()},
+\code{\link{read_jaspar}()},
+\code{\link{read_meme}()},
+\code{\link{read_motifs}()},
+\code{\link{read_transfac}()},
+\code{\link{read_uniprobe}()}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

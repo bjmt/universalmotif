@@ -4,8 +4,13 @@
 \alias{convert_type}
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
-convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
-  relative_entropy = FALSE)
+convert_type(
+  motifs,
+  type,
+  pseudocount,
+  nsize_correction = FALSE,
+  relative_entropy = FALSE
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -69,7 +74,7 @@ totalIC
 \insertCite{shannon}{universalmotif} for a specific
 position (Hi)
 
-\code{Hi <- -sum(sapply(alphabet_frequencies, function(x) x * log(2))}.
+\verb{Hi <- -sum(sapply(alphabet_frequencies, function(x) x * log(2))}.
 
 As a result, the total sum or height of each position is representative of
 it's sequence conservation, measured in the unit 'bits', which is a unit

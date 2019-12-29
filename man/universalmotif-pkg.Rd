@@ -3,7 +3,6 @@
 \docType{package}
 \name{universalmotif-pkg}
 \alias{universalmotif-pkg}
-\alias{universalmotif-pkg-package}
 \title{universalmotif: Import, Modify and Export Motifs with R}
 \description{
 universalmotif: Import, Modify and Export Motifs with R

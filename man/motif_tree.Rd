@@ -4,13 +4,28 @@
 \alias{motif_tree}
 \title{Generate \pkg{ggplot2} motif trees with \pkg{ggtree}.}
 \usage{
-motif_tree(motifs, layout = "circular", linecol = "family",
-  labels = "none", tipsize = "none", legend = TRUE,
-  branch.length = "none", db.scores, method = "EUCL",
-  use.type = "PPM", min.overlap = 6, min.position.ic = 0,
-  tryRC = TRUE, min.mean.ic = 0, relative_entropy = FALSE,
-  progress = FALSE, BP = FALSE, nthreads = 1,
-  score.strat = "a.mean", ...)
+motif_tree(
+  motifs,
+  layout = "circular",
+  linecol = "family",
+  labels = "none",
+  tipsize = "none",
+  legend = TRUE,
+  branch.length = "none",
+  db.scores,
+  method = "EUCL",
+  use.type = "PPM",
+  min.overlap = 6,
+  min.position.ic = 0,
+  tryRC = TRUE,
+  min.mean.ic = 0,
+  relative_entropy = FALSE,
+  progress = FALSE,
+  BP = FALSE,
+  nthreads = 1,
+  score.strat = "a.mean",
+  ...
+)
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for
@@ -43,7 +58,7 @@ See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
 SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}
 
-\item{use.type}{\code{character(1)}c('PPM', 'ICM')\code{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
+\item{use.type}{\code{character(1)}c('PPM', 'ICM')\verb{. The latter allows for taking into account the background frequencies (only if }relative_entropy = TRUE`). See \code{\link[=compare_motifs]{compare_motifs()}}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs

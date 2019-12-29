@@ -4,9 +4,15 @@
 \alias{shuffle_sequences}
 \title{Shuffle input sequences.}
 \usage{
-shuffle_sequences(sequences, k = 1, method = "euler",
-  progress = FALSE, BP = FALSE, nthreads = 1,
-  rng.seed = sample.int(1e+09, 1))
+shuffle_sequences(
+  sequences,
+  k = 1,
+  method = "euler",
+  progress = FALSE,
+  BP = FALSE,
+  nthreads = 1,
+  rng.seed = sample.int(1e+09, 1)
+)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Set of sequences to shuffle. Works

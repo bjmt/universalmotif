@@ -26,15 +26,21 @@
 \usage{
 add_gap(motif, gaploc, mingap, maxgap)
 
-compare_columns(x, y, method, bkg1 = rep(1/length(x), length(x)),
-  bkg2 = rep(1/length(y), length(y)), nsites1 = 100, nsites2 = 100)
+compare_columns(
+  x,
+  y,
+  method,
+  bkg1 = rep(1/length(x), length(x)),
+  bkg2 = rep(1/length(y), length(y)),
+  nsites1 = 100,
+  nsites2 = 100
+)
 
 consensus_to_ppm(letter)
 
 consensus_to_ppmAA(letter)
 
-get_consensus(position, alphabet = "DNA", type = "PPM",
-  pseudocount = 1)
+get_consensus(position, alphabet = "DNA", type = "PPM", pseudocount = 1)
 
 get_consensusAA(position, type = "PPM", pseudocount = 0)
 
@@ -50,17 +56,33 @@ log_string_pval(pval)
 
 pcm_to_ppm(position, pseudocount = 0)
 
-position_icscore(position, bkg = numeric(), type = "PPM",
-  pseudocount = 1, nsites = 100, relative_entropy = FALSE,
-  schneider_correction = FALSE)
+position_icscore(
+  position,
+  bkg = numeric(),
+  type = "PPM",
+  pseudocount = 1,
+  nsites = 100,
+  relative_entropy = FALSE,
+  schneider_correction = FALSE
+)
 
-ppm_to_icm(position, bkg = numeric(), schneider_correction = FALSE,
-  nsites = 100, relative_entropy = FALSE)
+ppm_to_icm(
+  position,
+  bkg = numeric(),
+  schneider_correction = FALSE,
+  nsites = 100,
+  relative_entropy = FALSE
+)
 
 ppm_to_pcm(position, nsites = 100)
 
-ppm_to_pwm(position, bkg = numeric(), pseudocount = 1, nsites = 100,
-  smooth = TRUE)
+ppm_to_pwm(
+  position,
+  bkg = numeric(),
+  pseudocount = 1,
+  nsites = 100,
+  smooth = TRUE
+)
 
 pwm_to_ppm(position, bkg = numeric())
 
@@ -109,7 +131,7 @@ probability for each alphabet letter at a specific position.}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA')}.}
 
-\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM' 'ICM')}.}
+\item{type}{\code{character(1)} One of \verb{c('PCM', 'PPM', 'PWM' 'ICM')}.}
 
 \item{pseudocount}{\code{numeric(1)} Used to prevent zeroes in motif matrix.}
 

@@ -4,10 +4,20 @@
 \alias{view_motifs}
 \title{Plot motif logos.}
 \usage{
-view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
-  min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
-  normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
-  return.raw = FALSE, ...)
+view_motifs(
+  motifs,
+  use.type = "ICM",
+  method = "ALLR",
+  tryRC = TRUE,
+  min.overlap = 6,
+  min.mean.ic = 0.25,
+  relative_entropy = FALSE,
+  normalise.scores = FALSE,
+  min.position.ic = 0,
+  score.strat = "sum",
+  return.raw = FALSE,
+  ...
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}

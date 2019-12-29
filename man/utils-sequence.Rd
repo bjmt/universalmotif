@@ -11,8 +11,12 @@ count_klets(string, k = 1, alph)
 
 get_klets(lets, k = 1)
 
-shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
-  rng.seed = sample.int(1e+09, 1))
+shuffle_string(
+  string,
+  k = 1,
+  method = c("euler", "linear", "markov"),
+  rng.seed = sample.int(1e+09, 1)
+)
 }
 \arguments{
 \item{string}{\code{character(1)} A length one character vector.}

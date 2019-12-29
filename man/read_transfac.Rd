@@ -29,10 +29,14 @@ transfac <- read_transfac(system.file("extdata", "transfac.txt",
 \insertRef{transfac}{universalmotif}
 }
 \seealso{
-Other read_motifs: \code{\link{read_cisbp}},
-  \code{\link{read_homer}}, \code{\link{read_jaspar}},
-  \code{\link{read_matrix}}, \code{\link{read_meme}},
-  \code{\link{read_motifs}}, \code{\link{read_uniprobe}}
+Other read_motifs: 
+\code{\link{read_cisbp}()},
+\code{\link{read_homer}()},
+\code{\link{read_jaspar}()},
+\code{\link{read_matrix}()},
+\code{\link{read_meme}()},
+\code{\link{read_motifs}()},
+\code{\link{read_uniprobe}()}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

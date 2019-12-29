@@ -3,8 +3,7 @@ title: "Sequence manipulation and scanning"
 shorttitle: "Sequence utilities"
 date: 25 May 2019
 author:
-- name: Benjamin Jean-Marie Tremblay
-  email: b2tremblay@uwaterloo.ca
+- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
   Sequences stored as XStringSet objects (from the Biostrings package) can be used by several functions in the universalmotif package. These functions are demonstrated here and fall into two categories: sequence manipulation and motif scanning. Sequences can be generated, shuffled, and background frequencies of any order calculated. Scanning can be done simply to find locations of motif hits above a certain threshold, or to find instances of enriched motifs.
@@ -13,7 +12,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::pdf_document
+  bookdown::pdf_document2
 ---
 
 ```{r setup, echo=FALSE}
@@ -30,7 +29,7 @@ This vignette goes through generating your own sequences from a specified backgr
 
 # Creating random sequences
 
-The `r Biocpkg("Biostrings")` package offers an excellent suite of functions for dealing with biological sequences. The `r Biocpkg("universalmotif")` package hopes to help extend these by providing the `create_sequences()` and `shuffle_sequences()` functions. The first of these, `create_sequences()`, in it's simplest form generates a set of letters in random order, then passes these strings to the `r Biocpkg("Biostrings")` package. The number and length of sequences can be specified. The probabilities of individual letters can also be set.
+The `Biostrings` package offers an excellent suite of functions for dealing with biological sequences. The `universalmotif` package hopes to help extend these by providing the `create_sequences()` and `shuffle_sequences()` functions. The first of these, `create_sequences()`, in it's simplest form generates a set of letters in random order, then passes these strings to the `Biostrings` package. The number and length of sequences can be specified. The probabilities of individual letters can also be set.
 
 The `freqs` option of `create_sequences()` also takes higher order backgrounds. In these cases the sequences are constructed in a Markov-style manner, where the probability of each letter is based on which letters precede it.
 
@@ -57,7 +56,7 @@ create_sequences(alphabet = paste0(letters, collapse = ""))
 
 # Calculating sequence background
 
-Sequence backgrounds can be retrieved for DNA and RNA sequences with `oligonucleotideFrequency()` from `r Biocpkg("Biostrings")`. Unfortunately, no such `r Biocpkg("Biostrings")` function exists for other sequence alphabets. The `r Biocpkg("universalmotif")` package proves `get_bkg()` to remedy this. Similarly, the `get_bkg()` function can calculate higher order backgrounds for any alphabet as well. It is recommended to use the original `r Biocpkg("Biostrings")` for very long DNA and RNA sequences whenever possible though, as it is much faster than `get_bkg()`.
+Sequence backgrounds can be retrieved for DNA and RNA sequences with `oligonucleotideFrequency()` from `"Biostrings`. Unfortunately, no such `Biostrings` function exists for other sequence alphabets. The `universalmotif` package proves `get_bkg()` to remedy this. Similarly, the `get_bkg()` function can calculate higher order backgrounds for any alphabet as well. It is recommended to use the original `Biostrings` for very long DNA and RNA sequences whenever possible though, as it is much faster than `get_bkg()`.
 
 ```{r}
 library(universalmotif)
@@ -75,9 +74,9 @@ get_bkg(qwerty, k = 1:2, list.out = FALSE)
 
 When performing _de novo_ motif searches or motif enrichment analyses, it is common to do so against a set of background sequences. In order to properly identify consistent patterns or motifs in the target sequences, it is important that there be maintained a certain level of sequence composition between the target and background sequences. This reduces results which are derived purely from differential letter frequency biases.
 
-In order to avoid these results, typically it desirable to use a set of background sequences which preserve a certain `k`-let size (such as dinucleotide or trinucleotide frequencies in the case of DNA sequences). Though for some cases a set of similar sequences may already be available for use as background sequences, usually background sequences are obtained by shuffling the target sequences, while preserving a desired `k`-let size. For this purpose, the most commonly used tool is likely \software{uShuffle} [@ushuffle]. Despite this the `r Biocpkg("universalmotif")` package aims to provide its own `k`-let shuffling capabilities for use within \R{} via `shuffle_sequences()`.
+In order to avoid these results, typically it desirable to use a set of background sequences which preserve a certain `k`-let size (such as dinucleotide or trinucleotide frequencies in the case of DNA sequences). Though for some cases a set of similar sequences may already be available for use as background sequences, usually background sequences are obtained by shuffling the target sequences, while preserving a desired `k`-let size. For this purpose, the most commonly used tool is likely `uShuffle` [@ushuffle]. Despite this the `universalmotif` package aims to provide its own `k`-let shuffling capabilities for use within `R` via `shuffle_sequences()`.
 
-The `r Biocpkg("universalmotif")` package offers three different methods for sequence shuffling: `euler`, `markov` and `linear`. The first method, `euler`, can shuffle sequences while preserving any desired `k`-let size. Furthermore 1-letter counts will always be maintained. However in order for this to be possible, the first and last letters will remain unshuffled. This method is based on the initial random Eulerian walk algorithm proposed by @markovmodel2 and the subsequent cycle-popping algorithm detailed by @eulerAlgo for quickly and efficiently finding Eulerian walks.
+The `universalmotif` package offers three different methods for sequence shuffling: `euler`, `markov` and `linear`. The first method, `euler`, can shuffle sequences while preserving any desired `k`-let size. Furthermore 1-letter counts will always be maintained. However in order for this to be possible, the first and last letters will remain unshuffled. This method is based on the initial random Eulerian walk algorithm proposed by @markovmodel2 and the subsequent cycle-popping algorithm detailed by @eulerAlgo for quickly and efficiently finding Eulerian walks.
 
 The second method, `markov` can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different. Essentially, it involves a combination of determining `k`-let frequencies followed by `create_sequences()`. This type of shuffling is discussed by @markovmodel.
 
@@ -115,7 +114,7 @@ data.frame(original=o.counts, euler=e.counts, markov=m.counts, linear=l.counts)
 
 # Miscellaneous string utilities
 
-Since biological sequences are usually contained in \Rclass{XStringSet} class objects, `get_bkg()` and `shuffle_sequences()` are designed to work with such objects. For cases when strings are not \Rclass{XStringSet} objects, the following functions are available:
+Since biological sequences are usually contained in `XStringSet` class objects, `get_bkg()` and `shuffle_sequences()` are designed to work with such objects. For cases when strings are not `XStringSet` objects, the following functions are available:
 
 * `count_klets()`: alternative to `get_bkg()`
 * `shuffle_string()`: alternative to `shuffle_sequences()`
@@ -140,13 +139,13 @@ get_klets(c("A", "S", "D"), 2)
 
 # Scanning sequences for motifs
 
-There are many motif-programs available with sequence scanning capabilities, such as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the [MEME suite](http://meme-suite.org/). The `r Biocpkg("universalmotif")` package does not aim to supplant these, but rather provide convenience functions for quickly scanning a few sequences without needing to leave the R environment. Furthermore, these functions allow for taking advantage of the higher-order (`multifreq`) motif format described here.
+There are many motif-programs available with sequence scanning capabilities, such as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the [MEME suite](http://meme-suite.org/). The `universalmotif` package does not aim to supplant these, but rather provide convenience functions for quickly scanning a few sequences without needing to leave the R environment. Furthermore, these functions allow for taking advantage of the higher-order (`multifreq`) motif format described here.
 
 Two scanning-related functions are provided: `scan_sequences()` and `enrich_motifs()`. The latter simply runs `scan_sequences()` twice on a set of target and background sequences. Given a motif of length `n`, `scan_sequences()` considers every possible `n`-length subset in a sequence and scores it using the PWM format. If the match surpasses the minimum threshold, it is reported. This is case regardless of whether one is scanning with a regular motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix is converted to a PWM).
 
-Before scanning a set of sequences, one must first decide the minimum logodds threshold for retrieving matches. This decision is not always the same between scanning programs out in the wild, nor is it usually told to the user what the cutoff is or how it is decided. As a result, `r Biocpkg("universalmotif")` aims to be as transparent as possible in this regard by allowing for complete control of the threshold. For more details on PWMs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette.
+Before scanning a set of sequences, one must first decide the minimum logodds threshold for retrieving matches. This decision is not always the same between scanning programs out in the wild, nor is it usually told to the user what the cutoff is or how it is decided. As a result, `universalmotif` aims to be as transparent as possible in this regard by allowing for complete control of the threshold. For more details on PWMs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette.
 
-One way is to set a cutoff between 0 and 1, then multiplying the highest possible PWM score to get a threshold. The `matchPWM()` function from the `r Biocpkg("Biostrings")` package for example uses a default of 0.8 (shown as `"80%"`). This is quite arbitrary of course, and every motif will end up with a different threshold. For high information content motifs, there is really no right or wrong threshold; as they tend to have fewer non-specific positions. This means that incorrect letters in a match will be more punishing. To illustrate this, contrast the following PWMs:
+One way is to set a cutoff between 0 and 1, then multiplying the highest possible PWM score to get a threshold. The `matchPWM()` function from the `Biostrings` package for example uses a default of 0.8 (shown as `"80%"`). This is quite arbitrary of course, and every motif will end up with a different threshold. For high information content motifs, there is really no right or wrong threshold; as they tend to have fewer non-specific positions. This means that incorrect letters in a match will be more punishing. To illustrate this, contrast the following PWMs:
 
 ```{r}
 library(universalmotif)
@@ -205,7 +204,7 @@ motif <- create_motif(sequences, add.multifreq = 2:3)
 
 # Enrichment analyses
 
-The `r Biocpkg("universalmotif")` package offers the ability to search for enriched motif sites in a set of sequences via `enrich_motifs()`. There is little complexity to this, as it simply runs `scan_sequences()` twice; once on a set of target sequences, and once on a set of background sequences. After which the results between the two sequences are collated and run through enrichment tests. The background sequences can be given explicitly, or else `enrich_motifs()` will create background sequences on its own by using `shuffle_sequences()` on the target sequences.
+The `universalmotif` package offers the ability to search for enriched motif sites in a set of sequences via `enrich_motifs()`. There is little complexity to this, as it simply runs `scan_sequences()` twice; once on a set of target sequences, and once on a set of background sequences. After which the results between the two sequences are collated and run through enrichment tests. The background sequences can be given explicitly, or else `enrich_motifs()` will create background sequences on its own by using `shuffle_sequences()` on the target sequences.
 
 Let us consider the following basic example:
 
@@ -218,13 +217,13 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, shuffle.k = 3,
               threshold = 0.001, RC = TRUE)
 ```
 
-Here we can see that the motif is significantly enriched in the target sequences. The `Pval` was calculated by calling `fisher.test` from the `r Rpackage("stats")` package.
+Here we can see that the motif is significantly enriched in the target sequences. The `Pval` was calculated by calling `fisher.test` from the `stats` package.
 
 One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.)
 
 # Testing for motif positional preferences in sequences
 
-The `r Biocpkg("universalmotif")` package provides the `motif_peaks()` function, which can test for positionally preferential motif sites in a set of sequences. This can be useful, for example, when trying to determine whether a certain transcription factor binding site is more often than not located at a certain distance from the transcription start site (TSS). The `motif_peaks()` function finds density peaks in the input data, then creates a null distribution from randomly generated peaks to calculate peak P-values.
+The `universalmotif` package provides the `motif_peaks()` function, which can test for positionally preferential motif sites in a set of sequences. This can be useful, for example, when trying to determine whether a certain transcription factor binding site is more often than not located at a certain distance from the transcription start site (TSS). The `motif_peaks()` function finds density peaks in the input data, then creates a null distribution from randomly generated peaks to calculate peak P-values.
 
 ```{r}
 library(universalmotif)
@@ -253,9 +252,9 @@ In this plot, red dots are used to indicate density peaks and the blue line show
 
 # Motif discovery with MEME
 
-The `r Biocpkg("universalmotif")` package provides a simple wrapper to the powerful motif discovery tool \software{MEME} [@meme3]. To run an analysis with \software{MEME}, all that is required is a set of \Rclass{XStringSet} class sequences (defined in the `r Biocpkg("Biostrings")` package), and `run_meme()` will take care of running the program and reading the output for use within \R{}.
+The `universalmotif` package provides a simple wrapper to the powerful motif discovery tool `MEME` [@meme3]. To run an analysis with `MEME`, all that is required is a set of `XStringSet` class sequences (defined in the `Biostrings` package), and `run_meme()` will take care of running the program and reading the output for use within `R`.
 
-The first step is to check that R can find the \software{MEME} binary in your `$PATH` by running `run_meme()` without any parameters. If successful, you should see the default \software{MEME} help message in your console. If not, then you'll need to provide the complete path to the \software{MEME} binary. There are two options:
+The first step is to check that R can find the `MEME` binary in your `$PATH` by running `run_meme()` without any parameters. If successful, you should see the default `MEME` help message in your console. If not, then you'll need to provide the complete path to the `MEME` binary. There are two options:
 
 ```{r,eval=FALSE}
 library(universalmotif)
@@ -271,7 +270,7 @@ run_meme(...)
 run_meme(..., bin = "/path/to/meme/bin/meme")
 ```
 
-Now we need to get some sequences to use with `run_meme()`. At this point we can read sequences from disk or extract them from one of the \Bioconductor{} `BSgenome` packages.
+Now we need to get some sequences to use with `run_meme()`. At this point we can read sequences from disk or extract them from one of the `Bioconductor` `BSgenome` packages.
 
 ```{r,eval=FALSE}
 library(universalmotif)
@@ -332,17 +331,17 @@ promoters <- getPromoterSeq(transcripts,
 run_meme(promoters, ...)
 ```
 
-Once the sequences are ready, there are few important options to keep in mind. One is whether to conserve the output from \software{MEME}. The default is not to, but this can be changed by setting the relevant option:
+Once the sequences are ready, there are few important options to keep in mind. One is whether to conserve the output from `MEME`. The default is not to, but this can be changed by setting the relevant option:
 
 ```{r,eval=FALSE}
 run_meme(sequences, output = "/path/to/desired/output/folder")
 ```
 
-The second important option is the search function (`objfun`). Some search functions such as the default `classic` do not require a set of background sequences, whilst some do (such as `de`). If you choose one of the latter, then you can either let \software{MEME} create them for you (it will shuffle the target sequences) or you can provide them via the `control.sequences` parameter.
+The second important option is the search function (`objfun`). Some search functions such as the default `classic` do not require a set of background sequences, whilst some do (such as `de`). If you choose one of the latter, then you can either let `MEME` create them for you (it will shuffle the target sequences) or you can provide them via the `control.sequences` parameter.
 
-Finally, choose how you'd like the data imported into \R{}. Once the \software{MEME} program exits, `run_meme()` will import the results into \R{} with `read_meme()`; at this point you can decide if you want just the motifs themselves (`readsites = FALSE`) or if you'd like the original sequence sites as well (`readsites = TRUE`, the default).
+Finally, choose how you'd like the data imported into `R`. Once the `MEME` program exits, `run_meme()` will import the results into `R` with `read_meme()`; at this point you can decide if you want just the motifs themselves (`readsites = FALSE`) or if you'd like the original sequence sites as well (`readsites = TRUE`, the default).
 
-There are a wealth of other \software{MEME} options available, such as the number of desired motifs (`nmotifs`), the width of desired motifs (`minw`, `maxw`), the search mode (`mod`), assigning sequence weights (`weights`), using a custom alphabet (`alph`), and many others. See the output from `run_meme()` for a brief description of the options, or visit the [online manual](http://meme-suite.org/doc/meme.html) for more details.
+There are a wealth of other `MEME` options available, such as the number of desired motifs (`nmotifs`), the width of desired motifs (`minw`, `maxw`), the search mode (`mod`), assigning sequence weights (`weights`), using a custom alphabet (`alph`), and many others. See the output from `run_meme()` for a brief description of the options, or visit the [online manual](http://meme-suite.org/doc/meme.html) for more details.
 
 # Session info {.unnumbered}
 

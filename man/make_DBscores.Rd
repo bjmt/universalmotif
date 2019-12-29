@@ -4,14 +4,25 @@
 \alias{make_DBscores}
 \title{Create P-value databases.}
 \usage{
-make_DBscores(db.motifs, method = c("PCC", "EUCL", "SW", "KL", "WEUCL",
-  "ALLR", "BHAT", "HELL", "WPCC", "SEUCL", "MAN", "ALLR_LL"),
-  shuffle.db = TRUE, shuffle.k = 3, shuffle.method = "linear",
-  rand.tries = 1000, widths = 5:30, min.position.ic = 0,
-  normalise.scores = c(FALSE, TRUE), min.overlap = 6,
-  min.mean.ic = 0.25, progress = TRUE, BP = FALSE, nthreads = 1,
-  tryRC = TRUE, score.strat = c("sum", "a.mean", "g.mean", "median",
-  "wa.mean", "wg.mean", "fzt"))
+make_DBscores(
+  db.motifs,
+  method = c("PCC", "EUCL", "SW", "KL", "WEUCL", "ALLR", "BHAT", "HELL", "WPCC",
+    "SEUCL", "MAN", "ALLR_LL"),
+  shuffle.db = TRUE,
+  shuffle.k = 3,
+  shuffle.method = "linear",
+  rand.tries = 1000,
+  widths = 5:30,
+  min.position.ic = 0,
+  normalise.scores = c(FALSE, TRUE),
+  min.overlap = 6,
+  min.mean.ic = 0.25,
+  progress = TRUE,
+  BP = FALSE,
+  nthreads = 1,
+  tryRC = TRUE,
+  score.strat = c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean", "fzt")
+)
 }
 \arguments{
 \item{db.motifs}{\code{list} Database motifs.}

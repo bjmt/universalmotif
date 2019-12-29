@@ -11,6 +11,6 @@ ArabidopsisMotif
 \description{
 Arabidopsis motif trained from \code{\link{ArabidopsisPromoters}} using
 MEME version 4. This motif was generated at the command line using
-the following command: \code{meme promoters.fa -revcomp -nmotifs 3  -mod anr -dna}.
+the following command: \verb{meme promoters.fa -revcomp -nmotifs 3  -mod anr -dna}.
 }
 \keyword{datasets}

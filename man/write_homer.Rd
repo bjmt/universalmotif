@@ -4,8 +4,13 @@
 \alias{write_homer}
 \title{Export motifs in HOMER format.}
 \usage{
-write_homer(motifs, file, logodds_threshold = 0.6, overwrite = FALSE,
-  append = FALSE)
+write_homer(
+  motifs,
+  file,
+  logodds_threshold = 0.6,
+  overwrite = FALSE,
+  append = FALSE
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -37,9 +42,12 @@ write_homer(motif, tempfile())
 \seealso{
 \code{\link[=read_homer]{read_homer()}}
 
-Other write_motifs: \code{\link{write_jaspar}},
-  \code{\link{write_matrix}}, \code{\link{write_meme}},
-  \code{\link{write_motifs}}, \code{\link{write_transfac}}
+Other write_motifs: 
+\code{\link{write_jaspar}()},
+\code{\link{write_matrix}()},
+\code{\link{write_meme}()},
+\code{\link{write_motifs}()},
+\code{\link{write_transfac}()}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

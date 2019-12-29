@@ -4,8 +4,16 @@
 \alias{write_motifs}
 \title{Export motifs in universalmotif format.}
 \usage{
-write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
-  progress = FALSE, overwrite = FALSE, append = FALSE, BP = FALSE)
+write_motifs(
+  motifs,
+  file,
+  minimal = FALSE,
+  multifreq = TRUE,
+  progress = FALSE,
+  overwrite = FALSE,
+  append = FALSE,
+  BP = FALSE
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -36,9 +44,12 @@ Write motifs as universalmotif objects to file. For optimal storage of
 \code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based.
 }
 \seealso{
-Other write_motifs: \code{\link{write_homer}},
-  \code{\link{write_jaspar}}, \code{\link{write_matrix}},
-  \code{\link{write_meme}}, \code{\link{write_transfac}}
+Other write_motifs: 
+\code{\link{write_homer}()},
+\code{\link{write_jaspar}()},
+\code{\link{write_matrix}()},
+\code{\link{write_meme}()},
+\code{\link{write_transfac}()}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

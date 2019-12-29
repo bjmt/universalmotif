@@ -4,8 +4,15 @@
 \alias{write_meme}
 \title{Export motifs in MEME format.}
 \usage{
-write_meme(motifs, file, version = 5, bkg, strand, overwrite = FALSE,
-  append = FALSE)
+write_meme(
+  motifs,
+  file,
+  version = 5,
+  bkg,
+  strand,
+  overwrite = FALSE,
+  append = FALSE
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -46,9 +53,12 @@ write_meme(transfac, tempfile())
 \seealso{
 \code{\link[=read_meme]{read_meme()}}
 
-Other write_motifs: \code{\link{write_homer}},
-  \code{\link{write_jaspar}}, \code{\link{write_matrix}},
-  \code{\link{write_motifs}}, \code{\link{write_transfac}}
+Other write_motifs: 
+\code{\link{write_homer}()},
+\code{\link{write_jaspar}()},
+\code{\link{write_matrix}()},
+\code{\link{write_motifs}()},
+\code{\link{write_transfac}()}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

@@ -4,9 +4,17 @@
 \alias{write_matrix}
 \title{Export motifs as raw matrices.}
 \usage{
-write_matrix(motifs, file, positions = "columns", rownames = FALSE,
-  type, sep = "", headers = TRUE, overwrite = FALSE,
-  append = FALSE)
+write_matrix(
+  motifs,
+  file,
+  positions = "columns",
+  rownames = FALSE,
+  type,
+  sep = "",
+  headers = TRUE,
+  overwrite = FALSE,
+  append = FALSE
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
@@ -42,9 +50,12 @@ write_matrix(motif, tempfile(), headers = ">")
 \seealso{
 \code{\link[=read_matrix]{read_matrix()}}
 
-Other write_motifs: \code{\link{write_homer}},
-  \code{\link{write_jaspar}}, \code{\link{write_meme}},
-  \code{\link{write_motifs}}, \code{\link{write_transfac}}
+Other write_motifs: 
+\code{\link{write_homer}()},
+\code{\link{write_jaspar}()},
+\code{\link{write_meme}()},
+\code{\link{write_motifs}()},
+\code{\link{write_transfac}()}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

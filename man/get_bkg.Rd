@@ -4,9 +4,19 @@
 \alias{get_bkg}
 \title{Calculate sequence background.}
 \usage{
-get_bkg(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
-  alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = TRUE,
-  progress = FALSE, BP = FALSE, nthreads = 1)
+get_bkg(
+  sequences,
+  k = 1:3,
+  as.prob = TRUE,
+  pseudocount = 0,
+  alphabet = NULL,
+  to.meme = NULL,
+  RC = FALSE,
+  list.out = TRUE,
+  progress = FALSE,
+  BP = FALSE,
+  nthreads = 1
+)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Input sequences. Note that if

@@ -4,9 +4,19 @@
 \alias{scan_sequences}
 \title{Scan sequences for matches to input motifs.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.001,
-  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  progress = FALSE, BP = FALSE, nthreads = 1, motif_pvalue.k = 8)
+scan_sequences(
+  motifs,
+  sequences,
+  threshold = 0.001,
+  threshold.type = "pvalue",
+  RC = FALSE,
+  use.freq = 1,
+  verbose = 0,
+  progress = FALSE,
+  BP = FALSE,
+  nthreads = 1,
+  motif_pvalue.k = 8
+)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -56,7 +66,7 @@ a set of input motifs.
 Similar to \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}}, the scanning method uses
 logodds scoring. (To see the scoring matrix for any motif, simply
 run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
-matrix: \code{apply(motif["multifreq"]$}2\code{, 2, ppm_to_pwm)}). In order
+matrix: \verb{apply(motif["multifreq"]$}2\verb{, 2, ppm_to_pwm)}). In order
 to score a sequence, at each position within a sequence of length equal
 to the length of the motif, the scores for each base are summed. If the
 score sum is above the desired threshold, it is kept.

@@ -4,13 +4,30 @@
 \alias{enrich_motifs}
 \title{Enrich for input motifs in a set of sequences.}
 \usage{
-enrich_motifs(motifs, sequences, bkg.sequences, search.mode = "hits",
-  max.p = 1e-05, max.q = 1e-05, max.e = 0.001, qval.method = "fdr",
-  positional.test = "t.test", threshold = 0.001,
-  threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
-  shuffle.k = 2, shuffle.method = "euler",
-  return.scan.results = FALSE, progress = FALSE, BP = FALSE,
-  nthreads = 1, rng.seed = sample.int(1e+09, 1), motif_pvalue.k = 8)
+enrich_motifs(
+  motifs,
+  sequences,
+  bkg.sequences,
+  search.mode = "hits",
+  max.p = 1e-05,
+  max.q = 1e-05,
+  max.e = 0.001,
+  qval.method = "fdr",
+  positional.test = "t.test",
+  threshold = 0.001,
+  threshold.type = "pvalue",
+  verbose = 0,
+  RC = FALSE,
+  use.freq = 1,
+  shuffle.k = 2,
+  shuffle.method = "euler",
+  return.scan.results = FALSE,
+  progress = FALSE,
+  BP = FALSE,
+  nthreads = 1,
+  rng.seed = sample.int(1e+09, 1),
+  motif_pvalue.k = 8
+)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
