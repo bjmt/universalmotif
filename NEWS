@@ -15,6 +15,14 @@ CHANGES IN VERSION 1.4.1
 
 BUG FIXES
 
+    o Stopped using BiocStyle, as a current bug was preventing the package from
+      building successfully
+
+CHANGES IN VERSION 1.4.1
+------------------------
+
+BUG FIXES
+
     o When using create_motif() with an AAStringSet object, amino acid letters
       will now be properly sorted and match the motif rows.
 
