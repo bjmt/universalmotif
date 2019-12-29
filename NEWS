@@ -10,7 +10,7 @@ NEW FEATURES
     o view_motifs(..., return.raw) option: instead of returning a plot
       type object, return the aligned motif matrices.
 
-CHANGES IN VERSION 1.4.1
+CHANGES IN VERSION 1.4.2
 ------------------------
 
 BUG FIXES
