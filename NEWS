@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.4.2
+------------------------
+
+BUG FIXES
+
+    o Stopped using BiocStyle, as a current bug was preventing the package from
+      building successfully
+
 CHANGES IN VERSION 1.4.1
 ------------------------
 
