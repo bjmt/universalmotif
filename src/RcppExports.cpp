@@ -441,6 +441,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// round_motif_cpp
+Rcpp::NumericMatrix round_motif_cpp(const Rcpp::NumericMatrix& mot, const double pct_tolerance);
+RcppExport SEXP _universalmotif_round_motif_cpp(SEXP motSEXP, SEXP pct_toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type mot(motSEXP);
+    Rcpp::traits::input_parameter< const double >::type pct_tolerance(pct_toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(round_motif_cpp(mot, pct_tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pval_str2double
 double pval_str2double(const std::string& pval);
 RcppExport SEXP _universalmotif_pval_str2double(SEXP pvalSEXP) {
@@ -755,6 +766,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
     {"_universalmotif_universalmotif_to_list", (DL_FUNC) &_universalmotif_universalmotif_to_list, 1},
+    {"_universalmotif_round_motif_cpp", (DL_FUNC) &_universalmotif_round_motif_cpp, 2},
     {"_universalmotif_pval_str2double", (DL_FUNC) &_universalmotif_pval_str2double, 1},
     {"_universalmotif_split_gapped", (DL_FUNC) &_universalmotif_split_gapped, 2},
     {"_universalmotif_generate_motif", (DL_FUNC) &_universalmotif_generate_motif, 2},

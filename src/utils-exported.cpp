@@ -94,6 +94,23 @@ Rcpp::NumericVector generate_pos(const std::vector<double> &bkg) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::NumericMatrix round_motif_cpp(const Rcpp::NumericMatrix &mot,
+    const double pct_tolerance) {
+  if (pct_tolerance < 0.0 | pct_tolerance > 1.0)
+    Rcpp::stop("'pct.tolerance' must be a numeric value between 0 and 1");
+  Rcpp::NumericMatrix motif = Rcpp::clone(mot);
+  Rcpp::LogicalVector lowtol = motif < pct_tolerance;
+  for (int i = 0; i < motif.size(); ++i) {
+    if (lowtol[i]) motif[i] = 0;
+  }
+  Rcpp::NumericVector mcs = colSums(motif);
+  for (int i = 0; i < motif.ncol(); ++i) {
+    motif(Rcpp::_, i) = motif(Rcpp::_, i) / mcs[i];
+  }
+  return motif;
+}
+
+// [[Rcpp::export(rng = false)]]
 double pval_str2double(const std::string &pval) {
   // error when pval < 1e-4931
   long double pval2 = std::stold(pval);

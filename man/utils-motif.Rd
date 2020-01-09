@@ -19,6 +19,7 @@
 \alias{ppm_to_pcm}
 \alias{ppm_to_pwm}
 \alias{pwm_to_ppm}
+\alias{round_motif}
 \alias{score_match}
 \alias{summarise_motifs}
 \alias{ungap}
@@ -86,6 +87,8 @@ ppm_to_pwm(
 
 pwm_to_ppm(position, bkg = numeric())
 
+round_motif(motif, pct.tolerance = 0.05)
+
 score_match(motif, match)
 
 summarise_motifs(motifs, na.rm = TRUE)
@@ -93,7 +96,7 @@ summarise_motifs(motifs, na.rm = TRUE)
 ungap(motif, delete = FALSE)
 }
 \arguments{
-\item{motif}{Motif object to calculate scores from, or add/remove gap.}
+\item{motif}{Motif object to calculate scores from, or add/remove gap, or round.}
 
 \item{gaploc}{\code{numeric} Motif gap locations. The gap occurs immediately after
 every position value. If missing, uses \code{round(ncol(motif) / 2)}.}
@@ -156,6 +159,9 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{smooth}{\code{logical(1)} Apply pseudocount correction.}
 
+\item{pct.tolerance}{\code{numeric(1)} The minimum tolerated proportion each letter
+must represent per position in order not to be rounded off, from 0 to 1.}
+
 \item{match}{\code{character(1)} Sequence string to calculate score from.}
 
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
@@ -183,6 +189,8 @@ For \code{\link[=position_icscore]{position_icscore()}}: a \code{numeric} vector
 For \code{\link[=ppm_to_icm]{ppm_to_icm()}}, \code{\link[=icm_to_ppm]{icm_to_ppm()}}, \code{\link[=pcm_to_ppm]{pcm_to_ppm()}},
 \code{\link[=ppm_to_pcm]{ppm_to_pcm()}}, \code{\link[=ppm_to_pwm]{ppm_to_pwm()}}, and \code{\link[=pwm_to_ppm]{pwm_to_ppm()}}: a \code{numeric}
 vector with length equal to input \code{numeric} vector.
+
+For \code{\link[=round_motif]{round_motif()}}: the input motif, rounded.
 
 For \code{\link[=score_match]{score_match()}}: a \code{numeric} vector with the match motif score.
 
@@ -300,6 +308,14 @@ apply(m, 2, pwm_to_ppm, bkg = rep(0.25, 4))
 ## Note that not all type conversions can be done directly; for those
 ## type conversions which are unavailable, universalmotif just chains
 ## together others (i.e. from PCM -> ICM => pcm_to_ppm -> ppm_to_icm)
+
+#######################################################################
+## round_motif
+## Round down letter scores to 0
+m <- create_motif()
+## Remove letters from positions which are less than 5\% of the total
+## position:
+round_motif(m, pct.tolerance = 0.05)
 
 #######################################################################
 ## score_match

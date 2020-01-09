@@ -19,7 +19,7 @@
 #'    If missing, set to 1.
 #' @param maxgap `numeric` Maximum gap size. Must have one value for every location.
 #'    If missing, set to 5.
-#' @param motif Motif object to calculate scores from, or add/remove gap.
+#' @param motif Motif object to calculate scores from, or add/remove gap, or round.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are `NA`.
 #' @param nsites `numeric(1)` Number of sites motif originated from.
@@ -27,6 +27,8 @@
 #'    if `method = "ALLR"`.
 #' @param nsites2 `numeric(1)` Number of sites for the second column. Only relevant
 #'    if `method = "ALLR"`.
+#' @param pct.tolerance `numeric(1)` The minimum tolerated proportion each letter
+#'    must represent per position in order not to be rounded off, from 0 to 1.
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
 #' @param pseudocount `numeric(1)` Used to prevent zeroes in motif matrix.
@@ -62,6 +64,8 @@
 #'    For [ppm_to_icm()], [icm_to_ppm()], [pcm_to_ppm()],
 #'    [ppm_to_pcm()], [ppm_to_pwm()], and [pwm_to_ppm()]: a `numeric`
 #'    vector with length equal to input `numeric` vector.
+#'
+#'    For [round_motif()]: the input motif, rounded.
 #'
 #'    For [score_match()]: a `numeric` vector with the match motif score.
 #'
@@ -176,6 +180,14 @@
 #' ## Note that not all type conversions can be done directly; for those
 #' ## type conversions which are unavailable, universalmotif just chains
 #' ## together others (i.e. from PCM -> ICM => pcm_to_ppm -> ppm_to_icm)
+#'
+#' #######################################################################
+#' ## round_motif
+#' ## Round down letter scores to 0
+#' m <- create_motif()
+#' ## Remove letters from positions which are less than 5% of the total
+#' ## position:
+#' round_motif(m, pct.tolerance = 0.05)
 #'
 #' #######################################################################
 #' ## score_match
@@ -540,6 +552,18 @@ pwm_to_ppm <- function(position, bkg = numeric()) {
   pos_missing <- sum(position)
   position <- position / pos_missing
   position
+}
+
+#' @rdname utils-motif
+#' @export
+round_motif <- function(motif, pct.tolerance = 0.05) {
+  if (!is(motif, "universalmotif"))
+    stop("'motif' must be a 'universalmotif' object")
+  validObject_universalmotif(motif)
+  type <- motif@type
+  motif <- convert_type_single(motif, "PPM", 0)
+  motif@motif <- round_motif_cpp(motif@motif, pct.tolerance)
+  convert_type(motif, type)
 }
 
 #' @rdname utils-motif

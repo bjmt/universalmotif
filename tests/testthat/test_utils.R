@@ -1,5 +1,18 @@
 context("utils")
 
+test_that("misc utilities work", {
+
+  m <- matrix(c(0.99, 0.01, 0, 0, 0.25, 0.25, 0.25, 0.25), ncol = 2)
+  m <- create_motif(m, alphabet = "DNA")
+
+  m2 <- round_motif(m, pct.tolerance = 0.05)
+
+  expect_true(m2@motif[1] == 1)
+  expect_true(all(m2@motif[2:4] == 0))
+  expect_true(all(m2@motif[, 2] == m@motif[, 2]))
+
+})
+
 test_that("summarise_motifs works", {
 
   m1 <- create_motif("GYNCHGCCKT", name = "motif-1", nsites = 212)

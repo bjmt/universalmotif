@@ -10,6 +10,9 @@ NEW FEATURES
     o view_motifs(..., return.raw) option: instead of returning a plot
       type object, return the aligned motif matrices.
 
+    o round_motif() utility: round down very low letter-position scores to
+      zero.
+
 CHANGES IN VERSION 1.4.3
 ------------------------
 
