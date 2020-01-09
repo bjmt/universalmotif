@@ -10,6 +10,14 @@ NEW FEATURES
     o view_motifs(..., return.raw) option: instead of returning a plot
       type object, return the aligned motif matrices.
 
+CHANGES IN VERSION 1.4.3
+------------------------
+
+BUG FIXES
+
+    o Suppress message output from library(TFBSTools) call in
+      MotifManipulation.pdf vignette preamble code.
+
 CHANGES IN VERSION 1.4.2
 ------------------------
 
