@@ -20,7 +20,7 @@ knitr::opts_chunk$set(collapse=TRUE,comment = "#>")
 suppressPackageStartupMessages(library(universalmotif))
 suppressMessages(suppressPackageStartupMessages(library(MotifDb)))
 suppressMessages(suppressPackageStartupMessages(library(Logolas)))
-suppressPackageStartupMessages(library(TFBSTools))
+suppressMessages(suppressPackageStartupMessages(library(TFBSTools)))
 data(examplemotif)
 data(MA0003.2)
 ```
