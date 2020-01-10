@@ -1,4 +1,4 @@
-# Last modified: 2019-11-05 12:41:47 (EST)
+# Last modified: 2020-01-09 23:24:03 (EST)
 
 #' Scan sequences for matches to input motifs.
 #'
@@ -19,8 +19,6 @@
 #'    `motif['multifreq']` slot is used. See [add_multifreq()].
 #' @param verbose `numeric(1)` Describe progress, from none (`0`) to 
 #'    verbose (`3`).
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single motif and
@@ -88,8 +86,8 @@
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            threshold.type = "pvalue", RC = FALSE,
-                           use.freq = 1, verbose = 0, progress = FALSE,
-                           BP = FALSE, nthreads = 1, motif_pvalue.k = 8) {
+                           use.freq = 1, verbose = 0, nthreads = 1,
+                           motif_pvalue.k = 8) {
 
   # TODO: Work with Masked*String objects. Masked letters show up as "#" after
   #       as.character() calls, which should just cause scan_sequences() to
@@ -120,13 +118,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
-
-  if (verbose <= 0) progress <- FALSE
 
   if (verbose > 2) {
     message(" * Input parameters")
@@ -221,13 +212,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
     "pvalue" = {
 
-      if (progress && !BP && verbose > 0)
-        message(" * Converting P-values to logodds thresholds ...", appendLF = FALSE)
-      else if ((progress && BP && verbose > 0) || verbose > 0)
+      if (verbose > 0)
         message(" * Converting P-values to logodds thresholds")
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                                 k = motif_pvalue.k, progress = progress, BP = BP)
+                                 k = motif_pvalue.k)
       for (i in seq_along(thresholds)) {
         if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }

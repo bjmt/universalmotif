@@ -25,8 +25,6 @@
 #'    of the input sequences as well. Only valid for DNA/RNA.
 #' @param list.out `logical(1)` Return background frequencies as list, with an
 #'    entry for each `k`. If `FALSE`, return a single vector.
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [get_bkg()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single sequence.
@@ -60,8 +58,7 @@
 #' @export
 get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                     alphabet = NULL, to.meme = NULL, RC = FALSE,
-                    list.out = TRUE, progress = FALSE, BP = FALSE,
-                    nthreads = 1) {
+                    list.out = TRUE, nthreads = 1) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -78,17 +75,11 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   char_check <- check_fun_params(list(alphabet = args$alphabet), 1,
                                  TRUE, TYPE_CHAR)
   logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC,
-                                      progress = args$progress, BP = args$BP,
                                       list.out = args$list.out),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated, see 'nthreads'", immediate. = TRUE)
 
   k <- as.integer(k)
   if (RC && seqtype(sequences) %in% c("DNA", "RNA"))

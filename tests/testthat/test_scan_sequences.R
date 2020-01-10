@@ -4,7 +4,7 @@ test_that("Results are accurate", {
 
   motif <- create_motif("AAAA", pseudocount = 1, nsites = 100)
   seq <- Biostrings::DNAStringSet("GGGAAAAGGGTTTTGGG")  # width 17
-  res <- scan_sequences(motif, seq, RC = TRUE, verbose = 0, progress = FALSE)
+  res <- scan_sequences(motif, seq, RC = TRUE, verbose = 0)
 
   expect_equal(res$start[1], 4)
   expect_equal(res$motif[1], "motif")
@@ -25,7 +25,7 @@ test_that("Results are accurate", {
   m <- create_motif(create_sequences(seqlen = 10), add.multifreq = 2, pseudocount = 1)
   s <- create_sequences()
   r <- scan_sequences(m, s, RC = TRUE, use.freq = 2, threshold = 0.8,
-                      threshold.type = "logodds", verbose = 0, progress = FALSE)
+                      threshold.type = "logodds", verbose = 0)
 
   expect_true(is(r, "DataFrame"))
 

@@ -9,8 +9,6 @@ create_sequences(
   seqnum = 100,
   seqlen = 100,
   freqs,
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   rng.seed = sample.int(1e+09, 1)
 )
@@ -25,10 +23,6 @@ characters to be used as the alphabet.}
 
 \item{freqs}{\code{numeric} A named vector of probabilities. The length of the
 vector must be the power of the number of letters in the sequence alphabet.}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=create_sequences]{create_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

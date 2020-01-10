@@ -12,8 +12,6 @@ scan_sequences(
   RC = FALSE,
   use.freq = 1,
   verbose = 0,
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   motif_pvalue.k = 8
 )
@@ -38,10 +36,6 @@ number is used, then the matching k-let matrix from the
 
 \item{verbose}{\code{numeric(1)} Describe progress, from none (\code{0}) to
 verbose (\code{3}).}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

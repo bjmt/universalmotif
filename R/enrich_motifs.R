@@ -8,7 +8,6 @@
 #' @param bkg.sequences \code{\link{XStringSet}} Optional; if missing,
 #'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
-#' @param search.mode `character(1)` Deprecated. Only 'hits' is accepted.
 #' @param max.p `numeric(1)` P-value threshold.
 #' @param max.q `numeric(1)` Adjusted P-value threshold. This is only useful
 #'    if multiple motifs are being enriched for.
@@ -27,8 +26,6 @@
 #'    [scan_sequences()]. For large jobs, leaving this as
 #'    `FALSE` can save a small amount time by preventing construction of the complete 
 #'    results `data.frame` from [scan_sequences()].
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single motif and
@@ -64,14 +61,13 @@
 #'    [add_multifreq()], [motif_pvalue()]
 #' @inheritParams scan_sequences
 #' @export
-enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits",
+enrich_motifs <- function(motifs, sequences, bkg.sequences,
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
                           qval.method = "fdr", positional.test = "t.test",
                           threshold = 0.001, threshold.type = "pvalue",
                           verbose = 0, RC = FALSE, use.freq = 1,
                           shuffle.k = 2, shuffle.method = "euler",
-                          return.scan.results = FALSE, progress = FALSE,
-                          BP = FALSE, nthreads = 1,
+                          return.scan.results = FALSE, nthreads = 1,
                           rng.seed = sample.int(1e9, 1),
                           motif_pvalue.k = 8) {
 
@@ -80,13 +76,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!search.mode %in% c("hits", "positional", "both")) {
-    search.mode_check <- paste0(" * Incorrect 'search.mode': expected `hits`,",
-                                "; got `",
-                                search.mode, "`")
-    search.mode_check <- wmsg2(search.mode_check, 4, 2)
-    all_checks <- c(all_checks, search.mode_check)
-  }
   if (!qval.method %in% c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
                           "fdr", "none")) {
     qval.method_check <- paste0(" * Incorrect 'qval.method': expected `holm`, ",
@@ -119,8 +108,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
     shuffle.method_check <- wmsg2(shuffle.method_check, 4, 2)
     all_checks <- c(all_checks, shuffle.method_check)
   }
-  char_check <- check_fun_params(list(search.mode = args$search.mode,
-                                      qval.method = args$qval.method,
+  char_check <- check_fun_params(list(qval.method = args$qval.method,
                                       positional.test = args$positional.test,
                                       threshold.type = args$threshold.type,
                                       shuffle.method = args$shuffle.method),
@@ -133,9 +121,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
                                      nthreads = args$nthreads,
                                      motif_pvalue.k = args$motif_pvalue.k),
                                 c(1, 1, 1, 0, 1, 1, 1, 1, 1), logical(), TYPE_NUM)
-  logi_check <- check_fun_params(list(RC = args$RC, progress = args$progress,
-                                      return.scan.results = args$return.scan.results,
-                                      BP = args$BP),
+  logi_check <- check_fun_params(list(RC = args$RC,
+                                      return.scan.results = args$return.scan.results),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences,
                                     bkg.sequences = args$bkg.sequences),
@@ -143,15 +130,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences, search.mode = "hits"
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (search.mode != "hits")
-    warning(wmsg("search.mode = c('both', 'positional') is deprecated; see ",
-                  "motif_peaks() instead"), immediate. = TRUE)
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   if (verbose > 2) {
     message(" > Input parameters")

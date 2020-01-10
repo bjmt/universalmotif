@@ -21,7 +21,6 @@ motif_tree(
   min.mean.ic = 0,
   relative_entropy = FALSE,
   progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   score.strat = "a.mean",
   ...
@@ -81,9 +80,7 @@ alignments between low information content regions of two motifs.}
 \item{relative_entropy}{\code{logical(1)} Change the ICM calculation affecting
 \code{min.position.ic} and \code{min.mean.ic}. See \code{\link[=convert_type]{convert_type()}}.}
 
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
+\item{progress}{\code{logical(1)} Show message regarding current step.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}

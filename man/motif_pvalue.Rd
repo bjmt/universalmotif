@@ -11,8 +11,6 @@ motif_pvalue(
   bkg.probs,
   use.freq = 1,
   k = 8,
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   rand.tries = 10,
   rng.seed = sample.int(1e+09, 1)
@@ -41,10 +39,6 @@ equal or higher to the size of input motif(s), then the calculations
 are (nearly) exact. The default, 8, is recommended to those looking for
 a good tradeoff between speed and accuracy for jobs requiring repeated
 calculations.}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalue]{motif_pvalue()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}

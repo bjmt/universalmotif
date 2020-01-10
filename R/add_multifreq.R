@@ -102,7 +102,7 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     seq.names <- names(sequences)
     if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
     seq.res <- scan_sequences(motif, sequences, threshold = threshold, RC = RC,
-                              threshold.type = threshold.type, progress = FALSE,
+                              threshold.type = threshold.type,
                               verbose = 0)
 
     seqs.out <- vector("list", length(sequences))

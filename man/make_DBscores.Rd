@@ -18,7 +18,6 @@ make_DBscores(
   min.overlap = 6,
   min.mean.ic = 0.25,
   progress = TRUE,
-  BP = FALSE,
   nthreads = 1,
   tryRC = TRUE,
   score.strat = c("sum", "a.mean", "g.mean", "median", "wa.mean", "wg.mean", "fzt")
@@ -64,8 +63,6 @@ two motifs for an alignment to be scored. This helps prevent scoring
 alignments between low information content regions of two motifs.}
 
 \item{progress}{\code{logical(1)} Show progress.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}

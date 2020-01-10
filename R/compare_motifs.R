@@ -40,8 +40,6 @@
 #' @param max.e `numeric(1)` Maximum E-value allowed in reporting matches.
 #'    Only used if `compare.to` is set. The E-value is the P-value multiplied
 #'    by the number of input motifs times two.
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #' @param score.strat `character(1)` How to handle column scores calculated from
@@ -142,8 +140,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            min.overlap = 6, min.mean.ic = 0.25,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,
-                           max.p = 0.01, max.e = 10, progress = FALSE,
-                           BP = FALSE, nthreads = 1,
+                           max.p = 0.01, max.e = 10, nthreads = 1,
                            score.strat = "a.mean", output.report,
                            output.report.max.print = 10) {
 
@@ -192,8 +189,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                                 TYPE_NUM)
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
-                                      normalise.scores = args$normalise.scores,
-                                      progress = args$progress, BP = args$BP),
+                                      normalise.scores = args$normalise.scores),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (!use.type %in% c("PPM", "ICM")) {
@@ -228,11 +224,6 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     warning(wmsg("P-values from `method = \"IS\"` will likely be very inaccurate, ",
                  "as random scores from this method are usually very skewed"),
             immediate. = TRUE)
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)

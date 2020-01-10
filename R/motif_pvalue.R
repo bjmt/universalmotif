@@ -19,8 +19,6 @@
 #'    are (nearly) exact. The default, 8, is recommended to those looking for
 #'    a good tradeoff between speed and accuracy for jobs requiring repeated
 #'    calculations.
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [motif_pvalue()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #' @param rand.tries `numeric(1)` When `ncol(motif) < k`, an approximation is
@@ -114,8 +112,8 @@
 #' @seealso [motif_score()]
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
-                         k = 8, progress = FALSE, BP = FALSE, nthreads = 1,
-                         rand.tries = 10, rng.seed = sample.int(1e9, 1)) {
+                         k = 8, nthreads = 1, rand.tries = 10,
+                         rng.seed = sample.int(1e9, 1)) {
 
   # TODO: Need to work on support for use.freq > 1.
 
@@ -145,7 +143,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   # data(ArabidopsisMotif)
   # data(ArabidopsisPromoters)
   # res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE,
-  #                       progress = FALSE, verbose = 0, threshold = 0,
+  #                       verbose = 0, threshold = 0,
   #                       threshold.type = "logodds")[1:100, ]
   # res$pvalue <- motif_pvalue(ArabidopsisMotif, score = res$score)
   #
@@ -157,8 +155,6 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                                      nthreads = args$nthreads),
                                 c(0, 0, 1, 1, 1), c(TRUE, TRUE, FALSE, FALSE, FALSE),
                                 TYPE_NUM)
-  logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), TYPE_LOGI)
   bkg_check <- character()
   if (!missing(bkg.probs)) {
     if (!is.list(bkg.probs) && !is.numeric(bkg.probs)) {
@@ -171,14 +167,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   if (use.freq > 3) {
     use.freq_check <- " * Incorrect 'use.freq': maximum allowed is 3"
   }
-  all_checks <- c(num_check, bkg_check, logi_check, use.freq_check)
+  all_checks <- c(num_check, bkg_check, use.freq_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")

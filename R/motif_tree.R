@@ -32,8 +32,7 @@
 #' @param use.type `character(1)`c('PPM', 'ICM')`. The latter allows for taking
 #'    into account the background
 #'    frequencies (only if `relative_entropy = TRUE`). See [compare_motifs()].
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
+#' @param progress `logical(1)` Show message regarding current step.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #' @param ... \pkg{ggtree} params. See [ggtree::ggtree()].
@@ -90,7 +89,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                        use.type = "PPM", min.overlap = 6,
                        min.position.ic = 0, tryRC = TRUE,
                        min.mean.ic = 0, relative_entropy = FALSE,
-                       progress = FALSE, BP = FALSE, nthreads = 1,
+                       progress = FALSE, nthreads = 1,
                        score.strat = "a.mean", ...) {
 
   # TODO: allow for user-provided linecol, labels, tipsize instead of just
@@ -126,7 +125,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(legend = args$legend, tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
-                                      progress = args$progress, BP = args$BP),
+                                      progress = args$progress),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -156,9 +155,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     }
   } else if (is.list(motifs)) {
     motifs <- convert_motifs(motifs)
-    if (progress && !BP)
-      message("Comparing motifs... ", appendLF = FALSE)
-    else if (progress)
+    if (progress)
       message("Comparing motifs...")
     tree <- compare_motifs(motifs,
                            use.type = use.type,
@@ -166,7 +163,6 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
                            min.overlap = min.overlap,
                            min.mean.ic = min.mean.ic,
                            relative_entropy = relative_entropy,
-                           BP = BP, progress = progress,
                            min.position.ic = min.position.ic,
                            score.strat = score.strat)
     if (anyNA(tree))

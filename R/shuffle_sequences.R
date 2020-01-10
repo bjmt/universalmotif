@@ -8,8 +8,6 @@
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('euler', 'markov', 'linear')`.
 #'    Only relevant is `k > 1`. See details. 
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [shuffle_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single sequence.
@@ -66,7 +64,6 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "euler",
-                               progress = FALSE, BP = FALSE,
                                nthreads = 1, rng.seed = sample.int(1e9, 1)) {
 
   # Idea: Moving-window markov shuffling. Get k-let frequencies in windows,
@@ -115,16 +112,9 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
                                      numeric(), logical(), TYPE_NUM)
   s4_check <- check_fun_params(list(sequences = args$sequences),
                                numeric(), logical(), TYPE_S4)
-  logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), TYPE_LOGI)
-  all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
+  all_checks <- c(all_checks, char_check, num_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated, see 'nthreads'", immediate. = TRUE)
 
   alph <- seqtype(sequences)
 
@@ -218,11 +208,11 @@ shuffle_linear <- function(sequence, k, mode = 1) {
 
 #' Get k-let frequencies.
 #'
-#' @param seqs1 <CHAR> Split sequence, usually from strsplit(seq, "")[[1]].
-#' @param k <INT> k-let size.
-#' @param to.return <CHAR> Return k-let frequencies and/or transition matrix.
-#' @param as.prob <BOOL> Return k-let counts or probabilities.
-#' @param alph <CHAR> Alphabet letters, split.
+#' @param seqs1 CHAR Split sequence, usually from strsplit(seq, "")[[1]].
+#' @param k INT k-let size.
+#' @param to.return CHAR Return k-let frequencies and/or transition matrix.
+#' @param as.prob BOOL Return k-let counts or probabilities.
+#' @param alph CHAR Alphabet letters, split.
 #'
 #' @return List, with entries 'transitions' (matrix), 'frequencies' (data.frame),
 #'    and/or 'counts' (data.frame).

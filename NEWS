@@ -13,6 +13,10 @@ NEW FEATURES
     o round_motif() utility: round down very low letter-position scores to
       zero.
 
+MINOR CHANGES
+
+    o Removed most previously deprecated function arguments.
+
 CHANGES IN VERSION 1.4.3
 ------------------------
 

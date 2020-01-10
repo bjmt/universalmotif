@@ -9,8 +9,6 @@
 #' @param seqlen `numeric(1)` Length of random sequences.
 #' @param freqs `numeric` A named vector of probabilities. The length of the
 #'    vector must be the power of the number of letters in the sequence alphabet.
-#' @param progress `logical(1)` Deprecated. Does nothing.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [create_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with `seqnum = 1`.
@@ -36,7 +34,7 @@
 #' @seealso [create_motif()], [shuffle_sequences()]
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
-                             freqs, progress = FALSE, BP = FALSE, nthreads = 1,
+                             freqs, nthreads = 1,
                              rng.seed = sample.int(1e9, 1)) {
 
   # param check --------------------------------------------
@@ -50,16 +48,9 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                                      rng.seed = args$rng.seed),
                                 c(1, 1, rep(0, 3)), c(FALSE, FALSE, rep(TRUE, 3)),
                                 TYPE_NUM)
-  logi_check <- check_fun_params(list(progress = args$progress, BP = args$BP),
-                                 numeric(), logical(), TYPE_LOGI)
-  all_checks <- c(char_check, num_check, logi_check)
+  all_checks <- c(char_check, num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
-
-  if (progress)
-    warning("'progress' is deprecated and does nothing", immediate. = TRUE)
-  if (BP)
-    warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   alph.letters <- switch(alphabet,
                          "DNA" = DNA_BASES,

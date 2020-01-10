@@ -14,7 +14,6 @@
 #'    to perform for every combination of `widths`.
 #' @param widths `numeric` Motif widths to use in P-value database calculation.
 #' @param progress `logical(1)` Show progress.
-#' @param BP `logical(1)` Deprecated. See `nthreads`.
 #' @param nthreads `numeric(1)` Run [compare_motifs()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'
@@ -57,7 +56,7 @@ make_DBscores <- function(db.motifs,
                           rand.tries = 1000, widths = 5:30,
                           min.position.ic = 0,
                           normalise.scores = c(FALSE, TRUE), min.overlap = 6,
-                          min.mean.ic = 0.25, progress = TRUE, BP = FALSE,
+                          min.mean.ic = 0.25, progress = TRUE,
                           nthreads = 1, tryRC = TRUE,
                           score.strat = c("sum", "a.mean", "g.mean", "median",
                                           "wa.mean", "wg.mean", "fzt")) {
@@ -101,7 +100,7 @@ make_DBscores <- function(db.motifs,
           tmp <- make_DBscores(db.motifs, m, shuffle.db, shuffle.k, shuffle.method,
                                rand.tries, widths, min.position.ic,
                                norm, min.overlap, min.mean.ic,
-                               progress, BP, nthreads, tryRC, strat)
+                               progress, nthreads, tryRC, strat)
           out[[m]] <- rbind(out[[m]], tmp)
 
           if (progress) stop <- Sys.time()
@@ -145,7 +144,7 @@ make_DBscores <- function(db.motifs,
                                      min.position.ic = args$min.position.ic),
                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(shuffle.db = args$shuffle.db,
-                                      progress = args$progress, BP = args$BP,
+                                      progress = args$progress,
                                       normalise.scores = args$normalise.scores,
                                       tryRC = args$tryRC),
                                  numeric(), logical(), TYPE_LOGI)
@@ -154,8 +153,6 @@ make_DBscores <- function(db.motifs,
   #---------------------------------------------------------
 
   # having min.mean.ic > 0 can really mess with scores sometimes
-
-  if (BP) warning("'BP' is deprecated; use 'nthreads' instead", immediate. = TRUE)
 
   if (score.strat %in% c("g.mean", "wg.mean") && method %in%
       c("ALLR", "ALLR_LL", "PCC"))
@@ -404,7 +401,7 @@ make_DBscores_v1 <- function(db.motifs, method, shuffle.db = TRUE,
 
     res[[i]] <- compare_motifs(c(tmp2, tmp1), seq_along(tmp2), method = method,
                                min.overlap = min.overlap, min.mean.ic = min.mean.ic,
-                               max.e = Inf, max.p = Inf, BP = BP, progress = FALSE,
+                               max.e = Inf, max.p = Inf,
                                normalise.scores = normalise.scores)$score
 
     totry$mean[i] <- mean(res[[i]])

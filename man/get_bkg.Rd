@@ -13,8 +13,6 @@ get_bkg(
   to.meme = NULL,
   RC = FALSE,
   list.out = TRUE,
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1
 )
 }
@@ -46,10 +44,6 @@ of the input sequences as well. Only valid for DNA/RNA.}
 
 \item{list.out}{\code{logical(1)} Return background frequencies as list, with an
 entry for each \code{k}. If \code{FALSE}, return a single vector.}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=get_bkg]{get_bkg()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

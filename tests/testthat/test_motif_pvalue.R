@@ -3,7 +3,7 @@ context("motif_pvalue()")
 test_that("p-values from scores are ok", {
 
   m <- create_motif("SGDGNTGGAY", pseudocount = 1, nsites = 88)
-  res <- motif_pvalue(m, 1, progress = FALSE)
+  res <- motif_pvalue(m, 1)
   expect_equal(round(res, 7), 0.0009766)
 
 })

@@ -19,8 +19,6 @@ compare_motifs(
   normalise.scores = FALSE,
   max.p = 0.01,
   max.e = 10,
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   score.strat = "a.mean",
   output.report,
@@ -78,10 +76,6 @@ Only used if \code{compare.to} is set.}
 \item{max.e}{\code{numeric(1)} Maximum E-value allowed in reporting matches.
 Only used if \code{compare.to} is set. The E-value is the P-value multiplied
 by the number of input motifs times two.}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}

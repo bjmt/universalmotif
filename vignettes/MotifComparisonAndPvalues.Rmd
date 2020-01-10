@@ -408,8 +408,7 @@ Let us then use this motif with `scan_sequences()`:
 data(ArabidopsisPromoters)
 
 res <- scan_sequences(motif, ArabidopsisPromoters, verbose = 0,
-                      progress = FALSE, threshold = 0.8,
-                      threshold.type = "logodds")
+                      threshold = 0.8, threshold.type = "logodds")
 head(res)
 ```
 

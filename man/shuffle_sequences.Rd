@@ -8,8 +8,6 @@ shuffle_sequences(
   sequences,
   k = 1,
   method = "euler",
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   rng.seed = sample.int(1e+09, 1)
 )
@@ -22,10 +20,6 @@ with any set of characters.}
 
 \item{method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear')}.
 Only relevant is \code{k > 1}. See details.}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=shuffle_sequences]{shuffle_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

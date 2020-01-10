@@ -8,7 +8,6 @@ enrich_motifs(
   motifs,
   sequences,
   bkg.sequences,
-  search.mode = "hits",
   max.p = 1e-05,
   max.q = 1e-05,
   max.e = 0.001,
@@ -22,8 +21,6 @@ enrich_motifs(
   shuffle.k = 2,
   shuffle.method = "euler",
   return.scan.results = FALSE,
-  progress = FALSE,
-  BP = FALSE,
   nthreads = 1,
   rng.seed = sample.int(1e+09, 1),
   motif_pvalue.k = 8
@@ -38,8 +35,6 @@ should match motif.}
 \item{bkg.sequences}{\code{\link{XStringSet}} Optional; if missing,
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is used to create background sequences from
 the input sequences.}
-
-\item{search.mode}{\code{character(1)} Deprecated. Only 'hits' is accepted.}
 
 \item{max.p}{\code{numeric(1)} P-value threshold.}
 
@@ -79,10 +74,6 @@ See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 \code{\link[=scan_sequences]{scan_sequences()}}. For large jobs, leaving this as
 \code{FALSE} can save a small amount time by preventing construction of the complete
 results \code{data.frame} from \code{\link[=scan_sequences]{scan_sequences()}}.}
-
-\item{progress}{\code{logical(1)} Deprecated. Does nothing.}
-
-\item{BP}{\code{logical(1)} Deprecated. See \code{nthreads}.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=scan_sequences]{scan_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.
