@@ -198,7 +198,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, positional.test,
-                          search.mode, threshold.type, motcount,
+                          threshold.type, motcount,
                           return.scan.results, nthreads, args[-(1:3)])
 
   if (nrow(res.all) == 0) {
@@ -227,7 +227,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                          verbose, RC, use.freq, positional.test,
-                         search.mode, threshold.type, motcount,
+                         threshold.type, motcount,
                          return.scan.results, nthreads, args) {
 
   seq.names <- names(sequences)
@@ -270,7 +270,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   if (verbose > 3) tmp_pb <- FALSE
   results.all <- mapply(function(x, y, z)
                           enrich_mots2_subworker(x, y, z, seq.widths,
-                                                  bkg.widths, search.mode,
+                                                  bkg.widths,
                                                   positional.test, sequences,
                                                   RC, bkg.sequences, verbose),
                         results2, results.bkg2, motifs,
@@ -300,7 +300,7 @@ split_by_motif_enrich <- function(motifs, results) {
 }
 
 enrich_mots2_subworker <- function(results, results.bkg, motifs,
-                                   seq.widths, bkg.widths, search.mode,
+                                   seq.widths, bkg.widths,
                                    positional.test, sequences, RC,
                                    bkg.sequences, verbose) {
 
