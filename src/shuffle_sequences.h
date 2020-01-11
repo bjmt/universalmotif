@@ -1,5 +1,5 @@
-#ifndef _SHUFFLE_SEQUENCES_HELPER_
-#define _SHUFFLE_SEQUENCES_HELPER_
+#ifndef _SHUFFLE_SEQUENCES_
+#define _SHUFFLE_SEQUENCES_
 
 #include "types.h"
 

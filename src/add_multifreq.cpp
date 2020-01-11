@@ -1,7 +1,7 @@
 #include <Rcpp.h>
 #include <unordered_map>
 #include "types.h"
-#include "shuffle_sequences_helper.h"
+#include "shuffle_sequences.h"
 
 std::vector<std::string> single_to_k(const std::string &seq1,
     const int &k) {
