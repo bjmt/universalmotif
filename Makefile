@@ -32,9 +32,8 @@ clean:
 	mkdir -p Rcheck;\
 	rm -f builds/$(PKGNAME)_$(PKGVER).tar.gz;\
 	rm -rf Rcheck/$(PKGNAME).Rcheck_$(PKGVER);\
-	cd ..;\
-	mv -f $(PKGNAME).Rcheck $(PKGSRC)/Rcheck/$(PKGNAME).Rcheck_$(PKGVER); \
-	mv -f $(PKGNAME)_$(PKGVER).tar.gz -t $(PKGNAME)/builds
+	mv -f ../$(PKGNAME).Rcheck Rcheck/$(PKGNAME).Rcheck_$(PKGVER);\
+	mv -f ../$(PKGNAME)_$(PKGVER).tar.gz builds/$(PKGNAME)_$(PKGVER).tar.gz
 
 .PHONY: vignettes benchmarks
 
