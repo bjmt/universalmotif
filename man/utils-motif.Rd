@@ -159,8 +159,10 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{smooth}{\code{logical(1)} Apply pseudocount correction.}
 
-\item{pct.tolerance}{\code{numeric(1)} The minimum tolerated proportion each letter
-must represent per position in order not to be rounded off, from 0 to 1.}
+\item{pct.tolerance}{\code{numeric(1)} or \code{character(1)} The minimum tolerated
+proportion each letter must represent per position in order not to be
+rounded off, either as a numeric value from 0 to 1 or a percentage written as
+a string from "0\%" to "100\%".}
 
 \item{match}{\code{character(1)} Sequence string to calculate score from.}
 

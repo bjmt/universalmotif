@@ -27,8 +27,10 @@
 #'    if `method = "ALLR"`.
 #' @param nsites2 `numeric(1)` Number of sites for the second column. Only relevant
 #'    if `method = "ALLR"`.
-#' @param pct.tolerance `numeric(1)` The minimum tolerated proportion each letter
-#'    must represent per position in order not to be rounded off, from 0 to 1.
+#' @param pct.tolerance `numeric(1)` or `character(1)` The minimum tolerated
+#'    proportion each letter must represent per position in order not to be
+#'    rounded off, either as a numeric value from 0 to 1 or a percentage written as
+#'    a string from "0%" to "100%".
 #' @param position `numeric` A numeric vector representing the frequency or
 #'    probability for each alphabet letter at a specific position.
 #' @param pseudocount `numeric(1)` Used to prevent zeroes in motif matrix.
@@ -559,6 +561,8 @@ pwm_to_ppm <- function(position, bkg = numeric()) {
 round_motif <- function(motif, pct.tolerance = 0.05) {
   if (!is(motif, "universalmotif"))
     stop("'motif' must be a 'universalmotif' object")
+  if (is.character(pct.tolerance))
+    pct.tolerance <- as.numeric(gsub("%", "", pct.tolerance, fixed = TRUE)) / 100
   validObject_universalmotif(motif)
   type <- motif@type
   motif <- convert_type_single(motif, "PPM", 0)

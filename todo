@@ -1,0 +1,7 @@
+- Do the read/write_motifs() functions work with the gap slots?
+- Allow for scanning with gapped motifs
+- Still need to rework compare_motifs() p-values
+- Think about writting my own geom_motif()
+- Potential cleaning up needed in convert_type() functionality
+- Scan for motif clusters
+- Add round_motif() section to vignettes
