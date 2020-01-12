@@ -2,6 +2,7 @@
 - Allow for scanning with gapped motifs
 - Still need to rework compare_motifs() p-values
 - Think about writting my own geom_motif()
+- Extend current view_motifs() implementation for higher k motifs
 - Potential cleaning up needed in convert_type() functionality
 - Scan for motif clusters
 - Add round_motif() section to vignettes
@@ -11,3 +12,4 @@
 - Add tests
 - Visualisation of scan_sequences()/enrich_motifs()
 - Work on Rmd output of compare_motifs()
+- motif_peaks(): compare two sets of sequences (enrichment analysis)

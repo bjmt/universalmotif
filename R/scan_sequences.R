@@ -1,5 +1,3 @@
-# Last modified: 2020-01-09 23:24:03 (EST)
-
 #' Scan sequences for matches to input motifs.
 #'
 #' For sequences of any alphabet, scan them using the PWM matrices of
@@ -79,6 +77,13 @@
 #' scan_sequences(ArabidopsisMotif, seq)
 #' # A warning regarding the presence of non-standard letters will be given,
 #' # but can be safely ignored in this case.
+#'
+#' # If you'd like to do it to a whole DNAStringSet object:
+#' seq <- ArabidopsisPromoters
+#' for (i in 1:length(ArabidopsisPromoters)) {
+#'   seq[[i]] <- injectHardMask(mask(seq[[i]], pattern = "AAAA"), letter = "+")
+#' }
+#' scan_sequences(ArabidopsisMotif, seq)
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],

@@ -104,6 +104,13 @@ scan_sequences(ArabidopsisMotif, seq)
 # A warning regarding the presence of non-standard letters will be given,
 # but can be safely ignored in this case.
 
+# If you'd like to do it to a whole DNAStringSet object:
+seq <- ArabidopsisPromoters
+for (i in 1:length(ArabidopsisPromoters)) {
+  seq[[i]] <- injectHardMask(mask(seq[[i]], pattern = "AAAA"), letter = "+")
+}
+scan_sequences(ArabidopsisMotif, seq)
+
 }
 \seealso{
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}},

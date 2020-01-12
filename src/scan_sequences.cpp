@@ -108,8 +108,10 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
 
       }, nthreads);
 
-  if (std::accumulate(na_index.begin(), na_index.end(), 0) > 0)
+  if (std::accumulate(na_index.begin(), na_index.end(), 0) > 0) {
     use_na_fun = true;
+    Rcpp::warning("Non-standard letters detected. These were ignored.");
+  }
 
   if (k > 1 && use_na_fun)
     deal_with_higher_k_NA(seq_ints, k, alph.size());
