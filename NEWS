@@ -18,6 +18,13 @@ MINOR CHANGES
     o Removed most previously deprecated function arguments.
 
 
+CHANGES IN VERSION 1.4.5
+------------------------
+
+BUG FIXES
+
+    o run_meme(): don't try and delete R's tempdir.
+
 CHANGES IN VERSION 1.4.4
 ------------------------
 

@@ -192,7 +192,7 @@ run_meme <- function(target.sequences, output = NULL,
   if (is.null(output)) {
     if (v>0) message("No output folder specified, output will be deleted.")
     delete.ouput <- TRUE
-    output <- tempdir()
+    output <- paste0(wd, "/meme_tmp")
   } else {
     if (v>0) message(paste0("Output folder: ", output))
     delete.ouput <- FALSE
