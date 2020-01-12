@@ -1,10 +1,17 @@
+CHANGES IN VERSION 1.4.4
+------------------------
+
+BUG FIXES
+
+    o Minor fix to how args are fed to processx::run() in run_meme()
+
 CHANGES IN VERSION 1.4.3
 ------------------------
 
 BUG FIXES
 
     o Suppress message output from library(TFBSTools) call in
-          MotifManipulation.pdf vignette preamble code.
+      MotifManipulation.pdf vignette preamble code.
 
 CHANGES IN VERSION 1.4.2
 ------------------------
