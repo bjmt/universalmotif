@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.4.6
+------------------------
+
+BUG FIXES
+
+    o scan_sequences(): will now actually emit a warning when non-standard
+      letters are detected.
+
 CHANGES IN VERSION 1.4.5
 ------------------------
 
