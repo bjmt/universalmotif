@@ -17,6 +17,14 @@ MINOR CHANGES
 
     o Removed most previously deprecated function arguments.
 
+
+CHANGES IN VERSION 1.4.4
+------------------------
+
+BUG FIXES
+
+    o Minor fix to how args are fed to processx::run() in run_meme()
+
 CHANGES IN VERSION 1.4.3
 ------------------------
 

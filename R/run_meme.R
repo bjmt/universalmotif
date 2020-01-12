@@ -333,9 +333,9 @@ run_meme <- function(target.sequences, output = NULL,
   t.start <- Sys.time()
   run.res <- processx::run(bin, meme.args, error_on_status = FALSE,
                            wd = wd, timeout = timeout,
-                           echo_cmd = ifelse(v>0, TRUE, FALSE),
-                           echo = ifelse(echo, TRUE, FALSE),
-                           stderr_line_callback = ifelse(echo||v==0, NULL, meme_cb))
+                           echo_cmd = if (v>0) TRUE else FALSE,
+                           echo = if (echo) TRUE else FALSE,
+                           stderr_line_callback = if (echo||v==0) NULL else meme_cb)
   t.stop <- Sys.time()
 
   if (!is.null(logfile)) cat(run.res$stderr, file = logfile)
