@@ -13,7 +13,7 @@ motif_pvalue(
   k = 8,
   nthreads = 1,
   rand.tries = 10,
-  rng.seed = sample.int(1e+09, 1)
+  rng.seed = sample.int(10000, 1)
 )
 }
 \arguments{
@@ -56,7 +56,7 @@ To make sure each thread gets a different seed however, the seed
 is multiplied with the iteration count. For example: when working with
 two motifs, the second motif gets the following seed: \code{rng.seed * 2}.
 The default is to pick a random
-number as chosen by \code{\link[=sample]{sample()}}, which effectively is make \code{\link[=motif_pvalue]{motif_pvalue()}}
+number as chosen by \code{\link[=sample]{sample()}}, which effectively makes \code{\link[=motif_pvalue]{motif_pvalue()}}
 dependent on the R RNG state.}
 }
 \value{
@@ -73,7 +73,7 @@ each of these sequences (based on background probabilities) summed. For a DNA
 motif of length 10, the number of possible unique sequences is 4^10 = 1,048,576.
 Finding all possible sequences higher than a given score can be done
 very efficiently and quickly with a branch-and-bound algorithm, but as the
-motif length increases this calculation becomes impractical. To get
+motif length increases even this calculation becomes impractical. To get
 around this, the p-value calculation can be approximated.
 
 In order to calculate p-values for longer motifs, this function uses the
@@ -86,7 +86,7 @@ calculating exact p-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
 To calculate a score from a P-value, all possible scores are calculated
-and the \code{1 - pvalue}nth percentile score returned.
+and the \code{(1 - pvalue)} nth percentile score returned.
 When \code{k < ncol(motif)}, the complete set of scores is instead approximated
 by randomly adding up all possible scores from each subset.
 It is important to keep in mind that no consideration is given to

@@ -379,7 +379,10 @@ setMethod("normalize", signature(object = "universalmotif"),
           definition = function(object) {
   type <- object@type
   pseudo <- object@pseudocount
-  if (pseudo == 0) pseudo <- 1
+  if (pseudo == 0) {
+    message("Note: since this motif has a pseudocount of 0, 1 will be used")
+    pseudo <- 1
+  }
   object <- convert_type(object, "PCM")
   convert_type(object, type, pseudocount = pseudo)
 })

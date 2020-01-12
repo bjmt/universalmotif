@@ -8,7 +8,7 @@ motif_clusters <- function(motifs, target.sequences, bkg.sequences,
                            scan.use.freq = 1, shuffle.k = 2,
                            shuffle.method = "euler",
                            motif_pvalue.k = 8, max.p = 0.001,
-                           nthreads = 1, rng.seed = sample.int(1e9, 1)) {
+                           nthreads = 1, rng.seed = sample.int(1e4, 1)) {
 
   scan.res <- scan_sequences(motifs, target.sequences, threshold = scan.threshold,
                              threshold.type = scan.threshold.type, RC = RC,

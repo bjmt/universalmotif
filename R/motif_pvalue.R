@@ -33,7 +33,7 @@
 #'    is multiplied with the iteration count. For example: when working with
 #'    two motifs, the second motif gets the following seed: `rng.seed * 2`.
 #'     The default is to pick a random
-#'    number as chosen by [sample()], which effectively is make [motif_pvalue()]
+#'    number as chosen by [sample()], which effectively makes [motif_pvalue()]
 #'    dependent on the R RNG state.
 #'
 #' @return `numeric` A vector of scores/p-values.
@@ -47,7 +47,7 @@
 #' motif of length 10, the number of possible unique sequences is 4^10 = 1,048,576.
 #' Finding all possible sequences higher than a given score can be done
 #' very efficiently and quickly with a branch-and-bound algorithm, but as the
-#' motif length increases this calculation becomes impractical. To get
+#' motif length increases even this calculation becomes impractical. To get
 #' around this, the p-value calculation can be approximated.
 #'
 #' In order to calculate p-values for longer motifs, this function uses the
@@ -60,7 +60,7 @@
 #' setting `k = 12`.
 #'
 #' To calculate a score from a P-value, all possible scores are calculated
-#' and the `1 - pvalue`nth percentile score returned.
+#' and the `(1 - pvalue)` nth percentile score returned.
 #' When `k < ncol(motif)`, the complete set of scores is instead approximated
 #' by randomly adding up all possible scores from each subset.
 #' It is important to keep in mind that no consideration is given to
@@ -113,7 +113,7 @@
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                          k = 8, nthreads = 1, rand.tries = 10,
-                         rng.seed = sample.int(1e9, 1)) {
+                         rng.seed = sample.int(1e4, 1)) {
 
   # TODO: Need to work on support for use.freq > 1.
 

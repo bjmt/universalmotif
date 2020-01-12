@@ -18,7 +18,7 @@ get_bkg(
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Input sequences. Note that if
-multiple sequences are present, they will be combined into one.}
+multiple sequences are present, the results will be combined into one.}
 
 \item{k}{\code{integer} Size of k-let. Background can be calculated for any
 k-let size.}

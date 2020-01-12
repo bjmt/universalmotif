@@ -35,7 +35,7 @@
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
                              freqs, nthreads = 1,
-                             rng.seed = sample.int(1e9, 1)) {
+                             rng.seed = sample.int(1e4, 1)) {
 
   # param check --------------------------------------------
   args <- as.list(environment())

@@ -17,7 +17,7 @@ file before starting to read.}
 }
 \description{
 Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
-Assumed to be DNA motifs. The logodds score is converted to a P-value.
+Assumed to be DNA motifs.
 }
 \examples{
 homer <- read_homer(system.file("extdata", "homer.txt",

@@ -17,6 +17,10 @@ MINOR CHANGES
 
     o Removed most previously deprecated function arguments.
 
+    o Make sure view_motifs(..., use.type = "ICM") properly sets ylim.
+
+    o General code cleanup.
+
 
 CHANGES IN VERSION 1.4.5
 ------------------------

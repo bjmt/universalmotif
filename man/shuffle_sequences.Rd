@@ -9,7 +9,7 @@ shuffle_sequences(
   k = 1,
   method = "euler",
   nthreads = 1,
-  rng.seed = sample.int(1e+09, 1)
+  rng.seed = sample.int(10000, 1)
 )
 }
 \arguments{
@@ -19,7 +19,7 @@ with any set of characters.}
 \item{k}{\code{numeric(1)} K-let size.}
 
 \item{method}{\code{character(1)} One of \code{c('euler', 'markov', 'linear')}.
-Only relevant is \code{k > 1}. See details.}
+Only relevant if \code{k > 1}. See details.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=shuffle_sequences]{shuffle_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.
@@ -30,7 +30,7 @@ can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
 independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
 given the following seed: \code{rng.seed * index}. The default is to pick a random
-number as chosen by \code{\link[=sample]{sample()}}, which effectively is make \code{\link[=shuffle_sequences]{shuffle_sequences()}}
+number as chosen by \code{\link[=sample]{sample()}}, which effectively is making \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 dependent on the R RNG state.}
 }
 \value{

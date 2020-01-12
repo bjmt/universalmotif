@@ -15,7 +15,6 @@
 #'    P-value with the number of input motifs times two
 #'    \insertCite{meme2}{universalmotif}.
 #' @param qval.method `character(1)` See [stats::p.adjust()].
-#' @param positional.test `character(1)` Deprecated. See [motif_peaks()].
 #' @param verbose `numeric(1)` 0 for no output, 4 for max verbosity.
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
 #'    sequences. Only used if no background sequences are input. See
@@ -63,12 +62,11 @@
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences,
                           max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
-                          qval.method = "fdr", positional.test = "t.test",
-                          threshold = 0.001, threshold.type = "pvalue",
-                          verbose = 0, RC = FALSE, use.freq = 1,
-                          shuffle.k = 2, shuffle.method = "euler",
+                          qval.method = "fdr", threshold = 0.001,
+                          threshold.type = "pvalue", verbose = 0, RC = FALSE,
+                          use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
                           return.scan.results = FALSE, nthreads = 1,
-                          rng.seed = sample.int(1e9, 1),
+                          rng.seed = sample.int(1e4, 1),
                           motif_pvalue.k = 8) {
 
   # Idea: split up hits and postional outputs into their own lists.
@@ -85,15 +83,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     qval.method_check <- wmsg2(qval.method_check, 4, 2)
     all_checks <- c(all_checks, qval.method_check)
   }
-  if (!positional.test %in% c("t.test", "wilcox.test", "chisq.test",
-                              "shapiro.test")) {
-    positional.test_check <- paste0(" * Incorrect 'positional.test': expected ",
-                                    "`t.test`, `wilcox.test`, `chisq.test` or ",
-                                    "`shapiro.test`; got `",
-                                    positional.test, "`")
-    positional.test_check <- wmsg2(positional.test_check, 4, 2)
-    all_checks <- c(all_checks, positional.test_check)
-  }
   if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs")) {
     threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected ",
                                    "`logodds`, `logodds.abs` or `pvalue`; got `",
@@ -109,7 +98,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     all_checks <- c(all_checks, shuffle.method_check)
   }
   char_check <- check_fun_params(list(qval.method = args$qval.method,
-                                      positional.test = args$positional.test,
                                       threshold.type = args$threshold.type,
                                       shuffle.method = args$shuffle.method),
                                  numeric(), logical(), TYPE_CHAR)
@@ -197,8 +185,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   }
 
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
-                          verbose, RC, use.freq, positional.test,
-                          threshold.type, motcount,
+                          verbose, RC, use.freq, threshold.type, motcount,
                           return.scan.results, nthreads, args[-(1:3)])
 
   if (nrow(res.all) == 0) {
@@ -226,8 +213,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 }
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
-                         verbose, RC, use.freq, positional.test,
-                         threshold.type, motcount,
+                         verbose, RC, use.freq, threshold.type, motcount,
                          return.scan.results, nthreads, args) {
 
   seq.names <- names(sequences)
@@ -270,8 +256,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   if (verbose > 3) tmp_pb <- FALSE
   results.all <- mapply(function(x, y, z)
                           enrich_mots2_subworker(x, y, z, seq.widths,
-                                                  bkg.widths,
-                                                  positional.test, sequences,
+                                                  bkg.widths, sequences,
                                                   RC, bkg.sequences, verbose),
                         results2, results.bkg2, motifs,
                         SIMPLIFY = FALSE)
@@ -300,8 +285,7 @@ split_by_motif_enrich <- function(motifs, results) {
 }
 
 enrich_mots2_subworker <- function(results, results.bkg, motifs,
-                                   seq.widths, bkg.widths,
-                                   positional.test, sequences, RC,
+                                   seq.widths, bkg.widths, sequences, RC,
                                    bkg.sequences, verbose) {
 
   seq.hits <- as.vector(results$start)

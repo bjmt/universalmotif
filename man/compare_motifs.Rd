@@ -38,7 +38,7 @@ Otherwise compares all motifs to the specified motif(s).}
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
 frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
-allowed when \code{method = c(ALLR, ALLR_LL)}.}
+allowed when \code{method = c("ALLR", "ALLR_LL")}.}
 
 \item{method}{\code{character(1)} One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
 SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}

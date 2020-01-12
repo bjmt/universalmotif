@@ -10,7 +10,7 @@ create_sequences(
   seqlen = 100,
   freqs,
   nthreads = 1,
-  rng.seed = sample.int(1e+09, 1)
+  rng.seed = sample.int(10000, 1)
 )
 }
 \arguments{

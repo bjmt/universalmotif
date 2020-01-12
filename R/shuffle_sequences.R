@@ -7,7 +7,7 @@
 #'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('euler', 'markov', 'linear')`.
-#'    Only relevant is `k > 1`. See details. 
+#'    Only relevant if `k > 1`. See details. 
 #' @param nthreads `numeric(1)` Run [shuffle_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single sequence.
@@ -16,7 +16,7 @@
 #'    with the regular `R` random number generator state and thus requires an
 #'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
 #'    given the following seed: `rng.seed * index`. The default is to pick a random
-#'    number as chosen by [sample()], which effectively is make [shuffle_sequences()]
+#'    number as chosen by [sample()], which effectively is making [shuffle_sequences()]
 #'    dependent on the R RNG state.
 #'
 #' @return \code{\link{XStringSet}} The input sequences will be returned with 
@@ -64,7 +64,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "euler",
-                               nthreads = 1, rng.seed = sample.int(1e9, 1)) {
+                               nthreads = 1, rng.seed = sample.int(1e4, 1)) {
 
   # Idea: Moving-window markov shuffling. Get k-let frequencies in windows,
   #       and generate new letters based on local probabilities.

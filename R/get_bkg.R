@@ -6,7 +6,7 @@
 #' \code{\link[Biostrings:nucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
 #'
 #' @param sequences \code{\link{XStringSet}} Input sequences. Note that if
-#'    multiple sequences are present, they will be combined into one.
+#'    multiple sequences are present, the results will be combined into one.
 #' @param k `integer` Size of k-let. Background can be calculated for any
 #'    k-let size.
 #' @param as.prob `logical(1)` Whether to return k-let counts or probabilities.

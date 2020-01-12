@@ -6,6 +6,8 @@
 - Scan for motif clusters
 - Add round_motif() section to vignettes
 - General cleaning up/rewritting of vignettes needed
-- Check that run_meme() still works
 - Check that everything in convert_motifs() still works
 - Check that all read/write_*() functions still work
+- Add tests
+- Visualisation of scan_sequences()/enrich_motifs()
+- Work on Rmd output of compare_motifs()

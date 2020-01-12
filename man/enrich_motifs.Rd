@@ -12,7 +12,6 @@ enrich_motifs(
   max.q = 1e-05,
   max.e = 0.001,
   qval.method = "fdr",
-  positional.test = "t.test",
   threshold = 0.001,
   threshold.type = "pvalue",
   verbose = 0,
@@ -22,7 +21,7 @@ enrich_motifs(
   shuffle.method = "euler",
   return.scan.results = FALSE,
   nthreads = 1,
-  rng.seed = sample.int(1e+09, 1),
+  rng.seed = sample.int(10000, 1),
   motif_pvalue.k = 8
 )
 }
@@ -46,8 +45,6 @@ P-value with the number of input motifs times two
 \insertCite{meme2}{universalmotif}.}
 
 \item{qval.method}{\code{character(1)} See \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
-
-\item{positional.test}{\code{character(1)} Deprecated. See \code{\link[=motif_peaks]{motif_peaks()}}.}
 
 \item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
 

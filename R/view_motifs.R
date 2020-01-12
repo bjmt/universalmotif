@@ -50,8 +50,6 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                         min.position.ic = 0, score.strat = "sum", 
                         return.raw = FALSE, ...) {
 
-  # TODO: y-axis limits don't always play nice for IC matrices
-
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
@@ -97,9 +95,11 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
 
+  ylim2 <- NULL
   if (use.type == "ICM" && !relative_entropy) {
     plot.method <- "bits"
     yname <- "bits"
+    ylim2 <- log2(nrow(motifs[[1]]@motif))
   } else {
     switch(use.type,
       "PPM" = {
@@ -109,6 +109,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       "ICM" = {
         plot.method <- "custom"
         yname <- "bits"
+        ylim2 <- log2(nrow(motifs[[1]]@motif))
       },
       "PWM" = {
         plot.method <- "custom"
@@ -181,6 +182,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                      seq_type = seq_type, ...) +
              ylab(yname)
     }
+    if (!is.null(ylim2)) p <- p + ylim(0, ylim2)
     return(p)
   }
 
@@ -210,15 +212,19 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   if (return.raw) return(mots)
 
   if (use.custom) {
-    ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, 
+    p <- ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, 
                          namespace = alph, ...) +
       theme_logo() +
       facet_wrap(~seq_group, ncol = 1) + ylab(yname)
   } else {
-    ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, ...) +
+    p <- ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, ...) +
       theme_logo() +
       facet_wrap(~seq_group, ncol = 1) + ylab(yname)
   }
+
+  if (!is.null(ylim2)) p <- p + ylim(0, ylim2)
+
+  p
 
 }
 

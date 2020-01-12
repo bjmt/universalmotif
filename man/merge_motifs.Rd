@@ -26,7 +26,7 @@ SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.}
 \item{use.type}{\code{character(1)} One of \code{'PPM'} and \code{'ICM'}.
 The latter allows for taking into account the background
 frequencies if \code{relative_entropy = TRUE}. Note that \code{'ICM'} is not
-allowed when \code{method = c(ALLR, ALLR_LL)}.}
+allowed when \code{method = c("ALLR", "ALLR_LL")}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs

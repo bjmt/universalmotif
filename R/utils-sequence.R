@@ -21,7 +21,7 @@
 #'
 #'    For [get_klets()]: A `character` vector of k-lets.
 #'
-#'    For [shuffle_string()]: A single `character` string`.
+#'    For [shuffle_string()]: A single `character` string.
 #'
 #' @examples
 #' #######################################################################
@@ -86,7 +86,7 @@ get_klets <- function(lets, k = 1) {
 #' @rdname utils-sequence
 #' @export
 shuffle_string <- function(string, k = 1, method = c("euler", "linear", "markov"),
-                           rng.seed = sample.int(1e9, 1)) {
+                           rng.seed = sample.int(1e4, 1)) {
 
   method <- match.arg(method, c("euler", "linear", "markov"))
 

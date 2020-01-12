@@ -36,7 +36,7 @@
 #'
 #' 50 Arabidopsis promoters, each 1000 bases long. See the
 #' "Sequence manipulation and scanning"
-#' vignette, section 9, for an example workflow describing extracting promoter
+#' vignette for an example workflow describing extracting promoter
 #' sequences.
 #'
 #' @format \code{\link{DNAStringSet}}

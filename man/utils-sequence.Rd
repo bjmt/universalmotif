@@ -15,7 +15,7 @@ shuffle_string(
   string,
   k = 1,
   method = c("euler", "linear", "markov"),
-  rng.seed = sample.int(1e+09, 1)
+  rng.seed = sample.int(10000, 1)
 )
 }
 \arguments{
@@ -44,7 +44,7 @@ For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns 
 
 For \code{\link[=get_klets]{get_klets()}}: A \code{character} vector of k-lets.
 
-For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} string`.
+For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} string.
 }
 \description{
 Sequence-related utility functions.

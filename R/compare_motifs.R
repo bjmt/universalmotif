@@ -11,7 +11,7 @@
 #' @param use.type `character(1)` One of `'PPM'` and `'ICM'`.
 #'    The latter allows for taking into account the background
 #'    frequencies if `relative_entropy = TRUE`. Note that `'ICM'` is not
-#'    allowed when `method = c(ALLR, ALLR_LL)`.
+#'    allowed when `method = c("ALLR", "ALLR_LL")`.
 #' @param method `character(1)` One of PCC, EUCL, SW, KL, ALLR, BHAT, HELL,
 #'    SEUCL, MAN, ALLR_LL, WEUCL, WPCC. See details.
 #' @param tryRC `logical(1)` Try the reverse complement of the motifs as well,
