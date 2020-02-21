@@ -60,7 +60,7 @@ const str_t FAIL2 = " * Incorrect vector length for '";
 const str_t FAIL3 = "': expected ";
 const str_t FAIL4 = "; got ";
 
-vec_str_t clean_up_check(const vec_str_t &fails) {
+vec_str_t clean_up_check(vec_str_t fails) {
 
   std::size_t faillen = fails.size();
   vec_str_t out;

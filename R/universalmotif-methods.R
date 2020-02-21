@@ -358,7 +358,7 @@ setMethod("as.data.frame", signature(x = "universalmotif"),
 setMethod("subset", signature(x = "universalmotif"),
           definition = function(x, select) {
 
-  mot <- x@motif[, select]
+  mot <- x@motif[, select, drop = FALSE]
   motif <- universalmotif_cpp(motif = mot, name = x@name,
                               altname = x@altname, family = x@family,
                               organism = x@organism,

@@ -1,3 +1,13 @@
+CHANGES IN VERSION 1.4.7
+------------------------
+
+BUG FIXES
+
+    o Fixed dangling references in compare_motifs_helper.cpp and
+      utils-exported.cpp.
+
+    o Trying to subset a motif to a single column no longer throws an error.
+
 CHANGES IN VERSION 1.4.6
 ------------------------
 
