@@ -13,3 +13,7 @@
 - Visualisation of scan_sequences()/enrich_motifs()
 - Work on Rmd output of compare_motifs()
 - motif_peaks(): compare two sets of sequences (enrichment analysis)
+- motif_peaks(): serious code cleanup needed
+- Add scan_sequences() gapped motif example to vignettes
+- SequenceSearches.Rmd vignette: in the run_meme() example, fix the
+  getPromoterSeq line to use 1000 bases upstream, not downstream

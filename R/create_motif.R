@@ -288,7 +288,7 @@ setMethod("create_motif", signature(input = "character"),
       stop("all sequences must have the same number of characters")
   }
 
-  if (nchar(consensus) <= 1) stop("sequence must be longer than one character")
+  if (nchar(consensus) < 1) stop("sequence must be at least one character")
 
   consensus <- safeExplode(consensus)
 
@@ -446,9 +446,6 @@ setMethod("create_motif", signature(input = "matrix"),
                                 altname, family, organism,
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo, add.multifreq) {
-
-  if (nrow(input) == 1 || ncol(input) == 1)
-    stop("matrix must have more than one row/column")
 
   if (anyNA(input))
     stop("matrix cannot have NA values")

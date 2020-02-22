@@ -22,7 +22,7 @@ scan_sequences(
 \item{sequences}{\code{\link{XStringSet}} Sequences to scan. Alphabet
 should match motif.}
 
-\item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
+\item{threshold}{\code{numeric(1)} See details.}
 
 \item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
 

@@ -1052,7 +1052,7 @@ double internal_posIC(vec_num_t pos, const vec_num_t &bkg,
 
 }
 
-list_num_t get_merged_motif(const list_num_t &mot1, const list_num_t &mot2,
+list_num_t get_merged_motif(list_num_t mot1, list_num_t mot2,
     const int weight) {
 
   /* TODO: Is it possible for the motif to be internally trimmed as a result
@@ -1277,9 +1277,9 @@ vec_num_t calc_ic_motif(const list_num_t &motif, const vec_num_t &bkg,
 
 }
 
-void find_offsets(list_num_t mot1, list_num_t mot2,
+void find_offsets(const list_num_t &mot1, list_num_t mot2,
     bool &use_rc, const std::string &method, const double minoverlap,
-    vec_num_t ic1, vec_num_t ic2, const bool norm, const double posic,
+    const vec_num_t &ic1, const vec_num_t &ic2, const bool norm, const double posic,
     const double minic, const bool RC, const double nsites1, const double nsites2,
     const vec_num_t &bkg1, const vec_num_t &bkg2, int &offset, const str_t &strat) {
 

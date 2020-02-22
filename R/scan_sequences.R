@@ -6,7 +6,7 @@
 #' @param motifs See `convert_motifs()` for acceptable motif formats.
 #' @param sequences \code{\link{XStringSet}} Sequences to scan. Alphabet
 #'    should match motif.
-#' @param threshold `numeric(1)` Between 0 and 1. See details.
+#' @param threshold `numeric(1)` See details.
 #' @param threshold.type `character(1)` One of `c('logodds', 'logodds.abs',
 #'    'pvalue')`. See details.
 #' @param RC `logical(1)` If `TRUE`, check reverse complement of input
@@ -94,10 +94,20 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                            use.freq = 1, verbose = 0, nthreads = 1,
                            motif_pvalue.k = 8) {
 
-  # TODO: Work with Masked*String objects. Masked letters show up as "#" after
-  #       as.character() calls, which should just cause scan_sequences() to
-  #       ignore these and work as intended. For now, just using "-", "." or
-  #       "+" within DNA/RNA/AAStringSet objects will work the same.
+# Gapped motif implementation ideas:
+#
+# 1. If a motif has a single gap which can be 2-4 bases long, then create
+#    three motifs for each possible size, using 1/nrow(motif) for each letter
+#    (this means that no matter the letter at the gap positions, the score
+#    contribution will be zero). Could probably do all of this in R.
+# 2. Add another c++ scanning function which re-scans a motif for each possible
+#    gap size.
+#
+# Honestly I'm not sure if solution #1 would be that much slower than #2.
+# Both solutions are O(motif@gapinfo@maxgap - motif@gapinfo@mingap + 1).
+#
+# A possible alternative: only scan gapped motif subsections. Then add up
+# scores later. Probably requires much more complex implementation though.
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -151,6 +161,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   motifs <- lapply(motifs, function(x) if (any(is.infinite(x@motif)))
                                          normalize(x) else x)
 
+  # mot.gaps <- lapply(motifs, function(x) x@gapinfo)
+  # mot.hasgap <- vapply(mot.gaps, function(x) x@isgapped, logical(1))
+  # if (any(mot.hasgap)) {
+  #   gapdat <- process_gapped_motifs(motifs, mot.hasgap)
+  #   motifs <- gapdat$motifs
+  # }
+
   mot.names <- vapply(motifs, function(x) x@name, character(1))
   mot.pwms <- lapply(motifs, function(x) x@motif)
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
@@ -170,6 +187,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     stop("`RC = TRUE` is only valid for DNA/RNA motifs")
 
   if (use.freq > 1) {
+    # if (any(mot.hasgap))
+    #   stop("use.freq > 1 cannot be used with gapped motifs")
     if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))
       stop("missing multifreq slots")
     check_multi <- vapply(motifs,
@@ -296,4 +315,63 @@ adjust_rc_hits <- function(res, alph) {
     res$match[rev.strand] <- matches
   }
   res
+}
+
+process_gapped_motifs <- function(motifs, hasgap) {
+  motifs_gapped <- motifs[hasgap]
+  motifs_normal <- motifs[!hasgap]
+  motifs_gapped <- ungap_multi(motifs)
+  list(
+    motifs = c(motifs_normal, motifs_gapped$motifs),
+    partnames = c(
+      seq_along(motifs_normal),
+      motifs_gapped$partnames + length(motifs_normal)
+    )
+  )
+}
+
+ungap_multi <- function(motifs) {
+}
+
+get_submotifs <- function(m) {
+  n <- length(m@gapinfo@gaploc)
+  submotifs <- vector("list", n + 1)
+  submotifs[[1]] <- subset(m, seq(1, m@gapinfo@gaploc[1]))
+  submotifs[[length(submotifs)]] <- subset(
+    m, seq(m@gapinfo@gaploc[n] + 1, ncol(m))
+  )
+  if (length(submotifs) > 2) {
+    for (i in seq_along(submotifs)[-c(1, length(submotifs))]) {
+      submotifs[[i]] <- subset(
+        m, seq(m@gapinfo@gaploc[i - 1] + 1, m@gapinfo@gaploc[i])
+      )
+    }
+  }
+  submotifs
+}
+
+make_blank_motif <- function(n) {
+  string <- paste0(rep("N", n), collapse = "")
+  create_motif(string, type = "PWM")
+}
+
+ungap_single <- function(m) {
+  gaplens <- mapply(function(x, y) x:y,
+    m@gapinfo@mingap, m@gapinfo@maxgap, SIMPLIFY = FALSE
+  )
+  gaplens <- expand.grid(gaplens)
+  out <- vector("list", nrow(gaplens))
+  submotifs <- get_submotifs(m)
+  for (i in seq_along(out)) {
+    tmp <- list(submotifs[[1]])
+    for (j in seq_len(ncol(gaplens))) {
+      if (gaplens[[j]][i] == 0) {
+        tmp <- c(tmp, list(submotifs[[j + 1]]))
+      } else {
+        tmp <- c(tmp, list(make_blank_motif(gaplens[[j]][i]), submotifs[[j + 1]]))
+      }
+    }
+    out[[i]] <- do.call(cbind, tmp)
+  }
+  out
 }

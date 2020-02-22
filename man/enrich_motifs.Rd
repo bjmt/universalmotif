@@ -46,7 +46,7 @@ P-value with the number of input motifs times two
 
 \item{qval.method}{\code{character(1)} See \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
 
-\item{threshold}{\code{numeric(1)} Between 0 and 1. See details.}
+\item{threshold}{\code{numeric(1)} See details.}
 
 \item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
 

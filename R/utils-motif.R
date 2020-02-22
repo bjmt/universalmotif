@@ -228,22 +228,30 @@ add_gap <- function(motif, gaploc, mingap, maxgap) {
 
   motif@gapinfo@isgapped <- TRUE
 
-  if (!missing(gaploc)) motif@gapinfo@gaploc <- sort(unique(gaploc))
-  if (!missing(mingap)) motif@gapinfo@mingap <- sort(unique(mingap))
-  if (!missing(maxgap)) motif@gapinfo@maxgap <- sort(unique(maxgap))
+  if (missing(gaploc) || missing(mingap) || missing(maxgap))
+    stop("'gaploc', 'mingap', and 'maxgap' must be provided")
+  # if (!missing(gaploc)) motif@gapinfo@gaploc <- sort(unique(gaploc))
+  # if (!missing(mingap)) motif@gapinfo@mingap <- sort(unique(mingap))
+  # if (!missing(maxgap)) motif@gapinfo@maxgap <- sort(unique(maxgap))
 
-  if (length(motif@gapinfo@gaploc) == 0)
-    motif@gapinfo@gaploc <- round(ncol(motif@motif) / 2)
-  if (length(motif@gapinfo@mingap) == 0)
-    motif@gapinfo@mingap <- rep(1, length(motif@gapinfo@gaploc))
-  if (length(motif@gapinfo@maxgap) == 0)
-    motif@gapinfo@maxgap <- rep(5, length(motif@gapinfo@gaploc))
+  maxlen <- max(c(length(gaploc), length(mingap), length(maxgap)))
 
-  lencheck <- c(length(motif@gapinfo@gaploc),
-                length(motif@gapinfo@mingap),
-                length(motif@gapinfo@maxgap))
-  if (length(unique(lencheck)) != 1) 
-    stop("gaploc, mingap and maxgap should have the same number of elements")
+  motif@gapinfo@gaploc <- rep(gaploc, length.out = maxlen)
+  motif@gapinfo@mingap <- rep(mingap, length.out = maxlen)
+  motif@gapinfo@maxgap <- rep(maxgap, length.out = maxlen)
+
+  # if (length(motif@gapinfo@gaploc) == 0)
+  #   motif@gapinfo@gaploc <- round(ncol(motif@motif) / 2)
+  # if (length(motif@gapinfo@mingap) == 0)
+  #   motif@gapinfo@mingap <- rep(1, length(motif@gapinfo@gaploc))
+  # if (length(motif@gapinfo@maxgap) == 0)
+  #   motif@gapinfo@maxgap <- rep(5, length(motif@gapinfo@gaploc))
+
+  # lencheck <- c(length(motif@gapinfo@gaploc),
+  #               length(motif@gapinfo@mingap),
+  #               length(motif@gapinfo@maxgap))
+  # if (length(unique(lencheck)) != 1)
+  #   stop("gaploc, mingap and maxgap should have the same number of elements")
 
   validObject_universalmotif(motif)
 
