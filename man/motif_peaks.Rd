@@ -4,17 +4,8 @@
 \alias{motif_peaks}
 \title{Look for overrepresented motif position peaks in a set of sequences.}
 \usage{
-motif_peaks(
-  hits,
-  seq.length,
-  seq.count,
-  bandwidth,
-  max.p = 1e-06,
-  peak.width = 3,
-  nrand = 100,
-  plot = TRUE,
-  BP = FALSE
-)
+motif_peaks(hits, seq.length, seq.count, bandwidth, max.p = 1e-06,
+  peak.width = 3, nrand = 100, plot = TRUE, BP = FALSE)
 }
 \arguments{
 \item{hits}{\code{numeric} A vector of sequence positions indicating motif sites.}

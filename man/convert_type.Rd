@@ -4,13 +4,8 @@
 \alias{convert_type}
 \title{Convert \linkS4class{universalmotif} type.}
 \usage{
-convert_type(
-  motifs,
-  type,
-  pseudocount,
-  nsize_correction = FALSE,
-  relative_entropy = FALSE
-)
+convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
+  relative_entropy = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}

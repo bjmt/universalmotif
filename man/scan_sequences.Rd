@@ -4,17 +4,9 @@
 \alias{scan_sequences}
 \title{Scan sequences for matches to input motifs.}
 \usage{
-scan_sequences(
-  motifs,
-  sequences,
-  threshold = 0.001,
-  threshold.type = "pvalue",
-  RC = FALSE,
-  use.freq = 1,
-  verbose = 0,
-  nthreads = 1,
-  motif_pvalue.k = 8
-)
+scan_sequences(motifs, sequences, threshold = 0.001,
+  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
+  nthreads = 1, motif_pvalue.k = 8)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}

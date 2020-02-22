@@ -4,13 +4,8 @@
 \alias{write_homer}
 \title{Export motifs in HOMER format.}
 \usage{
-write_homer(
-  motifs,
-  file,
-  logodds_threshold = 0.6,
-  overwrite = FALSE,
-  append = FALSE
-)
+write_homer(motifs, file, logodds_threshold = 0.6, overwrite = FALSE,
+  append = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}

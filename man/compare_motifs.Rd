@@ -4,26 +4,11 @@
 \alias{compare_motifs}
 \title{Compare motifs.}
 \usage{
-compare_motifs(
-  motifs,
-  compare.to,
-  db.scores,
-  use.freq = 1,
-  use.type = "PPM",
-  method = "ALLR",
-  tryRC = TRUE,
-  min.overlap = 6,
-  min.mean.ic = 0.25,
-  min.position.ic = 0,
-  relative_entropy = FALSE,
-  normalise.scores = FALSE,
-  max.p = 0.01,
-  max.e = 10,
-  nthreads = 1,
-  score.strat = "a.mean",
-  output.report,
-  output.report.max.print = 10
-)
+compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
+  use.type = "PPM", method = "ALLR", tryRC = TRUE, min.overlap = 6,
+  min.mean.ic = 0.25, min.position.ic = 0, relative_entropy = FALSE,
+  normalise.scores = FALSE, max.p = 0.01, max.e = 10, nthreads = 1,
+  score.strat = "a.mean", output.report, output.report.max.print = 10)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}

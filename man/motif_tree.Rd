@@ -4,27 +4,12 @@
 \alias{motif_tree}
 \title{Generate \pkg{ggplot2} motif trees with \pkg{ggtree}.}
 \usage{
-motif_tree(
-  motifs,
-  layout = "circular",
-  linecol = "family",
-  labels = "none",
-  tipsize = "none",
-  legend = TRUE,
-  branch.length = "none",
-  db.scores,
-  method = "EUCL",
-  use.type = "PPM",
-  min.overlap = 6,
-  min.position.ic = 0,
-  tryRC = TRUE,
-  min.mean.ic = 0,
-  relative_entropy = FALSE,
-  progress = FALSE,
-  nthreads = 1,
-  score.strat = "a.mean",
-  ...
-)
+motif_tree(motifs, layout = "circular", linecol = "family",
+  labels = "none", tipsize = "none", legend = TRUE,
+  branch.length = "none", db.scores, method = "EUCL", use.type = "PPM",
+  min.overlap = 6, min.position.ic = 0, tryRC = TRUE, min.mean.ic = 0,
+  relative_entropy = FALSE, progress = FALSE, nthreads = 1,
+  score.strat = "a.mean", ...)
 }
 \arguments{
 \item{motifs}{\code{list}, \code{dist} See \code{\link[=convert_motifs]{convert_motifs()}} for

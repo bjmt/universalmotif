@@ -4,16 +4,9 @@
 \alias{add_multifreq}
 \title{Add multi-letter information to a motif.}
 \usage{
-add_multifreq(
-  motif,
-  sequences,
-  add.k = 2:3,
-  RC = FALSE,
-  threshold = 0.001,
-  threshold.type = "pvalue",
-  motifs.perseq = 1,
-  add.bkg = FALSE
-)
+add_multifreq(motif, sequences, add.k = 2:3, RC = FALSE,
+  threshold = 0.001, threshold.type = "pvalue", motifs.perseq = 1,
+  add.bkg = FALSE)
 }
 \arguments{
 \item{motif}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats. If the

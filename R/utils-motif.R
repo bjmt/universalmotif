@@ -224,21 +224,21 @@ NULL
 
 #' @rdname utils-motif
 #' @export
-add_gap <- function(motif, gaploc, mingap, maxgap) {
+add_gap <- function(motif, gaploc = ncol(motif) %/% 2, mingap = 1, maxgap = 5) {
 
   motif@gapinfo@isgapped <- TRUE
 
-  if (missing(gaploc) || missing(mingap) || missing(maxgap))
-    stop("'gaploc', 'mingap', and 'maxgap' must be provided")
+  # if (missing(gaploc) || missing(mingap) || missing(maxgap))
+  #   stop("'gaploc', 'mingap', and 'maxgap' must be provided")
   # if (!missing(gaploc)) motif@gapinfo@gaploc <- sort(unique(gaploc))
   # if (!missing(mingap)) motif@gapinfo@mingap <- sort(unique(mingap))
   # if (!missing(maxgap)) motif@gapinfo@maxgap <- sort(unique(maxgap))
 
   maxlen <- max(c(length(gaploc), length(mingap), length(maxgap)))
 
-  motif@gapinfo@gaploc <- rep(gaploc, length.out = maxlen)
-  motif@gapinfo@mingap <- rep(mingap, length.out = maxlen)
-  motif@gapinfo@maxgap <- rep(maxgap, length.out = maxlen)
+  motif@gapinfo@gaploc <- rep(as.integer(gaploc), length.out = maxlen)
+  motif@gapinfo@mingap <- rep(as.integer(mingap), length.out = maxlen)
+  motif@gapinfo@maxgap <- rep(as.integer(maxgap), length.out = maxlen)
 
   # if (length(motif@gapinfo@gaploc) == 0)
   #   motif@gapinfo@gaploc <- round(ncol(motif@motif) / 2)

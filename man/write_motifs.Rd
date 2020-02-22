@@ -4,16 +4,8 @@
 \alias{write_motifs}
 \title{Export motifs in universalmotif format.}
 \usage{
-write_motifs(
-  motifs,
-  file,
-  minimal = FALSE,
-  multifreq = TRUE,
-  progress = FALSE,
-  overwrite = FALSE,
-  append = FALSE,
-  BP = FALSE
-)
+write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
+  progress = FALSE, overwrite = FALSE, append = FALSE, BP = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}

@@ -4,17 +4,8 @@
 \alias{write_matrix}
 \title{Export motifs as raw matrices.}
 \usage{
-write_matrix(
-  motifs,
-  file,
-  positions = "columns",
-  rownames = FALSE,
-  type,
-  sep = "",
-  headers = TRUE,
-  overwrite = FALSE,
-  append = FALSE
-)
+write_matrix(motifs, file, positions = "columns", rownames = FALSE, type,
+  sep = "", headers = TRUE, overwrite = FALSE, append = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}

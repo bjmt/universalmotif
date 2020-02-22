@@ -4,16 +4,8 @@
 \alias{read_matrix}
 \title{Import motifs from raw matrices.}
 \usage{
-read_matrix(
-  file,
-  skip = 0,
-  type,
-  positions = "columns",
-  alphabet = "DNA",
-  sep = "",
-  headers = TRUE,
-  rownames = FALSE
-)
+read_matrix(file, skip = 0, type, positions = "columns", alphabet = "DNA",
+  sep = "", headers = TRUE, rownames = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}

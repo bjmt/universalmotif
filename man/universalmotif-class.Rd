@@ -27,29 +27,10 @@
 
 \S4method{[}{universalmotif}(x, i) <- value
 
-\S4method{initialize}{universalmotif}(
-  .Object,
-  name,
-  altname,
-  family,
-  organism,
-  motif,
-  alphabet = "DNA",
-  type,
-  icscore,
-  nsites,
-  pseudocount = 1,
-  bkg,
-  bkgsites,
-  consensus,
-  strand = "+-",
-  pval,
-  qval,
-  eval,
-  multifreq,
-  extrainfo,
-  gapinfo
-)
+\S4method{initialize}{universalmotif}(.Object, name, altname, family, organism,
+  motif, alphabet = "DNA", type, icscore, nsites, pseudocount = 1, bkg,
+  bkgsites, consensus, strand = "+-", pval, qval, eval, multifreq, extrainfo,
+  gapinfo)
 
 \S4method{show}{universalmotif}(object)
 

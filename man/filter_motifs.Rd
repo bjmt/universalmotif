@@ -4,23 +4,8 @@
 \alias{filter_motifs}
 \title{Filter a list of motifs.}
 \usage{
-filter_motifs(
-  motifs,
-  name,
-  altname,
-  family,
-  organism,
-  width,
-  alphabet,
-  type,
-  icscore,
-  nsites,
-  strand,
-  pval,
-  qval,
-  eval,
-  extrainfo
-)
+filter_motifs(motifs, name, altname, family, organism, width, alphabet, type,
+  icscore, nsites, strand, pval, qval, eval, extrainfo)
 }
 \arguments{
 \item{motifs}{\code{list} See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable
