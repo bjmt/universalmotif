@@ -161,12 +161,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   motifs <- lapply(motifs, function(x) if (any(is.infinite(x@motif)))
                                          normalize(x) else x)
 
-  # mot.gaps <- lapply(motifs, function(x) x@gapinfo)
-  # mot.hasgap <- vapply(mot.gaps, function(x) x@isgapped, logical(1))
-  # if (any(mot.hasgap)) {
-  #   gapdat <- process_gapped_motifs(motifs, mot.hasgap)
-  #   motifs <- gapdat$motifs
-  # }
+  mot.gaps <- lapply(motifs, function(x) x@gapinfo)
+  mot.hasgap <- vapply(mot.gaps, function(x) x@isgapped, logical(1))
+  if (any(mot.hasgap)) {
+    gapdat <- process_gapped_motifs(motifs, mot.hasgap)
+    motifs <- gapdat$motifs
+  }
 
   mot.names <- vapply(motifs, function(x) x@name, character(1))
   mot.pwms <- lapply(motifs, function(x) x@motif)
@@ -187,8 +187,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     stop("`RC = TRUE` is only valid for DNA/RNA motifs")
 
   if (use.freq > 1) {
-    # if (any(mot.hasgap))
-    #   stop("use.freq > 1 cannot be used with gapped motifs")
+    if (any(mot.hasgap))
+      stop("use.freq > 1 cannot be used with gapped motifs")
     if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))
       stop("missing multifreq slots")
     check_multi <- vapply(motifs,
@@ -293,7 +293,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   if (RC && nrow(res) > 0) res <- adjust_rc_hits(res, seq.alph)
 
-  # res[, c(1:5, 6, 11, 7:10)]
   out <- as(res, "DataFrame")
   out@metadata <- args[-c(1:2)]
   out

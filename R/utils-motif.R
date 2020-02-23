@@ -226,13 +226,12 @@ NULL
 #' @export
 add_gap <- function(motif, gaploc = ncol(motif) %/% 2, mingap = 1, maxgap = 5) {
 
-  motif@gapinfo@isgapped <- TRUE
-
-  # if (missing(gaploc) || missing(mingap) || missing(maxgap))
-  #   stop("'gaploc', 'mingap', and 'maxgap' must be provided")
-  # if (!missing(gaploc)) motif@gapinfo@gaploc <- sort(unique(gaploc))
-  # if (!missing(mingap)) motif@gapinfo@mingap <- sort(unique(mingap))
-  # if (!missing(maxgap)) motif@gapinfo@maxgap <- sort(unique(maxgap))
+  args <- as.list(environment())
+  num_check <- check_fun_params(
+    list(gaploc = args$gaploc, mingap = args$mingap, maxgap = args$maxgap),
+    1, FALSE, TYPE_NUM
+  )
+  if (length(num_check)) stop(all_checks_collapse(num_check))
 
   maxlen <- max(c(length(gaploc), length(mingap), length(maxgap)))
 
@@ -240,18 +239,16 @@ add_gap <- function(motif, gaploc = ncol(motif) %/% 2, mingap = 1, maxgap = 5) {
   motif@gapinfo@mingap <- rep(as.integer(mingap), length.out = maxlen)
   motif@gapinfo@maxgap <- rep(as.integer(maxgap), length.out = maxlen)
 
-  # if (length(motif@gapinfo@gaploc) == 0)
-  #   motif@gapinfo@gaploc <- round(ncol(motif@motif) / 2)
-  # if (length(motif@gapinfo@mingap) == 0)
-  #   motif@gapinfo@mingap <- rep(1, length(motif@gapinfo@gaploc))
-  # if (length(motif@gapinfo@maxgap) == 0)
-  #   motif@gapinfo@maxgap <- rep(5, length(motif@gapinfo@gaploc))
+  if (any(c(gaploc, mingap, maxgap) < 0))
+    stop("'gaploc', 'mingap', 'maxgap' must be positive numbers")
 
-  # lencheck <- c(length(motif@gapinfo@gaploc),
-  #               length(motif@gapinfo@mingap),
-  #               length(motif@gapinfo@maxgap))
-  # if (length(unique(lencheck)) != 1)
-  #   stop("gaploc, mingap and maxgap should have the same number of elements")
+  if (any(mingap > maxgap))
+    stop("'mingap' cannot be greater than the corresponding 'maxgap'")
+
+  if (any(maxgap == 0))
+    stop("'maxgap' must be greater than 0")
+
+  motif@gapinfo@isgapped <- TRUE
 
   validObject_universalmotif(motif)
 
