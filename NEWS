@@ -24,6 +24,13 @@ MINOR CHANGES
 
     o General code cleanup.
 
+CHANGES IN VERSION 1.4.8
+------------------------
+
+BUG FIXES
+
+    o Fixed buffer overflow error in motif_peaks().
+
 CHANGES IN VERSION 1.4.7
 ------------------------
 

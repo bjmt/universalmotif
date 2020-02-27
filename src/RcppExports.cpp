@@ -166,7 +166,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // linbin_cpp
-std::vector<int> linbin_cpp(const std::vector<int>& x, const std::vector<int>& gpoints);
+std::vector<double> linbin_cpp(const std::vector<int>& x, const std::vector<int>& gpoints);
 RcppExport SEXP _universalmotif_linbin_cpp(SEXP xSEXP, SEXP gpointsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

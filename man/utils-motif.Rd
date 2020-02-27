@@ -25,7 +25,7 @@
 \alias{ungap}
 \title{Motif-related utility functions.}
 \usage{
-add_gap(motif, gaploc, mingap, maxgap)
+add_gap(motif, gaploc = ncol(motif)\%/\%2, mingap = 1, maxgap = 5)
 
 compare_columns(x, y, method, bkg1 = rep(1/length(x), length(x)),
   bkg2 = rep(1/length(y), length(y)), nsites1 = 100, nsites2 = 100)
