@@ -73,7 +73,7 @@ std::vector<int> linbin_cpp(const std::vector<int> &x,
 // [[Rcpp::export(rng = false)]]
 std::vector<double> linbin_cpp(const std::vector<int> &x, const std::vector<int> &gpoints) {
 
-  int M = gpoints.size(), b = x.size(), n = x.size(), a = 1;
+  double M = gpoints.size(), b = x.size(), n = x.size(), a = 1;
 
   std::vector<double> gcnts(M, 0.0);
   double delta = (b - a) / (M - 1);
