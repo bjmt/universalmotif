@@ -41,36 +41,6 @@ Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector &x, int m = 3) {
 
 }
 
-/*
-std::vector<int> linbin_cpp(const std::vector<int> &x,
-    const std::vector<int> &gpoints) {
-
-  int M = gpoints.size();
-  vec_int_t gcnts(M);
-
-  double delta = (gpoints[M - 1] - gpoints[0]) / (M - 1);
-
-  double lxi, rem;
-  int li;
-
-  for (std::size_t i = 0; i < x.size(); ++i) {
-
-    lxi = (x[i] - gpoints[0]) / delta;
-    li = lxi;
-    rem = lxi - li;
-
-    if (li >= 0 && li < M) {
-      gcnts[li] += 1 - rem;
-      gcnts[li + 1] += rem;
-    }
-
-  }
-
-  return gcnts;
-
-}
-*/
-
 // [[Rcpp::export(rng = false)]]
 std::vector<double> linbin_cpp(const std::vector<int> &x, const std::vector<int> &gpoints) {
 
