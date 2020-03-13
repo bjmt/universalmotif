@@ -146,6 +146,13 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     stop(wmsg("'PCC', 'SW', 'ALLR', 'BHAT' are not allowed, since a distance",
               "matrix cannot be built"))
 
+  if (layout == "daylight") {
+    warning(wmsg(
+      "A recent update in upstream code has broken the 'daylight' layout functionality. For now, 'fan' will be substituted for daylight."
+    ), call. = FALSE, immediate = TRUE)
+    layout <- "fan"
+  }
+
   if (is(motifs, "dist")) {
     tree <- ape::as.phylo(hclust(motifs))
     mot_names <- attr(motifs, "Labels")
