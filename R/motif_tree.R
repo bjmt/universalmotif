@@ -2,7 +2,7 @@
 #'
 #' For more powerful motif tree functions, see the \pkg{motifStack} package.
 #' The [motif_tree()] function compares motifs with [compare_motifs()] to create
-#' a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
+#' a distance matrix, which is used to generate a phylogeny.
 #' This can be plotted with [ggtree::ggtree()]. The purpose of this function
 #' is simply to combine the [compare_motifs()] and [ggtree::ggtree()] steps
 #' into one. For more control over tree creation, it is recommend to do these
@@ -146,7 +146,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
               "matrix cannot be built"))
 
   if (is(motifs, "dist")) {
-    tree <- ape::as.phylo(hclust(motifs))
+    # tree <- hclust_to_phylo(hclust(motifs))
+    tree <- ape::as.phylo(hclust(as.dist(tree)))
     mot_names <- attr(motifs, "Labels")
     if (labels == "name") {
       tree$tip.label <- mot_names
@@ -168,9 +169,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     if (anyNA(tree))
       stop(wmsg("Found NA values in comparison matrix; try again with ",
                "a smaller min.mean.ic and/or min.position.ic"))
-    # tree <- switch(method, "WPCC" = 1 - tree, "MSW" = 2 - tree,
-    #                "MBHAT" = 1 - tree, tree)
     if (progress) message("Constructing phylogeny...")
+    # tree <- hclust_to_phylo(hclust(as.dist(tree)))
     tree <- ape::as.phylo(hclust(as.dist(tree)))
     if (labels != "none") {
       mot_names <- sapply(motifs, function(x) x[labels])
@@ -272,6 +272,13 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
   }
 
+}
+
+hclust_to_phylo <- function(x) {
+  structure(
+    hclust_to_phylo_cpp(x$merge, x$height, x$labels),
+    class = "phylo", order = "cladewise"
+  )
 }
 
 # grid.arrange(p1, p2 + scale_x_reverse(), nrow = 1) (package=egg)

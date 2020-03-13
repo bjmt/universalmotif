@@ -85,7 +85,7 @@ ggplot object.
 \description{
 For more powerful motif tree functions, see the \pkg{motifStack} package.
 The \code{\link[=motif_tree]{motif_tree()}} function compares motifs with \code{\link[=compare_motifs]{compare_motifs()}} to create
-a distance matrix, which is used to generate a phylogeny via \pkg{ape}.
+a distance matrix, which is used to generate a phylogeny.
 This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. The purpose of this function
 is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \code{\link[ggtree:ggtree]{ggtree::ggtree()}} steps
 into one. For more control over tree creation, it is recommend to do these

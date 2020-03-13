@@ -65,6 +65,10 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
+hclust_to_phylo_cpp <- function(x_merge, x_height, x_labels) {
+    .Call('_universalmotif_hclust_to_phylo_cpp', PACKAGE = 'universalmotif', x_merge, x_height, x_labels)
+}
+
 scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads) {
     .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads)
 }

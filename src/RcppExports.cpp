@@ -248,6 +248,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// hclust_to_phylo_cpp
+Rcpp::List hclust_to_phylo_cpp(const Rcpp::IntegerMatrix x_merge, const Rcpp::NumericVector x_height, const Rcpp::RObject x_labels);
+RcppExport SEXP _universalmotif_hclust_to_phylo_cpp(SEXP x_mergeSEXP, SEXP x_heightSEXP, SEXP x_labelsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix >::type x_merge(x_mergeSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector >::type x_height(x_heightSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::RObject >::type x_labels(x_labelsSEXP);
+    rcpp_result_gen = Rcpp::wrap(hclust_to_phylo_cpp(x_merge, x_height, x_labels));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scan_sequences_cpp
 Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const int& k, const std::string& alph, const std::vector<double>& min_scores, const int& nthreads);
 RcppExport SEXP _universalmotif_scan_sequences_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP kSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP nthreadsSEXP) {
@@ -752,6 +764,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
+    {"_universalmotif_hclust_to_phylo_cpp", (DL_FUNC) &_universalmotif_hclust_to_phylo_cpp, 3},
     {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 6},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},

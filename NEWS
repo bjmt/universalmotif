@@ -22,6 +22,8 @@ MINOR CHANGES
 
     o create_motif(): single motif positions can now be created.
 
+    o Removed ape package dependency.
+
     o General code cleanup.
 
 CHANGES IN VERSION 1.4.8

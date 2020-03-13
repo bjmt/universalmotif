@@ -17,3 +17,4 @@
 - Add scan_sequences() gapped motif example to vignettes
 - SequenceSearches.Rmd vignette: in the run_meme() example, fix the
   getPromoterSeq line to use 1000 bases upstream, not downstream
+- dependencies to consider removing: ggseqlogo, yaml, processx, Rdpack, rlang?
