@@ -50,8 +50,9 @@ log_string_pval(pval)
 
 pcm_to_ppm(position, pseudocount = 0)
 
-position_icscore(position, bkg = numeric(), type = "PPM", pseudocount = 1,
-  nsites = 100, relative_entropy = FALSE, schneider_correction = FALSE)
+position_icscore(position, bkg = numeric(), type = "PPM",
+  pseudocount = 1, nsites = 100, relative_entropy = FALSE,
+  schneider_correction = FALSE)
 
 ppm_to_icm(position, bkg = numeric(), schneider_correction = FALSE,
   nsites = 100, relative_entropy = FALSE)

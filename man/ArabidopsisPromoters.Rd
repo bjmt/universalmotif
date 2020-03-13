@@ -4,7 +4,9 @@
 \name{ArabidopsisPromoters}
 \alias{ArabidopsisPromoters}
 \title{Arabidopsis promoters as a \code{DNAStringSet}.}
-\format{\code{\link{DNAStringSet}}}
+\format{
+\code{\link{DNAStringSet}}
+}
 \usage{
 ArabidopsisPromoters
 }

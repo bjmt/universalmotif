@@ -4,7 +4,9 @@
 \name{ArabidopsisMotif}
 \alias{ArabidopsisMotif}
 \title{Arabidopsis motif in \code{universalmotif} format.}
-\format{\linkS4class{universalmotif}}
+\format{
+\linkS4class{universalmotif}
+}
 \usage{
 ArabidopsisMotif
 }

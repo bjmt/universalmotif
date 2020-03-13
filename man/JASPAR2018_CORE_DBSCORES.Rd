@@ -4,7 +4,9 @@
 \name{JASPAR2018_CORE_DBSCORES}
 \alias{JASPAR2018_CORE_DBSCORES}
 \title{JASPAR2018 CORE database scores}
-\format{\code{DataFrame} with function args in the \code{metadata} slot.}
+\format{
+\code{DataFrame} with function args in the \code{metadata} slot.
+}
 \usage{
 JASPAR2018_CORE_DBSCORES
 }

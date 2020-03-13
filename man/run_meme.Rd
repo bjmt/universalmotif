@@ -10,14 +10,14 @@ run_meme(target.sequences, output = NULL, overwrite.dir = FALSE,
   hsfrac = NULL, cefrac = NULL, searchsize = NULL, norand = FALSE,
   csites = 1000, seed = 0, alph = NULL, revcomp = FALSE, pal = FALSE,
   mod = "zoops", nmotifs = 3, evt = NULL, nsites = NULL,
-  minsites = NULL, maxsites = NULL, wnsites = 0.8, w = NULL, minw = 8,
-  maxw = 50, allw = NULL, nomatrim = FALSE, wg = 11, ws = 1,
-  noendgaps = FALSE, bfile = NULL, markov_order = 0, psp = NULL,
-  maxiter = 50, distance = 0.001, prior = NULL, b = NULL, plib = NULL,
-  spfuzz = NULL, spmap = NULL, cons = NULL, p = NULL, maxsize = NULL,
-  maxtime = NULL, wd = getwd(), logfile = paste0(wd, "/memerun.log"),
-  readsites = TRUE, echo = FALSE, verbose = 1, timeout = Inf,
-  bin = getOption("meme.bin"))
+  minsites = NULL, maxsites = NULL, wnsites = 0.8, w = NULL,
+  minw = 8, maxw = 50, allw = NULL, nomatrim = FALSE, wg = 11,
+  ws = 1, noendgaps = FALSE, bfile = NULL, markov_order = 0,
+  psp = NULL, maxiter = 50, distance = 0.001, prior = NULL, b = NULL,
+  plib = NULL, spfuzz = NULL, spmap = NULL, cons = NULL, p = NULL,
+  maxsize = NULL, maxtime = NULL, wd = getwd(), logfile = paste0(wd,
+  "/memerun.log"), readsites = TRUE, echo = FALSE, verbose = 1,
+  timeout = Inf, bin = getOption("meme.bin"))
 }
 \arguments{
 \item{target.sequences}{\code{\link{XStringSet}} List of sequences to get motifs from.}

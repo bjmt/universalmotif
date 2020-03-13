@@ -4,7 +4,9 @@
 \name{examplemotif}
 \alias{examplemotif}
 \title{Example motif in \code{universalmotif} format.}
-\format{\linkS4class{universalmotif}}
+\format{
+\linkS4class{universalmotif}
+}
 \usage{
 examplemotif
 }
