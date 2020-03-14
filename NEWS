@@ -11,6 +11,9 @@ NEW FEATURES
     o view_motifs(..., return.raw) option: instead of returning a plot
       type object, return the aligned motif matrices.
 
+    o view_motifs(..., dedup.names) option: allows plotting of motifs with
+      duplicated names by appending a unique string.
+
     o round_motif() utility: round down very low letter-position scores to
       zero.
 
@@ -22,7 +25,10 @@ MINOR CHANGES
 
     o create_motif(): single motif positions can now be created.
 
-    o Removed ape package dependency.
+    o merge_motifs(): a message regarding adding pseudocounts to the motifs
+      is given if one ALLR/ALLR_LL/KL are used as comparison method.
+
+    o Some cleanup to documentation and vignettes.
 
     o General code cleanup.
 
@@ -71,7 +77,7 @@ CHANGES IN VERSION 1.4.4
 
 BUG FIXES
 
-    o Minor fix to how args are fed to processx::run() in run_meme()
+    o Minor fix to how args are fed to processx::run() in run_meme().
 
 CHANGES IN VERSION 1.4.3
 ------------------------
@@ -87,7 +93,7 @@ CHANGES IN VERSION 1.4.2
 BUG FIXES
 
     o Stopped using BiocStyle, as a current bug was preventing the package from
-      building successfully
+      building successfully.
 
 CHANGES IN VERSION 1.4.1
 ------------------------
@@ -218,7 +224,7 @@ CHANGES IN VERSION 1.2.1
 
 BUG FIXES
 
-    o Mispelled variable in enrich_motifs()
+    o Mispelled variable in enrich_motifs().
 
 CHANGES IN VERSION 1.2.0
 ------------------------
@@ -363,14 +369,14 @@ CHANGES IN VERSION 1.0.22
 
 BUG FIXES
 
-    o Fixed incorrect RcppExports code introduced in last patch
+    o Fixed incorrect RcppExports code introduced in last patch.
 
 CHANGES IN VERSION 1.0.21
 -------------------------
 
 BUG FIXES
 
-    o Fixed an incorrect citation in motif_pvalue()
+    o Fixed an incorrect citation in motif_pvalue().
 
 CHANGES IN VERSION 1.0.20
 -------------------------
@@ -378,14 +384,14 @@ CHANGES IN VERSION 1.0.20
 BUG FIXES
 
     o Fixed a bug introduced in previous patches where create_sequences()
-      fails with alphabet = "RNA" and missing difreq/trifreq
+      fails with alphabet = "RNA" and missing difreq/trifreq.
 
 CHANGES IN VERSION 1.0.19
 -------------------------
 
 BUG FIXES
 
-    o Fixed create_sequences(alphabet = "RNA") when providing difreq/trifreq
+    o Fixed create_sequences(alphabet = "RNA") when providing difreq/trifreq.
 
 CHANGES IN VERSION 1.0.18
 -------------------------
@@ -393,19 +399,19 @@ CHANGES IN VERSION 1.0.18
 BUG FIXES
 
     o Fixed alphabet letters being stripped from difreq and trifreq params in
-      create_sequences()
+      create_sequences().
 
     o Fixed an incorrect call to sample() when using create_sequences() with
-      difreq
+      difreq.
 
 CHANGES IN VERSION 1.0.17
 -------------------------
 
 BUG FIXES
 
-    o Custom motif alphabets are properly sorted in the alphabet slot of motifs
+    o Custom motif alphabets are properly sorted in the alphabet slot of motifs.
 
-    o scan_sequences() properly matches custom sequence and motif alphabets
+    o scan_sequences() properly matches custom sequence and motif alphabets.
 
 CHANGES IN VERSION 1.0.16
 -------------------------
@@ -413,7 +419,7 @@ CHANGES IN VERSION 1.0.16
 BUG FIXES
 
     o scan_sequences() will now properly create a scoring matrix from motifs
-      with pseudocounts of 0
+      with pseudocounts of 0.
 
 CHANGES IN VERSION 1.0.15
 -------------------------
@@ -421,14 +427,14 @@ CHANGES IN VERSION 1.0.15
 BUG FIXES
 
     o view_motifs() will now give an informative error message when trying
-      to plot multiple motifs with non-unique names
+      to plot multiple motifs with non-unique names.
 
 CHANGES IN VERSION 1.0.14
 -------------------------
 
 BUG FIXES
 
-    o Fixed 'method' parameter documentation for motif_tree()
+    o Fixed 'method' parameter documentation for motif_tree().
 
 CHANGES IN VERSION 1.0.13
 -------------------------
@@ -436,7 +442,7 @@ CHANGES IN VERSION 1.0.13
 BUG FIXES
 
     o Fixed the error message given when a vector of incorrect length is
-      used in a function
+      used in a function.
 
 CHANGES IN VERSION 1.0.12
 -------------------------
@@ -444,9 +450,9 @@ CHANGES IN VERSION 1.0.12
 BUG FIXES
 
     o motif_pvalue() no longer throws an error for
-      motif_pvalue(..., pvalue = 0)
+      motif_pvalue(..., pvalue = 0).
 
-    o motif_tree() now works properly with dist objects as input
+    o motif_tree() now works properly with dist objects as input.
 
 CHANGES IN VERSION 1.0.11
 -------------------------
@@ -454,7 +460,7 @@ CHANGES IN VERSION 1.0.11
 BUG FIXES
 
     o The compare_motifs() example for min.mean.ic in the Advanced Usage
-      vignette now makes more sense
+      vignette now makes more sense.
 
 CHANGES IN VERSION 1.0.10
 -------------------------
@@ -462,14 +468,14 @@ CHANGES IN VERSION 1.0.10
 BUG FIXES
 
     o More strangely behaving MotifDb vignette code addressed in Advanced Usage
-      vignette
+      vignette.
 
 CHANGES IN VERSION 1.0.9
 ------------------------
 
 BUG FIXES
 
-    o shuffle_motifs() now produces motifs of proper length
+    o shuffle_motifs() now produces motifs of proper length.
 
 CHANGES IN VERSION 1.0.8
 ------------------------
@@ -477,7 +483,7 @@ CHANGES IN VERSION 1.0.8
 BUG FIXES
 
     o Trying to prevent R CMD BUILD from changing the behaviour of vignette
-      code involving MotifDb package
+      code involving MotifDb package.
 
 CHANGES IN VERSION 1.0.7
 ------------------------
@@ -485,9 +491,9 @@ CHANGES IN VERSION 1.0.7
 BUG FIXES
 
     o merge_motifs() will not show repeat families/organisms in new merged
-      motif
+      motif.
 
-    o show method will no longer show name slot instead of altname
+    o show method will no longer show name slot instead of altname.
 
 CHANGES IN VERSION 1.0.6
 ------------------------
@@ -495,98 +501,99 @@ CHANGES IN VERSION 1.0.6
 BUG FIXES
 
     o If MEME motif file has no strand info, assume `strand = "+"`, not
-      `strand = c("+", "-")`
+      `strand = c("+", "-")`.
 
 CHANGES IN VERSION 1.0.5
 ------------------------
 
 BUG FIXES
 
-    o `read_meme()` can now read non-DNA/RNA motifs
+    o `read_meme()` can now read non-DNA/RNA motifs.
 
-    o removed duplicate line in run_meme.R
+    o Removed duplicate line in run_meme.R.
 
-    o `scan_sequences()` will not scan mismatching motif/sequence alphabets
+    o `scan_sequences()` will not scan mismatching motif/sequence alphabets.
 
-    o verbose output from `scan_sequences()` will now display correctly
+    o Verbose output from `scan_sequences()` will now display correctly.
 
     o Using `enrich_motifs()` and not finding any motif hits in the input
-      sequences no longer throws an error
+      sequences no longer throws an error.
 
-    o Fixed threshold calculation in `enrich_motifs()`
+    o Fixed threshold calculation in `enrich_motifs()`.
 
     o `enrich_motifs()` will now show results for motifs which have hits in
-      target sequences but none in bkg sequences
+      target sequences but none in bkg sequences.
 
 CHANGES IN VERSION 1.0.4
 ------------------------
 
 BUG FIXES
 
-    o Can now use `view_motifs(..., tryRC=F)` without throwing an error
+    o Can now use `view_motifs(..., tryRC=F)` without throwing an error.
 
 CHANGES IN VERSION 1.0.3
 ------------------------
 
 BUG FIXES
 
-    o Missed a couple [Biostrings::*StringSet-class] from last patch
+    o Missed a couple [Biostrings::*StringSet-class] from last patch.
 
-    o Updated README to reflect new installation method
+    o Updated README to reflect new installation method.
 
-    o Wrapped instances of \link{} with \code{\link{}}
+    o Wrapped instances of \link{} with \code{\link{}}.
 
 CHANGES IN VERSION 1.0.2
 ------------------------
 
 BUG FIXES
 
-    o `read_meme()` can now read meme result files with missing strand info
+    o `read_meme()` can now read meme result files with missing strand info.
 
     o Use \link{*StringSet} instead of [Biostrings::*StringSet-class] in
-      documentation
+      documentation.
 
-    o No longer load MotifDb package in examples on Windows
+    o No longer load MotifDb package in examples on Windows.
 
 CHANGES IN VERSION 1.0.1
 ------------------------
 
 BUG FIXES
 
-    o TFBSTools motifs with multiple species can convert to universalmotif
+    o TFBSTools motifs with multiple species can convert to universalmotif.
 
     o `scan_sequences()`: will now ignore non-standard letters instead of
-      crashing
+      crashing.
 
 CHANGES IN VERSION 1.0.0
 ------------------------
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
-    o Changed the appearance of some of the vignette code blocks
+    o Changed the appearance of some of the vignette code blocks.
 
-    o More documentation added in data.R
+    o More documentation added in data.R.
 
 BUG FIXES
 
-    o Replaced for loop with `lapply()` in add_multifreq.R L120-133
+    o Replaced for loop with `lapply()` in add_multifreq.R L120-133.
 
-    o Replaced for loop with `lapply()` in enrich_motifs.R L327-330
+    o Replaced for loop with `lapply()` in enrich_motifs.R L327-330.
 
-    o Replaced for loop with `lapply()` in shuffle_motifs.R L77-80
+    o Replaced for loop with `lapply()` in shuffle_motifs.R L77-80.
 
-    o Using `diag()` instead of for loop in `fix_pcc_diag()` (compare_motifs.R)
+    o Using `diag()` instead of for loop in `fix_pcc_diag()`
+      (compare_motifs.R).
 
-    o Fixed `read_motifs()` not parsing alphabet correctly
+    o Fixed `read_motifs()` not parsing alphabet correctly.
 
-    o Vignettes are now built using pdflatex instead of lualatex
+    o Vignettes are now built using pdflatex instead of lualatex.
 
 CHANGES IN VERSION 0.99.0
 -------------------------
 
-    o Ready for bioconductor
+    o Ready for bioconductor.
 
 CHANGES IN VERSION 0.98.0
 -------------------------
 
-    o Pre-bioconductor
+    o Pre-bioconductor.

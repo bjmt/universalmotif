@@ -281,11 +281,11 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
 }
 
-hclust_to_phylo <- function(x) {
-  structure(
-    hclust_to_phylo_cpp(x$merge, x$height, x$labels),
-    class = "phylo", order = "cladewise"
-  )
-}
+# hclust_to_phylo <- function(x) {
+#   structure(
+#     hclust_to_phylo_cpp(x$merge, x$height, x$labels),
+#     class = "phylo", order = "cladewise"
+#   )
+# }
 
 # grid.arrange(p1, p2 + scale_x_reverse(), nrow = 1) (package=egg)

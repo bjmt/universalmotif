@@ -1,6 +1,6 @@
 ---
 title: "Motif comparisons and P-values"
-date: 25 May 2019
+date: 14 March 2020
 author:
 - Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -290,7 +290,7 @@ motifs <- filter_motifs(MotifDb, organism = "Athaliana")
 head(compare_motifs(motifs, 1))
 ```
 
-P-values are made possible by estimating logistic distribution (usually the best fitting distribution for motif comparisons) parameters from randomized motif scores, then using `plogis()` to return P-values. These estimated parameters are pre-computed with `make_DBscores()` and stored as `JASPAR2018_CORE_DBSCORES` and `JASPAR2018_CORE_DBSCORES_NORM`. Since changing any of the settings and motif sizes will affect the estimated distribution parameters, estimated parameters have been pre-computed for a variety of these. See `?make_DBscores` if you would like to generate your own set of pre-computed scores using your own parameters and motifs.
+P-values are made possible by estimating distribution (usually the best fitting distribution for motif comparisons) parameters from randomized motif scores, then using the appropriate `stats::p*()` distribution function to return P-values. These estimated parameters are pre-computed with `make_DBscores()` and stored as `JASPAR2018_CORE_DBSCORES` and `JASPAR2018_CORE_DBSCORES_NORM`. Since changing any of the settings and motif sizes will affect the estimated distribution parameters, estimated parameters have been pre-computed for a variety of these. See `?make_DBscores` if you would like to generate your own set of pre-computed scores using your own parameters and motifs.
 
 # Motif trees with ggtree
 

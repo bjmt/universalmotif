@@ -7,7 +7,7 @@
 view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
-  return.raw = FALSE, ...)
+  return.raw = FALSE, dedup.names = FALSE, ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -56,6 +56,10 @@ aligned named matrices used to generate the plot. This can be useful
 if you wish to use \code{\link[=view_motifs]{view_motifs()}} alignment capabilities for custom
 plotting uses. Alignment is performed by adding empty columns to the
 left or right of motifs to generate matrices of equal length.}
+
+\item{dedup.names}{\code{logical(1)} Plotting motifs with duplicated names is
+not allowed. Setting this to \code{TRUE} allows the names to be modified
+for plotting.}
 
 \item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }

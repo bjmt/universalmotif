@@ -67,15 +67,24 @@ list.
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 
+If using a comparison metric where 0s are not allowed (KL, ALLR, ALLR_LL),
+then keep in mind that the final merged motif may include added pseudocounts
+to previously empty positions.
+
 Note: \code{score.strat = "a.mean"} is NOT recommended, as \code{\link[=merge_motifs]{merge_motifs()}} will
 not discriminate between two alignments with equal mean scores, even if one
 alignment is longer than the other.
 }
 \examples{
-\dontrun{
 library(MotifDb)
 merged.motif <- merge_motifs(MotifDb[1:5])
-}
+
+# Using ALLR or KL will add a pseudocount to the input motifs. Compare:
+m1 <- create_motif("TTAAACCCC", name = "1")
+m2 <- create_motif("AACC", name = "2")
+m3 <- create_motif("AACCCCGG", name = "3")
+view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
+view_motifs(merge_motifs(c(m1, m2, m3), method = "ALLR"))
 
 }
 \seealso{

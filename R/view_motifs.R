@@ -10,6 +10,9 @@
 #'    if you wish to use [view_motifs()] alignment capabilities for custom
 #'    plotting uses. Alignment is performed by adding empty columns to the
 #'    left or right of motifs to generate matrices of equal length.
+#' @param dedup.names `logical(1)` Plotting motifs with duplicated names is
+#'    not allowed. Setting this to `TRUE` allows the names to be modified
+#'    for plotting.
 #' @param ... Additional options for [ggseqlogo::geom_logo()].
 #'
 #' @return A ggplot object. If `return.raw = TRUE`, a list.
@@ -47,8 +50,8 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
-                        min.position.ic = 0, score.strat = "sum", 
-                        return.raw = FALSE, ...) {
+                        min.position.ic = 0, score.strat = "sum",
+                        return.raw = FALSE, dedup.names = FALSE, ...) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -75,7 +78,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   logi_check <- check_fun_params(list(tryRC = args$tryRC,
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores,
-                                      return.raw = args$return.raw),
+                                      return.raw = args$return.raw,
+                                      dedup.names = args$dedup.names),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -127,8 +131,15 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   }
 
   mot.names <- vapply(motifs, function(x) x@name, character(1))
-  if (length(mot.names) != length(unique(mot.names)))
-    stop("All motifs must have unique names")
+  if (length(mot.names) != length(unique(mot.names))) {
+    if (!dedup.names) stop(wmsg(
+      "All motifs must have unique names. Alternatively, set dedup.names=TRUE."
+    ), call. = FALSE)
+    tofix <- duplicated(mot.names)
+    mot.names[tofix] <- paste0(
+      mot.names[tofix], " (duplicated #", seq_len(sum(tofix)), ")"
+    )
+  }
 
   mot.mats <- lapply(motifs, function(x) x@motif)
 

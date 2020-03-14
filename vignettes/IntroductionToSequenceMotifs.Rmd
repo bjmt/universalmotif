@@ -1,7 +1,7 @@
 ---
 title: "Introduction to sequence motifs"
 shorttitle: "Intro to motifs"
-date: 25 May 2019
+date: 14 March 2020
 author:
 - Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -22,9 +22,9 @@ suppressPackageStartupMessages(library(universalmotif))
 
 # Introduction to sequence motifs
 
-Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same `universalmotif` class. Unfortunately, the naming conventions for the various motif types are not unanimous. In order to provide a simple interface to the various types, in this package they are referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM). 
+Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same `universalmotif` class. Unfortunately, the naming conventions for the various motif types are not unanimous. In order to provide a simple interface to the various types, in this package they are referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM).
 
-These four types will be described here. Furthermore, the actual code used to go between these types can be seen in `?'utils-motif'`. They are also reviewed briefly in the [motif manipulation](MotifManipulation.pdf) vignette.
+These four types are described within this vignette. Furthermore, the actual code used to go between these types can be seen in `?'utils-motif'`. They are also reviewed briefly in the [motif manipulation](MotifManipulation.pdf) vignette.
 
 # Position count matrices
 
@@ -79,7 +79,7 @@ Position |    1 |    2 |    3 |    4 |    5 |    6
 
 _(Note that all positions sum to 1.)_
 
-From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM; meaning that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can be sometimes undesirable, as for example  mismatches can be quite common in transcription factor binding sites; this can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation:
+From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM. This means that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can be sometimes undesirable, as often  mismatches can be quite common in transcription factor binding sites. This can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation as such:
 
 \begin{equation}
   PPMp(N) = \frac{C_N + \frac{p}{n}}{\sum{C} + p}
@@ -102,11 +102,11 @@ Position |     1 |     2 |     3 |     4 |     5 |     6
        T | 0.036 | 0.320 | 0.180 | 0.180 | 0.180 | 0.320
 : (\#tab:ppmpseudo) Position Probability Matrix with a pseudocount of 1.
 
-Now, though unlikely, it is no longer considered impossible for the sequence AAAAAA to exist as part of this motif. Since the total number of sequences in this case is quite low, the pseudocount can have a large impact on the values within the matrix; this impact decreases as the number of sequences increases. Of course, this can also be changed by using different pseudocounts.
+Now, though unlikely, it is no longer considered impossible for the sequence AAAAAA to exist as part of this motif. Since the total number of sequences in this case is quite low, the pseudocount can have a large impact on the values within the matrix. This impact decreases as the number of sequences increases. Of course, this can also be changed by using different pseudocounts.
 
 # Position weight matrices
 
-The position weight matrix, also known as position-specific weight matrix, position-specific scoring matrix, and logodds scoring matrix, was first proposed by @pwm. In this case for each position, every letter has a 'score'; this can be used to evaluate how well a sequence matches a motif. Though there can be multiple ways of calculating these scores (_S_), the most common method is to calculate the log of each probability, correcting for background frequencies (_B_). This results in the following calculation:
+The position weight matrix, also known as position-specific weight matrix, position-specific scoring matrix, and logodds scoring matrix, was first proposed by @pwm. In this case for each position, every letter has a 'score' which can be used to evaluate how well a sequence matches a motif. Though there can be multiple ways of calculating these scores (_S_), the most common method is to calculate the log of each probability, correcting for background frequencies (_B_). This results in the following calculation:
 
 \begin{equation}
   S(N) = \log_{2}\left(\frac{PPM(C_N)}{B_N}\right)
@@ -131,7 +131,7 @@ Position |    1 |     2 |      3 |      4 |      5 |     6
 
 _(Note that the position totals no longer have equal sums.)_
 
-In order to score a sequence, add up the score for the letters at the specific positions; for example AAGAAA has a score of 9.31. However, similar to with PPMs, if starting from a small pool of sequences the sequence AAAAAA could never be recovered using this motif model, with a score of -Inf. This can be avoided simply by starting from a pseudocount-adjusted PPM. Using the table \@ref(tab:ppmpseudo) motif, this becomes:
+In order to score a sequence, add up the score for the letters at the specific positions. For example AAGAAA has a score of 9.31. However, similar to with PPMs, if starting from a small pool of sequences the sequence AAAAAA could never be recovered using this motif model, with a score of -Inf. This can be avoided simply by starting from a pseudocount-adjusted PPM. Using the table \@ref(tab:ppmpseudo) motif, this becomes:
 
 Position |      1 |      2 |      3 |      4 |      5 |      6
 -------- | ------ | ------ | ------ | ------ | ------ | ------
@@ -143,7 +143,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
 
 Now, the score for AAGAA is 8.46, and the score for AAAAAA is 4.76. Though the score for the latter is low, it is no longer -Inf as a result of one mismatch.
 
-When searching for instances of this motif using this scoring system, one more consideration is needed: a minimum score. For example, both sequences AAGAAA and ATTTTT have positive scores; but one is much higher than the other. Should ATTTTT then be discarded? In order to answer this a threshold is set; typically this is a certain percent of the highest possible score. For example, in the table \@ref(tab:pwmpseudo) motif, the highest possible score is 8.46; using a threshold of 25%, the minimum score then becomes 2.115. This means that ATTTTT, with a score of 1.112, would indeed be discarded.
+When searching for instances of this motif using this scoring system, one more consideration is needed: a minimum score. For example, both sequences AAGAAA and ATTTTT have positive scores; but one is much higher than the other. Should ATTTTT then be discarded? In order to answer this a threshold is set, typically this is a certain percent of the highest possible score. For example, in the table \@ref(tab:pwmpseudo) motif, the highest possible score is 8.46. Using a threshold of 25%, the minimum score then becomes 2.115. This means that ATTTTT, with a score of 1.112, would indeed be discarded.
 
 Other methods for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function.
 
@@ -167,9 +167,9 @@ motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
 view_motifs(motif) 
 ```
 
-Now, the total height of each position is scaled using the total _information_ at that position. Simply put, the total information of each position is an indication of the level of conservation; in the example motif, the first position is highly conserved, always being the letter A, whereas the third position is less so conserved, as the probabilities for any one letter are quite lower.
+Now, the total height of each position is scaled using the total _information_ at that position. Simply put, the total information of each position is an indication of the level of conservation. In the example motif, the first position is highly conserved, always being the letter A, whereas the third position is less so conserved, as the probabilities for any one letter are quite lower.
 
-For every position, the letter heights are calculated as the total possible information content (_tIC_) or maximum uncertainty, then subtracting that positions' actual uncertainty [@correction; @icm]. This calculation is based on Shannon's entropy [@shannon], with the final values representing 'bits' [@bits]. The total IC is based on alphabet length (_n_), using the following equation:
+For every position, the letter heights are calculated as the total possible information content (_tIC_) or maximum uncertainty, then subtracting the actual uncertainty at each position [@correction; @icm]. This calculation is based on Shannon's entropy [@shannon], with the final values representing 'bits' [@bits]. The total IC is based on alphabet length (_n_), using the following equation:
 
 \begin{equation}
   tIC = \log_{2}n
@@ -181,7 +181,7 @@ The equivalent `R` code:
 tIC <- function(C) log2(length(C))
 ```
 
-For DNA motifs which have an alphabet length of 4, the total IC is 2. To calculate the positions' actual uncertainty (_U_), the following equation is used:
+For DNA motifs which have an alphabet length of 4, the total IC is 2. To calculate the actual uncertainty (_U_) per position, the following equation is used:
 
 \begin{equation}
   U = - \sum_{N=A}^{T} PPM(N) \times{} \log_{2}PPM(N)
@@ -214,7 +214,7 @@ In the original implementation described by @correction, an additional error cor
   (\#eq:iccorr)
 \end{equation}
 
-The details for calculating this factor will not be covered here; refer to @correction. The `TFBSTools` package offers the ability to incorporate this error correction (and used in the `universalmotif` package via `convert_type()`).
+The details for calculating this factor will not be covered here. (Refer to @correction.) The `TFBSTools` package offers the ability to incorporate this error correction (and used in the `universalmotif` package via `convert_type()`).
 
 Finally, to get the height of each letter at each position, the final IC is multiplied by the letter and position probabilities:
 
@@ -254,7 +254,7 @@ The equivalent vectorized `R` code:
 IC <- function(C, B) PPM(C) * log2(PPM(C) / B)
 ```
 
-Using this equation can lead to IC less than zero; these values are not allowed, so they are simply replaced with zero. With this equation and assuming uniform background frequencies, the table \@ref(tab:ppm) motif becomes:
+Using this equation can lead to IC less than zero. These values are not allowed, so they are simply replaced with zero. With this equation and assuming uniform background frequencies, the table \@ref(tab:ppm) motif becomes:
 
 Position |      1 |      2 |      3 |      4 |      5 |      6
 -------- | ------ | ------ | ------ | ------ | ------ | ------

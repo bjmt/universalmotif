@@ -1,7 +1,7 @@
 ---
 title: "Motif import, export, and manipulation"
 shorttitle: "Motif manipulation"
-date: 25 May 2019
+date: 14 March 2020
 author:
 - Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -98,7 +98,7 @@ examplemotif["consensus"] <- "GGGAGAG"
 examplemotif["strand"] <- "x"
 ```
 
-Below the exposed metadata slots, the actual 'motif' matrix is shown. Each position is its' own column; row names showing the alphabet letters, and the column names showing the consensus letter at each position.
+Below the exposed metadata slots, the actual 'motif' matrix is shown. Each position is its own column: row names showing the alphabet letters, and the column names showing the consensus letter at each position.
 
 ## Converting to and from another package's class
 
@@ -136,11 +136,11 @@ The `universalmotif` package offers a number of `read_*()` functions to allow fo
 * `read_jaspar()`: JASPAR [@jaspar]
 * `read_matrix()`: generic reader for simply formatted motifs
 * `read_meme()`: `MEME` [@meme]
-- `read_motifs()`: native `universalmotif` format
+* `read_motifs()`: native `universalmotif` format
 * `read_transfac()`: TRANSFAC [@transfac]
 * `read_uniprobe()`: UniPROBE [@uniprobe]
 
-These functions should work natively with these formats, but if you are generating your own motifs in one of these formats than it must adhere quite strictly to the format. An example of each of these is included in this package; see `system.file("extdata", package="universalmotif")`.
+These functions should work natively with these formats, but if you are generating your own motifs in one of these formats than it must adhere quite strictly to the format. An example of each of these is included in this package (see `system.file("extdata", package="universalmotif")`).
 
 ## Exporting
 
@@ -150,10 +150,10 @@ Compatible motif classes can be written to disk using:
 * `write_jaspar()`
 * `write_matrix()`
 * `write_meme()`
-- `write_motifs()`
+* `write_motifs()`
 * `write_transfac()`
 
-The `write_matrix()` function, similar to its' `read_matrix()` counterpart, can write motifs as simple matrices with an optional header. Additionally, please keep in mind format limitations. For example, multiple MEME motifs written to a single file will all share the same alphabet, with identical background letter frequencies.
+The `write_matrix()` function, similar to its `read_matrix()` counterpart, can write motifs as simple matrices with an optional header. Additionally, please keep in mind format limitations. For example, multiple `MEME` motifs written to a single file will all share the same alphabet, with identical background letter frequencies.
 
 # Modifying motifs and related functions
 
@@ -195,7 +195,7 @@ convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 
 ## Merging motifs
 
-The `universalmotif` package includes the `merge_motifs()` function to combine motifs. Motifs are first aligned, and the best match found before the motif matrices are averaged. The implementation for this is identical to that used by `compare_motifs()`; see the [motif comparisons vignette](MotifComparisonAndPvalues.pdf) for more information.
+The `universalmotif` package includes the `merge_motifs()` function to combine motifs. Motifs are first aligned, and the best match found before the motif matrices are averaged. The implementation for this is identical to that used by `compare_motifs()` (see the [motif comparisons vignette](MotifComparisonAndPvalues.pdf) for more information).
 
 ```{r}
 library(universalmotif)
@@ -206,7 +206,7 @@ m3 <- create_motif("AACCCCGG", name = "3")
 
 view_motifs(c(m1, m2, m3))
 
-view_motifs(merge_motifs(c(m1, m2, m3)))
+view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
 ```
 
 ## Motif reverse complement
@@ -259,6 +259,16 @@ motif <- create_motif("NNGCSGCGGNN")
 motif
 
 trim_motifs(motif)
+```
+
+## Rounding motifs
+
+Round off near-zero probabilities.
+
+```{r}
+motif1 <- create_motif("ATCGATGC", pseudocount = 5, type = "PPM", nsites = 100)
+motif2 <- round_motif(motif1)
+view_motifs(c(motif1, motif2), dedup.names =  TRUE)
 ```
 
 # Motif creation
@@ -391,9 +401,9 @@ Position |   1 |   2 |   3 |   4 |   5 |   6 |   7
        T | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
 : (\#tab:ppm2) Position Probability Matrix.
 
-Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, some would say the answer is no. By incorporating this type of information into the motif, this can allow for increased accuracy in motif searching. A few implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
+Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, it is not always so. By incorporating this type of information into the motif, it can allow for increased accuracy in motif searching. A few implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
 
-The `universalmotif` package implements its' own, rather simplified, version of this concept. Plainly, the standard PPM has been extended to include `k`-letter frequencies, with `k` being any number higher than 1. For example, the 2-letter version of the table \@ref(tab:ppm2) motif would be:
+The `universalmotif` package implements its own, rather simplified, version of this concept. Plainly, the standard PPM has been extended to include `k`-letter frequencies, with `k` being any number higher than 1. For example, the 2-letter version of the table \@ref(tab:ppm2) motif would be:
 
 Position |   1 |   2 |   3 |   4 |   5 |   6 
 -------- | --- | --- | --- | --- | --- | --- 
@@ -415,7 +425,7 @@ Position |   1 |   2 |   3 |   4 |   5 |   6
       TT | 0.0 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
 : (\#tab:multi) 2-letter probability matrix.
 
-This format shows the probability of each letter combined with the probability of the letter in the next position. The seventh column has been dropped, since it is not needed; the information in the sixth column is sufficient, and there is no eighth position to draw 2-letter probabilities from. Now, the probability of getting CTATACC is no longer equal to CTTTTCC and CAAAACC. This information is kept in the `multifreq` slot of `universalmotif` class motifs. To add this information, use the `add_multifreq()` function.
+This format shows the probability of each letter combined with the probability of the letter in the next position. The seventh column has been dropped, since it is not needed: the information in the sixth column is sufficient, and there is no eighth position to draw 2-letter probabilities from. Now, the probability of getting CTATACC is no longer equal to CTTTTCC and CAAAACC. This information is kept in the `multifreq` slot of `universalmotif` class motifs. To add this information, use the `add_multifreq()` function.
 
 ```{r}
 library(universalmotif)

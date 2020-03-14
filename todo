@@ -5,7 +5,6 @@
 - Extend current view_motifs() implementation for higher k motifs
 - Potential cleaning up needed in convert_type() functionality
 - Scan for motif clusters
-- Add round_motif() section to vignettes
 - General cleaning up/rewritting of vignettes needed
 - Check that everything in convert_motifs() still works
 - Check that all read/write_*() functions still work
@@ -15,6 +14,9 @@
 - motif_peaks(): compare two sets of sequences (enrichment analysis)
 - motif_peaks(): serious code cleanup needed
 - Add scan_sequences() gapped motif example to vignettes
-- SequenceSearches.Rmd vignette: in the run_meme() example, fix the
-  getPromoterSeq line to use 1000 bases upstream, not downstream
-- dependencies to consider removing: ggseqlogo, yaml, processx, Rdpack, rlang?
+- dependencies to consider removing: ggseqlogo, yaml, processx, Rdpack?
+    + ape: no point as long as I have ggtree
+    + rlang: no point as long as I have ggplot2
+- Add an optional list type which can be used by various universalmotif functions
+    + universalmotifList
+    + Can do vectorized operations such as subset all names with `[`

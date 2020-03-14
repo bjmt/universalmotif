@@ -10,17 +10,26 @@
 #'    available formats.
 #'
 #' @details
-#'    See [compare_motifs()] for more info on comparison parameters.
+#' See [compare_motifs()] for more info on comparison parameters.
+#'
+#' If using a comparison metric where 0s are not allowed (KL, ALLR, ALLR_LL),
+#' then keep in mind that the final merged motif may include added pseudocounts
+#' to previously empty positions.
 #'
 #' Note: `score.strat = "a.mean"` is NOT recommended, as [merge_motifs()] will
 #' not discriminate between two alignments with equal mean scores, even if one
 #' alignment is longer than the other.
 #'
 #' @examples
-#' \dontrun{
 #' library(MotifDb)
 #' merged.motif <- merge_motifs(MotifDb[1:5])
-#' }
+#'
+#' # Using ALLR or KL will add a pseudocount to the input motifs. Compare:
+#' m1 <- create_motif("TTAAACCCC", name = "1")
+#' m2 <- create_motif("AACC", name = "2")
+#' m3 <- create_motif("AACCCCGG", name = "3")
+#' view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
+#' view_motifs(merge_motifs(c(m1, m2, m3), method = "ALLR"))
 #'
 #' @seealso [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
@@ -61,7 +70,7 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
       c("ALLR", "ALLR_LL", "PCC"))
     stop(wmsg("'g.mean'/'wg.mean' is not allowed for methods which can generate ",
               "negative values: ALLR, ALLR_LL, PCC"))
-      
+
   if (use.type != "PPM")
     stop(wmsg("deprecated, as `use.type = \"PPM\"` is now the only acceptable ",
               "option [use.type=", use.type, "]"))
@@ -72,6 +81,13 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   if (!is.list(motifs)) motifs <- list(motifs)
 
   motifs <- convert_type_internal(motifs, "PPM")
+
+  if (method %in% c("ALLR", "KL", "ALLR_LL")) {
+    message(wmsg2(
+      "Note: due to using one of ALLR/ALLR_LL/KL as comparison method,",
+      " pseudocounts have been added to the input motifs. "
+  ))
+  }
 
   mot <- merge_motifs_all(motifs, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, relative_entropy, normalise.scores,
