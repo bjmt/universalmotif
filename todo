@@ -31,3 +31,5 @@
     + shuffle_sequences(), create_sequences()
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
+- scan_sequences(): allow -Inf weights?
+- scan_sequences(): add option to return GRanges object

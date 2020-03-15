@@ -158,8 +158,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
-  motifs <- lapply(motifs, function(x) if (any(is.infinite(x@motif)))
-                                         normalize(x) else x)
+  motifs <- lapply(motifs, fix_mots)
 
   mot.gaps <- lapply(motifs, function(x) x@gapinfo)
   mot.hasgap <- vapply(mot.gaps, function(x) x@isgapped, logical(1))
@@ -297,6 +296,15 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   out@metadata <- args[-c(1:2)]
   out
 
+}
+
+fix_mots <- function(x) {
+  if (any(is.infinite(x@motif))) {
+    message("Note: detected non-finite positional weights, normalising")
+    normalize(x)
+  } else {
+    x
+  }
 }
 
 adjust_rc_hits <- function(res, alph) {
