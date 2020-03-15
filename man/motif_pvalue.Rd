@@ -94,19 +94,19 @@ try the following code with your motif (be careful with longer motifs):
 \examples{
 data(examplemotif)
 
-## p-value/score calculations are performed using the PWM version of the
-## motif; these calculations do not work if any -Inf values are present
+## P-value/score calculations are performed using the PWM version of the
+## motif, these calculations do not work if any -Inf values are present
 examplemotif["pseudocount"] <- 1
 # or
 examplemotif <- normalize(examplemotif)
 
-## get a minimum score based on a p-value
+## Get a minimum score based on a p-value
 motif_pvalue(examplemotif, pvalue = 0.001)
 
-## get the probability of a particular sequence hit
+## Get the probability of a particular sequence hit
 motif_pvalue(examplemotif, score = 0)
 
-## the calculations can be performed for multiple motifs
+## The calculations can be performed for multiple motifs
 motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 
 ## Compare score thresholds and P-value:

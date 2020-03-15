@@ -22,8 +22,8 @@
 #' generated using [make_DBscores()] with the JASPAR2018 CORE motif set.
 #' The scores are organized in a `DataFrame`.
 #' In this `DataFrame` is the location and scale
-#' of scores resulting from a
-#' logistic distribution using the the comparisons of JASPAR2018 CORE motifs with
+#' of scores resulting from a statistical
+#' distribution using the the comparisons of JASPAR2018 CORE motifs with
 #' randomized motifs of the specified
 #' `subject` and `target` motif length. Created using [make_DBscores()] from
 #' universalmotif v1.4.0. The parameters used can be seen via

@@ -2,7 +2,8 @@
 #'
 #' Write motifs as universalmotif objects to file. For optimal storage of
 #' `universalmotif` class motifs, consider using [saveRDS()] and
-#' [readRDS()]. Currently the `universalmotif` format is YAML-based.
+#' [readRDS()]. Currently the `universalmotif` format is YAML-based, but
+#' this is subject to change.
 #'
 #' @param minimal `logical(1)` Only write essential motif information.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.

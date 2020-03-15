@@ -10,7 +10,7 @@
 #'    generate random motifs with [create_motif()].
 #' @param shuffle.k `numeric(1)` See [shuffle_motifs()].
 #' @param shuffle.method `character(1)` See [shuffle_motifs()].
-#' @param rand.tries `numeric(1)` Approximate number of comparisons 
+#' @param rand.tries `numeric(1)` Approximate number of comparisons
 #'    to perform for every combination of `widths`.
 #' @param widths `numeric` Motif widths to use in P-value database calculation.
 #' @param progress `logical(1)` Show progress.

@@ -15,7 +15,7 @@
 #'    the `motif['motif']` slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
 #'    `motif['multifreq']` slot is used. See [add_multifreq()].
-#' @param verbose `numeric(1)` Describe progress, from none (`0`) to 
+#' @param verbose `numeric(1)` Describe progress, from none (`0`) to
 #'    verbose (`3`).
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
@@ -24,7 +24,7 @@
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].
 #'
-#' @return `DataFrame` with each row representing one hit; if the input
+#' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
 #'    \code{\link{RNAStringSet}}, then an
 #'    additional column with the strand is included. Function args are stored
@@ -33,7 +33,7 @@
 #' @details
 #'    Similar to [Biostrings::matchPWM()], the scanning method uses
 #'    logodds scoring. (To see the scoring matrix for any motif, simply
-#'    run `convert_type(motif, "PWM")`; for a `multifreq` scoring
+#'    run `convert_type(motif, "PWM")`. For a `multifreq` scoring
 #'    matrix: `apply(motif["multifreq"]$`2`, 2, ppm_to_pwm)`). In order
 #'    to score a sequence, at each position within a sequence of length equal
 #'    to the length of the motif, the scores for each base are summed. If the

@@ -12,7 +12,7 @@
 #' @details
 #' See [compare_motifs()] for more info on comparison parameters.
 #'
-#' If using a comparison metric where 0s are not allowed (KL, ALLR, ALLR_LL),
+#' If using a comparison metric where 0s are not allowed (`KL`, `ALLR`, `ALLR_LL`),
 #' then keep in mind that the final merged motif may include added pseudocounts
 #' to previously empty positions.
 #'
@@ -40,7 +40,7 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
                          relative_entropy = FALSE, normalise.scores = FALSE,
                          min.position.ic = 0, score.strat = "sum") {
 
-  # a.mean is NOT recommended! merge_motifs() will not discrimenate between two
+  # a.mean is NOT recommended! merge_motifs() will not discriminate between two
   # alignments which give the same mean score, even if one is a longer alignment
   # then the other (i.e. higher sum).
 
@@ -160,5 +160,5 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   validObject_universalmotif(mot)
 
   mot
- 
+
 }

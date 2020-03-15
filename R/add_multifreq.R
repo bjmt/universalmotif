@@ -1,7 +1,8 @@
 #' Add multi-letter information to a motif.
 #'
 #' If the original sequences are available for a particular motif, then they
-#' can be used to generate higher-order PPM matrices.
+#' can be used to generate higher-order PPM matrices. See the "Motif import,
+#' export, and manipulation" vignette for more information.
 #'
 #' @param motif See [convert_motifs()] for acceptable formats. If the
 #'    motif is not a [universalmotif-class] motif, then it will be
@@ -10,8 +11,8 @@
 #'    that of the motif. If
 #'    these sequences are all the same length as the motif, then they are all
 #'    used to generate the multi-freq matrices. Otherwise
-#'    [scan_sequences()] is first run to find the right sequence stretches
-#'    within.
+#'    [scan_sequences()] is first run to find the best sequence stretches
+#'    within these.
 #' @param add.k `numeric(1)` The k-let lengths to add.
 #' @param motifs.perseq `numeric(1)` If [scan_sequences()] is run,
 #'    then this indicates how many hits from each sequence is to be used.
@@ -23,10 +24,10 @@
 #' @details
 #'    See [scan_sequences()] for more info on scanning parameters.
 #'
-#'    At each position in the motif, then the probability of each k-let 
-#'    covering from the initial position to ncol - 1 is calculated. Only
-#'    positions within the motif are considered; this means that the
-#'    final k-let probability matrix will have ncol - 1 fewer columns.
+#'    At each position in the motif, then the probability of each k-let
+#'    covering from the initial position to `ncol - 1` is calculated. Only
+#'    positions within the motif are considered: this means that the
+#'    final k-let probability matrix will have `ncol - 1` fewer columns.
 #'    Calculating k-let probabilities for the missing columns would be
 #'    trivial however, as you would only need the background frequencies.
 #'    Since these would not be useful for [scan_sequences()]
@@ -37,7 +38,7 @@
 #'    sequences used for training are completely different from the actual
 #'    motif, the multifreq matrices will be as well. However this is only really
 #'    a problem if you supply [add_multifreq()] with a set of sequences of the
-#'    same length as the motif; in this case [add_multifreq()] is forced to
+#'    same length as the motif. In this case [add_multifreq()] is forced to
 #'    create the multifreq matrices from these sequences. Otherwise
 #'    [add_multifreq()] will scan the input sequences for the motif and use the
 #'    best matches to construct the multifreq matrices.
@@ -46,7 +47,7 @@
 #'    \pkg{universalmotif} environment. Despite this, if you wish it can be
 #'    preserved in text using [write_motifs()].
 #'
-#'    Note: the number of rows for each k-let matrix is n^k, with n being the
+#'    Note: the number of rows for each k-let matrix is `n^k`, with `n` being the
 #'    number of letters in the alphabet being used. This means that the size
 #'    of the k-let matrix can become quite large as k increases. For example,
 #'    if one were to wish to represent a DNA motif of length 10 as a 10-let,
@@ -55,7 +56,8 @@
 #'    the motif format itself is not very useful).
 #'
 #' @return A [universalmotif-class] object with filled `multifreq` slot. The
-#'    `bkg` slot is also expanded with corresponding higher order probabilities.
+#'    `bkg` slot is also expanded with corresponding higher order probabilities
+#'    if `add.bkg = TRUE`.
 #'
 #' @examples
 #' sequences <- create_sequences(seqlen = 10)

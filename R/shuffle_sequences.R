@@ -7,7 +7,7 @@
 #'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('euler', 'markov', 'linear')`.
-#'    Only relevant if `k > 1`. See details. 
+#'    Only relevant if `k > 1`. See details.
 #' @param nthreads `numeric(1)` Run [shuffle_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single sequence.
@@ -19,7 +19,7 @@
 #'    number as chosen by [sample()], which effectively is making [shuffle_sequences()]
 #'    dependent on the R RNG state.
 #'
-#' @return \code{\link{XStringSet}} The input sequences will be returned with 
+#' @return \code{\link{XStringSet}} The input sequences will be returned with
 #'    identical names and lengths.
 #'
 #' @details
@@ -42,7 +42,7 @@
 #'    starting and ending sequence letters will remain unshuffled.
 #'
 #'    If `method = 'linear'`, then the input sequences are split linearly
-#'    every `k` letters; for example, for `k = 3` 'ACAGATAGACCC' becomes
+#'    every `k` letters. For example, for `k = 3` 'ACAGATAGACCC' becomes
 #'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly.
 #'
 #'    Do note however, that the `method` parameter is only relevant for `k > 1`.

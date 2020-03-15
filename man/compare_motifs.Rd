@@ -33,7 +33,7 @@ report the best score.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
-will not allow any overhangs. Can also be a number less than 1,
+will not allow any overhangs. Can also be a number between 0 and 1,
 representing the minimum fraction that the motifs must overlap.}
 
 \item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
@@ -85,7 +85,7 @@ print.}
 latter, function args are stored in the \code{metadata} slot.
 }
 \description{
-Compare motifs using any of several available metrics. See the
+Compare motifs using one of the several available metrics. See the
 "Motif comparisons and P-values" vignette for detailed information.
 }
 \details{
@@ -111,32 +111,39 @@ individually between columns. How those scores are combined to generate the fina
 alignment scores depends on \code{score.strat}.
 
 See the "Motif comparisons and P-values" vignette for a description of the
-various metrics. Note that PCC, WPCC, SW, ALLR, ALLR_LL and BHAT are similarities;
+various metrics. Note that \code{PCC}, \code{WPCC}, \code{SW}, \code{ALLR}, \code{ALLR_LL} and \code{BHAT}
+are similarities;
 higher values mean more similar motifs. For the remaining metrics, values closer
 to zero represent more similar motifs.
 
 Small pseudocounts are automatically added when one of the following methods
-is used: KL, ALLR, ALLR_LL. This is avoid
+is used: \code{KL}, \code{ALLR}, \code{ALLR_LL}. This is avoid
 zeros in the calculations.
 
 To note regarding p-values: P-values are pre-computed using the
 \code{\link[=make_DBscores]{make_DBscores()}} function. If not given, then uses a set of internal
 precomputed P-values from the JASPAR2018 CORE motifs. These precalculated
-scores are dependent on the length of the motifs being compared; this takes
+scores are dependent on the length of the motifs being compared. This takes
 into account that comparing small motifs with larger motifs leads to higher
 scores, since the probability of finding a higher scoring alignment is
 higher.
 
-The default P-values have been precalculated for regular DNA motifs; they
+The default P-values have been precalculated for regular DNA motifs. They
 are of little use for motifs with a different number of alphabet letters
 (or even the \code{multifreq} slot).
 }
 \examples{
-motif1 <- create_motif()
-motif2 <- create_motif()
-motif1vs2 <- compare_motifs(list(motif1, motif2), method = "PCC")
-## to get a dist object:
+motif1 <- create_motif(name = "1")
+motif2 <- create_motif(name = "2")
+motif1vs2 <- compare_motifs(c(motif1, motif2), method = "PCC")
+## To get a dist object:
 as.dist(1 - motif1vs2)
+
+motif3 <- create_motif(name = "3")
+motif4 <- create_motif(name = "4")
+motifs <- c(motif1, motif2, motif3, motif4)
+## Compare motif "2" to all the other motifs:
+compare_motifs(motifs, compare.to = 2)
 
 }
 \references{

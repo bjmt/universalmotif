@@ -38,7 +38,7 @@ sequence.}
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 }
 \value{
-\code{DataFrame} with each row representing one hit; if the input
+\code{DataFrame} with each row representing one hit. If the input
 sequences are \code{\link{DNAStringSet}} or
 \code{\link{RNAStringSet}}, then an
 additional column with the strand is included. Function args are stored
@@ -51,7 +51,7 @@ a set of input motifs.
 \details{
 Similar to \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}}, the scanning method uses
 logodds scoring. (To see the scoring matrix for any motif, simply
-run \code{convert_type(motif, "PWM")}; for a \code{multifreq} scoring
+run \code{convert_type(motif, "PWM")}. For a \code{multifreq} scoring
 matrix: \verb{apply(motif["multifreq"]$}2\verb{, 2, ppm_to_pwm)}). In order
 to score a sequence, at each position within a sequence of length equal
 to the length of the motif, the scores for each base are summed. If the

@@ -5,7 +5,7 @@
 #' background sequences. See the "Sequence manipulation and scanning" vignette.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
-#' @param bkg.sequences \code{\link{XStringSet}} Optional; if missing,
+#' @param bkg.sequences \code{\link{XStringSet}} Optional. If missing,
 #'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
 #' @param max.p `numeric(1)` P-value threshold.
@@ -20,10 +20,10 @@
 #'    sequences. Only used if no background sequences are input. See
 #'    [shuffle_sequences()].
 #' @param shuffle.method `character(1)` One of `c('euler', 'markov', 'linear')`.
-#'    See [shuffle_sequences()]. 
+#'    See [shuffle_sequences()].
 #' @param return.scan.results `logical(1)` Return output from
 #'    [scan_sequences()]. For large jobs, leaving this as
-#'    `FALSE` can save a small amount time by preventing construction of the complete 
+#'    `FALSE` can save a small amount time by preventing construction of the complete
 #'    results `data.frame` from [scan_sequences()].
 #' @param nthreads `numeric(1)` Run [scan_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
@@ -41,8 +41,8 @@
 #'    (optionally) scan results are stored in the `metadata` slot.
 #'
 #' @details
-#' To find enriched motifs, [scan_sequences()] is run on both 
-#' target and background sequences. 
+#' To find enriched motifs, [scan_sequences()] is run on both
+#' target and background sequences.
 #' [stats::fisher.test()] is run to test for enrichment.
 #'
 #' See [scan_sequences()] for more info on scanning parameters.
@@ -68,8 +68,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                           return.scan.results = FALSE, nthreads = 1,
                           rng.seed = sample.int(1e4, 1),
                           motif_pvalue.k = 8) {
-
-  # Idea: split up hits and postional outputs into their own lists.
 
   # param check --------------------------------------------
   args <- as.list(environment())

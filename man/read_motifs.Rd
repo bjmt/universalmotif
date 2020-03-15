@@ -24,7 +24,8 @@ default backend.}
 \description{
 Import motifs created from \code{\link[=write_motifs]{write_motifs()}}. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
-\code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based.
+\code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based, but
+this is subject to change.
 }
 \seealso{
 Other read_motifs: 

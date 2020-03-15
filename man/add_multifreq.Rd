@@ -17,8 +17,8 @@ converted.}
 that of the motif. If
 these sequences are all the same length as the motif, then they are all
 used to generate the multi-freq matrices. Otherwise
-\code{\link[=scan_sequences]{scan_sequences()}} is first run to find the right sequence stretches
-within.}
+\code{\link[=scan_sequences]{scan_sequences()}} is first run to find the best sequence stretches
+within these.}
 
 \item{add.k}{\code{numeric(1)} The k-let lengths to add.}
 
@@ -39,19 +39,21 @@ the likelihood of adding zero or near-zero probabilities.}
 }
 \value{
 A \linkS4class{universalmotif} object with filled \code{multifreq} slot. The
-\code{bkg} slot is also expanded with corresponding higher order probabilities.
+\code{bkg} slot is also expanded with corresponding higher order probabilities
+if \code{add.bkg = TRUE}.
 }
 \description{
 If the original sequences are available for a particular motif, then they
-can be used to generate higher-order PPM matrices.
+can be used to generate higher-order PPM matrices. See the "Motif import,
+export, and manipulation" vignette for more information.
 }
 \details{
 See \code{\link[=scan_sequences]{scan_sequences()}} for more info on scanning parameters.
 
 At each position in the motif, then the probability of each k-let
-covering from the initial position to ncol - 1 is calculated. Only
-positions within the motif are considered; this means that the
-final k-let probability matrix will have ncol - 1 fewer columns.
+covering from the initial position to \code{ncol - 1} is calculated. Only
+positions within the motif are considered: this means that the
+final k-let probability matrix will have \code{ncol - 1} fewer columns.
 Calculating k-let probabilities for the missing columns would be
 trivial however, as you would only need the background frequencies.
 Since these would not be useful for \code{\link[=scan_sequences]{scan_sequences()}}
@@ -62,7 +64,7 @@ motif matrix when generating multifreq matrices. This means that if the
 sequences used for training are completely different from the actual
 motif, the multifreq matrices will be as well. However this is only really
 a problem if you supply \code{\link[=add_multifreq]{add_multifreq()}} with a set of sequences of the
-same length as the motif; in this case \code{\link[=add_multifreq]{add_multifreq()}} is forced to
+same length as the motif. In this case \code{\link[=add_multifreq]{add_multifreq()}} is forced to
 create the multifreq matrices from these sequences. Otherwise
 \code{\link[=add_multifreq]{add_multifreq()}} will scan the input sequences for the motif and use the
 best matches to construct the multifreq matrices.
@@ -71,7 +73,7 @@ This 'multifreq' representation is only really useful within the
 \pkg{universalmotif} environment. Despite this, if you wish it can be
 preserved in text using \code{\link[=write_motifs]{write_motifs()}}.
 
-Note: the number of rows for each k-let matrix is n^k, with n being the
+Note: the number of rows for each k-let matrix is \code{n^k}, with \code{n} being the
 number of letters in the alphabet being used. This means that the size
 of the k-let matrix can become quite large as k increases. For example,
 if one were to wish to represent a DNA motif of length 10 as a 10-let,

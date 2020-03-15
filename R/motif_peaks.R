@@ -123,7 +123,6 @@ motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,
                       lower.tail = FALSE)
 
   if (plot) {
-    pval.lim <- quantile(rand.peaks, 1 - max.p)
     pval.lim <- qnorm(max.p, pv$estimate["mean"], pv$estimate["sd"],
                       lower.tail = FALSE)
     kern.df <- data.frame(x = data.kern$x, y = data.kern$y)

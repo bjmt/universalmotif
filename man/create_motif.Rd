@@ -50,7 +50,7 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
 }
 \arguments{
 \item{input}{\code{character}, \code{numeric}, \code{matrix},
-\code{\link{XStringSet}}, or \code{missing}}
+\code{\link{XStringSet}}, or \code{missing}.}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
 or a combined string representing the letters. If no alphabet is
@@ -61,7 +61,7 @@ provided then it will try and guess the alphabet from the input.}
 \item{name}{\code{character(1)} Motif name.}
 
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
-from appearing in PWM matrices.}
+from appearing in PWM matrices. Defaults to 0.}
 
 \item{bkg}{\code{numeric} A vector of probabilities, each between 0 and 1. If
 higher order backgrounds are provided, then the elements of the vector
@@ -135,33 +135,33 @@ See the \code{examples} section for more info on motif creation.
 \examples{
 ##### create motifs from a single string
 
-# motif is by default generated as a PPM; change final type as desired
+# Motif is by default generated as a PPM: change final type as desired
 DNA.motif <- create_motif("TATAWAW")
 DNA.motif <- create_motif("TATAWAW", type = "PCM")
 
-# nsites will be set to the number of input sequences unless specified 
+# Nsites will be set to the number of input sequences unless specified
 DNA.motif <- create_motif("TTTTTTT", nsites = 10)
 
-# if ambiguity letters are found and nsites is not specified, nsites will
+# If ambiguity letters are found and nsites is not specified, nsites will
 # be set to the minimum required to respect amibiguity letters
 DNA.motif <- create_motif("TATAWAW")
 DNA.motif <- create_motif("NNVVWWAAWWDDN")
 
-# be careful about setting nsites when using ambiguity letters!
+# Be careful about setting nsites when using ambiguity letters!
 DNA.motif <- create_motif("NNVVWWAAWWDDN", nsites = 1)
 
 RNA.motif <- create_motif("UUUCCG")
 
-# 'create_motif' will try to detect the alphabet type; this can be 
+# 'create_motif' will try to detect the alphabet type; this can be
 # unreliable for AA and custom alphabets as DNA and RNA alphabets are
 # detected first
 AA.motif <- create_motif("AVLK", alphabet = "AA")
 
 custom.motif <- create_motif("QWER", alphabet = "QWER")
-# specify custom alphabet
+# Specify custom alphabet
 custom.motif <- create_motif("QWER", alphabet = "QWERASDF")
 
-###### create motifs from multiple strings of equal length
+###### Create motifs from multiple strings of equal length
 
 DNA.motif <- create_motif(c("TTTT", "AAAA", "AACC", "TTGG"), type = "PPM")
 DNA.motif <- create_motif(c("TTTT", "AAAA", "AACC", "TTGG"), nsites = 20)
@@ -170,14 +170,14 @@ AA.motif <- create_motif(c("ARNDCQ", "EGHILK", "ARNDCQ"), alphabet = "AA")
 custom.motif <- create_motif(c("POIU", "LKJH", "POIU", "CVBN"),
                              alphabet = "POIULKJHCVBN")
 
-# ambiguity letters are only allowed for single consensus strings; the
+# Ambiguity letters are only allowed for single consensus strings: the
 # following fails
 \dontrun{
 create_motif(c("WWTT", "CCGG"))
 create_motif(c("XXXX", "XXXX"), alphabet = "AA")
 }
 
-##### create motifs from XStringSet objects
+##### Create motifs from XStringSet objects
 
 library(Biostrings)
 
@@ -188,15 +188,15 @@ RNA.motif <- create_motif(RNA.set)
 AA.set <- AAStringSet(c("VVVLLL", "AAAIII"))
 AA.motif <- create_motif(AA.set)
 
-# custom motifs can be created from BStringSet objects
+# Custom motifs can be created from BStringSet objects
 B.set <- BStringSet(c("QWER", "ASDF", "ZXCV", "TYUI"))
 custom.motif <- create_motif(B.set)
 
-##### create motifs with filled 'multifreq' slot
+##### Create motifs with filled 'multifreq' slot
 
 DNA.motif.k2 <- create_motif(DNA.set, add.multifreq = 2)
 
-##### create motifs from matrices
+##### Create motifs from matrices
 
 mat <- matrix(c(1, 1, 1, 1,
                 2, 0, 2, 0,
@@ -207,16 +207,16 @@ DNA.motif <- create_motif(mat, alphabet = "DNA")
 RNA.motif <- create_motif(mat, alphabet = "RNA", nsites = 20)
 custom.motif <- create_motif(mat, alphabet = "QWER")
 
-# specify custom alphabet
+# Specify custom alphabet
 custom.motif <- create_motif(mat, alphabet = "QWER")
 
-# alphabet can be detected from rownames
+# Alphabet can be detected from rownames
 rownames(mat) <- DNA_BASES
 DNA.motif <- create_motif(mat)
 rownames(mat) <- c("Q", "W", "E", "R")
 custom.motif <- create_motif(mat)
 
-# matrices can also be used as input
+# Matrices can also be used as input
 mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
                     0.5, 0.5, 0.5, 0.5,
                     0.1, 0.1, 0.1, 0.1,
@@ -225,16 +225,16 @@ mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
 
 DNA.motif <- create_motif(mat.ppm, alphabet = "DNA", type = "PPM")
 
-##### create random motifs
+##### Create random motifs
 
-# these are generated as PPMs with 10 positions
+# These are generated as PPMs with 10 positions
 
 DNA.motif <- create_motif()
 RNA.motif <- create_motif(alphabet = "RNA")
 AA.motif <- create_motif(alphabet = "AA")
 custom.motif <- create_motif(alphabet = "QWER")
 
-# the number of positions can be specified
+# The number of positions can be specified
 
 DNA.motif <- create_motif(5)
 

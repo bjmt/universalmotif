@@ -15,7 +15,7 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from appearing in PWM matrices. If missing, the pseudocount stored in the
 \linkS4class{universalmotif} 'pseudocount' slot will be
-used, which defaults to 0.}
+used.}
 
 \item{nsize_correction}{\code{logical(1)} If true, the ICM
 at each position will be corrected to account
@@ -38,7 +38,7 @@ Position count matrix (PCM), also known as position frequency matrix
 represented by the numbers of each letter at that position. In theory
 all positions should have sums equal to n, but not all databases are
 this consistent. If converting from another type to PCM, column sums
-will be equal to the 'nsites' slot; if empty, 100 is used.
+will be equal to the 'nsites' slot. If empty, 100 is used.
 
 Position probability matrix (PPM), also known as position frequency
 matrix (PFM). At each position, the probability of individual letters
@@ -55,7 +55,7 @@ matrix (PSWM), position-specific scoring matrix (PSSM), or
 log-odds matrix. At each position, each letter is represented by it's
 log-likelihood (\code{log2(letter_probability / background_probility)}),
 which is normalized using the background letter frequencies. A PWM matrix
-is constructed from a PPM; if any position has 0-probability letters to
+is constructed from a PPM. If any position has 0-probability letters to
 which pseudocounts were not added, then the final log-likelihood of these
 letters will be \code{-Inf}.
 
@@ -76,7 +76,7 @@ it's sequence conservation, measured in the unit 'bits', which is a unit
 of energy (\insertCite{bits;textual}{universalmotif}; see
 \url{https://fr-s-schneider.ncifcrf.gov/logorecommendations.html}
 for more information). However not all programs will calculate
-information content the same; some will 'correct' the total information
+information content the same. Some will 'correct' the total information
 content at each position using a correction factor as described by
 \insertCite{correction;textual}{universalmotif}. This correction can
 applied by setting \code{nsize_correction = TRUE}, however it will only
@@ -94,7 +94,7 @@ can be useful for genomes with a heavy imbalance in letter frequencies.
 For each position, the individual letter frequencies are calculated as
 \code{letter_freq * log2(letter_freq / bkg_freq)}. When calculating
 information content using Shannon entropy, the maximum content for
-each position will always be \code{log2(alphabet_length)}; this does
+each position will always be \code{log2(alphabet_length)}. This does
 not hold for information content calculated as relative entropy.
 Please note that conversion from ICM assumes the information content
 was \emph{not} calculated as relative entropy.
@@ -103,11 +103,12 @@ was \emph{not} calculated as relative entropy.
 jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
                                       package = "universalmotif"))
 
-## pseudocounts default to 0.8
+## The motifs pseudocounts are 1: these will be used in the PCM->PPM
+## calculation
 jaspar.pwm <- convert_type(jaspar.pcm, type = "PPM")
 
-## setting pseudocounts to 0 will prevent any correction from being
-## applied to PPM/PWM matrices
+## Setting pseudocount to 0 will prevent any correction from being
+## applied to PPM/PWM matrices, overriding the motifs own pseudocounts
 jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 
 }

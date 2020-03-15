@@ -1,9 +1,9 @@
 #' Convert motif class.
 #'
-#' Allows for easy transfer of motif information between different classes
+#' Allows for easy transfer of motif information between different classes as
 #' defined by other Bioconductor packages. This function is also used by
-#' nearly all other functions in this package; so any motifs of a compatible
-#' class can be used without needed to convert beforehand.
+#' nearly all other functions in this package, so any motifs of a compatible
+#' class can be used without needing to be converted beforehand.
 #'
 #' @param motifs Single motif object or list. See details.
 #' @param class `character(1)` Desired motif class. Input as
@@ -45,28 +45,28 @@
 #' * universalmotif-universalmotif
 #'
 #' @examples
-#' # convert from universalmotif:
+#' # Convert from universalmotif:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' if (requireNamespace("motifStack", quietly = TRUE)) {
 #'   jaspar.motifstack.pfm <- convert_motifs(jaspar, "motifStack-pfm")
 #' }
 #'
-#' # convert from another class to universalmotif:
+#' # Convert from another class to universalmotif:
 #' if (requireNamespace("TFBSTools", quietly = TRUE)) {
 #' library(TFBSTools)
 #' data(MA0003.2)
 #' motif <- convert_motifs(MA0003.2)
 #'
-#' # convert from another class to another class
+#' # Convert from another class to another class
 #' if (requireNamespace("PWMEnrich", quietly = TRUE)) {
 #'   motif <- convert_motifs(MA0003.2, "PWMEnrich-PWM")
 #' }
 #'
-#' # the 'convert_motifs' function is embedded in the rest of the universalmotif
-#' # functions; non-universalmotif class motifs can be used
+#' # The 'convert_motifs' function is embedded in the rest of the universalmotif
+#' # functions: non-universalmotif class motifs can be used
 #' MA0003.2.trimmed <- trim_motifs(MA0003.2)
-#' # note: if the motif object going in has information that the
+#' # Note: if the motif object going in has information that the
 #' # 'universalmotif' class can't hold, it will be lost
 #' }
 #'

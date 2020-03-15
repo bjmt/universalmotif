@@ -2,7 +2,8 @@
 #'
 #' Import motifs created from [write_motifs()]. For optimal storage of
 #' `universalmotif` class motifs, consider using [saveRDS()] and
-#' [readRDS()]. Currently the `universalmotif` format is YAML-based.
+#' [readRDS()]. Currently the `universalmotif` format is YAML-based, but
+#' this is subject to change.
 #'
 #' @param progress `logical(1)` Show progress.
 #' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
@@ -56,7 +57,6 @@ read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {
 read_motifs_1_2 <- function(raw_lines, progress, BP) {
 
   total <- length(raw_lines)
-  # starts <- which(raw_lines == "---")
   starts <- grep("^---([^-]|$)", raw_lines)
   if (length(starts) == 0) stop("Incorrectly formatted motif file")
   if (starts[length(starts)] == total) stop("Incorrectly formatted motif file")
@@ -246,7 +246,7 @@ motifs_to_umot <- function(motif, version) {
   if (length(which.strand) == 1) {
     motif.strand <- collapse2(motif.split[[which.strand]][-1])
   } else motif.strand <- FALSE
-  
+
   which.pval <- vapply(motif.split, function(x) x[1] == "pval:", logical(1))
   which.pval <- which(which.pval)
   if (length(which.pval) == 1) {

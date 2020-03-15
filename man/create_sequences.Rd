@@ -38,11 +38,11 @@ Generate random sequences from any set of characters, represented as
 \code{\link{XStringSet}} objects.
 }
 \examples{
-## create DNA sequences with slightly increased AT content:
+## Create DNA sequences with slightly increased AT content:
 sequences <- create_sequences(freqs = c(A=0.3, C=0.2, G=0.2, T=0.3))
-## create custom sequences:
+## Create custom sequences:
 sequences.QWER <- create_sequences("QWER")
-## you can include non-alphabet characters are well, even spaces:
+## You can include non-alphabet characters are well, even spaces:
 sequences.custom <- create_sequences("!@#$ ")
 
 }

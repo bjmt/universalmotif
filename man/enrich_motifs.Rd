@@ -16,7 +16,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
 \item{sequences}{\code{\link{XStringSet}} Sequences to scan. Alphabet
 should match motif.}
 
-\item{bkg.sequences}{\code{\link{XStringSet}} Optional; if missing,
+\item{bkg.sequences}{\code{\link{XStringSet}} Optional. If missing,
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is used to create background sequences from
 the input sequences.}
 

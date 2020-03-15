@@ -3,7 +3,6 @@
 - Still need to rework compare_motifs() p-values
 - Think about writting my own geom_motif()
 - Extend current view_motifs() implementation for higher k motifs
-- Potential cleaning up needed in convert_type() functionality
 - Scan for motif clusters
 - General cleaning up/rewritting of vignettes needed
 - Check that everything in convert_motifs() still works
@@ -15,8 +14,20 @@
 - motif_peaks(): serious code cleanup needed
 - Add scan_sequences() gapped motif example to vignettes
 - dependencies to consider removing: ggseqlogo, yaml, processx, Rdpack?
-    + ape: no point as long as I have ggtree
-    + rlang: no point as long as I have ggplot2
+    + ape: no point as long as I have ggtree (move to suggests?)
+    + rlang: no point as long as I have ggplot2 (make my own .data?)
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
     + Can do vectorized operations such as subset all names with `[`
+- Add lots more text to the README
+    + universalmotif-class, create_motif()
+    + convert_type()
+    + scan_sequences()
+    + compare_motifs()
+    + view_motifs()
+    + motif_pvalue()
+    + read/write_*()
+    + convert_motifs()
+    + shuffle_sequences(), create_sequences()
+- Remove some of the input parameter checking in merge_motifs()/view_motifs()/
+  motif_tree(), rely solely on compare_motifs()

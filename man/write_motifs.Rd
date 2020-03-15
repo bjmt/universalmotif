@@ -33,7 +33,8 @@ default backend.}
 \description{
 Write motifs as universalmotif objects to file. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
-\code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based.
+\code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based, but
+this is subject to change.
 }
 \seealso{
 Other write_motifs: 

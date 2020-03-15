@@ -12,7 +12,7 @@
 #'    read site positions and P-values.
 #'
 #' @return `list` [universalmotif-class] objects. If `readsites = TRUE`, a list
-#'    comprising of a sub-list of motif objects and a sub-list of 
+#'    comprising of a sub-list of motif objects and a sub-list of
 #'    motif sites will be returned. If `readsites.meta = TRUE`, then two
 #'    additional list items will be present, one containing site positions
 #'    and P-values, and another containing combined sequence p-values.
@@ -74,9 +74,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   }
   if (all(c("+", "-") %in% strands)) {
     strands <- "+-"
-  } 
+  }
   bkg.start <- grep("^Background letter frequencies", raw_lines)
-  # bkg <- raw_lines[grep("^Background letter frequencies", raw_lines) + 1]
   bkg.offset <- 1
   bkg <- raw_lines[bkg.start + bkg.offset]
   bkg <- strsplit(bkg, "\\s+")[[1]]
@@ -91,7 +90,6 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names_i <- grep("^MOTIF ", raw_lines)
-  # motif_names <- motif_meta - 1
   motif_names <- lapply(raw_lines[motif_names_i], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]
@@ -140,7 +138,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   if (length(motif_list) == 1) motif_list <- motif_list[[1]]
 
   if (readsites) {
-    if (is.list(motif_list)) 
+    if (is.list(motif_list))
       mot.names <- vapply(motif_list, function(x) x@name, character(1))
     else
       mot.names <- motif_list@name

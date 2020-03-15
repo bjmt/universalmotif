@@ -1,5 +1,5 @@
 #' Import CIS-BP motifs.
-#' 
+#'
 #' Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
 #' Assumed to be DNA motifs.
 #'

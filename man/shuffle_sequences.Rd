@@ -56,7 +56,7 @@ random Eulerian path. A side effect of using this method is that the
 starting and ending sequence letters will remain unshuffled.
 
 If \code{method = 'linear'}, then the input sequences are split linearly
-every \code{k} letters; for example, for \code{k = 3} 'ACAGATAGACCC' becomes
+every \code{k} letters. For example, for \code{k = 3} 'ACAGATAGACCC' becomes
 'ACA GAT AGA CCC'; after which these \code{3}-lets are shuffled randomly.
 
 Do note however, that the \code{method} parameter is only relevant for \code{k > 1}.

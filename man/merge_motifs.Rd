@@ -21,7 +21,7 @@ allowed when \code{method = c("ALLR", "ALLR_LL")}.}
 
 \item{min.overlap}{\code{numeric(1)} Minimum overlap required when aligning the
 motifs. Setting this to a number higher then the width of the motifs
-will not allow any overhangs. Can also be a number less than 1,
+will not allow any overhangs. Can also be a number between 0 and 1,
 representing the minimum fraction that the motifs must overlap.}
 
 \item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
@@ -67,7 +67,7 @@ list.
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 
-If using a comparison metric where 0s are not allowed (KL, ALLR, ALLR_LL),
+If using a comparison metric where 0s are not allowed (\code{KL}, \code{ALLR}, \code{ALLR_LL}),
 then keep in mind that the final merged motif may include added pseudocounts
 to previously empty positions.
 
