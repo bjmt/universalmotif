@@ -66,6 +66,7 @@ With few exceptions, `universalmotif` class motifs can also be converted to the 
 library(universalmotif)
 
 create_motif()
+#>
 #>        Motif name:   motif
 #>          Alphabet:   DNA
 #>              Type:   PPM
