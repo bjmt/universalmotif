@@ -108,7 +108,7 @@ seqs
 #>  [99]   100 GCCTTCGGACGCCAAGTCTGCAAACAATTCCTC...CTTCTACGCCAAAACTCTTATCCCTGGCATTC
 #> [100]   100 GTCACAGCCAAGCTTTAAGTCTTCCAACCAGGA...ATTGTGGACGGAAGGTACCGTCGTAGATTCGC
 
-seqs.shuffled <- shuffle_sequences(seqs,  k = 3)
+seqs.shuffled <- shuffle_sequences(seqs, k = 3)
 ```
 
 ### Sequence scanning and higher order motifs
@@ -181,7 +181,7 @@ scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 0.9,
 
 ### Motif comparison, merging and viewing
 
-A commonly performed after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customisable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`.
+A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customisable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`.
 
 ```r
 library(universalmotif)
