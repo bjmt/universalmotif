@@ -143,7 +143,7 @@ motif3 <- create_motif(name = "3")
 motif4 <- create_motif(name = "4")
 motifs <- c(motif1, motif2, motif3, motif4)
 ## Compare motif "2" to all the other motifs:
-compare_motifs(motifs, compare.to = 2)
+compare_motifs(motifs, compare.to = 2, max.p = 1, max.e = Inf)
 
 }
 \references{
