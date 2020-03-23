@@ -50,7 +50,7 @@
 #' @examples
 #' data(ArabidopsisPromoters)
 #' data(ArabidopsisMotif)
-#' enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
+#' # enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
 #'
 #' @references
 #'    \insertRef{meme2}{universalmotif}
