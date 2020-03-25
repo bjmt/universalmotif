@@ -85,6 +85,7 @@ scan_sequences(motif, sequences)
 }
 
 ## Sequence masking:
+\dontrun{
 library(Biostrings)
 data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
@@ -102,6 +103,7 @@ for (i in 1:length(ArabidopsisPromoters)) {
   seq[[i]] <- injectHardMask(mask(seq[[i]], pattern = "AAAA"), letter = "+")
 }
 scan_sequences(ArabidopsisMotif, seq)
+}
 
 }
 \seealso{

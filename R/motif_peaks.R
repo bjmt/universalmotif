@@ -55,6 +55,7 @@
 #' @examples
 #' data(ArabidopsisMotif)
 #' data(ArabidopsisPromoters)
+#' \dontrun{
 #' hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE)
 #' res <- motif_peaks(as.vector(hits$start), 1000, 50)
 #' # View plot:
@@ -62,6 +63,7 @@
 #'
 #' # The raw plot data can be found in:
 #' res$Plot$data
+#' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()]

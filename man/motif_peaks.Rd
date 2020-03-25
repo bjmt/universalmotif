@@ -70,6 +70,7 @@ If the \code{bandwidth} option is not supplied, then the following code is used
 \examples{
 data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
+\dontrun{
 hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE)
 res <- motif_peaks(as.vector(hits$start), 1000, 50)
 # View plot:
@@ -77,6 +78,7 @@ res$Plot
 
 # The raw plot data can be found in:
 res$Plot$data
+}
 
 }
 \references{

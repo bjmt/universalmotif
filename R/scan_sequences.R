@@ -67,6 +67,7 @@
 #' }
 #'
 #' ## Sequence masking:
+#' \dontrun{
 #' library(Biostrings)
 #' data(ArabidopsisMotif)
 #' data(ArabidopsisPromoters)
@@ -84,6 +85,7 @@
 #'   seq[[i]] <- injectHardMask(mask(seq[[i]], pattern = "AAAA"), letter = "+")
 #' }
 #' scan_sequences(ArabidopsisMotif, seq)
+#' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
