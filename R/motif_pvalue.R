@@ -78,6 +78,7 @@
 #'    \insertRef{pvalues}{universalmotif}
 #'
 #' @examples
+#' if (R.Version()$arch != "i386") {
 #' data(examplemotif)
 #'
 #' ## P-value/score calculations are performed using the PWM version of the
@@ -107,6 +108,7 @@
 #'
 #' ## Get all possible matches by P-value:
 #' get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
+#' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [motif_score()]

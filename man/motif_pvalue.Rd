@@ -92,6 +92,7 @@ try the following code with your motif (be careful with longer motifs):
 \code{quantile(get_scores(motif), probs = 0.99)}
 }
 \examples{
+if (R.Version()$arch != "i386") {
 data(examplemotif)
 
 ## P-value/score calculations are performed using the PWM version of the
@@ -121,6 +122,7 @@ motif_pvalue(examplemotif, TATATAG)
 
 ## Get all possible matches by P-value:
 get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
+}
 
 }
 \references{

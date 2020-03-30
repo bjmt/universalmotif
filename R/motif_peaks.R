@@ -55,7 +55,7 @@
 #' @examples
 #' data(ArabidopsisMotif)
 #' data(ArabidopsisPromoters)
-#' \dontrun{
+#' if (R.Version()$arch != "i386") {
 #' hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE)
 #' res <- motif_peaks(as.vector(hits$start), 1000, 50)
 #' # View plot:

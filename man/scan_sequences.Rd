@@ -85,7 +85,7 @@ scan_sequences(motif, sequences)
 }
 
 ## Sequence masking:
-\dontrun{
+if (R.Version()$arch != "i386") {
 library(Biostrings)
 data(ArabidopsisMotif)
 data(ArabidopsisPromoters)

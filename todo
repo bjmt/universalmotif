@@ -37,3 +37,4 @@
     + compare_motifs()
     + enrich_motifs()
     + scan_sequences() [also in motif_peaks()]
+    + motif_pvalue()

@@ -50,7 +50,9 @@
 #' @examples
 #' data(ArabidopsisPromoters)
 #' data(ArabidopsisMotif)
-#' # enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
+#' if (R.Version()$arch != "i386") {
+#' enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
+#' }
 #'
 #' @references
 #'    \insertRef{meme2}{universalmotif}
