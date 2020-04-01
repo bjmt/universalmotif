@@ -56,8 +56,10 @@
 #'    \insertRef{eulerAlgo}{universalmotif}
 #'
 #' @examples
+#' if (R.Version()$arch != "i386") {
 #' sequences <- create_sequences()
 #' sequences.shuffled <- shuffle_sequences(sequences, k = 2)
+#' }
 #'
 #' @seealso [create_sequences()], [scan_sequences()], [enrich_motifs()],
 #'    [shuffle_motifs()]

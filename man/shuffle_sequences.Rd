@@ -63,8 +63,10 @@ Do note however, that the \code{method} parameter is only relevant for \code{k >
 For \code{k = 1}, a simple \code{sample} call is performed.
 }
 \examples{
+if (R.Version()$arch != "i386") {
 sequences <- create_sequences()
 sequences.shuffled <- shuffle_sequences(sequences, k = 2)
+}
 
 }
 \references{
