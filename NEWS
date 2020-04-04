@@ -26,7 +26,7 @@ MINOR CHANGES
     o create_motif(): single motif positions can now be created.
 
     o merge_motifs(): a message regarding adding pseudocounts to the motifs
-      is given if one ALLR/ALLR_LL/KL are used as comparison method.
+      is given if one of ALLR/ALLR_LL/KL are used as comparison method.
 
     o Some cleanup to documentation and vignettes.
 

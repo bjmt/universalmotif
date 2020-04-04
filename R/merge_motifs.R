@@ -21,8 +21,10 @@
 #' alignment is longer than the other.
 #'
 #' @examples
+#' \dontrun{
 #' library(MotifDb)
 #' merged.motif <- merge_motifs(MotifDb[1:5])
+#' }
 #'
 #' # Using ALLR or KL will add a pseudocount to the input motifs. Compare:
 #' m1 <- create_motif("TTAAACCCC", name = "1")
@@ -85,8 +87,9 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   if (method %in% c("ALLR", "KL", "ALLR_LL")) {
     message(wmsg2(
       "Note: due to using one of ALLR/ALLR_LL/KL as comparison method,",
-      " pseudocounts have been added to the input motifs. "
-  ))
+      " pseudocounts have been added to the input motifs. Use another method",
+      " to avoid this."
+    ))
   }
 
   mot <- merge_motifs_all(motifs, method, tryRC, min.overlap, min.mean.ic,

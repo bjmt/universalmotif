@@ -76,8 +76,10 @@ not discriminate between two alignments with equal mean scores, even if one
 alignment is longer than the other.
 }
 \examples{
+\dontrun{
 library(MotifDb)
 merged.motif <- merge_motifs(MotifDb[1:5])
+}
 
 # Using ALLR or KL will add a pseudocount to the input motifs. Compare:
 m1 <- create_motif("TTAAACCCC", name = "1")
