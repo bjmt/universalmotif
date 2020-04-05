@@ -4,7 +4,6 @@
 - Think about writting my own geom_motif()
 - Extend current view_motifs() implementation for higher k motifs
 - Scan for motif clusters
-- General cleaning up/rewritting of vignettes needed
 - Check that everything in convert_motifs() still works
 - Check that all read/write_*() functions still work
 - Add tests
@@ -19,20 +18,11 @@
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
     + Can do vectorized operations such as subset all names with `[`
-- Add lots more text to the README
-    + universalmotif-class, create_motif()
-    + convert_type()
-    + scan_sequences()
-    + compare_motifs()
-    + view_motifs()
-    + motif_pvalue()
-    + read/write_*()
-    + convert_motifs()
-    + shuffle_sequences(), create_sequences()
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
 - scan_sequences(): allow -Inf weights?
 - scan_sequences(): add option to return GRanges object
+- create_motif(): add message if detect lower + uppercase in case it's a mistake
 - 32 bit Windows failing examples:
     + compare_motifs()
     + enrich_motifs()
