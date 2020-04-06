@@ -44,23 +44,26 @@ The `universalmotif` class is used to store the motif matrix itself, as well as 
     + Sequence sites
     + Numeric matrix
     + No input: generate random motifs of any length
-- Import from one of several supported formats:
-    + `CIS-BP`: `read_cisbp()`
-    + `HOMER`: `read_homer()`
-    + `JASPAR`: `read_jaspar()`
-    + `MEME`: `read_meme()`
-    + `TRANSFAC`: `read_transfac()`
-    + `UNIPROBE`: `read_uniprobe()`
-    + Generic matrices: `read_matrix()`
-- Conversion from one of several compatible BioConductor package motif classes using `convert_motifs()`:
-    + `TFBSTools`: `PFMatrix`, `PWMatrix`, `ICMatrix`, `PFMatrixList`, `PWMatrixList`, `ICMatrixList`, `TFFMFirst`
-    + `MotifDb`: `MotifList`
-    + `seqLogo`: `pwm`
-    + `motifStack`: `pcm`, `pfm`
-    + `PWMEnrich`: `PWM`
-    + `motifRG`: `Motif`
 
-With few exceptions, `universalmotif` class motifs can also be converted to the listed BioConductor package motif classes with `convert_motifs()`, as well as exported to the listed external file formats using the corresponding `write_*()` functions.
+`universalmotif` class motifs are highly interoperable with other motif formats:
+
+- Import/export from/to several supported formats:
+    + `CIS-BP`: `read_cisbp()`
+    + `HOMER`: `read_homer()`, `write_homer()`
+    + `JASPAR`: `read_jaspar()`, `write_jaspar()`
+    + `MEME`: `read_meme()`, `write_meme()`
+    + `TRANSFAC`: `read_transfac()`, `write_transfac()`
+    + `UNIPROBE`: `read_uniprobe()`
+    + Generic matrices: `read_matrix()`, `write_matrix()`
+- Conversion from/to several compatible BioConductor package motif classes using `convert_motifs()` (f, from; t, to):
+    + `TFBSTools`: `PFMatrix` (f, t), `PWMatrix` (f, t), `ICMatrix` (f, t), `PFMatrixList` (f), `PWMatrixList` (f), `ICMatrixList` (f), `TFFMFirst` (f, t)
+    + `MotifDb`: `MotifList` (f)
+    + `seqLogo`: `pwm` (f, t)
+    + `motifStack`: `pcm` (f, t), `pfm` (f, t)
+    + `PWMEnrich`: `PWM` (f, t)
+    + `motifRG`: `Motif` (f)
+    + `Biostrings`: `PWM` (t)
+    + `rGADEM`: `motif` (t)
 
 ```r
 library(universalmotif)
