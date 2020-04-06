@@ -23,6 +23,7 @@
 - scan_sequences(): allow -Inf weights?
 - scan_sequences(): add option to return GRanges object
 - create_motif(): add message if detect lower + uppercase in case it's a mistake
+- merge_motifs(): add new.name argument
 - 32 bit Windows failing examples:
     + compare_motifs()
     + enrich_motifs()
