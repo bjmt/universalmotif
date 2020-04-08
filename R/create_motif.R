@@ -16,7 +16,9 @@
 #'    higher order backgrounds are provided, then the elements of the vector
 #'    must be named. If unnamed, then the order of probabilities must be in the
 #'    same order as the alphabetically sorted sequence alphabet.
-#' @param nsites `numeric(1)` Number of sites the motif was constructed from.
+#' @param nsites `numeric(1)` Number of sites the motif was constructed from. If
+#'    blank, then `create_motif()` will guess the appropriate number if possible.
+#'    To prevent this, provide `nsites = numeric()`.
 #' @param altname `character(1)` Alternate motif name.
 #' @param family `character(1)` Transcription factor family.
 #' @param organism `character(1)` Species of origin.
@@ -274,147 +276,120 @@ setMethod("create_motif", signature(input = "character"),
                                 bkgsites, strand, pval, qval, eval,
                                 extrainfo, add.multifreq) {
 
-  if (missing(alphabet)) alphabet <- "missing"
-  else if (alphabet == "custom")
+  lets.uniq <- sort_unique_cpp(safeExplode(collapse_cpp(input)))
+  if (!missing(alphabet) && length(alphabet) > 1)
+    stop(wmsg("`alphabet` parameter should be a single string"), call. = FALSE)
+
+  if (length(unique(nchar(input))) > 1) {
+    stop(wmsg("All strings must be of equal length"))
+  }
+  if (any(nchar(input) == 0)) {
+    stop(wmsg("Zero-length input strings as not allowed"))
+  }
+
+  if (missing(alphabet)) {
+    if (any(tolower(lets.uniq) != lets.uniq) &&
+        any(toupper(lets.uniq) != lets.uniq)) {
+      message(wmsg(
+        "Note: detected both lower and upper-case letters. These ",
+        "will be treated as separate letters."
+      ))
+    }
+    print(lets.uniq)
+    if (all(lets.uniq %in% DNA_ALPHABET[-(16:18)])) {
+      alphabet <- "DNA"
+    } else if (all(lets.uniq %in% RNA_BASES)) {
+      alphabet <- "RNA"
+    } else if (all(lets.uniq %in% AA_ALPHABET[-(27:30)])) {
+      alphabet <- "AA"
+    } else {
+      message(wmsg(
+        "Note: failed to auto-detect alphabet type, creating custom alphabet ",
+        "based on input letters."
+      ))
+      alphabet <- collapse_cpp(lets.uniq)
+    }
+  } else if (alphabet == "custom") {
     stop(wmsg("`alphabet = 'custom'` is no longer acceptable; please provide ",
               "the actual letters"))
-
-  consensus <- input
-  consensus.all <- consensus
-
-  if (length(consensus) > 1) {
-    consensus <- consensus[1]
-    if (length(unique(nchar(input))) != 1)
-      stop("all sequences must have the same number of characters")
-  }
-
-  if (nchar(consensus) < 1) stop("sequence must be at least one character")
-
-  consensus <- safeExplode(consensus)
-
-  if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 1) {
-    motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
-  } else if (alphabet == "AA" && length(consensus.all) == 1) {
-    motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
-  } else if (!missing(alphabet)) {
-    motif <- consensusMatrix(collapse_cpp(consensus))
-  }
-
-  if (!alphabet %in% c("DNA", "RNA", "AA", "missing") &&
-      length(consensus.all) == 1) {
-    alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
-    if (any(!consensus %in% alph.deparsed)) {
-      stop("consensus string does not match provided alphabet")
-    }
-    motif2 <- vector("list", length(alph.deparsed))
-    mot_len <- length(consensus)
-    for (i in alph.deparsed) {
-      motif2[[i]] <- motif[rownames(motif) == i, ]
-      if (length(motif2[[i]]) == 0) motif2[[i]] <- rep(0, mot_len)
-    }
-    motif <- matrix(unlist(motif2), ncol = mot_len, byrow = TRUE)
-  }
-
-  if (alphabet == "missing") {
-    if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z")) &&
-        !any(consensus %in% c("O", "U", letters, as.character(0:9)))) {
-      motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
-      alphabet <- "AA"
-    } else if (any(consensus == "U") &&
-               !any(consensus %in% c("E", "F", "I", "J", "L", "O",
-                                     "P", "Q", "T", "X", "Z",
-                                     letters, as.character(0:9)))) {
-      alphabet <- "RNA"
-      motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
-    } else if (any(consensus %in% DNA_ALPHABET[-c(16:18)]) &&
-               !any(consensus %in% c("E", "F", "I", "J", "L", "O",
-                                     "P", "Q", "X", "Z", "U",
-                                     letters, as.character(0:9)))) {
-      alphabet <- "DNA"
-      motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
-    } else if (length(consensus.all) == 1) {
-      alphabet <- collapse_cpp(sort_unique_cpp(consensus))
-      motif <- consensusMatrix(collapse_cpp(consensus))
-    }
-  }
-
-  if (alphabet == "AA" && length(consensus.all) > 1) {
-    motif2 <- vector("list", 20)
-    mot_len <- ncol(motif)
-    for (i in AA_STANDARD2) {
-      motif2[[i]] <- motif[rownames(motif) == i, ]
-      if (length(motif2[[i]]) == 0) motif2[[i]] <- rep(0, mot_len)
-    }
-    motif <- matrix(unlist(motif2), ncol = mot_len, byrow = TRUE)
-  }
-
-  margs <- parse_args(as.list(environment()),
-                      c("bkg", "altname", "family", "organism", "bkgsites",
-                        "strand", "pval", "qval", "eval", "extrainfo"))
-
-  margs <- c(margs, list(name = name), list(pseudocount = pseudocount))
-  if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
-  else margs <- c(margs, list(nsites = length(consensus.all)))
-
-  if (length(consensus.all) > 1) {
-
+  } else if (alphabet %in% c("DNA", "RNA", "AA")) {
     switch(alphabet,
-      "DNA" = {
-        consensus <- DNAStringSet(lapply(consensus.all, DNAString))
+      "DNA" = if (any(!lets.uniq %in% DNA_BASES)) {
+        stop(wmsg(
+          "Detected non-DNA letters in input, despite `alphabet='DNA'` [",
+          collapse_cpp(lets.uniq[!lets.uniq %in% DNA_BASES]), "]"
+        ))
       },
-      "RNA" = {
-        consensus <- RNAStringSet(lapply(consensus.all, RNAString))
+      "RNA" = if (any(!lets.uniq %in% RNA_BASES)) {
+        stop(wmsg(
+          "Detected non-RNA letters in input, despite `alphabet='RNA'` [",
+          collapse_cpp(lets.uniq[!lets.uniq %in% RNA_BASES]), "]"
+        ))
       },
-      "AA" = {
-        consensus <- AAStringSet(lapply(consensus.all, AAString))
-      },
-      {
-        consensus <- BStringSet(lapply(consensus.all, BString))
-        alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
-        if (any(!rownames(consensusMatrix(consensus)) %in%
-                alph.deparsed))
-          stop("consensus string does not match provided alphabet")
+      "AA" = if (any(!lets.uniq %in% AA_STANDARD2)) {
+        stop(wmsg(
+          "Detected non-AA letters in input, despite `alphabet='AA'` [",
+          collapse_cpp(lets.uniq[!lets.uniq %in% AA_STANDARD2]), "]"
+        ))
       }
     )
-
-    if (!missing(type)) margs <- c(margs, list(type = type))
-    motif <- do.call(create_motif,
-                     c(list(input = consensus), margs,
-                       list(alphabet = alphabet)))
-
-    validObject_universalmotif(motif)
-    return(motif)
-
+  } else {
+    if (nchar(alphabet) == 1) stop("alphabet string must be longer than 1 character")
+    alphabet <- collapse_cpp(sort_unique_cpp(safeExplode(alphabet)))
   }
 
-  motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
-  if (nchar(alphabet) == 1) stop("alphabet must be longer than 1 character")
-  motif <- do.call(universalmotif_cpp, c(list(motif = motif),
-                                     list(alphabet = alphabet),
-                                     list(type = "PPM"), margs))
+  if (length(input) == 1) {
+    motif <- switch(alphabet,
+      "DNA" = vapply(safeExplode(input), consensus_to_ppmC, numeric(4)),
+      "RNA" = vapply(safeExplode(input), consensus_to_ppmC, numeric(4)),
+      "AA" = vapply(safeExplode(input), consensus_to_ppmAAC, numeric(20)),
+      {
+        out <- consensusMatrix(input)
+        if (nrow(out) != nchar(alphabet)) {
+          missing.lets <- safeExplode(alphabet)
+          missing.lets <- missing.lets[!missing.lets %in% rownames(out)]
+          out2 <- rbind(out, matrix(0, ncol = ncol(out), nrow = length(missing.lets)))
+          rownames(out2) <- c(rownames(out), missing.lets)
+          out <- out2[sort_unique_cpp(rownames(out2)), ]
+        }
+        out
+      }
+    )
+  } else {
+    motif <- switch(alphabet,
+      "DNA" = DNAStringSet(input),
+      "RNA" = RNAStringSet(input),
+      "AA" = AAStringSet(input),
+      BStringSet(input)
+    )
+    if (alphabet %in% c("DNA", "RNA", "AA")) {
+      switch(alphabet,
+        "DNA" = if (sum(consensusMatrix(motif, baseOnly = TRUE)[5, ]))
+          stop(wmsg("DNA ambiguity letters are not accepted if input is more than one string")),
+        "RNA" = if (sum(consensusMatrix(motif, baseOnly = TRUE)[5, ]))
+          stop(wmsg("RNA ambiguity letters are not accepted if input is more than one string")),
+        "AA" = if (any(lets.uniq %in% c("U", "O", "B", "J", "Z", "X")))
+          stop(wmsg("AA ambiguity letters are not accepted if input is more than one string"))
+      )
+    }
+  }
 
-  if (length(consensus.all) == 1 && missing(nsites) &&
-      alphabet %in% c("DNA", "RNA")) {
+  margs <- parse_args(
+    as.list(environment()),
+    c("bkg", "altname", "family", "organism", "bkgsites", "strand", "pval",
+      "qval", "eval", "extrainfo")
+  )
+  margs <- c(margs, list(name = name), list(pseudocount = pseudocount))
+  if (!missing(nsites)) {
+    margs <- c(margs, list(nsites = nsites))
+  } else {
+    if (length(input) > 1) margs$nsites <- length(input)
+  }
 
-    input.split <- safeExplode(input)
-    if ("N" %in% input.split) {
-      motif@nsites <- 4
-      if (any(c("H", "B", "V", "D") %in% input.split))
-        motif@nsites <- 12
-    } else if (any(c("H", "B", "V", "D") %in% input.split)) {
-      motif@nsites <- 3
-      if (any(c("M", "R", "W", "S", "Y", "K") %in% input.split))
-        motif@nsites <- 6
-    } else if (any(c("M", "R", "W", "S", "Y", "K") %in% input.split))
-      motif@nsites <- 2
-
-  } else if (length(consensus.all) == 1 && missing(nsites) &&
-             alphabet == "AA") {
-
-    input.split <- safeExplode(input)
-    if ("X" %in% input.split) motif@nsites <- 20
-    else if (any(c("B", "Z", "J") %in% input.split)) motif@nsites <- 2
-
+  if (is.matrix(motif)) {
+    motif <- do.call(universalmotif_cpp, c(list(motif = motif, alphabet = alphabet, type = "PPM"), margs))
+  } else {
+    motif <- do.call(create_motif, c(list(input = motif, alphabet = alphabet, type = "PPM"), margs))
   }
 
   if (type == "PPM") motif <- convert_type_internal(motif, "PCM")
@@ -434,9 +409,194 @@ setMethod("create_motif", signature(input = "character"),
   }
 
   validObject_universalmotif(motif)
+
   motif
 
 })
+
+# setMethod("create_motif", signature(input = "character"),
+#           definition = function(input, alphabet, type, name, pseudocount,
+#                                 bkg, nsites, altname, family, organism,
+#                                 bkgsites, strand, pval, qval, eval,
+#                                 extrainfo, add.multifreq) {
+#
+#   if (missing(alphabet)) alphabet <- "missing"
+#   # if (missing(alphabet))  {
+#   #   alphabet <- collapse_cpp(sort_unique_cpp(safeExplode(collapse_cpp(input))))
+#   # }
+#   else if (alphabet == "custom")
+#     stop(wmsg("`alphabet = 'custom'` is no longer acceptable; please provide ",
+#               "the actual letters"))
+#
+#   consensus <- input
+#   consensus.all <- consensus
+#
+#   if (length(consensus) > 1) {
+#     consensus <- collapse_cpp(consensus)
+#     if (length(unique(nchar(input))) != 1)
+#       stop("all sequences must have the same number of characters")
+#   }
+#
+#   if (nchar(consensus) < 1) stop("sequence must be at least one character")
+#
+#   consensus <- sort_unique_cpp(safeExplode(consensus))
+#
+#   if (alphabet %in% c("DNA", "RNA") && length(consensus.all) == 1) {
+#     motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
+#   } else if (alphabet == "AA" && length(consensus.all) == 1) {
+#     motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
+#   } else if (!missing(alphabet)) {
+#     motif <- consensusMatrix(collapse_cpp(consensus))
+#   }
+#
+#   if (!alphabet %in% c("DNA", "RNA", "AA", "missing") &&
+#       length(consensus.all) == 1) {
+#     alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
+#     if (any(!consensus %in% alph.deparsed)) {
+#       stop("consensus string does not match provided alphabet")
+#     }
+#     motif2 <- vector("list", length(alph.deparsed))
+#     mot_len <- length(consensus)
+#     for (i in alph.deparsed) {
+#       motif2[[i]] <- motif[rownames(motif) == i, ]
+#       if (length(motif2[[i]]) == 0) motif2[[i]] <- rep(0, mot_len)
+#     }
+#     motif <- matrix(unlist(motif2), ncol = mot_len, byrow = TRUE)
+#   }
+#
+#   if (alphabet == "missing") {
+#     if (any(toupper(consensus) != consensus) &&
+#         any(tolower(consensus) != consensus)) {
+#       message(wmsg(
+#         "Note: detected both upper and lower case letters. These will",
+#         " be treated as individual letters."
+#       ))
+#     }
+#     if (any(consensus %in% c("E", "F", "I", "P", "Q", "X", "Z")) &&
+#         !any(consensus %in% c("O", "U", letters, as.character(0:9)))) {
+#       motif <- vapply(consensus, consensus_to_ppmAAC, numeric(20))
+#       alphabet <- "AA"
+#     } else if (any(consensus == "U") &&
+#                !any(consensus %in% c("E", "F", "I", "J", "L", "O",
+#                                      "P", "Q", "T", "X", "Z",
+#                                      letters, as.character(0:9)))) {
+#       alphabet <- "RNA"
+#       motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
+#     } else if (any(consensus %in% DNA_ALPHABET[-c(16:18)]) &&
+#                !any(consensus %in% c("E", "F", "I", "J", "L", "O",
+#                                      "P", "Q", "X", "Z", "U",
+#                                      letters, as.character(0:9)))) {
+#       alphabet <- "DNA"
+#       motif <- vapply(consensus, consensus_to_ppmC, numeric(4))
+#     } else if (length(consensus.all) == 1) {
+#       alphabet <- collapse_cpp(sort_unique_cpp(consensus))
+#       motif <- consensusMatrix(collapse_cpp(consensus))
+#     }
+#   }
+#
+#   if (alphabet == "AA" && length(consensus.all) > 1) {
+#     motif2 <- vector("list", 20)
+#     mot_len <- ncol(motif)
+#     for (i in AA_STANDARD2) {
+#       motif2[[i]] <- motif[rownames(motif) == i, ]
+#       if (length(motif2[[i]]) == 0) motif2[[i]] <- rep(0, mot_len)
+#     }
+#     motif <- matrix(unlist(motif2), ncol = mot_len, byrow = TRUE)
+#   }
+#
+#   margs <- parse_args(as.list(environment()),
+#                       c("bkg", "altname", "family", "organism", "bkgsites",
+#                         "strand", "pval", "qval", "eval", "extrainfo"))
+#
+#   margs <- c(margs, list(name = name), list(pseudocount = pseudocount))
+#   if (!missing(nsites)) margs <- c(margs, list(nsites = nsites))
+#   else margs <- c(margs, list(nsites = length(consensus.all)))
+#
+#   if (length(consensus.all) > 1) {
+#
+#     switch(alphabet,
+#       "DNA" = {
+#         consensus <- DNAStringSet(lapply(consensus.all, DNAString))
+#       },
+#       "RNA" = {
+#         consensus <- RNAStringSet(lapply(consensus.all, RNAString))
+#       },
+#       "AA" = {
+#         consensus <- AAStringSet(lapply(consensus.all, AAString))
+#       },
+#       {
+#         if (alphabet != "missing") {
+#           consensus <- BStringSet(lapply(consensus.all, BString))
+#           alph.deparsed <- sort_unique_cpp(safeExplode(alphabet))
+#           if (any(!rownames(consensusMatrix(consensus)) %in%
+#                   alph.deparsed))
+#             stop("consensus string does not match provided alphabet")
+#         } else {
+#           alphabet <- collapse_cpp(consensus)
+#         }
+#       }
+#     )
+#
+#     if (!missing(type)) margs <- c(margs, list(type = type))
+#     motif <- do.call(create_motif,
+#                      c(list(input = consensus), margs,
+#                        list(alphabet = alphabet)))
+#
+#     validObject_universalmotif(motif)
+#     return(motif)
+#
+#   }
+#
+#   motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
+#   if (nchar(alphabet) == 1) stop("alphabet must be longer than 1 character")
+#   motif <- do.call(universalmotif_cpp, c(list(motif = motif),
+#                                      list(alphabet = alphabet),
+#                                      list(type = "PPM"), margs))
+#
+#   if (length(consensus.all) == 1 && missing(nsites) &&
+#       alphabet %in% c("DNA", "RNA")) {
+#
+#     input.split <- safeExplode(input)
+#     if ("N" %in% input.split) {
+#       motif@nsites <- 4
+#       if (any(c("H", "B", "V", "D") %in% input.split))
+#         motif@nsites <- 12
+#     } else if (any(c("H", "B", "V", "D") %in% input.split)) {
+#       motif@nsites <- 3
+#       if (any(c("M", "R", "W", "S", "Y", "K") %in% input.split))
+#         motif@nsites <- 6
+#     } else if (any(c("M", "R", "W", "S", "Y", "K") %in% input.split))
+#       motif@nsites <- 2
+#
+#   } else if (length(consensus.all) == 1 && missing(nsites) &&
+#              alphabet == "AA") {
+#
+#     input.split <- safeExplode(input)
+#     if ("X" %in% input.split) motif@nsites <- 20
+#     else if (any(c("B", "Z", "J") %in% input.split)) motif@nsites <- 2
+#
+#   }
+#
+#   if (type == "PPM") motif <- convert_type_internal(motif, "PCM")
+#   motif <- convert_type_internal(motif, type = type)
+#
+#   if (!missing(add.multifreq) && length(input) > 1) {
+#
+#     for (i in add.multifreq) {
+#       motif@multifreq[[as.character(i)]] <- add_multi_cpp(input, i, rownames(motif@motif))
+#     }
+#
+#     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
+#                        pseudocount = pseudocount, list.out = FALSE,
+#                        alphabet = rownames(motif@motif))
+#     motif@bkg <- c(motif@bkg, new.bkg)
+#
+#   }
+#
+#   validObject_universalmotif(motif)
+#   motif
+#
+# })
 
 #' @describeIn create_motif Create motif from a matrix.
 #' @export

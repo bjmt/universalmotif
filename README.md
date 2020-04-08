@@ -197,8 +197,8 @@ compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 5)[2]
 compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 10)[2]
 #> [1] 0.2
 
-merged.motif <- merge_motifs(c(new.motif, old.motif), method = "PCC")
-merged.motif["name"] <- "Merged motif"
+merged.motif <- merge_motifs(c(new.motif, old.motif), method = "PCC",
+    new.name = "Merged motif")
 
 view_motifs(c(new.motif, old.motif, merged.motif))
 ```

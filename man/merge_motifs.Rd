@@ -6,7 +6,8 @@
 \usage{
 merge_motifs(motifs, method = "ALLR", use.type = "PPM", min.overlap = 6,
   min.mean.ic = 0.25, tryRC = TRUE, relative_entropy = FALSE,
-  normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum")
+  normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
+  new.name = NULL)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -52,6 +53,9 @@ mean. "g.mean": take the geometric mean. "median": take the median.
 "wa.mean", "wg.mean": weighted arithmetic/geometric mean. "fzt": Fisher
 Z-transform. Weights are the
 total information content shared between aligned columns.}
+
+\item{new.name}{\code{character(1)}, \code{NULL} Instead of collapsing existing names (if \code{NULL}),
+assign a new for the merged motif.}
 }
 \value{
 A single motif object. See \code{\link[=convert_motifs]{convert_motifs()}} for

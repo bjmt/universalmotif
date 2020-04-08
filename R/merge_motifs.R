@@ -6,6 +6,9 @@
 #' Motifs are merged one at a time, starting with the first entry in the
 #' list.
 #'
+#' @param new.name `character(1)`, `NULL` Instead of collapsing existing names (if `NULL`),
+#'    assign a new for the merged motif.
+#'
 #' @return A single motif object. See [convert_motifs()] for
 #'    available formats.
 #'
@@ -40,7 +43,8 @@
 merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
                          relative_entropy = FALSE, normalise.scores = FALSE,
-                         min.position.ic = 0, score.strat = "sum") {
+                         min.position.ic = 0, score.strat = "sum",
+                         new.name = NULL) {
 
   # a.mean is NOT recommended! merge_motifs() will not discriminate between two
   # alignments which give the same mean score, even if one is a longer alignment
@@ -50,8 +54,9 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
   all_checks <- character(0)
-  char_check <- check_fun_params(list(method = args$method, score.strat = args$score.strat),
-                                 numeric(), logical(), TYPE_CHAR)
+  char_check <- check_fun_params(list(method = args$method, score.strat = args$score.strat,
+                                      new.name = args$new.name),
+                                 numeric(), c(FALSE, FALSE, TRUE), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
                                      min.mean.ic = args$min.mean.ic),
                                 numeric(), logical(), TYPE_NUM)
@@ -94,7 +99,7 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
 
   mot <- merge_motifs_all(motifs, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, relative_entropy, normalise.scores,
-                          score.strat)
+                          score.strat, new.name)
 
   mot <- .internal_convert(mot, unique(CLASS_IN))
   mot
@@ -103,7 +108,7 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
 
 merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
                              min.position.ic, relative_entropy, normalise.scores,
-                             score.strat) {
+                             score.strat, new.name) {
 
   alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))
   if (length(alph) > 1) stop("all motifs must have the same alphabet")
@@ -131,7 +136,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, mot.bkgs, relative_entropy,
                           normalise.scores, get_nsites(motifs), score.strat)
 
-  new.name <- paste0(mot.names, collapse = "/")
+  new.name <- if (is.null(new.name)) paste0(mot.names, collapse = "/") else new.name
   new.altname <- paste0(mot.altnames, collapse = "/")
   if (nchar(new.altname) == 0) new.altname <- character(0)
   new.family <- paste0(mot.families, collapse = "/")

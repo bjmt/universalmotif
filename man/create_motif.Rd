@@ -68,7 +68,9 @@ higher order backgrounds are provided, then the elements of the vector
 must be named. If unnamed, then the order of probabilities must be in the
 same order as the alphabetically sorted sequence alphabet.}
 
-\item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from.}
+\item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from. If
+blank, then \code{create_motif()} will guess the appropriate number if possible.
+To prevent this, provide \code{nsites = numeric()}.}
 
 \item{altname}{\code{character(1)} Alternate motif name.}
 

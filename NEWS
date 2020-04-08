@@ -25,8 +25,15 @@ MINOR CHANGES
 
     o create_motif(): single motif positions can now be created.
 
+    o create_motif(), character input: nsites slot is left empty is input is
+      a single string. It is still filled if the input consists of multiple
+      strings.
+
     o merge_motifs(): a message regarding adding pseudocounts to the motifs
       is given if one of ALLR/ALLR_LL/KL are used as comparison method.
+
+    o merge_motifs(..., new.name) option: assign a name to the new merged motif
+      instead of collapsing the names of the merged motifs together.
 
     o Some cleanup to documentation and vignettes.
 
