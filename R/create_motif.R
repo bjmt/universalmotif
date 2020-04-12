@@ -295,7 +295,6 @@ setMethod("create_motif", signature(input = "character"),
         "will be treated as separate letters."
       ))
     }
-    print(lets.uniq)
     if (all(lets.uniq %in% DNA_ALPHABET[-(16:18)])) {
       alphabet <- "DNA"
     } else if (all(lets.uniq %in% RNA_BASES)) {
