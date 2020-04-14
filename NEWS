@@ -39,6 +39,14 @@ MINOR CHANGES
 
     o General code cleanup.
 
+CHANGES IN VERSION 1.4.10
+-------------------------
+
+BUG FIXES
+
+    o Updated the warning from v1.4.9 to make users aware that the daylight
+      layout will be permanently disabled for Bioconductor 3.10.
+
 CHANGES IN VERSION 1.4.9
 ------------------------
 
