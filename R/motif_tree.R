@@ -148,8 +148,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
 
   if (layout == "daylight") {
     warning(wmsg(
-      "A recent update in upstream code has broken the 'daylight' layout functionality. For now, 'fan' will be substituted for daylight."
-    ), call. = FALSE, immediate = TRUE)
+      "An update in the dplyr broke the 'daylight' layout functionality of ggtree. Unfortunately the fix did not come in time before the 3.10 version of Bioconductor was frozen. Please update to Bioconductor 3.11 or later to use the 'daylight' layout."
+    ), call. = FALSE, immediate. = TRUE)
     layout <- "fan"
   }
 
