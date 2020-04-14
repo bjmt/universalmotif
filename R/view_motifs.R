@@ -47,7 +47,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
-view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
+view_motifs <- function(motifs, use.type = "ICM", method = "PCC",
                         tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
                         relative_entropy = FALSE, normalise.scores = FALSE,
                         min.position.ic = 0, score.strat = "sum",

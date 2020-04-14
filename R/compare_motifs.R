@@ -145,7 +145,7 @@
 #'    [make_DBscores()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
-                           use.type = "PPM", method = "ALLR", tryRC = TRUE,
+                           use.type = "PPM", method = "PCC", tryRC = TRUE,
                            min.overlap = 6, min.mean.ic = 0.25,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,

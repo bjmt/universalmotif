@@ -19,6 +19,9 @@ NEW FEATURES
 
 MINOR CHANGES
 
+    o Go back to PCC as default comparison method for compare_motifs(),
+      merge_motifs(), and view_motifs().
+
     o Removed most previously deprecated function arguments.
 
     o Make sure view_motifs(..., use.type = "ICM") properly sets ylim.
