@@ -42,6 +42,14 @@ MINOR CHANGES
 
     o General code cleanup.
 
+BUG FIXES
+
+    o write_meme() now includes altname slot if filled. Contribution from
+      Spencer Nystrom (https://github.com/bjmt/universalmotif/pull/5).
+
+    o write_meme() checks for and removes any spaces/equal signs in motif
+      names/altnames.
+
 CHANGES IN VERSION 1.4.10
 -------------------------
 

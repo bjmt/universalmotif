@@ -98,11 +98,41 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
   .write_meme <- function(motifs) {
 
     write_meme_name <- function(motif){
-      if (length(motif@altname) == 0){
-        return(paste("MOTIF", motif@name))
-      } else {
-        paste("MOTIF", motif@name, motif@altname)
+      n1 <- motif@name
+      if (grepl("=", n1)) {
+        message(
+          "Note: found equal signs in motif name \"",
+          motif@name, "\". These will be substituted with periods."
+        )
+        n1 <- gsub("=", ".", n1, fixed = TRUE)
       }
+      n1 <- strsplit(n1, " ", fixed = TRUE)[[1]]
+      if (length(n1) > 1) {
+        message(
+          "Note: found spaces in motif name \"",
+          motif@name, "\". These will be substituted with dashes."
+        )
+        n1 <- paste0(n1, collapse = "-")
+      }
+      n2 <- motif@altname
+      if (length(n2)) {
+        if (grepl("=", n2)) {
+          message(
+            "Note: found equal signs in motif altname \"",
+            motif@altname, "\". These will be substituted with periods."
+          )
+          n2 <- gsub("=", ".", n2, fixed = TRUE)
+        }
+        n2 <- strsplit(n2, " ", fixed = TRUE)[[1]]
+        if (length(n2) > 1) {
+          message(
+            "Note: found spaces in motif altname \"",
+            motif@altname, "\". These will be substituted with dashes."
+          )
+          n2 <- paste0(n2, collapse = "-")
+        }
+      }
+      out <- paste("MOTIF", n1, n2)
     }
 
     motif <- motifs
