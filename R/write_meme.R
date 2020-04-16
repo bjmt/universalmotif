@@ -96,9 +96,17 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
                  paste(bkg.2, bkg, collapse = " "), "")
 
   .write_meme <- function(motifs) {
-  
+
+    write_meme_name <- function(motif){
+      if (length(motif@altname) == 0){
+        return(paste("MOTIF", motif@name))
+      } else {
+        paste("MOTIF", motif@name, motif@altname)
+      }
+    }
+
     motif <- motifs
-    lines_out <- paste("MOTIF", motif@name)
+    lines_out <- write_meme_name(motif)
     nsites <- motif@nsites
     nsites <- ifelse(length(nsites) == 0, 100, nsites)
     eval <- motif@eval
