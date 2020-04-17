@@ -14,6 +14,9 @@ NEW FEATURES
     o view_motifs(..., dedup.names) option: allows plotting of motifs with
       duplicated names by appending a unique string.
 
+    o merge_motifs(..., new.name) option: assign a name to the new merged motif
+      instead of collapsing the names of the merged motifs together.
+
     o round_motif() utility: round down very low letter-position scores to
       zero.
 
@@ -34,9 +37,6 @@ MINOR CHANGES
 
     o merge_motifs(): a message regarding adding pseudocounts to the motifs
       is given if one of ALLR/ALLR_LL/KL are used as comparison method.
-
-    o merge_motifs(..., new.name) option: assign a name to the new merged motif
-      instead of collapsing the names of the merged motifs together.
 
     o Some cleanup to documentation and vignettes.
 
