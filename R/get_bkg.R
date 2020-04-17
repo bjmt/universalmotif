@@ -1,8 +1,8 @@
 #' Calculate sequence background.
 #'
 #' For a set of input sequences, calculate the overall sequence background for
-#' any k-let size. Only recommended for non-DNA/RNA sequences: otherwise use
-#' the much faster and more efficient
+#' any k-let size. For very large sequences, this is only recommended for
+#' non-DNA/RNA sequences: otherwise use the much faster and more efficient
 #' \code{\link[Biostrings:nucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
 #'
 #' @param sequences \code{\link{XStringSet}} Input sequences. Note that if

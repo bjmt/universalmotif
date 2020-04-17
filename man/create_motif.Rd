@@ -109,9 +109,7 @@ default class constructor (i.e. \code{new('universalmotif', name=...)}).
 See examples for potential use cases.
 
 Note: when generating random motifs, the \code{nsites} slot is also given a
-random value. Furthermore, be careful about the \code{nsites} slot when creating
-motifs from consensus strings: for example, the following call
-\code{create_motif("TAAAT")} generates a motif with \code{nsites = 1}.
+random value.
 
 See the \code{examples} section for more info on motif creation.
 }

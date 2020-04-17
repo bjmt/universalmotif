@@ -42,9 +42,7 @@
 #'    See examples for potential use cases.
 #'
 #'    Note: when generating random motifs, the `nsites` slot is also given a
-#'    random value. Furthermore, be careful about the `nsites` slot when creating
-#'    motifs from consensus strings: for example, the following call
-#'    `create_motif("TAAAT")` generates a motif with `nsites = 1`.
+#'    random value.
 #'
 #'    See the `examples` section for more info on motif creation.
 #'
