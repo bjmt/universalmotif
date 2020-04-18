@@ -15,9 +15,9 @@
 #' @details
 #' See [compare_motifs()] for more info on comparison parameters.
 #'
-#' If using a comparison metric where 0s are not allowed (`KL`, `ALLR`, `ALLR_LL`),
-#' then keep in mind that the final merged motif may include added pseudocounts
-#' to previously empty positions.
+#' If using a comparison metric where 0s are not allowed (`KL`, `ALLR`, `ALLR_LL`, `IS`),
+#' then pseudocounts will be added internally. These pseudocounts are only used for
+#' comparison and alignment, and are not used in the final merging step.
 #'
 #' Note: `score.strat = "a.mean"` is NOT recommended, as [merge_motifs()] will
 #' not discriminate between two alignments with equal mean scores, even if one
@@ -40,7 +40,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
-merge_motifs <- function(motifs, method = "PCC", use.type = "PPM",
+merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
                          min.overlap = 6, min.mean.ic = 0.25, tryRC = TRUE,
                          relative_entropy = FALSE, normalise.scores = FALSE,
                          min.position.ic = 0, score.strat = "sum",
@@ -89,13 +89,13 @@ merge_motifs <- function(motifs, method = "PCC", use.type = "PPM",
 
   motifs <- convert_type_internal(motifs, "PPM")
 
-  if (method %in% c("ALLR", "KL", "ALLR_LL")) {
-    message(wmsg2(
-      "Note: due to using one of ALLR/ALLR_LL/KL as comparison method,",
-      " pseudocounts have been added to the input motifs. Use another method",
-      " to avoid this."
-    ))
-  }
+  # if (method %in% c("ALLR", "KL", "ALLR_LL")) {
+  #   message(wmsg2(
+  #     "Note: due to using one of ALLR/ALLR_LL/KL as comparison method,",
+  #     " pseudocounts have been added to the input motifs. Use another method",
+  #     " to avoid this."
+  #   ))
+  # }
 
   mot <- merge_motifs_all(motifs, method, tryRC, min.overlap, min.mean.ic,
                           min.position.ic, relative_entropy, normalise.scores,

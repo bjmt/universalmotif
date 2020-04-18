@@ -5,7 +5,7 @@
 \title{Compare motifs.}
 \usage{
 compare_motifs(motifs, compare.to, db.scores, use.freq = 1,
-  use.type = "PPM", method = "PCC", tryRC = TRUE, min.overlap = 6,
+  use.type = "PPM", method = "ALLR", tryRC = TRUE, min.overlap = 6,
   min.mean.ic = 0.25, min.position.ic = 0, relative_entropy = FALSE,
   normalise.scores = FALSE, max.p = 0.01, max.e = 10, nthreads = 1,
   score.strat = "a.mean", output.report, output.report.max.print = 10)
@@ -117,7 +117,7 @@ higher values mean more similar motifs. For the remaining metrics, values closer
 to zero represent more similar motifs.
 
 Small pseudocounts are automatically added when one of the following methods
-is used: \code{KL}, \code{ALLR}, \code{ALLR_LL}. This is avoid
+is used: \code{KL}, \code{ALLR}, \code{ALLR_LL}, \code{IS}. This is avoid
 zeros in the calculations.
 
 To note regarding p-values: P-values are pre-computed using the

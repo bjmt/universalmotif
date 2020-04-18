@@ -4,7 +4,7 @@
 \alias{merge_motifs}
 \title{Merge motifs.}
 \usage{
-merge_motifs(motifs, method = "PCC", use.type = "PPM", min.overlap = 6,
+merge_motifs(motifs, method = "ALLR", use.type = "PPM", min.overlap = 6,
   min.mean.ic = 0.25, tryRC = TRUE, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
   new.name = NULL)
@@ -71,9 +71,9 @@ list.
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
 
-If using a comparison metric where 0s are not allowed (\code{KL}, \code{ALLR}, \code{ALLR_LL}),
-then keep in mind that the final merged motif may include added pseudocounts
-to previously empty positions.
+If using a comparison metric where 0s are not allowed (\code{KL}, \code{ALLR}, \code{ALLR_LL}, \code{IS}),
+then pseudocounts will be added internally. These pseudocounts are only used for
+comparison and alignment, and are not used in the final merging step.
 
 Note: \code{score.strat = "a.mean"} is NOT recommended, as \code{\link[=merge_motifs]{merge_motifs()}} will
 not discriminate between two alignments with equal mean scores, even if one

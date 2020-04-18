@@ -86,7 +86,7 @@
 #' to zero represent more similar motifs.
 #'
 #' Small pseudocounts are automatically added when one of the following methods
-#' is used: `KL`, `ALLR`, `ALLR_LL`. This is avoid
+#' is used: `KL`, `ALLR`, `ALLR_LL`, `IS`. This is avoid
 #' zeros in the calculations.
 #'
 #' To note regarding p-values: P-values are pre-computed using the
@@ -145,7 +145,7 @@
 #'    [make_DBscores()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
-                           use.type = "PPM", method = "PCC", tryRC = TRUE,
+                           use.type = "PPM", method = "ALLR", tryRC = TRUE,
                            min.overlap = 6, min.mean.ic = 0.25,
                            min.position.ic = 0,
                            relative_entropy = FALSE, normalise.scores = FALSE,

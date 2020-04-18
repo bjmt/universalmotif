@@ -1209,6 +1209,7 @@ void trim_both_motifs(list_num_t &m1, list_num_t &m2) {
 }
 
 list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
+    const list_num_t &mot1_pseudo, const list_num_t &mot2_pseudo,
     const std::string &method, const double minoverlap, const bool RC,
     vec_num_t ic1, vec_num_t ic2, const int weight,
     const bool norm, const double posic, const double minic,
@@ -1218,20 +1219,21 @@ list_num_t merge_motif_pair(list_num_t mot1, list_num_t mot2,
   double score;
   int offset;
 
-  merge_motif_pair_subworker(mot1, mot2, method, minoverlap, ic1, ic2, norm,
+  merge_motif_pair_subworker(mot1_pseudo, mot2_pseudo, method, minoverlap, ic1, ic2, norm,
       posic, minic, score, offset, nsites1, nsites2, bkg1, bkg2, strat);
 
   if (RC) {
     double score_rc;
     int offset_rc;
-    list_num_t rcmot2 = get_motif_rc(mot2);
+    list_num_t rcmot2_pseudo = get_motif_rc(mot2_pseudo);
     vec_num_t rcic2 = ic2;
     std::reverse(rcic2.begin(), rcic2.end());
-    merge_motif_pair_subworker(mot1, rcmot2, method, minoverlap, ic1, rcic2,
+    merge_motif_pair_subworker(mot1_pseudo, rcmot2_pseudo, method, minoverlap, ic1, rcic2,
         norm, posic, minic, score_rc, offset_rc, nsites1, nsites2, bkg1, bkg2, strat);
     if (score_rc > score) {
       offset = offset_rc;
-      mot2 = rcmot2;
+      // mot2 = rcmot2;
+      mot2 = get_motif_rc(mot2);
     }
   }
 
@@ -1329,6 +1331,26 @@ void fix_mot_bkg_zeros(list_num_t &mot, vec_num_t &bkg, const std::string &metho
                   bkgfix(bkg);
   }
 
+}
+
+list_num_t return_fix_mot_zeros(list_num_t mot, const std::string &method) {
+  switch (::METRICS_enum[method]) {
+    case KL:
+    case IS:
+    case ALLR:
+    case ALLR_LL: klfix(mot);
+  }
+  return mot;
+}
+
+vec_num_t return_fix_bkg_zeros(vec_num_t bkg, const std::string &method) {
+  switch (::METRICS_enum[method]) {
+    case KL:
+    case IS:
+    case ALLR:
+    case ALLR_LL: bkgfix(bkg);
+  }
+  return bkg;
 }
 
 int count_left_empty(const list_num_t &m) {
@@ -1625,38 +1647,49 @@ Rcpp::List merge_motifs_cpp(const Rcpp::List &mots,
   list_nmat_t vmots(mots.size());
   list_num_t icscores(vmots.size());
 
+  list_nmat_t vmots_pseudo(mots.size());
+  list_num_t bkg_pseudo(bkg);
+
   for (std::size_t i = 0; i < vmots.size(); ++i) {
     Rcpp::NumericMatrix tmp = mots(i);
     vmots[i] = R_to_cpp_motif_num(tmp);
+    vmots_pseudo[i] = R_to_cpp_motif_num(tmp);
     if (vmots[i].size() == 0)
       Rcpp::stop("encountered an empty motif [compare_motifs_all_cpp()]");
-    fix_mot_bkg_zeros(vmots[i], bkg[i], method);
+    fix_mot_bkg_zeros(vmots_pseudo[i], bkg_pseudo[i], method);
   }
 
   for (std::size_t i = 0; i < vmots.size(); ++i) {
     icscores[i].reserve(vmots[i].size());
     for (std::size_t j = 0; j < vmots[i].size(); ++j) {
-      icscores[i].push_back(internal_posIC(vmots[i][j], bkg[i], 1, relative));
+      icscores[i].push_back(internal_posIC(vmots_pseudo[i][j], bkg_pseudo[i], 1, relative));
     }
   }
 
   int weight = 1;
   // double nnsites = nsites[0] > nsites[1] ? nsites[0] : nsites[1];
   double nnsites = nsites[0] + nsites[1];
-  list_num_t merged = merge_motif_pair(vmots[0], vmots[1], method, minoverlap,
+  list_num_t merged = merge_motif_pair(vmots[0], vmots[1],
+      vmots_pseudo[0], vmots_pseudo[1],
+      method, minoverlap,
       RC, icscores[0], icscores[1], weight, norm, posic, minic, nsites[0],
-      nsites[1], bkg[0], bkg[1], strat);
+      nsites[1], bkg_pseudo[0], bkg_pseudo[1], strat);
+  list_num_t merged_pseudo = return_fix_mot_zeros(merged, method);
   vec_num_t mergedbkg = merge_bkg_pair(bkg[0], bkg[1], weight);
-  vec_num_t mergedic = calc_ic_motif(merged, mergedbkg, relative);
+  vec_num_t mergedbkg_pseudo = return_fix_bkg_zeros(mergedbkg, method);
+  vec_num_t mergedic = calc_ic_motif(merged_pseudo, mergedbkg_pseudo, relative);
 
   if (vmots.size() > 2) {
     for (std::size_t i = 2; i < vmots.size(); ++i) {
       ++weight;
-      merged = merge_motif_pair(merged, vmots[i], method, minoverlap, RC,
+      merged = merge_motif_pair(merged, vmots[i], merged_pseudo, vmots_pseudo[i],
+          method, minoverlap, RC,
           mergedic, icscores[i], weight, norm, posic, minic, nnsites,
-          nsites[i], mergedbkg, bkg[i], strat);
+          nsites[i], mergedbkg_pseudo, bkg_pseudo[i], strat);
+      merged_pseudo = return_fix_mot_zeros(merged, method);
       mergedbkg = merge_bkg_pair(mergedbkg, bkg[i], weight);
-      mergedic = calc_ic_motif(merged, mergedbkg, relative);
+      mergedbkg_pseudo = return_fix_bkg_zeros(mergedbkg, method);
+      mergedic = calc_ic_motif(merged_pseudo, mergedbkg_pseudo, relative);
       nnsites += nsites[i];
       // nnsites = nnsites > nsites[i] ? nnsites : nsites[i];
     }

@@ -22,9 +22,6 @@ NEW FEATURES
 
 MINOR CHANGES
 
-    o Go back to PCC as default comparison method for compare_motifs(),
-      merge_motifs(), and view_motifs().
-
     o Removed most previously deprecated function arguments.
 
     o Make sure view_motifs(..., use.type = "ICM") properly sets ylim.
@@ -35,8 +32,10 @@ MINOR CHANGES
       a single string. It is still filled if the input consists of multiple
       strings.
 
-    o merge_motifs(): a message regarding adding pseudocounts to the motifs
-      is given if one of ALLR/ALLR_LL/KL are used as comparison method.
+    o merge_motifs(): ALLR/ALLR_LL/KL/IS methods no longer add pseudocounts to
+      the motifs. Instead, pseudocounts are added to temporary internal copies
+      which are used for comparison and alignment. The original un-modified
+      matrices are then combined.
 
     o Some cleanup to documentation and vignettes.
 
