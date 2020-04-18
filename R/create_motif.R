@@ -56,11 +56,11 @@
 #' DNA.motif <- create_motif("TATAWAW")
 #' DNA.motif <- create_motif("TATAWAW", type = "PCM")
 #'
-#' # Nsites will be set to the number of input sequences unless specified
+#' # Nsites will be set to the number of input sequences unless specified or
+#' # a single string is used as input
 #' DNA.motif <- create_motif("TTTTTTT", nsites = 10)
 #'
-#' # If ambiguity letters are found and nsites is not specified, nsites will
-#' # be set to the minimum required to respect amibiguity letters
+#' # Ambiguity letters can be used:
 #' DNA.motif <- create_motif("TATAWAW")
 #' DNA.motif <- create_motif("NNVVWWAAWWDDN")
 #'
