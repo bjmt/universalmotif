@@ -22,9 +22,3 @@
   motif_tree(), rely solely on compare_motifs()
 - scan_sequences(): allow -Inf weights?
 - scan_sequences(): add option to return GRanges object
-- create_motif(): add message if detect lower + uppercase in case it's a mistake
-- 32 bit Windows failing examples:
-    + compare_motifs()
-    + enrich_motifs()
-    + scan_sequences() [also in motif_peaks()]
-    + motif_pvalue()
