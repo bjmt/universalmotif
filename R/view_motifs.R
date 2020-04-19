@@ -175,6 +175,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   mot.nsites <- lapply(motifs, function(x) x@nsites)
   mot.pseudo <- lapply(motifs, function(x) x@pseudocount)
 
+  if (use.type == "ICM") {
+    for (i in seq_along(mot.mats)) {
+      if (all(mot.mats[[i]] == 0.25)) {
+        stop(wmsg("Zero IC motifs cannot be plotted with ggseqlogo if `use.type = \"ICM\"`"))
+      }
+    }
+  }
+
   if (length(motifs) == 1) {
     mot.mats[[1]] <- convert_mat_type_from_ppm(mot.mats[[1]], use.type, mot.nsites[[1]],
                                                mot.bkgs[[1]], mot.pseudo[[1]],

@@ -49,6 +49,9 @@ BUG FIXES
     o write_meme() checks for and removes any spaces/equal signs in motif
       names/altnames.
 
+    o view_motifs(..., use.type = "ICM"): check for zero IC motifs, as these
+      cannot be plotted by ggseqlogo.
+
 CHANGES IN VERSION 1.4.10
 -------------------------
 

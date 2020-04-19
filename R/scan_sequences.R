@@ -360,12 +360,13 @@ get_submotifs <- function(m) {
 }
 
 make_blank_motif <- function(n) {
-  string <- paste0(rep("N", n), collapse = "")
+  string <- collapse_cpp(rep("N", n))
   create_motif(string, type = "PWM")
 }
 
 ungap_single <- function(m) {
-  gaplens <- mapply(function(x, y) x:y,
+  gaplens <- mapply(
+    function(x, y) x:y,
     m@gapinfo@mingap, m@gapinfo@maxgap, SIMPLIFY = FALSE
   )
   gaplens <- expand.grid(gaplens)
