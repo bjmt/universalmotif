@@ -8,6 +8,8 @@ test_that("read functions work ok", {
                                   package="universalmotif"))
   jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                     package="universalmotif"))
+  dreme <- read_meme(system.file("extdata", "dreme.txt",
+                                    package="universalmotif"))
   m <- system.file("extdata", "meme_full.txt", package = "universalmotif")
   meme <- read_meme(file = m)
   transfac <- read_transfac(system.file("extdata", "transfac.txt",
@@ -24,6 +26,7 @@ test_that("read functions work ok", {
   expect_equal(length(homer), 5)
   expect_equal(length(cisbp), 2)
   expect_equal(length(jaspar), 5)
+  expect_equal(length(dreme), 3)
   expect_equal(length(meme), 3)
   expect_equal(length(transfac), 5)
   expect_equal(length(uniprobe), 3)
