@@ -41,3 +41,9 @@ test_that("read functions work ok", {
   expect_s4_class(meme2$sites[[1]], "DNAStringSet")
 
 })
+
+test_that("MEME custom alphabet throws error", {
+  expect_error(read_meme(system.file("extdata", "baddreme.txt",
+                                    package="universalmotif")),
+               "Alphabet type cannot be detected")
+})

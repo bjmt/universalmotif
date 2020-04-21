@@ -306,7 +306,8 @@ get_like_meme_alph <- function(raw_lines){
 #' alphabet entries in the final matrix. (ie so alph.len will no longer be the
 #' correct matrix width)
 #'
-#' This is kind of a placeholder.
+#' This is kind of a placeholder. So I short-circuit it with an informative
+#' error about custom alphabets not being supported.
 #'
 #' @param raw_lines raw lines from .meme file
 #'
@@ -314,6 +315,7 @@ get_like_meme_alph <- function(raw_lines){
 #'
 #' @noRd
 get_custom_meme_alph <- function(raw_lines){
+  stop("Alphabet type cannot be detected, custom alphabets are not currently supported")
   # Find ALPHABET section by range i:n
   i <- grep("^ALPHABET", raw_lines) + 1
   n <- grep("^END ALPHABET", raw_lines) - 1
