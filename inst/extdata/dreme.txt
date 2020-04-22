@@ -1,0 +1,95 @@
+# DREME 5.1.1
+#     command: dreme -dna -oc motif_data/all-br-peaks/all_br_peaks_1351_features_vs_all_br_peaks_1351_features.fasta -dna -p motif_data/all-br-peaks/all_br_peaks_1351_features.fasta -n motif_data/all-br-peaks/all_br_peaks_1351_features.fasta.shuffle -t 18000 -e 0.05 -m 10 -mink 3 -maxk 8
+#   positives: 1351 from motif_data/all-br-peaks/all_br_peaks_1351_features.fasta (Tue Mar 10 14:06:19 EDT 2020)
+#   negatives: 1351 from motif_data/all-br-peaks/all_br_peaks_1351_features.fasta.shuffle (Tue Mar 10 14:06:19 EDT 2020)
+#        host: c0831.ll.unc.edu
+#        when: Tue Mar 10 14:06:19 EDT 2020
+
+MEME version 5.1.1
+
+ALPHABET "DNA" DNA-LIKE
+A "Adenine" CC0000 ~ T "Thymine" 008000
+C "Cytosine" 0000CC ~ G "Guanine" FFB300
+N "Any base" = ACGT
+X = ACGT
+. = ACGT
+V "Not T" = ACG
+H "Not G" = ACT
+D "Not C" = AGT
+B "Not A" = CGT
+M "Amino" = AC
+R "Purine" = AG
+W "Weak" = AT
+S "Strong" = CG
+Y "Pyrimidine" = CT
+K "Keto" = GT
+U = T
+END ALPHABET
+
+strands: + -
+
+Background letter frequencies (from dataset):
+A 0.267 C 0.232 G 0.234 T 0.267
+
+
+MOTIF DGCARC DREME-1
+
+#             Word    RC Word        Pos        Neg    P-value    E-value
+# BEST      DGCARC     GYTGCH        922        464   6.7e-071   3.0e-066
+#           AGCAGC     GCTGCT        339         83   2.5e-044   1.1e-039
+#           GGCAGC     GCTGCC        302         95   1.4e-030   6.6e-026
+#           AGCAAC     GTTGCT        308        116   5.5e-025   2.5e-020
+#           TGCAGC     GCTGCA        257         93   1.1e-021   4.9e-017
+#           GGCAAC     GTTGCC        235         91   5.1e-018   2.3e-013
+#           TGCAAC     GTTGCA        224         94   3.1e-015   1.4e-010
+
+letter-probability matrix: alength= 4 w= 6 nsites= 1977 E= 3.0e-066
+0.424886 0.000000 0.307031 0.268083
+0.000000 0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000 0.000000
+1.000000 0.000000 0.000000 0.000000
+0.465857 0.000000 0.534143 0.000000
+0.000000 1.000000 0.000000 0.000000
+
+
+MOTIF CACACRCA DREME-2
+
+#             Word    RC Word        Pos        Neg    P-value    E-value
+# BEST    CACACRCA   TGYGTGTG        215         19   6.8e-047   3.0e-042
+#         CACACACA   TGTGTGTG        179         13   3.7e-041   1.6e-036
+#         CACACGCA   TGCGTGTG         42          6   4.0e-008   1.8e-003
+
+letter-probability matrix: alength= 4 w= 8 nsites= 314 E= 3.0e-042
+0.000000 1.000000 0.000000 0.000000
+1.000000 0.000000 0.000000 0.000000
+0.000000 1.000000 0.000000 0.000000
+1.000000 0.000000 0.000000 0.000000
+0.000000 1.000000 0.000000 0.000000
+0.882166 0.000000 0.117834 0.000000
+0.000000 1.000000 0.000000 0.000000
+1.000000 0.000000 0.000000 0.000000
+
+
+MOTIF TTKTTGB DREME-3
+
+#             Word    RC Word        Pos        Neg    P-value    E-value
+# BEST     TTKTTGB    VCAAMAA        615        255   8.0e-051   3.6e-046
+#          TTTTTGG    CCAAAAA        198         54   1.2e-022   5.5e-018
+#          TTGTTGT    ACAACAA        189         51   8.4e-022   3.7e-017
+#          TTTTTGC    GCAAAAA        160         53   5.7e-015   2.5e-010
+#          TTTTTGT    ACAAAAA        211         90   5.5e-014   2.4e-009
+#          TTGTTGC    GCAACAA         19          4   1.2e-003   5.5e+001
+#          TTGTTGG    CCAACAA         71         45   8.7e-003   3.8e+002
+
+letter-probability matrix: alength= 4 w= 7 nsites= 946 E= 3.6e-046
+0.000000 0.000000 0.000000 1.000000
+0.000000 0.000000 0.000000 1.000000
+0.000000 0.000000 0.329810 0.670190
+0.000000 0.000000 0.000000 1.000000
+0.000000 0.000000 0.000000 1.000000
+0.000000 0.000000 1.000000 0.000000
+0.000000 0.208245 0.310782 0.480973
+
+
+# Stopping reason: target motif count reached
+#    Running time: 286.85 seconds
