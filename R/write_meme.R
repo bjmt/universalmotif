@@ -18,6 +18,9 @@
 #'
 #' @return `NULL`, invisibly.
 #'
+#' @details
+#' At this time non-DNA/RNA/AA alphabets are not supported.
+#'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
 #'                                     package = "universalmotif"))
@@ -74,7 +77,7 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
       alph.2 <- "ACDEFGHIKLMNPQRSTVWY"
       alph.length <- 20
     },
-    stop("unknown alphabet")
+    stop("Unknown alphabet (currently only DNA/RNA/AA are supported)")
   )
 
   if (missing(bkg)) {

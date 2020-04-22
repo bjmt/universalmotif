@@ -37,6 +37,11 @@ MINOR CHANGES
       which are used for comparison and alignment. The original un-modified
       matrices are then combined.
 
+    o read_meme(): now supports DNA-LIKE, RNA-LIKE, and AA-LIKE alphabets,
+      though these will be treated as regular DNA, RNA, and AA alphabets,
+      respectively. Contribution from Spencer Nystrom
+      (https://github.com/bjmt/universalmotif/pull/7).
+
     o Some cleanup to documentation and vignettes.
 
     o General code cleanup.
