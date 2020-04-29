@@ -17,12 +17,13 @@ test_that("summarise_motifs works", {
 
   m1 <- create_motif("GYNCHGCCKT", name = "motif-1", nsites = 212)
   m2 <- create_motif("GTYCTWYWAK", name = "motif-2", nsites = 147)
-  m3 <- create_motif("TAYTAAMCAA", name = "motif-3", nsites = 117)
+  m3 <- create_motif("TAYTAAMCAA", name = "motif-3", nsites = 117, altname = "alt_motif-3")
 
   res <- summarise_motifs(list(m1, m2, m3))
 
   expect_true(is.data.frame(res))
   expect_equal(res$name, c("motif-1", "motif-2", "motif-3"))
+  expect_equal(res$altname, c(NA, NA, "alt_motif-3"))
   expect_equal(res$consensus, c("GYNCHGCCKT", "GTYCTWYWAK", "TAYTAAMCAA"))
   expect_equal(res$alphabet, c("DNA", "DNA", "DNA"))
   expect_equal(res$strand, c("+-", "+-", "+-"))
