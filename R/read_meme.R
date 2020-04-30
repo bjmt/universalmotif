@@ -300,7 +300,7 @@ get_like_meme_alph <- function(raw_lines){
   # returns "DNA"/"RNA"/"AA" if "[DNA,RNA,AA]-LIKE
   # This actually doesn't error check for those...
   alph_line <- grep("^ALPHABET", raw_lines, value = TRUE)
-  gsub("^ALPHABET .*? (.+?)-LIKE", "\\1", alph_line)
+  gsub("PROTEIN", "AA", gsub("^ALPHABET .*? (.+?)-LIKE", "\\1", alph_line))
 }
 
 #' Get custom alphabet defintion from .meme file

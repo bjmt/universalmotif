@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.6.1
+------------------------
+
+BUG FIXES
+
+    o summarise_motif(): properly retrieves altname slot. Contribution from
+      Spencer Nystrom (https://github.com/bjmt/universalmotif/pull/9).
+
+    o read_meme(): for LIKE type alphabets, make sure PROTEIN-LIKE is
+      understood as being AA.
+
 CHANGES IN VERSION 1.6.0
 ------------------------
 
