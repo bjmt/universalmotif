@@ -739,7 +739,7 @@ Rcpp::DataFrame summarise_motifs_cpp(const Rcpp::List &motifs) {
     name[i] = name_i[0];
 
     Rcpp::StringVector altname_i = mot.slot("altname");
-    altname[i] = altname.size() == 1 ? altname_i[0] : NA_STRING;
+    altname[i] = altname_i.size() == 1 ? altname_i[0] : NA_STRING;
 
     Rcpp::StringVector family_i = mot.slot("family");
     family[i] = family_i.size() == 1 ? family_i[0] : NA_STRING;
