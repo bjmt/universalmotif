@@ -3,6 +3,13 @@ CHANGES IN VERSION 1.6.1
 
 BUG FIXES
 
+    o motif_tree(): 'daylight' layout is no longer disabled.
+
+CHANGES IN VERSION 1.6.1
+------------------------
+
+BUG FIXES
+
     o summarise_motif(): properly retrieves altname slot. Contribution from
       Spencer Nystrom (https://github.com/bjmt/universalmotif/pull/9).
 
