@@ -5,7 +5,8 @@
 \title{Import motifs from raw matrices.}
 \usage{
 read_matrix(file, skip = 0, type, positions = "columns",
-  alphabet = "DNA", sep = "", headers = TRUE, rownames = FALSE)
+  alphabet = "DNA", sep = "", headers = TRUE, rownames = FALSE,
+  comment = NULL)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
@@ -16,8 +17,8 @@ file before starting to read.}
 \item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
 If missing will try and guess which one.}
 
-\item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}.
-Indicate whether each
+\item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}. Partial matching
+allowed. Indicate whether each
 position within a motif is represented as a row or a column in the file.}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
@@ -27,7 +28,8 @@ or a string of letters.}
 
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to read names.}
 
-\item{rownames}{\code{logical(1)} Are there alphabet letters present as rownames?}
+\item{rownames}{\code{character(1)} Character denoting lines to be considered
+comments.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects.

@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.8.0
+------------------------
+
+MINOR CHANGES
+
+    o read_matrix(..., positions): added partial argument matching.
+
+    o read_matrix(..., comment): allows for comments to be ignored in motif
+      files.
+
+    o General documentation cleanup.
+
 CHANGES IN VERSION 1.6.3
 ------------------------
 

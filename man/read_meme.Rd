@@ -37,7 +37,7 @@ string in the \code{extrainfo} slot. If you require a numeric value for analysis
 use the \code{\link[=log_string_pval]{log_string_pval()}} function to get the log of the string-formatted
 p-value.
 
-Furthermore, note that DNA-LIKE, RNA-LIKE, and AA-LIKE alphabets will be treated
+Furthermore, note that DNA-LIKE, RNA-LIKE, and PROTEIN-LIKE alphabets will be treated
 as DNA, RNA, and AA alphabets respectively. Custom alphabets are currently
 not supported.
 }

@@ -5,8 +5,8 @@
 #' @param file `character(1)` File name.
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
 #'    file before starting to read.
-#' @param positions `character(1)` One of `c('columns', 'rows')`.
-#'    Indicate whether each
+#' @param positions `character(1)` One of `c('columns', 'rows')`. Partial matching
+#'    allowed. Indicate whether each
 #'    position within a motif is represented as a row or a column in the file.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
 #'    or a string of letters.
@@ -15,6 +15,8 @@
 #' @param sep `character(1)` Indicates how individual motifs are separated.
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to read names.
 #' @param rownames `logical(1)` Are there alphabet letters present as rownames?
+#' @param rownames `character(1)` Character denoting lines to be considered
+#'    comments.
 #'
 #' @return `list` [universalmotif-class] objects.
 #'
@@ -27,7 +29,7 @@
 #' @export
 read_matrix <- function(file, skip = 0, type, positions = "columns",
                         alphabet = "DNA", sep = "", headers = TRUE,
-                        rownames = FALSE) {
+                        rownames = FALSE, comment = NULL) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -43,9 +45,14 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  positions <- match.arg(positions, c("columns", "rows"))
+
   raw_lines <- readLines(con <- file(file))
   close(con)
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
+
+  if (!is.null(comment))
+    raw_lines <- raw_lines[!grepl(collapse_cpp(c("^", comment)), raw_lines)]
 
   seperators <- which(raw_lines == sep)
   if (length(seperators) != 0) {
