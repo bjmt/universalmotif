@@ -52,7 +52,7 @@ a set of input motifs.
 Similar to \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}}, the scanning method uses
 logodds scoring. (To see the scoring matrix for any motif, simply
 run \code{convert_type(motif, "PWM")}. For a \code{multifreq} scoring
-matrix: \verb{apply(motif["multifreq"]$}2\verb{, 2, ppm_to_pwm)}). In order
+matrix: \code{apply(motif["multifreq"][["2"]], 2, ppm_to_pwm)}). In order
 to score a sequence, at each position within a sequence of length equal
 to the length of the motif, the scores for each base are summed. If the
 score sum is above the desired threshold, it is kept.

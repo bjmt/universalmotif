@@ -46,7 +46,8 @@
 #'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly.
 #'
 #'    Do note however, that the `method` parameter is only relevant for `k > 1`.
-#'    For `k = 1`, a simple `sample` call is performed.
+#'    For `k = 1`, a simple shuffling is performed using the `shuffle` function
+#'    from the C++ standard library.
 #'
 #' @references
 #'    \insertRef{markovmodel2}{universalmotif}
