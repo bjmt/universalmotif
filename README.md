@@ -33,7 +33,7 @@ remotes::install_github("bjmt/universalmotif")
 
 ## Brief overview
 
-There are a large number of available functions provided by the `universalmotif` package to work with motifs. See the vignettes on the [BioConductor](https://www.bioconductor.org/packages/universalmotif) page for a detailed overview. A few key functions are also explored below.
+There are a large number of available functions provided by the `universalmotif` package to work with motifs. See the vignettes on the [Bioconductor](https://www.bioconductor.org/packages/universalmotif) page for a detailed overview. A few key functions are also explored below.
 
 ### The `universalmotif` motif class
 
