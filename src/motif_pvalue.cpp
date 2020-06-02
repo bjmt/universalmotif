@@ -373,7 +373,7 @@ vec_int_t rowsums_cpp(const list_int_t &mot) {
 }
 
 double motif_score_single(const list_int_t &mot, const int k, const int randtries,
-    std::default_random_engine gen, const double pval) {
+    std::mt19937 gen, const double pval) {
 
   std::size_t motlen = mot.size();
 
@@ -513,7 +513,7 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
   vec_num_t scores(pvals.size());
   RcppThread::parallelFor(0, scores.size(),
       [&vmots, &scores, &useed, &k, &randtries, &pvals] (std::size_t i) {
-      std::default_random_engine gen(useed * (int(i) + 1));
+      std::mt19937 gen(useed * (int(i) + 1));
         scores[i] = motif_score_single(vmots[i], k, randtries, gen, pvals[i]);
       }, nthreads);
 

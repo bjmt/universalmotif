@@ -89,7 +89,7 @@ vec_bool_t get_emptyvertices(const std::size_t &mlets, const std::size_t &alphle
 
 vec_int_t get_eulerpath(const list_int_t &edgelist, const int &lastlet,
     const std::size_t &mlets, const std::size_t &alphlen, const int &k,
-    const vec_bool_t &emptyvertices, std::default_random_engine gen) {
+    const vec_bool_t &emptyvertices, std::mt19937 gen) {
 
   vec_int_t eulerpath(mlets, 0);
   vec_bool_t vertices(mlets, false);
@@ -140,7 +140,7 @@ vec_int_t get_eulerpath(const list_int_t &edgelist, const int &lastlet,
 
 list_int_t get_edgelist(const list_int_t &edgecounts, const vec_int_t &eulerpath,
     const std::size_t &mlets, const std::size_t &alphlen, const int &lastlet,
-    std::default_random_engine gen, const vec_bool_t &emptyvertices) {
+    std::mt19937 gen, const vec_bool_t &emptyvertices) {
 
   list_int_t edgelist(mlets);
   int b;
@@ -202,7 +202,7 @@ std::string make_new_seq(const vec_int_t &shuffled_seq_ints,
 }
 
 std::string shuffle_euler_one(const std::string &single_seq, const int &k,
-    std::default_random_engine gen) {
+    std::mt19937 gen) {
 
   std::set<int> alph_s;
   for (std::size_t i = 0; i < single_seq.size(); ++i) {
@@ -294,7 +294,7 @@ vec_int_t get_next_let_list(const list_int_t &nlet_lists, const int &k,
 */
 
 vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_counts,
-    const list_int_t &transitions, std::default_random_engine gen,
+    const list_int_t &transitions, std::mt19937 gen,
     const std::size_t &nlets, const int &k, const std::size_t &alphlen) {
 
   vec_int_t out;
@@ -324,7 +324,7 @@ vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_cou
 }
 
 std::string shuffle_markov_one(const std::string &single_seq, const int &k,
-    std::default_random_engine gen) {
+    std::mt19937 gen) {
 
   std::set<int> alph_s;
   for (std::size_t i = 0; i < single_seq.size(); ++i) {
@@ -359,7 +359,7 @@ std::string shuffle_markov_one(const std::string &single_seq, const int &k,
 }
 
 std::string shuffle_linear_one (const std::string &single_seq, const int &k,
-    std::default_random_engine gen) {
+    std::mt19937 gen) {
 
   std::size_t seqlen = single_seq.size();
   std::size_t seqlen_k = seqlen / k;
@@ -480,7 +480,7 @@ std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string> &sequ
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &useed, &k] (std::size_t i) {
 
-        std::default_random_engine gen(useed * (int(i) + 1));
+        std::mt19937 gen(useed * (int(i) + 1));
         out[i] = shuffle_markov_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -499,7 +499,7 @@ std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string> &seque
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &k, &useed] (std::size_t i) {
 
-        std::default_random_engine gen(useed * (int(i) + 1));
+        std::mt19937 gen(useed * (int(i) + 1));
         out[i] = shuffle_euler_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -518,7 +518,7 @@ std::vector<std::string> shuffle_linear_cpp(const std::vector<std::string> &sequ
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &k, &useed] (std::size_t i) {
 
-        std::default_random_engine gen(useed * (int(i) + 1));
+        std::mt19937 gen(useed * (int(i) + 1));
         out[i] = shuffle_linear_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -536,7 +536,7 @@ std::vector<std::string> shuffle_k1_cpp(const std::vector<std::string> &sequence
   vec_str_t out(sequences.size());
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &useed] (std::size_t i) {
-        std::default_random_engine gen(useed * (int(i) + 1));
+        std::mt19937 gen(useed * (int(i) + 1));
         out[i] = sequences[i];
         shuffle(out[i].begin(), out[i].end(), gen);
       }, nthreads);
@@ -605,7 +605,7 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
         [&seqlen, &alph, &useed, &out, &freqs] (std::size_t i) {
 
           out[i].reserve(seqlen);
-          std::default_random_engine gen(useed * (int(i) + 1));
+          std::mt19937 gen(useed * (int(i) + 1));
           std::discrete_distribution<int> nextlet(freqs.begin(), freqs.end());
 
           for (int j = 0; j < seqlen; ++j) {
@@ -622,7 +622,7 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
 
           vec_int_t out_i;
           out_i.reserve(seqlen);
-          std::default_random_engine gen(useed * (int(i) + 1));
+          std::mt19937 gen(useed * (int(i) + 1));
 
           std::discrete_distribution<int> let1(freqs.begin(), freqs.end());
           int firstletters = let1(gen);
