@@ -22,4 +22,3 @@
   motif_tree(), rely solely on compare_motifs()
 - scan_sequences(): allow -Inf weights?
 - scan_sequences(): add option to return GRanges object
-- shuffle rng: use std::mt19937 instead of std::default_random_engine
