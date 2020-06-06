@@ -36,6 +36,8 @@
 #'    given the following seed: `rng.seed * index`. See [shuffle_sequences()].
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].
+#' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
+#'    present.
 #'
 #' @return `DataFrame` Enrichment results in a `DataFrame`. Function args and
 #'    (optionally) scan results are stored in the `metadata` slot.
@@ -69,7 +71,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                           use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
                           return.scan.results = FALSE, nthreads = 1,
                           rng.seed = sample.int(1e4, 1),
-                          motif_pvalue.k = 8) {
+                          motif_pvalue.k = 8, use.gaps = TRUE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -109,7 +111,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                                      nthreads = args$nthreads,
                                      motif_pvalue.k = args$motif_pvalue.k),
                                 c(1, 1, 1, 0, 1, 1, 1, 1, 1), logical(), TYPE_NUM)
-  logi_check <- check_fun_params(list(RC = args$RC,
+  logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
                                       return.scan.results = args$return.scan.results),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences,
@@ -147,7 +149,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     if (verbose > 0) message(" > Shuffling input sequences")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
                                        nthreads = nthreads, rng.seed = rng.seed)
-  } 
+  }
 
   if (!is.list(motifs)) motifs <- list(motifs)
   motcount <- length(motifs)
@@ -186,12 +188,13 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, threshold.type, motcount,
-                          return.scan.results, nthreads, args[-(1:3)])
+                          return.scan.results, nthreads, args[-(1:3)],
+                          use.gaps)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
     return(res.all)
-  } 
+  }
 
   res.all$Qval <- p.adjust(res.all$Pval, method = qval.method)
   res.all$Eval <- res.all$Qval * length(motifs) * 2
@@ -206,7 +209,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   if (nrow(res.all) < 1 || is.null(res.all)) {
     message(" ! No enriched motifs")
     return(res.all)
-  } 
+  }
 
   res.all
 
@@ -214,7 +217,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                          verbose, RC, use.freq, threshold.type, motcount,
-                         return.scan.results, nthreads, args) {
+                         return.scan.results, nthreads, args, use.gaps) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -227,13 +230,13 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   if (verbose > 0) message(" > Scanning input sequences")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
                             RC, use.freq, verbose = verbose - 1,
-                            nthreads = nthreads)
+                            nthreads = nthreads, use.gaps = use.gaps)
 
   if (verbose > 0) message(" > Scanning background sequences")
   results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
                                 threshold.type, RC, use.freq,
                                 verbose = verbose - 1,
-                                nthreads = nthreads)
+                                nthreads = nthreads, use.gaps = use.gaps)
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
@@ -257,7 +260,8 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   results.all <- mapply(function(x, y, z)
                           enrich_mots2_subworker(x, y, z, seq.widths,
                                                   bkg.widths, sequences,
-                                                  RC, bkg.sequences, verbose),
+                                                  RC, bkg.sequences, verbose,
+                                                  use.gaps),
                         results2, results.bkg2, motifs,
                         SIMPLIFY = FALSE)
 
@@ -286,7 +290,7 @@ split_by_motif_enrich <- function(motifs, results) {
 
 enrich_mots2_subworker <- function(results, results.bkg, motifs,
                                    seq.widths, bkg.widths, sequences, RC,
-                                   bkg.sequences, verbose) {
+                                   bkg.sequences, verbose, use.gaps) {
 
   seq.hits <- as.vector(results$start)
 
@@ -302,7 +306,7 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     skip.calc <- FALSE
   }
 
-  if (length(seq.hits) == 0 && length(bkg.hits) == 0) 
+  if (length(seq.hits) == 0 && length(bkg.hits) == 0)
     return(DataFrame(motif = motifs@name, target.hits = 0L,
                      target.seq.hits = 0L, target.seq.count = length(sequences),
                      bkg.hits = 0L, bkg.seq.hits = 0L,
@@ -311,9 +315,17 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
 
   seq.total <- (mean(seq.widths) - ncol(motifs@motif) + 1) * length(sequences)
   if (RC) seq.total <- seq.total * 2
-  seq.no <- seq.total - length(seq.hits)
   bkg.total <- (mean(bkg.widths) - ncol(motifs@motif) + 1) * length(bkg.sequences)
   if (RC) bkg.total <- bkg.total * 2
+
+  if (use.gaps && motifs@gapinfo@isgapped) {
+    x <- motifs@gapinfo@maxgap - motifs@gapinfo@mingap
+    x <- prod(x + 1)
+    seq.total <- seq.total * x
+    bkg.total <- bkg.total * x
+  }
+
+  seq.no <- seq.total - length(seq.hits)
   bkg.norm <- seq.total / bkg.total
   bkg.no <- bkg.total - length(bkg.hits)
 

@@ -8,7 +8,8 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
   max.q = 1e-05, max.e = 0.001, qval.method = "fdr", threshold = 0.001,
   threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler", return.scan.results = FALSE,
-  nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8)
+  nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
+  use.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -70,6 +71,9 @@ given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequ
 
 \item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
+
+\item{use.gaps}{\code{logical(1)} Set this to \code{FALSE} to ignore motif gaps, if
+present.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and

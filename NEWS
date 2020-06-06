@@ -3,7 +3,8 @@ CHANGES IN VERSION 1.8.0
 
 NEW FEATURES
 
-    o scan_sequences() can now be used to scan for gapped motifs.
+    o scan_sequences()/enrich_motifs() can now be used to scan/enrich for
+      gapped motifs.
 
 MINOR CHANGES
 
@@ -18,6 +19,8 @@ MINOR CHANGES
       output regardless of OS.
 
     o scan_sequences(..., use.gaps): ignore motif gap information.
+
+    o enrich_motifs(..., use.gaps): ignore motif gap information.
 
     o General documentation cleanup.
 

@@ -1,5 +1,4 @@
 - Do the read/write_motifs() functions work with the gap slots?
-- Allow for scanning with gapped motifs
 - Still need to rework compare_motifs() p-values
 - Think about writting my own geom_motif()
 - Extend current view_motifs() implementation for higher k motifs
