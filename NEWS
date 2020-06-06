@@ -4,7 +4,8 @@ CHANGES IN VERSION 1.8.0
 NEW FEATURES
 
     o scan_sequences()/enrich_motifs() can now be used to scan/enrich for
-      gapped motifs.
+      gapped motifs. A new section has been added to the SequenceSearches.Rmd
+      vignette.
 
 MINOR CHANGES
 
@@ -23,6 +24,13 @@ MINOR CHANGES
     o enrich_motifs(..., use.gaps): ignore motif gap information.
 
     o General documentation cleanup.
+
+CHANGES IN VERSION 1.6.4
+------------------------
+
+BUG FIXES
+
+    o cbind(): do not ignore the pseudocount slot.
 
 CHANGES IN VERSION 1.6.3
 ------------------------

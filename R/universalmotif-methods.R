@@ -460,6 +460,7 @@ setMethod("cbind", signature = "universalmotif",
   mot.eval <- do.call(c, lapply(mots, function(x) x@eval))
   mot.extrainfo <- lapply(mots, function(x) x@extrainfo)
   mot.extrainfo <- unique(do.call(c, mot.extrainfo))
+  mot.pseudocount <- mean(do.call(c, lapply(mots, function(x) x@pseudocount)))
 
   mot.motif <- do.call(cbind, mot.motif)
   mot.name <- paste0(mot.name, collapse = "/")
@@ -483,7 +484,8 @@ setMethod("cbind", signature = "universalmotif",
                               alphabet = mot.alphabet, bkg = mot.bkg,
                               bkgsites = mot.bkgsites, strand = mot.strand,
                               pval = mot.pval, qval = mot.qval, eval = mot.eval,
-                              extrainfo = mot.extrainfo)
+                              extrainfo = mot.extrainfo,
+                              pseudocount = mot.pseudocount)
 
   validObject_universalmotif(motif)
   motif

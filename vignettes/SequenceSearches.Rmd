@@ -221,6 +221,34 @@ Here we can see that the motif is significantly enriched in the target sequences
 
 One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.)
 
+# Gapped motifs
+
+`universalmotif` class motifs can be gapped, which can be used by `scan_sequences()` and `enrich_motifs()`. Note that gapped motif support is currently limited to these two functions. All other functions will ignore the gap information, and even discard them in functions such as `merge_motifs()`.
+
+First, obtain the component motifs:
+
+```{r}
+library(universalmotif)
+data(ArabidopsisPromoters)
+
+m1 <- create_motif("TTTATAT", name = "PartA")
+m2 <- create_motif("GGTTCGA", name = "PartB")
+```
+
+Then, combine them and add the desired gap. In this case, a gap will be added between the two motifs which can range in size from 4-6 bases.
+
+```{r}
+m <- cbind(m1, m2)
+m <- add_gap(m, gaploc = ncol(m1), mingap = 4, maxgap = 6)
+m
+```
+
+Now, it can be used directly in `scan_sequences()` or `enrich_motifs()`:
+
+```{r}
+scan_sequences(m, ArabidopsisPromoters, threshold = 0.4, threshold.type = "logodds")
+```
+
 # Testing for motif positional preferences in sequences
 
 The `universalmotif` package provides the `motif_peaks()` function, which can test for positionally preferential motif sites in a set of sequences. This can be useful, for example, when trying to determine whether a certain transcription factor binding site is more often than not located at a certain distance from the transcription start site (TSS). The `motif_peaks()` function finds density peaks in the input data, then creates a null distribution from randomly generated peaks to calculate peak P-values.
