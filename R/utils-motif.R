@@ -229,7 +229,7 @@ add_gap <- function(motif, gaploc = ncol(motif) %/% 2, mingap = 1, maxgap = 5) {
   args <- as.list(environment())
   num_check <- check_fun_params(
     list(gaploc = args$gaploc, mingap = args$mingap, maxgap = args$maxgap),
-    1, FALSE, TYPE_NUM
+    0, FALSE, TYPE_NUM
   )
   if (length(num_check)) stop(all_checks_collapse(num_check))
 

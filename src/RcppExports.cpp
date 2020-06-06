@@ -248,6 +248,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// add_gap_dots_cpp
+std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs, const std::vector<std::vector<int>>& gaplocs);
+RcppExport SEXP _universalmotif_add_gap_dots_cpp(SEXP seqsSEXP, SEXP gaplocsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type seqs(seqsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::vector<int>>& >::type gaplocs(gaplocsSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_gap_dots_cpp(seqs, gaplocs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scan_sequences_cpp
 Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const int& k, const std::string& alph, const std::vector<double>& min_scores, const int& nthreads);
 RcppExport SEXP _universalmotif_scan_sequences_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP kSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP nthreadsSEXP) {
@@ -752,6 +763,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
+    {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},
     {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 6},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},

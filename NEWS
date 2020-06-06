@@ -1,6 +1,10 @@
 CHANGES IN VERSION 1.8.0
 ------------------------
 
+NEW FEATURES
+
+    o scan_sequences() can now be used to scan for gapped motifs.
+
 MINOR CHANGES
 
     o read_matrix(..., positions): added partial argument matching.
@@ -8,10 +12,12 @@ MINOR CHANGES
     o read_matrix(..., comment): allows for comments to be ignored in motif
       files.
 
-    o shuffle_sequences(), motif_pvalue(): the c++ random engine has been
-      changed from std::default_random_engine to std::mt19937. This should
-      allow for the same rng.seed value to result in the same output regardless
-      of OS.
+    o create_sequences(), shuffle_sequences(), motif_pvalue(): the c++ random
+      engine has been changed from std::default_random_engine to std::mt19937.
+      This should allow for the same rng.seed value to result in the same
+      output regardless of OS.
+
+    o scan_sequences(..., use.gaps): ignore motif gap information.
 
     o General documentation cleanup.
 

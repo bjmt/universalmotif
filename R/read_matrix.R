@@ -15,7 +15,7 @@
 #' @param sep `character(1)` Indicates how individual motifs are separated.
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to read names.
 #' @param rownames `logical(1)` Are there alphabet letters present as rownames?
-#' @param rownames `NULL`, `character(1)` Character denoting lines to be considered
+#' @param comment `NULL`, `character(1)` Character denoting lines to be considered
 #'    comments.
 #'
 #' @return `list` [universalmotif-class] objects.

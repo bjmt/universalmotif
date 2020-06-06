@@ -65,6 +65,10 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
+add_gap_dots_cpp <- function(seqs, gaplocs) {
+    .Call('_universalmotif_add_gap_dots_cpp', PACKAGE = 'universalmotif', seqs, gaplocs)
+}
+
 scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads) {
     .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads)
 }

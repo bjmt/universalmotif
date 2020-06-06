@@ -28,7 +28,9 @@ or a string of letters.}
 
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to read names.}
 
-\item{rownames}{\code{NULL}, \code{character(1)} Character denoting lines to be considered
+\item{rownames}{\code{logical(1)} Are there alphabet letters present as rownames?}
+
+\item{comment}{\code{NULL}, \code{character(1)} Character denoting lines to be considered
 comments.}
 }
 \value{

@@ -6,7 +6,7 @@
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  nthreads = 1, motif_pvalue.k = 8)
+  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -36,6 +36,9 @@ sequence.}
 
 \item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
+
+\item{use.gaps}{\code{logical(1)} Set this to \code{FALSE} to ignore motif gaps, if
+present.}
 }
 \value{
 \code{DataFrame} with each row representing one hit. If the input
