@@ -61,8 +61,7 @@ write_homer <- function(motifs, file, logodds_threshold = 0.6,
     lines_out[1] <- header
     for (i in seq_len(nrow(mat))) {
       pos <- mat[i, ]
-      pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
-                    character(1))
+      pos <- formatC(pos, format = "f", digits = 3)
       lines_out[1 + i] <- paste0(pos, collapse = "\t")
     }
     lines_out

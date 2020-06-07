@@ -34,9 +34,6 @@ file is also a minimal MEME format file.}
 Convert motifs to minimal MEME format and write to file.
 See \url{http://meme-suite.org/doc/meme-format.html}.
 }
-\details{
-At this time non-DNA/RNA/AA alphabets are not supported.
-}
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",
                                     package = "universalmotif"))

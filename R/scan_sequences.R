@@ -155,8 +155,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   mot.hasgap <- vapply(mot.gaps, function(x) x@isgapped, logical(1))
   if (any(mot.hasgap) && use.gaps) {
     gapdat <- process_gapped_motifs(motifs, mot.hasgap)
-    # motifs.ungapped <- gapdat$motifs
-    # mot.names.ungapped <- mot.names[gapdat$IDs]
   }
 
   mot.pwms <- lapply(motifs, function(x) x@motif)

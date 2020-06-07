@@ -7,6 +7,8 @@ NEW FEATURES
       gapped motifs. A new section has been added to the SequenceSearches.Rmd
       vignette.
 
+    o read_meme(), write_meme(): now fully support custom alphabets.
+
 MINOR CHANGES
 
     o read_matrix(..., positions): added partial argument matching.
@@ -14,14 +16,16 @@ MINOR CHANGES
     o read_matrix(..., comment): allows for comments to be ignored in motif
       files.
 
+    o write_matrix(..., digits): control the number of digits to use for
+      writing motif positions.
+
     o create_sequences(), shuffle_sequences(), motif_pvalue(): the c++ random
       engine has been changed from std::default_random_engine to std::mt19937.
       This should allow for the same rng.seed value to result in the same
       output regardless of OS.
 
-    o scan_sequences(..., use.gaps): ignore motif gap information.
-
-    o enrich_motifs(..., use.gaps): ignore motif gap information.
+    o scan_sequences(..., use.gaps), enrich_motifs(..., use.gaps): ignore motif
+      gap information.
 
     o General documentation cleanup.
 

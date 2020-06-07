@@ -27,7 +27,8 @@ and P-values, and another containing combined sequence p-values.
 \description{
 Import MEME formatted motifs, as well as original motif sequences. See
 \url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
-formats are supported.
+formats are supported. DREME motifs can also be imported, but note that
+\code{readsites} and \code{readsites.meta} arguments do nothing for this format.
 }
 \details{
 Please note that the typical number precision limit in R is around 1e-308.
@@ -36,10 +37,6 @@ automatically to 0. To get around this, the E-value is also stored as a
 string in the \code{extrainfo} slot. If you require a numeric value for analysis,
 use the \code{\link[=log_string_pval]{log_string_pval()}} function to get the log of the string-formatted
 p-value.
-
-Furthermore, note that DNA-LIKE, RNA-LIKE, and PROTEIN-LIKE alphabets will be treated
-as DNA, RNA, and AA alphabets respectively. Custom alphabets are currently
-not supported.
 }
 \examples{
 meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",

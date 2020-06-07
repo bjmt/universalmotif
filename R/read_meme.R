@@ -2,7 +2,8 @@
 #'
 #' Import MEME formatted motifs, as well as original motif sequences. See
 #' \url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
-#' formats are supported.
+#' formats are supported. DREME motifs can also be imported, but note that
+#' `readsites` and `readsites.meta` arguments do nothing for this format.
 #'
 #' @param file `character(1)` File name.
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
@@ -24,10 +25,6 @@
 #' string in the `extrainfo` slot. If you require a numeric value for analysis,
 #' use the [log_string_pval()] function to get the log of the string-formatted
 #' p-value.
-#'
-#' Furthermore, note that DNA-LIKE, RNA-LIKE, and PROTEIN-LIKE alphabets will be treated
-#' as DNA, RNA, and AA alphabets respectively. Custom alphabets are currently
-#' not supported.
 #'
 #' @examples
 #' meme.minimal <- read_meme(system.file("extdata", "meme_minimal.txt",
@@ -62,11 +59,14 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   close(con)
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
   raw_lines <- raw_lines[raw_lines != ""]
+  raw_lines <- raw_lines[!grepl("^#", raw_lines)]
   raw_lines <- raw_lines[!grepl("\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*", raw_lines)]
   raw_lines <- raw_lines[!grepl("------------", raw_lines)]
 
   alph <- get_meme_alph(raw_lines)
   alph.len <- get_meme_alph_len(alph)
+  alph.split <- switch(alph, DNA = DNA_BASES, RNA = RNA_BASES, AA = AA_STANDARD2,
+      safeExplode(alph))
 
   strands <- raw_lines[grepl("^strands:", raw_lines)]
   if (length(strands) > 0) {
@@ -89,6 +89,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
     bkg.tmp <- as.numeric(bkg.tmp[seq_along(bkg.tmp) %% 2 == 0])
     bkg <- c(bkg, bkg.tmp)
   }
+  if (anyNA(bkg))
+    stop("Could not parse background frequencies, check that they match alphabet")
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names_i <- grep("^MOTIF ", raw_lines)
@@ -114,10 +116,12 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                            c(nsites = x[8], eval = x[10])
                          })
   motif_list <- mapply(function(x, y) {
-                           z <- raw_lines[x:y]
+                           z <- trimws(raw_lines[x:y])
                            z <- sapply(z, function(x) strsplit(x, "\\s+")[[1]])
-                           z <- suppressWarnings(as.numeric(z))
-                           z <- z[!is.na(z)]
+                           if (nrow(z) != alph.len)
+                             stop("Alphabet length does not match motif length")
+                           z <- z[order(alph.split, method = "radix"), ]
+                           as.numeric(z)
                          }, motif_starts, motif_stops, SIMPLIFY = FALSE)
 
   motif_list <- mapply(function(x, y, z, x2) {
@@ -265,8 +269,6 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
 check_meme_alph_type <- function(raw_lines){
   if (any(grepl("^ALPHABET=", raw_lines))) {
     return("default")
-  } else if (any(grepl("ALPHABET.+-LIKE$", raw_lines))) {
-    return("like")
   } else {
     return("custom")
   }
@@ -287,22 +289,6 @@ get_default_meme_alph <- function(raw_lines){
   return(alph)
 }
 
-#' Return best matching alph-type for meme entry
-#'
-#' Many .meme files can have DNA/RNA/AA-LIKE alphabets, so this will match those.
-#'
-#' @param raw_lines raw lines from .meme file
-#'
-#' @return
-#'
-#' @noRd
-get_like_meme_alph <- function(raw_lines){
-  # returns "DNA"/"RNA"/"AA" if "[DNA,RNA,AA]-LIKE
-  # This actually doesn't error check for those...
-  alph_line <- grep("^ALPHABET", raw_lines, value = TRUE)
-  gsub("PROTEIN", "AA", gsub("^ALPHABET .*? (.+?)-LIKE", "\\1", alph_line))
-}
-
 #' Get custom alphabet defintion from .meme file
 #'
 #' If this ever runs, import will probably break downstream because custom
@@ -319,24 +305,22 @@ get_like_meme_alph <- function(raw_lines){
 #'
 #' @noRd
 get_custom_meme_alph <- function(raw_lines){
-  stop("Alphabet type cannot be detected, custom alphabets are not currently supported")
-  # Find ALPHABET section by range i:n
+
   i <- grep("^ALPHABET", raw_lines) + 1
   n <- grep("^END ALPHABET", raw_lines) - 1
 
   alph_lines <- raw_lines[i:n]
-  alph_split <- strsplit(alph_lines, "")
-  alph_list <- lapply(alph_split, function(x){x[1]})
-  alph_vec <- unlist(alph_list)
 
-  # Ensure all letters are alphabet letters
-  # I'm assuming custom alphabet is IUPAC.
-  # Warn if numbers or "." detected??
-  # (. is in custom alphabet output of DREME)
-  # This is an incomplete implementation because it's not using the lookup table
-  # for each letter if provided.
-  alph <- paste(alph_vec[alph_vec %in% c(letters, LETTERS)], collapse = "")
-  return(alph)
+  alph_lines <- alph_lines[!grepl("=", alph_lines, fixed = TRUE)]
+  alph_lines <- trimws(unlist(strsplit(alph_lines, "~", fixed = TRUE)))
+  alph <- vapply(strsplit(alph_lines, " ", fixed = TRUE), function(x) x[1], character(1))
+
+  alph.order <- c(LETTERS, letters, 0:9, "*", "-", ".")
+  alph <- alph[order(match(alph, alph.order))]
+  alph <- collapse_cpp(alph)
+
+  switch(alph, "ACGT" = "DNA", "ACGU" = "RNA", "ACDEFGHIKLMNPQRSTVWY" = "AA", alph)
+
 }
 
 #' Return MEME alphabet string
@@ -350,7 +334,6 @@ get_meme_alph <- function(raw_lines){
 
   switch(check_meme_alph_type(raw_lines),
          default = get_default_meme_alph(raw_lines),
-         like = get_like_meme_alph(raw_lines),
          custom = get_custom_meme_alph(raw_lines))
 
 }

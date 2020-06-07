@@ -73,8 +73,7 @@ write_jaspar <- function(motifs, file, overwrite = FALSE, append = FALSE) {
       p1 <- alph[j]
       p2 <- "["
       p3 <- as.numeric(motif@motif[j, ])
-      p3 <- vapply(p3, function(x) formatC(x, width = width, format = "d"),
-                   character(1))
+      p3 <- formatC(p3, width = width, format = "d")
       p3 <- paste0(p3, collapse = " ")
       p4 <- "]"
       lines_out <- c(lines_out, paste(p1, p2, p3, p4))

@@ -18,9 +18,6 @@
 #'
 #' @return `NULL`, invisibly.
 #'
-#' @details
-#' At this time non-DNA/RNA/AA alphabets are not supported.
-#'
 #' @examples
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
 #'                                     package = "universalmotif"))
@@ -66,22 +63,36 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
 
   switch(alph,
     "DNA" = {
-      alph.2 <- "ACGT"
+      alph.2 <- "ALPHABET= ACGT"
+      alph.split <- DNA_BASES
       alph.length <- 4
     },
     "RNA" = {
-      alph.2 <- "ACGU"
+      alph.2 <- "ALPHABET= ACGU"
+      alph.split <- RNA_BASES
       alph.length <- 4
     },
     "AA" = {
-      alph.2 <- "ACDEFGHIKLMNPQRSTVWY"
+      alph.2 <- "ALPHABET= ACDEFGHIKLMNPQRSTVWY"
+      alph.split <- AA_STANDARD2
       alph.length <- 20
     },
-    stop("Unknown alphabet (currently only DNA/RNA/AA are supported)")
+    {
+      alph.split <- safeExplode(alph)
+      alph.order <- c(LETTERS, letters, 0:9, "*", "-", ".")
+      alph.split <- alph.split[order(match(alph.split, alph.order))]
+      if (anyNA(alph.split))
+        stop(wmsg("MEME format motifs only allow the following alphabet symbols: ",
+            alph.order))
+      alph <- collapse_cpp(alph.split)
+      alph.2 <- c(paste0("ALPHABET \"", alph, "\""), alph.split,
+        "END ALPHABET")
+      alph.length <- nchar(alph)
+    }
   )
 
   if (missing(bkg)) {
-    bkg <- lapply(motifs, function(x) x@bkg[safeExplode(alph.2)])
+    bkg <- lapply(motifs, function(x) x@bkg[alph.split])
     bkgtest <- lapply(bkg, function(x) all(x == bkg[[1]]))
     if (all(unlist(bkgtest))) {
       bkg <- bkg[[1]]
@@ -90,10 +101,11 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
       if (alph == "AA") bkg <- rep(1 / 20, 20)
     }
   }
-  bkg.2 <- safeExplode(alph.2)
+  bkg <- formatC(bkg, format = "f", digits = 6)
+  bkg.2 <- alph.split
 
   lines_out <- c(paste("MEME version", version), "",
-                 paste("ALPHABET=", alph.2), "",
+                 alph.2, "",
                  paste("strands:", strand), "",
                  paste("Background letter frequencies"),
                  paste(bkg.2, bkg, collapse = " "), "")
@@ -149,8 +161,8 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
                          "w=", ncol(motif@motif), "nsites=", nsites,
                          "E=", eval))
     for (i in seq_len(ncol(motif@motif))) {
-      pos <- motif@motif[, i]
-      pos <- vapply(pos, function(x) format(x, nsmall = 6), character(1))
+      pos <- motif@motif[alph.split, i, drop = TRUE]
+      pos <- formatC(pos, format = "f", digits = 6)
       pos <- paste("", pos, "", collapse = "")
       lines_out <- c(lines_out, pos)
     }
@@ -168,6 +180,5 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
   }
 
   invisible(NULL)
-
 
 }

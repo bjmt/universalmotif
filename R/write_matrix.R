@@ -12,6 +12,7 @@
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to write names.
 #' @param overwrite `logical(1)` Overwrite existing file.
 #' @param append `logical(1)` Add to an existing file.
+#' @param digits `numeric(1)` Number of digits to use for motif positions.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -25,7 +26,7 @@
 #' @export
 write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                          type, sep = "", headers = TRUE, overwrite = FALSE,
-                         append = FALSE) {
+                         append = FALSE, digits = 6) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -33,6 +34,8 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                                       type = args$type, sep = args$sep),
                                  numeric(), c(FALSE, FALSE, TRUE, FALSE),
                                  TYPE_CHAR)
+  num_check <- check_fun_params(list(digits = args$digits),
+                                 numeric(), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(rownames = args$rownames,
                                       overwrite = args$overwrite,
                                       append = args$append),
@@ -73,9 +76,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
       "columns" = {
         for (i in seq_len(nrow(motif@motif))) {
           pos <- motif@motif[i, ]
-          # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
-                        # character(1))
-          pos <- as.character(pos)
+          pos <- formatC(pos, format = "f", digits = digits)
           if (rownames) pos <- c(rownames(motif@motif)[i], pos)
           lines_out <- c(lines_out, paste0(pos, collapse = "\t"))
         }
@@ -85,8 +86,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
                                                        collapse = "\t"))
         for (i in seq_len(ncol(motif@motif))) {
           pos <- motif@motif[, i]
-          # pos <- vapply(pos, function(x) formatC(x, format = "f", digits = 3),
-                        # character(1))
+          pos <- formatC(pos, format = "f", digits = digits)
           pos <- as.character(pos)
           lines_out <- c(lines_out, paste0(pos, collapse = "\t"))
         }
