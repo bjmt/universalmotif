@@ -29,12 +29,10 @@
 #' merged.motif <- merge_motifs(MotifDb[1:5])
 #' }
 #'
-#' # Using ALLR or KL will add a pseudocount to the input motifs. Compare:
 #' m1 <- create_motif("TTAAACCCC", name = "1")
 #' m2 <- create_motif("AACC", name = "2")
 #' m3 <- create_motif("AACCCCGG", name = "3")
-#' view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
-#' view_motifs(merge_motifs(c(m1, m2, m3), method = "ALLR"))
+#' view_motifs(merge_motifs(c(m1, m2, m3))
 #'
 #' @seealso [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
