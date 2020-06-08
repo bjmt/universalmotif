@@ -88,7 +88,7 @@ merged.motif <- merge_motifs(MotifDb[1:5])
 m1 <- create_motif("TTAAACCCC", name = "1")
 m2 <- create_motif("AACC", name = "2")
 m3 <- create_motif("AACCCCGG", name = "3")
-view_motifs(merge_motifs(c(m1, m2, m3))
+view_motifs(merge_motifs(c(m1, m2, m3)))
 
 }
 \seealso{

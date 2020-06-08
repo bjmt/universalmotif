@@ -32,7 +32,7 @@
 #' m1 <- create_motif("TTAAACCCC", name = "1")
 #' m2 <- create_motif("AACC", name = "2")
 #' m3 <- create_motif("AACCCCGG", name = "3")
-#' view_motifs(merge_motifs(c(m1, m2, m3))
+#' view_motifs(merge_motifs(c(m1, m2, m3)))
 #'
 #' @seealso [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
