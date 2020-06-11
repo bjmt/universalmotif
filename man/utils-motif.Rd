@@ -18,6 +18,7 @@
 \alias{ppm_to_icm}
 \alias{ppm_to_pcm}
 \alias{ppm_to_pwm}
+\alias{prob_match}
 \alias{pwm_to_ppm}
 \alias{round_motif}
 \alias{score_match}
@@ -62,11 +63,13 @@ ppm_to_pcm(position, nsites = 100)
 ppm_to_pwm(position, bkg = numeric(), pseudocount = 1, nsites = 100,
   smooth = TRUE)
 
+prob_match(motif, match, allow.zero = TRUE)
+
 pwm_to_ppm(position, bkg = numeric())
 
 round_motif(motif, pct.tolerance = 0.05)
 
-score_match(motif, match)
+score_match(motif, match, allow.nonfinite = FALSE)
 
 summarise_motifs(motifs, na.rm = TRUE)
 
@@ -136,12 +139,18 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{smooth}{\code{logical(1)} Apply pseudocount correction.}
 
+\item{match}{\code{character(1)} Sequence string to calculate score from.}
+
+\item{allow.zero}{\code{logical(1)} Apply a pseudocount if zero values
+are found in the PPM.}
+
 \item{pct.tolerance}{\code{numeric(1)} or \code{character(1)} The minimum tolerated
 proportion each letter must represent per position in order not to be
 rounded off, either as a numeric value from 0 to 1 or a percentage written as
 a string from "0\%" to "100\%".}
 
-\item{match}{\code{character(1)} Sequence string to calculate score from.}
+\item{allow.nonfinite}{\code{logical(1)} Apply a pseudocount if non-finite values
+are found in the PWM.}
 
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
 
@@ -276,6 +285,13 @@ apply(m, 2, ppm_to_pcm, nsites = 50)
 ## Go from a probability type motif to a weight type motif.
 m <- create_motif()["motif"]
 apply(m, 2, ppm_to_pwm, nsites = 100, bkg = rep(0.25, 4))
+
+#######################################################################
+## prob_match
+## Calculate probability of a particular match
+prob_match(examplemotif, "TATATAT")
+prob_match(examplemotif, "TATATAG")
+prob_match(examplemotif, "TATATAG", allow.zero = FALSE)
 
 #######################################################################
 ## pwm_to_ppm

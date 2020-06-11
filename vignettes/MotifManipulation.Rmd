@@ -524,6 +524,7 @@ Motif matches in a set of sequences are typically obtained using logodds scores.
 * `get_matches()`: show all possible sequence matches above a certain score
 * `get_scores()`: obtain all possible scores from all possible sequence matches
 * `motif_score()`: translate score thresholds to logodds scores
+* `prob_match()`: return probabilities for sequence matches
 * `score_match()`: return logodds scores for sequence matches
 
 ```{r}
@@ -536,6 +537,9 @@ motif_score(examplemotif)
 
 ## Show matches above a score of 10:
 get_matches(examplemotif, 10)
+
+## Get the probability of a match:
+prob_match(examplemotif, "TTTTTTT", allow.zero = FALSE)
 
 ## Score a specific sequence:
 score_match(examplemotif, "TTTTTTT")

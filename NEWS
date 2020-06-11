@@ -9,6 +9,11 @@ NEW FEATURES
 
     o read_meme(), write_meme(): now fully support custom alphabets.
 
+    o prob_match(): calculate the probability of a motif match.
+
+    o score_match(..., allow.nonfinite): allow for scoring a match even if
+      the PWM contains -Inf positions.
+
 MINOR CHANGES
 
     o read_matrix(..., positions): added partial argument matching.

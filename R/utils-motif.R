@@ -1,5 +1,9 @@
 #' Motif-related utility functions.
 #'
+#' @param allow.nonfinite `logical(1)` Apply a pseudocount if non-finite values
+#'    are found in the PWM.
+#' @param allow.zero `logical(1)` Apply a pseudocount if zero values
+#'    are found in the PPM.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA')`.
 #' @param bkg `numeric` Should be the same length as the alphabet length.
 #' @param bkg1 `numeric` Vector of background probabilities for the first column.
@@ -171,6 +175,13 @@
 #' ## Go from a probability type motif to a weight type motif.
 #' m <- create_motif()["motif"]
 #' apply(m, 2, ppm_to_pwm, nsites = 100, bkg = rep(0.25, 4))
+#'
+#' #######################################################################
+#' ## prob_match
+#' ## Calculate probability of a particular match
+#' prob_match(examplemotif, "TATATAT")
+#' prob_match(examplemotif, "TATATAG")
+#' prob_match(examplemotif, "TATATAG", allow.zero = FALSE)
 #'
 #' #######################################################################
 #' ## pwm_to_ppm
@@ -508,10 +519,7 @@ ppm_to_icm <- function(position, bkg = numeric(), schneider_correction = FALSE,
 
     } else {
 
-      height_after <- -sum(vapply(position, function(x) {
-                                              y <- x * log2(x)
-                                              ifelse(is.na(y), 0, y)
-                                            }, numeric(1)))
+      height_after <- -sum(position * log2(position), na.rm = TRUE)
       total_ic <- log2(length(position)) - height_after
 
     }
@@ -543,7 +551,57 @@ ppm_to_pwm <- function(position, bkg = numeric(), pseudocount = 1, nsites = 100,
   for (i in seq_along(position)) {
     position[i] <- log2(position[i] / bkg[i])
   }
-  return(position)
+  position
+}
+
+#' @rdname utils-motif
+#' @export
+prob_match <- function(motif, match, allow.zero = TRUE) {
+
+  if (missing(motif) || missing(match))
+    stop("motif and/or match are missing")
+
+  if (!is.character(match) || length(match) != 1)
+    stop("match must be a single string")
+
+  motif <- convert_motifs(motif)
+
+  if (is.list(motif) && length(motif) != 1)
+    stop("Please only input a single motif")
+  else if (is.list(motif))
+    motif <- motif[[1]]
+
+  if (!is(motif, "universalmotif"))
+    stop("Unknown motif class")
+
+  if (motif@type != "PPM")
+    motif <- convert_type_internal(motif, "PPM")
+
+  if (!allow.zero && any(motif@motif == 0)) {
+    message("Found zero values in motif PPM, adding a pseudocount of 1")
+    motif <- normalize(motif)
+  }
+
+  match <- safeExplode(match)
+  if (length(match) != ncol(motif))
+    stop(wmsg("motif length [", ncol(motif), "] and match length [",
+              length(match), "] are not equal"))
+
+  if (!all(match %in% rownames(motif@motif)))
+    stop("Found letters in match not found in motif")
+
+  prob <- 1
+
+  mat <- matrix(motif@motif,
+                nrow = nrow(motif@motif),
+                dimnames = dimnames(motif@motif))
+
+  for (i in seq_len(ncol(mat))) {
+    prob <- prob * mat[match[i], i]
+  }
+
+  prob
+
 }
 
 #' @rdname utils-motif
@@ -577,7 +635,7 @@ round_motif <- function(motif, pct.tolerance = 0.05) {
 
 #' @rdname utils-motif
 #' @export
-score_match <- function(motif, match) {
+score_match <- function(motif, match, allow.nonfinite = FALSE) {
 
   if (missing(motif) || missing(match))
     stop("motif and/or match are missing")
@@ -598,9 +656,8 @@ score_match <- function(motif, match) {
   if (motif@type != "PWM")
     motif <- convert_type_internal(motif, "PWM")
 
-  if (any(is.infinite(motif@motif))) {
-    warning("Found -Inf values in motif PWM, adding a pseudocount of 1",
-            immediate. = TRUE)
+  if (!allow.nonfinite && any(is.infinite(motif@motif))) {
+    message("Found -Inf values in motif PWM, adding a pseudocount of 1")
     motif <- normalize(motif)
   }
 
@@ -614,7 +671,7 @@ score_match <- function(motif, match) {
 
   score <- 0
 
-  mat <- matrix(as.integer(motif@motif * 1000),
+  mat <- matrix(motif@motif,
                 nrow = nrow(motif@motif),
                 dimnames = dimnames(motif@motif))
 
@@ -622,7 +679,8 @@ score_match <- function(motif, match) {
     score <- score + mat[match[i], i]
   }
 
-  score / 1000
+  # score / 1000
+  if (is.finite(score)) as.integer(score * 1000) / 1000 else score
 
 }
 

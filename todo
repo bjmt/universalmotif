@@ -21,3 +21,8 @@
   motif_tree(), rely solely on compare_motifs()
 - scan_sequences(): allow -Inf weights?
 - scan_sequences(): add option to return GRanges object
+- score_match(): allow -Inf
+- create a prob_match() function
+- IntroductionToSequenceMotifs.Rmd: for R code versions of ICM functions, make
+  sure that NaNs are converted to 0 during entropy calculations
+- ppm_to_icm: use na.rm=TRUE in -sum instead of ifelse code
