@@ -561,8 +561,8 @@ prob_match <- function(motif, match, allow.zero = TRUE) {
   if (missing(motif) || missing(match))
     stop("motif and/or match are missing")
 
-  if (!is.character(match) || length(match) != 1)
-    stop("match must be a single string")
+  if (!is.character(match) || length(match) < 1)
+    stop("match must be a non-empty character vector")
 
   motif <- convert_motifs(motif)
 
@@ -582,22 +582,25 @@ prob_match <- function(motif, match, allow.zero = TRUE) {
     motif <- normalize(motif)
   }
 
-  match <- safeExplode(match)
-  if (length(match) != ncol(motif))
+  match <- lapply(match, safeExplode)
+  if (any(vapply(match, length, integer(1)) != ncol(motif)))
     stop(wmsg("motif length [", ncol(motif), "] and match length [",
-              length(match), "] are not equal"))
+              paste0(vapply(match, length, integer(1)), collapse = ","),
+              "] are not equal"))
 
-  if (!all(match %in% rownames(motif@motif)))
+  if (!all(unique(unlist(match)) %in% rownames(motif@motif)))
     stop("Found letters in match not found in motif")
 
-  prob <- 1
+  prob <- rep(1, length(match))
 
   mat <- matrix(motif@motif,
                 nrow = nrow(motif@motif),
                 dimnames = dimnames(motif@motif))
 
   for (i in seq_len(ncol(mat))) {
-    prob <- prob * mat[match[i], i]
+    for (j in seq_along(prob)) {
+    prob[j] <- prob[j] * mat[match[[j]][i], i]
+    }
   }
 
   prob
@@ -640,8 +643,8 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
   if (missing(motif) || missing(match))
     stop("motif and/or match are missing")
 
-  if (!is.character(match) || length(match) != 1)
-    stop("match must be a single string")
+  if (!is.character(match) || length(match) < 1)
+    stop("match must be a non-empty character vector")
 
   motif <- convert_motifs(motif)
 
@@ -661,26 +664,29 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
     motif <- normalize(motif)
   }
 
-  match <- safeExplode(match)
-  if (length(match) != ncol(motif))
+  match <- lapply(match, safeExplode)
+  if (any(vapply(match, length, integer(1)) != ncol(motif)))
     stop(wmsg("motif length [", ncol(motif), "] and match length [",
-              length(match), "] are not equal"))
+              paste0(vapply(match, length, integer(1)), collapse = ","),
+              "] are not equal"))
 
-  if (!all(match %in% rownames(motif@motif)))
+  if (!all(unique(unlist(match)) %in% rownames(motif@motif)))
     stop("Found letters in match not found in motif")
 
-  score <- 0
+  score <- rep(0, length(match))
 
   mat <- matrix(motif@motif,
                 nrow = nrow(motif@motif),
                 dimnames = dimnames(motif@motif))
 
   for (i in seq_len(ncol(mat))) {
-    score <- score + mat[match[i], i]
+    for (j in seq_along(score)) {
+    score[j] <- score[j] + mat[match[[j]][i], i]
+    }
   }
 
-  # score / 1000
-  if (is.finite(score)) as.integer(score * 1000) / 1000 else score
+  score[is.finite(score)] <- as.integer(score[is.finite(score)] * 1000) / 1000
+  score
 
 }
 

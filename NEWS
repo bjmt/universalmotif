@@ -32,6 +32,8 @@ MINOR CHANGES
     o scan_sequences(..., use.gaps), enrich_motifs(..., use.gaps): ignore motif
       gap information.
 
+    o score_match() has been vectorized (alongside new prob_match() function).
+
     o General documentation cleanup.
 
 CHANGES IN VERSION 1.6.4
@@ -40,6 +42,11 @@ CHANGES IN VERSION 1.6.4
 BUG FIXES
 
     o cbind(): do not ignore the pseudocount slot.
+
+    o Fixed typo in IntroductionToSequenceMotifs.Rmd.
+
+    o Fixed U() function in IntroductionToSequenceMotifs.Rmd, no longer returns
+      NA values if 0s are present.
 
 CHANGES IN VERSION 1.6.3
 ------------------------

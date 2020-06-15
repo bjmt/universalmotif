@@ -141,7 +141,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        T | -2.807 |  0.363 | -0.485 | -0.485 | -0.485 |  0.363
 : (\#tab:pwmpseudo) Position Weight Matrix with a pseudocount of 1.
 
-Now, the score for AAGAA is 8.46, and the score for AAAAAA is 4.76. Though the score for the latter is low, it is no longer -Inf as a result of one mismatch.
+Now, the score for AAGAAA is 8.46, and the score for AAAAAA is 4.76. Though the score for the latter is low, it is no longer -Inf as a result of one mismatch.
 
 When searching for instances of this motif using this scoring system, one more consideration is needed: a minimum score. For example, both sequences AAGAAA and ATTTTT have positive scores; but one is much higher than the other. Should ATTTTT then be discarded? In order to answer this a threshold is set, typically this is a certain percent of the highest possible score. For example, in the table \@ref(tab:pwmpseudo) motif, the highest possible score is 8.46. Using a threshold of 25%, the minimum score then becomes 2.115. This means that ATTTTT, with a score of 1.112, would indeed be discarded.
 
