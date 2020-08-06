@@ -108,6 +108,14 @@ for (i in 1:length(ArabidopsisPromoters)) {
 scan_sequences(ArabidopsisMotif, seq)
 }
 
+## Converting results to a GRanges object:
+\dontrun{
+res <- scan_sequences(ArabidopsisMotif, seq)
+library(GenomicRanges)
+makeGRangesFromDataFrame(res, seqnames.field = "sequence",
+  keep.extra.columns = TRUE)
+}
+
 }
 \seealso{
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}},

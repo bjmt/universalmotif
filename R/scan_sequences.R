@@ -89,6 +89,14 @@
 #' scan_sequences(ArabidopsisMotif, seq)
 #' }
 #'
+#' ## Converting results to a GRanges object:
+#' \dontrun{
+#' res <- scan_sequences(ArabidopsisMotif, seq)
+#' library(GenomicRanges)
+#' makeGRangesFromDataFrame(res, seqnames.field = "sequence",
+#'   keep.extra.columns = TRUE)
+#' }
+#'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
 #'    [enrich_motifs()], [motif_pvalue()]
