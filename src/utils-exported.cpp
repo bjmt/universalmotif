@@ -193,6 +193,16 @@ Rcpp::NumericMatrix generate_motif(const int ncol, const std::vector<double> &bk
 }
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::List min_max_ints() {
+
+  return Rcpp::List::create(
+        Rcpp::_["min"] = -std::numeric_limits<int>::max(),
+        Rcpp::_["max"] = std::numeric_limits<int>::max()
+      );
+
+}
+
+// [[Rcpp::export(rng = false)]]
 Rcpp::List min_max_doubles() {
 
   return Rcpp::List::create(

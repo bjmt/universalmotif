@@ -25,5 +25,12 @@
 - create a prob_match() function
 - IntroductionToSequenceMotifs.Rmd: for R code versions of ICM functions, make
   sure that NaNs are converted to 0 during entropy calculations
-- allow -Inf for: motif_pvalue(), scan_sequences(), enrich_motifs(), score_match()
+- allow -Inf for: (remember to add a NEWS entry)
+    + get_scores() -- DONE
+    + get_matches()
+    + motif_score()
+    + score_match()
+    + motif_pvalue()
+    + scan_sequences()
+    + enrich_motifs()
 - in read_*() files, check to input file exists

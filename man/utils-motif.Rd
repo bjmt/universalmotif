@@ -41,7 +41,7 @@ get_consensusAA(position, type = "PPM", pseudocount = 0)
 
 get_matches(motif, score)
 
-get_scores(motif)
+get_scores(motif, normalise.if.needed = TRUE)
 
 icm_to_ppm(position)
 
@@ -119,6 +119,9 @@ probability for each alphabet letter at a specific position.}
 \item{pseudocount}{\code{numeric(1)} Used to prevent zeroes in motif matrix.}
 
 \item{score}{\code{numeric(1)} Logodds motif score.}
+
+\item{normalise.if.needed}{\code{logical(1)} Allow normalisation to occur if negative
+infinity values are found in the motif PWM.}
 
 \item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
 representing score percentage.}

@@ -357,6 +357,29 @@ list_int_t expand_scores_cpp(const list_int_t &mot) {
 
 }
 
+vec_int_t rowsums_cpp_no_inf(const list_int_t &mot) {
+
+  std::size_t nrow = mot[0].size();
+  vec_int_t rowsums(nrow, 0);
+
+  for (std::size_t i = 0; i < nrow; ++i) {
+    for (std::size_t j = 0; j < mot.size(); ++j) {
+      if (mot[j][i] <= -std::numeric_limits<int>::max()) {
+        rowsums[i] = -std::numeric_limits<int>::max();
+      } else {
+        if (rowsums[i] > -std::numeric_limits<int>::max()) {
+          rowsums[i] += mot[j][i];
+        } else {
+          rowsums[i] = -std::numeric_limits<int>::max();
+        }
+      }
+    }
+  }
+
+  return rowsums;
+
+}
+
 vec_int_t rowsums_cpp(const list_int_t &mot) {
 
   std::size_t nrow = mot[0].size();
@@ -542,9 +565,9 @@ Rcpp::IntegerMatrix branch_and_bound_cpp_exposed(Rcpp::IntegerMatrix mat,
 // [[Rcpp::export(rng = false)]]
 Rcpp::IntegerVector expand_scores(const Rcpp::IntegerMatrix &scores) {
 
-  list_int_t scores2 = R_to_cpp_motif(scores);
+  list_int_t scores2 = R_to_cpp_motif_no_inf(scores);
   list_int_t scores3 = expand_scores_cpp(scores2);
-  vec_int_t scores4 = rowsums_cpp(scores3);
+  vec_int_t scores4 = rowsums_cpp_no_inf(scores3);
 
   return Rcpp::wrap(scores4);
 

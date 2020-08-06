@@ -26,6 +26,8 @@
 #' @param motif Motif object to calculate scores from, or add/remove gap, or round.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are `NA`.
+#' @param normalise.if.needed `logical(1)` Allow normalisation to occur if negative
+#'    infinity values are found in the motif PWM.
 #' @param nsites `numeric(1)` Number of sites motif originated from.
 #' @param nsites1 `numeric(1)` Number of sites for the first column. Only relevant
 #'    if `method = "ALLR"`.
@@ -368,7 +370,7 @@ get_matches <- function(motif, score) {
 
 #' @rdname utils-motif
 #' @export
-get_scores <- function(motif) {
+get_scores <- function(motif, normalise.if.needed = TRUE) {
 
   motif <- convert_motifs(motif)
   if (is.list(motif) && length(motif) > 1)
@@ -376,12 +378,20 @@ get_scores <- function(motif) {
   else if (is.list(motif)) motif <- motif[[1]]
 
   motif <- convert_type_internal(motif, "PWM")
-  if (any(motif@motif == 0)) motif <- normalize(motif)
+  # if (any(motif@motif == 0)) motif <- normalize(motif)
+  if (any(is.infinite(motif@motif)) && normalise.if.needed) {
+    message("Note: found -Inf values in motif PWM, adding a pseudocount")
+    motif <- normalize(motif)
+  }
 
   m <- motif@motif
+  m[is.infinite(m)] <- NA
   m <- matrix(as.integer(m * 1000), nrow = nrow(m))
 
-  sort(expand_scores(m) / 1000)
+  ans <- expand_scores(m)
+  ans[ans <= min_max_ints()$min] <- -Inf
+  ans[is.finite(ans)] <- ans[is.finite(ans)] / 1000
+  sort(ans, decreasing = TRUE)
 
 }
 

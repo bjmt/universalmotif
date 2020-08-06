@@ -495,6 +495,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// min_max_ints
+Rcpp::List min_max_ints();
+RcppExport SEXP _universalmotif_min_max_ints() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    rcpp_result_gen = Rcpp::wrap(min_max_ints());
+    return rcpp_result_gen;
+END_RCPP
+}
 // min_max_doubles
 Rcpp::List min_max_doubles();
 RcppExport SEXP _universalmotif_min_max_doubles() {
@@ -782,6 +791,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_pval_str2double", (DL_FUNC) &_universalmotif_pval_str2double, 1},
     {"_universalmotif_split_gapped", (DL_FUNC) &_universalmotif_split_gapped, 2},
     {"_universalmotif_generate_motif", (DL_FUNC) &_universalmotif_generate_motif, 2},
+    {"_universalmotif_min_max_ints", (DL_FUNC) &_universalmotif_min_max_ints, 0},
     {"_universalmotif_min_max_doubles", (DL_FUNC) &_universalmotif_min_max_doubles, 0},
     {"_universalmotif_comb2_cpp", (DL_FUNC) &_universalmotif_comb2_cpp, 1},
     {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},

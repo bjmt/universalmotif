@@ -15,6 +15,24 @@ extern const Rcpp::StringVector DNA { "A", "C", "G", "T" };
 
 extern const Rcpp::StringVector RNA { "A", "C", "G", "U" };
 
+list_int_t R_to_cpp_motif_no_inf(const Rcpp::IntegerMatrix &motif) {
+
+  list_int_t mat(motif.ncol(), vec_int_t(motif.nrow()));
+  for (R_xlen_t i = 0; i < motif.ncol(); ++i) {
+    for (R_xlen_t j = 0; j < motif.nrow(); ++j) {
+      if (motif(j, i) <= -std::numeric_limits<int>::max()) {
+        mat[i][j] = -std::numeric_limits<int>::max();
+      } else {
+        // mat[i][j] = int(motif(j, i) * 1000);
+        mat[i][j] = int(motif(j, i));
+      }
+    }
+  }
+
+  return mat;
+
+}
+
 list_int_t R_to_cpp_motif(const Rcpp::NumericMatrix &motif) {
 
   list_int_t mat(motif.ncol(), vec_int_t(motif.nrow()));

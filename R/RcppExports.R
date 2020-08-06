@@ -141,6 +141,10 @@ generate_motif <- function(ncol, bkg) {
     .Call('_universalmotif_generate_motif', PACKAGE = 'universalmotif', ncol, bkg)
 }
 
+min_max_ints <- function() {
+    .Call('_universalmotif_min_max_ints', PACKAGE = 'universalmotif')
+}
+
 min_max_doubles <- function() {
     .Call('_universalmotif_min_max_doubles', PACKAGE = 'universalmotif')
 }
