@@ -330,8 +330,7 @@ get_matches <- function(motif, score) {
   if (motif@type != "PWM")
     motif <- convert_type_internal(motif, "PWM")
   if (any(is.infinite(motif@motif))) {
-    warning(wmsg("found -Inf values in PWM motif, normalizing"),
-            immediate. = TRUE)
+    message(wmsg("Note: found -Inf values in PWM motif, normalizing"))
     motif <- normalize(motif)
   }
 
@@ -414,8 +413,7 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
     motif <- convert_type_internal(motif, "PWM")
 
     if (any(is.infinite(motif@motif))) {
-      warning("Found -Inf values in motif PWM, adding a pseudocount",
-              immediate. = TRUE)
+      message("Note: found -Inf values in motif PWM, adding a pseudocount")
       motif <- normalize(motif)
     }
 
@@ -616,7 +614,7 @@ pwm_to_ppm <- function(position, bkg = numeric()) {
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
   for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
-  warning("position does not add up to 1; normalizing..")
+  message("Note: position does not add up to 1; normalizing..")
   pos_missing <- sum(position)
   position <- position / pos_missing
   position
@@ -660,7 +658,7 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
     motif <- convert_type_internal(motif, "PWM")
 
   if (!allow.nonfinite && any(is.infinite(motif@motif))) {
-    message("Found -Inf values in motif PWM, adding a pseudocount of 1")
+    message("Note: found -Inf values in motif PWM, adding a pseudocount of 1")
     motif <- normalize(motif)
   }
 
