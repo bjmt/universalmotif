@@ -178,7 +178,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   if (!is.list(motifs)) motifs <- list(motifs)
   anyinf <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
   if (any(anyinf)) {
-    warning("Found -Inf values in motif PWM, adding a pseudocount of 1")
+    message("Note: found -Inf values in motif PWM, adding a pseudocount of 1")
     for (i in which(anyinf)) {
       motifs[[i]] <- convert_type(motifs[[i]], "PPM")
       motifs[[i]]["pseudocount"] <- 1
