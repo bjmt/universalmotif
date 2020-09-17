@@ -19,6 +19,11 @@ file before starting to read.}
 Import CIS-BP formatted motifs. See \url{http://cisbp.ccbr.utoronto.ca/index.php}.
 Assumed to be DNA motifs.
 }
+\details{
+CIS-BP motifs can be formatted with or without additional header metadata.
+Motifs without any header start at instances of the word "Pos", whereas motifs
+with a header start at instances of the word "TF".
+}
 \examples{
 cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
                                 package = "universalmotif"))
