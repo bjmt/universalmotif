@@ -34,3 +34,4 @@
     + scan_sequences()
     + enrich_motifs()
 - in read_*() files, check to input file exists
+- scan_sequences(): return a Biostring Views object

@@ -48,6 +48,9 @@ BUG FIXES
     o Fixed U() function in IntroductionToSequenceMotifs.Rmd, no longer returns
       NA values if 0s are present.
 
+    o read_cisbp(): no parsing errors for motifs with missing/partial header
+      info.
+
 CHANGES IN VERSION 1.6.3
 ------------------------
 
