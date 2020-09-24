@@ -38,6 +38,13 @@
 #'    See [motif_pvalue()].
 #' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
 #'    present.
+#' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
+#'    non-finite values are found in the PWM. Note that if the motif has a
+#'    pseudocount greater than zero and the motif is not currently of type PWM,
+#'    then this parameter has no effect as the pseudocount will be
+#'    applied automatically when the motif is converted to a PWM internally. This
+#'    value is set to `FALSE` by default in order to stay consistent with
+#'    pre-version 1.8.0 behaviour.
 #'
 #' @return `DataFrame` Enrichment results in a `DataFrame`. Function args and
 #'    (optionally) scan results are stored in the `metadata` slot.
@@ -65,13 +72,11 @@
 #' @inheritParams scan_sequences
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences,
-                          max.p = 10e-6, max.q = 10e-6, max.e = 10e-4,
-                          qval.method = "fdr", threshold = 0.001,
-                          threshold.type = "pvalue", verbose = 0, RC = FALSE,
-                          use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
-                          return.scan.results = FALSE, nthreads = 1,
-                          rng.seed = sample.int(1e4, 1),
-                          motif_pvalue.k = 8, use.gaps = TRUE) {
+  max.p = 10e-6, max.q = 10e-6, max.e = 10e-4, qval.method = "fdr",
+  threshold = 0.001, threshold.type = "pvalue", verbose = 0, RC = FALSE,
+  use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
+  return.scan.results = FALSE, nthreads = 1, rng.seed = sample.int(1e4, 1),
+  motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -154,28 +159,15 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   if (!is.list(motifs)) motifs <- list(motifs)
   motcount <- length(motifs)
 
-  if (use.freq == 1) {
-    score.mats <- lapply(motifs, function(x) x@motif)
-  } else {
-    score.mats <- lapply(motifs,
-                         function(x) x@multifreq[[as.character(use.freq)]])
-    for (i in seq_along(score.mats)) {
-      score.mats[[i]] <- MATRIX_ppm_to_pwm(score.mats[[i]], nsites = motifs[[i]]@nsites,
-                                           pseudocount = motifs[[i]]@pseudocount,
-                                           bkg = motifs[[i]]@bkg[rownames(score.mats[[i]])])
-    }
-  }
-
   if (threshold.type == "pvalue") {
     if (verbose > 0)
       message(" > Converting P-values to logodds thresholds")
-    threshold <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                              k = motif_pvalue.k)
-    max.scores <- vapply(motifs, function(x) motif_score(x, 1, use.freq), numeric(1))
-    min.scores <- vapply(motifs, function(x) motif_score(x, 0, use.freq), numeric(1))
-    for (i in seq_along(threshold)) {
-      if (threshold[i] > max.scores[i]) threshold[i] <- max.scores[i]
-    }
+    threshold <- suppressMessages(motif_pvalue(motifs, pvalue = threshold,
+        use.freq = use.freq, k = motif_pvalue.k, allow.nonfinite = allow.nonfinite))
+    max.scores <- vapply(motifs, function(x)
+      suppressMessages(motif_score(x, 1, use.freq, threshold.type = "fromzero",
+          allow.nonfinite = allow.nonfinite)),
+      numeric(1))
     if (verbose > 3) {
       mot.names <- vapply(motifs, function(x) x@name, character(1))
       for (i in seq_along(threshold)) {
@@ -189,7 +181,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, threshold.type, motcount,
                           return.scan.results, nthreads, args[-(1:3)],
-                          use.gaps)
+                          use.gaps, allow.nonfinite)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
@@ -216,8 +208,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 }
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
-                         verbose, RC, use.freq, threshold.type, motcount,
-                         return.scan.results, nthreads, args, use.gaps) {
+  verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
+  nthreads, args, use.gaps, allow.nonfinite) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -229,14 +221,13 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
 
   if (verbose > 0) message(" > Scanning input sequences")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
-                            RC, use.freq, verbose = verbose - 1,
-                            nthreads = nthreads, use.gaps = use.gaps)
+    RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
+    use.gaps = use.gaps, allow.nonfinite = allow.nonfinite)
 
   if (verbose > 0) message(" > Scanning background sequences")
-  results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
-                                threshold.type, RC, use.freq,
-                                verbose = verbose - 1,
-                                nthreads = nthreads, use.gaps = use.gaps)
+  results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
+    threshold.type, RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
+    use.gaps = use.gaps, allow.nonfinite = allow.nonfinite))
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)

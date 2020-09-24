@@ -34,7 +34,7 @@ motif_clusters <- function(motifs, sequences,
                            scan.use.freq = 1, motif_pvalue.k = 8,
                            nthreads = 1) {
 
-  scan.res <- scan_sequences(motifs, target.sequences, threshold = scan.threshold,
+  scan.res <- scan_sequences(motifs, sequences, threshold = scan.threshold,
                              threshold.type = scan.threshold.type, RC = RC,
                              use.freq = scan.use.freq, nthreads = nthreads,
                              motif_pvalue.k = motif_pvalue.k)

@@ -5,7 +5,8 @@
 \title{Motif P-value and scoring utility}
 \usage{
 motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 8,
-  nthreads = 1, rand.tries = 10, rng.seed = sample.int(10000, 1))
+  nthreads = 1, rand.tries = 10, rng.seed = sample.int(10000, 1),
+  allow.nonfinite = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -49,6 +50,14 @@ two motifs, the second motif gets the following seed: \code{rng.seed * 2}.
 The default is to pick a random
 number as chosen by \code{\link[=sample]{sample()}}, which effectively makes \code{\link[=motif_pvalue]{motif_pvalue()}}
 dependent on the R RNG state.}
+
+\item{allow.nonfinite}{\code{logical(1)} If \code{FALSE}, then apply a pseudocount if
+non-finite values are found in the PWM. Note that if the motif has a
+pseudocount greater than zero and the motif is not currently of type PWM,
+then this parameter has no effect as the pseudocount will be
+applied automatically when the motif is converted to a PWM internally. This
+value is set to \code{FALSE} by default in order to stay consistent with
+pre-version 1.8.0 behaviour.}
 }
 \value{
 \code{numeric} A vector of scores/p-values.

@@ -25,6 +25,13 @@
 #'    See [motif_pvalue()].
 #' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
 #'    present.
+#' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
+#'    non-finite values are found in the PWM. Note that if the motif has a
+#'    pseudocount greater than zero and the motif is not currently of type PWM,
+#'    then this parameter has no effect as the pseudocount will be
+#'    applied automatically when the motif is converted to a PWM internally. This
+#'    value is set to `FALSE` by default in order to stay consistent with
+#'    pre-version 1.8.0 behaviour.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -41,10 +48,9 @@
 #'    to the length of the motif, the scores for each base are summed. If the
 #'    score sum is above the desired threshold, it is kept.
 #'
-#'    If `threshold.type = 'logodds'`, then to calculate the minimum
-#'    allowed score the max possible score for a motif is multiplied
-#'    by the value set by `threshold`. To determine the maximum 
-#'    possible scores a motif (of type PWM), run
+#'    If `threshold.type = 'logodds'`, then the `threshold` value is multiplied
+#'    by the maximum possible motif scores. To calculate the
+#'    maximum possible scores a motif (of type PWM) manually, run
 #'    `motif_score(motif, 1)`. If \code{threshold.type = 'pvalue'},
 #'    then threshold logodds scores are generated using [motif_pvalue()].
 #'    Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
@@ -102,9 +108,8 @@
 #'    [enrich_motifs()], [motif_pvalue()]
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
-                           threshold.type = "pvalue", RC = FALSE,
-                           use.freq = 1, verbose = 0, nthreads = 1,
-                           motif_pvalue.k = 8, use.gaps = TRUE) {
+  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
+  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -155,7 +160,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
-  motifs <- lapply(motifs, fix_mots)
+  motifs <- lapply(motifs, function(x) fix_mots(x, allow.nonfinite))
 
   mot.names <- vapply(motifs, function(x) x@name, character(1))
 
@@ -207,14 +212,20 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     }
   }
 
-  max.scores <- vapply(motifs, function(x) motif_score(x, 1, use.freq), numeric(1))
-  min.scores <- vapply(motifs, function(x) motif_score(x, 0, use.freq), numeric(1))
+  max.scores <- vapply(motifs, function(x)
+    suppressMessages(motif_score(x, 1, use.freq, threshold.type = "fromzero",
+        allow.nonfinite = allow.nonfinite)),
+    numeric(1))
+  if (!allow.nonfinite)
+    min.scores <- vapply(motifs, function(x)
+      suppressMessages(motif_score(x, 0, use.freq)), numeric(1))
+  else
+    min.scores <- vapply(motifs, function(x) motif_score_min(x, use.freq), numeric(1))
 
   switch(threshold.type,
 
     "logodds" = {
 
-      # thresholds <- ((abs(max.scores) + abs(min.scores)) * threshold) - abs(min.scores)
       thresholds <- max.scores * threshold
 
     },
@@ -236,7 +247,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
         message(" * Converting P-values to logodds thresholds")
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                                 k = motif_pvalue.k)
+                                 k = motif_pvalue.k, allow.nonfinite = allow.nonfinite)
       for (i in seq_along(thresholds)) {
         if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }
@@ -253,6 +264,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     stop("unknown 'threshold.type'")
 
   )
+
+  for (i in seq_along(threshold)) {
+    if (threshold[i] > max.scores[i])
+      warning(wmsg("Threshold [", threshold[i], "] for motif ", i,
+          " is higher than the max possible threshold [", max.scores[i], "]"),
+        immediate. = TRUE, call. = FALSE)
+  }
 
   alph <- switch(seq.alph, "DNA" = "ACGT", "RNA" = "ACGU",
                  "AA" = collapse_cpp(AA_STANDARD2), seq.alph)
@@ -279,12 +297,30 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     max.scores <- c(max.scores, max.scores)
   }
 
+  thresholds[thresholds == Inf] <- min_max_ints()$max / 1000
+  thresholds[thresholds == -Inf] <- min_max_ints()$min / 1000
+
+  if (allow.nonfinite) {
+    for (i in seq_along(score.mats)) {
+      if (any(is.infinite(score.mats[[i]]))) {
+        min_val1 <- min_max_ints()$min / ncol(score.mats[[i]])
+        min_val2 <- as.integer(log2(nrow(score.mats[[i]])) * ncol(score.mats[[i]])) * 1000
+        min_val <- (min_val1 + min_val2) / 1000
+        score.mats[[i]][is.infinite(score.mats[[i]])] <- min_val
+      }
+    }
+  }
+
   if (verbose > 0) message(" * Scanning")
 
-  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds, nthreads)
+  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds,
+    nthreads, allow.nonfinite)
 
   if (verbose > 1) message("   * Number of matches: ", nrow(res))
   if (verbose > 0) message(" * Processing results")
+
+  thresholds[thresholds <= min_max_ints()$min / 1000] <- -Inf
+  thresholds[thresholds >= min_max_ints()$max / 1000] <- Inf
 
   res$thresh.score <- thresholds[res$motif]
   res$min.score <- min.scores[res$motif]
@@ -310,9 +346,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
 }
 
-fix_mots <- function(x) {
-  if (any(is.infinite(x@motif))) {
-    message("Note: detected non-finite positional weights, normalising")
+fix_mots <- function(x, allow.nonfinite) {
+  if (any(is.infinite(x@motif)) && !allow.nonfinite) {
+    message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     normalize(x)
   } else {
     x
@@ -418,3 +455,11 @@ ungap_single <- function(m) {
   }
   out
 }
+
+motif_score_min <- function(x, use.freq) {
+  if (any(is.infinite(x@motif)))
+    -Inf
+  else
+    suppressMessages(motif_score(x, 0, use.freq))
+}
+

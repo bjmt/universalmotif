@@ -11,18 +11,20 @@ NEW FEATURES
 
     o prob_match(): calculate the probability of a motif match.
 
-    o score_match(..., allow.nonfinite): allow for scoring a match even if
-      the PWM contains -Inf positions.
-
-MINOR CHANGES
-
-    o read_matrix(..., positions): added partial argument matching.
+    o enrich_motifs(), get_matches(), get_scores(), motif_pvalue(),
+      motif_score(), scan_sequences(), score_match(): new allow.nonfinite
+      parameter, allowing for the functions to work even if non-finite values
+      are present in the motif PWM.
 
     o read_matrix(..., comment): allows for comments to be ignored in motif
       files.
 
     o write_matrix(..., digits): control the number of digits to use for
       writing motif positions.
+
+MINOR CHANGES
+
+    o read_matrix(..., positions): added partial argument matching.
 
     o create_sequences(), shuffle_sequences(), motif_pvalue(): the c++ random
       engine has been changed from std::default_random_engine to std::mt19937.

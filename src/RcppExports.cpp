@@ -177,8 +177,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // motif_pvalue_cpp
-std::vector<long double> motif_pvalue_cpp(const Rcpp::List& motifs, const Rcpp::List& bkg, const std::vector<double>& scores, const int& k, const int& nthreads);
-RcppExport SEXP _universalmotif_motif_pvalue_cpp(SEXP motifsSEXP, SEXP bkgSEXP, SEXP scoresSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+std::vector<long double> motif_pvalue_cpp(const Rcpp::List& motifs, const Rcpp::List& bkg, const std::vector<double>& scores, const int& k, const int& nthreads, const bool allow_nonfinite);
+RcppExport SEXP _universalmotif_motif_pvalue_cpp(SEXP motifsSEXP, SEXP bkgSEXP, SEXP scoresSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP allow_nonfiniteSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
@@ -186,13 +186,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<double>& >::type scores(scoresSEXP);
     Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(motif_pvalue_cpp(motifs, bkg, scores, k, nthreads));
+    Rcpp::traits::input_parameter< const bool >::type allow_nonfinite(allow_nonfiniteSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_pvalue_cpp(motifs, bkg, scores, k, nthreads, allow_nonfinite));
     return rcpp_result_gen;
 END_RCPP
 }
 // motif_score_cpp
-std::vector<double> motif_score_cpp(const Rcpp::List& motifs, const std::vector<double>& pvals, const int seed, const int k, const int nthreads, const int randtries);
-RcppExport SEXP _universalmotif_motif_score_cpp(SEXP motifsSEXP, SEXP pvalsSEXP, SEXP seedSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP randtriesSEXP) {
+std::vector<double> motif_score_cpp(const Rcpp::List& motifs, const std::vector<double>& pvals, const int seed, const int k, const int nthreads, const int randtries, const bool allow_nonfinite);
+RcppExport SEXP _universalmotif_motif_score_cpp(SEXP motifsSEXP, SEXP pvalsSEXP, SEXP seedSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP randtriesSEXP, SEXP allow_nonfiniteSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
@@ -201,7 +202,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type k(kSEXP);
     Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const int >::type randtries(randtriesSEXP);
-    rcpp_result_gen = Rcpp::wrap(motif_score_cpp(motifs, pvals, seed, k, nthreads, randtries));
+    Rcpp::traits::input_parameter< const bool >::type allow_nonfinite(allow_nonfiniteSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_score_cpp(motifs, pvals, seed, k, nthreads, randtries, allow_nonfinite));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -260,8 +262,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // scan_sequences_cpp
-Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const int& k, const std::string& alph, const std::vector<double>& min_scores, const int& nthreads);
-RcppExport SEXP _universalmotif_scan_sequences_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP kSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP nthreadsSEXP) {
+Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const int& k, const std::string& alph, const std::vector<double>& min_scores, const int& nthreads, const bool& allow_nonfinite);
+RcppExport SEXP _universalmotif_scan_sequences_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP kSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP nthreadsSEXP, SEXP allow_nonfiniteSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type score_mats(score_matsSEXP);
@@ -270,7 +272,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type min_scores(min_scoresSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(scan_sequences_cpp(score_mats, seq_vecs, k, alph, min_scores, nthreads));
+    Rcpp::traits::input_parameter< const bool& >::type allow_nonfinite(allow_nonfiniteSEXP);
+    rcpp_result_gen = Rcpp::wrap(scan_sequences_cpp(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -766,14 +769,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_pval_extractor", (DL_FUNC) &_universalmotif_pval_extractor, 11},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
-    {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 5},
-    {"_universalmotif_motif_score_cpp", (DL_FUNC) &_universalmotif_motif_score_cpp, 6},
+    {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 6},
+    {"_universalmotif_motif_score_cpp", (DL_FUNC) &_universalmotif_motif_score_cpp, 7},
     {"_universalmotif_branch_and_bound_cpp_exposed", (DL_FUNC) &_universalmotif_branch_and_bound_cpp_exposed, 2},
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
     {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},
-    {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 6},
+    {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 7},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},
     {"_universalmotif_shuffle_linear_cpp", (DL_FUNC) &_universalmotif_shuffle_linear_cpp, 4},

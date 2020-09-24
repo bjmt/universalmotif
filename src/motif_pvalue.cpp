@@ -191,7 +191,7 @@ bool sort_motpos(std::size_t j, std::size_t b, const vec_int_t &mot) {
 long double motif_pvalue_single(list_int_t mot, const double score,
     const int k, const vec_num_t &bkg) {
 
-  int iscore = score * 1000;
+  int iscore = score * 1000.0;
   std::size_t alphlen = bkg.size();
   std::size_t motlen = mot.size();
 
@@ -492,14 +492,18 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
 // [[Rcpp::export(rng = false)]]
 std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
     const Rcpp::List &bkg, const std::vector<double> &scores, const int &k = 6,
-    const int &nthreads = 1) {
+    const int &nthreads = 1, const bool allow_nonfinite = false) {
 
   if (k < 1) Rcpp::stop("k must be at least 1");
 
   list_mat_t vmotifs(motifs.size());
   for (R_xlen_t i = 0; i < motifs.size(); ++i) {
     Rcpp::NumericMatrix single = motifs[i];
-    vmotifs[i] = R_to_cpp_motif(single);
+    if (allow_nonfinite) {
+      vmotifs[i] = R_to_cpp_motif_allow_inf(single);
+    } else {
+      vmotifs[i] = R_to_cpp_motif(single);
+    }
   }
   std::vector<vec_num_t> vbkg(bkg.size());
   for (R_xlen_t i = 0; i < bkg.size(); ++i) {
@@ -520,7 +524,8 @@ std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
 // [[Rcpp::export(rng = false)]]
 std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
     const std::vector<double> &pvals, const int seed = 1, const int k = 6,
-    const int nthreads = 1, const int randtries = 100) {
+    const int nthreads = 1, const int randtries = 100,
+    const bool allow_nonfinite = false) {
 
   if (k < 1) Rcpp::stop("k must be at least 1");
   if (randtries < 1) Rcpp::stop("randtries must be at least 1");
@@ -528,7 +533,11 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
   list_mat_t vmots(motifs.size());
   for (R_xlen_t i = 0; i < motifs.size(); ++i) {
     Rcpp::NumericMatrix single = motifs[i];
-    vmots[i] = R_to_cpp_motif(single);
+    if (allow_nonfinite) {
+      vmots[i] = R_to_cpp_motif_allow_inf(single);
+    } else {
+      vmots[i] = R_to_cpp_motif(single);
+    }
   }
 
   unsigned int useed = seed;
@@ -539,6 +548,18 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
       std::mt19937 gen(useed * (int(i) + 1));
         scores[i] = motif_score_single(vmots[i], k, randtries, gen, pvals[i]);
       }, nthreads);
+
+  if (allow_nonfinite) {
+    int min_score;
+    for (R_xlen_t i = 0; i < scores.size(); ++i) {
+      min_score = std::numeric_limits<int>::min();
+      min_score /= int(vmots[i].size());
+      min_score += int(log2(vmots[i][0].size()) * vmots[i].size()) * 1000;
+      if (int(scores[i] * 1000.0) <= min_score) {
+        scores[i] = -std::numeric_limits<double>::max();
+      }
+    }
+  }
 
   return scores;
 

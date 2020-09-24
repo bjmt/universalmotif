@@ -19,19 +19,8 @@
     + Can do vectorized operations such as subset all names with `[`
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
-- scan_sequences(): allow -Inf weights?
 - scan_sequences(): add option to return GRanges object
-- score_match(): allow -Inf
-- create a prob_match() function
-- IntroductionToSequenceMotifs.Rmd: for R code versions of ICM functions, make
-  sure that NaNs are converted to 0 during entropy calculations
-- allow -Inf for: (remember to add a NEWS entry)
-    + get_scores() -- DONE
-    + get_matches()
-    + motif_score()
-    + score_match()
-    + motif_pvalue()
-    + scan_sequences()
-    + enrich_motifs()
 - in read_*() files, check to input file exists
 - scan_sequences(): return a Biostring Views object
+- change internal motif precision limit from 1e-3 to 1e-6 (will require changes
+  to how allow.nonfinite works)

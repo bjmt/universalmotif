@@ -9,7 +9,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
   threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler", return.scan.results = FALSE,
   nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
-  use.gaps = TRUE)
+  use.gaps = TRUE, allow.nonfinite = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -74,6 +74,14 @@ See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 
 \item{use.gaps}{\code{logical(1)} Set this to \code{FALSE} to ignore motif gaps, if
 present.}
+
+\item{allow.nonfinite}{\code{logical(1)} If \code{FALSE}, then apply a pseudocount if
+non-finite values are found in the PWM. Note that if the motif has a
+pseudocount greater than zero and the motif is not currently of type PWM,
+then this parameter has no effect as the pseudocount will be
+applied automatically when the motif is converted to a PWM internally. This
+value is set to \code{FALSE} by default in order to stay consistent with
+pre-version 1.8.0 behaviour.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and

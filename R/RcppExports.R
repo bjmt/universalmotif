@@ -41,12 +41,12 @@ linbin_cpp <- function(x, gpoints) {
     .Call('_universalmotif_linbin_cpp', PACKAGE = 'universalmotif', x, gpoints)
 }
 
-motif_pvalue_cpp <- function(motifs, bkg, scores, k = 6L, nthreads = 1L) {
-    .Call('_universalmotif_motif_pvalue_cpp', PACKAGE = 'universalmotif', motifs, bkg, scores, k, nthreads)
+motif_pvalue_cpp <- function(motifs, bkg, scores, k = 6L, nthreads = 1L, allow_nonfinite = FALSE) {
+    .Call('_universalmotif_motif_pvalue_cpp', PACKAGE = 'universalmotif', motifs, bkg, scores, k, nthreads, allow_nonfinite)
 }
 
-motif_score_cpp <- function(motifs, pvals, seed = 1L, k = 6L, nthreads = 1L, randtries = 100L) {
-    .Call('_universalmotif_motif_score_cpp', PACKAGE = 'universalmotif', motifs, pvals, seed, k, nthreads, randtries)
+motif_score_cpp <- function(motifs, pvals, seed = 1L, k = 6L, nthreads = 1L, randtries = 100L, allow_nonfinite = FALSE) {
+    .Call('_universalmotif_motif_score_cpp', PACKAGE = 'universalmotif', motifs, pvals, seed, k, nthreads, randtries, allow_nonfinite)
 }
 
 branch_and_bound_cpp_exposed <- function(mat, score) {
@@ -69,8 +69,8 @@ add_gap_dots_cpp <- function(seqs, gaplocs) {
     .Call('_universalmotif_add_gap_dots_cpp', PACKAGE = 'universalmotif', seqs, gaplocs)
 }
 
-scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads) {
-    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads)
+scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite = FALSE) {
+    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite)
 }
 
 shuffle_markov_cpp <- function(sequences, k, nthreads, seed) {

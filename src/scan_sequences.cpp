@@ -207,7 +207,8 @@ std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs,
 // [[Rcpp::export(rng = false)]]
 Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     const std::vector<std::string> &seq_vecs, const int &k, const std::string &alph,
-    const std::vector<double> &min_scores, const int &nthreads) {
+    const std::vector<double> &min_scores, const int &nthreads,
+    const bool &allow_nonfinite = false) {
 
   vec_char_t alph2(alph.begin(), alph.end());
 

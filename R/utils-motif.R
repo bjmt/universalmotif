@@ -1,9 +1,19 @@
 #' Motif-related utility functions.
 #'
-#' @param allow.nonfinite `logical(1)` Apply a pseudocount if non-finite values
-#'    are found in the PWM.
-#' @param allow.zero `logical(1)` Apply a pseudocount if zero values
-#'    are found in the PPM.
+#' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
+#'    non-finite values are found in the PWM. Note that if the motif has a
+#'    pseudocount greater than zero and the motif is not currently of type PWM,
+#'    then this parameter has no effect as the pseudocount will be
+#'    applied automatically when the motif is converted to a PWM internally. This
+#'    value is set to `FALSE` by default in order to stay consistent with
+#'    pre-version 1.8.0 behaviour.
+#' @param allow.zero `logical(1)` If `FALSE`, apply a pseudocount if zero values
+#'    are found in the PPM. Note that if the motif has a
+#'    pseudocount greater than zero and the motif is not currently of type PPM,
+#'    then this parameter has no effect as the pseudocount will be
+#'    applied automatically when the motif is converted to a PPM internally. This
+#'    value is set to `FALSE` by default in order to stay consistent with
+#'    pre-version 1.8.0 behaviour.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA')`.
 #' @param bkg `numeric` Should be the same length as the alphabet length.
 #' @param bkg1 `numeric` Vector of background probabilities for the first column.
@@ -26,8 +36,6 @@
 #' @param motif Motif object to calculate scores from, or add/remove gap, or round.
 #' @param motifs `list` A list of \linkS4class{universalmotif} motifs.
 #' @param na.rm `logical` Remove columns where all values are `NA`.
-#' @param normalise.if.needed `logical(1)` Allow normalisation to occur if negative
-#'    infinity values are found in the motif PWM.
 #' @param nsites `numeric(1)` Number of sites motif originated from.
 #' @param nsites1 `numeric(1)` Number of sites for the first column. Only relevant
 #'    if `method = "ALLR"`.
@@ -48,6 +56,12 @@
 #' @param smooth `logical(1)` Apply pseudocount correction.
 #' @param threshold `numeric(1)` Any number of numeric values between 0 and 1
 #'    representing score percentage.
+#' @param threshold.type `character` For `"total"`, a threshold of zero
+#'    represents the minimum possible score. This means the range of scores that
+#'    can be extracted is from the minimum to the maximum possible scores. For
+#'    `"fromzero"`, a threshold of zero is a score of zero. This means the range
+#'    of scores is from zero to the maximum. The `"total"` threshold type can
+#'    only be used if no non-finite values are present in the PWM.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM' 'ICM')`.
 #' @param use.freq `numeric(1)` Use regular motif or the respective `multifreq`
 #'    representation.
@@ -73,6 +87,8 @@
 #'    [ppm_to_pcm()], [ppm_to_pwm()], and [pwm_to_ppm()]: a `numeric`
 #'    vector with length equal to input `numeric` vector.
 #'
+#'    For [prob_match()]: a `numeric` vector of probabilities.
+#'
 #'    For [round_motif()]: the input motif, rounded.
 #'
 #'    For [score_match()]: a `numeric` vector with the match motif score.
@@ -82,6 +98,8 @@
 #'
 #' @examples
 #' data(examplemotif)
+#' examplemotif0 <- examplemotif
+#' examplemotif0["pseudocount"] <- 0
 #' 
 #' #######################################################################
 #' ## add_gap
@@ -123,12 +141,15 @@
 #' #######################################################################
 #' ## get_match
 #' ## Get all possible motif matches above input score
-#' get_matches(examplemotif, 10)
+#' get_matches(examplemotif, 0)
+#' get_matches(examplemotif0, 0, allow.nonfinite = TRUE)
 #'
 #' #######################################################################
 #' ## get_scores
 #' ## Get all possible scores for a motif
 #' length(get_scores(examplemotif))
+#' get_scores(examplemotif)
+#' get_scores(examplemotif0, allow.nonfinite = TRUE)
 #'
 #' #######################################################################
 #' ## icm_to_ppm
@@ -141,6 +162,8 @@
 #' ## Calculate motif score from different thresholds
 #' m <- normalize(examplemotif)
 #' motif_score(m, c(0, 0.8, 1))
+#' motif_score(examplemotif0, c(0, 0.8, 1), allow.nonfinite = TRUE,
+#'    threshold.type = "fromzero")
 #'
 #' #######################################################################
 #' ## log_string_pval
@@ -209,6 +232,8 @@
 #' ## Calculate score of a particular match
 #' score_match(examplemotif, "TATATAT")
 #' score_match(examplemotif, "TATATAG")
+#' score_match(examplemotif0, "TATATAT", allow.nonfinite = TRUE)
+#' score_match(examplemotif0, "TATATAG", allow.nonfinite = TRUE)
 #'
 #' #######################################################################
 #' ## summarise_motifs
@@ -326,17 +351,24 @@ get_consensusAA <- function(position, type = "PPM", pseudocount = 0) {
 
 #' @rdname utils-motif
 #' @export
-get_matches <- function(motif, score) {
+get_matches <- function(motif, score, allow.nonfinite = FALSE) {
 
   motif <- convert_motifs(motif)
   if (motif@type != "PWM")
     motif <- convert_type_internal(motif, "PWM")
-  if (any(is.infinite(motif@motif))) {
-    message(wmsg("Note: found -Inf values in PWM motif, normalizing"))
+  if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
+    message(wmsg("Note: found -Inf values in PWM motif, normalizing. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     motif <- normalize(motif)
   }
 
-  score.range <- motif_score(motif)
+  if (any(is.infinite(motif@motif))) {
+    score.range <- c(-Inf, motif_score(motif, threshold = 1,
+        allow.nonfinite = TRUE, threshold.type = "fromzero"))
+  } else {
+    score.range <- motif_score(motif, allow.nonfinite = allow.nonfinite)
+  }
+
   if (score > score.range[2])
     stop(wmsg("input score is greater than max possible score ",
               round(score.range[2], 3)))
@@ -348,7 +380,11 @@ get_matches <- function(motif, score) {
 
   alph <- rownames(motif@motif)
 
-  score.mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
+  score.mat <- matrix(suppressWarnings(as.integer(motif@motif * 1000)),
+    nrow = nrow(motif@motif))
+  if (anyNA(score.mat)) {
+    score.mat[is.na(score.mat)] <- as.integer(min_max_ints()$min / ncol(score.mat))
+  }
 
   alph.sort <- apply(score.mat, 2, order, decreasing = TRUE)
   for (i in seq_len(ncol(score.mat))) {
@@ -370,7 +406,7 @@ get_matches <- function(motif, score) {
 
 #' @rdname utils-motif
 #' @export
-get_scores <- function(motif, normalise.if.needed = TRUE) {
+get_scores <- function(motif, allow.nonfinite = FALSE) {
 
   motif <- convert_motifs(motif)
   if (is.list(motif) && length(motif) > 1)
@@ -378,9 +414,9 @@ get_scores <- function(motif, normalise.if.needed = TRUE) {
   else if (is.list(motif)) motif <- motif[[1]]
 
   motif <- convert_type_internal(motif, "PWM")
-  # if (any(motif@motif == 0)) motif <- normalize(motif)
-  if (any(is.infinite(motif@motif)) && normalise.if.needed) {
-    message("Note: found -Inf values in motif PWM, adding a pseudocount")
+  if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
+    message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     motif <- normalize(motif)
   }
 
@@ -403,9 +439,12 @@ icm_to_ppm <- function(position) {
 
 #' @rdname utils-motif
 #' @export
-motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
+motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
+  allow.nonfinite = FALSE, threshold.type = c("total", "fromzero")) {
 
-  if (any(threshold < 0) || any(threshold > 1))
+  threshold.type <- match.arg(threshold.type, c("total", "fromzero"))
+
+  if (any(threshold > 1) || any(threshold < 0))
     stop("For 'threshold', please only use values between 0 and 1")
 
   motif <- convert_motifs(motif)
@@ -422,12 +461,16 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
 
     motif <- convert_type_internal(motif, "PWM")
 
-    if (any(is.infinite(motif@motif))) {
-      message("Note: found -Inf values in motif PWM, adding a pseudocount")
+    if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
+      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+        "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
       motif <- normalize(motif)
+    } else if (any(is.infinite(motif@motif)) && threshold.type == "total") {
+      stop(wmsg("Score calculates cannot be performed for `threshold.type = \"total\"`",
+        "if non-finite values are present in the PWM and `allow.nonfinite = TRUE`"))
     }
 
-    mat <- matrix(as.integer(motif@motif * 1000), nrow = nrow(motif@motif))
+    mat <- matrix(suppressWarnings(as.integer(motif@motif * 1000)), nrow = nrow(motif@motif))
 
   } else {
 
@@ -440,16 +483,22 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1) {
                              pseudocount = motif@pseudocount,
                              nsites = motif@nsites)
 
-    mat <- matrix(as.integer(mat * 1000), nrow = nrow(mat))
+    mat <- matrix(suppressMessages(as.integer(mat * 1000)), nrow = nrow(mat))
 
   }
 
-  s.max <- sum(apply(mat, 2, max))
-  s.min <- sum(apply(mat, 2, min))
+  if (threshold.type == "total") {
+    s.max <- sum(apply(mat, 2, max))
+    s.min <- sum(apply(mat, 2, min))
+    s.total <- abs(s.max) + abs(s.min)
+    out <- s.total * threshold - abs(s.min)
+  } else {
+    s.max <- sum(apply(mat, 2, max, na.rm = TRUE))
+    out <- s.max * threshold
+  }
 
-  s.total <- abs(s.max) + abs(s.min)
+  s.max <- sum(apply(mat, 2, max, na.rm = TRUE))
 
-  out <- s.total * threshold - abs(s.min)
   names(out) <- paste0(as.character(threshold * 100), "%")
 
   out / 1000
@@ -586,7 +635,8 @@ prob_match <- function(motif, match, allow.zero = TRUE) {
     motif <- convert_type_internal(motif, "PPM")
 
   if (!allow.zero && any(motif@motif == 0)) {
-    message("Found zero values in motif PPM, adding a pseudocount of 1")
+    message(wmsg("Note: found zero values in motif PPM, applying pseudocount. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     motif <- normalize(motif)
   }
 
@@ -668,7 +718,8 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
     motif <- convert_type_internal(motif, "PWM")
 
   if (!allow.nonfinite && any(is.infinite(motif@motif))) {
-    message("Note: found -Inf values in motif PWM, adding a pseudocount of 1")
+    message(wmsg("Note: found -Inf values in motif PWM, applying pseudocount. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     motif <- normalize(motif)
   }
 

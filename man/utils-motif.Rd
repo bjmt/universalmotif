@@ -39,13 +39,14 @@ get_consensus(position, alphabet = "DNA", type = "PPM", pseudocount = 1)
 
 get_consensusAA(position, type = "PPM", pseudocount = 0)
 
-get_matches(motif, score)
+get_matches(motif, score, allow.nonfinite = FALSE)
 
-get_scores(motif, normalise.if.needed = TRUE)
+get_scores(motif, allow.nonfinite = FALSE)
 
 icm_to_ppm(position)
 
-motif_score(motif, threshold = c(0, 1), use.freq = 1)
+motif_score(motif, threshold = c(0, 1), use.freq = 1,
+  allow.nonfinite = FALSE, threshold.type = c("total", "fromzero"))
 
 log_string_pval(pval)
 
@@ -120,14 +121,26 @@ probability for each alphabet letter at a specific position.}
 
 \item{score}{\code{numeric(1)} Logodds motif score.}
 
-\item{normalise.if.needed}{\code{logical(1)} Allow normalisation to occur if negative
-infinity values are found in the motif PWM.}
+\item{allow.nonfinite}{\code{logical(1)} If \code{FALSE}, then apply a pseudocount if
+non-finite values are found in the PWM. Note that if the motif has a
+pseudocount greater than zero and the motif is not currently of type PWM,
+then this parameter has no effect as the pseudocount will be
+applied automatically when the motif is converted to a PWM internally. This
+value is set to \code{FALSE} by default in order to stay consistent with
+pre-version 1.8.0 behaviour.}
 
 \item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
 representing score percentage.}
 
 \item{use.freq}{\code{numeric(1)} Use regular motif or the respective \code{multifreq}
 representation.}
+
+\item{threshold.type}{\code{character} For \code{"total"}, a threshold of zero
+represents the minimum possible score. This means the range of scores that
+can be extracted is from the minimum to the maximum possible scores. For
+\code{"fromzero"}, a threshold of zero is a score of zero. This means the range
+of scores is from zero to the maximum. The \code{"total"} threshold type can
+only be used if no non-finite values are present in the PWM.}
 
 \item{pval}{\code{character(1)} String-formatted p-value.}
 
@@ -144,16 +157,18 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{match}{\code{character(1)} Sequence string to calculate score from.}
 
-\item{allow.zero}{\code{logical(1)} Apply a pseudocount if zero values
-are found in the PPM.}
+\item{allow.zero}{\code{logical(1)} If \code{FALSE}, apply a pseudocount if zero values
+are found in the PPM. Note that if the motif has a
+pseudocount greater than zero and the motif is not currently of type PPM,
+then this parameter has no effect as the pseudocount will be
+applied automatically when the motif is converted to a PPM internally. This
+value is set to \code{FALSE} by default in order to stay consistent with
+pre-version 1.8.0 behaviour.}
 
 \item{pct.tolerance}{\code{numeric(1)} or \code{character(1)} The minimum tolerated
 proportion each letter must represent per position in order not to be
 rounded off, either as a numeric value from 0 to 1 or a percentage written as
 a string from "0\%" to "100\%".}
-
-\item{allow.nonfinite}{\code{logical(1)} Apply a pseudocount if non-finite values
-are found in the PWM.}
 
 \item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
 
@@ -181,6 +196,8 @@ For \code{\link[=ppm_to_icm]{ppm_to_icm()}}, \code{\link[=icm_to_ppm]{icm_to_ppm
 \code{\link[=ppm_to_pcm]{ppm_to_pcm()}}, \code{\link[=ppm_to_pwm]{ppm_to_pwm()}}, and \code{\link[=pwm_to_ppm]{pwm_to_ppm()}}: a \code{numeric}
 vector with length equal to input \code{numeric} vector.
 
+For \code{\link[=prob_match]{prob_match()}}: a \code{numeric} vector of probabilities.
+
 For \code{\link[=round_motif]{round_motif()}}: the input motif, rounded.
 
 For \code{\link[=score_match]{score_match()}}: a \code{numeric} vector with the match motif score.
@@ -193,6 +210,8 @@ Motif-related utility functions.
 }
 \examples{
 data(examplemotif)
+examplemotif0 <- examplemotif
+examplemotif0["pseudocount"] <- 0
 
 #######################################################################
 ## add_gap
@@ -234,12 +253,15 @@ apply(m, 2, get_consensusAA, type = "PPM")
 #######################################################################
 ## get_match
 ## Get all possible motif matches above input score
-get_matches(examplemotif, 10)
+get_matches(examplemotif, 0)
+get_matches(examplemotif0, 0, allow.nonfinite = TRUE)
 
 #######################################################################
 ## get_scores
 ## Get all possible scores for a motif
 length(get_scores(examplemotif))
+get_scores(examplemotif)
+get_scores(examplemotif0, allow.nonfinite = TRUE)
 
 #######################################################################
 ## icm_to_ppm
@@ -252,6 +274,8 @@ apply(m, 2, icm_to_ppm)
 ## Calculate motif score from different thresholds
 m <- normalize(examplemotif)
 motif_score(m, c(0, 0.8, 1))
+motif_score(examplemotif0, c(0, 0.8, 1), allow.nonfinite = TRUE,
+   threshold.type = "fromzero")
 
 #######################################################################
 ## log_string_pval
@@ -320,6 +344,8 @@ round_motif(m, pct.tolerance = 0.05)
 ## Calculate score of a particular match
 score_match(examplemotif, "TATATAT")
 score_match(examplemotif, "TATATAG")
+score_match(examplemotif0, "TATATAT", allow.nonfinite = TRUE)
+score_match(examplemotif0, "TATATAG", allow.nonfinite = TRUE)
 
 #######################################################################
 ## summarise_motifs

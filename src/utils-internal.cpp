@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <RcppThread.h>
 #include "types.h"
 
 extern const vec_str_t AMINOACIDS2 {
@@ -15,15 +16,31 @@ extern const Rcpp::StringVector DNA { "A", "C", "G", "T" };
 
 extern const Rcpp::StringVector RNA { "A", "C", "G", "U" };
 
+list_int_t R_to_cpp_motif_allow_inf(const Rcpp::NumericMatrix &motif) {
+
+  list_int_t mat(motif.ncol(), vec_int_t(motif.nrow()));
+  for (R_xlen_t i = 0; i < motif.ncol(); ++i) {
+    for (R_xlen_t j = 0; j < motif.nrow(); ++j) {
+      if (Rcpp::traits::is_infinite<REALSXP>(motif(j, i))) {
+        mat[i][j] = std::numeric_limits<int>::min() / motif.ncol();
+      } else {
+        mat[i][j] = int(motif(j, i) * 1000.0);
+      }
+    }
+  }
+
+  return mat;
+
+}
+
 list_int_t R_to_cpp_motif_no_inf(const Rcpp::IntegerMatrix &motif) {
 
   list_int_t mat(motif.ncol(), vec_int_t(motif.nrow()));
   for (R_xlen_t i = 0; i < motif.ncol(); ++i) {
     for (R_xlen_t j = 0; j < motif.nrow(); ++j) {
       if (motif(j, i) <= -std::numeric_limits<int>::max()) {
-        mat[i][j] = -std::numeric_limits<int>::max();
+        mat[i][j] = std::numeric_limits<int>::min();
       } else {
-        // mat[i][j] = int(motif(j, i) * 1000);
         mat[i][j] = int(motif(j, i));
       }
     }
@@ -38,7 +55,7 @@ list_int_t R_to_cpp_motif(const Rcpp::NumericMatrix &motif) {
   list_int_t mat(motif.ncol(), vec_int_t(motif.nrow()));
   for (R_xlen_t i = 0; i < motif.ncol(); ++i) {
     for (R_xlen_t j = 0; j < motif.nrow(); ++j) {
-      mat[i][j] = int(motif(j, i) * 1000);
+      mat[i][j] = int(motif(j, i) * 1000.0);
     }
   }
 
@@ -94,4 +111,22 @@ Rcpp::NumericMatrix cpp_to_R_motif(const list_num_t &motif) {
 
   return out;
 
+}
+
+void print_motif(const list_int_t &motif) {
+  for (R_xlen_t i = 0; i < motif[0].size(); ++i) {
+    for (R_xlen_t j = 0; j < motif.size(); ++j) {
+      RcppThread::Rcout << motif[j][i] << ' ';
+    }
+    RcppThread::Rcout << '\n';
+  }
+}
+
+void print_motif(const list_num_t &motif) {
+  for (R_xlen_t i = 0; i < motif[0].size(); ++i) {
+    for (R_xlen_t j = 0; j < motif.size(); ++j) {
+      RcppThread::Rcout << motif[j][i] << ' ';
+    }
+    RcppThread::Rcout << '\n';
+  }
 }

@@ -6,7 +6,8 @@
 \usage{
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE)
+  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE,
+  allow.nonfinite = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -39,6 +40,14 @@ See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
 
 \item{use.gaps}{\code{logical(1)} Set this to \code{FALSE} to ignore motif gaps, if
 present.}
+
+\item{allow.nonfinite}{\code{logical(1)} If \code{FALSE}, then apply a pseudocount if
+non-finite values are found in the PWM. Note that if the motif has a
+pseudocount greater than zero and the motif is not currently of type PWM,
+then this parameter has no effect as the pseudocount will be
+applied automatically when the motif is converted to a PWM internally. This
+value is set to \code{FALSE} by default in order to stay consistent with
+pre-version 1.8.0 behaviour.}
 }
 \value{
 \code{DataFrame} with each row representing one hit. If the input
@@ -60,10 +69,9 @@ to score a sequence, at each position within a sequence of length equal
 to the length of the motif, the scores for each base are summed. If the
 score sum is above the desired threshold, it is kept.
 
-If \code{threshold.type = 'logodds'}, then to calculate the minimum
-allowed score the max possible score for a motif is multiplied
-by the value set by \code{threshold}. To determine the maximum
-possible scores a motif (of type PWM), run
+If \code{threshold.type = 'logodds'}, then the \code{threshold} value is multiplied
+by the maximum possible motif scores. To calculate the
+maximum possible scores a motif (of type PWM) manually, run
 \code{motif_score(motif, 1)}. If \code{threshold.type = 'pvalue'},
 then threshold logodds scores are generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
 Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values

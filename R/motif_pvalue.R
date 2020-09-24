@@ -35,6 +35,13 @@
 #'     The default is to pick a random
 #'    number as chosen by [sample()], which effectively makes [motif_pvalue()]
 #'    dependent on the R RNG state.
+#' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
+#'    non-finite values are found in the PWM. Note that if the motif has a
+#'    pseudocount greater than zero and the motif is not currently of type PWM,
+#'    then this parameter has no effect as the pseudocount will be
+#'    applied automatically when the motif is converted to a PWM internally. This
+#'    value is set to `FALSE` by default in order to stay consistent with
+#'    pre-version 1.8.0 behaviour.
 #'
 #' @return `numeric` A vector of scores/p-values.
 #'
@@ -114,8 +121,8 @@
 #' @seealso [motif_score()]
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
-                         k = 8, nthreads = 1, rand.tries = 10,
-                         rng.seed = sample.int(1e4, 1)) {
+  k = 8, nthreads = 1, rand.tries = 10, rng.seed = sample.int(1e4, 1),
+  allow.nonfinite = FALSE) {
 
   # TODO: Need to work on support for use.freq > 1.
 
@@ -177,8 +184,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   motifs <- convert_type_internal(motifs, "PWM")
   if (!is.list(motifs)) motifs <- list(motifs)
   anyinf <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
-  if (any(anyinf)) {
-    message("Note: found -Inf values in motif PWM, adding a pseudocount of 1")
+  if (any(anyinf) && !allow.nonfinite) {
+    message(wmsg("Note: found -Inf values in PWM motif, normalizing. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     for (i in which(anyinf)) {
       motifs[[i]] <- convert_type(motifs[[i]], "PPM")
       motifs[[i]]["pseudocount"] <- 1
@@ -192,10 +200,10 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     motifs <- lapply(motifs, function(x) x@motif)
   } else {
     motifs <- lapply(motifs, function(x)
-                      MATRIX_ppm_to_pwm(x@multifreq[[as.character(use.freq)]],
-                                        nsites = x@nsites,
-                                        pseudocount = x@pseudocount,
-                                        bkg = x@bkg[rownames(x@multifreq[[as.character(use.freq)]])]))
+      MATRIX_ppm_to_pwm(x@multifreq[[as.character(use.freq)]],
+                        nsites = x@nsites,
+                        pseudocount = x@pseudocount,
+                        bkg = x@bkg[rownames(x@multifreq[[as.character(use.freq)]])]))
   }
 
   motnrows <- vapply(motifs, nrow, integer(1))
@@ -217,6 +225,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   }
 
   if (!missing(score) && missing(pvalue)) {
+
+    if (is.infinite(score))
+      stop("`score` must be finite")
 
     if (!missing(bkg.probs)) {
 
@@ -242,9 +253,12 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     bkg.probs <- rep_len(bkg.probs, lall)
     score <- rep_len(score, lall)
 
-    out <- motif_pvalue_cpp(motifs, bkg.probs, score, k, nthreads)
+    out <- motif_pvalue_cpp(motifs, bkg.probs, score, k, nthreads, allow.nonfinite)
 
   } else if (missing(score) && !missing(pvalue)) {
+
+    if (is.infinite(pvalue))
+      stop("`pvalue` must be finite")
 
     l1 <- length(motifs)
     l3 <- length(pvalue)
@@ -252,7 +266,11 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     motifs <- rep_len(motifs, lall)
     pvalue <- rep_len(pvalue, lall)
 
-    out <- motif_score_cpp(motifs, pvalue, rng.seed, k, nthreads, rand.tries)
+    out <- motif_score_cpp(motifs, pvalue, rng.seed, k, nthreads, rand.tries,
+      allow.nonfinite)
+    if (allow.nonfinite) {
+      out[out <= -min_max_doubles()$max] <- -Inf
+    }
 
   } else if (missing(score) && missing(pvalue)) {
 
