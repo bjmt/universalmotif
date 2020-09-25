@@ -24,3 +24,7 @@
 - scan_sequences(): return a Biostring Views object
 - change internal motif precision limit from 1e-3 to 1e-6 (will require changes
   to how allow.nonfinite works)
+- add a vignette section about pseudocounts and how the functions interact with
+  them
+- small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
+  un-log for print and `[` methods?
