@@ -4,6 +4,8 @@
 #' see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
 #' the command parameters, run `run_meme()`. Parameters in [run_meme()]
 #' which are directly taken from the MEME program are tagged with \[MEME\].
+#' This functions requires that the \pkg{processx} package be installed
+#' seperately.
 #'
 #' @param target.sequences \code{\link{XStringSet}} List of sequences to get motifs from.
 #' @param output `character(1)` Name of the output folder. If `NULL`, MEME
@@ -170,8 +172,10 @@ run_meme <- function(target.sequences, output = NULL,
   v <- verbose
 
   if (is.null(bin)) stop("please specify the location of the MEME binary")
-  meme.version <- tryCatch(processx::run(bin, "-version", error_on_status = FALSE),
-                           error = function(e) stop("could not find the MEME binary"))
+  meme.version <- processx_fun(
+    tryCatch(processx::run(bin, "-version", error_on_status = FALSE),
+      error = function(e) stop("could not find the MEME binary"))
+  )
   meme.version <- sub("\n", "", meme.version$stdout, fixed = TRUE)
   meme.major <- as.numeric(strsplit(meme.version, ".", fixed = TRUE)[[1]][1])
   if (!meme.major %in% 4:5)
@@ -179,7 +183,7 @@ run_meme <- function(target.sequences, output = NULL,
             immediate. = TRUE)
 
   if (missing(target.sequences)) {
-    help <- processx::run(bin, "-h", error_on_status = FALSE)$stderr
+    help <- processx_fun(processx::run(bin, "-h", error_on_status = FALSE)$stderr)
     cat("MEME version ", meme.version, "\n", bin, "\n\n", sep = "")
     cat(help)
     return(invisible(NULL))
@@ -331,11 +335,11 @@ run_meme <- function(target.sequences, output = NULL,
   if (v>0) message(paste0("\n *** Starting MEME ***\n\n", pdate()))
 
   t.start <- Sys.time()
-  run.res <- processx::run(bin, meme.args, error_on_status = FALSE,
-                           wd = wd, timeout = timeout,
-                           echo_cmd = v > 0,
-                           echo = echo,
-                           stderr_line_callback = if (echo||v==0) NULL else meme_cb)
+  run.res <- processx_fun(
+    processx::run(bin, meme.args, error_on_status = FALSE,
+      wd = wd, timeout = timeout, echo_cmd = v > 0, echo = echo,
+      stderr_line_callback = if (echo||v==0) NULL else meme_cb)
+  )
   t.stop <- Sys.time()
 
   if (!is.null(logfile)) cat(run.res$stderr, file = logfile)
@@ -365,5 +369,14 @@ meme_cb <- function(line, proc) {
     motif.num <- strsplit(line, "=")[[1]][2]
     message(pdate())
     message("Generating motif ", motif.num)
+  }
+}
+
+processx_fun <- function(FUN, env = parent.frame()) {
+  if (requireNamespace("processx", quietly = TRUE)) {
+    eval(substitute(FUN), envir = env)
+  } else {
+    stop(wmsg("The 'processx' package must be installed to use motif_tree(). ",
+        "[install.packages(\"ggtree\")]"), call. = FALSE)
   }
 }

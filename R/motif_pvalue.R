@@ -226,7 +226,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   if (!missing(score) && missing(pvalue)) {
 
-    if (is.infinite(score))
+    if (any(is.infinite(score)))
       stop("`score` must be finite")
 
     if (!missing(bkg.probs)) {
@@ -257,7 +257,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    if (is.infinite(pvalue))
+    if (any(is.infinite(pvalue)))
       stop("`pvalue` must be finite")
 
     l1 <- length(motifs)

@@ -36,6 +36,12 @@ MINOR CHANGES
 
     o score_match() has been vectorized (alongside new prob_match() function).
 
+    o The ape and ggtree packages are now no longer imported and must be
+      installed seperately in order to use motif_tree().
+
+    o The processx package is no longer imported and must be installed
+      seperately in order to use run_meme().
+
     o General documentation cleanup.
 
 CHANGES IN VERSION 1.6.4

@@ -7,7 +7,8 @@
 #' is simply to combine the [compare_motifs()] and [ggtree::ggtree()] steps
 #' into one. For more control over tree creation, it is recommend to do these
 #' steps separately. See the "Motif comparisons and P-values" vignette for such
-#' a workthrough.
+#' a workthrough. This function requires the \pkg{ape} and \pkg{ggtree} packages
+#' to be installed seperately.
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. Alternatively, the resulting comparison matrix from
@@ -45,8 +46,10 @@
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
+#' if (requireNamespace("ggtree", quietly = TRUE)) {
 #' jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
 #'                           layout = "rectangular")
+#' }
 #'
 #' \dontrun{
 #' ## When inputting a dist object, the linecol and tipsize options are
@@ -145,16 +148,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     stop(wmsg("'PCC', 'SW', 'ALLR', 'BHAT' are not allowed, since a distance",
               "matrix cannot be built"))
 
-  # if (layout == "daylight") {
-  #   warning(wmsg(
-  #     "A recent update in upstream code has broken the 'daylight' layout functionality. For now, 'fan' will be substituted for daylight."
-  #   ), call. = FALSE, immediate. = TRUE)
-  #   layout <- "fan"
-  # }
-
   if (is(motifs, "dist")) {
-    # tree <- hclust_to_phylo(hclust(motifs))
-    tree <- ape::as.phylo(hclust(as.dist(tree)))
+    tree <- ape_fun(ape::as.phylo(hclust(as.dist(motifs))))
     mot_names <- attr(motifs, "Labels")
     if (labels == "name") {
       tree$tip.label <- mot_names
@@ -177,8 +172,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       stop(wmsg("Found NA values in comparison matrix; try again with ",
                "a smaller min.mean.ic and/or min.position.ic"))
     if (progress) message("Constructing phylogeny...")
-    # tree <- hclust_to_phylo(hclust(as.dist(tree)))
-    tree <- ape::as.phylo(hclust(as.dist(tree)))
+    tree <- ape_fun(ape::as.phylo(hclust(as.dist(tree))))
     if (labels != "none") {
       mot_names <- sapply(motifs, function(x) x[labels])
       tree$tip.label <- mot_names
@@ -207,23 +201,29 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     }
     names(anno_list) <- anno_unique
 
-    tree <- ggtree::groupOTU(tree, anno_list)
+    tree <- ggtree_fun(ggtree::groupOTU(tree, anno_list))
 
     if (labels != "none") {
 
       if (layout %in% c("rectangular", "slanted")) {
-        p <- ggtree(tree, aes(color = .data$group), layout = layout,
-                    branch.length = branch.length, ...) +
-               geom_tiplab(align = TRUE, linesize = 0.5)
+        p <- ggtree_fun({
+          ggtree::ggtree(tree, aes(color = .data$group), layout = layout,
+            branch.length = branch.length, ...) +
+            ggtree::geom_tiplab(align = TRUE, linesize = 0.5)
+        })
       } else {
-        p <- ggtree(tree, aes(color = .data$group), layout = layout,
-                    branch.length = branch.length, ...) +
-               geom_tiplab2(align = TRUE, linesize = 0.5)
+        p <- ggtree_fun({
+          ggtree::ggtree(tree, aes(color = .data$group), layout = layout,
+            branch.length = branch.length, ...) +
+            ggtree::geom_tiplab2(align = TRUE, linesize = 0.5)
+        })
       }
 
     } else {
-      p <- ggtree(tree, aes(color = .data$group), layout = layout,
-                  branch.length = branch.length, ...)
+      p <- ggtree_fun({
+        ggtree::ggtree(tree, aes(color = .data$group), layout = layout,
+          branch.length = branch.length, ...)
+      })
     }
 
     if (tipsize != "none") {
@@ -233,7 +233,10 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (tipsize %in% c("pval", "qval", "eval")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
-      p <- p %<+% anno_df + geom_tippoint(aes(size = .data$icscore))
+      p <- ggtree_fun({
+        ggtree::`%<+%`(p, anno_df) +
+          ggtree::geom_tippoint(aes(size = .data$icscore))
+      })
     }
 
     if (legend) {
@@ -245,11 +248,15 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (labels != "none") {
 
     if (layout %in% c("rectangular", "slanted")) {
-      p <- ggtree(tree, layout = layout, branch.length = branch.length, ...) +
-             geom_tiplab(align = TRUE, linesize = 0.5)
+      p <- ggtree_fun({
+        ggtree::ggtree(tree, layout = layout, branch.length = branch.length, ...) +
+          ggtree::geom_tiplab(align = TRUE, linesize = 0.5)
+      })
     } else {
-      p <- ggtree(tree, layout = layout, branch.length = branch.length, ...) +
-             geom_tiplab2(align = TRUE, linesize = 0.5)
+      p <- ggtree_fun({
+        ggtree::ggtree(tree, layout = layout, branch.length = branch.length, ...) +
+          ggtree::geom_tiplab2(align = TRUE, linesize = 0.5)
+      })
     }
 
     if (tipsize != "none" && !is(motifs, "dist")) {
@@ -259,13 +266,18 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (tipsize %in% c("pval", "qval", "eval")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
-      p <- p %<+% anno_df + geom_tippoint(aes(size = .data$icscore))
+      p <- ggtree_fun({
+        ggtree::`%<+%`(p, anno_df) +
+          ggtree::geom_tippoint(aes(size = .data$icscore))
+      })
     }
     return(p)
 
   } else {
 
-    p <- ggtree(tree, layout = layout, branch.length = branch.length, ...)
+    p <- ggtree_fun(
+      ggtree::ggtree(tree, layout = layout, branch.length = branch.length, ...)
+    )
     if (tipsize != "none" && !is(motifs, "dist")) {
       anno_names <- mot_names
       anno_df <- data.frame(label = anno_names,
@@ -273,12 +285,33 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
       if (tipsize %in% c("pval", "qval", "eval") && !is(motifs, "dist")) {
         anno_df$icscore <- -log10(anno_df$icscore)
       }
-      p <- p %<+% anno_df + geom_tippoint(aes(size = .data$icscore))
+      p <- ggtree_fun({
+        ggtree::`%<+%`(p, anno_df) +
+          ggtree::geom_tippoint(aes(size = .data$icscore))
+      })
     }
     return (p)
 
   }
 
+}
+
+ape_fun <- function(FUN, env = parent.frame()) {
+  if (requireNamespace("ape", quietly = TRUE)) {
+    eval(substitute(FUN), envir = env)
+  } else {
+    stop(wmsg("The 'ape' package must be installed to use motif_tree(). ",
+        "[install.packages(\"ape\")]"), call. = FALSE)
+  }
+}
+
+ggtree_fun <- function(FUN, env = parent.frame()) {
+  if (requireNamespace("ggtree", quietly = TRUE)) {
+    eval(substitute(FUN), envir = env)
+  } else {
+    stop(wmsg("The 'ggtree' package must be installed to use motif_tree(). ",
+        "[BiocManager::install(\"ggtree\")]"), call. = FALSE)
+  }
 }
 
 # hclust_to_phylo <- function(x) {

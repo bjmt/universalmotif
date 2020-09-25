@@ -90,7 +90,8 @@ This can be plotted with \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. The purp
 is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \code{\link[ggtree:ggtree]{ggtree::ggtree()}} steps
 into one. For more control over tree creation, it is recommend to do these
 steps separately. See the "Motif comparisons and P-values" vignette for such
-a workthrough.
+a workthrough. This function requires the \pkg{ape} and \pkg{ggtree} packages
+to be installed seperately.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
@@ -98,8 +99,10 @@ See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison 
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))
+if (requireNamespace("ggtree", quietly = TRUE)) {
 jaspar.tree <- motif_tree(jaspar, linecol = "none", labels = "name",
                           layout = "rectangular")
+}
 
 \dontrun{
 ## When inputting a dist object, the linecol and tipsize options are
