@@ -377,6 +377,6 @@ processx_fun <- function(FUN, env = parent.frame()) {
     eval(substitute(FUN), envir = env)
   } else {
     stop(wmsg("The 'processx' package must be installed to use motif_tree(). ",
-        "[install.packages(\"ggtree\")]"), call. = FALSE)
+        "[install.packages(\"processx\")]"), call. = FALSE)
   }
 }
