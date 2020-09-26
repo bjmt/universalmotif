@@ -7,6 +7,9 @@ NEW FEATURES
       gapped motifs. A new section has been added to the SequenceSearches.Rmd
       vignette.
 
+    o scan_sequences(..., use.gaps), enrich_motifs(..., use.gaps): ignore motif
+      gap information.
+
     o read_meme(), write_meme(): now fully support custom alphabets.
 
     o prob_match(): calculate the probability of a motif match.
@@ -30,9 +33,6 @@ MINOR CHANGES
       engine has been changed from std::default_random_engine to std::mt19937.
       This should allow for the same rng.seed value to result in the same
       output regardless of OS.
-
-    o scan_sequences(..., use.gaps), enrich_motifs(..., use.gaps): ignore motif
-      gap information.
 
     o score_match() has been vectorized (alongside new prob_match() function).
 
