@@ -1,13 +1,13 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.7.25
+Version: 1.7.26
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "b2tremblay@uwaterloo.ca",
         comment = c(ORCID = "0000-0002-7441-2951")),
       person("Spencer", "Nystrom", role = "ctb")
     )
-URL: https://github.com/bjmt/universalmotif
+URL: https://bioconductor.org/packages/universalmotif/
 BugReports: https://github.com/bjmt/universalmotif/issues
 Description: Allows for importing most common motif types into R for use by
     functions provided by other Bioconductor motif-related packages. Motifs can
