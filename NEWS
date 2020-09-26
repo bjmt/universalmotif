@@ -42,6 +42,9 @@ MINOR CHANGES
     o The processx package is no longer imported and must be installed
       seperately in order to use run_meme().
 
+    o The pseudocount slot is now shown when universalmotif class objects are
+      printed.
+
     o General documentation cleanup.
 
 CHANGES IN VERSION 1.6.4

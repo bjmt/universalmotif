@@ -174,6 +174,8 @@ setMethod("show", signature = "universalmotif",
 
   cat(collapse_cpp(c("         Total IC:   ", round(object@icscore, 2), "\n")))
 
+  cat(collapse_cpp(c("      Pseudocount:   ", round(object@pseudocount, 2), "\n")))
+
   if (length(object@consensus) > 0) {
     consensus <- object@consensus
     if (object@gapinfo@isgapped) {
