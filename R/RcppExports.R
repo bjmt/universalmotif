@@ -69,8 +69,8 @@ add_gap_dots_cpp <- function(seqs, gaplocs) {
     .Call('_universalmotif_add_gap_dots_cpp', PACKAGE = 'universalmotif', seqs, gaplocs)
 }
 
-scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite = FALSE) {
-    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite)
+scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite = FALSE, warnNA = TRUE) {
+    .Call('_universalmotif_scan_sequences_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite, warnNA)
 }
 
 shuffle_markov_cpp <- function(sequences, k, nthreads, seed) {
@@ -91,6 +91,10 @@ shuffle_k1_cpp <- function(sequences, nthreads, seed) {
 
 count_klets_cpp <- function(sequences, k, nthreads) {
     .Call('_universalmotif_count_klets_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads)
+}
+
+split_seq_by_win <- function(seq1, start, stop) {
+    .Call('_universalmotif_split_seq_by_win', PACKAGE = 'universalmotif', seq1, start, stop)
 }
 
 count_klets_alph_cpp <- function(sequences, alph, k, nthreads) {

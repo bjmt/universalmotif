@@ -32,6 +32,8 @@
 #'    applied automatically when the motif is converted to a PWM internally. This
 #'    value is set to `FALSE` by default in order to stay consistent with
 #'    pre-version 1.8.0 behaviour.
+#' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
+#'    letters in the input sequence, such as those in masked sequences.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -99,7 +101,8 @@
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE) {
+  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
+  warn.NA = TRUE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -304,7 +307,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (verbose > 0) message(" * Scanning")
 
   res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds,
-    nthreads, allow.nonfinite)
+    nthreads, allow.nonfinite, warn.NA)
 
   if (verbose > 1) message("   * Number of matches: ", nrow(res))
   if (verbose > 0) message(" * Processing results")

@@ -170,7 +170,8 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
   motif@multifreq <- multifreq
 
   if (add.bkg) {
-    new.bkg <- get_bkg(sequences, k = add.k, RC = RC, list.out = FALSE)
+    new.bkg <- get_bkg(sequences, k = add.k, RC = RC)
+    new.bkg <- structure(new.bkg$probability, names = new.bkg$klet)
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 

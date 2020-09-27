@@ -63,11 +63,11 @@ library(universalmotif)
 
 ## Background of DNA sequences:
 dna <- create_sequences()
-get_bkg(dna, k = 1:2, list.out = FALSE)
+get_bkg(dna, k = 1:2)
 
 ## Background of non DNA/RNA sequences:
 qwerty <- create_sequences("QWERTY")
-get_bkg(qwerty, k = 1:2, list.out = FALSE)
+get_bkg(qwerty, k = 1:2)
 ```
 
 # Shuffling sequences
@@ -97,19 +97,22 @@ k1 <- shuffle_sequences(ArabidopsisPromoters, k = 1)
 ```
 Let us compare how the methods perform:
 ```{r}
-o.letter <- get_bkg(ArabidopsisPromoters, 1, as.prob = FALSE, list.out = FALSE)
-e.letter <- get_bkg(euler, 1, as.prob = FALSE, list.out = FALSE)
-m.letter <- get_bkg(markov, 1, as.prob = FALSE, list.out = FALSE)
-l.letter <- get_bkg(linear, 1, as.prob = FALSE, list.out = FALSE)
+o.letter <- get_bkg(ArabidopsisPromoters, 1, as.prob = FALSE)
+e.letter <- get_bkg(euler, 1, as.prob = FALSE)
+m.letter <- get_bkg(markov, 1, as.prob = FALSE)
+l.letter <- get_bkg(linear, 1, as.prob = FALSE)
 
-data.frame(original=o.letter, euler=e.letter, markov=m.letter, linear=l.letter)
+data.frame(original=o.letter$count, euler=e.letter$count,
+  markov=m.letter$count, linear=l.letter$count, row.names = DNA_BASES)
 
-o.counts <- get_bkg(ArabidopsisPromoters, 2, as.prob = FALSE, list.out = FALSE)
-e.counts <- get_bkg(euler, 2, as.prob = FALSE, list.out = FALSE)
-m.counts <- get_bkg(markov, 2, as.prob = FALSE, list.out = FALSE)
-l.counts <- get_bkg(linear, 2, as.prob = FALSE, list.out = FALSE)
+o.counts <- get_bkg(ArabidopsisPromoters, 2, as.prob = FALSE)
+e.counts <- get_bkg(euler, 2, as.prob = FALSE)
+m.counts <- get_bkg(markov, 2, as.prob = FALSE)
+l.counts <- get_bkg(linear, 2, as.prob = FALSE)
 
-data.frame(original=o.counts, euler=e.counts, markov=m.counts, linear=l.counts)
+data.frame(original=o.counts$count, euler=e.counts$count,
+  markov=m.counts$count, linear=l.counts$count,
+  row.names = get_klets(DNA_BASES, 2))
 ```
 
 # Miscellaneous string utilities

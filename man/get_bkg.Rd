@@ -5,8 +5,9 @@
 \title{Calculate sequence background.}
 \usage{
 get_bkg(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
-  alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = TRUE,
-  nthreads = 1)
+  alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = NULL,
+  nthreads = 1, merge.res = TRUE, window = FALSE, window.size = 0.1,
+  window.overlap = 0)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Input sequences. Note that if
@@ -34,17 +35,32 @@ the format.}
 \item{RC}{\code{logical(1)} Calculate the background of the reverse complement
 of the input sequences as well. Only valid for DNA/RNA.}
 
-\item{list.out}{\code{logical(1)} Return background frequencies as list, with an
-entry for each \code{k}. If \code{FALSE}, return a single vector.}
+\item{list.out}{Deprecated.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=get_bkg]{get_bkg()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.
 Note that no speed up will occur for jobs with only a single sequence.}
+
+\item{merge.res}{\code{logical(1)} Whether to merge results from all sequences
+or return background data for individual sequences.}
+
+\item{window}{\code{logical(1)} Determine background in windows.}
+
+\item{window.size}{\code{numeric} Window size. If a number between 0 and 1 is
+provided, the value is calculated as the number multiplied by the sequence
+length.}
+
+\item{window.overlap}{\code{numeric} Overlap between windows. If a number
+between 0 and 1 is provided, the value is calculated as the number
+multiplied by the sequence length.}
 }
 \value{
-If \code{to.meme = NULL} and \code{list.out = TRUE}: a list with each entry being a
-named numeric vector for every element in \code{k}. If \code{to.meme = NULL} and
-\code{list.out = FALSE}: a named numeric vector. Otherwise: \code{NULL}, invisibly.
+If \code{to.meme = NULL}, a \code{DataFrame} with columns \code{klets} and \code{probability}
+(if \code{as.prob = TRUE}) or \code{count} (if \code{as.prob = FALSE}). If
+\code{merge.res = FALSE}, there will be an additional \code{sequence} column. If
+\code{window = TRUE}, there will be an additional \code{window} column.
+
+If \code{to.meme} is not \code{NULL}, then \code{NULL} is returned, invisibly.
 }
 \description{
 For a set of input sequences, calculate the overall sequence background for
@@ -56,10 +72,10 @@ non-DNA/RNA sequences: otherwise use the much faster and more efficient
 ## Compare to Biostrings version
 library(Biostrings)
 seqs.DNA <- create_sequences()
-bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE, list.out = FALSE)
+bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE)
 bkg.DNA2 <- oligonucleotideFrequency(seqs.DNA, 3, 1, as.prob = FALSE)
 bkg.DNA2 <- colSums(bkg.DNA2)
-all(bkg.DNA == bkg.DNA2)
+all(bkg.DNA$count == bkg.DNA2)
 
 ## Create a MEME background file
 get_bkg(seqs.DNA, k = 1:3, to.meme = stdout(), pseudocount = 1)

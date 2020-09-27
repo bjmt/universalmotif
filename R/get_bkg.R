@@ -23,25 +23,36 @@
 #'    the format.
 #' @param RC `logical(1)` Calculate the background of the reverse complement
 #'    of the input sequences as well. Only valid for DNA/RNA.
-#' @param list.out `logical(1)` Return background frequencies as list, with an
-#'    entry for each `k`. If `FALSE`, return a single vector.
+#' @param list.out Deprecated.
 #' @param nthreads `numeric(1)` Run [get_bkg()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with only a single sequence.
+#' @param merge.res `logical(1)` Whether to merge results from all sequences
+#'    or return background data for individual sequences.
+#' @param window `logical(1)` Determine background in windows.
+#' @param window.size `numeric` Window size. If a number between 0 and 1 is
+#'    provided, the value is calculated as the number multiplied by the sequence
+#'    length.
+#' @param window.overlap `numeric` Overlap between windows. If a number
+#'    between 0 and 1 is provided, the value is calculated as the number
+#'    multiplied by the sequence length.
 #'
 #' @return
-#'    If `to.meme = NULL` and `list.out = TRUE`: a list with each entry being a
-#'    named numeric vector for every element in `k`. If `to.meme = NULL` and
-#'    `list.out = FALSE`: a named numeric vector. Otherwise: `NULL`, invisibly.
+#'    If `to.meme = NULL`, a `DataFrame` with columns `klets` and `probability`
+#'    (if `as.prob = TRUE`) or `count` (if `as.prob = FALSE`). If
+#'    `merge.res = FALSE`, there will be an additional `sequence` column. If
+#'    `window = TRUE`, there will be an additional `window` column.
+#'
+#'    If `to.meme` is not `NULL`, then `NULL` is returned, invisibly.
 #'
 #' @examples
 #' ## Compare to Biostrings version
 #' library(Biostrings)
 #' seqs.DNA <- create_sequences()
-#' bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE, list.out = FALSE)
+#' bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE)
 #' bkg.DNA2 <- oligonucleotideFrequency(seqs.DNA, 3, 1, as.prob = FALSE)
 #' bkg.DNA2 <- colSums(bkg.DNA2)
-#' all(bkg.DNA == bkg.DNA2)
+#' all(bkg.DNA$count == bkg.DNA2)
 #'
 #' ## Create a MEME background file
 #' get_bkg(seqs.DNA, k = 1:3, to.meme = stdout(), pseudocount = 1)
@@ -57,8 +68,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
-                    alphabet = NULL, to.meme = NULL, RC = FALSE,
-                    list.out = TRUE, nthreads = 1) {
+  alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = NULL, nthreads = 1,
+  merge.res = TRUE, window = FALSE, window.size = 0.1, window.overlap = 0) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -74,13 +85,22 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                                 c(0, 1), c(FALSE, FALSE), TYPE_NUM)
   char_check <- check_fun_params(list(alphabet = args$alphabet), 1,
                                  TRUE, TYPE_CHAR)
-  logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC,
-                                      list.out = args$list.out),
+  logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (!is.null(list.out))
+    warning("`list.out` has been disabled and now does nothing",
+      immediate. = TRUE)
+
+  if (!is.null(to.meme) && window)
+    stop("`window = TRUE` is not valid if `to.meme` is not `NULL`")
+  if (!is.null(to.meme) && !merge.res)
+    stop("`merge.res = FALSE` is not valid if `to.meme` is not `NULL`")
+
+  pseudocount <- as.integer(pseudocount)
   k <- as.integer(k)
   if (RC && seqtype(sequences) %in% c("DNA", "RNA"))
     sequences <- c(sequences, reverseComplement(sequences))
@@ -90,11 +110,13 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
       stop(wmsg("To create a MEME background file, `all(k == seq_along(k))` must be true"))
   }
 
+  seq_type <- seqtype(sequences)
+
   no.alph <- FALSE
   if (is.null(alphabet)) {
     if (!is(sequences, "XStringSet"))
       stop("`sequences` must be an `XStringSet` object")
-    switch(seqtype(sequences),
+    switch(seq_type,
            "DNA" = alphabet <- DNA_BASES,
            "RNA" = alphabet <- RNA_BASES,
            "AA" = alphabet <- AA_STANDARD2,
@@ -104,6 +126,10 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     else alphabet <- sort_unique_cpp(alphabet)
   }
 
+  seqlens <- width(sequences)
+  if (min(seqlens) < max(k))
+    stop("`k` must be less than the length of the shortest sequence")
+
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
   seqs1 <- as.character(sequences)
@@ -112,18 +138,114 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
   if (no.alph) alphabet <- sort_unique_cpp(do.call(c, lapply(seqs, unique)))
   alph <- collapse_cpp(alphabet)
 
-  counts <- vector("list", length(k))
-  names(counts) <- as.character(k)
-  for (i in seq_along(k)) {
-    counts[[as.character(k[i])]] <- count_klets_alph_cpp(seqs1, alph, k[i], nthreads)
-    counts[[as.character(k[i])]] <- do.call(data.frame, counts[[as.character(k[i])]])
-    counts[[as.character(k[i])]] <- rowSums(counts[[as.character(k[i])]])
-    names(counts[[as.character(k[i])]]) <- get_klets(alphabet, k[i])
-  }
+  if (!window) {
 
-  if (pseudocount > 0) counts <- lapply(counts, function(x) x + 1)
-  if (as.prob) counts <- lapply(counts, function(x) x / sum(x))
-  counts <- counts[sort_unique_cpp(names(counts))]
+    counts <- vector("list", length(k))
+    names(counts) <- as.character(k)
+    for (i in seq_along(k)) {
+      counts[[as.character(k[i])]] <- count_klets_alph_cpp(seqs1, alph, k[i], nthreads)
+      counts[[as.character(k[i])]] <- do.call(data.frame, counts[[as.character(k[i])]])
+      if (merge.res) {
+        counts[[as.character(k[i])]] <- rowSums(counts[[as.character(k[i])]])
+        names(counts[[as.character(k[i])]]) <- get_klets(alphabet, k[i])
+      } else {
+        colnames(counts[[as.character(k[i])]]) <- seq.names
+        rownames(counts[[as.character(k[i])]]) <- get_klets(alphabet, k[i])
+        counts[[as.character(k[i])]] <- as.matrix(t(counts[[as.character(k[i])]]))
+      }
+    }
+
+    if (pseudocount > 0) counts <- lapply(counts, function(x) x + pseudocount)
+    if (as.prob && merge.res) {
+      counts <- lapply(counts, function(x) x / sum(x))
+    } else if (as.prob) {
+      counts <- lapply(counts, function(x) t(apply(x, 1, function(y) y / sum(y))))
+    }
+    counts <- counts[sort_unique_cpp(names(counts))]
+
+  } else {
+
+    window.size <- rep_len(window.size, length(sequences))
+    window.overlap <- rep_len(window.overlap, length(sequences))
+
+    # if (min(seqlens) < max(window.size))
+    #   stop("`window.size` must be less than the length of the shortest sequence")
+
+    if (any(window.size <= window.overlap))
+      stop("`window.overlap` cannot be larger than or equal to `window.size`")
+
+    wins <- mapply(calc_wins, seqlens, window.size, window.overlap,
+      SIMPLIFY = FALSE)
+    starts <- lapply(wins, function(x) x$starts)
+    stops <- lapply(wins, function(x) x$stops)
+
+    seqs.split <- mapply(split_seq_by_win, seqs1, starts, stops,
+      SIMPLIFY = FALSE)
+
+    split_n <- vapply(seqs.split, length, integer(1))
+    seqnames_n <- mapply(function(x, y) rep(x, y), seq.names, split_n, SIMPLIFY = FALSE)
+    seqnames_n <- do.call(c, seqnames_n)
+    # print(seqnames_n);print(starts)
+
+    seqs.split2 <- do.call(c, unname(seqs.split))
+    if (min(nchar(seqs.split2)) < max(k))
+      stop("`k` must be less than the smallest `window.size`")
+
+    starts <- do.call(c, starts)
+    stops <- do.call(c, stops)
+
+    res <- vector("list", length(k))
+    for (i in seq_along(res)) {
+      res[[i]] <- count_klets_alph_cpp(seqs.split2, alph, k[i], nthreads)
+      res[[i]] <- do.call(data.frame, res[[i]])
+      rownames(res[[i]]) <- get_klets(alphabet, k[i])
+      colnames(res[[i]]) <- NULL
+      res[[i]] <- stack(as.matrix(res[[i]]))
+      colnames(res[[i]]) <- c("klet", "col", "count")
+      res[[i]]$klet <- as.character(res[[i]]$klet)
+      res[[i]]$sequence <- seqnames_n[as.integer(res[[i]]$col)]
+      res[[i]]$start <- starts[as.integer(res[[i]]$col)]
+      res[[i]]$stop <- stops[as.integer(res[[i]]$col)]
+    }
+    res <- do.call(rbind, res)
+    res <- res[, c("sequence", "start", "stop", "klet", "count")]
+
+    if (merge.res) {
+      if (length(unique(seqlens)) != 1)
+        stop(wmsg("`merge.res = TRUE` and `window = TRUE` is only valid if ",
+            "all sequences are of equal length"))
+      res <- aggregate(count ~ start + stop + klet, data = res[, -1], sum)
+      if (pseudocount > 0) res$count <- res$count + pseudocount
+      if (as.prob) {
+        res <- by(res, INDICES = list(res$start, nchar(res$klet)), FUN = function(x) {
+          x$probability <- x$count / sum(x$count) ; x
+        })
+        res <- do.call(rbind, res)
+        rownames(res) <- NULL
+        res <- res[, c("start", "stop", "klet", "probability")]
+      }
+    } else if (as.prob) {
+      if (pseudocount > 0) res$count <- res$count + pseudocount
+      res <- by(res, INDICES = list(res$sequence, res$start, nchar(res$klet)),
+        FUN = function(x) {
+          x$probability <- x$count / sum(x$count) ; x
+        }
+      )
+      res <- do.call(rbind, res)
+      rownames(res) <- NULL
+      res <- res[, c("sequence", "start", "stop", "klet", "probability")]
+    } else if (pseudocount > 0) {
+      if (pseudocount > 0) res$count <- res$count + pseudocount
+    }
+
+    if (!merge.res)
+      res <- res[order(res$sequence, res$klet, method = "radix"), ]
+    else
+      res <- res[order(res$klet, method = "radix"), ]
+
+    counts <- as(res, "DataFrame")
+
+  }
 
   if (!is.null(to.meme)) {
 
@@ -138,19 +260,32 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     out <- character(0)
     out <- to_meme_bkg(counts)
     cat(out, sep = "\n", file = to.meme)
-
-  } else {
-
-    if (!list.out) {
-      counts <- unlist(counts)
-      names(counts) <- vapply(names(counts),
-                              function(x) strsplit(x, ".", fixed = TRUE)[[1]][2],
-                              character(1))
-    }
-
-    counts
+    return(invisible())
 
   }
+
+  if (!window) {
+    if (merge.res) {
+      counts <- unlist(counts)
+      names(counts) <- vapply(names(counts),
+        function(x) strsplit(x, ".", fixed = TRUE)[[1]][2], character(1))
+      counts <- data.frame(names(counts), unname(counts), row.names = NULL)
+      colnames(counts) <- c("klet", if (as.prob) "probability" else "count")
+      counts <- as(counts, "DataFrame")
+    } else {
+      for (i in seq_along(counts)) {
+        counts[[i]] <- stack(counts[[i]])
+      }
+      counts <- do.call(rbind, counts)
+      counts[[1]] <- as.character(counts[[1]])
+      counts[[2]] <- as.character(counts[[2]])
+      colnames(counts) <- c("sequence", "klet",
+        if (as.prob) "probability" else "count")
+    }
+
+  }
+
+  counts
 
 }
 
@@ -174,4 +309,20 @@ to_meme_bkg_single <- function(counts, meme.order, count.names) {
                          " ")
   }
   out
+}
+
+calc_wins <- function(len, size, ovrlp) {
+  if (size < 1) size <- as.integer(len * size)
+  starts <- seq(from = 1, to = len, by = size)
+  if (ovrlp == 0) {
+    stops <- c(c(1, starts[c(-1, -length(starts))]) + size - 1, len)
+    list(starts = starts, stops = stops)
+  } else {
+    if (ovrlp < 1) ovrlp <- as.integer(ovrlp * len)
+    starts[-1] <- starts[-1] - ovrlp
+    starts <- c(starts, starts[length(starts)] + size)
+    if (starts[length(starts)] >= len) starts <- starts[-length(starts)]
+    stops <- c((starts[-length(starts)] + size) - 1, len)
+    list(starts = starts, stops = stops)
+  }
 }

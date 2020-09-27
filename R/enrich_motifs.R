@@ -45,6 +45,8 @@
 #'    applied automatically when the motif is converted to a PWM internally. This
 #'    value is set to `FALSE` by default in order to stay consistent with
 #'    pre-version 1.8.0 behaviour.
+#' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
+#'    letters in the input sequence, such as those in masked sequences.
 #'
 #' @return `DataFrame` Enrichment results in a `DataFrame`. Function args and
 #'    (optionally) scan results are stored in the `metadata` slot.
@@ -76,7 +78,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   threshold = 0.001, threshold.type = "pvalue", verbose = 0, RC = FALSE,
   use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
   return.scan.results = FALSE, nthreads = 1, rng.seed = sample.int(1e4, 1),
-  motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE) {
+  motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
+  warn.NA = TRUE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -181,7 +184,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
                           verbose, RC, use.freq, threshold.type, motcount,
                           return.scan.results, nthreads, args[-(1:3)],
-                          use.gaps, allow.nonfinite)
+                          use.gaps, allow.nonfinite, warn.NA)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
@@ -209,7 +212,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
-  nthreads, args, use.gaps, allow.nonfinite) {
+  nthreads, args, use.gaps, allow.nonfinite, warn.NA) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -222,12 +225,12 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   if (verbose > 0) message(" > Scanning input sequences")
   results <- scan_sequences(motifs, sequences, threshold, threshold.type,
     RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
-    use.gaps = use.gaps, allow.nonfinite = allow.nonfinite)
+    use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA)
 
   if (verbose > 0) message(" > Scanning background sequences")
   results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
     threshold.type, RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
-    use.gaps = use.gaps, allow.nonfinite = allow.nonfinite))
+    use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA))
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)

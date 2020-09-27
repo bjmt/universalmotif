@@ -12,7 +12,6 @@
 - motif_peaks(): serious code cleanup needed
 - Add scan_sequences() gapped motif example to vignettes
 - dependencies to consider removing: ggseqlogo, yaml, processx, Rdpack?
-    + ape: no point as long as I have ggtree (move to suggests?)
     + rlang: no point as long as I have ggplot2 (make my own .data?)
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
@@ -28,3 +27,5 @@
   them
 - small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
   un-log for print and `[` methods?
+- shuffle_sequences(): add local shuffling
+- get_bkg(): add window option

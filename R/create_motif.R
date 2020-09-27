@@ -399,8 +399,9 @@ setMethod("create_motif", signature(input = "character"),
     }
 
     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
-                       pseudocount = pseudocount, list.out = FALSE,
+                       pseudocount = pseudocount,
                        alphabet = rownames(motif@motif))
+    new.bkg <- structure(new.bkg$probability, names = new.bkg$klet)
     motif@bkg <- c(motif@bkg, new.bkg)
 
   }
@@ -714,8 +715,9 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
     for (i in add.multifreq) {
       motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i, DNA_BASES)
     }
-    new.bkg <- get_bkg(DNAStringSet(input), k = add.multifreq, list.out = FALSE,
+    new.bkg <- get_bkg(DNAStringSet(input), k = add.multifreq,
                        pseudocount = pseudocount, alphabet = DNA_BASES)
+    new.bkg <- structure(new.bkg$probability, names = new.bkg$klet)
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
@@ -761,8 +763,9 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
       motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), 
                                                           i, RNA_BASES)
     }
-    new.bkg <- get_bkg(RNAStringSet(input), k = add.multifreq, list.out = FALSE,
+    new.bkg <- get_bkg(RNAStringSet(input), k = add.multifreq,
                        pseudocount = pseudocount, alphabet = RNA_BASES)
+    new.bkg <- structure(new.bkg$probability, names = new.bkg$klet)
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
@@ -811,8 +814,9 @@ setMethod("create_motif", signature(input = "AAStringSet"),
     for (i in add.multifreq) {
       motif@multifreq[[as.character(i)]] <- add_multi_cpp(as.character(input), i, AA_STANDARD2)
     }
-    new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq, list.out = FALSE,
+    new.bkg <- get_bkg(AAStringSet(input), k = add.multifreq,
                        pseudocount = pseudocount, alphabet = AA_STANDARD2)
+    new.bkg <- structure(new.bkg$probability, names = new.bkg$klet)
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 
@@ -884,8 +888,9 @@ setMethod("create_motif", signature(input = "BStringSet"),
                                                           rownames(motif@motif))
     }
     new.bkg <- get_bkg(BStringSet(input), k = add.multifreq,
-                       pseudocount = pseudocount, list.out = FALSE,
+                       pseudocount = pseudocount,
                        alphabet = rownames(motif@motif))
+    new.bkg <- structure(new.bkg$probability, names = new.bkg$klet)
     motif@bkg <- c(motif@bkg, new.bkg)
   }
 

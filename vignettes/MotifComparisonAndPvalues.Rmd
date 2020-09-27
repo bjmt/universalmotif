@@ -417,7 +417,8 @@ Now let us imagine that we wish to rank these matches by P-value. First, we must
 ```{r}
 ## The second match was CTCTAGAGAC, with a score of 5.869 (max possible = 6.531)
 
-bkg <- get_bkg(ArabidopsisPromoters, 1, list.out = FALSE)
+bkg <- get_bkg(ArabidopsisPromoters, 1)
+bkg <- structure(bkg$probability, names = bkg$klet)
 bkg
 ```
 Now, use these to calculate the probability of getting CTCTAGAGAC.

@@ -262,8 +262,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // scan_sequences_cpp
-Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const int& k, const std::string& alph, const std::vector<double>& min_scores, const int& nthreads, const bool& allow_nonfinite);
-RcppExport SEXP _universalmotif_scan_sequences_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP kSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP nthreadsSEXP, SEXP allow_nonfiniteSEXP) {
+Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const int& k, const std::string& alph, const std::vector<double>& min_scores, const int& nthreads, const bool& allow_nonfinite, const bool& warnNA);
+RcppExport SEXP _universalmotif_scan_sequences_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP kSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP nthreadsSEXP, SEXP allow_nonfiniteSEXP, SEXP warnNASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type score_mats(score_matsSEXP);
@@ -273,7 +273,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<double>& >::type min_scores(min_scoresSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const bool& >::type allow_nonfinite(allow_nonfiniteSEXP);
-    rcpp_result_gen = Rcpp::wrap(scan_sequences_cpp(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite));
+    Rcpp::traits::input_parameter< const bool& >::type warnNA(warnNASEXP);
+    rcpp_result_gen = Rcpp::wrap(scan_sequences_cpp(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite, warnNA));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -337,6 +338,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(count_klets_cpp(sequences, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// split_seq_by_win
+std::vector<std::string> split_seq_by_win(std::string& seq1, const std::vector<int>& start, const std::vector<int>& stop);
+RcppExport SEXP _universalmotif_split_seq_by_win(SEXP seq1SEXP, SEXP startSEXP, SEXP stopSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< std::string& >::type seq1(seq1SEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type stop(stopSEXP);
+    rcpp_result_gen = Rcpp::wrap(split_seq_by_win(seq1, start, stop));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -776,12 +789,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
     {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},
-    {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 7},
+    {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 8},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},
     {"_universalmotif_shuffle_linear_cpp", (DL_FUNC) &_universalmotif_shuffle_linear_cpp, 4},
     {"_universalmotif_shuffle_k1_cpp", (DL_FUNC) &_universalmotif_shuffle_k1_cpp, 3},
     {"_universalmotif_count_klets_cpp", (DL_FUNC) &_universalmotif_count_klets_cpp, 3},
+    {"_universalmotif_split_seq_by_win", (DL_FUNC) &_universalmotif_split_seq_by_win, 3},
     {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_get_klets_cpp", (DL_FUNC) &_universalmotif_get_klets_cpp, 2},
     {"_universalmotif_create_sequences_cpp", (DL_FUNC) &_universalmotif_create_sequences_cpp, 8},

@@ -25,23 +25,16 @@
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
 #' @importFrom Biostrings reverseComplement writeXStringSet seqtype AA_ALPHABET
 #' @importFrom Biostrings mask injectHardMask
+#' @importFrom IRanges stack
 #' @importFrom Rdpack reprompt
 #' @importFrom Rcpp sourceCpp
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
 #' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums
 #' @importFrom BiocGenerics as.data.frame
-#' @importFrom S4Vectors safeExplode wmsg DataFrame Rle
+#' @importFrom S4Vectors safeExplode wmsg DataFrame Rle aggregate
 #' @importFrom yaml as.yaml yaml.load
 #' @useDynLib universalmotif
 NULL
 
 # Notes:
 #   - Printing abridged strings: S4Vectors:::sketchStr()
-
-# Idea: create a masking motif, then find spots to mask with scan_sequences().
-# Any different mask.symbol means converting to BString.
-# Work with Masked*String objects?
-# Replace letters: chartr, replaceAt, replaceLetterAt, subseq
-# Find letters: matchPattern, matchPWM
-# injectHardMask: converts MaskedXString to XString, using a character such
-#                 as "+" for masked letters

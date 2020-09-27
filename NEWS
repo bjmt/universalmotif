@@ -27,6 +27,16 @@ NEW FEATURES
 
     o New mask_seqs() utility function: inject hard masks into sequences.
 
+    o scan_sequences(..., warn.NA), enrich_motifs(..., warn.NA): new option
+      which can disable warnings from non-standard letters being detected
+      in the input sequences.
+
+    o get_bkg(..., window, window.size, window.overlap): new options for
+      calculating sequence background in windows.
+
+    o get_bkg(..., merge.res): new option to return background information for
+      individual sequences.
+
 MINOR CHANGES
 
     o read_matrix(..., positions): added partial argument matching.
@@ -46,6 +56,10 @@ MINOR CHANGES
 
     o The pseudocount slot is now shown when universalmotif class objects are
       printed.
+
+    o get_bkg(): the list.out option has been disabled. To simplify the
+      function, the only possible output (exception: if to.meme is not NULL)
+      is a DataFrame.
 
     o General documentation cleanup.
 

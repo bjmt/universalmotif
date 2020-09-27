@@ -81,7 +81,7 @@ vec_int_t scan_single_seq(const list_int_t &motif, const vec_int_t &sequence,
 
 list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
     const list_char_t &seq_vecs, const int &k, vec_char_t &alph,
-    const int &nthreads) {
+    const int &nthreads, const bool &warnNA) {
 
   bool use_na_fun = false;
   list_int_t seq_ints(seq_vecs.size());
@@ -110,7 +110,9 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
 
   if (std::accumulate(na_index.begin(), na_index.end(), 0) > 0) {
     use_na_fun = true;
-    Rcpp::warning("Non-standard letters detected. These were ignored.");
+    if (warnNA) {
+      Rcpp::warning("Non-standard letters detected. These were ignored.");
+    }
   }
 
   if (k > 1 && use_na_fun)
@@ -208,7 +210,7 @@ std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs,
 Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     const std::vector<std::string> &seq_vecs, const int &k, const std::string &alph,
     const std::vector<double> &min_scores, const int &nthreads,
-    const bool &allow_nonfinite = false) {
+    const bool &allow_nonfinite = false, const bool &warnNA = true) {
 
   vec_char_t alph2(alph.begin(), alph.end());
 
@@ -235,7 +237,8 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     }
   }
 
-  list_mat_t out_pre = scan_sequences_cpp_internal(score2_mats, seq2_vecs, k, alph2, nthreads);
+  list_mat_t out_pre = scan_sequences_cpp_internal(score2_mats, seq2_vecs, k,
+      alph2, nthreads, warnNA);
 
   list_int_t res = format_results(out_pre, min_scores2, score2_mats);
 

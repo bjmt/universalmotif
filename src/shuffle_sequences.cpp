@@ -560,6 +560,20 @@ std::vector<std::vector<int>> count_klets_cpp(const std::vector<std::string> &se
 }
 
 // [[Rcpp::export(rng = false)]]
+std::vector<std::string> split_seq_by_win(std::string &seq1,
+    const std::vector<int> &start, const std::vector<int> &stop) {
+
+  std::vector<std::string> out(start.size());
+
+  for (R_xlen_t i = 0; i < start.size(); ++i) {
+    out[i] = seq1.substr(start[i] - 1, stop[i] - start[i] + 1);
+  }
+
+  return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
 std::vector<std::vector<int>> count_klets_alph_cpp(const std::vector<std::string> &sequences,
     const std::string &alph, const int &k, const int &nthreads) {
 

@@ -7,7 +7,7 @@
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE,
-  allow.nonfinite = FALSE)
+  allow.nonfinite = FALSE, warn.NA = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -48,6 +48,9 @@ then this parameter has no effect as the pseudocount will be
 applied automatically when the motif is converted to a PWM internally. This
 value is set to \code{FALSE} by default in order to stay consistent with
 pre-version 1.8.0 behaviour.}
+
+\item{warn.NA}{\code{logical(1)} Whether to warn about the presence of non-standard
+letters in the input sequence, such as those in masked sequences.}
 }
 \value{
 \code{DataFrame} with each row representing one hit. If the input
