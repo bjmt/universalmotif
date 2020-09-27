@@ -24,6 +24,7 @@
 #' @importFrom Biostrings oligonucleotideTransitions trinucleotideFrequency
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
 #' @importFrom Biostrings reverseComplement writeXStringSet seqtype AA_ALPHABET
+#' @importFrom Biostrings mask injectHardMask
 #' @importFrom Rdpack reprompt
 #' @importFrom Rcpp sourceCpp
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
