@@ -79,20 +79,10 @@
 #' library(Biostrings)
 #' data(ArabidopsisMotif)
 #' data(ArabidopsisPromoters)
-#' seq <- ArabidopsisPromoters[[1]]  # Only works for XString, not XStringSet
-#' seq <- mask(seq, pattern = "AAAA")  # MaskedDNAString class
-#' seq <- injectHardMask(seq, letter = "+")  # Recover XString
-#' seq <- DNAStringSet(seq)  # scan_sequences() needs XStringSet
+#' seq <- mask_seqs(ArabidopsisPromoters, "AAAAA")
 #' scan_sequences(ArabidopsisMotif, seq)
 #' # A warning regarding the presence of non-standard letters will be given,
 #' # but can be safely ignored in this case.
-#'
-#' # If you'd like to do it to a whole DNAStringSet object:
-#' seq <- ArabidopsisPromoters
-#' for (i in 1:length(ArabidopsisPromoters)) {
-#'   seq[[i]] <- injectHardMask(mask(seq[[i]], pattern = "AAAA"), letter = "+")
-#' }
-#' scan_sequences(ArabidopsisMotif, seq)
 #' }
 #'
 #' ## Converting results to a GRanges object:
