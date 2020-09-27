@@ -26,9 +26,9 @@ BiocManager::install("universalmotif")
 ### GitHub development version
 
 ```r
-if (!requireNamespace("remotes", quietly=TRUE))
-  install.packages("remotes")
-remotes::install_github("bjmt/universalmotif")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+  install.packages("BiocManager")
+BiocManager::install("bjmt/universalmotif")
 ```
 
 ## Brief overview

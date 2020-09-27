@@ -5,9 +5,13 @@
 #' @param lets `character` A character vector where each element will be
 #'    considered a single unit.
 #' @param k `integer(1)` K-let size.
+#' @param letter `character(1)` Character to use for masking.
+#' @param pattern `character(1)` Pattern to mask.
+#' @param seqs `XStringSet` Sequences to mask. Cannot be `BStringSet`.
 #' @param string `character(1)` A length one character vector.
 #' @param method `character(1)` Shuffling method. One of `c("euler", "linear",
 #'    "markov")`. See [shuffle_sequences()].
+#' @param RC `logical(1)` Whether to mask the reverse complement of the pattern.
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    in [shuffle_sequences()] can occur simultaneously in multiple threads using C++,
 #'    it cannot communicate
@@ -20,6 +24,8 @@
 #'    For [count_klets()]: A `data.frame` with columns `lets` and `counts`.
 #'
 #'    For [get_klets()]: A `character` vector of k-lets.
+#'
+#'    For [mask_seqs()]: The masked `XStringSet` object.
 #'
 #'    For [shuffle_string()]: A single `character` string.
 #'
@@ -38,6 +44,12 @@
 #' ## Note that each element in 'lets' is considered a single unit;
 #' ## see:
 #' get_klets(c("AA", "B"), k = 2)
+#'
+#' #######################################################################
+#' ## mask_seqs
+#' ## Mask repetitive seqeuences
+#' data(ArabidopsisPromoters)
+#' mask_seqs(ArabidopsisPromoters, "AAAAAA")
 #'
 #' #######################################################################
 #' ## shuffle_string
@@ -81,6 +93,37 @@ get_klets <- function(lets, k = 1) {
 
   get_klets_cpp(lets, k)
 
+}
+
+#' @rdname utils-sequence
+#' @export
+mask_seqs <- function(seqs, pattern, RC = FALSE, letter = "-") {
+  if (!is(seqs, "XStringSet"))
+    stop("`seqs` must be an `XStringSet` object")
+  if (length(pattern) > 1 || !is.character(pattern))
+    stop("`pattern` must be a single character")
+  alph <- seqtype(seqs)
+  if (alph == "B")
+    stop("`mask_seqs()` only works with DNA/RNA/AA sequences")
+  fix_seqs <- function(seqs, pattern, letter) {
+    seqs <- lapply(seqs, mask, pattern = pattern)
+    seqs <- lapply(seqs, injectHardMask, letter = letter)
+    switch(alph,
+      DNA = DNAStringSet(seqs),
+      RNA = RNAStringSet(seqs),
+      AA = AAStringSet(seqs)
+    )
+  }
+  seqs <- fix_seqs(seqs, pattern, letter)
+  if (RC) {
+    pattern <- as.character(switch(alph,
+        DNA = reverseComplement(DNAString(pattern)),
+        RNA = reverseComplement(RNAString(pattern)),
+        stop("`RC = TRUE` is only valid for DNA/RNA sequences")
+    ))
+    seqs <- fix_seqs(seqs, pattern, letter)
+  }
+  seqs
 }
 
 #' @rdname utils-sequence
