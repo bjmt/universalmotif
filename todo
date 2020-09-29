@@ -28,4 +28,6 @@
 - small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
   un-log for print and `[` methods?
 - shuffle_sequences(): add local shuffling
-- get_bkg(): add window option
+- get_bkg(ArabidopsisPromoters, as.prob = FALSE, alphabet = "ACG"): incorrectly
+  counting A's, AA's, AAA's (looks like it's adding up the T's to the first
+  klet for every "k")

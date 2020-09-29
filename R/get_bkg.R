@@ -168,8 +168,14 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     window.size <- rep_len(window.size, length(sequences))
     window.overlap <- rep_len(window.overlap, length(sequences))
 
-    # if (min(seqlens) < max(window.size))
-    #   stop("`window.size` must be less than the length of the shortest sequence")
+    if (any(window.size == 0))
+      stop("`window.size` must be greater than 0")
+
+    window.size[window.size < 1] <- as.integer(window.size[window.size < 1] *
+      seqlens[window.size < 1])
+    window.overlap[window.overlap < 1 & window.overlap > 0] <- as.integer(
+      window.overlap[window.overlap < 1 & window.overlap > 0] *
+      seqlens[window.overlap < 1 & window.overlap > 0])
 
     if (any(window.size <= window.overlap))
       stop("`window.overlap` cannot be larger than or equal to `window.size`")
@@ -311,18 +317,18 @@ to_meme_bkg_single <- function(counts, meme.order, count.names) {
   out
 }
 
-calc_wins <- function(len, size, ovrlp) {
-  if (size < 1) size <- as.integer(len * size)
-  starts <- seq(from = 1, to = len, by = size)
+calc_wins <- function(seqlen, winsize, ovrlp) {
+  # if (winsize < 1) winsize <- as.integer(seqlen * winsize)
+  starts <- seq(from = 1, to = seqlen, by = winsize)
   if (ovrlp == 0) {
-    stops <- c(c(1, starts[c(-1, -length(starts))]) + size - 1, len)
+    stops <- c(c(1, starts[c(-1, -length(starts))]) + winsize - 1, seqlen)
     list(starts = starts, stops = stops)
   } else {
-    if (ovrlp < 1) ovrlp <- as.integer(ovrlp * len)
+    # if (ovrlp < 1) ovrlp <- as.integer(ovrlp * seqlen)
     starts[-1] <- starts[-1] - ovrlp
-    starts <- c(starts, starts[length(starts)] + size)
-    if (starts[length(starts)] >= len) starts <- starts[-length(starts)]
-    stops <- c((starts[-length(starts)] + size) - 1, len)
+    starts <- c(starts, starts[length(starts)] + winsize)
+    if (starts[length(starts)] >= seqlen) starts <- starts[-length(starts)]
+    stops <- c((starts[-length(starts)] + winsize) - 1, seqlen)
     list(starts = starts, stops = stops)
   }
 }
