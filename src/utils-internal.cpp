@@ -114,8 +114,8 @@ Rcpp::NumericMatrix cpp_to_R_motif(const list_num_t &motif) {
 }
 
 void print_motif(const list_int_t &motif) {
-  for (R_xlen_t i = 0; i < motif[0].size(); ++i) {
-    for (R_xlen_t j = 0; j < motif.size(); ++j) {
+  for (std::size_t i = 0; i < motif[0].size(); ++i) {
+    for (std::size_t j = 0; j < motif.size(); ++j) {
       RcppThread::Rcout << motif[j][i] << ' ';
     }
     RcppThread::Rcout << '\n';
@@ -123,8 +123,8 @@ void print_motif(const list_int_t &motif) {
 }
 
 void print_motif(const list_num_t &motif) {
-  for (R_xlen_t i = 0; i < motif[0].size(); ++i) {
-    for (R_xlen_t j = 0; j < motif.size(); ++j) {
+  for (std::size_t i = 0; i < motif[0].size(); ++i) {
+    for (std::size_t j = 0; j < motif.size(); ++j) {
       RcppThread::Rcout << motif[j][i] << ' ';
     }
     RcppThread::Rcout << '\n';

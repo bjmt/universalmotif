@@ -565,7 +565,7 @@ std::vector<std::string> split_seq_by_win(std::string &seq1,
 
   std::vector<std::string> out(start.size());
 
-  for (R_xlen_t i = 0; i < start.size(); ++i) {
+  for (std::size_t i = 0; i < start.size(); ++i) {
     out[i] = seq1.substr(start[i] - 1, stop[i] - start[i] + 1);
   }
 

@@ -551,7 +551,7 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
 
   if (allow_nonfinite) {
     int min_score;
-    for (R_xlen_t i = 0; i < scores.size(); ++i) {
+    for (std::size_t i = 0; i < scores.size(); ++i) {
       min_score = std::numeric_limits<int>::min();
       min_score /= int(vmots[i].size());
       min_score += int(log2(vmots[i][0].size()) * vmots[i].size()) * 1000;
