@@ -91,7 +91,7 @@ is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \co
 into one. For more control over tree creation, it is recommend to do these
 steps separately. See the "Motif comparisons and P-values" vignette for such
 a workthrough. This function requires the \pkg{ape} and \pkg{ggtree} packages
-to be installed seperately.
+to be installed separately.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.

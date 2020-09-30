@@ -5,7 +5,7 @@
 #' the command parameters, run `run_meme()`. Parameters in [run_meme()]
 #' which are directly taken from the MEME program are tagged with \[MEME\].
 #' This functions requires that the \pkg{processx} package be installed
-#' seperately.
+#' separately.
 #'
 #' @param target.sequences \code{\link{XStringSet}} List of sequences to get motifs from.
 #' @param output `character(1)` Name of the output folder. If `NULL`, MEME

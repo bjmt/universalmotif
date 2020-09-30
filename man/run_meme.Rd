@@ -148,7 +148,7 @@ see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
 the command parameters, run \code{run_meme()}. Parameters in \code{\link[=run_meme]{run_meme()}}
 which are directly taken from the MEME program are tagged with [MEME].
 This functions requires that the \pkg{processx} package be installed
-seperately.
+separately.
 }
 \examples{
 \dontrun{

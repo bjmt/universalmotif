@@ -11,16 +11,15 @@
 - motif_peaks(): compare two sets of sequences (enrichment analysis)
 - motif_peaks(): serious code cleanup needed
 - Add scan_sequences() gapped motif example to vignettes
-- dependencies to consider removing: ggseqlogo, yaml, processx, Rdpack?
-    + rlang: no point as long as I have ggplot2 (make my own .data?)
+- dependencies to consider removing: ggseqlogo, yaml, Rdpack
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
     + Can do vectorized operations such as subset all names with `[`
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
-- scan_sequences(): add option to return GRanges object
 - in read_*() files, check to input file exists
-- scan_sequences(): return a Biostring Views object
+- scan_sequences(): add option to return GRanges object?
+- scan_sequences(): return a Biostring Views object?
 - change internal motif precision limit from 1e-3 to 1e-6 (will require changes
   to how allow.nonfinite works)
 - add a vignette section about pseudocounts and how the functions interact with
@@ -31,3 +30,4 @@
 - get_bkg(ArabidopsisPromoters, as.prob = FALSE, alphabet = "ACG"): incorrectly
   counting A's, AA's, AAA's (looks like it's adding up the T's to the first
   klet for every "k")
+- get_bkg(): rewrite so that all window code is in c++ (like in sequence-utils)
