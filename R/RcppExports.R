@@ -33,6 +33,14 @@ pval_extractor <- function(ncols, scores, indices1, indices2, method, subject, t
     .Call('_universalmotif_pval_extractor', PACKAGE = 'universalmotif', ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution, nthreads)
 }
 
+count_klets_alph_cpp <- function(sequences, alph, k, nthreads) {
+    .Call('_universalmotif_count_klets_alph_cpp', PACKAGE = 'universalmotif', sequences, alph, k, nthreads)
+}
+
+calc_seq_probs_cpp <- function(seqs, bkg, alph, nthreads) {
+    .Call('_universalmotif_calc_seq_probs_cpp', PACKAGE = 'universalmotif', seqs, bkg, alph, nthreads)
+}
+
 peakfinder_cpp <- function(x, m = 3L) {
     .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
 }
@@ -95,10 +103,6 @@ count_klets_cpp <- function(sequences, k, nthreads) {
 
 split_seq_by_win <- function(seq1, start, stop) {
     .Call('_universalmotif_split_seq_by_win', PACKAGE = 'universalmotif', seq1, start, stop)
-}
-
-count_klets_alph_cpp <- function(sequences, alph, k, nthreads) {
-    .Call('_universalmotif_count_klets_alph_cpp', PACKAGE = 'universalmotif', sequences, alph, k, nthreads)
 }
 
 get_klets_cpp <- function(alph, k) {

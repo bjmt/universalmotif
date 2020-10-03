@@ -4,7 +4,7 @@
 \alias{get_bkg}
 \title{Calculate sequence background.}
 \usage{
-get_bkg(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
+get_bkg(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = NULL,
   nthreads = 1, merge.res = TRUE, window = FALSE, window.size = 0.1,
   window.overlap = 0)
@@ -16,7 +16,7 @@ multiple sequences are present, the results will be combined into one.}
 \item{k}{\code{integer} Size of k-let. Background can be calculated for any
 k-let size.}
 
-\item{as.prob}{\code{logical(1)} Whether to return k-let counts or probabilities.}
+\item{as.prob}{Deprecated.}
 
 \item{pseudocount}{\code{integer(1)} Add a count to each possible k-let. Prevents
 any k-let from having 0 or 1 probabilities.}
@@ -55,10 +55,10 @@ between 0 and 1 is provided, the value is calculated as the number
 multiplied by the sequence length.}
 }
 \value{
-If \code{to.meme = NULL}, a \code{DataFrame} with columns \code{klets} and \code{probability}
-(if \code{as.prob = TRUE}) or \code{count} (if \code{as.prob = FALSE}). If
-\code{merge.res = FALSE}, there will be an additional \code{sequence} column. If
-\code{window = TRUE}, there will be an additional \code{window} column.
+If \code{to.meme = NULL}, a \code{DataFrame} with columns \code{klet}, \code{count},
+and \code{probability}. If \code{merge.res = FALSE}, there will be an additional
+\code{sequence} column. If \code{window = TRUE}, there will be an additional \code{start}
+and \code{stop} columns.
 
 If \code{to.meme} is not \code{NULL}, then \code{NULL} is returned, invisibly.
 }
@@ -72,7 +72,7 @@ non-DNA/RNA sequences: otherwise use the much faster and more efficient
 ## Compare to Biostrings version
 library(Biostrings)
 seqs.DNA <- create_sequences()
-bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE)
+bkg.DNA <- get_bkg(seqs.DNA, k = 3)
 bkg.DNA2 <- oligonucleotideFrequency(seqs.DNA, 3, 1, as.prob = FALSE)
 bkg.DNA2 <- colSums(bkg.DNA2)
 all(bkg.DNA$count == bkg.DNA2)

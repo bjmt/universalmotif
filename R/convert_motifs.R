@@ -339,7 +339,7 @@ convert_to_rgadem_motif <- function(motifs) {
   if (requireNamespace("rGADEM", quietly = FALSE)) {
     motifs <- convert_type(motifs, "PPM")
     rGADEM_motif_class <- getClass("motif", where = "rGADEM")
-    motifs <- new("motif", pwm = motifs@motif,
+    motifs <- new(rGADEM_motif_class, pwm = motifs@motif,
                   name = motifs@name,
                   consensus = motifs@consensus)
   } else {

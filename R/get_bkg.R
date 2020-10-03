@@ -9,7 +9,7 @@
 #'    multiple sequences are present, the results will be combined into one.
 #' @param k `integer` Size of k-let. Background can be calculated for any
 #'    k-let size.
-#' @param as.prob `logical(1)` Whether to return k-let counts or probabilities.
+#' @param as.prob Deprecated.
 #' @param pseudocount `integer(1)` Add a count to each possible k-let. Prevents
 #'    any k-let from having 0 or 1 probabilities.
 #' @param alphabet `character(1)` Provide a custom alphabet to calculate a
@@ -38,10 +38,10 @@
 #'    multiplied by the sequence length.
 #'
 #' @return
-#'    If `to.meme = NULL`, a `DataFrame` with columns `klets` and `probability`
-#'    (if `as.prob = TRUE`) or `count` (if `as.prob = FALSE`). If
-#'    `merge.res = FALSE`, there will be an additional `sequence` column. If
-#'    `window = TRUE`, there will be an additional `window` column.
+#'    If `to.meme = NULL`, a `DataFrame` with columns `klet`, `count`,
+#'    and `probability`. If `merge.res = FALSE`, there will be an additional
+#'    `sequence` column. If `window = TRUE`, there will be an additional `start`
+#'    and `stop` columns.
 #'
 #'    If `to.meme` is not `NULL`, then `NULL` is returned, invisibly.
 #'
@@ -49,7 +49,7 @@
 #' ## Compare to Biostrings version
 #' library(Biostrings)
 #' seqs.DNA <- create_sequences()
-#' bkg.DNA <- get_bkg(seqs.DNA, k = 3, as.prob = FALSE)
+#' bkg.DNA <- get_bkg(seqs.DNA, k = 3)
 #' bkg.DNA2 <- oligonucleotideFrequency(seqs.DNA, 3, 1, as.prob = FALSE)
 #' bkg.DNA2 <- colSums(bkg.DNA2)
 #' all(bkg.DNA$count == bkg.DNA2)
@@ -67,7 +67,7 @@
 #' @seealso [create_sequences()], [scan_sequences()], [shuffle_sequences()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
+get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = NULL, nthreads = 1,
   merge.res = TRUE, window = FALSE, window.size = 0.1, window.overlap = 0) {
 
@@ -85,12 +85,15 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
                                 c(0, 1), c(FALSE, FALSE), TYPE_NUM)
   char_check <- check_fun_params(list(alphabet = args$alphabet), 1,
                                  TRUE, TYPE_CHAR)
-  logi_check <- check_fun_params(list(as.prob = args$as.prob, RC = args$RC),
+  logi_check <- check_fun_params(list(RC = args$RC),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, s4_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (!is.null(as.prob))
+    warning("`as.prob` has been disabled and now does nothing",
+      immediate. = TRUE)
   if (!is.null(list.out))
     warning("`list.out` has been disabled and now does nothing",
       immediate. = TRUE)
@@ -156,12 +159,52 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     }
 
     if (pseudocount > 0) counts <- lapply(counts, function(x) x + pseudocount)
-    if (as.prob && merge.res) {
-      counts <- lapply(counts, function(x) x / sum(x))
-    } else if (as.prob) {
-      counts <- lapply(counts, function(x) t(apply(x, 1, function(y) y / sum(y))))
+    if (merge.res) {
+      probs <- lapply(counts, function(x) x / sum(x))
+    } else {
+      probs <- lapply(counts, function(x) t(apply(x, 1, function(y) y / sum(y))))
     }
     counts <- counts[sort_unique_cpp(names(counts))]
+    probs <- probs[sort_unique_cpp(names(probs))]
+
+    if (!is.null(to.meme)) {
+
+      if (pseudocount < 1) {
+        zero.check <- vapply(probs, function(x) any(x == 0), logical(1))
+        one.check <- vapply(probs, function(x) any(x == 1), logical(1))
+        if (any(zero.check) || any(one.check))
+          stop(wmsg("MEME background files do not allow 0 or 1 values, ",
+                    "please try again with a `pseudocount` higher than 0"))
+      }
+      out <- character(0)
+      out <- to_meme_bkg(probs)
+      cat(out, sep = "\n", file = to.meme)
+      return(invisible())
+
+    }
+
+    if (merge.res) {
+      counts <- unlist(counts)
+      names(counts) <- vapply(strsplit(names(counts), ".", fixed = TRUE),
+        function(x) x[2], character(1))
+      probs <- unlist(probs)
+      names(probs) <- vapply(strsplit(names(probs), ".", fixed = TRUE),
+        function(x) x[2], character(1))
+      res <- data.frame(names(counts), unname(counts), unname(probs), row.names = NULL)
+      colnames(res) <- c("klet", "count", "probability")
+      res <- as(res, "DataFrame")
+    } else {
+      for (i in seq_along(counts)) {
+        counts[[i]] <- stack(counts[[i]])
+        probs[[i]] <- stack(probs[[i]])
+      }
+      probs <- do.call(rbind, probs)
+      counts <- do.call(rbind, counts)
+      counts[[1]] <- as.character(counts[[1]])
+      counts[[2]] <- as.character(counts[[2]])
+      res <- counts
+      res$probability <- probs[[3]]
+    }
 
   } else {
 
@@ -191,7 +234,6 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     split_n <- vapply(seqs.split, length, integer(1))
     seqnames_n <- mapply(function(x, y) rep(x, y), seq.names, split_n, SIMPLIFY = FALSE)
     seqnames_n <- do.call(c, seqnames_n)
-    # print(seqnames_n);print(starts)
 
     seqs.split2 <- do.call(c, unname(seqs.split))
     if (min(nchar(seqs.split2)) < max(k))
@@ -222,15 +264,13 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
             "all sequences are of equal length"))
       res <- aggregate(count ~ start + stop + klet, data = res[, -1], sum)
       if (pseudocount > 0) res$count <- res$count + pseudocount
-      if (as.prob) {
-        res <- by(res, INDICES = list(res$start, nchar(res$klet)), FUN = function(x) {
-          x$probability <- x$count / sum(x$count) ; x
-        })
-        res <- do.call(rbind, res)
-        rownames(res) <- NULL
-        res <- res[, c("start", "stop", "klet", "probability")]
-      }
-    } else if (as.prob) {
+      res <- by(res, INDICES = list(res$start, nchar(res$klet)), FUN = function(x) {
+        x$probability <- x$count / sum(x$count) ; x
+      })
+      res <- do.call(rbind, res)
+      rownames(res) <- NULL
+      res <- res[, c("start", "stop", "klet", "count", "probability")]
+    } else {
       if (pseudocount > 0) res$count <- res$count + pseudocount
       res <- by(res, INDICES = list(res$sequence, res$start, nchar(res$klet)),
         FUN = function(x) {
@@ -239,9 +279,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
       )
       res <- do.call(rbind, res)
       rownames(res) <- NULL
-      res <- res[, c("sequence", "start", "stop", "klet", "probability")]
-    } else if (pseudocount > 0) {
-      if (pseudocount > 0) res$count <- res$count + pseudocount
+      res <- res[, c("sequence", "start", "stop", "klet", "count", "probability")]
     }
 
     if (!merge.res)
@@ -249,49 +287,11 @@ get_bkg <- function(sequences, k = 1:3, as.prob = TRUE, pseudocount = 0,
     else
       res <- res[order(res$klet, method = "radix"), ]
 
-    counts <- as(res, "DataFrame")
+    res <- as(res, "DataFrame")
 
   }
 
-  if (!is.null(to.meme)) {
-
-    if (pseudocount < 1) {
-      zero.check <- vapply(counts, function(x) any(x == 0), logical(1))
-      one.check <- vapply(counts, function(x) any(x == 1), logical(1))
-      if (any(zero.check) || any(one.check))
-        stop(wmsg("MEME background files do not allow 0 or 1 values, ",
-                  "please try again with a `pseudocount` higher than 0"))
-    }
-    if (!as.prob) counts <- lapply(counts, function(x) x / sum(x))
-    out <- character(0)
-    out <- to_meme_bkg(counts)
-    cat(out, sep = "\n", file = to.meme)
-    return(invisible())
-
-  }
-
-  if (!window) {
-    if (merge.res) {
-      counts <- unlist(counts)
-      names(counts) <- vapply(names(counts),
-        function(x) strsplit(x, ".", fixed = TRUE)[[1]][2], character(1))
-      counts <- data.frame(names(counts), unname(counts), row.names = NULL)
-      colnames(counts) <- c("klet", if (as.prob) "probability" else "count")
-      counts <- as(counts, "DataFrame")
-    } else {
-      for (i in seq_along(counts)) {
-        counts[[i]] <- stack(counts[[i]])
-      }
-      counts <- do.call(rbind, counts)
-      counts[[1]] <- as.character(counts[[1]])
-      counts[[2]] <- as.character(counts[[2]])
-      colnames(counts) <- c("sequence", "klet",
-        if (as.prob) "probability" else "count")
-    }
-
-  }
-
-  counts
+  res
 
 }
 
@@ -318,13 +318,11 @@ to_meme_bkg_single <- function(counts, meme.order, count.names) {
 }
 
 calc_wins <- function(seqlen, winsize, ovrlp) {
-  # if (winsize < 1) winsize <- as.integer(seqlen * winsize)
   starts <- seq(from = 1, to = seqlen, by = winsize)
   if (ovrlp == 0) {
     stops <- c(c(1, starts[c(-1, -length(starts))]) + winsize - 1, seqlen)
     list(starts = starts, stops = stops)
   } else {
-    # if (ovrlp < 1) ovrlp <- as.integer(ovrlp * seqlen)
     starts[-1] <- starts[-1] - ovrlp
     starts <- c(starts, starts[length(starts)] + winsize)
     if (starts[length(starts)] >= seqlen) starts <- starts[-length(starts)]

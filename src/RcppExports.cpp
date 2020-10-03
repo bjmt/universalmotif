@@ -154,6 +154,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// count_klets_alph_cpp
+std::vector<std::vector<int>> count_klets_alph_cpp(const std::vector<std::string>& sequences, const std::string& alph, const int& k, const int& nthreads);
+RcppExport SEXP _universalmotif_count_klets_alph_cpp(SEXP sequencesSEXP, SEXP alphSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_klets_alph_cpp(sequences, alph, k, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_seq_probs_cpp
+std::vector<double> calc_seq_probs_cpp(const std::vector<std::string>& seqs, const std::vector<double>& bkg, const std::string& alph, const int& nthreads);
+RcppExport SEXP _universalmotif_calc_seq_probs_cpp(SEXP seqsSEXP, SEXP bkgSEXP, SEXP alphSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type seqs(seqsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_seq_probs_cpp(seqs, bkg, alph, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // peakfinder_cpp
 Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
 RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
@@ -350,19 +376,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<int>& >::type start(startSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type stop(stopSEXP);
     rcpp_result_gen = Rcpp::wrap(split_seq_by_win(seq1, start, stop));
-    return rcpp_result_gen;
-END_RCPP
-}
-// count_klets_alph_cpp
-std::vector<std::vector<int>> count_klets_alph_cpp(const std::vector<std::string>& sequences, const std::string& alph, const int& k, const int& nthreads);
-RcppExport SEXP _universalmotif_count_klets_alph_cpp(SEXP sequencesSEXP, SEXP alphSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type sequences(sequencesSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
-    Rcpp::traits::input_parameter< const int& >::type k(kSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_klets_alph_cpp(sequences, alph, k, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -780,6 +793,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 11},
     {"_universalmotif_compare_columns_cpp", (DL_FUNC) &_universalmotif_compare_columns_cpp, 7},
     {"_universalmotif_pval_extractor", (DL_FUNC) &_universalmotif_pval_extractor, 11},
+    {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
+    {"_universalmotif_calc_seq_probs_cpp", (DL_FUNC) &_universalmotif_calc_seq_probs_cpp, 4},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 6},
@@ -796,7 +811,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_shuffle_k1_cpp", (DL_FUNC) &_universalmotif_shuffle_k1_cpp, 3},
     {"_universalmotif_count_klets_cpp", (DL_FUNC) &_universalmotif_count_klets_cpp, 3},
     {"_universalmotif_split_seq_by_win", (DL_FUNC) &_universalmotif_split_seq_by_win, 3},
-    {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_get_klets_cpp", (DL_FUNC) &_universalmotif_get_klets_cpp, 2},
     {"_universalmotif_create_sequences_cpp", (DL_FUNC) &_universalmotif_create_sequences_cpp, 8},
     {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},

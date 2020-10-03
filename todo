@@ -31,3 +31,14 @@
   counting A's, AA's, AAA's (looks like it's adding up the T's to the first
   klet for every "k")
 - get_bkg(): rewrite so that all window code is in c++ (like in sequence-utils)
+- de novo motifs:
+    + first search 4/5/6/7/8-mers for enrichment differences (either
+      against background or statistically expected based on 1/2/3-let frequencies)
+    + then for significantly enriched k-mers, start changing PWM positions to
+      see if that increases significance/enrichment OR start merging enriched
+      k-mers? (fast version: only k-mer merging?)
+    + for every enriched k-mer, scan with a logodds threshold of 0 -- look
+      for enrichment of lower score hits?
+    + finally extend motif until desired length
+    + trim useless edges
+- is the MEME E/p-value log10 or natural log?

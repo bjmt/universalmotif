@@ -97,18 +97,18 @@ k1 <- shuffle_sequences(ArabidopsisPromoters, k = 1)
 ```
 Let us compare how the methods perform:
 ```{r}
-o.letter <- get_bkg(ArabidopsisPromoters, 1, as.prob = FALSE)
-e.letter <- get_bkg(euler, 1, as.prob = FALSE)
-m.letter <- get_bkg(markov, 1, as.prob = FALSE)
-l.letter <- get_bkg(linear, 1, as.prob = FALSE)
+o.letter <- get_bkg(ArabidopsisPromoters, 1)
+e.letter <- get_bkg(euler, 1)
+m.letter <- get_bkg(markov, 1)
+l.letter <- get_bkg(linear, 1)
 
 data.frame(original=o.letter$count, euler=e.letter$count,
   markov=m.letter$count, linear=l.letter$count, row.names = DNA_BASES)
 
-o.counts <- get_bkg(ArabidopsisPromoters, 2, as.prob = FALSE)
-e.counts <- get_bkg(euler, 2, as.prob = FALSE)
-m.counts <- get_bkg(markov, 2, as.prob = FALSE)
-l.counts <- get_bkg(linear, 2, as.prob = FALSE)
+o.counts <- get_bkg(ArabidopsisPromoters, 2)
+e.counts <- get_bkg(euler, 2)
+m.counts <- get_bkg(markov, 2)
+l.counts <- get_bkg(linear, 2)
 
 data.frame(original=o.counts$count, euler=e.counts$count,
   markov=m.counts$count, linear=l.counts$count,
