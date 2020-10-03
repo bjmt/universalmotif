@@ -35,7 +35,7 @@ BiocManager::install("bjmt/universalmotif")
 
 There are a large number of available functions provided by the `universalmotif` package to work with motifs. See the vignettes on the [Bioconductor](https://www.bioconductor.org/packages/universalmotif) page for a detailed overview. A few key functions are also explored below.
 
-### The `universalmotif` motif class
+### The `universalmotif` motif class and import/export utilities
 
 The `universalmotif` class is used to store the motif matrix itself, as well as other basic information such as alphabet, background frequencies, strand, and various other metadata slots. There are a number of ways of getting `universalmotif` class motifs:
 
@@ -84,7 +84,7 @@ create_motif()
 #> T 0.47 0 0.96 0.02 0.00 0.03 0.00 0.09 0.00 0.00
 ```
 
-### Sequence creation and shuffling
+### Sequence creation, shuffling and background calculation
 
 An important aspect of motif scanning and enrichment is to compare the results with those from a set of random or background sequences. For this, two functions are provided:
 
@@ -112,6 +112,46 @@ seqs
 #> [100]   100 GTCACAGCCAAGCTTTAAGTCTTCCAACCAGGA...ATTGTGGACGGAAGGTACCGTCGTAGATTCGC
 
 seqs.shuffled <- shuffle_sequences(seqs, k = 3)
+```
+
+Additionally, if you are interested in the detailed kmer content of you sequences you can use `get_bkg()`. It can be used to calculate sequence background for any size kmer. Results can be shown for individual sequences or merged together. There is also an option to calculate these results in any size windows (with any size overlap between windows) across the sequences.
+
+```r
+library(universalmotif)
+
+data(ArabidopsisPromoters)
+
+get_bkg(ArabidopsisPromoters, merge.res = FALSE)
+#> DataFrame with 4200 rows and 4 columns
+#>         sequence        klet     count probability
+#>      <character> <character> <integer>   <numeric>
+#> 1      AT4G28150           A       318       0.318
+#> 2      AT1G19380           A       309       0.309
+#> 3      AT4G19520           A       325       0.325
+#> 4      AT1G03850           A       338       0.338
+#> 5      AT5G01810           A       317       0.317
+#> ...          ...         ...       ...         ...
+#> 4196   AT5G22690         TTT        36   0.0360721
+#> 4197   AT1G05670         TTT        43   0.0430862
+#> 4198   AT1G06160         TTT        56   0.0561122
+#> 4199   AT5G24660         TTT        43   0.0430862
+#> 4200   AT3G19200         TTT        34   0.0340681
+
+get_bkg(ArabidopsisPromoters, window = TRUE)
+#> DataFrame with 840 rows and 5 columns
+#>         start      stop        klet     count probability
+#>     <numeric> <numeric> <character> <integer>   <numeric>
+#> 1           1       100           A      1604      0.3208
+#> 2         101       200           A      1636      0.3272
+#> 3         201       300           A      1773      0.3546
+#> 4         301       400           A      1791      0.3582
+#> 5         401       500           A      1716      0.3432
+#> ...       ...       ...         ...       ...         ...
+#> 836       501       600         TTT       255   0.0520408
+#> 837       601       700         TTT       269   0.0548980
+#> 838       701       800         TTT       233   0.0475510
+#> 839       801       900         TTT       255   0.0520408
+#> 840       901      1000         TTT       271   0.0553061
 ```
 
 ### Sequence scanning and higher order motifs
