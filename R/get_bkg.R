@@ -203,6 +203,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
       counts[[1]] <- as.character(counts[[1]])
       counts[[2]] <- as.character(counts[[2]])
       res <- counts
+      colnames(res) <- c("sequence", "klet", "count")
       res$probability <- probs[[3]]
     }
 
