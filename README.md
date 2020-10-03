@@ -55,7 +55,7 @@ The `universalmotif` class is used to store the motif matrix itself, as well as 
     + `TRANSFAC`: `read_transfac()`, `write_transfac()`
     + `UNIPROBE`: `read_uniprobe()`
     + Generic matrices: `read_matrix()`, `write_matrix()`
-- Conversion from/to several compatible BioConductor package motif classes using `convert_motifs()` (f, from; t, to):
+- Conversion from/to several compatible Bioconductor package motif classes using `convert_motifs()` (f, from; t, to):
     + `TFBSTools`: `PFMatrix` (f, t), `PWMatrix` (f, t), `ICMatrix` (f, t), `PFMatrixList` (f), `PWMatrixList` (f), `ICMatrixList` (f), `TFFMFirst` (f, t)
     + `MotifDb`: `MotifList` (f)
     + `seqLogo`: `pwm` (f, t)
@@ -88,7 +88,7 @@ create_motif()
 
 An important aspect of motif scanning and enrichment is to compare the results with those from a set of random or background sequences. For this, two functions are provided:
 
-- `create_sequences()`: create sequences of any alphabet, with optional desired background fequencies
+- `create_sequences()`: create sequences of any alphabet, with optional desired background frequencies
 - `shuffle_sequences()`: shuffle a set of sequences, preserving any size k-let
 
 ```r
@@ -224,7 +224,7 @@ scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 0.9,
 
 ### Motif comparison, merging and viewing
 
-A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customisable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`.
+A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`.
 
 ```r
 library(universalmotif)
