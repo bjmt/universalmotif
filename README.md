@@ -114,7 +114,7 @@ seqs
 seqs.shuffled <- shuffle_sequences(seqs, k = 3)
 ```
 
-Additionally, if you are interested in the detailed kmer content of you sequences you can use `get_bkg()`. It can be used to calculate sequence background for any size kmer. Results can be shown for individual sequences or merged together. There is also an option to calculate these results in any size windows (with any size overlap between windows) across the sequences.
+Additionally, if you are interested in the detailed kmer content of you sequences you can use `get_bkg()`. It can be used to calculate sequence background for any size kmer, and for any sequence alphabet. Results can be shown for individual sequences or merged together. There is also an option to calculate these results in any size windows (with any size overlap between windows) across the sequences.
 
 ```r
 library(universalmotif)
