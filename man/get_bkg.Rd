@@ -64,9 +64,11 @@ If \code{to.meme} is not \code{NULL}, then \code{NULL} is returned, invisibly.
 }
 \description{
 For a set of input sequences, calculate the overall sequence background for
-any k-let size. For very large sequences, this is only recommended for
-non-DNA/RNA sequences: otherwise use the much faster and more efficient
+any k-let size. For very large sequences DNA and RNA sequences (in the billions of bases),
+please be aware of the much faster and more efficient
 \code{\link[Biostrings:nucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
+\code{\link[=get_bkg]{get_bkg()}} can still be used in these cases, though it may take several seconds or
+minutes to calculate the results (depending on requested k-let sizes).
 }
 \examples{
 ## Compare to Biostrings version
