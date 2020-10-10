@@ -42,3 +42,8 @@
     + finally extend motif until desired length
     + trim useless edges
 - is the MEME E/p-value log10 or natural log?
+- when normalizing, send out a message when no nsite value is present
+    + fix normalizations so that one message is sent per list of motifs...
+    + scan_sequences(), motif_pvalue(), various utils-motif, etc?
+- let switch_alph() be used to change to arbitrary alphabets (but keep default
+  behaviour consistent with previous version!)

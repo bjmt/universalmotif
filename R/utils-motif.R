@@ -8,12 +8,7 @@
 #'    value is set to `FALSE` by default in order to stay consistent with
 #'    pre-version 1.8.0 behaviour.
 #' @param allow.zero `logical(1)` If `FALSE`, apply a pseudocount if zero values
-#'    are found in the PPM. Note that if the motif has a
-#'    pseudocount greater than zero and the motif is not currently of type PPM,
-#'    then this parameter has no effect as the pseudocount will be
-#'    applied automatically when the motif is converted to a PPM internally. This
-#'    value is set to `FALSE` by default in order to stay consistent with
-#'    pre-version 1.8.0 behaviour.
+#'    are found in the background frequencies.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA')`.
 #' @param bkg `numeric` Should be the same length as the alphabet length.
 #' @param bkg1 `numeric` Vector of background probabilities for the first column.
@@ -26,7 +21,7 @@
 #'    every position value. If missing, uses `round(ncol(motif) / 2)`.
 #' @param letter `character(1)` Any DNA, RNA, or AA IUPAC letter. Ambiguity letters
 #'    are accepted.
-#' @param match `character(1)` Sequence string to calculate score from.
+#' @param match `character` Sequence string to calculate score from.
 #' @param method `character(1)` Column comparison metric. See [compare_motifs()]
 #'    for details.
 #' @param mingap `numeric` Minimum gap size. Must have one value for every location.
@@ -202,11 +197,19 @@
 #' apply(m, 2, ppm_to_pwm, nsites = 100, bkg = rep(0.25, 4))
 #'
 #' #######################################################################
-#' ## prob_match
-#' ## Calculate probability of a particular match
+#' ## prob_match, prob_match_bkg
+#' ## Calculate probability of a particular match based on background
+#' ## frequencies
 #' prob_match(examplemotif, "TATATAT")
+#' ## Since this motif has a uniform background, the probability of
+#' ## finding any motif hit within the sequence is equal
 #' prob_match(examplemotif, "TATATAG")
-#' prob_match(examplemotif, "TATATAG", allow.zero = FALSE)
+#' m <- examplemotif
+#' m["bkg"] <- c(0.3, 0.2, 0.2, 0.3)
+#' prob_match(m, "TATATAT")
+#' ## The prob_match_bkg alternative allows you to simply pass along the
+#' ## background frequencies
+#' prob_match_bkg(c(A=0.3, C=0.2, G=0.2, T=0.3), c("TATATAT", "TATATAG"))
 #'
 #' #######################################################################
 #' ## pwm_to_ppm
@@ -634,10 +637,22 @@ prob_match <- function(motif, match, allow.zero = TRUE) {
   if (motif@type != "PPM")
     motif <- convert_type_internal(motif, "PPM")
 
-  if (!allow.zero && any(motif@motif == 0)) {
-    message(wmsg("Note: found zero values in motif PPM, applying pseudocount. ",
-      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-    motif <- normalize(motif)
+  bkg <- motif@bkg[seq_len(nrow(motif))]
+
+  if (!allow.zero && any(bkg == 0)) {
+    message(wmsg("Note: found zero values in motif background frequencies, ",
+        "applying pseudocount. Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+    pseudo <- motif@pseudocount
+    if (pseudo == 0) {
+      message("Note: motif has a pseudocount of zero, using 1")
+      pseudo <- 1
+    }
+    nsites <- motif@nsites
+    if (length(nsites) == 0) {
+      message("Note: motif has no nsites info, using 100")
+      nsites <- 100
+    }
+    bkg <- bkg + (pseudo / nsites) / length(bkg)
   }
 
   match <- lapply(match, safeExplode)
@@ -651,13 +666,51 @@ prob_match <- function(motif, match, allow.zero = TRUE) {
 
   prob <- rep(1, length(match))
 
-  mat <- matrix(motif@motif,
-                nrow = nrow(motif@motif),
-                dimnames = dimnames(motif@motif))
+  # mat <- matrix(motif@motif,
+  #               nrow = nrow(motif@motif),
+  #               dimnames = dimnames(motif@motif))
 
-  for (i in seq_len(ncol(mat))) {
-    for (j in seq_along(prob)) {
-    prob[j] <- prob[j] * mat[match[[j]][i], i]
+  # for (i in seq_len(ncol(motif))) {
+  #   for (j in seq_along(prob)) {
+  #     # prob[j] <- prob[j] * mat[match[[j]][i], i]
+  #     prob[j] <- prob[j] * bkg[match[[j]][i]]
+  #   }
+  # }
+
+  for (i in seq_along(prob)) {
+    for (j in seq_len(ncol(motif))) {
+      prob[i] <- prob[i] * bkg[match[[i]][j]]
+    }
+  }
+
+  prob
+
+}
+
+#' @rdname utils-motif
+#' @export
+prob_match_bkg <- function(bkg, match) {
+
+  if (!is.character(match) || length(match) < 1)
+    stop("match must be a non-empty character vector")
+
+  if (!is.numeric(bkg) || length(bkg) < 1)
+    stop("bkg must be a non-empty numeric vector")
+
+  if (is.null(names(bkg)))
+    stop("bkg must be a named vector")
+
+  match <- lapply(match, safeExplode)
+  lets <- sort_unique_cpp(unname(unlist(match)))
+
+  if (any(!lets %in% names(bkg)))
+    stop("found letters in match not in bkg vector names")
+
+  prob <- rep(1, length(match))
+
+  for (i in seq_along(prob)) {
+    for (j in seq_along(match[[i]])) {
+      prob[i] <- prob[i] * bkg[match[[i]][j]]
     }
   }
 

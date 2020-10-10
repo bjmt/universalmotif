@@ -19,6 +19,7 @@
 \alias{ppm_to_pcm}
 \alias{ppm_to_pwm}
 \alias{prob_match}
+\alias{prob_match_bkg}
 \alias{pwm_to_ppm}
 \alias{round_motif}
 \alias{score_match}
@@ -65,6 +66,8 @@ ppm_to_pwm(position, bkg = numeric(), pseudocount = 1, nsites = 100,
   smooth = TRUE)
 
 prob_match(motif, match, allow.zero = TRUE)
+
+prob_match_bkg(bkg, match)
 
 pwm_to_ppm(position, bkg = numeric())
 
@@ -155,15 +158,10 @@ relative entropy or Kullback-Leibler divergence.}
 
 \item{smooth}{\code{logical(1)} Apply pseudocount correction.}
 
-\item{match}{\code{character(1)} Sequence string to calculate score from.}
+\item{match}{\code{character} Sequence string to calculate score from.}
 
 \item{allow.zero}{\code{logical(1)} If \code{FALSE}, apply a pseudocount if zero values
-are found in the PPM. Note that if the motif has a
-pseudocount greater than zero and the motif is not currently of type PPM,
-then this parameter has no effect as the pseudocount will be
-applied automatically when the motif is converted to a PPM internally. This
-value is set to \code{FALSE} by default in order to stay consistent with
-pre-version 1.8.0 behaviour.}
+are found in the background frequencies.}
 
 \item{pct.tolerance}{\code{numeric(1)} or \code{character(1)} The minimum tolerated
 proportion each letter must represent per position in order not to be
@@ -314,11 +312,19 @@ m <- create_motif()["motif"]
 apply(m, 2, ppm_to_pwm, nsites = 100, bkg = rep(0.25, 4))
 
 #######################################################################
-## prob_match
-## Calculate probability of a particular match
+## prob_match, prob_match_bkg
+## Calculate probability of a particular match based on background
+## frequencies
 prob_match(examplemotif, "TATATAT")
+## Since this motif has a uniform background, the probability of
+## finding any motif hit within the sequence is equal
 prob_match(examplemotif, "TATATAG")
-prob_match(examplemotif, "TATATAG", allow.zero = FALSE)
+m <- examplemotif
+m["bkg"] <- c(0.3, 0.2, 0.2, 0.3)
+prob_match(m, "TATATAT")
+## The prob_match_bkg alternative allows you to simply pass along the
+## background frequencies
+prob_match_bkg(c(A=0.3, C=0.2, G=0.2, T=0.3), c("TATATAT", "TATATAG"))
 
 #######################################################################
 ## pwm_to_ppm

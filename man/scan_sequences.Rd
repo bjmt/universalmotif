@@ -7,7 +7,7 @@
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE,
-  allow.nonfinite = FALSE, warn.NA = TRUE)
+  allow.nonfinite = FALSE, warn.NA = TRUE, calc.pvals = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -51,6 +51,14 @@ pre-version 1.8.0 behaviour.}
 
 \item{warn.NA}{\code{logical(1)} Whether to warn about the presence of non-standard
 letters in the input sequence, such as those in masked sequences.}
+
+\item{calc.pvals}{\code{logical(1)} Calculate P-values for each hit. This is a
+convinience option which simply gives \code{motif_pvalue()} the input motifs
+and the scores of each hit. Be careful about setting this to \code{TRUE} if
+you anticipate getting thousands of hits: expect to wait a few seconds or
+minutes for the calculations to finish. Increasing the \code{nthreads} value
+can help greatly here. See Details for more information on P-value
+calculation.}
 }
 \value{
 \code{DataFrame} with each row representing one hit. If the input
@@ -87,6 +95,17 @@ masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
 for masking sequences
 (generating \code{\link{MaskedXString}} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
 to recover masked \code{\link{XStringSet}} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
+There is also a provided wrapper function which performs both steps: \code{\link[=mask_seqs]{mask_seqs()}}.
+
+When \code{calc.pvals = TRUE}, \code{\link[=motif_pvalue]{motif_pvalue()}} will calculate the probabilities
+of getting the input scores or higher, which is why it can take time to
+calculate the P-values. If you simply wish to calculate the
+probabilities of getting individual matches based on background frequencies,
+then the following code can be used to achieve
+this (using the list of input motifs and \code{\link[=scan_sequences]{scan_sequences()}} results):
+\code{mapply(prob_match, motifs[scanRes$motif.i], scanRes$match)}. Of course
+this only matters if you do not have uniform background frequencies, or
+else the probability of each match is simply \code{(1 / nrow(motif))^ncol(motif)}.
 }
 \examples{
 ## any alphabet can be used

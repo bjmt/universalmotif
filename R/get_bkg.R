@@ -94,11 +94,11 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   #---------------------------------------------------------
 
   if (!is.null(as.prob))
-    warning("`as.prob` has been disabled and now does nothing",
-      immediate. = TRUE)
+    warning(wmsg("`as.prob` has been disabled and now does nothing ",
+        "(both counts and probabilities are now shown)"), immediate. = TRUE)
   if (!is.null(list.out))
-    warning("`list.out` has been disabled and now does nothing",
-      immediate. = TRUE)
+    warning(wmsg("`list.out` has been disabled and now does nothing ",
+        "(all posisble outputs are now returned as DataFrames)"), immediate. = TRUE)
 
   if (!is.null(to.meme) && window)
     stop("`window = TRUE` is not valid if `to.meme` is not `NULL`")

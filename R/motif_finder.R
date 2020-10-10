@@ -47,6 +47,11 @@ motif_finder <- function(sequences, bkg.sequences = NULL, nmotifs = 3,
   seqsk[order(seqsk$log10BinomP), ]
 
   # next: merge overlapping klets?
+
+  unlist(vmatchPattern(seqsk$klet[1], sequences))
+
+  # combine same-sized klets? (use Biostrings::stringDist(..., method ="hamming")
+  # to identify those which are potentially of the same motif)
   # nsites cutoff: do this after clustering?
 
 }

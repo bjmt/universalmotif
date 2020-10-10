@@ -50,12 +50,49 @@ setMethod("[<-", "universalmotif", function(x, i, value) {
   if (i %in% c("icscore", "multifreq", "consensus", "motif"))
     stop(wmsg("this slot is unmodifiable with [<-"))
 
+  if (i == "bkg") {
+    value <- new_bkg(x, value)
+  }
+
   slot(x, i) <- value
 
   validObject_universalmotif(x)
   x
 
 })
+
+new_bkg <- function(m, bkg) {
+  oldbkg <- m@bkg
+  nlets <- nrow(m)
+  if (is.null(names(bkg)) && length(bkg) == nlets) {
+    names(bkg) <- rownames(m)
+  } else if (length(bkg) == nlets) {
+    bkg <- bkg[rownames(m)]
+    if (anyNA(bkg))
+      stop(wmsg("If a named vector is provided, it must contain all motif ",
+          "alphabet letters [", rownames(m), "]"), call. = FALSE)
+  } else {
+    lens <- cumsum(nrow(m)^(1:100))
+    if (!any(lens == nrow(m))) {
+      stop(wmsg("The length of the background vector including higher background",
+          " frequencies must be equal to the cumulative sum ",
+          "of the number of klets for each klet size, starting from one to the ",
+          "max klet size provided"), call. = FALSE)
+    }
+    maxK <- which(lens == length(bkg))
+    bkgnames <- unlist(lapply(seq_len(maxK), function(x) get_klets(rownames(m), x)))
+    if (is.null(names(bkg))) {
+      names(bkg) <- bkgnames
+    } else {
+      bkg <- bkg[bkgnames]
+      if (anyNA(bkg))
+        stop(wmsg("If a named vector including higher background frequencies",
+            " is provided, it must contain all motif alphabet letters and ",
+            "klets"), call. = FALSE)
+    }
+  }
+  bkg
+}
 
 #' @param .Object [universalmotif-class] Final motif.
 #' @param name `character(1)` Motif name.
@@ -382,7 +419,8 @@ setMethod("normalize", signature(object = "universalmotif"),
   type <- object@type
   pseudo <- object@pseudocount
   if (pseudo == 0) {
-    message(wmsg("Note: since this motif has a pseudocount of 0, 1 will be used."))
+    message(wmsg("Note: since this motif [", object@name,
+        "] has a pseudocount of 0, 1 will be used."))
     pseudo <- 1
   }
   object <- convert_type(object, "PCM")

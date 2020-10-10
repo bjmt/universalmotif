@@ -67,7 +67,7 @@
 #' setting `k = 12`.
 #'
 #' To calculate a score from a P-value, all possible scores are calculated
-#' and the `(1 - pvalue)` nth percentile score returned.
+#' and the `(1 - pvalue) * 100` nth percentile score returned.
 #' When `k < ncol(motif)`, the complete set of scores is instead approximated
 #' by randomly adding up all possible scores from each subset.
 #' It is important to keep in mind that no consideration is given to
@@ -86,13 +86,10 @@
 #'
 #' @examples
 #' if (R.Version()$arch != "i386") {
-#' data(examplemotif)
 #'
 #' ## P-value/score calculations are performed using the PWM version of the
-#' ## motif, these calculations do not work if any -Inf values are present
-#' examplemotif["pseudocount"] <- 1
-#' # or
-#' examplemotif <- normalize(examplemotif)
+#' ## motif
+#' data(examplemotif)
 #'
 #' ## Get a minimum score based on a p-value
 #' motif_pvalue(examplemotif, pvalue = 0.001)
@@ -185,7 +182,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   if (!is.list(motifs)) motifs <- list(motifs)
   anyinf <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
   if (any(anyinf) && !allow.nonfinite) {
-    message(wmsg("Note: found -Inf values in PWM motif, normalizing. ",
+    message(wmsg("Note: found -Inf values in motif PWMs. Normalizing. ",
       "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     for (i in which(anyinf)) {
       motifs[[i]] <- convert_type(motifs[[i]], "PPM")

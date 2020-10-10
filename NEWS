@@ -12,7 +12,9 @@ NEW FEATURES
 
     o read_meme(), write_meme(): now fully support custom alphabets.
 
-    o prob_match(): calculate the probability of a motif match.
+    o prob_match(), prob_match_bkg(): calculate the probability of a motif
+      match based on background frequencies of the motif object or provided
+      values, respectively.
 
     o enrich_motifs(), get_matches(), get_scores(), motif_pvalue(),
       motif_score(), scan_sequences(), score_match(): new allow.nonfinite
@@ -36,6 +38,10 @@ NEW FEATURES
 
     o get_bkg(..., merge.res): new option to return background information for
       individual sequences.
+
+    o scan_sequences(..., calc.pvals): new option to calculate P-values for
+      sequence hits. This is merely automating using the results from
+      scan_sequences() to calculate P-values manually with motif_pvalue().
 
 MINOR CHANGES
 
@@ -62,6 +68,11 @@ MINOR CHANGES
       not NULL) is a DataFrame showing both counts and probabilities.
 
     o General documentation cleanup.
+
+BUG FIXES
+
+    o Changing motif backgrounds with `[<-` will now make sure to set correct
+      vector names.
 
 CHANGES IN VERSION 1.6.4
 ------------------------

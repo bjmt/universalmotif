@@ -34,6 +34,13 @@
 #'    pre-version 1.8.0 behaviour.
 #' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
 #'    letters in the input sequence, such as those in masked sequences.
+#' @param calc.pvals `logical(1)` Calculate P-values for each hit. This is a
+#'    convinience option which simply gives `motif_pvalue()` the input motifs
+#'    and the scores of each hit. Be careful about setting this to `TRUE` if
+#'    you anticipate getting thousands of hits: expect to wait a few seconds or
+#'    minutes for the calculations to finish. Increasing the `nthreads` value
+#'    can help greatly here. See Details for more information on P-value
+#'    calculation.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -65,6 +72,17 @@
 #'    for masking sequences
 #'    (generating \code{\link{MaskedXString}} objects), and [Biostrings::injectHardMask()]
 #'    to recover masked \code{\link{XStringSet}} objects for use with [scan_sequences()].
+#'    There is also a provided wrapper function which performs both steps: [mask_seqs()].
+#'
+#'    When `calc.pvals = TRUE`, [motif_pvalue()] will calculate the probabilities
+#'    of getting the input scores or higher, which is why it can take time to
+#'    calculate the P-values. If you simply wish to calculate the
+#'    probabilities of getting individual matches based on background frequencies,
+#'    then the following code can be used to achieve
+#'    this (using the list of input motifs and [scan_sequences()] results):
+#'    `mapply(prob_match, motifs[scanRes$motif.i], scanRes$match)`. Of course
+#'    this only matters if you do not have uniform background frequencies, or
+#'    else the probability of each match is simply `(1 / nrow(motif))^ncol(motif)`.
 #'
 #' @examples
 #' ## any alphabet can be used
@@ -102,7 +120,7 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
-  warn.NA = TRUE) {
+  warn.NA = TRUE, calc.pvals = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -333,6 +351,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (any(mot.hasgap) && use.gaps) {
     out$match <- add_gap_dots_cpp(out$match, gapdat$gaplocs[out$motif.i])
     out$motif.i <- gapdat$IDs[out$motif.i]
+  }
+
+  if (calc.pvals) {
+    out$pvalue <- motif_pvalue(motifs[out$motif.i], out$score, use.freq = use.freq,
+      nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k)
   }
 
   out

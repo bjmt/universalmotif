@@ -147,6 +147,13 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   if (!is.list(motifs)) motifs <- list(motifs)
   if (missing(pseudocount)) pseudocount <- NULL
 
+  if (type == "PWM") {
+    nsiteLens <- vapply(lapply(motifs, function(x) x@nsites), length, integer(1))
+    if (any(nsiteLens == 0)) {
+      message(wmsg("Note: found motifs with empty nsites slots, using 100."))
+    }
+  }
+
   motifs <- lapply(motifs, function(x) convert_type_single(x, type, pseudocount,
                                                            nsize_correction,
                                                            relative_entropy))
@@ -193,7 +200,11 @@ convert_type_single <- function(motif, type, pseudocount,
   if (anyNA(bkg)) bkg <- motif@bkg[seq_len(nrow(motif@motif))]
   if (any(bkg == 0)) bkg <- pcm_to_ppmC(bkg * 1000, 1)
 
-  if (length(motif@nsites) == 0) nsites <- 100 else nsites <- motif@nsites
+  if (length(motif@nsites) == 0) {
+    nsites <- 100
+  } else {
+    nsites <- motif@nsites
+  }
 
   motif <- switch(in_type,
                   "PCM" = convert_from_pcm(motif, type, pseudocount, bkg, nsites,

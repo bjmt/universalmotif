@@ -86,7 +86,7 @@ calculating exact p-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
 To calculate a score from a P-value, all possible scores are calculated
-and the \code{(1 - pvalue)} nth percentile score returned.
+and the \code{(1 - pvalue) * 100} nth percentile score returned.
 When \code{k < ncol(motif)}, the complete set of scores is instead approximated
 by randomly adding up all possible scores from each subset.
 It is important to keep in mind that no consideration is given to
@@ -102,13 +102,10 @@ try the following code with your motif (be careful with longer motifs):
 }
 \examples{
 if (R.Version()$arch != "i386") {
-data(examplemotif)
 
 ## P-value/score calculations are performed using the PWM version of the
-## motif, these calculations do not work if any -Inf values are present
-examplemotif["pseudocount"] <- 1
-# or
-examplemotif <- normalize(examplemotif)
+## motif
+data(examplemotif)
 
 ## Get a minimum score based on a p-value
 motif_pvalue(examplemotif, pvalue = 0.001)
