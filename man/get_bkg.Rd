@@ -24,7 +24,9 @@ any k-let from having 0 or 1 probabilities.}
 \item{alphabet}{\code{character(1)} Provide a custom alphabet to calculate a
 background for. If \code{NULL}, then standard letters will be assumed for
 DNA, RNA and AA sequences, and all unique letters found will be used
-for \code{BStringSet} type sequences.}
+for \code{BStringSet} type sequences. Note that letters which are not a part
+of the standard DNA/RNA/AA alphabets or in the provided alphabet will
+not be counted in the totals during probability calculations.}
 
 \item{to.meme}{If not \code{NULL}, then \code{\link[=get_bkg]{get_bkg()}} will return the sequence
 background in MEME Markov Background Model format. Input for this argument

@@ -42,8 +42,13 @@
     + finally extend motif until desired length
     + trim useless edges
 - is the MEME E/p-value log10 or natural log?
-- when normalizing, send out a message when no nsite value is present
-    + fix normalizations so that one message is sent per list of motifs...
-    + scan_sequences(), motif_pvalue(), various utils-motif, etc?
 - let switch_alph() be used to change to arbitrary alphabets (but keep default
   behaviour consistent with previous version!)
+- can motif_pvalue() sometimes return the incorrect p-value when the provided
+  score is also the max possible score? (maybe something to do with rounding)
+- time for another make_DBscores() re-write I think
+- really time to be getting around to writing a universalmotifList container
+    + still allow all input types, including lists, just immediately always
+      convert to universalmotifList
+    + it behaves exactly the same way as a regular list; only difference is
+      that it allows me to do more checks for groups of motifs at a time

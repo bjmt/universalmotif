@@ -359,6 +359,10 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
   motif <- convert_motifs(motif)
   if (motif@type != "PWM")
     motif <- convert_type_internal(motif, "PWM")
+  if (is.list(motif) && length(motif) == 1)
+    motif <- motif[[i]]
+  else if (is.list(motif))
+    stop("a single motif must be input")
   if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
     message(wmsg("Note: found -Inf values in PWM motif, normalizing. ",
       "Set `allow.nonfinite = TRUE` to prevent this behaviour."))

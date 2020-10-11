@@ -419,7 +419,7 @@ setMethod("normalize", signature(object = "universalmotif"),
   type <- object@type
   pseudo <- object@pseudocount
   if (pseudo == 0) {
-    message(wmsg("Note: since this motif [", object@name,
+    message(wmsg("Note: motif [", object@name,
         "] has a pseudocount of 0, 1 will be used."))
     pseudo <- 1
   }

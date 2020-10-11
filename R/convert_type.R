@@ -149,8 +149,9 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
 
   if (type == "PWM") {
     nsiteLens <- vapply(lapply(motifs, function(x) x@nsites), length, integer(1))
-    if (any(nsiteLens == 0)) {
-      message(wmsg("Note: found motifs with empty nsites slots, using 100."))
+    for (i in which(nsiteLens == 0)) {
+      message(wmsg("Note: motif [", motifs[[i]]@name, "] has an empty ",
+          "nsites slot, using 100."))
     }
   }
 

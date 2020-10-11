@@ -74,6 +74,9 @@ BUG FIXES
     o Changing motif backgrounds with `[<-` will now make sure to set correct
       vector names.
 
+    o get_bkg() will now correctly ignore non-standard letters and letters
+      missing from the provided alphabet during counting.
+
 CHANGES IN VERSION 1.6.4
 ------------------------
 

@@ -17,7 +17,9 @@
 #' @param alphabet `character(1)` Provide a custom alphabet to calculate a
 #'    background for. If `NULL`, then standard letters will be assumed for
 #'    DNA, RNA and AA sequences, and all unique letters found will be used
-#'    for `BStringSet` type sequences.
+#'    for `BStringSet` type sequences. Note that letters which are not a part
+#'    of the standard DNA/RNA/AA alphabets or in the provided alphabet will
+#'    not be counted in the totals during probability calculations.
 #' @param to.meme If not `NULL`, then [get_bkg()] will return the sequence
 #'    background in MEME Markov Background Model format. Input for this argument
 #'    will be used for `cat(..., file = to.meme)` within [get_bkg()]. See
@@ -290,9 +292,14 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
     else
       res <- res[order(res$klet, method = "radix"), ]
 
+    res$start <- as.integer(res$start)
+    res$stop <- as.integer(res$stop)
+
     res <- as(res, "DataFrame")
 
   }
+
+  res$probability[is.nan(res$probability)] <- 0
 
   res
 
