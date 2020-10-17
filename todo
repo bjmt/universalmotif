@@ -52,3 +52,6 @@
       convert to universalmotifList
     + it behaves exactly the same way as a regular list; only difference is
       that it allows me to do more checks for groups of motifs at a time
+- need a function which can allow for motifs with different background freqs
+   to be comparable: maybe something like PPM --> PWM (change background) PWM
+   --> PPM?

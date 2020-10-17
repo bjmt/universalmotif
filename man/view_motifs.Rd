@@ -7,7 +7,8 @@
 view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
-  return.raw = FALSE, dedup.names = FALSE, ...)
+  return.raw = FALSE, dedup.names = FALSE, show.positions = TRUE,
+  show.positions.once = TRUE, show.names = TRUE, ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -60,6 +61,14 @@ left or right of motifs to generate matrices of equal length.}
 \item{dedup.names}{\code{logical(1)} Plotting motifs with duplicated names is
 not allowed. Setting this to \code{TRUE} allows the names to be modified
 for plotting.}
+
+\item{show.positions}{\code{logical(1)} Show x-axis position tick labels.}
+
+\item{show.positions.once}{\code{logical(1)} When plotting multiple motifs,
+show x-axis position tick labels only once.}
+
+\item{show.names}{\code{logical(1)} Add motif names when plotting multiple
+motifs.}
 
 \item{...}{Additional options for \code{\link[ggseqlogo:geom_logo]{ggseqlogo::geom_logo()}}.}
 }

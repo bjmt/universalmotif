@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.7.38
+Version: 1.7.39
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "b2tremblay@uwaterloo.ca",
@@ -19,7 +19,7 @@ Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
 Imports: methods, stats, utils, MASS, ggplot2, ggseqlogo, yaml, IRanges,
-    Rcpp, Rdpack (>= 0.7), Biostrings, BiocGenerics, S4Vectors, rlang
+    Rcpp, Rdpack (>= 0.7), Biostrings, BiocGenerics, S4Vectors, rlang, grid
 Suggests: spelling, knitr, bookdown, TFBSTools, rmarkdown, MotifDb, testthat,
     Logolas, BiocParallel, seqLogo, motifStack, dplyr, ape, ggtree, processx
 Enhances: MotIV, PWMEnrich, rGADEM, motifRG

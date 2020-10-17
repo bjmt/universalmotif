@@ -43,6 +43,9 @@ NEW FEATURES
       sequence hits. This is merely automating using the results from
       scan_sequences() to calculate P-values manually with motif_pvalue().
 
+    o view_motifs(..., show.positions, show.positions.once, show.names): new
+      options for customizing the look of plotted motifs.
+
 MINOR CHANGES
 
     o read_matrix(..., positions): added partial argument matching.
@@ -66,6 +69,8 @@ MINOR CHANGES
     o get_bkg(): the list.out and as.prob options have been disabled. To
       simplify the function, the only possible output (exception: if to.meme is
       not NULL) is a DataFrame showing both counts and probabilities.
+
+    o Changed the default look of motifs plotted by view_motifs().
 
     o General documentation cleanup.
 

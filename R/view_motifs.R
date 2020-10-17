@@ -14,6 +14,11 @@
 #'    not allowed. Setting this to `TRUE` allows the names to be modified
 #'    for plotting.
 #' @param ... Additional options for [ggseqlogo::geom_logo()].
+#' @param show.positions `logical(1)` Show x-axis position tick labels.
+#' @param show.positions.once `logical(1)` When plotting multiple motifs,
+#'    show x-axis position tick labels only once.
+#' @param show.names `logical(1)` Add motif names when plotting multiple
+#'    motifs.
 #'
 #' @return A ggplot object. If `return.raw = TRUE`, a list.
 #'
@@ -48,10 +53,30 @@
 #' @inheritParams compare_motifs
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
-                        tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
-                        relative_entropy = FALSE, normalise.scores = FALSE,
-                        min.position.ic = 0, score.strat = "sum",
-                        return.raw = FALSE, dedup.names = FALSE, ...) {
+  tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25,
+  relative_entropy = FALSE, normalise.scores = FALSE, min.position.ic = 0,
+  score.strat = "sum", return.raw = FALSE, dedup.names = FALSE,
+  show.positions = TRUE, show.positions.once = TRUE, show.names = TRUE, ...) {
+
+# view_motifs(ArabidopsisMotif) +
+#   theme(axis.line.y = element_line(size = 0.25),
+#     axis.ticks.y = element_line(size = 0.25),
+#     axis.text.y = element_text(margin = margin(r = 1))) +
+#   scale_y_continuous(breaks=c(0,1,2), limits = c(0, 2), expand = c(0, 0)) +
+#   scale_x_continuous(expand = c(0.02, 0), breaks = 1:15)
+#
+# view_motifs(c(ArabidopsisMotif, create_motif())) +
+#   theme(axis.line.y = element_line(size = 0.25),
+#     axis.ticks.y = element_line(size = 0.25), strip.text = element_blank(),
+#     panel.spacing = unit(1, "lines"),
+#     axis.text.y = element_text(margin = margin(r = 1))) +
+#   scale_y_continuous(breaks=c(0,1,2), limits = c(0, 2), expand = c(0, 0)) +
+#   scale_x_continuous(expand = c(0.02, 0), breaks = 1:15) +  # OR breaks = NULL
+#   facet_wrap(~seq_group, scales = "free_x", ncol = 1)
+#
+# - adding to motif_tree(): first find motif which is most similar to all input
+#   motifs, and make sure all the motifs are aligned to that motif!
+# - ylim: round(c(0, log2(nrow(motif)) / 2, log2(nrow(motif))))
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -100,20 +125,25 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   if (!is.list(motifs)) motifs <- list(motifs)
 
   ylim2 <- NULL
+  breaks <- NULL
   if (use.type == "ICM" && !relative_entropy) {
     plot.method <- "bits"
     yname <- "bits"
     ylim2 <- log2(nrow(motifs[[1]]@motif))
+    breaks <- unique(round(c(0, ylim2 * 0.5, ylim2)))
   } else {
     switch(use.type,
       "PPM" = {
         plot.method <- "prob"
         yname <- "probability"
+        breaks <- c(0, 0.5 ,1)
+        ylim2 <- 1
       },
       "ICM" = {
         plot.method <- "custom"
         yname <- "bits"
         ylim2 <- log2(nrow(motifs[[1]]@motif))
+        breaks <- unique(round(c(0, ylim2 * 0.5, ylim2)))
       },
       "PWM" = {
         plot.method <- "custom"
@@ -201,7 +231,21 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                      seq_type = seq_type, ...) +
              ylab(yname)
     }
-    if (!is.null(ylim2)) p <- p + ylim(0, ylim2)
+    p <- suppressMessages(
+      p +
+        scale_y_continuous(breaks = if (!is.null(breaks)) breaks else NULL,
+          limits = if (!is.null(ylim2)) c(0, ylim2) else NULL,
+          expand = c(0, 0))
+    )
+    if (!show.positions) p <- p + xlab(element_blank())
+    p <- suppressMessages(
+      p +
+        theme(axis.line.y = element_line(size = 0.25),
+          axis.ticks.y = element_line(size = 0.25),
+          axis.text.y = element_text(margin = margin(r = 1))) +
+        scale_x_continuous(breaks = seq_len(ncol(mot.mats[[1]])),
+          expand = c(0.02, 0))
+    )
     return(p)
   }
 
@@ -234,14 +278,33 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     p <- ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, 
                          namespace = alph, ...) +
       theme_logo() +
-      facet_wrap(~seq_group, ncol = 1) + ylab(yname)
+      facet_wrap(~seq_group, ncol = 1,
+        scales = if (!show.positions.once) "free_x" else "fixed") +
+      ylab(yname)
   } else {
     p <- ggplot() + geom_logo(mots, method = plot.method, seq_type = seq_type, ...) +
       theme_logo() +
-      facet_wrap(~seq_group, ncol = 1) + ylab(yname)
+      facet_wrap(~seq_group, ncol = 1,
+        scales = if (!show.positions.once) "free_x" else "fixed") +
+      ylab(yname)
   }
 
-  if (!is.null(ylim2)) p <- p + ylim(0, ylim2)
+  p <- suppressMessages(
+    p +
+      scale_y_continuous(breaks = if (!is.null(breaks)) breaks else NULL,
+        limits = if (!is.null(ylim2)) c(0, ylim2) else NULL,
+        expand = c(0, 0))
+  )
+  p <- suppressMessages(
+    p +
+      theme(axis.line.y = element_line(size = 0.25),
+        axis.ticks.y = element_line(size = 0.25),
+        panel.spacing = unit(1, "lines"),
+        axis.text.y = element_text(margin = margin(r = 1))) +
+      scale_x_continuous(expand = c(0.02, 0),
+        breaks = if (show.positions) seq_len(ncol(mots[[1]])) else NULL)
+  )
+  if (!show.names) p <- p + theme(strip.text = element_blank())
 
   p
 

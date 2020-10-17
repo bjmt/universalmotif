@@ -10,7 +10,10 @@
 #' @importMethodsFrom methods initialize show
 #' @importFrom ggplot2 aes element_blank facet_wrap ggplot theme ylab xlab
 #' @importFrom ggplot2 geom_line geom_point geom_hline geom_text theme_bw ylim
+#' @importFrom ggplot2 margin scale_x_continuous scale_y_continuous
+#' @importFrom ggplot2 element_line element_text
 #' @importFrom ggseqlogo ggseqlogo geom_logo theme_logo
+#' @importFrom grid unit
 #' @importFrom rlang .data
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
