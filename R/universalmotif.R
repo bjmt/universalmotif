@@ -11,7 +11,7 @@
 #' @importFrom ggplot2 aes element_blank facet_wrap ggplot theme ylab xlab
 #' @importFrom ggplot2 geom_line geom_point geom_hline geom_text theme_bw ylim
 #' @importFrom ggplot2 margin scale_x_continuous scale_y_continuous
-#' @importFrom ggplot2 element_line element_text
+#' @importFrom ggplot2 element_line element_text waiver
 #' @importFrom ggseqlogo ggseqlogo geom_logo theme_logo
 #' @importFrom grid unit
 #' @importFrom rlang .data

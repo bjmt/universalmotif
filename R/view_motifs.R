@@ -233,8 +233,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     }
     p <- suppressMessages(
       p +
-        scale_y_continuous(breaks = if (!is.null(breaks)) breaks else NULL,
-          limits = if (!is.null(ylim2)) c(0, ylim2) else NULL,
+        scale_y_continuous(breaks = if (!is.null(breaks)) breaks else waiver(),
+          limits = if (!is.null(ylim2)) c(0, ylim2) else waiver(),
           expand = c(0, 0))
     )
     if (!show.positions) p <- p + xlab(element_blank())
@@ -291,8 +291,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
   p <- suppressMessages(
     p +
-      scale_y_continuous(breaks = if (!is.null(breaks)) breaks else NULL,
-        limits = if (!is.null(ylim2)) c(0, ylim2) else NULL,
+      scale_y_continuous(breaks = if (!is.null(breaks)) breaks else waiver(),
+        limits = if (!is.null(ylim2)) c(0, ylim2) else waiver(),
         expand = c(0, 0))
   )
   p <- suppressMessages(
@@ -302,7 +302,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         panel.spacing = unit(1, "lines"),
         axis.text.y = element_text(margin = margin(r = 1))) +
       scale_x_continuous(expand = c(0.02, 0),
-        breaks = if (show.positions) seq_len(ncol(mots[[1]])) else NULL)
+        breaks = if (show.positions) seq_len(ncol(mots[[1]])) else waiver())
   )
   if (!show.names) p <- p + theme(strip.text = element_blank())
 
