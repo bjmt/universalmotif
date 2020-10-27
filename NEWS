@@ -6,6 +6,9 @@ BUG FIXES
     o Fixed error when scan_sequences() is used with both RC = TRUE and
       calc.pvals = TRUE.
 
+    o Fixed motif.i column in scan_sequences() results not reporting correctly
+      when RC = TRUE.
+
 CHANGES IN VERSION 1.8.0
 ------------------------
 
