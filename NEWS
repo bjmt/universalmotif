@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.8.1
+------------------------
+
+BUG FIXES
+
+    o Fixed error when scan_sequences() is used with both RC = TRUE and
+      calc.pvals = TRUE.
+
 CHANGES IN VERSION 1.8.0
 ------------------------
 

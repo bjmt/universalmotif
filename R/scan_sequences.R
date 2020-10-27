@@ -306,6 +306,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     score.mats <- c(score.mats, score.mats.rc)
     min.scores <- c(min.scores, min.scores)
     max.scores <- c(max.scores, max.scores)
+    motifs <- c(motifs, motifs)
   }
 
   thresholds[thresholds == Inf] <- min_max_ints()$max / 1000

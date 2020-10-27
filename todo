@@ -1,6 +1,5 @@
 - Do the read/write_motifs() functions work with the gap slots?
 - Still need to rework compare_motifs() p-values
-- Think about writting my own geom_motif()
 - Extend current view_motifs() implementation for higher k motifs
 - Scan for motif clusters
 - Check that everything in convert_motifs() still works
@@ -27,9 +26,6 @@
 - small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
   un-log for print and `[` methods?
 - shuffle_sequences(): add local shuffling
-- get_bkg(ArabidopsisPromoters, as.prob = FALSE, alphabet = "ACG"): incorrectly
-  counting A's, AA's, AAA's (looks like it's adding up the T's to the first
-  klet for every "k")
 - get_bkg(): rewrite so that all window code is in c++ (like in sequence-utils)
 - de novo motifs:
     + first search 4/5/6/7/8-mers for enrichment differences (either
@@ -57,3 +53,11 @@
    --> PPM?
 - view_motifs(show.positions.once = FALSE): actually show proper per-motif
   positions, not just numbering all columns
+- trim_motifs(): give option to trim from one direction, or manual trimming
+- write my own geom_motif():
+    + get character polygon coordinates using gglogo package
+    + allow for ED logos?
+    + allow for multifreq logos
+    + also plotting 1 column motifs with ggseqlogo leads to an error
+- create_motif(): is there a check for the "type" input?
+    + why does create_motif(type="asdf") work?
