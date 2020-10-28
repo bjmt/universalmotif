@@ -234,8 +234,9 @@ long double motif_pvalue_single(list_int_t mot, const double score,
   mot_split = list_mat_t(nsplit);
   alph_indices_split = list_mat_t(nsplit);
   for (int i = 0; i < nsplit; ++i) {
-    mot_split[i].reserve(k);
-    alph_indices_split[i].reserve(k);
+    // These reserves are likely trivial
+    // mot_split[i].reserve(k);
+    // alph_indices_split[i].reserve(k);
     for (int j = 0; j < k; ++j) {
       if (counter == int(motlen)) break;
       mot_split[i].push_back(mot[counter]);
@@ -289,12 +290,31 @@ long double motif_pvalue_single(list_int_t mot, const double score,
         }
 
         vec_lnum_t tprobs;
-        tprobs.reserve(all_probs[i + 2].size());
+
+        // is there a problem with all_probs[i + 2] not having the same length
+        // as all_scores[i + 1]?
+        //
+        // RcppThread::Rcout << all_probs[i + 2].size() <<'\n';
+        // Rcpp::stop("test");
+        //
+        // Basically, all_scores/probs[i+1] and all_scores/probs[i+2] won't always
+        // have the same length but they are treated as if they could. FIXME
+
+        // RcppThread::Rcout << "all_probs[i + 1]  " << all_probs[i + 1].size() << '\n';
+        // RcppThread::Rcout << "all_probs[i + 2]  " << all_probs[i + 2].size() << '\n';
+        // RcppThread::Rcout << "all_scores[i + 1]  " << all_scores[i + 1].size() << '\n';
+        // RcppThread::Rcout << "all_scores[i + 2]  " << all_scores[i + 2].size() << '\n';
+        // RcppThread::Rcout << "gscores  " << gscores.size() << '\n';
+        // Rcpp::stop("test");
+
+        // tprobs.reserve(all_probs[i + 2].size());
         for (std::size_t b = 0; b < gscores.size(); ++b) {
           if (gscores[b]) tprobs.push_back(all_probs[i + 2][b]);
         }
 
-        all_probs[i + 1][j] *= std::accumulate(tprobs.begin(), tprobs.end(), 0.0);
+        if (tprobs.size() > 0) {
+          all_probs[i + 1][j] *= std::accumulate(tprobs.begin(), tprobs.end(), 0.0);
+        }
 
       }
 
