@@ -19,7 +19,6 @@ output:
 knitr::opts_chunk$set(collapse=TRUE,comment = "#>")
 suppressPackageStartupMessages(library(universalmotif))
 suppressMessages(suppressPackageStartupMessages(library(MotifDb)))
-suppressMessages(suppressPackageStartupMessages(library(Logolas)))
 suppressMessages(suppressPackageStartupMessages(library(TFBSTools)))
 data(examplemotif)
 data(MA0003.2)
@@ -356,8 +355,9 @@ seqLogo::seqLogo(motif)
 motifStack::plotMotifLogo(motif)
 
 ## Logolas:
-colnames(motif) <- seq_len(ncol(motif))
-Logolas::logomaker(motif, type = "Logo")
+## NOTE: the Logolas package is no longer available in Bioconductor 3.13 and later
+#colnames(motif) <- seq_len(ncol(motif))
+#Logolas::logomaker(motif, type = "Logo")
 
 ## ggseqlogo:
 ggseqlogo::ggseqlogo(motif)
@@ -443,9 +443,11 @@ motif.k2
 Unfortunately `view_motifs()` cannot be used to visualize this higher order motif representation. However, this can be done via the `Logolas` package:
 
 ```{r}
-library(Logolas)
-logomaker(motif.k2["multifreq"][["2"]], type = "Logo",
-          color_type = "per_symbol")
+## NOTE: the Logolas package is not available in Bioconductor 3.13 and later.
+## Replacement functionality is in progress.
+#library(Logolas)
+#logomaker(motif.k2["multifreq"][["2"]], type = "Logo",
+#          color_type = "per_symbol")
 ```
 
 This information is most useful with functions such as `scan_sequences()` and `enrich_motifs()`. Though other tools in the `universalmotif` can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`), keep in mind they are not as well supported as regular motifs (getting P-values from `multifreq` motifs is exponentially slower, and P-values from using `compare_motifs()` for `multifreq` motifs are not available by default). See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()` with the `multifreq` slot.
