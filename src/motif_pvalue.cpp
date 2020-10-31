@@ -282,7 +282,7 @@ long double motif_pvalue_single(list_int_t mot, const double score,
           tscore += split_maxes[b];
         }
 
-        vec_bool_t gscores(all_scores[i + 1].size(), false);
+        vec_bool_t gscores(all_scores[i + 2].size(), false);
         for (std::size_t b = 0; b < all_scores[i + 2].size(); ++b) {
           if (all_scores[i + 2][b] > iscore - all_scores[i + 1][i] - tscore)
             gscores[b] = true;
