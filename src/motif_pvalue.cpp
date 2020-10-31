@@ -234,9 +234,8 @@ long double motif_pvalue_single(list_int_t mot, const double score,
   mot_split = list_mat_t(nsplit);
   alph_indices_split = list_mat_t(nsplit);
   for (int i = 0; i < nsplit; ++i) {
-    // These reserves are likely trivial
-    // mot_split[i].reserve(k);
-    // alph_indices_split[i].reserve(k);
+    mot_split[i].reserve(k);
+    alph_indices_split[i].reserve(k);
     for (int j = 0; j < k; ++j) {
       if (counter == int(motlen)) break;
       mot_split[i].push_back(mot[counter]);
@@ -283,7 +282,7 @@ long double motif_pvalue_single(list_int_t mot, const double score,
           tscore += split_maxes[b];
         }
 
-        vec_bool_t gscores(all_scores[i + 1].size(), false);
+        vec_bool_t gscores(all_scores[i + 2].size(), false);
         for (std::size_t b = 0; b < all_scores[i + 2].size(); ++b) {
           if (all_scores[i + 2][b] > iscore - all_scores[i + 1][i] - tscore)
             gscores[b] = true;
@@ -291,23 +290,7 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
         vec_lnum_t tprobs;
 
-        // is there a problem with all_probs[i + 2] not having the same length
-        // as all_scores[i + 1]?
-        //
-        // RcppThread::Rcout << all_probs[i + 2].size() <<'\n';
-        // Rcpp::stop("test");
-        //
-        // Basically, all_scores/probs[i+1] and all_scores/probs[i+2] won't always
-        // have the same length but they are treated as if they could. FIXME
-
-        // RcppThread::Rcout << "all_probs[i + 1]  " << all_probs[i + 1].size() << '\n';
-        // RcppThread::Rcout << "all_probs[i + 2]  " << all_probs[i + 2].size() << '\n';
-        // RcppThread::Rcout << "all_scores[i + 1]  " << all_scores[i + 1].size() << '\n';
-        // RcppThread::Rcout << "all_scores[i + 2]  " << all_scores[i + 2].size() << '\n';
-        // RcppThread::Rcout << "gscores  " << gscores.size() << '\n';
-        // Rcpp::stop("test");
-
-        // tprobs.reserve(all_probs[i + 2].size());
+        tprobs.reserve(all_probs[i + 2].size());
         for (std::size_t b = 0; b < gscores.size(); ++b) {
           if (gscores[b]) tprobs.push_back(all_probs[i + 2][b]);
         }
