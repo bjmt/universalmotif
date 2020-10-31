@@ -306,6 +306,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     score.mats <- c(score.mats, score.mats.rc)
     min.scores <- c(min.scores, min.scores)
     max.scores <- c(max.scores, max.scores)
+    mot.indices <- c(seq_along(motifs), seq_along(motifs))
+    motifs <- c(motifs, motifs)
   }
 
   thresholds[thresholds == Inf] <- min_max_ints()$max / 1000
@@ -344,6 +346,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (nrow(res) == 0) message("No hits found.")
 
   if (RC && nrow(res) > 0) res <- adjust_rc_hits(res, seq.alph)
+
+  if (RC) res$motif.i <- mot.indices[res$motif.i]
 
   out <- as(res, "DataFrame")
   out@metadata <- args[-c(1:2)]

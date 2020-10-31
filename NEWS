@@ -1,3 +1,17 @@
+CHANGES IN VERSION 1.8.1
+------------------------
+
+BUG FIXES
+
+    o Fixed error when scan_sequences() is used with both RC = TRUE and
+      calc.pvals = TRUE.
+
+    o Fixed motif.i column in scan_sequences() results not reporting correctly
+      when RC = TRUE.
+
+    o Fixed memory access bug in motif_pvalue() when k was set to a value
+      resulting in three or more submotifs.
+
 CHANGES IN VERSION 1.8.0
 ------------------------
 
