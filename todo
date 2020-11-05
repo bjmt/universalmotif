@@ -61,3 +61,4 @@
     + also plotting 1 column motifs with ggseqlogo leads to an error
 - create_motif(): is there a check for the "type" input?
     + why does create_motif(type="asdf") work?
+- read_*(): allow to set pseudocount
