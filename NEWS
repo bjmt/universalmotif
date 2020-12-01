@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.8.2
+------------------------
+
+BUG FIXES
+
+    o Increase compliance with MEME motif format: motif files with missing
+      alphabets/strand/bkg are now allowed and  will be assumed to be
+      DNA/+/uniform frequencies. A check for the MEME version is performed,
+      though only a warning is given if not found.
+
+    o Fixed typo in run_meme() missing dependency error message.
+
 CHANGES IN VERSION 1.8.1
 ------------------------
 

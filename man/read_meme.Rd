@@ -27,8 +27,8 @@ and P-values, and another containing combined sequence p-values.
 \description{
 Import MEME formatted motifs, as well as original motif sequences. See
 \url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
-formats are supported. DREME motifs can also be imported, but note that
-\code{readsites} and \code{readsites.meta} arguments do nothing for this format.
+formats are supported. DREME and STREME motifs can also be imported, but note
+that \code{readsites} and \code{readsites.meta} arguments do nothing.
 }
 \details{
 Please note that the typical number precision limit in R is around 1e-308.

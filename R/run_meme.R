@@ -376,7 +376,7 @@ processx_fun <- function(FUN, env = parent.frame()) {
   if (requireNamespace("processx", quietly = TRUE)) {
     eval(substitute(FUN), envir = env)
   } else {
-    stop(wmsg("The 'processx' package must be installed to use motif_tree(). ",
+    stop(wmsg("The 'processx' package must be installed to use run_meme(). ",
         "[install.packages(\"processx\")]"), call. = FALSE)
   }
 }

@@ -2,8 +2,8 @@
 #'
 #' Import MEME formatted motifs, as well as original motif sequences. See
 #' \url{http://meme-suite.org/doc/meme-format.html}. Both 'full' and 'minimal'
-#' formats are supported. DREME motifs can also be imported, but note that
-#' `readsites` and `readsites.meta` arguments do nothing for this format.
+#' formats are supported. DREME and STREME motifs can also be imported, but note
+#' that `readsites` and `readsites.meta` arguments do nothing.
 #'
 #' @param file `character(1)` File name.
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
@@ -63,6 +63,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   raw_lines <- raw_lines[!grepl("\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*", raw_lines)]
   raw_lines <- raw_lines[!grepl("------------", raw_lines)]
 
+  check_meme_version(raw_lines)
+
   alph <- get_meme_alph(raw_lines)
   alph.len <- get_meme_alph_len(alph)
   alph.split <- switch(alph, DNA = DNA_BASES, RNA = RNA_BASES, AA = AA_STANDARD2,
@@ -72,25 +74,31 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   if (length(strands) > 0) {
     strands <- strsplit(strands, "\\s+")[[1]][-1]
   } else {
+    message("Could not find strand info, assuming +.")
     strands <- "+"
   }
   if (all(c("+", "-") %in% strands)) {
     strands <- "+-"
   }
   bkg.start <- grep("^Background letter frequencies", raw_lines)
-  bkg.offset <- 1
-  bkg <- raw_lines[bkg.start + bkg.offset]
-  bkg <- strsplit(bkg, "\\s+")[[1]]
-  bkg <- as.numeric(bkg[seq_len(length(bkg)) %% 2 == 0])
-  while (length(bkg) < alph.len) {
-    bkg.offset <- bkg.offset + 1
-    bkg.tmp <- raw_lines[bkg.start + bkg.offset]
-    bkg.tmp <- strsplit(bkg.tmp, "\\s+")[[1]]
-    bkg.tmp <- as.numeric(bkg.tmp[seq_along(bkg.tmp) %% 2 == 0])
-    bkg <- c(bkg, bkg.tmp)
+  if (length(bkg.start)) {
+    bkg.offset <- 1
+    bkg <- raw_lines[bkg.start + bkg.offset]
+    bkg <- strsplit(bkg, "\\s+")[[1]]
+    bkg <- as.numeric(bkg[seq_len(length(bkg)) %% 2 == 0])
+    while (length(bkg) < alph.len) {
+      bkg.offset <- bkg.offset + 1
+      bkg.tmp <- raw_lines[bkg.start + bkg.offset]
+      bkg.tmp <- strsplit(bkg.tmp, "\\s+")[[1]]
+      bkg.tmp <- as.numeric(bkg.tmp[seq_along(bkg.tmp) %% 2 == 0])
+      bkg <- c(bkg, bkg.tmp)
+    }
+    if (anyNA(bkg))
+      stop("Could not parse background frequencies, check that they match alphabet")
+  } else {
+    message("Could not find background, assuming uniform frequencies.")
+    bkg <- rep(1 / length(alph.split), length(alph.split))
   }
-  if (anyNA(bkg))
-    stop("Could not parse background frequencies, check that they match alphabet")
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names_i <- grep("^MOTIF ", raw_lines)
@@ -268,9 +276,12 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
 #' @noRd
 check_meme_alph_type <- function(raw_lines){
   if (any(grepl("^ALPHABET=", raw_lines))) {
-    return("default")
+    "default"
+  } else if (any(grepl("^ALPHABET", raw_lines))) {
+    "custom"
   } else {
-    return("custom")
+    message("Could not find alphabet, assuming DNA.")
+    "none"
   }
 }
 
@@ -281,7 +292,7 @@ check_meme_alph_type <- function(raw_lines){
 #' @return
 #'
 #' @noRd
-get_default_meme_alph <- function(raw_lines){
+get_default_meme_alph <- function(raw_lines) {
   alph <- raw_lines[grepl("^ALPHABET=", raw_lines)]
   alph <- strsplit(alph, "\\s+")[[1]][2]
   alph <- switch(alph, "ACGT" = "DNA", "ACGU" = "RNA",
@@ -304,7 +315,7 @@ get_default_meme_alph <- function(raw_lines){
 #' @return
 #'
 #' @noRd
-get_custom_meme_alph <- function(raw_lines){
+get_custom_meme_alph <- function(raw_lines) {
 
   i <- grep("^ALPHABET", raw_lines) + 1
   n <- grep("^END ALPHABET", raw_lines) - 1
@@ -330,11 +341,12 @@ get_custom_meme_alph <- function(raw_lines){
 #' @return `character(1)` alphabet string
 #'
 #' @noRd
-get_meme_alph <- function(raw_lines){
+get_meme_alph <- function(raw_lines) {
 
   switch(check_meme_alph_type(raw_lines),
          default = get_default_meme_alph(raw_lines),
-         custom = get_custom_meme_alph(raw_lines))
+         custom = get_custom_meme_alph(raw_lines),
+         none = "DNA")
 
 }
 
@@ -348,10 +360,24 @@ get_meme_alph <- function(raw_lines){
 #' @return `integer(1)` alphabet length
 #'
 #' @noRd
-get_meme_alph_len <- function(alph){
+get_meme_alph_len <- function(alph) {
 
-  len <- switch(alph, "DNA" = 4L, "RNA" = 4L,
-                 "AA" = 20L, nchar(alph))
-  return(len)
+  switch(alph, "DNA" = 4L, "RNA" = 4L, "AA" = 20L, nchar(alph))
 
+}
+
+check_meme_version <- function(raw_lines) {
+  ver <- raw_lines[grep("^MEME version", raw_lines)]
+  if (!length(ver)) {
+    warning(wmsg("Could not find MEME version. Note that this is considered",
+        " a requirement by MEME programs."),
+      call. = FALSE)
+  } else{
+    ver <- strsplit(ver, "\\s+")[[1]]
+    ver <- as.numeric(ver[length(ver)])
+    if (!ver %in% 4:5) {
+      warning(wmsg("read_meme() is configured for MEME versions 4-5."),
+        call. = FALSE)
+    }
+  }
 }
