@@ -31,7 +31,6 @@
 #' * matrix
 #'
 #' The following package-class combinations can be output:
-#' * MotIV-pwm2
 #' * TFBSTools-PFMatrix
 #' * TFBSTools-PWMatrix
 #' * TFBSTools-ICMatrix
@@ -122,12 +121,6 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
       validObject_universalmotif(motifs)
       motifs
     },
-    "MotIV" = {
-      if (out_class == "pwm2")
-        convert_to_motiv_pwm2(motifs)
-      else
-        stop("unknown 'class'")
-    },
     "TFBSTools" = {
       if (out_class %in% c("PFMatrix", "PWMatrix", "ICMatrix"))
         convert_to_tfbstools_matrix(motifs, out_class)
@@ -170,17 +163,6 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
   )
 
 })
-
-convert_to_motiv_pwm2 <- function(motifs) {
-  motifs <- convert_type(motifs, "PPM")
-  if (requireNamespace("MotIV", quietly = TRUE)) {
-    motifs <- MotIV::makePWM(motifs["motif"],
-                             alphabet = motifs["alphabet"])
-  } else {
-    stop("package 'MotIV' is not installed")
-  }
-  motifs
-}
 
 convert_to_tfbstools_matrix <- function(motifs, out_class) {
   motifs <- convert_type(motifs, "PCM")

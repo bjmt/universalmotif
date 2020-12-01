@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.10.0
+-------------------------
+
+MINOR CHANGES
+
+    o Support for MotIV-pwm2 formatted motifs has been dropped, as the package
+      is no longer a part of the current Bioconductor version.
+
 CHANGES IN VERSION 1.8.2
 ------------------------
 

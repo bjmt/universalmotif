@@ -86,7 +86,6 @@ The following packge-class combinations can be used as input:
 
 The following package-class combinations can be output:
 \itemize{
-\item MotIV-pwm2
 \item TFBSTools-PFMatrix
 \item TFBSTools-PWMatrix
 \item TFBSTools-ICMatrix
