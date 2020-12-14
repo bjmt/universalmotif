@@ -10,7 +10,11 @@
 - motif_peaks(): compare two sets of sequences (enrichment analysis)
 - motif_peaks(): serious code cleanup needed
 - Add scan_sequences() gapped motif example to vignettes
-- dependencies to consider removing: ggseqlogo, yaml, Rdpack
+- dependencies to consider removing:
+    + !! ggseqlogo (write my own geom_motif())
+    + !! yaml (write my own parser)
+    + !! Rdpack (take the time to write in references)
+    + Rcpp (use cpp11 w/o import instead --> maybe consider once it hits 1.0.0)
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
     + Can do vectorized operations such as subset all names with `[`
@@ -62,3 +66,5 @@
 - create_motif(): is there a check for the "type" input?
     + why does create_motif(type="asdf") work?
 - read_*(): allow to set pseudocount
+- warnings in tests
+- make n^k protection in motif_pvalue() optional

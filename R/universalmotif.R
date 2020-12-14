@@ -5,6 +5,7 @@
 #'
 #' @docType package
 #' @name universalmotif-pkg
+#' @aliases universalmotif-pkg
 #'
 #' @importFrom methods getClass is new slot "slot<-" validObject as
 #' @importMethodsFrom methods initialize show
