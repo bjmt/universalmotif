@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.8.3
+------------------------
+
+BUG FIXES
+
+    o Fixed improper handling of MEME version string in read_meme().
+
 CHANGES IN VERSION 1.8.2
 ------------------------
 
