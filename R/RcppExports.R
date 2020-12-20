@@ -113,8 +113,8 @@ create_sequences_cpp <- function(seqlen, seqnum, alph, k, freqs, nthreads, seed,
     .Call('_universalmotif_create_sequences_cpp', PACKAGE = 'universalmotif', seqlen, seqnum, alph, k, freqs, nthreads, seed, transitions)
 }
 
-trim_motif_internal <- function(motif, ic_scores, min_ic) {
-    .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic)
+trim_motif_internal <- function(motif, ic_scores, min_ic, trim_from) {
+    .Call('_universalmotif_trim_motif_internal', PACKAGE = 'universalmotif', motif, ic_scores, min_ic, trim_from)
 }
 
 universalmotif_cpp <- function(motif, name = "new motif", altname = NA_character_, family = NA_character_, organism = NA_character_, alphabet = "DNA", type = NA_character_, icscore = as.numeric( c()), nsites = as.numeric( c()), pseudocount = 1.0, bkg = as.numeric( c()), bkgsites = as.numeric( c()), consensus = NA_character_, strand = "+-", pval = as.numeric( c()), qval = as.numeric( c()), eval = as.numeric( c()), extrainfo = NA_character_, isgapped = NA_integer_, gaploc = as.numeric( c()), mingap = as.numeric( c()), maxgap = as.numeric( c())) {

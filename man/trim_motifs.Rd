@@ -4,13 +4,15 @@
 \alias{trim_motifs}
 \title{Trim motifs.}
 \usage{
-trim_motifs(motifs, min.ic = 0.25)
+trim_motifs(motifs, min.ic = 0.25, trim.from = c("both", "left", "right"))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{min.ic}{\code{numeric(1)} Minimum allowed information content. See
 \code{\link[=convert_type]{convert_type()}} for a discussion on information content.}
+
+\item{trim.from}{\code{character(1)} Control the direction of trimming.}
 }
 \value{
 Motifs See \code{\link[=convert_motifs]{convert_motifs()}} for available output

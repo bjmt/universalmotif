@@ -373,8 +373,9 @@ check_meme_version <- function(raw_lines) {
         " a requirement by MEME programs."),
       call. = FALSE)
   } else{
-    ver <- strsplit(ver, "\\s+")[[1]]
-    ver <- as.numeric(ver[length(ver)])
+    ver <- strsplit(ver, "\\s+")[[1]][3]
+    ver <- strsplit(ver, "[.]")[[1]][1]
+    ver <- as.numeric(ver)
     if (!ver %in% 4:5) {
       warning(wmsg("read_meme() is configured for MEME versions 4-5."),
         call. = FALSE)

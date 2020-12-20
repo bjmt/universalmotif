@@ -57,7 +57,6 @@
    --> PPM?
 - view_motifs(show.positions.once = FALSE): actually show proper per-motif
   positions, not just numbering all columns
-- trim_motifs(): give option to trim from one direction, or manual trimming
 - write my own geom_motif():
     + get character polygon coordinates using gglogo package
     + allow for ED logos?
@@ -68,3 +67,8 @@
 - read_*(): allow to set pseudocount
 - warnings in tests
 - make n^k protection in motif_pvalue() optional
+- make sure no errors are possible inside c++ code -- can lead to memory leaks
+  since c++/R may not communicate properly about what needs to be freed
+- new view_matrix() example idea: show how to plot A->C mutation change (need to
+  add arrows to fontDFroboto)
+- alternative to subset(): [, ...] (also [..., ]?)

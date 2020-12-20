@@ -6,6 +6,7 @@
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param min.ic `numeric(1)` Minimum allowed information content. See
 #'    [convert_type()] for a discussion on information content.
+#' @param trim.from `character(1)` Control the direction of trimming.
 #'
 #' @return Motifs See [convert_motifs()] for available output
 #'    formats.
@@ -18,7 +19,10 @@
 #' @seealso [create_motif()], [convert_type()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
-trim_motifs <- function(motifs, min.ic = 0.25) {
+trim_motifs <- function(motifs, min.ic = 0.25, trim.from = c("both", "left", "right")) {
+
+  # TODO:
+  #   - manual trimming?
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -27,6 +31,9 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
   all_checks <- c(num_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  trim.from <- match.arg(trim.from, c("both", "left", "right"))
+  trim.from <- switch(trim.from, "both" = 0, "left" = 1, "right" = 2)
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, "character")
   else CLASS_IN <- .internal_convert(motifs)
@@ -55,24 +62,27 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
                                 nsites = x@nsites)
                          })
 
-  new.mats <- mapply(function(x, y) trim_motif_internal(x, y, min.ic),
-                       mot.mats, mot.scores,
-                       SIMPLIFY = FALSE)
+  new.mats <- mapply(function(x, y) trim_motif_internal(x, y, min.ic, trim.from),
+    mot.mats, mot.scores, SIMPLIFY = FALSE)
 
-  new.mats.k <- mapply(function(x, y) {
-                        if (length(x) > 0) {
-                          lapply(x, function(z) trim_motif_internal(z, y, min.ic))
-                        } else list()
-                       }, mot.mats.k, mot.scores,
-                       SIMPLIFY = FALSE)
+  new.mats.k <- mapply(
+    function(x, y) {
+      if (length(x) > 0) {
+        lapply(x, function(z) trim_motif_internal(z, y, min.ic, trim.from))
+      } else list()
+     }, mot.mats.k, mot.scores,
+     SIMPLIFY = FALSE
+  )
 
-  motifs <- mapply(function(x, y, z) {
-                        if (length(x) == 0) return(NULL)
-                        z@motif <- x
-                        z@multifreq <- y
-                        z
-                       }, new.mats, new.mats.k, motifs,
-                       SIMPLIFY = FALSE)
+  motifs <- mapply(
+    function(x, y, z) {
+      if (length(x) == 0) return(NULL)
+      z@motif <- x
+      z@multifreq <- y
+      z
+     }, new.mats, new.mats.k, motifs,
+     SIMPLIFY = FALSE
+  )
 
   dont_keep <- vapply(motifs, is.null, logical(1))
   num_bar <- which(dont_keep)
@@ -122,3 +132,4 @@ trim_motifs <- function(motifs, min.ic = 0.25) {
   motifs
 
 }
+

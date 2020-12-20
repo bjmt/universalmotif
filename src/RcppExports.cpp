@@ -408,14 +408,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // trim_motif_internal
-Rcpp::NumericMatrix trim_motif_internal(const Rcpp::NumericMatrix& motif, const Rcpp::NumericVector& ic_scores, double min_ic);
-RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP) {
+Rcpp::NumericMatrix trim_motif_internal(const Rcpp::NumericMatrix& motif, const Rcpp::NumericVector& ic_scores, double min_ic, const int trim_from);
+RcppExport SEXP _universalmotif_trim_motif_internal(SEXP motifSEXP, SEXP ic_scoresSEXP, SEXP min_icSEXP, SEXP trim_fromSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type motif(motifSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type ic_scores(ic_scoresSEXP);
     Rcpp::traits::input_parameter< double >::type min_ic(min_icSEXP);
-    rcpp_result_gen = Rcpp::wrap(trim_motif_internal(motif, ic_scores, min_ic));
+    Rcpp::traits::input_parameter< const int >::type trim_from(trim_fromSEXP);
+    rcpp_result_gen = Rcpp::wrap(trim_motif_internal(motif, ic_scores, min_ic, trim_from));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -813,7 +814,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_split_seq_by_win", (DL_FUNC) &_universalmotif_split_seq_by_win, 3},
     {"_universalmotif_get_klets_cpp", (DL_FUNC) &_universalmotif_get_klets_cpp, 2},
     {"_universalmotif_create_sequences_cpp", (DL_FUNC) &_universalmotif_create_sequences_cpp, 8},
-    {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 3},
+    {"_universalmotif_trim_motif_internal", (DL_FUNC) &_universalmotif_trim_motif_internal, 4},
     {"_universalmotif_universalmotif_cpp", (DL_FUNC) &_universalmotif_universalmotif_cpp, 22},
     {"_universalmotif_validObject_universalmotif", (DL_FUNC) &_universalmotif_validObject_universalmotif, 2},
     {"_universalmotif_summarise_motifs_cpp", (DL_FUNC) &_universalmotif_summarise_motifs_cpp, 1},
