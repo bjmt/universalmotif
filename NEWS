@@ -5,6 +5,9 @@ NEW FEATURES
 
     o trim_motifs(..., trim.from): trim from both directions or just one.
 
+    o shuffle_sequences(..., window, window.size, window.overlap): shuffle
+      sequences iteratively in windows of specified size.
+
 MINOR CHANGES
 
     o Support for MotIV-pwm2 formatted motifs has been dropped, as the package

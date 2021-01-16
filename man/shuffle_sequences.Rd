@@ -5,7 +5,8 @@
 \title{Shuffle input sequences.}
 \usage{
 shuffle_sequences(sequences, k = 1, method = "euler", nthreads = 1,
-  rng.seed = sample.int(10000, 1))
+  rng.seed = sample.int(10000, 1), window = FALSE, window.size = 0.1,
+  window.overlap = 0.01)
 }
 \arguments{
 \item{sequences}{\code{\link{XStringSet}} Set of sequences to shuffle. Works
@@ -27,6 +28,15 @@ independent seed. Each individual sequence in an \code{\link{XStringSet}} object
 given the following seed: \code{rng.seed * index}. The default is to pick a random
 number as chosen by \code{\link[=sample]{sample()}}, which effectively is making \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 dependent on the R RNG state.}
+
+\item{window}{\code{logical(1)} Shuffle sequences iteratively over windows instead
+of all at once.}
+
+\item{window.size}{\code{numeric(1)} Window size. Can be a fraction less than one, or
+an integer representing the actual window size.}
+
+\item{window.overlap}{\code{numeric(1)} Overlap between windows. Can be a fraction less
+than one, or an integer representing the actual overlap size.}
 }
 \value{
 \code{\link{XStringSet}} The input sequences will be returned with

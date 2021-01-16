@@ -89,6 +89,10 @@ shuffle_euler_cpp <- function(sequences, k, nthreads, seed) {
     .Call('_universalmotif_shuffle_euler_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads, seed)
 }
 
+shuffle_seq_local_cpp <- function(sequences, k, nthreads, seed, starts, stops, method) {
+    .Call('_universalmotif_shuffle_seq_local_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads, seed, starts, stops, method)
+}
+
 shuffle_linear_cpp <- function(sequences, k, nthreads, seed) {
     .Call('_universalmotif_shuffle_linear_cpp', PACKAGE = 'universalmotif', sequences, k, nthreads, seed)
 }

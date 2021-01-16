@@ -33,6 +33,10 @@ vec_int_t klet_counter_with_alph(const str_t &single_seq, const str_t &alph,
   std::size_t alphlen = alph.size();
   std::size_t nlets = pow(alphlen, k);
 
+  // For a string with 25 million characters, about 150 ms can be saved by using
+  // char indexing on an int array. However, I'm not sure how to deal with
+  // non-ASCII chars in that case. Maybe don't bother. Either way for k < 5 the
+  // output is returned in less than a second.
   vec_int_t seq_ints(single_seq.size(), -1000000);
   for (std::size_t i = 0; i < single_seq.size(); ++i) {
     for (std::size_t a = 0; a < alphlen; ++a) {

@@ -6,6 +6,13 @@
 #include "types.h"
 #include "utils-internal.h"
 
+enum COMPARE_METRICS {
+  METHOD_EULER  = 1,
+  METHOD_MARKOV = 2,
+  METHOD_LINEAR = 3,
+  METHOD_K1     = 4
+};
+
 vec_int_t klet_counter(const vec_int_t &single_seq, const int &k,
     const std::size_t &nlets, const std::size_t &alphlen) {
 
@@ -358,7 +365,7 @@ std::string shuffle_markov_one(const std::string &single_seq, const int &k,
 
 }
 
-std::string shuffle_linear_one (const std::string &single_seq, const int &k,
+std::string shuffle_linear_one(const std::string &single_seq, const int &k,
     std::mt19937 gen) {
 
   std::size_t seqlen = single_seq.size();
@@ -446,6 +453,36 @@ vec_str_t get_klet_strings(const vec_str_t &alph, const int &k) {
 
 }
 
+std::string shuffle_seq_local_one_sub(const std::string &single_seq,
+    const int &k, std::mt19937 gen, const int &method) {
+  switch (method) {
+    case METHOD_EULER: return shuffle_euler_one(single_seq, k, gen);
+    case METHOD_MARKOV: return shuffle_markov_one(single_seq, k, gen);
+    case METHOD_LINEAR: return shuffle_linear_one(single_seq, k, gen);
+    case METHOD_K1: std::string out = single_seq;
+                    shuffle(out.begin(), out.end(), gen);
+                    return out;
+  }
+}
+
+std::string shuffle_seq_local_one(const std::string &single_seq, const int &k,
+    std::mt19937 gen, const std::vector<int> &starts, const std::vector<int> &stops,
+    const int &method) {
+
+  std::string out = single_seq;
+
+  for (std::size_t i = 0; i < starts.size(); ++i) {
+    std::size_t pos = starts[i] - 1;
+    std::size_t len = stops[i] - starts[i] + 1;
+    std::string tmp = shuffle_seq_local_one_sub(out.substr(pos, len), k, gen, method);
+    out.replace(pos, len, tmp);
+  }
+
+  return out;
+
+}
+
+
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
@@ -479,6 +516,28 @@ std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string> &seque
 
         std::mt19937 gen(useed * (int(i) + 1));
         out[i] = shuffle_euler_one(sequences[i], k, gen);
+
+      }, nthreads);
+
+  return out;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+std::vector<std::string> shuffle_seq_local_cpp(const std::vector<std::string> &sequences,
+    const int &k, const int &nthreads, const int &seed,
+    const std::vector<std::vector<int>> &starts,
+    const std::vector<std::vector<int>> &stops,
+    const int &method) {
+
+  unsigned int useed = seed;
+
+  vec_str_t out(sequences.size());
+  RcppThread::parallelFor(0, sequences.size(),
+      [&out, &sequences, &k, &useed, &starts, &stops, &method] (std::size_t i) {
+
+        std::mt19937 gen(useed * (int(i) + 1));
+        out[i] = shuffle_seq_local_one(sequences[i], k, gen, starts[i], stops[i], method);
 
       }, nthreads);
 

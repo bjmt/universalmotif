@@ -18,6 +18,12 @@
 #'    given the following seed: `rng.seed * index`. The default is to pick a random
 #'    number as chosen by [sample()], which effectively is making [shuffle_sequences()]
 #'    dependent on the R RNG state.
+#' @param window `logical(1)` Shuffle sequences iteratively over windows instead
+#'    of all at once.
+#' @param window.size `numeric(1)` Window size. Can be a fraction less than one, or
+#'    an integer representing the actual window size.
+#' @param window.overlap `numeric(1)` Overlap between windows. Can be a fraction less
+#'    than one, or an integer representing the actual overlap size.
 #'
 #' @return \code{\link{XStringSet}} The input sequences will be returned with
 #'    identical names and lengths.
@@ -67,7 +73,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "euler",
-                               nthreads = 1, rng.seed = sample.int(1e4, 1)) {
+  nthreads = 1, rng.seed = sample.int(1e4, 1), window = FALSE, window.size = 0.1,
+  window.overlap = 0.01) {
 
   # Idea: Moving-window markov shuffling. Get k-let frequencies in windows,
   #       and generate new letters based on local probabilities.
@@ -130,14 +137,39 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   if (k < 1) stop("'k' must be greater than 0")
   k <- as.integer(k)
 
-  if (k == 1) {
-    sequences <- shuffle_k1_cpp(sequences, nthreads, rng.seed)
+  if (window) {
+
+    if (window.size <= 0)
+      stop("`window.size` must be greater than zero")
+    if (window.overlap < 0)
+      stop("`window.overlap` must be greater than or equal to zero")
+
+    window.size <- rep_len(window.size, length(sequences))
+    window.overlap <- rep_len(window.overlap, length(sequences))
+
+    window.size[window.size < 1] <- nchar(sequences)[window.size < 1] *
+      window.size[window.size < 1]
+    window.overlap[window.overlap < 1] <- nchar(sequences)[window.overlap < 1] *
+      window.overlap[window.overlap < 1]
+
+    window.size <- as.integer(window.size)
+    window.overlap <- as.integer(window.overlap)
+
+    sequences <- shuffle_local(sequences, k, method, nthreads, rng.seed,
+      window.size, window.overlap)
+
   } else {
-    sequences <- switch(method,
-                         "euler" = shuffle_euler_cpp(sequences, k, nthreads, seed),
-                         "markov" = shuffle_markov_cpp(sequences, k, nthreads, seed),
-                         "linear" = shuffle_linear_cpp(sequences, k, nthreads, seed)
-                       )
+
+    if (k == 1) {
+      sequences <- shuffle_k1_cpp(sequences, nthreads, seed)
+    } else {
+      sequences <- switch(method,
+                           "euler" = shuffle_euler_cpp(sequences, k, nthreads, seed),
+                           "markov" = shuffle_markov_cpp(sequences, k, nthreads, seed),
+                           "linear" = shuffle_linear_cpp(sequences, k, nthreads, seed)
+                         )
+    }
+
   }
 
   sequences <- switch(alph, "DNA" = DNAStringSet(sequences),
@@ -270,5 +302,24 @@ letter_freqs <- function(string, k = 1, to.return = c("freqs", "trans"),
   }
 
   out
+
+}
+
+shuffle_local <- function(seqs, k, method, nthreads, rng.seed, win, ov) {
+
+  if (k == 1)
+    method <- 4
+  else
+    method <- switch(method, euler = 1, markov = 2, linear = 3, stop("unknown method"))
+
+  lens <- nchar(seqs)
+  win <- rep_len(win, length(lens))
+  ov <- rep_len(ov, length(lens))
+
+  pos <- mapply(calc_wins, lens, win, ov, SIMPLIFY = FALSE)
+  starts <- lapply(pos, function(x) x[[1]])
+  stops <- lapply(pos, function(x) x[[2]])
+
+  shuffle_seq_local_cpp(seqs, k, nthreads, rng.seed, starts, stops, method)
 
 }
