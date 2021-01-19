@@ -463,6 +463,7 @@ std::string shuffle_seq_local_one_sub(const std::string &single_seq,
                     shuffle(out.begin(), out.end(), gen);
                     return out;
   }
+  return single_seq;
 }
 
 std::string shuffle_seq_local_one(const std::string &single_seq, const int &k,
