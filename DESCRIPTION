@@ -68,6 +68,7 @@ Collate:
     'trim_motifs.R'
     'universalmotif-methods.R'
     'universalmotif.R'
+    'universalmotif_df.R'
     'utils-internal.R'
     'utils-motif.R'
     'utils-sequence.R'

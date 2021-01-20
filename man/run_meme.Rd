@@ -26,7 +26,7 @@ run_meme(target.sequences, output = NULL, overwrite.dir = FALSE,
 output will be deleted.}
 
 \item{overwrite.dir}{\code{logical(1)} If \code{output} is set but already exists,
-allow over-writting.}
+allow over-writing.}
 
 \item{control.sequences}{\code{\link{XStringSet}} List of negative sequences. Only
 used if \code{objfun = c("de", "se")}.}
