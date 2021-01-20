@@ -18,6 +18,9 @@
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
     + Can do vectorized operations such as subset all names with `[`
+    + control printing:
+        class(mylist) <- c("universalmotifDF", "data.frame")
+        print.universalmotifDF <- function(x) ...
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
 - in read_*() files, check to input file exists
@@ -72,3 +75,4 @@
 - new view_matrix() example idea: show how to plot A->C mutation change (need to
   add arrows to fontDFroboto)
 - alternative to subset(): [, ...] (also [..., ]?)
+- get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)

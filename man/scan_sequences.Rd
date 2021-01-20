@@ -53,7 +53,7 @@ pre-version 1.8.0 behaviour.}
 letters in the input sequence, such as those in masked sequences.}
 
 \item{calc.pvals}{\code{logical(1)} Calculate P-values for each hit. This is a
-convinience option which simply gives \code{motif_pvalue()} the input motifs
+convenience option which simply gives \code{motif_pvalue()} the input motifs
 and the scores of each hit. Be careful about setting this to \code{TRUE} if
 you anticipate getting thousands of hits: expect to wait a few seconds or
 minutes for the calculations to finish. Increasing the \code{nthreads} value

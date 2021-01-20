@@ -35,7 +35,7 @@
 #' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
 #'    letters in the input sequence, such as those in masked sequences.
 #' @param calc.pvals `logical(1)` Calculate P-values for each hit. This is a
-#'    convinience option which simply gives `motif_pvalue()` the input motifs
+#'    convenience option which simply gives `motif_pvalue()` the input motifs
 #'    and the scores of each hit. Be careful about setting this to `TRUE` if
 #'    you anticipate getting thousands of hits: expect to wait a few seconds or
 #'    minutes for the calculations to finish. Increasing the `nthreads` value
