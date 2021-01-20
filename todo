@@ -76,3 +76,4 @@
   add arrows to fontDFroboto)
 - alternative to subset(): [, ...] (also [..., ]?)
 - get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
+- better manipulation of alphabet slot
