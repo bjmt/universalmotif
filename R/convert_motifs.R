@@ -93,6 +93,16 @@ setGeneric("convert_motifs", function(motifs,
                                       class = "universalmotif-universalmotif")
            standardGeneric("convert_motifs"))
 
+setMethod("convert_motifs", signature(motifs = "AsIs"),
+  definition = function(motifs, class) {
+    stop(wmsg(
+      "If you are providing the `motif` column from the `data.frame` output of ",
+      "to_df(), then please use to_list() instead. If this error ",
+      "message does not apply to you, then remove the `AsIs` class attribute ",
+      "and try again (`class(mylist) <- NULL`)."
+    ))
+})
+
 #' @describeIn convert_motifs Convert a list of motifs.
 #' @export
 setMethod("convert_motifs", signature(motifs = "list"),
