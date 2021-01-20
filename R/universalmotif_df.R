@@ -86,7 +86,7 @@ update_motifs <- function(motif_df) {
   if (any(!cols_new %in% cols_old)) {
     # maybe remove this warning based on how extrainfo is implemented
     warning(
-      "Removing unknown slot(s) ",
+      "Discarding unknown slot(s) ",
       paste0(paste0("'", cols_new[!cols_new %in% cols_old], "'"), collapse = ", "),
       immediate. = TRUE, call. = FALSE
     )
@@ -107,7 +107,7 @@ update_motifs <- function(motif_df) {
     old_df[[checking]][is.na(old_df[[checking]])] <- 0
     if (any(updated_df[[checking]] != old_df[[checking]])) {
       if (checking %in% c("icscore", "consensus", "alphabet")) {
-        warning("Ignoring changes in unmodifiable slot(s) '", checking, "'",
+        warning("Discarding changes in unmodifiable slot(s) '", checking, "'",
           immediate. = TRUE, call. = FALSE)
       } else {
         for (j in which(updated_df[[checking]] != old_df[[checking]])) {
