@@ -122,5 +122,5 @@ update_motifs <- function(motif_df) {
 #' @export
 #' @rdname tidy-motifs
 to_list <- function(motif_df) {
-  structure(update_motifs(x)$motif, class = NULL)
+  structure(update_motifs(motif_df)$motif, class = NULL)
 }
