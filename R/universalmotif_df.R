@@ -107,7 +107,7 @@ update_motifs <- function(motif_df) {
     old_df[[checking]][is.na(old_df[[checking]])] <- 0
     if (any(updated_df[[checking]] != old_df[[checking]])) {
       if (checking %in% c("icscore", "consensus", "alphabet")) {
-        warning("Detected changes in unmodifiable slot '", checking, "'",
+        warning("Ignoring changes in unmodifiable slot '", checking, "'",
           immediate. = TRUE, call. = FALSE)
       } else {
         for (j in which(updated_df[[checking]] != old_df[[checking]])) {
