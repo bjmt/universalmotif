@@ -104,9 +104,9 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     cols_extrainfo <- cols_new[!cols_new %in% cols_old]
     cols_extrainfo <- cols_extrainfo[cols_extrainfo != "bkg"]
     if (length(cols_extrainfo)) {
-      extrainfo_new <- updated_df[, cols_extrainfo]
+      extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
       for (i in seq_along(m)) {
-        m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, ])
+        m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
     }
   } else if (any(!cols_new %in% cols_old)) {
