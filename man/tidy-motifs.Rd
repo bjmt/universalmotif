@@ -21,7 +21,7 @@ column names will be taken from the character vectors themselves, and
 unnamed elements will be assigned a unique name. To add elements to the
 slot, simply create new columns in the \code{data.frame}. Note that these will
 be coerced into characters. If \code{extrainfo} is not set to \code{TRUE} in
-\code{to_df()}, then the contents of the slot will be transferred to the
+\code{to_df()}, then the contents of the slot will not be transferred to the
 \code{data.frame}. If \code{extrainfo} is not set to \code{TRUE} in \code{update_motifs()}
 or \code{to_list()}, then the extra columns will be discarded.}
 
