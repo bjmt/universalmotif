@@ -47,7 +47,7 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
 
-  # TODO: alphabet?
+  # TODO: alphabet? type?
   if (i %in% c("icscore", "multifreq", "consensus", "motif"))
     stop(wmsg("this slot is unmodifiable with [<-"))
 
