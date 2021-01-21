@@ -114,6 +114,7 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     warning(
       "Discarding unknown slot(s) ",
       paste0(paste0("'", cols_new[!cols_new %in% cols_old], "'"), collapse = ", "),
+      " (set `extrainfo=TRUE` to preserve these).",
       immediate. = TRUE, call. = FALSE
     )
   }
@@ -122,7 +123,7 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     warning(
       "Restoring missing slot(s) ",
       paste0(paste0("'", cols_old[!cols_old %in% cols_new], "'"), collapse = ", "),
-      immediate. = TRUE, call. = FALSE
+      ".", immediate. = TRUE, call. = FALSE
     )
   }
   cols_to_check <- cols_new[cols_new %in% cols_old]
@@ -143,11 +144,15 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
           m[[j]] <- convert_type(m[[j]], updated_df[[checking]][j])
         }
       } else if (checking %in% c("icscore", "consensus", "alphabet")) {
-        warning("Discarding changes in unmodifiable slot(s) '", checking, "'",
+        warning("Discarding changes in unmodifiable slot(s) '", checking, "'.",
           immediate. = TRUE, call. = FALSE)
       } else {
         for (j in which(updated_df[[checking]] != old_df[[checking]])) {
-          m[[j]][checking] <- updated_df[[checking]][j]
+          msg <- try(m[[j]][checking] <- updated_df[[checking]][j], silent = TRUE)
+          if (inherits(msg, "try-error")) {
+            stop("Got the following error for motif in row ", j, ":\n", msg,
+              call. = FALSE)
+          }
         }
       }
     }
