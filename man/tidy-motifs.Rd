@@ -50,7 +50,7 @@ m <- m \%>\%
    mutate(name = paste0(name, "-2")) \%>\%
    to_list()
 
-# Add random metadata to be stord in the extrainfo slot:
+# Add your own metadata to be stored in the extrainfo slot:
 m_df <- to_df(m)
 m_df$MyMetadata <- c("Info_1", "Info_2")
 m <- to_list(m_df, extrainfo = TRUE)
