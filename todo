@@ -81,3 +81,4 @@
   + then do row-wise merge
 - get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
 - better manipulation of alphabet slot
+- stop this from workign? motif["name"] <- NA
