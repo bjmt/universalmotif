@@ -81,7 +81,7 @@ to_df <- function(motifs, extrainfo = FALSE) {
 #'    unnamed elements will be assigned a unique name. To add elements to the
 #'    slot, simply create new columns in the `data.frame`. Note that these will
 #'    be coerced into characters. If `extrainfo` is not set to `TRUE` in
-#'    `to_df()`, then the contents of the slot will be transferred to the
+#'    `to_df()`, then the contents of the slot will not be transferred to the
 #'    `data.frame`. If `extrainfo` is not set to `TRUE` in `update_motifs()`
 #'    or `to_list()`, then the extra columns will be discarded.
 #' @rdname tidy-motifs
