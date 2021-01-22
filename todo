@@ -78,3 +78,7 @@
 - get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
 - better manipulation of alphabet slot
 - stop this from workign? motif["name"] <- NA
+- motif_pvalue() vignette bit: explain why exact calculations dont give exact
+  results (rounding to three digits for use as ints)
+- some typos in introduction to sequence motifs vignette, add max() to IC fun
+- filter_motifs() example in vignette: nsites column returning NAs?
