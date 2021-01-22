@@ -20,7 +20,9 @@ write_matrix(motifs, file, positions = "columns", rownames = FALSE, type,
 \item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}. If missing
 will use whatever type the motif is currently stored as.}
 
-\item{sep}{\code{character(1)} Indicates how to separate individual motifs.}
+\item{sep}{\code{character(1)} Indicates how to separate individual motifs. Set as
+\code{NULL} to have no seperating lines between motifs (the default is to
+use a blank line).}
 
 \item{headers}{\code{logical(1)}, \code{character(1)} Indicating if and how to write names.}
 

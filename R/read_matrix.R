@@ -12,7 +12,9 @@
 #'    or a string of letters.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
 #'    If missing will try and guess which one.
-#' @param sep `character(1)` Indicates how individual motifs are separated.
+#' @param sep `character(1)` Indicates how individual motifs are separated. Set as
+#'    `NULL` if there are no seperating lines between motifs (the default is to
+#'    assume a blank line).
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to read names.
 #' @param rownames `logical(1)` Are there alphabet letters present as rownames?
 #' @param comment `NULL`, `character(1)` Character denoting lines to be considered
@@ -36,7 +38,7 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   char_check <- check_fun_params(list(file = args$file, type = args$type,
                                       positions = args$positions,
                                       alphabet = args$alphabet, sep = args$sep),
-                                 numeric(), c(FALSE, TRUE, FALSE, FALSE, FALSE),
+                                 numeric(), c(FALSE, TRUE, FALSE, FALSE, TRUE),
                                  TYPE_CHAR)
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(rownames = args$rownames),
@@ -54,15 +56,17 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
   if (!is.null(comment))
     raw_lines <- raw_lines[!grepl(collapse_cpp(c("^", comment)), raw_lines)]
 
-  seperators <- which(raw_lines == sep)
-  if (length(seperators) != 0) {
-    if (seperators[length(seperators)] != length(raw_lines)) {
-      seperators <- c(seperators, length(raw_lines) + 1)
-    }
-    if (seperators[1] == 1) {
-      motif_stops <- seperators[-1] - 1
-    } else motif_stops <- seperators - 1
-  } else motif_stops <- length(raw_lines)
+  if (!is.null(sep)) {
+    seperators <- which(raw_lines == sep)
+    if (length(seperators) != 0) {
+      if (seperators[length(seperators)] != length(raw_lines)) {
+        seperators <- c(seperators, length(raw_lines) + 1)
+      }
+      if (seperators[1] == 1) {
+        motif_stops <- seperators[-1] - 1
+      } else motif_stops <- seperators - 1
+    } else motif_stops <- length(raw_lines)
+  }
 
   if (!isFALSE(headers)) {
     if (!isTRUE(headers)) {
@@ -80,9 +84,21 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
       headers <- raw_lines[headers]
     }
   } else {
-    motif_starts <- c(1, seperators + 1)
-    if (motif_starts[length(motif_starts)] >= length(raw_lines))
-      motif_starts <- motif_starts[-length(motif_starts)]
+    if (!is.null(sep)) {
+      motif_starts <- c(1, seperators + 1)
+      if (motif_starts[length(motif_starts)] >= length(raw_lines))
+        motif_starts <- motif_starts[-length(motif_starts)]
+    } else {
+      motif_starts <- 1
+    }
+  }
+
+  if (is.null(sep)) {
+    if (!isFALSE(headers)) {
+      motif_stops <- c(motif_starts[-1] - 2, length(raw_lines))
+    } else {
+      motif_stops <- length(raw_lines)
+    }
   }
 
   if (length(motif_starts) != length(motif_stops))

@@ -8,7 +8,9 @@
 #' @param rownames `logical(1)` Include alphabet letters as rownames.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`. If missing
 #'   will use whatever type the motif is currently stored as.
-#' @param sep `character(1)` Indicates how to separate individual motifs.
+#' @param sep `character(1)` Indicates how to separate individual motifs. Set as
+#'    `NULL` to have no seperating lines between motifs (the default is to
+#'    use a blank line).
 #' @param headers `logical(1)`, `character(1)` Indicating if and how to write names.
 #' @param overwrite `logical(1)` Overwrite existing file.
 #' @param append `logical(1)` Add to an existing file.
@@ -32,7 +34,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file, positions = args$positions,
                                       type = args$type, sep = args$sep),
-                                 numeric(), c(FALSE, FALSE, TRUE, FALSE),
+                                 numeric(), c(FALSE, FALSE, TRUE, TRUE),
                                  TYPE_CHAR)
   num_check <- check_fun_params(list(digits = args$digits),
                                  numeric(), logical(), TYPE_NUM)

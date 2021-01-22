@@ -13,6 +13,9 @@ MINOR CHANGES
     o Support for MotIV-pwm2 formatted motifs has been dropped, as the package
       is no longer a part of the current Bioconductor version.
 
+    o read_matrix()/write_matrix(): the sep argument can now be NULL (no
+      seperators.)
+
 CHANGES IN VERSION 1.8.3
 ------------------------
 
