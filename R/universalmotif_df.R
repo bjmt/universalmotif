@@ -58,7 +58,6 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
 #' @param motifs List of motifs.
 #' @rdname tidy-motifs
 to_df <- function(motifs, extrainfo = FALSE) {
-  # TODO: extrainfo
   x <- convert_motifs(motifs)
   if (!is.list(x)) x <- list(x)
   y <- summarise_motifs_with_extras(x)
@@ -144,8 +143,8 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
           m[[j]] <- convert_type(m[[j]], updated_df[[checking]][j])
         }
       } else if (checking %in% c("icscore", "consensus", "alphabet")) {
-        warning("Discarding changes in unmodifiable slot(s) '", checking, "'.",
-          immediate. = TRUE, call. = FALSE)
+        warning("Discarding changes in unmodifiable slot(s) '", checking, "'",
+          " (row ", j, ").", immediate. = TRUE, call. = FALSE)
       } else {
         for (j in which(updated_df[[checking]] != old_df[[checking]])) {
           msg <- try(m[[j]][checking] <- updated_df[[checking]][j], silent = TRUE)
