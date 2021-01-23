@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.9.13
+Version: 1.9.14
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "b2tremblay@uwaterloo.ca",
@@ -71,6 +71,7 @@ Collate:
     'utils-internal.R'
     'utils-motif.R'
     'utils-sequence.R'
+    'view_logo.R'
     'view_motifs.R'
     'write_homer.R'
     'write_jaspar.R'

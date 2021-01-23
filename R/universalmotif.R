@@ -13,7 +13,7 @@
 #' @importFrom ggplot2 geom_line geom_point geom_hline geom_text theme_bw ylim
 #' @importFrom ggplot2 margin scale_x_continuous scale_y_continuous
 #' @importFrom ggplot2 element_line element_text waiver geom_polygon
-#' @importFrom ggplot2 theme_minimal scale_fill_manual
+#' @importFrom ggplot2 theme_minimal scale_fill_manual theme_void
 #' @importFrom grid unit
 #' @importFrom rlang .data
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft

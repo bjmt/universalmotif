@@ -265,7 +265,7 @@ trim_motifs(motif)
 Round off near-zero probabilities.
 
 ```{r}
-motif1 <- create_motif("ATCGATGC", pseudocount = 5, type = "PPM", nsites = 100)
+motif1 <- create_motif("ATCGATGC", pseudocount = 10, type = "PPM", nsites = 100)
 motif2 <- round_motif(motif1)
 view_motifs(c(motif1, motif2), dedup.names =  TRUE)
 ```
