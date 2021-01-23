@@ -9,6 +9,8 @@
 #' @param colour.scheme `character` A named character vector of colour names.
 #'    Provide colours for individual letters, even if the row names are made
 #'    up of multiple characters.
+#' @param fill `character` A single colour to fill all letters with. Ignored
+#'    if `colour.scheme` is provided.
 #' @param x.spacer `numeric(1)` Add horizontal spacing between letters. The
 #'    number is taken as the fraction of the width of an individual position.
 #'    Increasing this value is recommended for letters made up of multiple
@@ -28,12 +30,14 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @inheritParams view_motifs
 #' @export
-view_logo <- function(x, fontDF = NULL, colour.scheme = NULL, min.height = 0.01,
-  x.spacer = 0.04, y.spacer = 0.01, sort.positions = FALSE,
+view_logo <- function(x, fontDF = NULL, fill = "black", colour.scheme = NULL,
+  min.height = 0.01, x.spacer = 0.04, y.spacer = 0.01, sort.positions = FALSE,
   sort.positions.decreasing = TRUE, fit.to.height = NULL) {
 
-  if (!is.matrix(x))
-    stop("`x` must be a matrix")
+  x <- as.matrix(x)
+
+  if (is.null(fill) && is.null(colour.scheme))
+    stop("`fill` and `colour.scheme` cannot both be NULL")
 
   if (is.null(rownames(x)))
     stop("`x` must have row names")
@@ -47,21 +51,21 @@ view_logo <- function(x, fontDF = NULL, colour.scheme = NULL, min.height = 0.01,
   if (!is.null(colour.scheme) && any(!names(colour.scheme) %in% alph))
     stop(wmsg("colour.scheme must be a named vector with all possible row names present"))
 
-  if (is.null(colour.scheme)) {
-    colour.scheme <- structure(rep("black", length(alph)), names = alph)
-  }
-
   plotdata <- make_matrix_polygon_data(x, fontDF, min.height, x.spacer, y.spacer,
     sort.positions, sort.positions.decreasing, fit.to.height)
 
   limits_x <- c(1 - 0.501, ncol(x) + 0.501)
 
-  ggplot(plotdata, aes(.data$x, .data$y, group = .data$letter.id,
+  plotobj <- ggplot(plotdata, aes(.data$x, .data$y, group = .data$letter.id,
       fill = .data$group)) +
     geom_polygon() +
     scale_x_continuous(limits = limits_x, expand = c(0.02, 0)) +
-    scale_fill_manual(values = colour.scheme[alph]) +
     theme_void() +
     theme(legend.position = "none")
+
+  if (!is.null(colour.scheme))
+    plotobj + scale_fill_manual(values = colour.scheme[alph])
+  else
+    plotobj + geom_polygon(fill = fill)
 
 }
