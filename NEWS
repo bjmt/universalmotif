@@ -3,6 +3,15 @@ CHANGES IN VERSION 1.10.0
 
 NEW FEATURES
 
+    o view_motifs(): the universalmotif package now relies entirely on its
+      own code to generate the polygon data used by ggplot2 to plot motifs,
+      meaning the ggseqlogo dependency has been dropped. A number of new
+      options are now available, including plotting multifreq logos and finer
+      control over letter spacing. An effort has been made to ensure that the
+      default behaviour of the function be unchanged from previous versions.
+      This change should also allow for easier fixing of bugs and flexibility
+      for future additions or changes.
+
     o trim_motifs(..., trim.from): trim from both directions or just one.
 
     o shuffle_sequences(..., window, window.size, window.overlap): shuffle

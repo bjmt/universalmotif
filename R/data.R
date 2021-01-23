@@ -50,3 +50,12 @@
 #'
 #' @format [universalmotif-class]
 "ArabidopsisMotif"
+
+#' Polygon coordinates for plotting letters.
+#'
+#' `DataFrame` of polygon coordinates used by [view_motifs()] for plotting
+#' letters. It was generated using the `createPolygons` function from the
+#' `gglogo` package for the font Roboto Medium.
+#'
+#' @format [DataFrame-class]
+"fontDFroboto"

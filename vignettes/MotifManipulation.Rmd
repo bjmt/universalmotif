@@ -333,7 +333,7 @@ create_motif(alphabet = "QWERTY")
 
 ## Motif logos
 
-There are several packages which offer motif visualization capabilities, such as `seqLogo`, `Logolas`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has chosen `ggseqlogo` as the default implementation, and used to drive the `universalmotif` package function `view_motifs()`. Here I will briefly show how to use these to visualize `universalmotif` class motifs.
+There are several packages which offer motif visualization capabilities, such as `seqLogo`, `Logolas`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation which is similar to the one offered by `ggseqlogo` via the function `view_motifs()`. Here I will briefly show how to use these to visualize `universalmotif` class motifs.
 
 ```{r}
 library(universalmotif)
@@ -440,14 +440,10 @@ motif.k2 <- add_multifreq(motif, sequences, add.k = 2)
 motif.k2
 ```
 
-Unfortunately `view_motifs()` cannot be used to visualize this higher order motif representation. However, this can be done via the `Logolas` package:
+To plot these motifs, use `view_motifs()`:
 
 ```{r}
-## NOTE: the Logolas package is not available in Bioconductor 3.13 and later.
-## Replacement functionality is in progress.
-#library(Logolas)
-#logomaker(motif.k2["multifreq"][["2"]], type = "Logo",
-#          color_type = "per_symbol")
+view_motifs(motif.k2, use.freq = 2)
 ```
 
 This information is most useful with functions such as `scan_sequences()` and `enrich_motifs()`. Though other tools in the `universalmotif` can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`), keep in mind they are not as well supported as regular motifs (getting P-values from `multifreq` motifs is exponentially slower, and P-values from using `compare_motifs()` for `multifreq` motifs are not available by default). See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()` with the `multifreq` slot.

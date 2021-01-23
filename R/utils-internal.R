@@ -57,6 +57,16 @@ COMPARE_METRICS <- c("PCC", "EUCL", "SW", "KL", "WEUCL",
                      "ALLR", "BHAT", "HELL", "WPCC",
                      "SEUCL",  "MAN", "ALLR_LL")
 
+# Credit to https://github.com/omarwagih/ggseqlogo/blob/master/R/col_schemes.r
+# for the colours.
+DNA_COLOURS <- c(A = "#109648", C = "#255C99", G = "#F7B32B", T = "#D62839")
+RNA_COLOURS <- c(A = "#109648", C = "#255C99", G = "#F7B32B", U = "#D62839")
+AA_COLOURS <- c(G = "#058644", S = "#058644", T = "#058644", Y = "#058644",
+  C = "#058644", Q = "#720091", N = "#720091", K = "#0046C5", R = "#0046C5",
+  H = "#0046C5", D = "#C5003E", E = "#C5003E", A = "#2E2E2E", V = "#2E2E2E",
+  L = "#2E2E2E", I = "#2E2E2E", P = "#2E2E2E", W = "#2E2E2E", F = "#2E2E2E",
+  M = "#2E2E2E")
+
 # INTERNAL UTILITIES ----------------------------------------------------------- 
 
 get_nsites <- function(motifs) {

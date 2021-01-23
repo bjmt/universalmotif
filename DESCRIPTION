@@ -18,10 +18,10 @@ Description: Allows for importing most common motif types into R for use by
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
-Imports: methods, stats, utils, MASS, ggplot2, ggseqlogo, yaml, IRanges,
-    Rcpp, Rdpack (>= 0.7), Biostrings, BiocGenerics, S4Vectors, rlang, grid
+Imports: methods, stats, utils, MASS, ggplot2, yaml, IRanges, Rcpp,
+    Rdpack (>= 0.7), Biostrings, BiocGenerics, S4Vectors, rlang, grid
 Suggests: spelling, knitr, bookdown, TFBSTools, rmarkdown, MotifDb, testthat,
-    BiocParallel, seqLogo, motifStack, dplyr, ape, ggtree, processx
+    BiocParallel, seqLogo, motifStack, dplyr, ape, ggtree, processx, ggseqlogo
 Enhances: PWMEnrich, rGADEM
 LinkingTo: Rcpp, RcppThread
 RdMacros: Rdpack

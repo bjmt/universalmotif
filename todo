@@ -72,3 +72,8 @@
 - new view_matrix() example idea: show how to plot A->C mutation change (need to
   add arrows to fontDFroboto)
 - alternative to subset(): [, ...] (also [..., ]?)
+- create_motif(add.multifreq = 2) doesn't work!
+- roxygen2 bug:
+  #' @importFrom theme_minimal
+  --> gets written as importFrom(theme_minimal,)
+  But re-running document() doesn't fix it when I go back and fix comment.

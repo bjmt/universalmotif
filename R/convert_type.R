@@ -224,7 +224,8 @@ convert_type_single <- function(motif, type, pseudocount,
 # Not used within convert_type()
 MATRIX_ppm_to_pwm <- function(mat, bkg, pseudocount = 1, nsites = 100) {
 
-  if (missing(bkg) || length(bkg) == 0 || anyNA(bkg) || length(bkg) != nrow(mat))
+  if (missing(bkg) || length(bkg) == 0 || anyNA(bkg) ||
+      length(bkg) != nrow(mat) || is.null(bkg))
     bkg <- rep(1 / nrow(mat), nrow(mat))
 
   if (length(nsites) == 0 || nsites <= 1) nsites <- 100
@@ -237,6 +238,29 @@ MATRIX_ppm_to_pwm <- function(mat, bkg, pseudocount = 1, nsites = 100) {
                nsites = nsites)
 
   mat
+
+}
+
+MATRIX_ppm_to_icm <- function(mat, bkg, relative_entropy = FALSE) {
+
+  if (missing(bkg) || length(bkg) == 0 || anyNA(bkg) ||
+      length(bkg) != nrow(mat) || is.null(bkg))
+    bkg <- rep(1 / nrow(mat), nrow(mat))
+
+  if (any(bkg == 0)) bkg <- pcm_to_ppmC(bkg * 1000, 1)
+
+  mat <- apply(mat, 2, ppm_to_icmC, bkg = bkg, relative_entropy = relative_entropy)
+
+  mat
+
+}
+
+MATRIX_ppm_to_pcm <- function(mat, nsites = 100) {
+
+  if (missing(nsites) || length(nsites) == 0 || anyNA(nsites) || is.null(nsites))
+    nsites <- 100
+
+  apply(mat, 2, ppm_to_pcmC, nsites = nsites)
 
 }
 
