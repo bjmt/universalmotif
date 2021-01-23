@@ -77,3 +77,4 @@
   #' @importFrom theme_minimal
   --> gets written as importFrom(theme_minimal,)
   But re-running document() doesn't fix it when I go back and fix comment.
+- view_motifs(): get rid of pathGroup column earlier

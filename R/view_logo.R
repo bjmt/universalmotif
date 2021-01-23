@@ -49,7 +49,8 @@ view_logo <- function(x, fontDF = NULL, fill = "black", colour.scheme = NULL,
   alph <- sort_unique_cpp(unlist(lapply(alph, function(x) strsplit(x, "", TRUE)[[1]])))
 
   if (!is.null(colour.scheme) && any(!names(colour.scheme) %in% alph))
-    stop(wmsg("colour.scheme must be a named vector with all possible row names present"))
+    stop(wmsg("colour.scheme must be a named vector with all possible individual ",
+        "characters present"))
 
   plotdata <- make_matrix_polygon_data(x, fontDF, min.height, x.spacer, y.spacer,
     sort.positions, sort.positions.decreasing, fit.to.height)
