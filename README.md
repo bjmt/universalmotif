@@ -1,4 +1,4 @@
-[![Bioc build status](http://bioconductor.org/shields/build/release/bioc/universalmotif.svg)](http://bioconductor.org/checkResults/release/bioc-LATEST/universalmotif/) [![Bioc](http://www.bioconductor.org/shields/years-in-bioc/universalmotif.svg)](https://www.bioconductor.org/packages/devel/bioc/html/universalmotif.html#since) [![codecov](https://codecov.io/gh/bjmt/universalmotif/branch/master/graph/badge.svg)](https://codecov.io/gh/bjmt/universalmotif)
+[![Bioc build status](http://bioconductor.org/shields/build/release/bioc/universalmotif.svg)](http://bioconductor.org/checkResults/release/bioc-LATEST/universalmotif/) [![Bioc](http://www.bioconductor.org/shields/years-in-bioc/universalmotif.svg)](https://www.bioconductor.org/packages/devel/bioc/html/universalmotif.html#since)
 # universalmotif
 
 This package allows for importing most common motif types into R for use by
@@ -55,15 +55,15 @@ The `universalmotif` class is used to store the motif matrix itself, as well as 
     + `TRANSFAC`: `read_transfac()`, `write_transfac()`
     + `UNIPROBE`: `read_uniprobe()`
     + Generic matrices: `read_matrix()`, `write_matrix()`
-- Conversion from/to several compatible Bioconductor package motif classes using `convert_motifs()` (f, from; t, to):
-    + `TFBSTools`: `PFMatrix` (f, t), `PWMatrix` (f, t), `ICMatrix` (f, t), `PFMatrixList` (f), `PWMatrixList` (f), `ICMatrixList` (f), `TFFMFirst` (f, t)
-    + `MotifDb`: `MotifList` (f)
-    + `seqLogo`: `pwm` (f, t)
-    + `motifStack`: `pcm` (f, t), `pfm` (f, t)
-    + `PWMEnrich`: `PWM` (f, t)
-    + `motifRG`: `Motif` (f)
-    + `Biostrings`: `PWM` (t)
-    + `rGADEM`: `motif` (t)
+- Conversion from/to several compatible Bioconductor package motif classes using `convert_motifs()` (some formats cannot go both ways; see the documentation for details):
+    + `TFBSTools`: `PFMatrix`, `PWMatrix`, `ICMatrix`, `PFMatrixList`, `PWMatrixList`, `ICMatrixList`, `TFFMFirst`
+    + `MotifDb`: `MotifList`
+    + `seqLogo`: `pwm`
+    + `motifStack`: `pcm`, `pfm`
+    + `PWMEnrich`: `PWM`
+    + `motifRG`: `Motif`
+    + `Biostrings`: `PWM`
+    + `rGADEM`: `motif`
 
 ```r
 library(universalmotif)
