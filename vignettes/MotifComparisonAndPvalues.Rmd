@@ -1,6 +1,6 @@
 ---
 title: "Motif comparisons and P-values"
-date: 14 March 2020
+date: 25 January 2021
 author:
 - Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -555,7 +555,7 @@ res <- data.frame(score = scores, pvalue = pvals,
                   score.k8 = scores.approx8)
 knitr::kable(res, format = "markdown", digits = 22)
 ```
-As you can see, results from exact calculations are not _quite_ exact but close regardless.
+As you might have noticed, results from exact calculations are not _quite_ exact. This is due to the `universalmotif` package rounding off values internally for speed.
 
 # Session info {.unnumbered}
 
