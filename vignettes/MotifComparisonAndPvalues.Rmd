@@ -384,6 +384,40 @@ tree <- tree %<+% tipsize + geom_tippoint(aes(size = icscore))
 
 ```
 
+## Plotting motifs alongside trees
+
+Unfortunately, the `universalmotif` package does not provide any function to easily plot motifs as part of trees (as is possible via the `motifStack` package). However, it can be done (somewhat roughly) by plotting a tree and a set of motifs side by side. In the following example, the `cowplot` package is used to glue the two plots together, though other packages which perform this function are available.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+library(cowplot)
+
+## Get our starting set of motifs
+motifs <- convert_motifs(MotifDb[1:10])
+
+## Make our tree: make sure it's the rectangular layout
+tree <- motif_tree(motifs, layout = "rectangular", linecol = "none")
+
+## Now, make sure we order our list of motifs to match the order of tips:
+mot.names <- sapply(motifs, function(x) x["name"])
+new.order <- tree$data$label[tree$data$isTip]
+new.order <- rev(new.order[order(tree$data$y[tree$data$isTip])])
+
+## Plot the two together (some finessing of margins and positions required):
+plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
+  tree, NULL,
+  view_motifs(mm, text.size = 6) +
+    ylab(element_blank()) +
+    theme(
+      axis.line.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text = element_text(colour = "white")
+    )
+)
+```
+
 # Motif P-values
 
 ## Calculating P-values from scores
