@@ -393,16 +393,18 @@ library(universalmotif)
 library(MotifDb)
 library(cowplot)
 
-## Get our starting set of motifs
+## Get our starting set of motifs:
 motifs <- convert_motifs(MotifDb[1:10])
 
-## Make our tree: make sure it's the rectangular layout
+## Get the tree: make sure it's a horizontal type layout:
 tree <- motif_tree(motifs, layout = "rectangular", linecol = "none")
 
 ## Now, make sure we order our list of motifs to match the order of tips:
 mot.names <- sapply(motifs, function(x) x["name"])
+names(motifs) <- mot.names
 new.order <- tree$data$label[tree$data$isTip]
 new.order <- rev(new.order[order(tree$data$y[tree$data$isTip])])
+motifs <- motifs[new.order]
 
 ## Plot the two together (some finessing of margins and positions required):
 plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
@@ -422,7 +424,7 @@ plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
 
 ## Calculating P-values from scores
 
-Motif P-values are not usually discussed outside of the bioinformatics literature, but are actually quite a challenging topic. For illustrate this, consider the following example motif:
+Motif P-values are not usually discussed outside of the bioinformatics literature, but are actually quite a challenging topic. To illustrate this, consider the following example motif:
 
 ```{r}
 library(universalmotif)
