@@ -417,6 +417,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     # - feed labels a function to replace numbers which don't belong to motif
     #   with blanks (not sure how to make this work with left shifted motifs)
 
+    plotobj$motif.i <- factor(plotobj$motif.i, levels = mot.names)
+
     plotobj <- ggplot(plotobj, aes(.data$x, .data$y, group = .data$letter.id,
         fill = .data$group)) +
       geom_polygon() +
@@ -440,6 +442,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
     if (use.type == "PWM")
       plotobj <- plotobj + geom_hline(yintercept = 0, size = 0.25, colour = "grey75")
+
+    if (!show.names) plotobj <- plotobj + theme(strip.text = element_blank())
 
   }
 
