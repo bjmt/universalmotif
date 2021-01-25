@@ -135,7 +135,7 @@ The `universalmotif` package offers a number of `read_*()` functions to allow fo
 * `read_jaspar()`: JASPAR [@jaspar]
 * `read_matrix()`: generic reader for simply formatted motifs
 * `read_meme()`: `MEME` [@meme]
-* `read_motifs()`: native `universalmotif` format
+* `read_motifs()`: native `universalmotif` format (not recommended; use `saveRDS()` instead)
 * `read_transfac()`: TRANSFAC [@transfac]
 * `read_uniprobe()`: UniPROBE [@uniprobe]
 
@@ -181,7 +181,7 @@ You can either change the `pseudocount` slot manually beforehand, or pass one to
 ```{r}
 convert_type(examplemotif, "PWM", pseudocount = 1)
 ```
-There are a couple of additional options for ICM conversion: `nsize_correction` and `relative_entropy`. The former uses the `TFBSTools:::schneider_correction()` function (and thus requires that the `TFBSTools` package be installed) for sample size correction. The latter uses the `bkg` slot to calculate information content.
+There are a couple of additional options for ICM conversion: `nsize_correction` and `relative_entropy`. The former uses the `TFBSTools:::schneider_correction()` function (and thus requires that the `TFBSTools` package be installed) for sample size correction. The latter uses the `bkg` slot to calculate information content. See the IntroductionToSequenceMotifs vignette for an overview on the various types of ICM calculations.
 ```{r}
 examplemotif["nsites"] <- 10
 convert_type(examplemotif, "ICM", nsize_correction = FALSE)
@@ -333,13 +333,14 @@ create_motif(alphabet = "QWERTY")
 
 ## Motif logos
 
-There are several packages which offer motif visualization capabilities, such as `seqLogo`, `Logolas`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation which is similar to the one offered by `ggseqlogo` via the function `view_motifs()`. Here I will briefly show how to use these to visualize `universalmotif` class motifs.
+There are several packages which offer motif visualization capabilities, such as `seqLogo`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation via the function `view_motifs()`, which renders motifs using the `ggplot2` package (similarly to `ggseqlogo`). Here I will briefly show how to use these to visualize `universalmotif` class motifs.
 
 ```{r}
 library(universalmotif)
 data(examplemotif)
 
 ## With the native `view_motifs` function:
+## (Visit the view_motifs() documentation for more details!)
 view_motifs(examplemotif)
 
 ## For all the following examples, simply passing the functions a PPM is
@@ -354,16 +355,9 @@ seqLogo::seqLogo(motif)
 ## motifStack:
 motifStack::plotMotifLogo(motif)
 
-## Logolas:
-## NOTE: the Logolas package is no longer available in Bioconductor 3.13 and later
-#colnames(motif) <- seq_len(ncol(motif))
-#Logolas::logomaker(motif, type = "Logo")
-
 ## ggseqlogo:
 ggseqlogo::ggseqlogo(motif)
 ```
-
-The `Logolas` and `ggseqlogo` offer many additional options for logo customization, including custom alphabets as well as manually determining the heights of each letter, via the `grid` and `ggplot2` packages respectively.
 
 ## Stacked motif logos
 
@@ -375,6 +369,31 @@ library(MotifDb)
 
 motifs <- convert_motifs(MotifDb[1:3])
 view_motifs(motifs)
+```
+
+## Plot arbitrary text logos
+
+If you wish, the logo plotting capabilities of `view_motifs()` can be used for any kind of arbitrary text logo. All you need is a numeric matrix (the heights of the characters), with the desired characters as row names. The following example is taken from the `view_logo()` documentation.
+
+```{r}
+library(universalmotif)
+data(examplemotif)
+
+## Start from a numeric matrix:
+toplot <- examplemotif["motif"]
+
+# Adjust the character heights as you wish (negative values are possible):
+toplot[4] <- 2
+toplot[20] <- -0.5
+
+# Mix and match the number of characters per letter/position:
+rownames(toplot)[1] <- "AA"
+
+toplot <- toplot[c(1, 4), ]
+
+toplot
+
+view_logo(toplot)
 ```
 
 # Higher-order motifs
@@ -401,7 +420,7 @@ Position |   1 |   2 |   3 |   4 |   5 |   6 |   7
        T | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
 : (\#tab:ppm2) Position Probability Matrix.
 
-Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, it is not always so. By incorporating this type of information into the motif, it can allow for increased accuracy in motif searching. A few implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
+Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, this sometimes is not the case. By incorporating this type of information into the motif, it can allow for increased accuracy in motif searching. A few implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
 
 The `universalmotif` package implements its own, rather simplified, version of this concept. Plainly, the standard PPM has been extended to include `k`-letter frequencies, with `k` being any number higher than 1. For example, the 2-letter version of the table \@ref(tab:ppm2) motif would be:
 

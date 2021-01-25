@@ -1,6 +1,5 @@
 - Do the read/write_motifs() functions work with the gap slots?
 - Still need to rework compare_motifs() p-values
-- Extend current view_motifs() implementation for higher k motifs
 - Scan for motif clusters
 - Check that everything in convert_motifs() still works
 - Check that all read/write_*() functions still work
@@ -11,7 +10,6 @@
 - motif_peaks(): serious code cleanup needed
 - Add scan_sequences() gapped motif example to vignettes
 - dependencies to consider removing:
-    + !! ggseqlogo (write my own geom_motif())
     + !! yaml (write my own parser)
     + !! Rdpack (take the time to write in references)
     + Rcpp (use cpp11 w/o import instead --> maybe consider once it hits 1.0.0)
@@ -29,7 +27,6 @@
   them
 - small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
   un-log for print and `[` methods?
-- shuffle_sequences(): add local shuffling
 - get_bkg(): rewrite so that all window code is in c++ (like in sequence-utils)
 - de novo motifs:
     + first search 4/5/6/7/8-mers for enrichment differences (either
@@ -57,11 +54,6 @@
    --> PPM?
 - view_motifs(show.positions.once = FALSE): actually show proper per-motif
   positions, not just numbering all columns
-- write my own geom_motif():
-    + get character polygon coordinates using gglogo package
-    + allow for ED logos?
-    + allow for multifreq logos
-    + also plotting 1 column motifs with ggseqlogo leads to an error
 - create_motif(): is there a check for the "type" input?
     + why does create_motif(type="asdf") work?
 - read_*(): allow to set pseudocount
@@ -73,8 +65,5 @@
   add arrows to fontDFroboto)
 - alternative to subset(): [, ...] (also [..., ]?)
 - create_motif(add.multifreq = 2) doesn't work!
-- roxygen2 bug:
-  #' @importFrom theme_minimal
-  --> gets written as importFrom(theme_minimal,)
-  But re-running document() doesn't fix it when I go back and fix comment.
-- view_motifs(): get rid of pathGroup column earlier
+- read_matrix(): make it so that it's possible to read all other formats with
+  it via tweaking parsing options

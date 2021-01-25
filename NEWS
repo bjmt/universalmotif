@@ -22,6 +22,8 @@ NEW FEATURES
 
 MINOR CHANGES
 
+    o Some additions and clean-up to documentation and vignettes.
+
     o Support for MotIV-pwm2 formatted motifs has been dropped, as the package
       is no longer a part of the current Bioconductor version.
 

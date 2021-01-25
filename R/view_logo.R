@@ -2,7 +2,8 @@
 #'
 #' This function provides the plotting capabilities of [view_motifs()] without
 #' requiring `universalmotif`-class objects. Instead, it takes a numeric matrix
-#' with row names as input.
+#' with row names as input. Additionally, columns can be of any height and
+#' letters can be a mix of different character lengths.
 #'
 #' @param x A numeric matrix with row names. The row names can be a mix of
 #'    different character lengths.
@@ -17,12 +18,16 @@
 #'    characters.
 #'
 #' @return A `ggplot` object. If you wish to plot the data yourself from
-#'    polygon paths, access them using `$data` on the output object.
+#'    polygon paths, access them using `$data` on the output object. The
+#'    theme `theme_void()` is applied to the object; apply your own theme
+#'    or adjust specific plot parameters with `theme()` to change this.
 #'
 #' @examples
-#' ## Feel free to mix and match row name character lengths.
+#' ## Feel free to mix and match row name character lengths and column sums.
 #' data(examplemotif)
 #' toplot <- examplemotif["motif"]
+#' toplot[4] <- 2
+#' toplot[20] <- -0.5
 #' rownames(toplot)[1] <- "AA"
 #' view_logo(toplot)
 #'

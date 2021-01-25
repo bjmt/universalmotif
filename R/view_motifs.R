@@ -53,8 +53,8 @@
 #' @details
 #' See [compare_motifs()] for more info on comparison parameters.
 #'
-#' See [view_logo()] to plot from a numeric matrix instead of a `universalmotif`
-#' object.
+#' See [view_logo()] to plot from a numeric matrix with arbitrary values instead
+#' of a motif object.
 #'
 #' Note: `score.strat = "a.mean"` is NOT recommended, as [view_motifs()] will
 #' not discriminate between two alignments with equal mean scores, even if one
@@ -73,7 +73,7 @@
 #' ## Generate your own letter set:
 #' \dontrun{
 #'
-#' library(gglogo)
+#' library(gglogo)  # install from CRAN first if needed
 #' fontDFtimes <- createPolygons(LETTERS, "Times", 800, scale = TRUE)
 #' view_motifs(examplemotif2, fontDF = fontDFtimes)
 #'
@@ -83,10 +83,11 @@
 #' ## letters which have been badly horizontally scaled, you can fix them
 #' ## manually as demonstrated here:
 #'
+#' # Retrieve the x-coordinates for the desired letter:
 #' tofix <- fontDFtimes$x[fontDFtimes$group == "I"]
-#' # First scale the letter x-coordinates:
+#' # Scale the letter x-coordinates:
 #' tofix <- tofix * 0.35
-#' # Center the letter around 0.5:
+#' # Remember to center the letter around 0.5 again:
 #' tofix <- tofix + (1 - max(tofix)) / 2
 #' # Apply the fix:
 #' fontDFtimes$x[fontDFtimes$group == "I"] <- tofix
@@ -407,7 +408,17 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       breaks <- unique(breaks)
     }
 
-    plotobj <- ggplot(plotobj, aes(.data$x, .data$y, group = .data$letter.id, fill = .data$group)) +
+    # Proper handling of x-limits/breaks/labels for motifs with added on blank
+    # edges (if show.positions.once = FALSE):
+    # - adjust input data so actual start of motif is always 1; if right shifted,
+    #   then those blank left positions should start in the negatives
+    # - don't feed limits anything
+    # - don't feed breaks anything
+    # - feed labels a function to replace numbers which don't belong to motif
+    #   with blanks (not sure how to make this work with left shifted motifs)
+
+    plotobj <- ggplot(plotobj, aes(.data$x, .data$y, group = .data$letter.id,
+        fill = .data$group)) +
       geom_polygon() +
       ylab(yname) +
       xlab(element_blank()) +
@@ -537,6 +548,7 @@ make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
 
     # Make it so the y.spacer is implemented between the bottom letter of
     # +0 and the top letter of -0, possible via setting the trim.top/bot flags.
+    # -- Maybe only apply y.spacer to -0 during regular use?
 
   y.spacer2 <- 0
   if (length(vec) > 1)

@@ -1,7 +1,7 @@
 ---
 title: "Sequence manipulation and scanning"
 shorttitle: "Sequence utilities"
-date: 14 March 2020
+date: 25 January 2021
 author:
 - Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -21,6 +21,7 @@ suppressPackageStartupMessages(library(universalmotif))
 suppressPackageStartupMessages(library(Biostrings))
 data(ArabidopsisPromoters)
 data(ArabidopsisMotif)
+options(Biostrings.coloring = FALSE)
 ```
 
 # Introduction
@@ -78,7 +79,7 @@ In order to avoid these results, typically it desirable to use a set of backgrou
 
 The `universalmotif` package offers three different methods for sequence shuffling: `euler`, `markov` and `linear`. The first method, `euler`, can shuffle sequences while preserving any desired `k`-let size. Furthermore 1-letter counts will always be maintained. However in order for this to be possible, the first and last letters will remain unshuffled. This method is based on the initial random Eulerian walk algorithm proposed by @markovmodel2 and the subsequent cycle-popping algorithm detailed by @eulerAlgo for quickly and efficiently finding Eulerian walks.
 
-The second method, `markov` can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different. Essentially, it involves a combination of determining `k`-let frequencies followed by `create_sequences()`. This type of shuffling is discussed by @markovmodel.
+The second method, `markov` can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different. Essentially, it involves a combination of determining `k`-let frequencies followed by `create_sequences()`. This type of pseudo-shuffling is discussed by @markovmodel.
 
 The third method `linear` preserves the original 1-letter counts exactly, but uses a more crude shuffling technique. In this case the sequence is split into sub-sequences every `k`-let (of any size), which are then re-assembled randomly. This means that while shuffling the same sequence multiple times with `method = "linear"` will result in different sequences, they will all have started from the same set of `k`-length sub-sequences (just re-assembled differently).
 
@@ -113,6 +114,44 @@ l.counts <- get_bkg(linear, 2)
 data.frame(original=o.counts$count, euler=e.counts$count,
   markov=m.counts$count, linear=l.counts$count,
   row.names = get_klets(DNA_BASES, 2))
+```
+
+# Local shuffling
+
+If you have a fairly heterogeneous sequence and wish to preserve the presence of local "patches" of differential sequence composition, you can set `window = TRUE` in the `shuffle_sequences()` function. In the following example, the sequence of interest has an AT rich first half followed by a second half with an even background. The impact on this specific sequence composition is observed after regular and local shuffling, using the per-window functionality of `get_bkg()` (via `window = TRUE`). Fine-tune the window size and overlap between windows with `window.size` and `window.overlap`.
+
+```{r}
+library(Biostrings)
+library(universalmotif)
+library(ggplot2)
+
+myseq <- DNAStringSet(paste0(
+  create_sequences(seqlen = 500, freqs = c(A=0.4, T=0.4, C=0.1, G=0.1)),
+  create_sequences(seqlen = 500)
+))
+
+myseq_shuf <- shuffle_sequences(myseq)
+myseq_shuf_local <- shuffle_sequences(myseq, window = TRUE)
+
+myseq_bkg <- get_bkg(myseq, k = 1, window = TRUE)
+myseq_shuf_bkg <- get_bkg(myseq_shuf, k = 1, window = TRUE)
+myseq_shuf_local_bkg <- get_bkg(myseq_shuf_local, k = 1, window = TRUE)
+
+myseq_bkg$group <- "original"
+myseq_shuf_bkg$group <- "shuffled"
+myseq_shuf_local_bkg$group <- "shuffled-local"
+
+myseq_all <- as.data.frame(
+  rbind(myseq_bkg, myseq_shuf_bkg, myseq_shuf_local_bkg)
+)
+
+ggplot(myseq_all, aes(x = start, y = probability, colour = klet)) +
+  geom_line() +
+  theme_minimal() +
+  scale_colour_manual(values = universalmotif:::DNA_COLOURS) +
+  xlab(element_blank()) +
+  facet_wrap(~group, ncol = 1)
+
 ```
 
 # Miscellaneous string utilities

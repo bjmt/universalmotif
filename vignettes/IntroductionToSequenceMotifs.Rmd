@@ -145,7 +145,7 @@ Now, the score for AAGAAA is 8.46, and the score for AAAAAA is 4.76. Though the 
 
 When searching for instances of this motif using this scoring system, one more consideration is needed: a minimum score. For example, both sequences AAGAAA and ATTTTT have positive scores; but one is much higher than the other. Should ATTTTT then be discarded? In order to answer this a threshold is set, typically this is a certain percent of the highest possible score. For example, in the table \@ref(tab:pwmpseudo) motif, the highest possible score is 8.46. Using a threshold of 25%, the minimum score then becomes 2.115. This means that ATTTTT, with a score of 1.112, would indeed be discarded.
 
-Other methods for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function.
+Other methods for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function. See the MotifComparisonAndPvalues vignette for a detailed overview.
 
 # Information content matrices
 
@@ -214,7 +214,7 @@ In the original implementation described by @correction, an additional error cor
   (\#eq:iccorr)
 \end{equation}
 
-The details for calculating this factor will not be covered here. (Refer to @correction.) The `TFBSTools` package offers the ability to incorporate this error correction (and used in the `universalmotif` package via `convert_type()`).
+The details for calculating this factor will not be covered here. (Refer to @correction.) The `TFBSTools` package offers the ability to incorporate this error correction (and can be used in the `universalmotif` package via `convert_type(..., nsize_correction=TRUE)`).
 
 Finally, to get the height of each letter at each position, the final IC is multiplied by the letter and position probabilities:
 
@@ -251,7 +251,7 @@ An alternative to representing information content as Shannon's entropy is relat
 The equivalent vectorized `R` code:
 
 ```{r}
-IC <- function(C, B) PPM(C) * log2(PPM(C) / B)
+IC <- function(C, B) pmax(PPM(C) * log2(PPM(C) / B), 0)
 ```
 
 Using this equation can lead to IC less than zero. These values are not allowed, so they are simply replaced with zero. With this equation and assuming uniform background frequencies, the table \@ref(tab:ppm) motif becomes:
@@ -273,5 +273,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        G |  0.000 |  0.000 |  1.028 |  0.000 |  0.000 |  0.000
        T |  0.000 |  0.000 |  0.090 |  0.000 |  0.000 |  0.000
 : (\#tab:icmkl2) Information Content Matrix as relative divergence with a non-uniform background.
+
+Notice how the height of A in position 1 has decreased, and how the height of G in position 3 has increased. This makes sense when you consider that you are more likely to get As and less likely to get Gs to begin with.
 
 # References {.unnumbered}
