@@ -52,16 +52,16 @@ generate sequences which will maintain (on average) the k-let
 frequencies. Please note that this method is not a 'true' shuffling, and
 for short sequences (e.g. <100bp) this can result in slightly more
 dissimilar sequences versus true shuffling. See
-\insertCite{markovmodel;textual}{universalmotif} for a discussion on the
+Fitch (1983) for a discussion on the
 topic.
 
 If \code{method = 'euler'}, then the sequence shuffling method proposed by
-\insertCite{markovmodel2;textual}{universalmotif} is used. As opposed
+Altschul and Erickson (1985) is used. As opposed
 to the 'markov' method, this one preserves exact k-let frequencies. This
 is done by creating a k-let edge graph, then following a
 random Eulerian walk through the graph. Not all walks will use up all
 available letters however, so the cycle-popping algorithm proposed by
-\insertCite{eulerAlgo;textual}{universalmotif} is used to find a
+Propp and Wilson (1998) is used to find a
 random Eulerian path. A side effect of using this method is that the
 starting and ending sequence letters will remain unshuffled.
 
@@ -81,11 +81,17 @@ sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 
 }
 \references{
-\insertRef{markovmodel2}{universalmotif}
+Altschul SF, Erickson BW (1985). “Significance of Nucleotide
+Sequence Alignments: A Method for Random Sequence Permutation That
+Preserves Dinucleotide and Codon Usage.” \emph{Molecular Biology and
+Evolution}, \emph{2}, 526-538.
 
-\insertRef{markovmodel}{universalmotif}
+Fitch WM (1983). “Random sequences.” \emph{Journal of Molecular
+Biology}, \emph{163}, 171-176.
 
-\insertRef{eulerAlgo}{universalmotif}
+Propp JG, Wilson DW (1998). “How to get a perfectly random sample
+from a generic markov chain and generate a random spanning tree of
+a directed graph.” \emph{Journal of Algorithms}, \emph{27}, 170-217.
 }
 \seealso{
 \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=enrich_motifs]{enrich_motifs()}},

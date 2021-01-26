@@ -13,7 +13,12 @@
 #' @return NULL, invisibly.
 #'
 #' @references
-#'    \insertRef{homer}{universalmotif}
+#'
+#' Heinz S, Benner C, Spann N, Bertolino E, Lin YC, Laslo P, Cheng
+#' JX, Murre C, Singh H, Glass CK (2010). “Simple combinations of
+#' lineage-determining transcription factors prime cis-regulatory
+#' elements required for macrophage and B cell identities.”
+#' _Molecular Cell_, *38*, 576-589.
 #'
 #' @examples
 #' motif <- create_motif()

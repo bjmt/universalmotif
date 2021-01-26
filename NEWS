@@ -12,8 +12,8 @@ NEW FEATURES
       This change should also allow for easier fixing of bugs and flexibility
       for future additions or changes.
 
-    o view_logo(): plot logos with matrix input instead of universalmotif-class
-      object input.
+    o view_logo(): plot logos with matrix input instead of motif object input.
+      Arbitrary column heights and multi-character letters are allowed.
 
     o trim_motifs(..., trim.from): trim from both directions or just one.
 
@@ -29,6 +29,8 @@ MINOR CHANGES
 
     o read_matrix()/write_matrix(): the sep argument can now be NULL (no
       seperators.)
+
+    o The Rdpack dependency has been dropped.
 
 CHANGES IN VERSION 1.8.3
 ------------------------

@@ -158,21 +158,35 @@ MA0003.2.trimmed <- trim_motifs(MA0003.2)
 
 }
 \references{
-\insertRef{seqlogo}{universalmotif}
+Bembom O (2018). \emph{seqLogo: Sequence logos for DNA sequence
+alignments}. R package version 1.46.0.
 
-\insertRef{rgadem}{universalmotif}
+Droit A, Gottardo R, Robertson G, Li L (2014). \emph{rGADEM: de novo
+motif discovery}. R package version 2.28.0.
 
-\insertRef{motiv}{universalmotif}
+Mercier E, Gottardo R (2014). \emph{MotIV: Motif Identification and
+Validation}. R package version 1.36.0.
 
-\insertRef{motifstack}{universalmotif}
+Ou J, Wolfe SA, Brodsky MH, Zhu LJ (2018). “motifStack for the
+analysis of transcription factor binding site evolution.” \emph{Nature
+Methods}, \emph{15}, 8-9. doi: 10.1038/nmeth.4555 (URL:
+https://doi.org/10.1038/nmeth.4555).
 
-\insertRef{motifdb}{universalmotif}
+Shannon P, Richards M (2018). \emph{MotifDb: An Annotated Collection of
+Protein-DNA Binding Sequence Motifs}. R package version 1.22.0.
 
-\insertRef{pwmenrich}{universalmotif}
+Stojnic R, Diez D (2015). \emph{PWMEnrich: PWM enrichment analysis}. R
+package version 4.16.0.
 
-\insertRef{tfbstools}{universalmotif}
+Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
+transcription factor binding site analysis.” \emph{Bioinformatics},
+\emph{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
+https://doi.org/10.1093/bioinformatics/btw024), <URL:
+http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 
-\insertRef{motifrg}{universalmotif}
+Yao Z (2012). \emph{motifRG: A package for discriminative motif
+discovery, designed for high throughput sequencing dataset}. R
+package version 1.24.0.
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}

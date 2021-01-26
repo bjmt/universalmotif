@@ -35,7 +35,10 @@
 #' log_string_pval(meme.minimal[[1]]["extrainfo"]["eval.string"])
 #'
 #' @references
-#'    \insertRef{meme}{universalmotif}
+#'
+#' Bailey TL, Boden M, Buske FA, Frith M, Grant CE, Clementi L, Ren
+#' J, Li WW, Noble WS (2009). “MEME SUITE: tools for motif discovery
+#' and searching.” _Nucleic Acids Research_, *37*, W202-W208.
 #'
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}

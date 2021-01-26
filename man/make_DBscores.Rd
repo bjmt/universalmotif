@@ -75,7 +75,7 @@ the function args are included in the \code{metadata} slot.
 \description{
 Generate data used by \code{\link[=compare_motifs]{compare_motifs()}} for P-value calculations. By default,
 \code{\link[=compare_motifs]{compare_motifs()}} uses an internal database based on the JASPAR2018 core motifs
-\insertCite{jaspar}{universalmotif}. Parameters for distributions are
+(Khan et al. 2018). Parameters for distributions are
 are estimated for every combination of motif \code{widths}.
 }
 \details{
@@ -98,7 +98,12 @@ compare_motifs(motifs, 1:100, db.scores = scores)
 
 }
 \references{
-\insertRef{jaspar}{universalmotif}
+Khan A, Fornes O, Stigliani A, Gheorghe M, Castro-Mondragon JA,
+van der Lee R, Bessy A, Cheneby J, Kulkarni SR, Tan G, Baranasic
+D, Arenillas DJ, Sandelin A, Vandepoele K, Lenhard B, Ballester B,
+Wasserman WW, Parcy F, Mathelier A (2018). “JASPAR 2018: update of
+the open-access database of transcription factor binding profiles
+and its web framework.” \emph{Nucleic Acids Research}, \emph{46}, D260-D266.
 }
 \seealso{
 \code{\link[=compare_motifs]{compare_motifs()}}

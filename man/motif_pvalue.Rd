@@ -77,7 +77,7 @@ motif length increases even this calculation becomes impractical. To get
 around this, the p-value calculation can be approximated.
 
 In order to calculate p-values for longer motifs, this function uses the
-approximation proposed by \insertCite{pvalues;textual}{universalmotif}, where
+approximation proposed by Hartmann et al. (2013), where
 the motif is subset, p-values calculated for the subsets, and finally
 combined for a total p-value. The smaller the size of the subsets, the
 faster the calculation; but also, the bigger the approximation. This can be
@@ -132,7 +132,9 @@ get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
 
 }
 \references{
-\insertRef{pvalues}{universalmotif}
+Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
+“P-value-based regulatory motif discovery using positional weight
+matrices.” \emph{Genome Research}, \emph{23}, 181-194.
 }
 \seealso{
 \code{\link[=motif_score]{motif_score()}}

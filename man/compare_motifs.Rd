@@ -91,18 +91,18 @@ Compare motifs using one of the several available metrics. See the
 \details{
 The following metrics are available:
 \itemize{
-\item Euclidean distance (\code{EUCL}) \insertCite{euclidean}{universalmotif}
+\item Euclidean distance (\code{EUCL}) (Choi et al. 2004)
 \item Weighted Euclidean distance (\code{WEUCL})
-\item Kullback-Leibler divergence (\code{KL}) \insertCite{kl,kldiv}{universalmotif}
-\item Hellinger distance (\code{HELL}) \insertCite{hellinger}{universalmotif}
+\item Kullback-Leibler divergence (\code{KL}) (Kullback and Leibler 1951; Roepcke et al. 2005)
+\item Hellinger distance (\code{HELL}) (Hellinger 1909)
 \item Squared Euclidean distance (\code{SEUCL})
 \item Manhattan distance (\code{MAN})
 \item Pearson correlation coefficient (\code{PCC})
 \item Weighted Pearson correlation coefficient (\code{WPCC})
-\item Sandelin-Wasserman similarity (\code{SW}), or sum of squared distances \insertCite{wasserman}{universalmotif}
-\item Average log-likelihood ratio (\code{ALLR}) \insertCite{wang}{universalmotif}
-\item Lower limit ALLR (\code{ALLR_LL}) \insertCite{mahony}{universalmotif}
-\item Bhattacharyya coefficient (\code{BHAT}) \insertCite{bhatt}{universalmotif}
+\item Sandelin-Wasserman similarity (\code{SW}), or sum of squared distances (Sandelin and Wasserman 2004)
+\item Average log-likelihood ratio (\code{ALLR}) (Wang and Stormo 2003)
+\item Lower limit ALLR (\code{ALLR_LL}) (Mahony et al. 2007)
+\item Bhattacharyya coefficient (\code{BHAT}) (Bhattacharyya 1943)
 }
 
 Comparisons are calculated between two motifs at a time. All possible alignments
@@ -149,27 +149,53 @@ compare_motifs(motifs, compare.to = 2, max.p = 1, max.e = Inf)
 
 }
 \references{
-\insertRef{bhatt}{universalmotif}
+Bhattacharyya A (1943). “On a measure of divergence between two
+statistical populations defined by their probability
+distributions.” \emph{Bulletin of the Calcutta Mathematical Society},
+\emph{35}, 99-109.
 
-\insertRef{euclidean}{universalmotif}
+Choi I, Kwon J, Kim S (2004). “Local feature frequency profile: a
+method to measure structural similarity in proteins.” \emph{PNAS},
+\emph{101}, 3797-3802.
 
-\insertRef{hellinger}{universalmotif}
+Hellinger E (1909). “Neue Begrundung der Theorie quadratischer
+Formen von unendlichvielen Veranderlichen.” \emph{Journal fur die reine
+und angewandte Mathematik}, \emph{136}, 210-271.
 
-\insertRef{jaspar}{universalmotif}
+Khan A, Fornes O, Stigliani A, Gheorghe M, Castro-Mondragon JA,
+van der Lee R, Bessy A, Cheneby J, Kulkarni SR, Tan G, Baranasic
+D, Arenillas DJ, Sandelin A, Vandepoele K, Lenhard B, Ballester B,
+Wasserman WW, Parcy F, Mathelier A (2018). “JASPAR 2018: update of
+the open-access database of transcription factor binding profiles
+and its web framework.” \emph{Nucleic Acids Research}, \emph{46}, D260-D266.
 
-\insertRef{kl}{universalmotif}
+Kullback S, Leibler RA (1951). “On information and sufficiency.”
+\emph{The Annals of Mathematical Statistics}, \emph{22}, 79-86.
 
-\insertRef{ISdist}{universalmotif}
+Itakura F, Saito S (1968). “Analysis synthesis telephony based on
+the maximum likelihood method.” In \emph{6th International Congress on
+Acoustics}, C-17.
 
-\insertRef{mahony}{universalmotif}
+Mahony S, Auron PE, Benos PV (2007). “DNA Familial Binding
+Profiles Made Easy: Comparison of Various Motif Alignment and
+Clustering Strategies.” \emph{PLoS Computational Biology}, \emph{3}.
 
-\insertRef{pearson}{universalmotif}
+Pietrokovski S (1996). “Searching databases of conserved sequence
+regions by aligning protein multiple-alignments.” \emph{Nucleic Acids
+Research}, \emph{24}, 3836-3845.
 
-\insertRef{kldiv}{universalmotif}
+Roepcke S, Grossmann S, Rahmann S, Vingron M (2005). “T-Reg
+Comparator: an analysis tool for the comparison of position weight
+matrices.” \emph{Nucleic Acids Research}, \emph{33}, W438-W441.
 
-\insertRef{wasserman}{universalmotif}
+Sandelin A, Wasserman WW (2004). “Constrained binding site
+diversity within families of transcription factors enhances
+pattern discovery bioinformatics.” \emph{Journal of Molecular Biology},
+\emph{338}, 207-215.
 
-\insertRef{wang}{universalmotif}
+Wang T, Stormo GD (2003). “Combining phylogenetic data with
+co-regulated genes to identify motifs.” \emph{Bioinformatics}, \emph{19},
+2369-2380.
 }
 \seealso{
 \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}},

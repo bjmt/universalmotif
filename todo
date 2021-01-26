@@ -67,3 +67,4 @@
 - create_motif(add.multifreq = 2) doesn't work!
 - read_matrix(): make it so that it's possible to read all other formats with
   it via tweaking parsing options
+- go through vignettes again + get rid of Rdpack

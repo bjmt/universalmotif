@@ -66,7 +66,11 @@
 #' bkg.QWERTY <- get_bkg(seqs.QWERTY, k = 1:2)
 #'
 #' @references
-#'    \insertRef{meme3}{universalmotif}
+#'
+#' Bailey TL, Elkan C (1994). “Fitting a mixture model by expectation
+#' maximization to discover motifs in biopolymers.” _Proceedings of
+#' the Second International Conference on Intelligent Systems for
+#' Molecular Biology_, *2*, 28-36.
 #'
 #' @seealso [create_sequences()], [scan_sequences()], [shuffle_sequences()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}

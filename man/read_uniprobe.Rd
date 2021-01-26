@@ -26,7 +26,10 @@ uniprobe.full <- read_uniprobe(system.file("extdata", "uniprobe_full.txt",
 
 }
 \references{
-\insertRef{uniprobe}{universalmotif}
+Hume MA, Barrera LA, Gisselbrecht SS, Bulyk ML (2015). “UniPROBE,
+update 2015: new tools and content for the online database of
+protein-binding microarray data on protein-DNA interactions.”
+\emph{Nucleic Acids Research}, \emph{43}, D117-D122.
 }
 \seealso{
 Other read_motifs: 

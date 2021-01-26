@@ -28,7 +28,7 @@ if multiple motifs are being enriched for.}
 
 \item{max.e}{\code{numeric(1)}. The E-value is calculated by multiplying the adjusted
 P-value with the number of input motifs times two
-\insertCite{meme2}{universalmotif}.}
+(McLeay and Bailey 2010).}
 
 \item{qval.method}{\code{character(1)} See \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
 
@@ -111,7 +111,8 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
 
 }
 \references{
-\insertRef{meme2}{universalmotif}
+McLeay R, Bailey TL (2010). “Motif Enrichment Analysis: A unified
+framework and method evaluation.” \emph{BMC Bioinformatics}, \emph{11}.
 }
 \seealso{
 \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},

@@ -41,7 +41,9 @@ write_meme(transfac, tempfile())
 
 }
 \references{
-\insertRef{meme}{universalmotif}
+Bailey TL, Boden M, Buske FA, Frith M, Grant CE, Clementi L, Ren
+J, Li WW, Noble WS (2009). “MEME SUITE: tools for motif discovery
+and searching.” \emph{Nucleic Acids Research}, \emph{37}, W202-W208.
 }
 \seealso{
 \code{\link[=read_meme]{read_meme()}}

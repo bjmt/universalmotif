@@ -32,7 +32,11 @@ write_homer(motif, tempfile())
 
 }
 \references{
-\insertRef{homer}{universalmotif}
+Heinz S, Benner C, Spann N, Bertolino E, Lin YC, Laslo P, Cheng
+JX, Murre C, Singh H, Glass CK (2010). “Simple combinations of
+lineage-determining transcription factors prime cis-regulatory
+elements required for macrophage and B cell identities.”
+\emph{Molecular Cell}, \emph{38}, 576-589.
 }
 \seealso{
 \code{\link[=read_homer]{read_homer()}}

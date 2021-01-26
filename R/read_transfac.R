@@ -11,7 +11,10 @@
 #'                                       package = "universalmotif"))
 #' 
 #' @references
-#'    \insertRef{transfac}{universalmotif}
+#'
+#' Wingender E, Dietze P, Karas H, Knuppel R (1996). “TRANSFAC: A
+#' Database on Transcription Factors and Their DNA Binding Sites.”
+#' _Nucleic Acids Research_, *24*, 238-241.
 #'
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}

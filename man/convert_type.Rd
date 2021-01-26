@@ -49,7 +49,7 @@ thus have a probability of 0, which can be undesirable when searching for
 motifs in a set of sequences. To avoid this a pseudocount can be added
 (\code{(letter_count + pseudocount) / (position_total + pseudocount)}).
 
-Position weight matrix (PWM; \insertCite{pwm;textual}{universalmotif}),
+Position weight matrix (PWM; Stormo et al. (1982)),
 also known as position-specific weight
 matrix (PSWM), position-specific scoring matrix (PSSM), or
 log-odds matrix. At each position, each letter is represented by it's
@@ -59,36 +59,36 @@ is constructed from a PPM. If any position has 0-probability letters to
 which pseudocounts were not added, then the final log-likelihood of these
 letters will be \code{-Inf}.
 
-Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).
+Information content matrix (ICM; Schneider and Stephens 1990).
 An ICM is a PPM where each letter probability is multiplied by the total
 information content at that position. The information content of each
 position is determined as: \code{totalIC - Hi}, where the total information
 totalIC
 
 \code{totalIC <- log2(alphabet_length)}, and the Shannon entropy
-\insertCite{shannon}{universalmotif} for a specific
+(Shannon 1948) for a specific
 position (Hi)
 
 \verb{Hi <- -sum(sapply(alphabet_frequencies, function(x) x * log(2))}.
 
 As a result, the total sum or height of each position is representative of
 it's sequence conservation, measured in the unit 'bits', which is a unit
-of energy (\insertCite{bits;textual}{universalmotif}; see
+of energy (Schneider 1991; see
 \url{https://fr-s-schneider.ncifcrf.gov/logorecommendations.html}
 for more information). However not all programs will calculate
 information content the same. Some will 'correct' the total information
 content at each position using a correction factor as described by
-\insertCite{correction;textual}{universalmotif}. This correction can
+Schneider et al. (1986). This correction can
 applied by setting \code{nsize_correction = TRUE}, however it will only
 be applied if the 'nsites' slot is not empty. This is done using
 \code{TFBSTools:::schneider_correction}
-\insertCite{tfbstools}{universalmotif}. As such, converting from an ICM to
+(Tan and Lenhard 2016). As such, converting from an ICM to
 which some form of correction has been applied will result in a
 PCM/PPM/PWM with slight inaccuracies.
 
 Another method of calculating information content is calculating the
 relative entropy, also known as Kullback-Leibler divergence
-\insertCite{kl}{universalmotif}. This accounts for background
+(Kullback and Leibler 1951). This accounts for background
 frequencies, which
 can be useful for genomes with a heavy imbalance in letter frequencies.
 For each position, the individual letter frequencies are calculated as
@@ -113,21 +113,37 @@ jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 
 }
 \references{
-\insertRef{kl}{universalmotif}
+Kullback S, Leibler RA (1951). “On information and sufficiency.”
+\emph{The Annals of Mathematical Statistics}, \emph{22}, 79-86.
 
-\insertRef{pseudo}{universalmotif}
+Nishida K, Frith MC, Nakai K (2009). “Pseudocounts for
+transcription factor binding sites.” \emph{Nucleic Acids Research},
+\emph{37}, 939-944.
 
-\insertRef{correction}{universalmotif}
+Schneider TD, Stormo GD, Gold L, Ehrenfeucht A (1986).
+“Information content of binding sites on nucleotide sequences.”
+\emph{Journal of Molecular Biology}, \emph{188}, 415-431.
 
-\insertRef{icm}{universalmotif}
+Schneider TD, Stephens RM (1990). “Sequence Logos: A New Way to
+Display Consensus Sequences.” \emph{Nucleic Acids Research}, \emph{18},
+6097-6100.
 
-\insertRef{bits}{universalmotif}
+Schneider TD (1991). “Theory of Molecular Machines. II. Energy
+Dissipation from Molecular Machines.” \emph{Journal of Theoretical
+Biology}, \emph{148}, 125-137.
 
-\insertRef{shannon}{universalmotif}
+Shannon CE (1948). “A Mathematical Theory of Communication.” \emph{Bell
+System Technical Journal}, \emph{27}, 379-423.
 
-\insertRef{pwm}{universalmotif}
+Stormo GD, Schneider TD, Gold L, Ehrenfeucht A (1982). “Use of the
+Perceptron algorithm to distinguish translational initiation sites
+in E. coli.” \emph{Nucleic Acids Research}, \emph{10}, 2997-3011.
 
-\insertRef{tfbstools}{universalmotif}
+Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
+transcription factor binding site analysis.” \emph{Bioinformatics},
+\emph{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
+https://doi.org/10.1093/bioinformatics/btw024), <URL:
+http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 }
 \seealso{
 \code{\link[=convert_motifs]{convert_motifs()}}

@@ -30,7 +30,6 @@
 #' @importFrom Biostrings reverseComplement writeXStringSet seqtype AA_ALPHABET
 #' @importFrom Biostrings mask injectHardMask
 #' @importFrom IRanges stack
-#' @importFrom Rdpack reprompt
 #' @importFrom Rcpp sourceCpp
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
 #' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums

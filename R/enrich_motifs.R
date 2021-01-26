@@ -13,7 +13,7 @@
 #'    if multiple motifs are being enriched for.
 #' @param max.e `numeric(1)`. The E-value is calculated by multiplying the adjusted
 #'    P-value with the number of input motifs times two
-#'    \insertCite{meme2}{universalmotif}.
+#'    (McLeay and Bailey 2010).
 #' @param qval.method `character(1)` See [stats::p.adjust()].
 #' @param verbose `numeric(1)` 0 for no output, 4 for max verbosity.
 #' @param shuffle.k `numeric(1)` The k-let size to use when shuffling input
@@ -66,7 +66,9 @@
 #' }
 #'
 #' @references
-#'    \insertRef{meme2}{universalmotif}
+#'
+#' McLeay R, Bailey TL (2010). “Motif Enrichment Analysis: A unified
+#' framework and method evaluation.” _BMC Bioinformatics_, *11*.
 #'
 #' @author Benjamin Jean-Marie Tremblay \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [shuffle_sequences()],

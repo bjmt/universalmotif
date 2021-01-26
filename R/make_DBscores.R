@@ -2,7 +2,7 @@
 #'
 #' Generate data used by [compare_motifs()] for P-value calculations. By default,
 #' [compare_motifs()] uses an internal database based on the JASPAR2018 core motifs
-#' \insertCite{jaspar}{universalmotif}. Parameters for distributions are
+#' (Khan et al. 2018). Parameters for distributions are
 #' are estimated for every combination of motif `widths`.
 #'
 #' @param db.motifs `list` Database motifs.
@@ -41,7 +41,13 @@
 #' }
 #'
 #' @references
-#'    \insertRef{jaspar}{universalmotif}
+#'
+#' Khan A, Fornes O, Stigliani A, Gheorghe M, Castro-Mondragon JA,
+#' van der Lee R, Bessy A, Cheneby J, Kulkarni SR, Tan G, Baranasic
+#' D, Arenillas DJ, Sandelin A, Vandepoele K, Lenhard B, Ballester B,
+#' Wasserman WW, Parcy F, Mathelier A (2018). “JASPAR 2018: update of
+#' the open-access database of transcription factor binding profiles
+#' and its web framework.” _Nucleic Acids Research_, *46*, D260-D266.
 #'
 #' @seealso [compare_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}

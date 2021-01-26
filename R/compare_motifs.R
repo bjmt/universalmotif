@@ -61,18 +61,18 @@
 #' @details
 #' The following metrics are available:
 #'
-#' * Euclidean distance (`EUCL`) \insertCite{euclidean}{universalmotif}
+#' * Euclidean distance (`EUCL`) (Choi et al. 2004)
 #' * Weighted Euclidean distance (`WEUCL`) 
-#' * Kullback-Leibler divergence (`KL`) \insertCite{kl,kldiv}{universalmotif}
-#' * Hellinger distance (`HELL`) \insertCite{hellinger}{universalmotif}
+#' * Kullback-Leibler divergence (`KL`) (Kullback and Leibler 1951; Roepcke et al. 2005)
+#' * Hellinger distance (`HELL`) (Hellinger 1909)
 #' * Squared Euclidean distance (`SEUCL`)
 #' * Manhattan distance (`MAN`)
 #' * Pearson correlation coefficient (`PCC`)
 #' * Weighted Pearson correlation coefficient (`WPCC`)
-#' * Sandelin-Wasserman similarity (`SW`), or sum of squared distances \insertCite{wasserman}{universalmotif}
-#' * Average log-likelihood ratio (`ALLR`) \insertCite{wang}{universalmotif}
-#' * Lower limit ALLR (`ALLR_LL`) \insertCite{mahony}{universalmotif}
-#' * Bhattacharyya coefficient (`BHAT`) \insertCite{bhatt}{universalmotif}
+#' * Sandelin-Wasserman similarity (`SW`), or sum of squared distances (Sandelin and Wasserman 2004)
+#' * Average log-likelihood ratio (`ALLR`) (Wang and Stormo 2003)
+#' * Lower limit ALLR (`ALLR_LL`) (Mahony et al. 2007)
+#' * Bhattacharyya coefficient (`BHAT`) (Bhattacharyya 1943)
 #'
 #' Comparisons are calculated between two motifs at a time. All possible alignments
 #' are scored, and the best score is reported. In an alignment scores are calculated
@@ -118,27 +118,53 @@
 #'
 #' @references
 #'
-#'    \insertRef{bhatt}{universalmotif}
+#' Bhattacharyya A (1943). “On a measure of divergence between two
+#' statistical populations defined by their probability
+#' distributions.” _Bulletin of the Calcutta Mathematical Society_,
+#' *35*, 99-109.
 #'
-#'    \insertRef{euclidean}{universalmotif}
+#' Choi I, Kwon J, Kim S (2004). “Local feature frequency profile: a
+#' method to measure structural similarity in proteins.” _PNAS_,
+#' *101*, 3797-3802.
 #'
-#'    \insertRef{hellinger}{universalmotif}
+#' Hellinger E (1909). “Neue Begrundung der Theorie quadratischer
+#' Formen von unendlichvielen Veranderlichen.” _Journal fur die reine
+#' und angewandte Mathematik_, *136*, 210-271.
 #'
-#'    \insertRef{jaspar}{universalmotif}
+#' Khan A, Fornes O, Stigliani A, Gheorghe M, Castro-Mondragon JA,
+#' van der Lee R, Bessy A, Cheneby J, Kulkarni SR, Tan G, Baranasic
+#' D, Arenillas DJ, Sandelin A, Vandepoele K, Lenhard B, Ballester B,
+#' Wasserman WW, Parcy F, Mathelier A (2018). “JASPAR 2018: update of
+#' the open-access database of transcription factor binding profiles
+#' and its web framework.” _Nucleic Acids Research_, *46*, D260-D266.
 #'
-#'    \insertRef{kl}{universalmotif}
+#' Kullback S, Leibler RA (1951). “On information and sufficiency.”
+#' _The Annals of Mathematical Statistics_, *22*, 79-86.
+#' 
+#' Itakura F, Saito S (1968). “Analysis synthesis telephony based on
+#' the maximum likelihood method.” In _6th International Congress on
+#' Acoustics_, C-17.
 #'
-#'    \insertRef{ISdist}{universalmotif}
+#' Mahony S, Auron PE, Benos PV (2007). “DNA Familial Binding
+#' Profiles Made Easy: Comparison of Various Motif Alignment and
+#' Clustering Strategies.” _PLoS Computational Biology_, *3*.
 #'
-#'    \insertRef{mahony}{universalmotif}
+#' Pietrokovski S (1996). “Searching databases of conserved sequence
+#' regions by aligning protein multiple-alignments.” _Nucleic Acids
+#' Research_, *24*, 3836-3845.
 #'
-#'    \insertRef{pearson}{universalmotif}
+#' Roepcke S, Grossmann S, Rahmann S, Vingron M (2005). “T-Reg
+#' Comparator: an analysis tool for the comparison of position weight
+#' matrices.” _Nucleic Acids Research_, *33*, W438-W441.
 #'
-#'    \insertRef{kldiv}{universalmotif}
+#' Sandelin A, Wasserman WW (2004). “Constrained binding site
+#' diversity within families of transcription factors enhances
+#' pattern discovery bioinformatics.” _Journal of Molecular Biology_,
+#' *338*, 207-215.
 #'
-#'    \insertRef{wasserman}{universalmotif}
-#'
-#'    \insertRef{wang}{universalmotif}
+#' Wang T, Stormo GD (2003). “Combining phylogenetic data with
+#' co-regulated genes to identify motifs.” _Bioinformatics_, *19*,
+#' 2369-2380.
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()], [motif_tree()], [view_motifs()],

@@ -48,7 +48,9 @@ log_string_pval(meme.minimal[[1]]["extrainfo"]["eval.string"])
 
 }
 \references{
-\insertRef{meme}{universalmotif}
+Bailey TL, Boden M, Buske FA, Frith M, Grant CE, Clementi L, Ren
+J, Li WW, Noble WS (2009). “MEME SUITE: tools for motif discovery
+and searching.” \emph{Nucleic Acids Research}, \emph{37}, W202-W208.
 }
 \seealso{
 Other read_motifs: 

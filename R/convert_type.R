@@ -35,7 +35,7 @@
 #'    motifs in a set of sequences. To avoid this a pseudocount can be added
 #'    (`(letter_count + pseudocount) / (position_total + pseudocount)`).
 #'
-#'    Position weight matrix (PWM; \insertCite{pwm;textual}{universalmotif}),
+#'    Position weight matrix (PWM; Stormo et al. (1982)),
 #'    also known as position-specific weight
 #'    matrix (PSWM), position-specific scoring matrix (PSSM), or
 #'    log-odds matrix. At each position, each letter is represented by it's
@@ -45,36 +45,36 @@
 #'    which pseudocounts were not added, then the final log-likelihood of these
 #'    letters will be `-Inf`.
 #'
-#'    Information content matrix (ICM; \insertCite{icm;textual}{universalmotif}).
+#'    Information content matrix (ICM; Schneider and Stephens 1990).
 #'    An ICM is a PPM where each letter probability is multiplied by the total
 #'    information content at that position. The information content of each
 #'    position is determined as: `totalIC - Hi`, where the total information
 #'    totalIC
 #'
 #'    `totalIC <- log2(alphabet_length)`, and the Shannon entropy
-#'    \insertCite{shannon}{universalmotif} for a specific
+#'    (Shannon 1948) for a specific
 #'    position (Hi)
 #'
 #'    `Hi <- -sum(sapply(alphabet_frequencies, function(x) x * log(2))`.
 #'
 #'    As a result, the total sum or height of each position is representative of
 #'    it's sequence conservation, measured in the unit 'bits', which is a unit
-#'    of energy (\insertCite{bits;textual}{universalmotif}; see
+#'    of energy (Schneider 1991; see
 #'    \url{https://fr-s-schneider.ncifcrf.gov/logorecommendations.html}
 #'    for more information). However not all programs will calculate
 #'    information content the same. Some will 'correct' the total information
 #'    content at each position using a correction factor as described by
-#'    \insertCite{correction;textual}{universalmotif}. This correction can
+#'    Schneider et al. (1986). This correction can
 #'    applied by setting `nsize_correction = TRUE`, however it will only
 #'    be applied if the 'nsites' slot is not empty. This is done using
 #'    `TFBSTools:::schneider_correction`
-#'    \insertCite{tfbstools}{universalmotif}. As such, converting from an ICM to
+#'    (Tan and Lenhard 2016). As such, converting from an ICM to
 #'    which some form of correction has been applied will result in a
 #'    PCM/PPM/PWM with slight inaccuracies.
 #'
 #'    Another method of calculating information content is calculating the
 #'    relative entropy, also known as Kullback-Leibler divergence
-#'    \insertCite{kl}{universalmotif}. This accounts for background
+#'    (Kullback and Leibler 1951). This accounts for background
 #'    frequencies, which
 #'    can be useful for genomes with a heavy imbalance in letter frequencies.
 #'    For each position, the individual letter frequencies are calculated as
@@ -98,21 +98,38 @@
 #' jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 #'
 #' @references
-#'    \insertRef{kl}{universalmotif}
 #'
-#'    \insertRef{pseudo}{universalmotif}
+#' Kullback S, Leibler RA (1951). “On information and sufficiency.”
+#' _The Annals of Mathematical Statistics_, *22*, 79-86.
 #'
-#'    \insertRef{correction}{universalmotif}
+#' Nishida K, Frith MC, Nakai K (2009). “Pseudocounts for
+#' transcription factor binding sites.” _Nucleic Acids Research_,
+#' *37*, 939-944.
 #'
-#'    \insertRef{icm}{universalmotif}
+#' Schneider TD, Stormo GD, Gold L, Ehrenfeucht A (1986).
+#' “Information content of binding sites on nucleotide sequences.”
+#' _Journal of Molecular Biology_, *188*, 415-431.
 #'
-#'    \insertRef{bits}{universalmotif}
+#' Schneider TD, Stephens RM (1990). “Sequence Logos: A New Way to
+#' Display Consensus Sequences.” _Nucleic Acids Research_, *18*,
+#' 6097-6100.
 #'
-#'    \insertRef{shannon}{universalmotif}
+#' Schneider TD (1991). “Theory of Molecular Machines. II. Energy
+#' Dissipation from Molecular Machines.” _Journal of Theoretical
+#' Biology_, *148*, 125-137.
 #'
-#'    \insertRef{pwm}{universalmotif}
+#' Shannon CE (1948). “A Mathematical Theory of Communication.” _Bell
+#' System Technical Journal_, *27*, 379-423.
 #'
-#'    \insertRef{tfbstools}{universalmotif}
+#' Stormo GD, Schneider TD, Gold L, Ehrenfeucht A (1982). “Use of the
+#' Perceptron algorithm to distinguish translational initiation sites
+#' in E. coli.” _Nucleic Acids Research_, *10*, 2997-3011.
+#'
+#' Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
+#' transcription factor binding site analysis.” _Bioinformatics_,
+#' *32*, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
+#' https://doi.org/10.1093/bioinformatics/btw024), <URL:
+#' http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()]

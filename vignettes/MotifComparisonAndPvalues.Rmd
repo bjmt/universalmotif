@@ -409,7 +409,7 @@ motifs <- motifs[new.order]
 ## Plot the two together (some finessing of margins and positions required):
 plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
   tree, NULL,
-  view_motifs(mm, text.size = 6) +
+  view_motifs(motifs, text.size = 6) +
     ylab(element_blank()) +
     theme(
       axis.line.y = element_blank(),

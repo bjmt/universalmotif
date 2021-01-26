@@ -15,7 +15,14 @@
 #' with a header start at instances of the word "TF".
 #'
 #' @references
-#'    \insertRef{cisbp}{universalmotif}
+#'
+#' Weirauch MT, Yang A, Albu M, Cote AG, Montenegro-Montero A, Drewe
+#' P, Najafabadi HS, Lambert SA, Mann I, Cook K, Zheng H, Goity A,
+#' van Bakel H, Lozano JC, Galli M, Lewsey MG, Huang E, Mukherjee T,
+#' Chen X, Reece-Hoyes JS, Govindarajan S, Shaulsky G, Walhout AJ,
+#' Bouget FY, Ratsch G, Larrondo LF, Ecker JR, Hughes TR (2014).
+#' “Determination and inference of eukaryotic transcription factor
+#' sequence specificity.” _Cell_, *158*, 1431-1443.
 #'
 #' @family read_motifs
 #' @examples
