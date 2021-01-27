@@ -15,7 +15,7 @@ enrichment.
 
 ## Installation
 
-### Bioconductor release version
+### [Bioconductor release version](https://bioconductor.org/packages/universalmotif/)
 
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
@@ -23,7 +23,7 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("universalmotif")
 ```
 
-### GitHub development version
+### [GitHub development version](https://github.com/bjmt/universalmotif)
 
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
@@ -33,7 +33,14 @@ BiocManager::install("bjmt/universalmotif")
 
 ## Brief overview
 
-There are a large number of available functions provided by the `universalmotif` package to work with motifs. See the vignettes on the [Bioconductor](https://www.bioconductor.org/packages/universalmotif) page for a detailed overview. A few key functions are also explored below.
+All of the functions within the `universalmotif` package are fairly well documented. You can access it from within R, reading the [Bioconductor PDF](https://bioconductor.org/packages/release/bioc/manuals/universalmotif/man/universalmotif.pdf), or browsing the [rdrr.io](https://rdrr.io/bioc/universalmotif/) website. Additionally, several vignettes come with the package, which you can access from within R or on the Bioconductor website:
+
+- [Introduction to sequence motifs](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/IntroductionToSequenceMotifs.pdf)
+- [Motif import, export, and manipulation](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifManipulation.pdf)
+- [Sequence manipulation and scanning](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/SequenceSearches.pdf)
+- [Motif comparisons and P-values](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifComparisonAndPvalues.pdf)
+
+A few key functions are also explored below.
 
 ### The `universalmotif` motif class and import/export utilities
 

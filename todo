@@ -8,10 +8,8 @@
 - Work on Rmd output of compare_motifs()
 - motif_peaks(): compare two sets of sequences (enrichment analysis)
 - motif_peaks(): serious code cleanup needed
-- Add scan_sequences() gapped motif example to vignettes
 - dependencies to consider removing:
-    + !! yaml (write my own parser)
-    + !! Rdpack (take the time to write in references)
+    + !! yaml (write my own parser, doesn't matter if it's slow)
     + Rcpp (use cpp11 w/o import instead --> maybe consider once it hits 1.0.0)
 - Add an optional list type which can be used by various universalmotif functions
     + universalmotifList
@@ -67,4 +65,5 @@
 - create_motif(add.multifreq = 2) doesn't work!
 - read_matrix(): make it so that it's possible to read all other formats with
   it via tweaking parsing options
-- go through vignettes again + get rid of Rdpack
+- go through vignettes again
+- use NULL instead of missing for optional args
