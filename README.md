@@ -31,6 +31,8 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("bjmt/universalmotif")
 ```
 
+Note: building the vignettes when installing from source is not recommended, unless you don't mind waiting an hour for the necessary dependencies to install.
+
 ## Brief overview
 
 All of the functions within the `universalmotif` package are fairly well documented. You can access it from within R, reading the [Bioconductor PDF](https://bioconductor.org/packages/release/bioc/manuals/universalmotif/man/universalmotif.pdf), or browsing the [rdrr.io](https://rdrr.io/bioc/universalmotif/) website. Additionally, several vignettes come with the package, which you can access from within R or on the Bioconductor website:
