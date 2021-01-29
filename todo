@@ -68,3 +68,11 @@
   it via tweaking parsing options
 - go through vignettes again
 - use NULL instead of missing for optional args
+- compare_and_merge()?
+- improve workflow to get from compare_motifs() --> merge_motifs()
+  + universalmotif_df structure may help here
+  + get compare_motifs() result; filter to rows you like and want to get merged
+    motifs from
+  + then get subject vs target dataframe
+    + data.frame(A = I(motifs[res$subject.i]), B = I(motifs[res$target.i]))
+  + then do row-wise merge
