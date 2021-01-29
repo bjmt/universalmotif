@@ -374,7 +374,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         mots[[i]], use.type, fontDF, min.height, x.spacer, y.spacer, sort.positions,
         sort.positions.decreasing, fit.to.height, 1
       )
-      plotobj_multi[[i]]$motif.i <- names(mots)[i]
+      plotobj_multi[[i]]$motif.id <- names(mots)[i]
     }
     plotobj <- do.call(rbind, plotobj_multi)
     plotobj$y <- plotobj$y * 0.999
@@ -417,7 +417,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     # - feed labels a function to replace numbers which don't belong to motif
     #   with blanks (not sure how to make this work with left shifted motifs)
 
-    plotobj$motif.i <- factor(plotobj$motif.i, levels = mot.names)
+    plotobj$motif.id <- factor(plotobj$motif.id, levels = mot.names)
 
     plotobj <- ggplot(plotobj, aes(.data$x, .data$y, group = .data$letter.id,
         fill = .data$group)) +
@@ -432,7 +432,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         text = element_text(size = text.size),
         axis.ticks.y = element_line(size = 0.25), legend.position = "none",
         axis.text.y = element_text(margin = margin(r = 1))) +
-      facet_wrap(~motif.i, ncol = 1,
+      facet_wrap(~motif.id, ncol = 1,
         scales = if (!show.positions.once) "free_x" else "fixed")
 
     if (!show.positions) plotobj <- plotobj + theme(axis.text.x = element_blank())
