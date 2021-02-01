@@ -108,6 +108,9 @@ setGeneric("convert_motifs", function(motifs,
                                       class = "universalmotif-universalmotif")
            standardGeneric("convert_motifs"))
 
+#' @describeIn convert_motifs Generate an error to remind users to run
+#'   [to_list()] instead of using the column from [to_df()] directly.
+#' @export
 setMethod("convert_motifs", signature(motifs = "AsIs"),
   definition = function(motifs, class) {
     stop(wmsg(

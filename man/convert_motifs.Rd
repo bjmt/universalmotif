@@ -2,6 +2,7 @@
 % Please edit documentation in R/convert_motifs.R
 \name{convert_motifs}
 \alias{convert_motifs}
+\alias{convert_motifs,AsIs-method}
 \alias{convert_motifs,list-method}
 \alias{convert_motifs,universalmotif-method}
 \alias{convert_motifs,MotifList-method}
@@ -19,6 +20,8 @@
 \title{Convert motif class.}
 \usage{
 convert_motifs(motifs, class = "universalmotif-universalmotif")
+
+\S4method{convert_motifs}{AsIs}(motifs, class = "universalmotif-universalmotif")
 
 \S4method{convert_motifs}{list}(motifs, class = "universalmotif-universalmotif")
 
@@ -101,6 +104,9 @@ The following package-class combinations can be output:
 }
 \section{Methods (by class)}{
 \itemize{
+\item \code{AsIs}: Generate an error to remind users to run
+\code{\link[=to_list]{to_list()}} instead of using the column from \code{\link[=to_df]{to_df()}} directly.
+
 \item \code{list}: Convert a list of motifs.
 
 \item \code{universalmotif}: Convert a \linkS4class{universalmotif} object.
