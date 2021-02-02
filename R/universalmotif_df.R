@@ -39,11 +39,19 @@ as.character.universalmotif <- function(x, maxchar = 12, ...) {
 
 #' @export
 print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
-  # check for validity? if so, move some of the code in update_motifs to a new fun?
   y <- x
   if (na.rm) {
     empty_cols <- vapply(x, function(x) all(is.na(x)), logical(1))
     x <- x[, !empty_cols, drop = FALSE]
+  }
+  checktry <- try(checkdf <- suppressWarnings(update_motifs(y)), silent = TRUE)
+  founderr <- FALSE
+  if (inherits(checktry, "try-error")) {
+    founderr <- TRUE
+  } else {
+    # TODO: add code to diff for changes
+    # x <- as.data.frame(cbind(motif = y$motif, y[, colnames(x) != "motif", drop = FALSE]))
+    # y2 <- y[, colnames(checkdf)]
   }
   print.data.frame(x)
   if (na.rm && any(empty_cols)) {
@@ -51,6 +59,9 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
     empty_cols <- paste0(empty_cols, collapse = ", ")
     cat("\n", wmsg("[Hidden empty columns: ", empty_cols, "]"), "\n", sep = "")
   }
+  if (founderr)
+    cat(wmsg("[WARNING: detected errors. Run update_motifs() or to_list() ",
+        "for information.]"), "\n", sep = "")
   invisible(x)
 }
 
@@ -62,7 +73,9 @@ to_df <- function(motifs, extrainfo = FALSE) {
   if (!is.list(x)) x <- list(x)
   y <- summarise_motifs_with_extras(x)
   if (extrainfo) {
-    y <- cbind(y, extrainfo_to_df(x))
+    einfo <- extrainfo_to_df(x)
+    if (!is.null(einfo) && nrow(einfo))
+      y <- cbind(y, print(einfo))
   }
   # interesting side effect of using I(x): trying to use the motif column directly
   # in functions such as view_motifs(df$motif) will throw an error.
@@ -143,8 +156,8 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
           m[[j]] <- convert_type(m[[j]], updated_df[[checking]][j])
         }
       } else if (checking %in% c("icscore", "consensus", "alphabet")) {
-        warning("Discarding changes in unmodifiable slot(s) '", checking, "'",
-          " (row ", j, ").", immediate. = TRUE, call. = FALSE)
+        warning("Discarding changes in unmodifiable slot(s) '", checking, "'.",
+          immediate. = TRUE, call. = FALSE)
       } else {
         for (j in which(updated_df[[checking]] != old_df[[checking]])) {
           msg <- try(m[[j]][checking] <- updated_df[[checking]][j], silent = TRUE)
