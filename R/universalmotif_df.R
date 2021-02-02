@@ -59,18 +59,24 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
     }
   }
   print.data.frame(x)
+  printNL <- FALSE
   if (na.rm && any(empty_cols)) {
     empty_cols <- colnames(y)[empty_cols]
     empty_cols <- paste0(empty_cols, collapse = ", ")
     cat("\n", wmsg("[Hidden empty columns: ", empty_cols, "]"), sep = "")
+    printNL <- TRUE
   }
-  if (founderr)
+  if (founderr) {
     cat("\n", wmsg("[WARNING: detected errors. Run update_motifs() or to_list() ",
         "for information.]"), sep = "")
-  if (founddiff)
+    printNL <- TRUE
+  }
+  if (founddiff) {
     cat("\n", wmsg("[Rows marked with * are changed. Run update_motifs()",
         " or to_list() apply changes.]"), sep = "")
-  cat("\n")
+    printNL <- TRUE
+  }
+  if (printNL) cat("\n")
   invisible(x)
 }
 
