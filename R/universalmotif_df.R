@@ -46,22 +46,31 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   }
   checktry <- try(checkdf <- suppressWarnings(update_motifs(y)), silent = TRUE)
   founderr <- FALSE
+  founddiff <- FALSE
   if (inherits(checktry, "try-error")) {
     founderr <- TRUE
   } else {
     # TODO: add code to diff for changes
-    # x <- as.data.frame(cbind(motif = y$motif, y[, colnames(x) != "motif", drop = FALSE]))
-    # y2 <- y[, colnames(checkdf)]
+    diffd <- mapply(identical, as.list(y$motif), as.list(checkdf$motif))
+    if (any(!diffd)) {
+      x <- as.data.frame(cbind(" " = character(nrow(x)), x))
+      x[[1]] <- c("*", "")[diffd + 1]
+      founddiff <- TRUE
+    }
   }
   print.data.frame(x)
   if (na.rm && any(empty_cols)) {
     empty_cols <- colnames(y)[empty_cols]
     empty_cols <- paste0(empty_cols, collapse = ", ")
-    cat("\n", wmsg("[Hidden empty columns: ", empty_cols, "]"), "\n", sep = "")
+    cat("\n", wmsg("[Hidden empty columns: ", empty_cols, "]"), sep = "")
   }
   if (founderr)
-    cat(wmsg("[WARNING: detected errors. Run update_motifs() or to_list() ",
-        "for information.]"), "\n", sep = "")
+    cat("\n", wmsg("[WARNING: detected errors. Run update_motifs() or to_list() ",
+        "for information.]"), sep = "")
+  if (founddiff)
+    cat("\n", wmsg("[Rows marked with * are changed. Run update_motifs()",
+        " or to_list() apply changes.]"), sep = "")
+  cat("\n")
   invisible(x)
 }
 
