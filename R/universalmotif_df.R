@@ -44,13 +44,23 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
     empty_cols <- vapply(x, function(x) all(is.na(x)), logical(1))
     x <- x[, !empty_cols, drop = FALSE]
   }
+  # For skinny terminals, this value will be larger than necessary, but I'm
+  # not sure how to check for this without easily breakable strsplit() stuff.
+  # The point of this is to avoid diff-ing dataframes with thousands of rows
+  # if only a fraction of those will be printed. Could probably use some
+  # cleaning up.
+  toprint <- length(capture.output(print(as.data.frame(x))))
+  x_og <- x
+  if (toprint < nrow(x)) {
+    x <- x[seq_len(toprint), ]
+    y <- x
+  }
   checktry <- try(checkdf <- suppressWarnings(update_motifs(y)), silent = TRUE)
   founderr <- FALSE
   founddiff <- FALSE
   if (inherits(checktry, "try-error")) {
     founderr <- TRUE
   } else {
-    # TODO: add code to diff for changes
     diffd <- mapply(identical, as.list(y$motif), as.list(checkdf$motif))
     if (any(!diffd)) {
       x <- as.data.frame(cbind(" " = character(nrow(x)), x))
@@ -61,7 +71,8 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   print.data.frame(x)
   printNL <- FALSE
   if (na.rm && any(empty_cols)) {
-    empty_cols <- colnames(y)[empty_cols]
+    # empty_cols <- colnames(x_og)[empty_cols]
+    empty_cols <- names(empty_cols)[empty_cols]
     empty_cols <- paste0(empty_cols, collapse = ", ")
     cat("\n", wmsg("[Hidden empty columns: ", empty_cols, ".]"), sep = "")
     printNL <- TRUE
@@ -77,7 +88,7 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
     printNL <- TRUE
   }
   if (printNL) cat("\n")
-  invisible(x)
+  invisible(x_og)
 }
 
 #' @export
@@ -192,6 +203,15 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
 to_list <- function(motif_df, extrainfo = FALSE) {
   structure(update_motifs(motif_df, extrainfo)$motif, class = NULL)
 }
+
+# @export
+# @rdname
+# requires_update <- function(motifs, extrainfo = FALSE) {
+# # identical() is really quite slow...
+#   any(mapply(identical,
+#       structure(motifs$motif, class = NULL),
+#       structure(update_motifs(motifs, extrainfo)$motif, class = NULL)))
+# }
 
 summarise_motifs_with_extras <- function(x) {
   y <- summarise_motifs(x, na.rm = FALSE)
