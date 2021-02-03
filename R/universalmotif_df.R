@@ -40,6 +40,7 @@ as.character.universalmotif <- function(x, maxchar = 12, ...) {
 #' @export
 print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   y <- x
+  x_og <- x
   if (na.rm) {
     empty_cols <- vapply(x, function(x) all(is.na(x)), logical(1))
     x <- x[, !empty_cols, drop = FALSE]
@@ -50,7 +51,6 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   # if only a fraction of those will be printed. Could probably use some
   # cleaning up.
   toprint <- length(capture.output(print(as.data.frame(x))))
-  x_og <- x
   if (toprint < nrow(x)) {
     x <- x[seq_len(toprint), ]
     y <- x
