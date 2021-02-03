@@ -63,7 +63,7 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   if (na.rm && any(empty_cols)) {
     empty_cols <- colnames(y)[empty_cols]
     empty_cols <- paste0(empty_cols, collapse = ", ")
-    cat("\n", wmsg("[Hidden empty columns: ", empty_cols, "]"), sep = "")
+    cat("\n", wmsg("[Hidden empty columns: ", empty_cols, ".]"), sep = "")
     printNL <- TRUE
   }
   if (founderr) {
@@ -90,7 +90,7 @@ to_df <- function(motifs, extrainfo = FALSE) {
   if (extrainfo) {
     einfo <- extrainfo_to_df(x)
     if (!is.null(einfo) && nrow(einfo))
-      y <- cbind(y, print(einfo))
+      y <- cbind(y, einfo)
   }
   # interesting side effect of using I(x): trying to use the motif column directly
   # in functions such as view_motifs(df$motif) will throw an error.

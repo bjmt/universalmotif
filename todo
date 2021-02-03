@@ -86,7 +86,6 @@
   results (rounding to three digits for use as ints)
 - some typos in introduction to sequence motifs vignette, add max() to IC fun
 - filter_motifs() example in vignette: nsites column returning NAs?
-- werid outputs:
-  + m <- create_motif("TTTTWWWAN")
-  + convert_type(m, "PWM")  # warns about empty nsites slot
-  + convert_type(m, "PCM")  # doesn't warn about empty nsites slot?
+- weird interaction:
+  + mydf %>% dplyr::rname(name = altname, altname = name) %>% to_list()
+  + if altname was blank, this causes "0" to be filled in the name slot
