@@ -3,6 +3,16 @@ CHANGES IN VERSION 1.10.0
 
 NEW FEATURES
 
+    o A new data structure, universalmotif_df, has been made available. This
+      allows for motifs to be manipulated as one would a data.frame object.
+      The to_df() function is used to generate this stucture from lists of
+      motifs. The update_motifs() function is used to apply changes to the
+      actual motifs, and to_list() returns the actual motifs. Note that this is
+      only meant as an option for more conveniently manipulating motif slots of
+      multiple motifs simultaneously before returning them to a list; the
+      universalmotif_df structure cannot be used in the various universalmotif
+      functions.
+
     o view_motifs(): the universalmotif package now relies entirely on its
       own code to generate the polygon data used by ggplot2 to plot motifs,
       meaning the ggseqlogo dependency has been dropped. A number of new

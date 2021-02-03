@@ -73,7 +73,7 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   }
   if (founddiff) {
     cat("\n", wmsg("[Rows marked with * are changed. Run update_motifs()",
-        " or to_list() apply changes.]"), sep = "")
+        " or to_list() to apply changes.]"), sep = "")
     printNL <- TRUE
   }
   if (printNL) cat("\n")

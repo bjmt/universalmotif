@@ -164,7 +164,7 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   if (!is.list(motifs)) motifs <- list(motifs)
   if (missing(pseudocount)) pseudocount <- NULL
 
-  if (type == "PWM") {
+  if (type %in% c("PCM", "PWM")) {
     nsiteLens <- vapply(lapply(motifs, function(x) x@nsites), length, integer(1))
     for (i in which(nsiteLens == 0)) {
       message(wmsg("Note: motif [", motifs[[i]]@name, "] has an empty ",
