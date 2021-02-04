@@ -5,6 +5,7 @@
 \alias{to_df}
 \alias{update_motifs}
 \alias{to_list}
+\alias{requires_update}
 \title{Tidy manipulation of motifs.}
 \usage{
 to_df(motifs, extrainfo = FALSE)
@@ -12,6 +13,8 @@ to_df(motifs, extrainfo = FALSE)
 update_motifs(motif_df, extrainfo = FALSE)
 
 to_list(motif_df, extrainfo = FALSE)
+
+requires_update(motifs, extrainfo = FALSE)
 }
 \arguments{
 \item{motifs}{List of motifs.}
@@ -31,6 +34,12 @@ or \code{to_list()}, then the extra columns will be discarded.}
 For \code{\link[=to_df]{to_df()}}: a \code{data.frame} with the exposed slots as columns.
 
 For \code{\link[=update_motifs]{update_motifs()}}: the updated \code{data.frame}.
+
+For \code{\link[=requires_update]{requires_update()}}: \code{TRUE} if the motifs are out of date,
+\code{FALSE} if otherwise. Note that this function uses \code{identical()}
+to check for this, which can be quite slow for large datasets. It
+is usually just as fast to simply run \code{\link[=update_motifs]{update_motifs()}} in such
+cases.
 
 For \code{\link[=to_list]{to_list()}}: a list of motifs.
 }

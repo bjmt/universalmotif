@@ -89,3 +89,6 @@
 - weird interaction:
   + mydf %>% dplyr::rname(name = altname, altname = name) %>% to_list()
   + if altname was blank, this causes "0" to be filled in the name slot
+- do I ever respect the strand option in motifs? Should I? If not, maybe make
+  it clear it's purely cosmetic somewhere
+

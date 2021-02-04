@@ -5,6 +5,12 @@
 #'
 #'    For [update_motifs()]: the updated `data.frame`.
 #'
+#'    For [requires_update()]: `TRUE` if the motifs are out of date,
+#'    `FALSE` if otherwise. Note that this function uses `identical()`
+#'    to check for this, which can be quite slow for large datasets. It
+#'    is usually just as fast to simply run [update_motifs()] in such
+#'    cases.
+#'
 #'    For [to_list()]: a list of motifs.
 #'
 #' @examples
@@ -52,8 +58,7 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   # cleaning up.
   toprint <- length(capture.output(print(as.data.frame(x))))
   if (toprint < nrow(x)) {
-    x <- x[seq_len(toprint), ]
-    y <- x
+    y <- x[seq_len(toprint), ]
   }
   checktry <- try(checkdf <- suppressWarnings(update_motifs(y)), silent = TRUE)
   founderr <- FALSE
@@ -64,14 +69,13 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
     diffd <- mapply(identical, as.list(y$motif), as.list(checkdf$motif))
     if (any(!diffd)) {
       x <- as.data.frame(cbind(" " = character(nrow(x)), x))
-      x[[1]] <- c("*", "")[diffd + 1]
+      x[[1]][seq_along(diffd)] <- c("*", "")[diffd + 1]
       founddiff <- TRUE
     }
   }
   print.data.frame(x)
   printNL <- FALSE
   if (na.rm && any(empty_cols)) {
-    # empty_cols <- colnames(x_og)[empty_cols]
     empty_cols <- names(empty_cols)[empty_cols]
     empty_cols <- paste0(empty_cols, collapse = ", ")
     cat("\n", wmsg("[Hidden empty columns: ", empty_cols, ".]"), sep = "")
@@ -174,6 +178,8 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
   for (i in seq_along(cols_to_check)) {
     checking <- cols_to_check[i]
     # need a better way to deal with NAs...
+    # TODO: this causes 0s to be permanently introduced when altname is missing:
+    # dplyr::rename(mydf, name = altname, altname  name)
     updated_df[[checking]][is.na(updated_df[[checking]])] <- 0
     old_df[[checking]][is.na(old_df[[checking]])] <- 0
     if (any(updated_df[[checking]] != old_df[[checking]])) {
@@ -204,14 +210,15 @@ to_list <- function(motif_df, extrainfo = FALSE) {
   structure(update_motifs(motif_df, extrainfo)$motif, class = NULL)
 }
 
-# @export
-# @rdname
-# requires_update <- function(motifs, extrainfo = FALSE) {
-# # identical() is really quite slow...
-#   any(mapply(identical,
-#       structure(motifs$motif, class = NULL),
-#       structure(update_motifs(motifs, extrainfo)$motif, class = NULL)))
-# }
+#' @export
+#' @rdname tidy-motifs
+requires_update <- function(motifs, extrainfo = FALSE) {
+# identical() is really quite slow...
+  motifs2 <- update_motifs(motifs, extrainfo)
+  any(!mapply(identical,
+      structure(motifs$motif, class = NULL),
+      structure(motifs2$motif, class = NULL)))
+}
 
 summarise_motifs_with_extras <- function(x) {
   y <- summarise_motifs(x, na.rm = FALSE)
