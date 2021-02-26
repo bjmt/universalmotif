@@ -64,7 +64,6 @@
   since c++/R may not communicate properly about what needs to be freed
 - new view_logo() example idea: show how to plot A->C mutation change (need to
   add arrows to fontDFroboto)
-- alternative to subset(): [, ...] (also [..., ]?)
 - create_motif(add.multifreq = 2) doesn't work!
 - weird error: create_motif("A", alphabet = "AB")
 - read_matrix(): make it so that it's possible to read all other formats with
