@@ -141,6 +141,7 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
   cols_new <- cols_new[cols_new != "motif"]
   cols_old <- colnames(old_df)
   cols_old <- cols_old[cols_old != "motif"]
+  extrainfo_holdout_cols <- NA_character_
   if (extrainfo) {
     # for now, just always update extrainfo...
     cols_extrainfo <- cols_new[!cols_new %in% cols_old]
@@ -216,10 +217,10 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     }
   }
 
-  if (length(extrainfo_holdout_cols) > 0){
+  if (extrainfo & length(extrainfo_holdout_cols) > 0){
     # Add back any heldout info
     new_df <- to_df(m, extrainfo)
-    return(merge(new_df, extrainfo_holdouts, by = "name"))
+    return(merge(new_df, extrainfo_holdouts, by = "name", all.x = TRUE))
   } else {
     return(to_df(m, extrainfo))
   }
