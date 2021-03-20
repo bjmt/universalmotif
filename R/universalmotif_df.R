@@ -141,12 +141,27 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
   cols_new <- cols_new[cols_new != "motif"]
   cols_old <- colnames(old_df)
   cols_old <- cols_old[cols_old != "motif"]
+  extrainfo_holdout_cols <- NA_character_
   if (extrainfo) {
     # for now, just always update extrainfo...
     cols_extrainfo <- cols_new[!cols_new %in% cols_old]
     cols_extrainfo <- cols_extrainfo[cols_extrainfo != "bkg"]
     if (length(cols_extrainfo)) {
-      extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
+      # Keep id_cols temporarily to ensure sort order is OK
+      # TODO: in future use a better unique identifier
+      id_cols <- c("name", "consensus")
+      extrainfo_new <- updated_df[, c(id_cols, cols_extrainfo), drop = FALSE]
+      
+      # TOOD: hold out unsupported datatypes
+      # Current "supported" types are "character", "numeric" and "integer"
+      # Should logical be held out or not?
+      extrainfo_types <- vapply(extrainfo_new, class, character(1))
+      extrainfo_holdout_cols <- names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))])
+      extrainfo_holdouts <- extrainfo_new[,c(id_cols, extrainfo_holdout_cols), drop = FALSE]
+      # TODO: Consider a message for holdouts? I think it's unnecessary.
+      # Pass un-heldout extrainfo to motif, & drop name column
+      extrainfo_new <- extrainfo_new[,-which(names(extrainfo_new) %in% c(id_cols, extrainfo_holdout_cols)), drop = FALSE]
+      
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
@@ -201,7 +216,14 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       }
     }
   }
-  to_df(m, extrainfo)
+  if (extrainfo & all(!is.na(extrainfo_holdout_cols))){
+    # Add back any heldout info
+    new_df <- to_df(m, extrainfo)
+    # TODO: update id_cols strategy
+    return(merge(new_df, extrainfo_holdouts, by = id_cols, all.x = TRUE))
+  } else {
+    return(to_df(m, extrainfo))
+  }
 }
 
 #' @export
@@ -233,6 +255,7 @@ bkgs_are_different <- function(x, y) {
 }
 
 extrainfo_to_df <- function(x) {
+  # TODO: bug is around here where column name isn't correctly added??
   y <- lapply(x, vec_to_df_mot)
   cnames <- unique(unlist(lapply(y, colnames)))
   for (i in seq_along(y)) {
