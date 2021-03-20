@@ -242,7 +242,7 @@ extrainfo_to_df <- function(x) {
       for (j in which(!cnames %in% colnames(y[[i]]))) {
         y[[i]][[cnames[j]]] <- rep(NA_character_, nrow(y[[i]]))
       }
-      y[[i]] <- y[[i]][, cnames]
+      y[[i]] <- y[[i]][, cnames, drop = FALSE]
     }
   }
   do.call(rbind, y)
