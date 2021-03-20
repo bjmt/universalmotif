@@ -148,19 +148,18 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     cols_extrainfo <- cols_extrainfo[cols_extrainfo != "bkg"]
     if (length(cols_extrainfo)) {
 
-      extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
+      # keep name here temporarily to ensure sort order is OK
+      extrainfo_new <- updated_df[, c("name", cols_extrainfo), drop = FALSE]
 
       # TOOD: hold out unsupported datatypes
       # Current "supported" types are "character", "numeric" and "integer"
       # Should logical be held out or not?
       extrainfo_types <- vapply(extrainfo_new, class, character(1))
       extrainfo_holdout_cols <- names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))])
-      extrainfo_holdouts <- extrainfo_new[,extrainfo_holdout_cols]
+      extrainfo_holdouts <- extrainfo_new[,c("name", extrainfo_holdout_cols)]
       # TODO: Consider a message for holdouts? I think it's unnecessary.
-      # TODO: check that this sort order is always correct?
-      extrainfo_holdouts$name <- updated_df$name
-      # Pass un-heldout extrainfo to motif
-      extrainfo_new <- extrainfo_new[,-which(names(extrainfo_new) %in% extrainfo_holdout_cols)]
+      # Pass un-heldout extrainfo to motif, & drop name column
+      extrainfo_new <- extrainfo_new[,-which(names(extrainfo_new) %in% c("name", extrainfo_holdout_cols)), drop = FALSE]
 
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])

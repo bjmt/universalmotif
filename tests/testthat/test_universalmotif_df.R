@@ -28,4 +28,16 @@ test_that("extrainfo gets moved around correctly", {
   expect_warning(requires_update(mydf2))
   expect_false(suppressWarnings(requires_update(mydf2)))
   expect_true(requires_update(mydf2, TRUE))
+
+  mydf3 <- mydf2
+  mydf3$list_column <- list("hello" = "darkness",
+                            "my old" = 0x667269656e64
+                            )
+  mydf3$factor_column <- as.factor(c("a", "b", "c"))
+  mydf3$char_column <- c("a", "b", "c")
+
+  mydf3_update <- update_motifs(mydf3, extrainfo = TRUE)
+  expect_equal(mydf3$list_column, mydf3_update$list_column)
+  expect_equal(mydf3$factor_column, mydf3_update$factor_column)
+  expect_equal(mydf3$char_column, mydf3_update$char_column)
 })
