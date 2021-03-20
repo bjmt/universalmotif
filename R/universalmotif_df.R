@@ -147,20 +147,21 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     cols_extrainfo <- cols_new[!cols_new %in% cols_old]
     cols_extrainfo <- cols_extrainfo[cols_extrainfo != "bkg"]
     if (length(cols_extrainfo)) {
-
-      # keep name here temporarily to ensure sort order is OK
-      extrainfo_new <- updated_df[, c("name", cols_extrainfo), drop = FALSE]
-
+      # Keep id_cols temporarily to ensure sort order is OK
+      # TODO: in future use a better unique identifier
+      id_cols <- c("name", "consensus")
+      extrainfo_new <- updated_df[, c(id_cols, cols_extrainfo), drop = FALSE]
+      
       # TOOD: hold out unsupported datatypes
       # Current "supported" types are "character", "numeric" and "integer"
       # Should logical be held out or not?
       extrainfo_types <- vapply(extrainfo_new, class, character(1))
       extrainfo_holdout_cols <- names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))])
-      extrainfo_holdouts <- extrainfo_new[,c("name", extrainfo_holdout_cols)]
+      extrainfo_holdouts <- extrainfo_new[,c(id_cols, extrainfo_holdout_cols), drop = FALSE]
       # TODO: Consider a message for holdouts? I think it's unnecessary.
       # Pass un-heldout extrainfo to motif, & drop name column
-      extrainfo_new <- extrainfo_new[,-which(names(extrainfo_new) %in% c("name", extrainfo_holdout_cols)), drop = FALSE]
-
+      extrainfo_new <- extrainfo_new[,-which(names(extrainfo_new) %in% c(id_cols, extrainfo_holdout_cols)), drop = FALSE]
+      
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
@@ -215,11 +216,11 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       }
     }
   }
-
   if (extrainfo & !is.na(extrainfo_holdout_cols)){
     # Add back any heldout info
     new_df <- to_df(m, extrainfo)
-    return(merge(new_df, extrainfo_holdouts, by = "name", all.x = TRUE))
+    # TODO: update id_cols strategy
+    return(merge(new_df, extrainfo_holdouts, by = id_cols, all.x = TRUE))
   } else {
     return(to_df(m, extrainfo))
   }
@@ -264,7 +265,7 @@ extrainfo_to_df <- function(x) {
       for (j in which(!cnames %in% colnames(y[[i]]))) {
         y[[i]][[cnames[j]]] <- rep(NA_character_, nrow(y[[i]]))
       }
-      y[[i]] <- y[[i]][, cnames]
+      y[[i]] <- y[[i]][, cnames, drop = FALSE]
     }
   }
   do.call(rbind, y)
