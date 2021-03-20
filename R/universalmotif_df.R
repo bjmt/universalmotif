@@ -216,7 +216,7 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       }
     }
   }
-  if (extrainfo & !is.na(extrainfo_holdout_cols)){
+  if (extrainfo & all(!is.na(extrainfo_holdout_cols))){
     # Add back any heldout info
     new_df <- to_df(m, extrainfo)
     # TODO: update id_cols strategy
