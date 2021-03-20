@@ -216,7 +216,7 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     }
   }
 
-  if (extrainfo & length(extrainfo_holdout_cols) > 0){
+  if (extrainfo & !is.na(extrainfo_holdout_cols)){
     # Add back any heldout info
     new_df <- to_df(m, extrainfo)
     return(merge(new_df, extrainfo_holdouts, by = "name", all.x = TRUE))
@@ -254,6 +254,7 @@ bkgs_are_different <- function(x, y) {
 }
 
 extrainfo_to_df <- function(x) {
+  # TODO: bug is around here where column name isn't correctly added??
   y <- lapply(x, vec_to_df_mot)
   cnames <- unique(unlist(lapply(y, colnames)))
   for (i in seq_along(y)) {
