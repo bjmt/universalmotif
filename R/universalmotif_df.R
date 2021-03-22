@@ -149,19 +149,21 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     if (length(cols_extrainfo)) {
       # Keep id_cols temporarily to ensure sort order is OK
       # TODO: in future use a better unique identifier
-      id_cols <- c("name", "consensus")
-      extrainfo_new <- updated_df[, c(id_cols, cols_extrainfo), drop = FALSE]
+      extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
       
       # TOOD: hold out unsupported datatypes
       # Current "supported" types are "character", "numeric" and "integer"
       # Should logical be held out or not?
       extrainfo_types <- vapply(extrainfo_new, class, character(1))
       extrainfo_holdout_cols <- names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))])
-      extrainfo_holdouts <- extrainfo_new[,c(id_cols, extrainfo_holdout_cols), drop = FALSE]
+      extrainfo_holdouts <- extrainfo_new[, extrainfo_holdout_cols, drop = FALSE]
       # TODO: Consider a message for holdouts? I think it's unnecessary.
-      # Pass un-heldout extrainfo to motif, & drop name column
-      extrainfo_new <- extrainfo_new[,-which(names(extrainfo_new) %in% c(id_cols, extrainfo_holdout_cols)), drop = FALSE]
+      # if holding out columns, remove them from the extrainfo passed onto the motifs
+      if (length(extrainfo_holdout_cols != 0)) {
+        extrainfo_new <- extrainfo_new[, -which(names(extrainfo_new) %in% extrainfo_holdout_cols), drop = FALSE]
+      } 
       
+      # Pass un-heldout extrainfo to motif
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
@@ -218,9 +220,10 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
   }
   if (extrainfo & all(!is.na(extrainfo_holdout_cols))){
     # Add back any heldout info
-    new_df <- to_df(m, extrainfo)
-    # TODO: update id_cols strategy
-    return(merge(new_df, extrainfo_holdouts, by = id_cols, all.x = TRUE))
+    # TODO: is `cbind` safe here? will row order always preserve?
+    new_df <- structure(cbind(to_df(m, extrainfo), extrainfo_holdouts), 
+                        class = c("universalmotif_df", "data.frame"))
+    return(new_df)
   } else {
     return(to_df(m, extrainfo))
   }
@@ -255,7 +258,6 @@ bkgs_are_different <- function(x, y) {
 }
 
 extrainfo_to_df <- function(x) {
-  # TODO: bug is around here where column name isn't correctly added??
   y <- lapply(x, vec_to_df_mot)
   cnames <- unique(unlist(lapply(y, colnames)))
   for (i in seq_along(y)) {
