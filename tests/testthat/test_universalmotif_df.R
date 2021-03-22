@@ -41,6 +41,10 @@ test_that("extrainfo gets moved around correctly", {
   expect_equal(mydf3$list_column, mydf3_update$list_column)
   expect_equal(mydf3$factor_column, mydf3_update$factor_column)
   expect_equal(mydf3$char_column, mydf3_update$char_column)
+  # Ensure class is preserved
+  expect_s3_class(mydf3, "universalmotif_df")
+  expect_s3_class(mydf3_update, "universalmotif_df")
+  expect_s3_class(update_motifs(mydf3, extrainfo = FALSE), "universalmotif_df")
 })
 
 test_that("update works", {
