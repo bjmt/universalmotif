@@ -43,3 +43,17 @@ test_that("extrainfo gets moved around correctly", {
   expect_equal(mydf3$char_column, mydf3_update$char_column)
 })
 
+test_that("update works", {
+  m <- create_motif()
+  m <- c(m, m)
+  m[[1]]["extrainfo"] <- c(A = "2")
+  m[[2]]["extrainfo"] <- c(B = "4")
+  # Ensures rows aren't duplicated
+  # Without extrainfo
+  expect_equal(2, nrow(update_motifs(to_df(m, FALSE), FALSE)))
+  expect_equal(2, nrow(update_motifs(to_df(m, TRUE), FALSE)))
+  expect_equal(2, nrow(update_motifs(to_df(m, FALSE), TRUE)))
+  # with extrainfo
+  expect_equal(2, nrow(update_motifs(to_df(m, TRUE), TRUE)))
+  
+})
