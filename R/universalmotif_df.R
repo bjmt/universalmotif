@@ -151,9 +151,11 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       # TODO: in future use a better unique identifier
       extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
       
-      # TOOD: hold out unsupported datatypes
+      # hold out unsupported datatypes
       # Current "supported" types are "character", "numeric" and "integer"
-      # Should logical be held out or not?
+      # TODO: Should logical be held out or not?
+      # TODO: use typeof instead of class?
+      #   - doing so misses factors converting them to ints...
       extrainfo_types <- vapply(extrainfo_new, class, character(1))
       extrainfo_holdout_cols <- names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))])
       extrainfo_holdouts <- extrainfo_new[, extrainfo_holdout_cols, drop = FALSE]
