@@ -25,8 +25,8 @@ test_that("extrainfo gets moved around correctly", {
   mydf1 <- to_df(c(m1, m2))
   mydf2 <- to_df(c(m1, m2), extrainfo = TRUE)
   mydf2$A[1] <- "K"
-  expect_warning(requires_update(mydf2))
-  expect_false(suppressWarnings(requires_update(mydf2)))
+  expect_message(requires_update(mydf2))
+  expect_false(suppressMessages(requires_update(mydf2)))
   expect_true(requires_update(mydf2, TRUE))
 
   # Check that holdout works

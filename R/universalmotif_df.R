@@ -172,12 +172,10 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
     }
   } else if (any(!cols_new %in% cols_old)) {
     # maybe remove this warning based on how extrainfo is implemented
-    warning(
+    message(
       "Discarding unknown slot(s) ",
       paste0(paste0("'", cols_new[!cols_new %in% cols_old], "'"), collapse = ", "),
-      " (set `extrainfo=TRUE` to preserve these).",
-      immediate. = TRUE, call. = FALSE
-    )
+      " (set `extrainfo=TRUE` to preserve these).")
   }
   if (any(!cols_old %in% cols_new)) {
     # hide this warning when called in to_list()?
