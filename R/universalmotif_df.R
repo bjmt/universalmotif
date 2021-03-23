@@ -126,8 +126,17 @@ to_df <- function(motifs, extrainfo = FALSE) {
 #'    `to_df()`, then the contents of the slot will not be transferred to the
 #'    `data.frame`. If `extrainfo` is not set to `TRUE` in `update_motifs()`
 #'    or `to_list()`, then the extra columns will be discarded.
+#' @param force Whether to coerce non-character data types into characters for
+#'   inclusion in `extrainfo`. If `force` is `FALSE` (the default), columns which
+#'   are not of type "character", "numeric", or "integer" (for example, list
+#'   columns, or logical values), will not be added to the motif `extrainfo`
+#'   slot, but will be passed onto the returned `universalmotif_df` unchanged.
+#'   Setting `force = TRUE` coerces these values into a character, adding them
+#'   to the `extrainfo` slot, and updating the `universalmotif_df` columns to
+#'   reflect this coercion. In other words, forcing inclusion of these data is
+#'   destructive and will change the column values. Use with caution.
 #' @rdname tidy-motifs
-update_motifs <- function(motif_df, extrainfo = FALSE) {
+update_motifs <- function(motif_df, extrainfo = FALSE, force = FALSE) {
   # TODO: extrainfo implementation is very messy...
   # TODO: come back and add alphabet change support once switch_alph() is updated
   # TODO: performance
@@ -141,6 +150,8 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
   cols_new <- cols_new[cols_new != "motif"]
   cols_old <- colnames(old_df)
   cols_old <- cols_old[cols_old != "motif"]
+  
+  holdout <- !force # makes it easier to reason about the code
   extrainfo_holdout_cols <- NA_character_
   if (extrainfo) {
     # for now, just always update extrainfo...
@@ -151,21 +162,28 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       # TODO: in future use a better unique identifier
       extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
       
-      # hold out unsupported datatypes
-      # Current "supported" types are "character", "numeric" and "integer"
-      # TODO: Should logical be held out or not?
-      # TODO: use typeof instead of class?
-      #   - doing so misses factors converting them to ints...
-      extrainfo_types <- vapply(extrainfo_new, class, character(1))
-      extrainfo_holdout_cols <- names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))])
-      extrainfo_holdouts <- extrainfo_new[, extrainfo_holdout_cols, drop = FALSE]
-      # TODO: Consider a message for holdouts? I think it's unnecessary.
+      if (holdout) {
+        # hold out unsupported datatypes
+        # Current "supported" types are "character", "numeric" and "integer"
+        # getting both class & types is essential for correctly capturing factors
+        # if other data types meet this criteria, add them to the indicated vector below as well
+        extrainfo_classes <- vapply(extrainfo_new, class, character(1))
+        extrainfo_types <- vapply(extrainfo_new, typeof, character(1))
+        
+        extrainfo_holdout_cols <- c(names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))]),
+                                    # Add other classes not detected by "typeof" to the vector below
+                                    names(extrainfo_classes[extrainfo_classes %in% c("factor")]))
+        
+        extrainfo_holdouts <- extrainfo_new[, extrainfo_holdout_cols, drop = FALSE]
+        # TODO: Consider a message for holdouts? I think it's unnecessary.
+      }
+      
       # if holding out columns, remove them from the extrainfo passed onto the motifs
-      if (length(extrainfo_holdout_cols != 0)) {
+      if (holdout & length(extrainfo_holdout_cols) != 0) {
         extrainfo_new <- extrainfo_new[, -which(names(extrainfo_new) %in% extrainfo_holdout_cols), drop = FALSE]
       } 
       
-      # Pass un-heldout extrainfo to motif
+      # Pass extrainfo to motif
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
@@ -218,7 +236,7 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       }
     }
   }
-  if (extrainfo & all(!is.na(extrainfo_holdout_cols))){
+  if (holdout & extrainfo & all(!is.na(extrainfo_holdout_cols))){
     # Add back any heldout info
     # TODO: is `cbind` safe here? will row order always preserve?
     new_df <- structure(cbind(to_df(m, extrainfo), extrainfo_holdouts), 
@@ -231,8 +249,8 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
 
 #' @export
 #' @rdname tidy-motifs
-to_list <- function(motif_df, extrainfo = FALSE) {
-  structure(update_motifs(motif_df, extrainfo)$motif, class = NULL)
+to_list <- function(motif_df, extrainfo = FALSE, force = FALSE) {
+  structure(update_motifs(motif_df, extrainfo, force)$motif, class = NULL)
 }
 
 #' @export

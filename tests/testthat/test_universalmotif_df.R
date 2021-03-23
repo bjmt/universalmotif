@@ -36,15 +36,24 @@ test_that("extrainfo gets moved around correctly", {
   mydf3$list_column <- list("hello" = "darkness", "my old" = 0x667269656e64)
   mydf3$factor_column <- as.factor(letters[1:nrow(mydf3)])
   mydf3$char_column <- letters[1:nrow(mydf3)]
+  mydf3$logical_column <- rep(TRUE, nrow(mydf3))
 
   mydf3_update <- update_motifs(mydf3, extrainfo = TRUE)
   expect_equal(mydf3$list_column, mydf3_update$list_column)
   expect_equal(mydf3$factor_column, mydf3_update$factor_column)
   expect_equal(mydf3$char_column, mydf3_update$char_column)
+  expect_equal(mydf3$logical_column, mydf3_update$logical_column)
   # Ensure class is preserved
   expect_s3_class(mydf3, "universalmotif_df")
   expect_s3_class(mydf3_update, "universalmotif_df")
   expect_s3_class(update_motifs(mydf3, extrainfo = FALSE), "universalmotif_df")
+  
+  # test that force works
+  forced <- update_motifs(mydf3, TRUE, TRUE)
+  expect_type(forced$list_column, "character")
+  expect_type(forced$factor_column, "character")
+  expect_type(forced$char_column, "character")
+  expect_type(forced$logical_column, "character")
 })
 
 test_that("update works", {
