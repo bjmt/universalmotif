@@ -192,11 +192,10 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   }
   if (any(!cols_old %in% cols_new)) {
     # hide this warning when called in to_list()?
-    warning(
+    message(
       "Restoring missing slot(s) ",
       paste0(paste0("'", cols_old[!cols_old %in% cols_new], "'"), collapse = ", "),
-      ".", immediate. = TRUE, call. = FALSE
-    )
+      ".")
   }
   cols_to_check <- cols_new[cols_new %in% cols_old]
   if ("bkg" %in% cols_to_check) {
