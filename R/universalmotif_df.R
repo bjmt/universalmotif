@@ -136,7 +136,7 @@ to_df <- function(motifs, extrainfo = FALSE) {
 #'   reflect this coercion. In other words, forcing inclusion of these data is
 #'   destructive and will change the column values. Use with caution.
 #' @rdname tidy-motifs
-update_motifs <- function(motif_df, extrainfo = FALSE, force = FALSE) {
+update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   # TODO: extrainfo implementation is very messy...
   # TODO: come back and add alphabet change support once switch_alph() is updated
   # TODO: performance
@@ -249,13 +249,13 @@ update_motifs <- function(motif_df, extrainfo = FALSE, force = FALSE) {
 
 #' @export
 #' @rdname tidy-motifs
-to_list <- function(motif_df, extrainfo = FALSE, force = FALSE) {
+to_list <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   structure(update_motifs(motif_df, extrainfo, force)$motif, class = NULL)
 }
 
 #' @export
 #' @rdname tidy-motifs
-requires_update <- function(motifs, extrainfo = FALSE) {
+requires_update <- function(motifs, extrainfo = TRUE) {
 # identical() is really quite slow...
   motifs2 <- update_motifs(motifs, extrainfo)
   any(!mapply(identical,
