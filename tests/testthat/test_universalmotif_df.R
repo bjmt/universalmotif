@@ -55,6 +55,13 @@ test_that("extrainfo gets moved around correctly", {
   expect_type(forced$char_column, "character")
   expect_type(forced$logical_column, "character")
   
+  # Check that objects are correctly coerced to their character labels
+  # In particular for factors to ensure they don't become characters of their numeric values.
+  expect_equal(as.character(mydf3$list_column), forced$list_column)
+  expect_equal(as.character(mydf3$factor_column), forced$factor_column)
+  expect_equal(as.character(mydf3$char_column), forced$char_column)
+  expect_equal(as.character(mydf3$logical_column), forced$logical_column)
+  
   # to_list() and update_motifs() send message when necessary
   expect_message(update_motifs(mydf3, extrainfo = FALSE), "Discarding")
   expect_message(to_list(mydf3, extrainfo = FALSE), "Discarding")
