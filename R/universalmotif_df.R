@@ -165,14 +165,9 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
       if (holdout) {
         # hold out unsupported datatypes
         # Current "supported" types are "character", "numeric" and "integer"
-        # getting both class & types is essential for correctly capturing factors
-        # if other data types meet this criteria, add them to the indicated vector below as well
         extrainfo_classes <- vapply(extrainfo_new, class, character(1))
-        extrainfo_types <- vapply(extrainfo_new, typeof, character(1))
         
-        extrainfo_holdout_cols <- c(names(extrainfo_types[!(extrainfo_types %in% c("character", "numeric", "integer"))]),
-                                    # Add other classes not detected by "typeof" to the vector below
-                                    names(extrainfo_classes[extrainfo_classes %in% c("factor")]))
+        extrainfo_holdout_cols <- names(extrainfo_classes[!(extrainfo_classes %in% c("character", "numeric", "integer"))])
         
         extrainfo_holdouts <- extrainfo_new[, extrainfo_holdout_cols, drop = FALSE]
         # TODO: Consider a message for holdouts? I think it's unnecessary.
@@ -308,6 +303,7 @@ vec_to_df <- function(x) {
 
 clean_up_extrainfo_df <- function(x) {
   y <- names(x)
+  x <- vapply(x, as.character, character(1))
   x <- as.character(x)
   if (all(is.na(x))) character()
   else {
