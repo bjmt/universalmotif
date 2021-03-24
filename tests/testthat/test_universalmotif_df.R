@@ -6,12 +6,12 @@ test_that("to_df(), update_motifs(), to_list(), requires_update() work", {
   m3 <- create_motif()
   m4 <- create_motif()
   mydf <- to_df(c(m1, m2, m3, m4))
-  expect_false(requires_update(mydf))
+  expect_false(requires_update(mydf, extrainfo = FALSE))
   expect_equal(mydf$name[1], "motif")
   mydf$name <- LETTERS[1:4]
-  expect_true(requires_update(mydf))
+  expect_true(requires_update(mydf, extrainfo = FALSE))
   expect_equal(mydf$name[1], "A")
-  mydf <- update_motifs(mydf)
+  mydf <- update_motifs(mydf, extrainfo = FALSE)
   expect_equal(mydf$name[1], "A")
   m <- to_list(mydf)
   expect_equal(m[[1]]["name"], "A")
@@ -25,8 +25,8 @@ test_that("extrainfo gets moved around correctly", {
   mydf1 <- to_df(c(m1, m2))
   mydf2 <- to_df(c(m1, m2), extrainfo = TRUE)
   mydf2$A[1] <- "K"
-  expect_message(requires_update(mydf2))
-  expect_false(suppressMessages(requires_update(mydf2)))
+  expect_message(requires_update(mydf2, extrainfo = FALSE))
+  expect_false(suppressMessages(requires_update(mydf2, extrainfo = FALSE)))
   expect_true(requires_update(mydf2, TRUE))
 
   # Check that holdout works
@@ -54,6 +54,12 @@ test_that("extrainfo gets moved around correctly", {
   expect_type(forced$factor_column, "character")
   expect_type(forced$char_column, "character")
   expect_type(forced$logical_column, "character")
+  
+  # to_list() and update_motifs() send message when necessary
+  expect_message(update_motifs(mydf3, extrainfo = FALSE), "Discarding")
+  expect_message(to_list(mydf3, extrainfo = FALSE), "Discarding")
+  expect_message(update_motifs(mydf3, extrainfo = TRUE), NA)
+  expect_message(to_list(mydf3, extrainfo = TRUE), NA)
 })
 
 test_that("update works", {
