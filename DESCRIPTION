@@ -1,11 +1,12 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.9.32
+Version: 1.9.33
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "b2tremblay@uwaterloo.ca",
         comment = c(ORCID = "0000-0002-7441-2951")),
-      person("Spencer", "Nystrom", role = "ctb")
+      person("Spencer", "Nystrom", role = "ctb",
+        comment = c(ORCID = "0000-0003-1000-1579"))
     )
 URL: https://bioconductor.org/packages/universalmotif/
 BugReports: https://github.com/bjmt/universalmotif/issues

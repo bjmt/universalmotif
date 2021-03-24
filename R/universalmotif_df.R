@@ -126,8 +126,17 @@ to_df <- function(motifs, extrainfo = FALSE) {
 #'    `to_df()`, then the contents of the slot will not be transferred to the
 #'    `data.frame`. If `extrainfo` is not set to `TRUE` in `update_motifs()`
 #'    or `to_list()`, then the extra columns will be discarded.
+#' @param force Whether to coerce non-character data types into characters for
+#'   inclusion in `extrainfo`. If `force` is `FALSE` (the default), columns which
+#'   are not of type "character", "numeric", or "integer" (for example, list
+#'   columns, or logical values), will not be added to the motif `extrainfo`
+#'   slot, but will be passed onto the returned `universalmotif_df` unchanged.
+#'   Setting `force = TRUE` coerces these values into a character, adding them
+#'   to the `extrainfo` slot, and updating the `universalmotif_df` columns to
+#'   reflect this coercion. In other words, forcing inclusion of these data is
+#'   destructive and will change the column values. Use with caution.
 #' @rdname tidy-motifs
-update_motifs <- function(motif_df, extrainfo = FALSE) {
+update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   # TODO: extrainfo implementation is very messy...
   # TODO: come back and add alphabet change support once switch_alph() is updated
   # TODO: performance
@@ -141,32 +150,52 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
   cols_new <- cols_new[cols_new != "motif"]
   cols_old <- colnames(old_df)
   cols_old <- cols_old[cols_old != "motif"]
+  
+  holdout <- !force # makes it easier to reason about the code
+  extrainfo_holdout_cols <- NA_character_
   if (extrainfo) {
     # for now, just always update extrainfo...
     cols_extrainfo <- cols_new[!cols_new %in% cols_old]
     cols_extrainfo <- cols_extrainfo[cols_extrainfo != "bkg"]
     if (length(cols_extrainfo)) {
+      # Keep id_cols temporarily to ensure sort order is OK
+      # TODO: in future use a better unique identifier
       extrainfo_new <- updated_df[, cols_extrainfo, drop = FALSE]
+      
+      if (holdout) {
+        # hold out unsupported datatypes
+        # Current "supported" types are "character", "numeric" and "integer"
+        extrainfo_classes <- vapply(extrainfo_new, class, character(1))
+        
+        extrainfo_holdout_cols <- names(extrainfo_classes[!(extrainfo_classes %in% c("character", "numeric", "integer"))])
+        
+        extrainfo_holdouts <- extrainfo_new[, extrainfo_holdout_cols, drop = FALSE]
+        # TODO: Consider a message for holdouts? I think it's unnecessary.
+      }
+      
+      # if holding out columns, remove them from the extrainfo passed onto the motifs
+      if (holdout & length(extrainfo_holdout_cols) != 0) {
+        extrainfo_new <- extrainfo_new[, -which(names(extrainfo_new) %in% extrainfo_holdout_cols), drop = FALSE]
+      } 
+      
+      # Pass extrainfo to motif
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
     }
   } else if (any(!cols_new %in% cols_old)) {
     # maybe remove this warning based on how extrainfo is implemented
-    warning(
+    message(
       "Discarding unknown slot(s) ",
       paste0(paste0("'", cols_new[!cols_new %in% cols_old], "'"), collapse = ", "),
-      " (set `extrainfo=TRUE` to preserve these).",
-      immediate. = TRUE, call. = FALSE
-    )
+      " (set `extrainfo=TRUE` to preserve these).")
   }
   if (any(!cols_old %in% cols_new)) {
     # hide this warning when called in to_list()?
-    warning(
+    message(
       "Restoring missing slot(s) ",
       paste0(paste0("'", cols_old[!cols_old %in% cols_new], "'"), collapse = ", "),
-      ".", immediate. = TRUE, call. = FALSE
-    )
+      ".")
   }
   cols_to_check <- cols_new[cols_new %in% cols_old]
   if ("bkg" %in% cols_to_check) {
@@ -201,18 +230,26 @@ update_motifs <- function(motif_df, extrainfo = FALSE) {
       }
     }
   }
-  to_df(m, extrainfo)
+  if (holdout & extrainfo & all(!is.na(extrainfo_holdout_cols))){
+    # Add back any heldout info
+    # TODO: is `cbind` safe here? will row order always preserve?
+    new_df <- structure(cbind(to_df(m, extrainfo), extrainfo_holdouts), 
+                        class = c("universalmotif_df", "data.frame"))
+    return(new_df)
+  } else {
+    return(to_df(m, extrainfo))
+  }
 }
 
 #' @export
 #' @rdname tidy-motifs
-to_list <- function(motif_df, extrainfo = FALSE) {
-  structure(update_motifs(motif_df, extrainfo)$motif, class = NULL)
+to_list <- function(motif_df, extrainfo = TRUE, force = FALSE) {
+  structure(update_motifs(motif_df, extrainfo, force)$motif, class = NULL)
 }
 
 #' @export
 #' @rdname tidy-motifs
-requires_update <- function(motifs, extrainfo = FALSE) {
+requires_update <- function(motifs, extrainfo = TRUE) {
 # identical() is really quite slow...
   motifs2 <- update_motifs(motifs, extrainfo)
   any(!mapply(identical,
@@ -242,7 +279,7 @@ extrainfo_to_df <- function(x) {
       for (j in which(!cnames %in% colnames(y[[i]]))) {
         y[[i]][[cnames[j]]] <- rep(NA_character_, nrow(y[[i]]))
       }
-      y[[i]] <- y[[i]][, cnames]
+      y[[i]] <- y[[i]][, cnames, drop = FALSE]
     }
   }
   do.call(rbind, y)
@@ -265,6 +302,7 @@ vec_to_df <- function(x) {
 
 clean_up_extrainfo_df <- function(x) {
   y <- names(x)
+  x <- vapply(x, as.character, character(1))
   x <- as.character(x)
   if (all(is.na(x))) character()
   else {
