@@ -70,7 +70,7 @@
   it via tweaking parsing options
 - go through vignettes again
 - use NULL instead of missing for optional args
-- compare_and_merge()?
+- compare_and_merge()? --> this needs to be higher priority
 - improve workflow to get from compare_motifs() --> merge_motifs()
   + universalmotif_df structure may help here
   + get compare_motifs() result; filter to rows you like and want to get merged
@@ -90,4 +90,12 @@
   + if altname was blank, this causes "0" to be filled in the name slot
 - do I ever respect the strand option in motifs? Should I? If not, maybe make
   it clear it's purely cosmetic somewhere (also does motif_rc change the strand?)
-
+- scan_sequences() and large datasets: spends a LOT of time in pre- and
+  post-processing... need to optimize this. The actual scanning is quite fast
+  even with billions of letters.
+- create a new metric which tells us how specific/wobbly a motif is; could
+   perhaps be used as a guide during motif merging? (ie don't want to merge
+   too much and create an overly disambiguous motif)
+- create_motif("RYMRMVATGGC") --> what's up with Y?
+- merge_motifs() 2nd example: also plot submotifs
+- change my email from b2tremblay to benjamin.tremblay

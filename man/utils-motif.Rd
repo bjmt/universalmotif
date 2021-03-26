@@ -278,7 +278,7 @@ motif_score(examplemotif0, c(0, 0.8, 1), allow.nonfinite = TRUE,
 #######################################################################
 ## log_string_pval
 ## Get the log of a string-formatted p-value
-log_string_pval("1e-400")
+log_string_pval("1e-200")
 
 #######################################################################
 ## pcm_to_ppm
