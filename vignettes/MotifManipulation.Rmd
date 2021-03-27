@@ -3,7 +3,7 @@ title: "Motif import, export, and manipulation"
 shorttitle: "Motif manipulation"
 date: 25 January 2021
 author:
-- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
+- Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
   The universalmotif package offers a number of functions to handle motifs. These are introduced and explored here, including those relating to: import, export, motif modification, creation, visualization, and other miscellaneous utilities.

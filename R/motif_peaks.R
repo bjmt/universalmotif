@@ -68,7 +68,7 @@
 #' res$Plot$data
 #' }
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()]
 #' @export
 motif_peaks <- function(hits, seq.length, seq.count, bandwidth, max.p = 1e-6,

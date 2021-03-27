@@ -202,5 +202,5 @@ co-regulated genes to identify motifs.” \emph{Bioinformatics}, \emph{19},
 \code{\link[=make_DBscores]{make_DBscores()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

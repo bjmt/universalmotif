@@ -18,7 +18,7 @@
 #' @return `NULL`, invisibly.
 #'
 #' @family write_motifs
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams write_jaspar
 #' @export
 write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,

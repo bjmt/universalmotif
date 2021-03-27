@@ -90,5 +90,5 @@ shuffle_string("ASDADASDASDASD", k = 2)
 \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

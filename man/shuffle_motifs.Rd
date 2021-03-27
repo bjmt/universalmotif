@@ -28,5 +28,5 @@ shuffled together.
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

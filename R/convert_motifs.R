@@ -101,7 +101,7 @@
 #' discovery, designed for high throughput sequencing dataset_. R
 #' package version 1.24.0.
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @include universalmotif-class.R
 #' @export
 setGeneric("convert_motifs", function(motifs,

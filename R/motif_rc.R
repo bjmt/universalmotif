@@ -16,7 +16,7 @@
 #'                                   package = "universalmotif"))
 #' jaspar.rc <- motif_rc(jaspar)
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 motif_rc <- function(motifs, ignore.alphabet = FALSE) {
 

@@ -13,7 +13,7 @@
 #' @return Motifs. See [convert_motifs()] for available output
 #'    formats.
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [shuffle_sequences()]
 #' @export
 shuffle_motifs <- function(motifs, k = 2, method = "linear") {

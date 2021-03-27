@@ -50,7 +50,7 @@
 #' and its web framework.” _Nucleic Acids Research_, *46*, D260-D266.
 #'
 #' @seealso [compare_motifs()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
 make_DBscores <- function(db.motifs,

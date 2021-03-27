@@ -95,5 +95,5 @@ view_motifs(merge_motifs(c(m1, m2, m3)))
 \code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

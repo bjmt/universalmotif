@@ -172,5 +172,5 @@ view_motifs(create_motif("AIG", alphabet = "AA"), fontDF = fontDFtimes)
 \code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=view_logo]{view_logo()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

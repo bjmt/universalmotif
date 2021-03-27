@@ -73,7 +73,7 @@
 #' Molecular Biology_, *2*, 28-36.
 #'
 #' @seealso [create_sequences()], [scan_sequences()], [shuffle_sequences()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = NULL, nthreads = 1,

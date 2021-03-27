@@ -140,5 +140,5 @@ matrices.” \emph{Genome Research}, \emph{23}, 181-194.
 \code{\link[=motif_score]{motif_score()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

@@ -3,7 +3,7 @@ title: "Introduction to sequence motifs"
 shorttitle: "Intro to motifs"
 date: 25 January 2021
 author:
-- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
+- Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
   There are four ways to represent sequence motif matrices: as counts, probabilities, logodds scores, or information content. This vignette discusses the relationship between these and how they are obtained.

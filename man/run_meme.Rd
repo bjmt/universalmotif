@@ -168,5 +168,5 @@ Molecular Biology}, \emph{2}, 28-36.
 \code{\link[processx:run]{processx::run()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

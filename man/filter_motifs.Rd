@@ -65,5 +65,5 @@ motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"),
 
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

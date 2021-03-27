@@ -43,6 +43,6 @@ Other write_motifs:
 \code{\link{write_motifs}()}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }
 \concept{write_motifs}

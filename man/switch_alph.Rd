@@ -25,5 +25,5 @@ RNA.motif <- switch_alph(DNA.motif)
 \code{\link[=create_motif]{create_motif()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

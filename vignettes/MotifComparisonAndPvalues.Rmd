@@ -2,7 +2,7 @@
 title: "Motif comparisons and P-values"
 date: 25 January 2021
 author:
-- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
+- Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
   Two important but not often discussed topics with regards to motifs are motif comparisons and P-values. These are explored here, including implementation details and example use cases.

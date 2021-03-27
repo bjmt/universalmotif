@@ -90,5 +90,5 @@ Supporting Wand and Jones (1995)}. R package version 2.23-15,
 \code{\link[=scan_sequences]{scan_sequences()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

@@ -57,7 +57,7 @@
 #' shuffle_string("ASDADASDASDASD", k = 2)
 #'
 #' @seealso [create_sequences()], [shuffle_sequences()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name utils-sequence
 NULL
 

@@ -99,3 +99,4 @@
 - create_motif("RYMRMVATGGC") --> what's up with Y?
 - merge_motifs() 2nd example: also plot submotifs
 - change my email from b2tremblay to benjamin.tremblay
+- make sure window size can't be set too low (shuffle_sequences, get_bkg)

@@ -26,7 +26,7 @@
 #'
 #' @family write_motifs
 #' @seealso [read_homer()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 write_homer <- function(motifs, file, logodds_threshold = 0.6,
                         overwrite = FALSE, append = FALSE) {

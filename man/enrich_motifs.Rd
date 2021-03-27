@@ -119,5 +119,5 @@ framework and method evaluation.” \emph{BMC Bioinformatics}, \emph{11}.
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@uwaterloo.ca}
 }

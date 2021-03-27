@@ -31,7 +31,7 @@
 #'
 #' @family write_motifs
 #' @seealso [read_meme()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 write_meme <- function(motifs, file, version = 5, bkg, strand,
                        overwrite = FALSE, append = FALSE) {

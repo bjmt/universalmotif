@@ -41,7 +41,7 @@
 #' and searching.” _Nucleic Acids Research_, *37*, W202-W208.
 #'
 #' @family read_motifs
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 read_meme <- function(file, skip = 0, readsites = FALSE,
                       readsites.meta = FALSE) {

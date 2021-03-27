@@ -20,7 +20,7 @@
 #'
 #' @return `list`
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [enrich_motifs()]
 #' @inheritParams scan_sequences
 #' @noRd

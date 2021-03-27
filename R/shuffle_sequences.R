@@ -77,7 +77,7 @@
 #'
 #' @seealso [create_sequences()], [scan_sequences()], [enrich_motifs()],
 #'    [shuffle_motifs()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 shuffle_sequences <- function(sequences, k = 1, method = "euler",
   nthreads = 1, rng.seed = sample.int(1e4, 1), window = FALSE, window.size = 0.1,

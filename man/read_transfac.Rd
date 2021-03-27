@@ -41,6 +41,6 @@ Other read_motifs:
 \code{\link{read_uniprobe}()}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }
 \concept{read_motifs}

@@ -110,7 +110,7 @@ universalmotif_gapped <- setClass("universalmotif_gapped",
 #' ## Bind motifs together to create a new motif.
 #' cbind(motif, motif2)
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name universalmotif-class
 #' @rdname universalmotif-class
 #' @exportClass universalmotif

@@ -13,7 +13,7 @@
 #' @return `list` [universalmotif-class] objects.
 #'
 #' @family read_motifs
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp
 #' @export
 read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {

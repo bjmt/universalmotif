@@ -77,5 +77,5 @@ view_logo(toplot)
 \code{\link[=view_motifs]{view_motifs()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

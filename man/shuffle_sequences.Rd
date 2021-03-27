@@ -98,5 +98,5 @@ a directed graph.” \emph{Journal of Algorithms}, \emph{27}, 170-217.
 \code{\link[=shuffle_motifs]{shuffle_motifs()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

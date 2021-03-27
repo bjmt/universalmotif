@@ -131,7 +131,7 @@
 #' https://doi.org/10.1093/bioinformatics/btw024), <URL:
 #' http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()]
 #' @export
 convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,

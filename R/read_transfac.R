@@ -17,7 +17,7 @@
 #' _Nucleic Acids Research_, *24*, 238-241.
 #'
 #' @family read_motifs
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp
 #' @export
 read_transfac <- function(file, skip = 0) {

@@ -3,7 +3,7 @@ title: "Sequence manipulation and scanning"
 shorttitle: "Sequence utilities"
 date: 25 January 2021
 author:
-- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
+- Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
   Sequences stored as XStringSet objects (from the Biostrings package) can be used by several functions in the universalmotif package. These functions are demonstrated here and fall into two categories: sequence manipulation and motif scanning. Sequences can be generated, shuffled, and background frequencies of any order calculated. Scanning can be done simply to find locations of motif hits above a certain threshold, or to find instances of enriched motifs.

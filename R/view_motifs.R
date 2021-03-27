@@ -96,7 +96,7 @@
 #' }
 #'
 #' @seealso [compare_motifs()], [add_multifreq()], [view_logo()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
 view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",

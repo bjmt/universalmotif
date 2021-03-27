@@ -3,7 +3,7 @@ title: "Introduction to \"universalmotif\""
 shorttitle: "Intro to \"universalmotif\""
 date: 25 May 2019
 author:
-- Benjamin Jean-Marie Tremblay^[b2tremblay@uwaterloo.ca]
+- Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 vignette: >
   %\VignetteIndexEntry{Introduction to "universalmotif"}

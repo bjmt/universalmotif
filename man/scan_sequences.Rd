@@ -142,5 +142,5 @@ makeGRangesFromDataFrame(res, seqnames.field = "sequence",
 \code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

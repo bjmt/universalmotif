@@ -11,5 +11,5 @@ motifs ?\code{utils-motif}, and those related to sequences ?\code{utils-sequence
 \link{utils-motif}, \link{utils-sequence}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

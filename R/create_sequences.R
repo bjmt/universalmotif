@@ -30,7 +30,7 @@
 #' ## You can include non-alphabet characters are well, even spaces:
 #' sequences.custom <- create_sequences("!@#$ ")
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [create_motif()], [shuffle_sequences()]
 #' @export
 create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,

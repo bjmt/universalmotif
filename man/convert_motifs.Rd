@@ -195,5 +195,5 @@ discovery, designed for high throughput sequencing dataset}. R
 package version 1.24.0.
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

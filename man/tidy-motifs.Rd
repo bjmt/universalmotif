@@ -77,5 +77,5 @@ m <- to_list(m_df, extrainfo = TRUE)
 
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

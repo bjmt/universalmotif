@@ -149,5 +149,5 @@ http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 \code{\link[=convert_motifs]{convert_motifs()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

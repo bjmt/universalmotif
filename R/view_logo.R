@@ -32,7 +32,7 @@
 #' view_logo(toplot)
 #'
 #' @seealso [view_motifs()]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams view_motifs
 #' @export
 view_logo <- function(x, fontDF = NULL, fill = "black", colour.scheme = NULL,

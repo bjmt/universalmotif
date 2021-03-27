@@ -29,7 +29,7 @@
 #' cisbp <- read_cisbp(system.file("extdata", "cisbp.txt",
 #'                                 package = "universalmotif"))
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 read_cisbp <- function(file, skip = 0) {
 

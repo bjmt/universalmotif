@@ -70,7 +70,7 @@
 #' McLeay R, Bailey TL (2010). “Motif Enrichment Analysis: A unified
 #' framework and method evaluation.” _BMC Bioinformatics_, *11*.
 #'
-#' @author Benjamin Jean-Marie Tremblay \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [shuffle_sequences()],
 #'    [add_multifreq()], [motif_pvalue()]
 #' @inheritParams scan_sequences

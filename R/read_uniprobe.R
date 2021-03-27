@@ -18,7 +18,7 @@
 #' _Nucleic Acids Research_, *43*, D117-D122.
 #'
 #' @family read_motifs
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp
 #' @export
 read_uniprobe <- function(file, skip = 0) {

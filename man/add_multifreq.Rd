@@ -93,5 +93,5 @@ motif.trained["multifreq"]$`2`
 \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=write_motifs]{write_motifs()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

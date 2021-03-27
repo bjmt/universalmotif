@@ -109,5 +109,5 @@ and its web framework.” \emph{Nucleic Acids Research}, \emph{46}, D260-D266.
 \code{\link[=compare_motifs]{compare_motifs()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

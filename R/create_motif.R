@@ -163,7 +163,7 @@
 #' DNA.motif <- create_motif(bkg = c(0.3, 0.2, 0.2, 0.3))
 #' DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 #'
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [create_sequences()]
 #' @export
 setGeneric("create_motif", function(input, alphabet, type = "PPM",

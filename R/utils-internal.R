@@ -4,7 +4,7 @@
 #' motifs ?`utils-motif`, and those related to sequences ?`utils-sequence`.
 #'
 #' @seealso [utils-motif], [utils-sequence]
-#' @author Benjamin Jean-Marie Tremblay, \email{b2tremblay@@uwaterloo.ca}
+#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name utilities
 NULL
 
