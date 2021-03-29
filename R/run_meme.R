@@ -281,7 +281,7 @@ run_meme <- function(target.sequences, output = NULL,
   if (overwrite.dir) output.arg <- "-oc" else output.arg <- "-o"
   meme.args <- c(meme.args, output.arg, output)
 
-  if (alph.arg != "file") meme.args <- c(meme.args, alph.arg)
+  if (alph.arg != "-file") meme.args <- c(meme.args, alph.arg)
   else meme.args <- c(meme.args, "-alph", alph)
 
   if (has.bkg) meme.args <- c(meme.args, "-neg", bkg)

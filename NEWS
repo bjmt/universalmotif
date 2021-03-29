@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.8.4
+------------------------
+
+BUG FIXES
+
+   o Fixed incorrect handling of the -alph parameter in run_meme() (reported
+      by @Irenexzwen).
+
 CHANGES IN VERSION 1.8.3
 ------------------------
 
