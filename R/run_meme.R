@@ -250,7 +250,7 @@ run_meme <- function(target.sequences, output = NULL,
                        stop("for custom alphabets, please pass an alphabet file",
                             " to 'alph'\n",
                             "  (http://meme-suite.org/doc/alphabet-format.html)"))
-  } else alph.arg <- "-file"
+  } else alph.arg <- alph
 
   if (is.null(names(target.sequences)))
     names(target.sequences) <- as.character(seq_len(length(target.sequences)))
