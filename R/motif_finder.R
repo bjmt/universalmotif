@@ -3,6 +3,8 @@ motif_finder <- function(sequences, bkg.sequences = NULL, nmotifs = 3,
   min.nsites = as.integer(width(sequences) * 0.2), seed.k = 6:8, RC = TRUE,
   pseudocount = 1, nthreads = 1) {
 
+  # add option for min motif ambiguity based on average per position IC
+
   alph <- switch(seqtype(sequences),
     "DNA" = DNA_BASES,
     "RNA" = RNA_BASES,
