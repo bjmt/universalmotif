@@ -123,7 +123,7 @@ seqs
 seqs.shuffled <- shuffle_sequences(seqs, k = 3)
 ```
 
-Additionally, if you are interested in the detailed kmer content of you sequences you can use `get_bkg()`. It can be used to calculate sequence background for any size kmer, and for any sequence alphabet. Results can be shown for individual sequences or merged together. There is also an option to calculate these results in any size windows (with any size overlap between windows) across the sequences.
+Additionally, if you are interested in the detailed k-mer content of you sequences you can use `get_bkg()`. It can be used to calculate sequence background for any size k-mer, and for any sequence alphabet. Results can be shown for individual sequences or merged together. There is also an option to calculate these results in any size windows (with any size overlap between windows) across the sequences.
 
 ```r
 library(universalmotif)
@@ -231,26 +231,45 @@ scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 0.9,
 #> 8      16.0443   -16.842    17.827       100           +
 ```
 
+Note the differences between the matching sequences of regular scanning versus higher order scanning.
+
 ### Motif comparison, merging and viewing
 
-A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`.
+A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`. In addition to motif visualization, `view_motifs()` can also be used to examine the top-scoring alignment chosen by `compare_motifs()` and `merge_motifs()`.
 
 ```r
 library(universalmotif)
 
 new.motif <- create_motif("CGCGAAAAAA", name = "New motif")
 old.motif <- create_motif("TATATTTTTT", name = "Old motif")
+```
 
-compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 5)[2]
-#> [1] 1
+Using very strict alignment parameters, such as no overhangs:
+
+```r
 compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 10)[2]
 #> [1] 0.2
 
 merged.motif <- merge_motifs(c(new.motif, old.motif), method = "PCC",
-    new.name = "Merged motif")
+    new.name = "Merged motif", min.overlap = 10)
 
-view_motifs(c(new.motif, old.motif, merged.motif))
+view_motifs(c(new.motif, old.motif, merged.motif), method = "PCC",
+    min.overlap = 10)
 ```
 
-<img src="inst/figures/example.png" width="100%" />
+<img src="inst/figures/example2.png" width="75%" />
 
+After relaxing the alignment parameters:
+
+```r
+compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 5)[2]
+#> [1] 1
+
+merged.motif <- merge_motifs(c(new.motif, old.motif), method = "PCC",
+    new.name = "Merged motif", min.overlap = 5)
+
+view_motifs(c(new.motif, old.motif, merged.motif), method = "PCC",
+    min.overlap = 5)
+```
+
+<img src="inst/figures/example1.png" width="100%" />

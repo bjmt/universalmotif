@@ -12,7 +12,8 @@ NEW FEATURES
       multiple motifs simultaneously before returning them to a list; the
       universalmotif_df structure cannot be used in the various universalmotif
       functions. Additionally, requires_update() can be used to ascertain
-      whether motifs are out of date in a universalmotif_df object.
+      whether motifs are out of date in a universalmotif_df object. Many thanks
+      to @snystrom for discussions and significant contributions.
 
     o view_motifs(): the universalmotif package now relies entirely on its
       own code to generate the polygon data used by ggplot2 to plot motifs,

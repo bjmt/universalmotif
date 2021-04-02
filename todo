@@ -86,7 +86,7 @@
 - some typos in introduction to sequence motifs vignette, add max() to IC fun
 - filter_motifs() example in vignette: nsites column returning NAs?
 - weird interaction:
-  + mydf %>% dplyr::rname(name = altname, altname = name) %>% to_list()
+  + mydf %>% dplyr::rename(name = altname, altname = name) %>% to_list()
   + if altname was blank, this causes "0" to be filled in the name slot
 - do I ever respect the strand option in motifs? Should I? If not, maybe make
   it clear it's purely cosmetic somewhere (also does motif_rc change the strand?)
