@@ -83,6 +83,9 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
   motifs <- convert_motifs(motifs)
+  if (!is.list(motifs) || length(motifs) == 1) {
+    return(.internal_convert(motifs[[1]], unique(CLASS_IN)))
+  }
   if (!is.list(motifs)) motifs <- list(motifs)
 
   motifs <- convert_type_internal(motifs, "PPM")

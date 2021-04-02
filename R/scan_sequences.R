@@ -41,6 +41,8 @@
 #'    minutes for the calculations to finish. Increasing the `nthreads` value
 #'    can help greatly here. See Details for more information on P-value
 #'    calculation.
+#' @param return.granges `logical(1)` Return the results as a `GRanges` object.
+#'    Requires the `GenomicRanges` package to be installed.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -120,7 +122,7 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
-  warn.NA = TRUE, calc.pvals = FALSE) {
+  warn.NA = TRUE, calc.pvals = FALSE, return.granges = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -139,7 +141,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                      nthreads = args$nthreads,
                                      motif_pvalue.k = args$motif_pvalue.k),
                                 c(0, 1, 1, 1, 1), logical(), TYPE_NUM)
-  logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps),
+  logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
+                                      return.granges = args$return.granges),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
                                logical(), TYPE_S4)
@@ -362,6 +365,18 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k)
   }
 
+  if (return.granges) {
+    colnames(out)[3] <- "seqname"
+    if (RC) {
+      out_switch <- out$strand == "-"
+      out_start <- out$start[out_switch]
+      out_stop <- out$stop[out_switch]
+      out$start[out_switch] <- out_stop
+      out$stop[out_switch] <- out_start
+    }
+    out <- granges_fun(GenomicRanges::GRanges(out))
+  }
+
   out
 
 }
@@ -483,3 +498,11 @@ motif_score_min <- function(x, use.freq) {
     suppressMessages(motif_score(x, 0, use.freq))
 }
 
+granges_fun <- function(FUN, env = parent.frame()) {
+  if (requireNamespace("GenomicRanges", quietly = TRUE)) {
+    eval(substitute(FUN), envir = env)
+  } else {
+    stop(wmsg("The 'GenomicRanges' package must be installed for `return.granges=TRUE`. ",
+        "[BiocManager::install(\"GenomicRanges\")]"), call. = FALSE)
+  }
+}

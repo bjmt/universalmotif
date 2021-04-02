@@ -11,16 +11,9 @@
 - dependencies to consider removing:
     + !! yaml (write my own parser, doesn't matter if it's slow)
     + Rcpp (use cpp11 w/o import instead --> maybe consider once it hits 1.0.0)
-- Add an optional list type which can be used by various universalmotif functions
-    + universalmotifList
-    + Can do vectorized operations such as subset all names with `[`
-    + control printing:
-        class(mylist) <- c("universalmotifDF", "data.frame")
-        print.universalmotifDF <- function(x) ...
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
 - in read_*() files, check to input file exists
-- scan_sequences(): add option to return GRanges object?
 - scan_sequences(): return a Biostring Views object?
 - change internal motif precision limit from 1e-3 to 1e-6 (will require changes
   to how allow.nonfinite works)
@@ -78,6 +71,7 @@
   + then get subject vs target dataframe
     + data.frame(A = I(motifs[res$subject.i]), B = I(motifs[res$target.i]))
   + then do row-wise merge
+  + OR: use hclust with user-set cut height
 - get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
 - better manipulation of alphabet slot
 - stop this from workign? motif["name"] <- NA
@@ -101,3 +95,5 @@
 - make sure window size can't be set too low (shuffle_sequences, get_bkg)
 - motif_score(create_motif("ATCGTACGTG"), 0, allow.nonfinite = TRUE) --> broken?
 - motif_score(create_motif("ATCGTACGTG"), c(100:0 * -1, 1:20)) --> segfault
+- should I change the default comparison metric back to PCC...? I feel bad for
+  constantly switching but ALLR is kind of annoying to work with in some cases

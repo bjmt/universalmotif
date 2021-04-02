@@ -24,6 +24,10 @@ NEW FEATURES
       This change should also allow for easier fixing of bugs and flexibility
       for future additions or changes.
 
+    o merge_similar(): merge similar motifs in a list of motifs. Essentially,
+      a wrapper around compare_motifs(), hclust(), cutree(), and
+      merge_motifs().
+
     o view_logo(): plot logos with matrix input instead of motif object input.
       Arbitrary column heights and multi-character letters are allowed.
 
@@ -31,6 +35,8 @@ NEW FEATURES
 
     o shuffle_sequences(..., window, window.size, window.overlap): shuffle
       sequences iteratively in windows of specified size.
+
+    o scan_sequences(..., return.granges): optionally return a GRanges object.
 
 MINOR CHANGES
 
@@ -43,6 +49,9 @@ MINOR CHANGES
       seperators.)
 
     o The Rdpack dependency has been dropped.
+
+    o merge_motifs(): single-motif input now simply returns the motif instead
+      of throwing an error.
 
 CHANGES IN VERSION 1.8.4
 ------------------------
