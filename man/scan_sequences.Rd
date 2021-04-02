@@ -7,7 +7,8 @@
 scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE,
-  allow.nonfinite = FALSE, warn.NA = TRUE, calc.pvals = FALSE)
+  allow.nonfinite = FALSE, warn.NA = TRUE, calc.pvals = FALSE,
+  return.granges = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -59,6 +60,9 @@ you anticipate getting thousands of hits: expect to wait a few seconds or
 minutes for the calculations to finish. Increasing the \code{nthreads} value
 can help greatly here. See Details for more information on P-value
 calculation.}
+
+\item{return.granges}{\code{logical(1)} Return the results as a \code{GRanges} object.
+Requires the \code{GenomicRanges} package to be installed.}
 }
 \value{
 \code{DataFrame} with each row representing one hit. If the input
