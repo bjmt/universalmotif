@@ -83,4 +83,3 @@
 - motif_score(create_motif("ATCGTACGTG"), c(100:0 * -1, 1:20)) --> segfault
 - should I change the default comparison metric back to PCC...? I feel bad for
   constantly switching but ALLR is kind of annoying to work with in some cases
-- scan_sequences(): add masking option to prevent overlapping matches

@@ -73,7 +73,7 @@ from the opposite strand, or to only discard overlapping hits on the same
 strand.}
 
 \item{mask.hits.strat}{\code{character(1)} One of \code{c("score", "order")}. The former
-option keeps the highest overlapping hit (and the first of these within
+option keeps the highest scoring overlapping hit (and the first of these within
 ties), and the latter simply keeps the first overlapping hit.}
 }
 \value{

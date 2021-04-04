@@ -21,6 +21,10 @@ motif_finder <- function(sequences, bkg.sequences = NULL, nmotifs = 5,
   message("Calculating sequence [", paste0(starting.sizes, collapse = ", "),
     "]-mer content...")
 
+  # use instead:
+  # - alphabetFrequency(sequences, baseOnly = TRUE)[, 1:4]
+  # - lapply(starting.sizes, function(x) oligonucleotideFrequency(sequences, x))
+
   k1 <- get_bkg(sequences, k = c(1, starting.sizes), nthreads = nthreads, RC = RC)
   seqsk <- k1[nchar(k1$klet) > 1, ]
   k1 <- k1[nchar(k1$klet) == 1, ]
@@ -77,7 +81,7 @@ motif_finder <- function(sequences, bkg.sequences = NULL, nmotifs = 5,
 
   seqsk <- seqsk[order(seqsk$log10BinomP), ]
 
-  # next: merge overlapping klets?
+  # next: merge overlapping klets? merge klets with one base difference?
 
   # Next step is to find motifs within each k-mer size.
 

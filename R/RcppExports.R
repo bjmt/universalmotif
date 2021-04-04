@@ -73,6 +73,10 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
+switch_antisense_coords_cpp <- function(res) {
+    .Call('_universalmotif_switch_antisense_coords_cpp', PACKAGE = 'universalmotif', res)
+}
+
 add_gap_dots_cpp <- function(seqs, gaplocs) {
     .Call('_universalmotif_add_gap_dots_cpp', PACKAGE = 'universalmotif', seqs, gaplocs)
 }

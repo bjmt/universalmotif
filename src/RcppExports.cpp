@@ -276,6 +276,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// switch_antisense_coords_cpp
+Rcpp::DataFrame switch_antisense_coords_cpp(const Rcpp::DataFrame& res);
+RcppExport SEXP _universalmotif_switch_antisense_coords_cpp(SEXP resSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type res(resSEXP);
+    rcpp_result_gen = Rcpp::wrap(switch_antisense_coords_cpp(res));
+    return rcpp_result_gen;
+END_RCPP
+}
 // add_gap_dots_cpp
 std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs, const std::vector<std::vector<int>>& gaplocs);
 RcppExport SEXP _universalmotif_add_gap_dots_cpp(SEXP seqsSEXP, SEXP gaplocsSEXP) {
@@ -820,6 +830,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
+    {"_universalmotif_switch_antisense_coords_cpp", (DL_FUNC) &_universalmotif_switch_antisense_coords_cpp, 1},
     {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},
     {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 8},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},

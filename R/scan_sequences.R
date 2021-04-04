@@ -49,7 +49,7 @@
 #'   from the opposite strand, or to only discard overlapping hits on the same
 #'   strand.
 #' @param mask.hits.strat `character(1)` One of `c("score", "order")`. The former
-#'   option keeps the highest overlapping hit (and the first of these within
+#'   option keeps the highest scoring overlapping hit (and the first of these within
 #'   ties), and the latter simply keeps the first overlapping hit.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
@@ -386,11 +386,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       row.indices.plus <- which(out$strand == "+")
       row.indices.minus <- which(out$strand == "-")
       row.indices.plus <- remove_masked_hits(out, row.indices.plus, mask.hits.strat)
-      row.indices.minus <- remove_masked_hits(switch_antisense_coords(out),
+      row.indices.minus <- remove_masked_hits(switch_antisense_coords_cpp(out),
         row.indices.minus, mask.hits.strat)
       row.indices <- c(row.indices.plus, row.indices.minus)
     } else if (RC) {
-      row.indices <- remove_masked_hits(switch_antisense_coords(out),
+      row.indices <- remove_masked_hits(switch_antisense_coords_cpp(out),
         seq_len(nrow(out)), mask.hits.strat)
     } else {
       row.indices <- seq_len(nrow(out))
@@ -402,22 +402,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (return.granges) {
     colnames(out)[3] <- "seqname"
     if (RC) {
-      out <- switch_antisense_coords(out)
+      out <- switch_antisense_coords_cpp(out)
     }
     out <- granges_fun(GenomicRanges::GRanges(out))
   }
 
   out
 
-}
-
-switch_antisense_coords <- function(out) {
-  out_switch <- out$strand == "-"
-  out_start <- out$start[out_switch]
-  out_stop <- out$stop[out_switch]
-  out$start[out_switch] <- out_stop
-  out$stop[out_switch] <- out_start
-  out
 }
 
 remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
@@ -429,15 +420,15 @@ remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
 }
 
 remove_masked_hits_by_order <- function(y) {
-  sort(do.call(rbind, by(y, list(y$sequence, y$motif.i), function(z) {
+  sort(do.call(c, by(y, list(y$sequence, y$motif.i), function(z) {
     dedup_by_order(z, flatten_group_matrix(get_overlap_groups(z)))
-  }, simplify = FALSE))$index.tokeep)
+  }, simplify = FALSE)))
 }
 
 remove_masked_hits_by_score <- function(y) {
-  sort(do.call(rbind, by(y, list(y$sequence, y$motif.i), function(z) {
+  sort(do.call(c, by(y, list(y$sequence, y$motif.i), function(z) {
     dedup_by_score(z, flatten_group_matrix(get_overlap_groups(z)))
-  }, simplify = FALSE))$index.tokeep)
+  }, simplify = FALSE)))
 }
 
 get_overlap_groups <- function(x) {
@@ -452,12 +443,12 @@ flatten_group_matrix <- function(x) {
 }
 
 dedup_by_order <- function(x, i) {
-  x[!duplicated(i), ]
+  x[!duplicated(i), ]$index.tokeep
 }
 
 dedup_by_score <- function(x, i) {
-  do.call(rbind, by(x, i, function(y) {
-    y[which.max(y$score), ]
+  do.call(c, by(x, i, function(y) {
+    y[which.max(y$score), ]$index.tokeep
   }, simplify = FALSE))
 }
 

@@ -196,6 +196,29 @@ void replace_gap_chars(str_t &seqstring, const vec_int_t &gaplocs) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::DataFrame switch_antisense_coords_cpp(const Rcpp::DataFrame &res) {
+  Rcpp::DataFrame out = Rcpp::clone(res);
+  Rcpp::CharacterVector col_strand = res["strand"];
+  Rcpp::LogicalVector to_switch(col_strand.size());
+  for (R_xlen_t i = 0; i < to_switch.size(); ++i) {
+    to_switch[i] = col_strand[i] == "-";
+  }
+  Rcpp::IntegerVector col_start = res["start"];
+  Rcpp::IntegerVector col_stop = res["stop"];
+  Rcpp::IntegerVector col_start_new = Rcpp::clone(col_start);
+  Rcpp::IntegerVector col_stop_new = Rcpp::clone(col_stop);
+  for (R_xlen_t i = 0; i < to_switch.size(); ++i) {
+    if (to_switch[i]) {
+      col_start_new[i] = col_stop[i];
+      col_stop_new[i] = col_start[i];
+    }
+  } 
+  out["start"] = col_start_new;
+  out["stop"] = col_stop_new;
+  return out;
+}
+
+// [[Rcpp::export(rng = false)]]
 std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs,
     const std::vector<std::vector<int>> &gaplocs) {
   for (std::size_t i = 0; i < seqs.size(); ++i) {
