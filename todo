@@ -38,11 +38,6 @@
 - can motif_pvalue() sometimes return the incorrect p-value when the provided
   score is also the max possible score? (maybe something to do with rounding)
 - time for another make_DBscores() re-write I think
-- really time to be getting around to writing a universalmotifList container
-    + still allow all input types, including lists, just immediately always
-      convert to universalmotifList
-    + it behaves exactly the same way as a regular list; only difference is
-      that it allows me to do more checks for groups of motifs at a time
 - need a function which can allow for motifs with different background freqs
    to be comparable: maybe something like PPM --> PWM (change background) PWM
    --> PPM?
@@ -63,18 +58,9 @@
   it via tweaking parsing options
 - go through vignettes again
 - use NULL instead of missing for optional args
-- compare_and_merge()? --> this needs to be higher priority
-- improve workflow to get from compare_motifs() --> merge_motifs()
-  + universalmotif_df structure may help here
-  + get compare_motifs() result; filter to rows you like and want to get merged
-    motifs from
-  + then get subject vs target dataframe
-    + data.frame(A = I(motifs[res$subject.i]), B = I(motifs[res$target.i]))
-  + then do row-wise merge
-  + OR: use hclust with user-set cut height
 - get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
 - better manipulation of alphabet slot
-- stop this from workign? motif["name"] <- NA
+- stop this from working? motif["name"] <- NA
 - motif_pvalue() vignette bit: explain why exact calculations dont give exact
   results (rounding to three digits for use as ints)
 - some typos in introduction to sequence motifs vignette, add max() to IC fun
@@ -97,3 +83,4 @@
 - motif_score(create_motif("ATCGTACGTG"), c(100:0 * -1, 1:20)) --> segfault
 - should I change the default comparison metric back to PCC...? I feel bad for
   constantly switching but ALLR is kind of annoying to work with in some cases
+- scan_sequences(): add masking option to prevent overlapping matches

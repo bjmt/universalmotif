@@ -19,7 +19,7 @@
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile
 #' @importFrom stats rpois dnorm ecdf var qnorm plogis pweibull ks.test pbinom
-#' @importFrom stats cutree
+#' @importFrom stats cutree xtabs
 #' @importFrom MASS fitdistr
 #' @importFrom utils read.table menu packageDescription combn capture.output
 #' @importFrom Biostrings width consensusMatrix BString AAString matchPWM
@@ -30,7 +30,7 @@
 #' @importFrom Biostrings dinucleotideFrequency oligonucleotideFrequency
 #' @importFrom Biostrings reverseComplement writeXStringSet seqtype AA_ALPHABET
 #' @importFrom Biostrings mask injectHardMask
-#' @importFrom IRanges stack
+#' @importFrom IRanges stack IRanges findOverlaps
 #' @importFrom Rcpp sourceCpp
 #' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
 #' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums

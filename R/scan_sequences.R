@@ -43,6 +43,14 @@
 #'    calculation.
 #' @param return.granges `logical(1)` Return the results as a `GRanges` object.
 #'    Requires the `GenomicRanges` package to be installed.
+#' @param mask.hits `logical(1)` Remove overlapping hits from the same motifs.
+#'    Overlapping hits from different motifs are preserved.
+#' @param mask.hits.by.strand `logical(1)` Whether to discard overlapping hits
+#'   from the opposite strand, or to only discard overlapping hits on the same
+#'   strand.
+#' @param mask.hits.strat `character(1)` One of `c("score", "order")`. The former
+#'   option keeps the highest overlapping hit (and the first of these within
+#'   ties), and the latter simply keeps the first overlapping hit.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -122,7 +130,8 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
-  warn.NA = TRUE, calc.pvals = FALSE, return.granges = FALSE) {
+  warn.NA = TRUE, calc.pvals = FALSE, return.granges = FALSE,
+  mask.hits = FALSE, mask.hits.by.strand = FALSE, mask.hits.strat = "score") {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -133,7 +142,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                          threshold.type, "`"), exdent = 3, indent = 1)
     all_checks <- c(all_checks, threshold.type_check)
   }
-  char_check <- check_fun_params(list(threshold.type = args$threshold.type),
+  char_check <- check_fun_params(list(threshold.type = args$threshold.type,
+                                      mask.hits.strat = args$mask.hits.strat),
                                  1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
@@ -142,7 +152,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                      motif_pvalue.k = args$motif_pvalue.k),
                                 c(0, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
-                                      return.granges = args$return.granges),
+                                      return.granges = args$return.granges,
+                                      mask.hits = args$mask.hits,
+                                      mask.hits.by.strand = args$mask.hits.by.strand),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
                                logical(), TYPE_S4)
@@ -161,6 +173,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     message("   * use.freq:            ", use.freq)
     message("   * verbose:             ", verbose)
   }
+
+  if (!mask.hits.strat %in% c("score", "order"))
+    stop("`mask.hits.strat` must be \"score\" or \"order\"", call. = FALSE)
 
   if (missing(motifs) || missing(sequences)) {
     stop("need both motifs and sequences")
@@ -365,20 +380,85 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k)
   }
 
+  if (mask.hits && nrow(out) > 1) {
+    # TODO: The mask.hits code is rather slow, not too happy.
+    if (RC && mask.hits.by.strand) {
+      row.indices.plus <- which(out$strand == "+")
+      row.indices.minus <- which(out$strand == "-")
+      row.indices.plus <- remove_masked_hits(out, row.indices.plus, mask.hits.strat)
+      row.indices.minus <- remove_masked_hits(switch_antisense_coords(out),
+        row.indices.minus, mask.hits.strat)
+      row.indices <- c(row.indices.plus, row.indices.minus)
+    } else if (RC) {
+      row.indices <- remove_masked_hits(switch_antisense_coords(out),
+        seq_len(nrow(out)), mask.hits.strat)
+    } else {
+      row.indices <- seq_len(nrow(out))
+      row.indices <- remove_masked_hits(out, seq_len(nrow(out)), mask.hits.strat)
+    }
+    out <- out[row.indices, ]
+  }
+
   if (return.granges) {
     colnames(out)[3] <- "seqname"
     if (RC) {
-      out_switch <- out$strand == "-"
-      out_start <- out$start[out_switch]
-      out_stop <- out$stop[out_switch]
-      out$start[out_switch] <- out_stop
-      out$stop[out_switch] <- out_start
+      out <- switch_antisense_coords(out)
     }
     out <- granges_fun(GenomicRanges::GRanges(out))
   }
 
   out
 
+}
+
+switch_antisense_coords <- function(out) {
+  out_switch <- out$strand == "-"
+  out_start <- out$start[out_switch]
+  out_stop <- out$stop[out_switch]
+  out$start[out_switch] <- out_stop
+  out$stop[out_switch] <- out_start
+  out
+}
+
+remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
+  if (!length(i)) return(i)
+  y <- x[i, ]
+  y$index.tokeep <- i
+  switch(strat, score = remove_masked_hits_by_score(y),
+    order = remove_masked_hits_by_order(y))
+}
+
+remove_masked_hits_by_order <- function(y) {
+  sort(do.call(rbind, by(y, list(y$sequence, y$motif.i), function(z) {
+    dedup_by_order(z, flatten_group_matrix(get_overlap_groups(z)))
+  }, simplify = FALSE))$index.tokeep)
+}
+
+remove_masked_hits_by_score <- function(y) {
+  sort(do.call(rbind, by(y, list(y$sequence, y$motif.i), function(z) {
+    dedup_by_score(z, flatten_group_matrix(get_overlap_groups(z)))
+  }, simplify = FALSE))$index.tokeep)
+}
+
+get_overlap_groups <- function(x) {
+  y <- as.matrix(findOverlaps(IRanges(x$start, x$stop)))
+  y <- xtabs(~queryHits + subjectHits, y)
+  matrix(as.integer(y), nrow = nrow(x))
+}
+
+flatten_group_matrix <- function(x) {
+  if (all(x == 1)) return(seq_len(nrow(x)))
+  cutree(hclust(as.dist(1 - x)), h = 0.5)
+}
+
+dedup_by_order <- function(x, i) {
+  x[!duplicated(i), ]
+}
+
+dedup_by_score <- function(x, i) {
+  do.call(rbind, by(x, i, function(y) {
+    y[which.max(y$score), ]
+  }, simplify = FALSE))
 }
 
 fix_mots <- function(x, allow.nonfinite) {
