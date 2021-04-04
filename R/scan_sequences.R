@@ -443,12 +443,12 @@ flatten_group_matrix <- function(x) {
 }
 
 dedup_by_order <- function(x, i) {
-  x[!duplicated(i), ]$index.tokeep
+  x$index.tokeep[!duplicated(i)]
 }
 
 dedup_by_score <- function(x, i) {
   do.call(c, by(x, i, function(y) {
-    y[which.max(y$score), ]$index.tokeep
+    y$index.tokeep[which.max(y$score)]
   }, simplify = FALSE))
 }
 
