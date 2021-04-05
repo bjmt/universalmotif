@@ -26,7 +26,7 @@ test_that("extrainfo gets moved around correctly", {
   mydf2 <- to_df(c(m1, m2), extrainfo = TRUE)
   mydf2$A[1] <- "K"
   expect_message(requires_update(mydf2, extrainfo = FALSE), "Discarding")
-  expect_false(suppressMessages(requires_update(mydf2, extrainfo = FALSE)))
+  expect_true(suppressMessages(requires_update(mydf2, extrainfo = FALSE)))
   expect_true(requires_update(mydf2, TRUE))
 
   # Check that holdout works

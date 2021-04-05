@@ -8,7 +8,7 @@
 \alias{requires_update}
 \title{Tidy manipulation of motifs.}
 \usage{
-to_df(motifs, extrainfo = FALSE)
+to_df(motifs, extrainfo = TRUE)
 
 update_motifs(motif_df, extrainfo = TRUE, force = FALSE)
 
