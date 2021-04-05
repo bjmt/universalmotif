@@ -98,7 +98,7 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
 #' @export
 #' @param motifs List of motifs.
 #' @rdname tidy-motifs
-to_df <- function(motifs, extrainfo = FALSE) {
+to_df <- function(motifs, extrainfo = TRUE) {
   x <- convert_motifs(motifs)
   if (!is.list(x)) x <- list(x)
   y <- summarise_motifs_with_extras(x)
@@ -145,7 +145,7 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
     stop("Could not find 'motif' column.")
   m <- updated_df$motif
   class(m) <- NULL
-  old_df <- as.data.frame(to_df(m))
+  old_df <- as.data.frame(to_df(m, extrainfo = FALSE))
   cols_new <- colnames(updated_df)
   cols_new <- cols_new[cols_new != "motif"]
   cols_old <- colnames(old_df)
@@ -182,6 +182,10 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
       for (i in seq_along(m)) {
         m[[i]]["extrainfo"] <- clean_up_extrainfo_df(extrainfo_new[i, , drop = FALSE])
       }
+    } else {
+      for (i in seq_along(m)) {
+        m[[i]]@extrainfo <- character()
+      }
     }
   } else if (any(!cols_new %in% cols_old)) {
     # maybe remove this warning based on how extrainfo is implemented
@@ -189,6 +193,11 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
       "Discarding unknown slot(s) ",
       paste0(paste0("'", cols_new[!cols_new %in% cols_old], "'"), collapse = ", "),
       " (set `extrainfo=TRUE` to preserve these).")
+  }
+  if (!extrainfo) {
+    for (i in seq_along(m)) {
+      m[[i]]@extrainfo <- character()
+    }
   }
   if (any(!cols_old %in% cols_new)) {
     # hide this warning when called in to_list()?

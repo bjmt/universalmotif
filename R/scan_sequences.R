@@ -115,14 +115,6 @@
 #' # but can be safely ignored in this case.
 #' }
 #'
-#' ## Converting results to a GRanges object:
-#' \dontrun{
-#' res <- scan_sequences(ArabidopsisMotif, seq)
-#' library(GenomicRanges)
-#' makeGRangesFromDataFrame(res, seqnames.field = "sequence",
-#'   keep.extra.columns = TRUE)
-#' }
-#'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
 #'    [enrich_motifs()], [motif_pvalue()]
@@ -410,6 +402,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   out
 
 }
+
+# What about this kind of situation?
+#  seq:   AAAAAAAAAAAAAAAAAAAA
+#  hit 1: ++++++++
+#  hit 2:       ++++++++
+#  hit 3:             ++++++++
+# What should happen here? Right now only one of the three is kept.
 
 remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
   if (!length(i)) return(i)

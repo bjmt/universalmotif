@@ -225,23 +225,37 @@ motif.k2 <- add_multifreq(motif.k2, sequences.k2)
 ```
 Regular scanning:
 ```{r}
-head(scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
-                    threshold = 0.9, threshold.type = "logodds"))
+scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
+               threshold = 0.9, threshold.type = "logodds")
 ```
 Using 2-letter information to scan:
 ```{r}
-head(scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, RC = TRUE,
-                    threshold = 0.9, threshold.type = "logodds"))
+scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, RC = TRUE,
+               threshold = 0.9, threshold.type = "logodds")
 ```
 
-As an aside: the previous example involved calling `create_motif()` and `add_multifreq()` separately. In this case however this could have been simplified to just calling `create_motif()` and using the `add.multifreq` option:
+Furthermore, sequence scanning can be further refined to avoid overlapping hits. Consider:
 
 ```{r}
-library(universalmotif)
-library(Biostrings)
+motif <- create_motif("AAAAAA")
 
-sequences <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
-motif <- create_motif(sequences, add.multifreq = 2:3)
+## Leave in overlapping hits:
+
+scan_sequences(motif, ArabidopsisPromoters, RC = TRUE, threshold = 0.9,
+               threshold.type = "logodds")
+
+## Only keep the highest scoring hit amongst overlapping hits:
+
+scan_sequences(motif, ArabidopsisPromoters, RC = TRUE, threshold = 0.9,
+               threshold.type = "logodds", mask.hits = TRUE)
+```
+
+Finally, the results can be returned as a `GRanges` object for further manipulation:
+
+```{r}
+scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
+               threshold = 0.9, threshold.type = "logodds",
+               return.granges = TRUE)
 ```
 
 # Enrichment analyses

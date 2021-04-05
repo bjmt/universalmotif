@@ -208,6 +208,21 @@ view_motifs(c(m1, m2, m3))
 view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
 ```
 
+This functionality can also be automated to reduce the number of overly similar motifs in larger datasets via the `merge_similar()` function.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+motifs <- filter_motifs(MotifDb, family = "bHLH")[1:100]
+length(motifs)
+
+motifs <- merge_similar(motifs)
+length(motifs)
+```
+
+Comparison and merging parameters can be fine-tuned as users wish. See the `compare_motifs()` and `merge_motifs()` documentation for more details, as well as the "Motif comparison and P-values" vignette.
+
 ## Motif reverse complement
 
 Get the reverse complement of a motif.
@@ -466,6 +481,55 @@ view_motifs(motif.k2, use.freq = 2)
 ```
 
 This information is most useful with functions such as `scan_sequences()` and `enrich_motifs()`. Though other tools in the `universalmotif` can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`), keep in mind they are not as well supported as regular motifs (getting P-values from `multifreq` motifs is exponentially slower, and P-values from using `compare_motifs()` for `multifreq` motifs are not available by default). See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()` with the `multifreq` slot.
+
+# Tidy motif manipulation with the `universalmotif_df` data structure
+
+For those who enjoy using the tidyverse functions for data handling, motifs can additionally represented as the modified `data.frame` format: `universalmotif_df`. This format allows one to modify motif slots for multiples motifs simultaneously using the `universalmotif_df` columns, and then return to a list of motifs afterwards to resume use with the collection of `universalmotif` package functions. A few key functions have been provided in relation to this format:
+
+* `to_df()`: Generate a `universalmotif_df` object from a list of motifs.
+* `update_motifs()`: After modifying the `universalmotif_df` object, apply these modifications to the actual `universalmotif` objects (contained within the `motif` column).
+* `to_list()`: Return to a list of `universalmotif` objects for use with `universalmotif` package functions. Note that it is not required to use `update_motifs()` before using `to_list()`, as modifications will be checked for and applied if found.
+* `requires_update()`: Boolean check as to whether the `universalmotif` objects and the `universalmotif_df` columns differ and require either a `update_motifs()` or `to_list()` call to re-sync them.
+
+```{r}
+library(universalmotif)
+library(MotifDb)
+
+motifs <- convert_motifs(MotifDb[1:100])
+
+## Obtain a `universalmotif_df` object
+motifs <- to_df(motifs)
+head(motifs)
+```
+
+Some tidy manipulation:
+
+```{r}
+library(dplyr)
+
+motifs <- motifs %>%
+  mutate(bkg = case_when(
+    organism == "Athaliana" ~ list(c(A = 0.32, C = 0.18, G = 0.18, T = 0.32)),
+    TRUE ~ list(c(A = 0.25, C = 0.25, G = 0.25, T = 0.25))
+  ))
+head(motifs)
+```
+
+Feel free to add columns as well. You can add 1d vectors which will be added to the `extrainfo` slots of motifs. (Note that they will be coerced to character vectors!)
+
+```{r}
+motifs <- motifs %>%
+  mutate(MotifIndex = 1:n())
+head(motifs)
+
+to_list(motifs)[[1]]
+```
+
+If during the course of your manipulation you've generated temporary columns which you wish to drop, you can set `extrainfo = FALSE` to discard all extra columns. Be careful though, this will discard any previously existing `extrainfo` data as well.
+
+```{r}
+to_list(motifs, extrainfo = FALSE)[[1]]
+```
 
 # Miscellaneous motif utilities
 
