@@ -59,15 +59,15 @@
 #'
 #' Altschul SF, Erickson BW (1985). “Significance of Nucleotide
 #' Sequence Alignments: A Method for Random Sequence Permutation That
-#' Preserves Dinucleotide and Codon Usage.” _Molecular Biology and
-#' Evolution_, *2*, 526-538.
+#' Preserves Dinucleotide and Codon Usage.” *Molecular Biology and
+#' Evolution*, **2**, 526-538.
 #' 
-#' Fitch WM (1983). “Random sequences.” _Journal of Molecular
-#' Biology_, *163*, 171-176.
+#' Fitch WM (1983). “Random sequences.” *Journal of Molecular
+#' Biology*, **163**, 171-176.
 #' 
 #' Propp JG, Wilson DW (1998). “How to get a perfectly random sample
 #' from a generic markov chain and generate a random spanning tree of
-#' a directed graph.” _Journal of Algorithms_, *27*, 170-217.
+#' a directed graph.” *Journal of Algorithms*, **27**, 170-217.
 #'
 #' @examples
 #' if (R.Version()$arch != "i386") {

@@ -15,7 +15,7 @@
 #' JX, Murre C, Singh H, Glass CK (2010). “Simple combinations of
 #' lineage-determining transcription factors prime cis-regulatory
 #' elements required for macrophage and B cell identities.”
-#' _Molecular Cell_, *38*, 576-589.
+#' *Molecular Cell*, **38**, 576-589.
 #'
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

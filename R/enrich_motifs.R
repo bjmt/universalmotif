@@ -68,7 +68,7 @@
 #' @references
 #'
 #' McLeay R, Bailey TL (2010). “Motif Enrichment Analysis: A unified
-#' framework and method evaluation.” _BMC Bioinformatics_, *11*.
+#' framework and method evaluation.” *BMC Bioinformatics*, **11**.
 #'
 #' @author Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [shuffle_sequences()],

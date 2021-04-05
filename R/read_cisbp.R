@@ -22,7 +22,7 @@
 #' Chen X, Reece-Hoyes JS, Govindarajan S, Shaulsky G, Walhout AJ,
 #' Bouget FY, Ratsch G, Larrondo LF, Ecker JR, Hughes TR (2014).
 #' “Determination and inference of eukaryotic transcription factor
-#' sequence specificity.” _Cell_, *158*, 1431-1443.
+#' sequence specificity.” *Cell*, **158**, 1431-1443.
 #'
 #' @family read_motifs
 #' @examples

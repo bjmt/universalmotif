@@ -120,50 +120,50 @@
 #'
 #' Bhattacharyya A (1943). “On a measure of divergence between two
 #' statistical populations defined by their probability
-#' distributions.” _Bulletin of the Calcutta Mathematical Society_,
-#' *35*, 99-109.
+#' distributions.” *Bulletin of the Calcutta Mathematical Society*,
+#' **35**, 99-109.
 #'
 #' Choi I, Kwon J, Kim S (2004). “Local feature frequency profile: a
-#' method to measure structural similarity in proteins.” _PNAS_,
-#' *101*, 3797-3802.
+#' method to measure structural similarity in proteins.” *PNAS*,
+#' **101**, 3797-3802.
 #'
 #' Hellinger E (1909). “Neue Begrundung der Theorie quadratischer
-#' Formen von unendlichvielen Veranderlichen.” _Journal fur die reine
-#' und angewandte Mathematik_, *136*, 210-271.
+#' Formen von unendlichvielen Veranderlichen.” *Journal fur die reine
+#' und angewandte Mathematik*, **136**, 210-271.
 #'
 #' Khan A, Fornes O, Stigliani A, Gheorghe M, Castro-Mondragon JA,
 #' van der Lee R, Bessy A, Cheneby J, Kulkarni SR, Tan G, Baranasic
 #' D, Arenillas DJ, Sandelin A, Vandepoele K, Lenhard B, Ballester B,
 #' Wasserman WW, Parcy F, Mathelier A (2018). “JASPAR 2018: update of
 #' the open-access database of transcription factor binding profiles
-#' and its web framework.” _Nucleic Acids Research_, *46*, D260-D266.
+#' and its web framework.” *Nucleic Acids Research*, **46**, D260-D266.
 #'
 #' Kullback S, Leibler RA (1951). “On information and sufficiency.”
-#' _The Annals of Mathematical Statistics_, *22*, 79-86.
+#' *The Annals of Mathematical Statistics*, **22**, 79-86.
 #' 
 #' Itakura F, Saito S (1968). “Analysis synthesis telephony based on
-#' the maximum likelihood method.” In _6th International Congress on
-#' Acoustics_, C-17.
+#' the maximum likelihood method.” In *6th International Congress on
+#' Acoustics*, C-17.
 #'
 #' Mahony S, Auron PE, Benos PV (2007). “DNA Familial Binding
 #' Profiles Made Easy: Comparison of Various Motif Alignment and
-#' Clustering Strategies.” _PLoS Computational Biology_, *3*.
+#' Clustering Strategies.” *PLoS Computational Biology*, **3**.
 #'
 #' Pietrokovski S (1996). “Searching databases of conserved sequence
-#' regions by aligning protein multiple-alignments.” _Nucleic Acids
-#' Research_, *24*, 3836-3845.
+#' regions by aligning protein multiple-alignments.” *Nucleic Acids
+#' Research*, **24**, 3836-3845.
 #'
 #' Roepcke S, Grossmann S, Rahmann S, Vingron M (2005). “T-Reg
 #' Comparator: an analysis tool for the comparison of position weight
-#' matrices.” _Nucleic Acids Research_, *33*, W438-W441.
+#' matrices.” *Nucleic Acids Research*, **33**, W438-W441.
 #'
 #' Sandelin A, Wasserman WW (2004). “Constrained binding site
 #' diversity within families of transcription factors enhances
-#' pattern discovery bioinformatics.” _Journal of Molecular Biology_,
-#' *338*, 207-215.
+#' pattern discovery bioinformatics.” *Journal of Molecular Biology*,
+#' **338**, 207-215.
 #'
 #' Wang T, Stormo GD (2003). “Combining phylogenetic data with
-#' co-regulated genes to identify motifs.” _Bioinformatics_, *19*,
+#' co-regulated genes to identify motifs.” *Bioinformatics*, **19**,
 #' 2369-2380.
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

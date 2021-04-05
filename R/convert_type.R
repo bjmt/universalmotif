@@ -100,34 +100,34 @@
 #' @references
 #'
 #' Kullback S, Leibler RA (1951). “On information and sufficiency.”
-#' _The Annals of Mathematical Statistics_, *22*, 79-86.
+#' *The Annals of Mathematical Statistics*, **22**, 79-86.
 #'
 #' Nishida K, Frith MC, Nakai K (2009). “Pseudocounts for
-#' transcription factor binding sites.” _Nucleic Acids Research_,
-#' *37*, 939-944.
+#' transcription factor binding sites.” *Nucleic Acids Research*,
+#' **37**, 939-944.
 #'
 #' Schneider TD, Stormo GD, Gold L, Ehrenfeucht A (1986).
 #' “Information content of binding sites on nucleotide sequences.”
-#' _Journal of Molecular Biology_, *188*, 415-431.
+#' *Journal of Molecular Biology*, **188**, 415-431.
 #'
 #' Schneider TD, Stephens RM (1990). “Sequence Logos: A New Way to
-#' Display Consensus Sequences.” _Nucleic Acids Research_, *18*,
+#' Display Consensus Sequences.” *Nucleic Acids Research*, **18**,
 #' 6097-6100.
 #'
 #' Schneider TD (1991). “Theory of Molecular Machines. II. Energy
-#' Dissipation from Molecular Machines.” _Journal of Theoretical
-#' Biology_, *148*, 125-137.
+#' Dissipation from Molecular Machines.” *Journal of Theoretical
+#' Biology*, **148**, 125-137.
 #'
-#' Shannon CE (1948). “A Mathematical Theory of Communication.” _Bell
-#' System Technical Journal_, *27*, 379-423.
+#' Shannon CE (1948). “A Mathematical Theory of Communication.” *Bell
+#' System Technical Journal*, **27**, 379-423.
 #'
 #' Stormo GD, Schneider TD, Gold L, Ehrenfeucht A (1982). “Use of the
 #' Perceptron algorithm to distinguish translational initiation sites
-#' in E. coli.” _Nucleic Acids Research_, *10*, 2997-3011.
+#' in E. coli.” *Nucleic Acids Research*, **10**, 2997-3011.
 #'
 #' Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
-#' transcription factor binding site analysis.” _Bioinformatics_,
-#' *32*, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
+#' transcription factor binding site analysis.” *Bioinformatics*,
+#' **32**, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
 #' https://doi.org/10.1093/bioinformatics/btw024), <URL:
 #' http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 #'

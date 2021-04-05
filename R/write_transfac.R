@@ -18,7 +18,7 @@
 #'
 #' Wingender E, Dietze P, Karas H, Knuppel R (1996). “TRANSFAC: A
 #' Database on Transcription Factors and Their DNA Binding Sites.”
-#' _Nucleic Acids Research_, *24*, 238-241.
+#' *Nucleic Acids Research*, **24**, 238-241.
 #'
 #' @family write_motifs
 #' @seealso [read_transfac()]

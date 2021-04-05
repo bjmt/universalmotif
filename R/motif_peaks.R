@@ -51,8 +51,8 @@
 #'
 #' @references
 #'
-#' Wand M (2015). _KernSmooth: Functions for Kernel Smoothing
-#' Supporting Wand and Jones (1995)_. R package version 2.23-15,
+#' Wand M (2015). *KernSmooth: Functions for Kernel Smoothing
+#' Supporting Wand and Jones (1995)*. R package version 2.23-15,
 #' <URL: https://CRAN.R-project.org/package=KernSmooth>.
 #'
 #' @examples

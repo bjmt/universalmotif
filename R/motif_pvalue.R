@@ -85,7 +85,7 @@
 #'
 #' Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
 #' “P-value-based regulatory motif discovery using positional weight
-#' matrices.” _Genome Research_, *23*, 181-194.
+#' matrices.” *Genome Research*, **23**, 181-194.
 #'
 #' @examples
 #' if (R.Version()$arch != "i386") {

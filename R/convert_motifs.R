@@ -71,34 +71,34 @@
 #'
 #' @references
 #'
-#' Bembom O (2018). _seqLogo: Sequence logos for DNA sequence
-#' alignments_. R package version 1.46.0.
+#' Bembom O (2018). *seqLogo: Sequence logos for DNA sequence
+#' alignments*. R package version 1.46.0.
 #'
-#' Droit A, Gottardo R, Robertson G, Li L (2014). _rGADEM: de novo
-#' motif discovery_. R package version 2.28.0.
+#' Droit A, Gottardo R, Robertson G, Li L (2014). *rGADEM: de novo
+#' motif discovery*. R package version 2.28.0.
 #'
-#' Mercier E, Gottardo R (2014). _MotIV: Motif Identification and
-#' Validation_. R package version 1.36.0.
+#' Mercier E, Gottardo R (2014). *MotIV: Motif Identification and
+#' Validation*. R package version 1.36.0.
 #'
 #' Ou J, Wolfe SA, Brodsky MH, Zhu LJ (2018). “motifStack for the
-#' analysis of transcription factor binding site evolution.” _Nature
-#' Methods_, *15*, 8-9. doi: 10.1038/nmeth.4555 (URL:
+#' analysis of transcription factor binding site evolution.” *Nature
+#' Methods*, **15**, 8-9. doi: 10.1038/nmeth.4555 (URL:
 #' https://doi.org/10.1038/nmeth.4555).
 #'
-#' Shannon P, Richards M (2018). _MotifDb: An Annotated Collection of
-#' Protein-DNA Binding Sequence Motifs_. R package version 1.22.0.
+#' Shannon P, Richards M (2018). *MotifDb: An Annotated Collection of
+#' Protein-DNA Binding Sequence Motifs*. R package version 1.22.0.
 #'
-#' Stojnic R, Diez D (2015). _PWMEnrich: PWM enrichment analysis_. R
+#' Stojnic R, Diez D (2015). *PWMEnrich: PWM enrichment analysis*. R
 #' package version 4.16.0.
 #'
 #' Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
-#' transcription factor binding site analysis.” _Bioinformatics_,
-#' *32*, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
+#' transcription factor binding site analysis.” *Bioinformatics*,
+#' **32**, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
 #' https://doi.org/10.1093/bioinformatics/btw024), <URL:
 #' http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 #'
-#' Yao Z (2012). _motifRG: A package for discriminative motif
-#' discovery, designed for high throughput sequencing dataset_. R
+#' Yao Z (2012). *motifRG: A package for discriminative motif
+#' discovery, designed for high throughput sequencing dataset*. R
 #' package version 1.24.0.
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

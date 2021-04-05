@@ -15,7 +15,7 @@
 #' Hume MA, Barrera LA, Gisselbrecht SS, Bulyk ML (2015). “UniPROBE,
 #' update 2015: new tools and content for the online database of
 #' protein-binding microarray data on protein-DNA interactions.”
-#' _Nucleic Acids Research_, *43*, D117-D122.
+#' *Nucleic Acids Research*, **43**, D117-D122.
 #'
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

@@ -78,14 +78,14 @@
 #'
 #' @references
 #'
-#' Wickham H (2009). _ggplot2: Elegant Graphics for Data Analysis_.
+#' Wickham H (2009). *ggplot2: Elegant Graphics for Data Analysis*.
 #' Springer-Verlag New York. ISBN 978-0-387-98140-6, <URL:
 #' http://ggplot2.org>.
 #' 
 #' Yu G, Smith D, Zhu H, Guan Y, Lam TT (2017). “ggtree: an R package
 #' for visualization and annotation of phylogenetic trees with their
-#' covariates and other associated data.” _Methods in Ecology and
-#' Evolution_, *8*, 28-36. doi: 10.1111/2041-210X.12628 (URL:
+#' covariates and other associated data.” *Methods in Ecology and
+#' Evolution*, **8**, 28-36. doi: 10.1111/2041-210X.12628 (URL:
 #' https://doi.org/10.1111/2041-210X.12628), <URL:
 #' http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12628/abstract>.
 #'
