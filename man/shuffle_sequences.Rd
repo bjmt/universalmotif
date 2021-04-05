@@ -84,14 +84,14 @@ sequences.shuffled <- shuffle_sequences(sequences, k = 2)
 Altschul SF, Erickson BW (1985). “Significance of Nucleotide
 Sequence Alignments: A Method for Random Sequence Permutation That
 Preserves Dinucleotide and Codon Usage.” \emph{Molecular Biology and
-Evolution}, \emph{2}, 526-538.
+Evolution}, \strong{2}, 526-538.
 
 Fitch WM (1983). “Random sequences.” \emph{Journal of Molecular
-Biology}, \emph{163}, 171-176.
+Biology}, \strong{163}, 171-176.
 
 Propp JG, Wilson DW (1998). “How to get a perfectly random sample
 from a generic markov chain and generate a random spanning tree of
-a directed graph.” \emph{Journal of Algorithms}, \emph{27}, 170-217.
+a directed graph.” \emph{Journal of Algorithms}, \strong{27}, 170-217.
 }
 \seealso{
 \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=enrich_motifs]{enrich_motifs()}},

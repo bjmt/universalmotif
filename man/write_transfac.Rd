@@ -30,7 +30,7 @@ write_transfac(jaspar, tempfile())
 \references{
 Wingender E, Dietze P, Karas H, Knuppel R (1996). “TRANSFAC: A
 Database on Transcription Factors and Their DNA Binding Sites.”
-\emph{Nucleic Acids Research}, \emph{24}, 238-241.
+\emph{Nucleic Acids Research}, \strong{24}, 238-241.
 }
 \seealso{
 \code{\link[=read_transfac]{read_transfac()}}

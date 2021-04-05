@@ -112,7 +112,7 @@ enrich_motifs(ArabidopsisMotif, ArabidopsisPromoters, threshold = 0.01)
 }
 \references{
 McLeay R, Bailey TL (2010). “Motif Enrichment Analysis: A unified
-framework and method evaluation.” \emph{BMC Bioinformatics}, \emph{11}.
+framework and method evaluation.” \emph{BMC Bioinformatics}, \strong{11}.
 }
 \seealso{
 \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},

@@ -36,7 +36,7 @@ van Bakel H, Lozano JC, Galli M, Lewsey MG, Huang E, Mukherjee T,
 Chen X, Reece-Hoyes JS, Govindarajan S, Shaulsky G, Walhout AJ,
 Bouget FY, Ratsch G, Larrondo LF, Ecker JR, Hughes TR (2014).
 “Determination and inference of eukaryotic transcription factor
-sequence specificity.” \emph{Cell}, \emph{158}, 1431-1443.
+sequence specificity.” \emph{Cell}, \strong{158}, 1431-1443.
 }
 \seealso{
 Other read_motifs: 

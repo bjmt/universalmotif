@@ -114,34 +114,34 @@ jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
 }
 \references{
 Kullback S, Leibler RA (1951). “On information and sufficiency.”
-\emph{The Annals of Mathematical Statistics}, \emph{22}, 79-86.
+\emph{The Annals of Mathematical Statistics}, \strong{22}, 79-86.
 
 Nishida K, Frith MC, Nakai K (2009). “Pseudocounts for
 transcription factor binding sites.” \emph{Nucleic Acids Research},
-\emph{37}, 939-944.
+\strong{37}, 939-944.
 
 Schneider TD, Stormo GD, Gold L, Ehrenfeucht A (1986).
 “Information content of binding sites on nucleotide sequences.”
-\emph{Journal of Molecular Biology}, \emph{188}, 415-431.
+\emph{Journal of Molecular Biology}, \strong{188}, 415-431.
 
 Schneider TD, Stephens RM (1990). “Sequence Logos: A New Way to
-Display Consensus Sequences.” \emph{Nucleic Acids Research}, \emph{18},
+Display Consensus Sequences.” \emph{Nucleic Acids Research}, \strong{18},
 6097-6100.
 
 Schneider TD (1991). “Theory of Molecular Machines. II. Energy
 Dissipation from Molecular Machines.” \emph{Journal of Theoretical
-Biology}, \emph{148}, 125-137.
+Biology}, \strong{148}, 125-137.
 
 Shannon CE (1948). “A Mathematical Theory of Communication.” \emph{Bell
-System Technical Journal}, \emph{27}, 379-423.
+System Technical Journal}, \strong{27}, 379-423.
 
 Stormo GD, Schneider TD, Gold L, Ehrenfeucht A (1982). “Use of the
 Perceptron algorithm to distinguish translational initiation sites
-in E. coli.” \emph{Nucleic Acids Research}, \emph{10}, 2997-3011.
+in E. coli.” \emph{Nucleic Acids Research}, \strong{10}, 2997-3011.
 
 Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
 transcription factor binding site analysis.” \emph{Bioinformatics},
-\emph{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
+\strong{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
 https://doi.org/10.1093/bioinformatics/btw024), <URL:
 http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
 }

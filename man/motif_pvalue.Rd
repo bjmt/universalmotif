@@ -134,7 +134,7 @@ get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
 \references{
 Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
 “P-value-based regulatory motif discovery using positional weight
-matrices.” \emph{Genome Research}, \emph{23}, 181-194.
+matrices.” \emph{Genome Research}, \strong{23}, 181-194.
 }
 \seealso{
 \code{\link[=motif_score]{motif_score()}}

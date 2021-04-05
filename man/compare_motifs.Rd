@@ -152,25 +152,25 @@ compare_motifs(motifs, compare.to = 2, max.p = 1, max.e = Inf)
 Bhattacharyya A (1943). “On a measure of divergence between two
 statistical populations defined by their probability
 distributions.” \emph{Bulletin of the Calcutta Mathematical Society},
-\emph{35}, 99-109.
+\strong{35}, 99-109.
 
 Choi I, Kwon J, Kim S (2004). “Local feature frequency profile: a
 method to measure structural similarity in proteins.” \emph{PNAS},
-\emph{101}, 3797-3802.
+\strong{101}, 3797-3802.
 
 Hellinger E (1909). “Neue Begrundung der Theorie quadratischer
 Formen von unendlichvielen Veranderlichen.” \emph{Journal fur die reine
-und angewandte Mathematik}, \emph{136}, 210-271.
+und angewandte Mathematik}, \strong{136}, 210-271.
 
 Khan A, Fornes O, Stigliani A, Gheorghe M, Castro-Mondragon JA,
 van der Lee R, Bessy A, Cheneby J, Kulkarni SR, Tan G, Baranasic
 D, Arenillas DJ, Sandelin A, Vandepoele K, Lenhard B, Ballester B,
 Wasserman WW, Parcy F, Mathelier A (2018). “JASPAR 2018: update of
 the open-access database of transcription factor binding profiles
-and its web framework.” \emph{Nucleic Acids Research}, \emph{46}, D260-D266.
+and its web framework.” \emph{Nucleic Acids Research}, \strong{46}, D260-D266.
 
 Kullback S, Leibler RA (1951). “On information and sufficiency.”
-\emph{The Annals of Mathematical Statistics}, \emph{22}, 79-86.
+\emph{The Annals of Mathematical Statistics}, \strong{22}, 79-86.
 
 Itakura F, Saito S (1968). “Analysis synthesis telephony based on
 the maximum likelihood method.” In \emph{6th International Congress on
@@ -178,23 +178,23 @@ Acoustics}, C-17.
 
 Mahony S, Auron PE, Benos PV (2007). “DNA Familial Binding
 Profiles Made Easy: Comparison of Various Motif Alignment and
-Clustering Strategies.” \emph{PLoS Computational Biology}, \emph{3}.
+Clustering Strategies.” \emph{PLoS Computational Biology}, \strong{3}.
 
 Pietrokovski S (1996). “Searching databases of conserved sequence
 regions by aligning protein multiple-alignments.” \emph{Nucleic Acids
-Research}, \emph{24}, 3836-3845.
+Research}, \strong{24}, 3836-3845.
 
 Roepcke S, Grossmann S, Rahmann S, Vingron M (2005). “T-Reg
 Comparator: an analysis tool for the comparison of position weight
-matrices.” \emph{Nucleic Acids Research}, \emph{33}, W438-W441.
+matrices.” \emph{Nucleic Acids Research}, \strong{33}, W438-W441.
 
 Sandelin A, Wasserman WW (2004). “Constrained binding site
 diversity within families of transcription factors enhances
 pattern discovery bioinformatics.” \emph{Journal of Molecular Biology},
-\emph{338}, 207-215.
+\strong{338}, 207-215.
 
 Wang T, Stormo GD (2003). “Combining phylogenetic data with
-co-regulated genes to identify motifs.” \emph{Bioinformatics}, \emph{19},
+co-regulated genes to identify motifs.” \emph{Bioinformatics}, \strong{19},
 2369-2380.
 }
 \seealso{

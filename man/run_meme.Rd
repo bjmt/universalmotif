@@ -161,7 +161,7 @@ run_meme()
 Bailey TL, Elkan C (1994). “Fitting a mixture model by expectation
 maximization to discover motifs in biopolymers.” \emph{Proceedings of
 the Second International Conference on Intelligent Systems for
-Molecular Biology}, \emph{2}, 28-36.
+Molecular Biology}, \strong{2}, 28-36.
 }
 \seealso{
 \code{\link[=read_meme]{read_meme()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
