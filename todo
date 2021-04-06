@@ -76,10 +76,11 @@
 - create a new metric which tells us how specific/wobbly a motif is; could
    perhaps be used as a guide during motif merging? (ie don't want to merge
    too much and create an overly disambiguous motif)
-- create_motif("RYMRMVATGGC") --> what's up with Y?
 - merge_motifs() 2nd example: also plot submotifs
 - make sure window size can't be set too low (shuffle_sequences, get_bkg)
 - motif_score(create_motif("ATCGTACGTG"), 0, allow.nonfinite = TRUE) --> broken?
 - motif_score(create_motif("ATCGTACGTG"), c(100:0 * -1, 1:20)) --> segfault
 - should I change the default comparison metric back to PCC...? I feel bad for
   constantly switching but ALLR is kind of annoying to work with in some cases
+- Something wrong with score/score.pct columns in the following code:
+  + scan_sequences(create_motif("AAAAAA"), ArabidopsisMotif, allow.nonfinite = TRUE)

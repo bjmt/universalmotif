@@ -60,6 +60,14 @@ MINOR CHANGES
     o merge_motifs(): single-motif input now simply returns the motif instead
       of throwing an error.
 
+CHANGES IN VERSION 1.8.5
+------------------------
+
+BUG FIXES
+
+   o Found a typo in the consensus to PPM calculation for the DNA ambiguity
+     letter Y which resulted in incorrect PPM values.
+
 CHANGES IN VERSION 1.8.4
 ------------------------
 

@@ -404,7 +404,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 }
 
 # What about this kind of situation?
-#  seq:   AAAAAAAAAAAAAAAAAAAA
+#  seq:   CAAAAACCAAAACCAAAACC
 #  hit 1: ++++++++
 #  hit 2:       ++++++++
 #  hit 3:             ++++++++
