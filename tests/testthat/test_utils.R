@@ -27,7 +27,7 @@ test_that("summarise_motifs works", {
   expect_equal(res$consensus, c("GYNCHGCCKT", "GTYCTWYWAK", "TAYTAAMCAA"))
   expect_equal(res$alphabet, c("DNA", "DNA", "DNA"))
   expect_equal(res$strand, c("+-", "+-", "+-"))
-  expect_equal(round(res$icscore, 2), c(14.42, 15.01, 18.00))
+  expect_equal(round(res$icscore, 2), c(14.42, 15.00, 18.00))
   expect_equal(res$nsites, c(212, 147, 117))
 
 })

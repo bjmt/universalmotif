@@ -580,7 +580,7 @@ std::vector<double> consensus_to_ppmC(const std::string &letter) {
     case  4: return { 0.001, 0.001, 0.001, 0.997 };  // T
     case  5: return { 0.001, 0.001, 0.001, 0.997 };  // U
     case  6: return { 0.499, 0.001, 0.499, 0.001 };  // R
-    case  7: return { 0.001, 0.499, 0.001, 0.449 };  // Y
+    case  7: return { 0.001, 0.499, 0.001, 0.499 };  // Y
     case  8: return { 0.499, 0.499, 0.001, 0.001 };  // M
     case  9: return { 0.001, 0.001, 0.499, 0.499 };  // K
     case 10: return { 0.001, 0.499, 0.499, 0.001 };  // S
