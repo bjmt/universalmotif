@@ -357,7 +357,20 @@ data(examplemotif)
 ## With the native `view_motifs` function:
 ## (Visit the view_motifs() documentation for more details!)
 view_motifs(examplemotif)
+```
 
+The `view_motifs()` function generates `ggplot` objects; feel free to manipulate them as such. For example, flipping the position numbers for larger motifs (where the text spacing can become tight):
+
+```{r}
+view_motifs(create_motif(15)) +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)
+  )
+```
+
+Using the other Bioconductor packages to view `universalmotif` motifs is fairly easy as well:
+
+```{r}
 ## For all the following examples, simply passing the functions a PPM is
 ## sufficient
 motif <- convert_type(examplemotif, "PPM")
