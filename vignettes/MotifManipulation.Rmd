@@ -495,10 +495,8 @@ For those who enjoy using the tidyverse functions for data handling, motifs can 
 library(universalmotif)
 library(MotifDb)
 
-motifs <- convert_motifs(MotifDb[1:100])
-
 ## Obtain a `universalmotif_df` object
-motifs <- to_df(motifs)
+motifs <- to_df(MotifDb)
 head(motifs)
 ```
 
@@ -512,7 +510,7 @@ motifs <- motifs %>%
     organism == "Athaliana" ~ list(c(A = 0.32, C = 0.18, G = 0.18, T = 0.32)),
     TRUE ~ list(c(A = 0.25, C = 0.25, G = 0.25, T = 0.25))
   ))
-head(motifs)
+head(filter(motifs, organism == "Athaliana"))
 ```
 
 Feel free to add columns as well. You can add 1d vectors which will be added to the `extrainfo` slots of motifs. (Note that they will be coerced to character vectors!)

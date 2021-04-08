@@ -43,7 +43,7 @@ NEW FEATURES
       mask motif hits in sequences during scanning, preventing overlapping hits
       by the same motifs from being returned. This can optionally be done per
       strand. Either the first hit or the highest scoring hit can be preserved
-      per overlap.
+      per set of overlapping hits.
 
 MINOR CHANGES
 
