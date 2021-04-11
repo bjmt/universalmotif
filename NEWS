@@ -32,6 +32,9 @@ NEW FEATURES
       object input.  Arbitrary column heights and multi-character letters are
       allowed.
 
+    o New function, average_ic(): calculate the average information content
+      for a list of motifs.
+
     o trim_motifs(..., trim.from): trim from both directions or just one.
 
     o shuffle_sequences(..., window, window.size, window.overlap): shuffle
@@ -59,6 +62,9 @@ MINOR CHANGES
 
     o merge_motifs(): single-motif input now simply returns the motif instead
       of throwing an error.
+
+    o view_motifs(..., dedup.names): Now TRUE by default. Furthermore, the
+      make.unique() function is now used to deduplicate names.
 
 CHANGES IN VERSION 1.8.5
 ------------------------

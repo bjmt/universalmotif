@@ -102,7 +102,7 @@
 view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
-  return.raw = FALSE, dedup.names = FALSE, show.positions = TRUE,
+  return.raw = FALSE, dedup.names = TRUE, show.positions = TRUE,
   show.positions.once = TRUE, show.names = TRUE, use.freq = 1,
   colour.scheme = NULL, fontDF = NULL, min.height = 0.01,
   x.spacer = if (use.freq == 1) 0.04 else 0.1,
@@ -217,12 +217,9 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   mot.names <- vapply(motifs, function(x) x@name, character(1))
   if (length(mot.names) != length(unique(mot.names))) {
     if (!dedup.names) stop(wmsg(
-      "All motifs must have unique names. Alternatively, set dedup.names=TRUE."
+      "All motifs must have unique names when `dedup.names=FALSE`."
     ), call. = FALSE)
-    tofix <- duplicated(mot.names)
-    mot.names[tofix] <- paste0(
-      mot.names[tofix], " (duplicated #", seq_len(sum(tofix)), ")"
-    )
+    mot.names <- make.unique(mot.names)
   }
 
   mot.alph <- unique(vapply(motifs, function(x) x@alphabet, character(1)))

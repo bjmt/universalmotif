@@ -1370,6 +1370,17 @@ int count_left_empty(const list_num_t &m) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+double average_cpp(const std::vector<double> &scores, const std::string &type = "a.mean") {
+  switch (::SCORESTRAT_enum[type]) {
+    case AMEAN: return score_amean(scores);
+    case GMEAN: return score_gmean(scores);
+    case MEDIAN: return score_median(scores);
+    case FZT: return score_fzt(scores);
+  }
+  return 0;
+}
+
+// [[Rcpp::export(rng = false)]]
 std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
     const std::vector<int> &index1, const std::vector<int> &index2,
     const std::string &method, double minoverlap, const bool RC,

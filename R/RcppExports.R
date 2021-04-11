@@ -5,6 +5,10 @@ add_multi_cpp <- function(seqs, k, alph) {
     .Call('_universalmotif_add_multi_cpp', PACKAGE = 'universalmotif', seqs, k, alph)
 }
 
+average_cpp <- function(scores, type = "a.mean") {
+    .Call('_universalmotif_average_cpp', PACKAGE = 'universalmotif', scores, type)
+}
+
 compare_motifs_cpp <- function(mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites, strat) {
     .Call('_universalmotif_compare_motifs_cpp', PACKAGE = 'universalmotif', mots, index1, index2, method, minoverlap, RC, bkg, type, relative, minic, norm, nthreads, posic, nsites, strat)
 }

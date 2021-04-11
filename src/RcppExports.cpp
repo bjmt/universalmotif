@@ -17,6 +17,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// average_cpp
+double average_cpp(const std::vector<double>& scores, const std::string& type);
+RcppExport SEXP _universalmotif_average_cpp(SEXP scoresSEXP, SEXP typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type type(typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(average_cpp(scores, type));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compare_motifs_cpp
 std::vector<double> compare_motifs_cpp(const Rcpp::List& mots, const std::vector<int>& index1, const std::vector<int>& index2, const std::string& method, double minoverlap, const bool RC, std::vector<std::vector<double>>& bkg, const int type, const bool relative, const double minic, const bool norm, const int nthreads, const double posic, const std::vector<double>& nsites, const std::string& strat);
 RcppExport SEXP _universalmotif_compare_motifs_cpp(SEXP motsSEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP methodSEXP, SEXP minoverlapSEXP, SEXP RCSEXP, SEXP bkgSEXP, SEXP typeSEXP, SEXP relativeSEXP, SEXP minicSEXP, SEXP normSEXP, SEXP nthreadsSEXP, SEXP posicSEXP, SEXP nsitesSEXP, SEXP stratSEXP) {
@@ -813,6 +824,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_add_multi_cpp", (DL_FUNC) &_universalmotif_add_multi_cpp, 3},
+    {"_universalmotif_average_cpp", (DL_FUNC) &_universalmotif_average_cpp, 2},
     {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 15},
     {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 13},
     {"_universalmotif_get_comparison_matrix", (DL_FUNC) &_universalmotif_get_comparison_matrix, 5},

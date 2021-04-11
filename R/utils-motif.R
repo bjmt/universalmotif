@@ -10,6 +10,8 @@
 #' @param allow.zero `logical(1)` If `FALSE`, apply a pseudocount if zero values
 #'    are found in the background frequencies.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA')`.
+#' @param average `character(1)` One of `c("a.mean", "g.mean", "median", "fzt")`.
+#'    How to calculate the average motif information content.
 #' @param bkg `numeric` Should be the same length as the alphabet length.
 #' @param bkg1 `numeric` Vector of background probabilities for the first column.
 #'    Only relevant if `method = "ALLR"`.
@@ -102,6 +104,12 @@
 #' m <- create_motif()
 #' # Add a gap size 5-8 between positions 4 and 5:
 #' m <- add_gap(m, gaploc = 4, mingap = 5, maxgap = 8)
+#'
+#' #######################################################################
+#' ## average_ic
+#' ## Calculate the average information content for a list of motifs.
+#' m <- create_motif()
+#' average_ic(m, "fzt")
 #'
 #' #######################################################################
 #' ## compare_columns
@@ -295,6 +303,16 @@ add_gap <- function(motif, gaploc = ncol(motif) %/% 2, mingap = 1, maxgap = 5) {
 
   motif
 
+}
+
+#' @rdname utils-motif
+#' @export
+average_ic <- function(motifs, average = c("a.mean", "g.mean", "median", "fzt")) {
+  average <- match.arg(average)
+  motifs <- convert_motifs(motifs)
+  motifs <- convert_type(motifs, "ICM")
+  if (!is.list(motifs)) motifs <- list(motifs)
+  vapply(motifs, function(x) average_cpp(colSums(x@motif), average), numeric(1))
 }
 
 #' @rdname utils-motif

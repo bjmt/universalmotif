@@ -84,3 +84,4 @@
   constantly switching but ALLR is kind of annoying to work with in some cases
 - Something wrong with score/score.pct columns in the following code:
   + scan_sequences(create_motif("AAAAAA"), ArabidopsisMotif, allow.nonfinite = TRUE)
+- fix the "I" in fontDFroboto

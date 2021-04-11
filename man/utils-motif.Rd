@@ -3,6 +3,7 @@
 \name{utils-motif}
 \alias{utils-motif}
 \alias{add_gap}
+\alias{average_ic}
 \alias{compare_columns}
 \alias{consensus_to_ppm}
 \alias{consensus_to_ppmAA}
@@ -28,6 +29,8 @@
 \title{Motif-related utility functions.}
 \usage{
 add_gap(motif, gaploc = ncol(motif)\%/\%2, mingap = 1, maxgap = 5)
+
+average_ic(motifs, average = c("a.mean", "g.mean", "median", "fzt"))
 
 compare_columns(x, y, method, bkg1 = rep(1/length(x), length(x)),
   bkg2 = rep(1/length(y), length(y)), nsites1 = 100, nsites2 = 100)
@@ -90,6 +93,11 @@ If missing, set to 1.}
 
 \item{maxgap}{\code{numeric} Maximum gap size. Must have one value for every location.
 If missing, set to 5.}
+
+\item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
+
+\item{average}{\code{character(1)} One of \code{c("a.mean", "g.mean", "median", "fzt")}.
+How to calculate the average motif information content.}
 
 \item{x}{\code{numeric} First column for comparison.}
 
@@ -168,8 +176,6 @@ proportion each letter must represent per position in order not to be
 rounded off, either as a numeric value from 0 to 1 or a percentage written as
 a string from "0\%" to "100\%".}
 
-\item{motifs}{\code{list} A list of \linkS4class{universalmotif} motifs.}
-
 \item{na.rm}{\code{logical} Remove columns where all values are \code{NA}.}
 
 \item{delete}{\code{logical(1)} Clear gap information from motif. If \code{FALSE}, then
@@ -217,6 +223,12 @@ examplemotif0["pseudocount"] <- 0
 m <- create_motif()
 # Add a gap size 5-8 between positions 4 and 5:
 m <- add_gap(m, gaploc = 4, mingap = 5, maxgap = 8)
+
+#######################################################################
+## average_ic
+## Calculate the average information content for a list of motifs.
+m <- create_motif()
+average_ic(m, "fzt")
 
 #######################################################################
 ## compare_columns

@@ -7,7 +7,7 @@
 view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
-  return.raw = FALSE, dedup.names = FALSE, show.positions = TRUE,
+  return.raw = FALSE, dedup.names = TRUE, show.positions = TRUE,
   show.positions.once = TRUE, show.names = TRUE, use.freq = 1,
   colour.scheme = NULL, fontDF = NULL, min.height = 0.01, x.spacer = if
   (use.freq == 1) 0.04 else 0.1, y.spacer = 0.01,
