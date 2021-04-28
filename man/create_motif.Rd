@@ -250,8 +250,6 @@ DNA.motif <- create_motif(10, bkg = c(0.1, 0.4, 0.4, 0.1))
 \seealso{
 \code{\link[=convert_type]{convert_type()}}, \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=create_sequences]{create_sequences()}},
 \code{\link[=shuffle_motifs]{shuffle_motifs()}}.
-
-\code{\link[=create_sequences]{create_sequences()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
