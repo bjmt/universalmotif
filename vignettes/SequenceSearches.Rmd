@@ -247,7 +247,7 @@ scan_sequences(motif, ArabidopsisPromoters, RC = TRUE, threshold = 0.9,
 ## Only keep the highest scoring hit amongst overlapping hits:
 
 scan_sequences(motif, ArabidopsisPromoters, RC = TRUE, threshold = 0.9,
-               threshold.type = "logodds", mask.hits = TRUE)
+               threshold.type = "logodds", no.overlaps = TRUE)
 ```
 
 Finally, the results can be returned as a `GRanges` object for further manipulation:

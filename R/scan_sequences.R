@@ -43,14 +43,17 @@
 #'    calculation.
 #' @param return.granges `logical(1)` Return the results as a `GRanges` object.
 #'    Requires the `GenomicRanges` package to be installed.
-#' @param mask.hits `logical(1)` Remove overlapping hits from the same motifs.
-#'    Overlapping hits from different motifs are preserved.
-#' @param mask.hits.by.strand `logical(1)` Whether to discard overlapping hits
-#'   from the opposite strand, or to only discard overlapping hits on the same
-#'   strand.
-#' @param mask.hits.strat `character(1)` One of `c("score", "order")`. The former
-#'   option keeps the highest scoring overlapping hit (and the first of these within
-#'   ties), and the latter simply keeps the first overlapping hit.
+#' @param no.overlaps `logical(1)` Remove overlapping hits from the same motifs.
+#'    Overlapping hits from different motifs are preserved. Please note that the
+#'    current implementation of this feature can add significantly to the run
+#'    time for large inputs.
+#' @param no.overlaps.by.strand `logical(1)` Whether to discard overlapping hits
+#'    from the opposite strand, or to only discard overlapping hits on the same
+#'    strand.
+#' @param no.overlaps.strat `character(1)` One of `c("score", "order")`.
+#'    The former option keeps the highest scoring overlapping hit (and the first
+#'    of these within ties), and the latter simply keeps the first overlapping hit.
+#'    keeps the highest scoring 
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -123,7 +126,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
   warn.NA = TRUE, calc.pvals = FALSE, return.granges = FALSE,
-  mask.hits = FALSE, mask.hits.by.strand = FALSE, mask.hits.strat = "score") {
+  no.overlaps = FALSE, no.overlaps.by.strand = FALSE, no.overlaps.strat = "score") {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -135,7 +138,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     all_checks <- c(all_checks, threshold.type_check)
   }
   char_check <- check_fun_params(list(threshold.type = args$threshold.type,
-                                      mask.hits.strat = args$mask.hits.strat),
+                                      no.overlaps.strat = args$no.overlaps.strat),
                                  1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
@@ -145,8 +148,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                 c(0, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
                                       return.granges = args$return.granges,
-                                      mask.hits = args$mask.hits,
-                                      mask.hits.by.strand = args$mask.hits.by.strand),
+                                      no.overlaps = args$no.overlaps,
+                                      no.overlaps.by.strand = args$no.overlaps.by.strand),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
                                logical(), TYPE_S4)
@@ -166,8 +169,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     message("   * verbose:             ", verbose)
   }
 
-  if (!mask.hits.strat %in% c("score", "order"))
-    stop("`mask.hits.strat` must be \"score\" or \"order\"", call. = FALSE)
+  if (!no.overlaps.strat %in% c("score", "order"))
+    stop("`no.overlaps.strat` must be \"score\" or \"order\"", call. = FALSE)
 
   if (missing(motifs) || missing(sequences)) {
     stop("need both motifs and sequences")
@@ -372,21 +375,21 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k)
   }
 
-  if (mask.hits && nrow(out) > 1) {
-    # TODO: The mask.hits code is rather slow, not too happy.
-    if (RC && mask.hits.by.strand) {
+  if (no.overlaps && nrow(out) > 1) {
+    # TODO: The no.overlaps code is rather slow, not too happy.
+    if (RC && no.overlaps.by.strand) {
       row.indices.plus <- which(out$strand == "+")
       row.indices.minus <- which(out$strand == "-")
-      row.indices.plus <- remove_masked_hits(out, row.indices.plus, mask.hits.strat)
+      row.indices.plus <- remove_masked_hits(out, row.indices.plus, no.overlaps.strat)
       row.indices.minus <- remove_masked_hits(switch_antisense_coords_cpp(out),
-        row.indices.minus, mask.hits.strat)
+        row.indices.minus, no.overlaps.strat)
       row.indices <- c(row.indices.plus, row.indices.minus)
     } else if (RC) {
       row.indices <- remove_masked_hits(switch_antisense_coords_cpp(out),
-        seq_len(nrow(out)), mask.hits.strat)
+        seq_len(nrow(out)), no.overlaps.strat)
     } else {
       row.indices <- seq_len(nrow(out))
-      row.indices <- remove_masked_hits(out, seq_len(nrow(out)), mask.hits.strat)
+      row.indices <- remove_masked_hits(out, seq_len(nrow(out)), no.overlaps.strat)
     }
     out <- out[row.indices, ]
   }

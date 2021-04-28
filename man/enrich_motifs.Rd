@@ -9,7 +9,9 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
   threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler", return.scan.results = FALSE,
   nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
-  use.gaps = TRUE, allow.nonfinite = FALSE, warn.NA = TRUE)
+  use.gaps = TRUE, allow.nonfinite = FALSE, warn.NA = TRUE,
+  no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
+  no.overlaps.strat = "score")
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -85,6 +87,20 @@ pre-version 1.8.0 behaviour.}
 
 \item{warn.NA}{\code{logical(1)} Whether to warn about the presence of non-standard
 letters in the input sequence, such as those in masked sequences.}
+
+\item{no.overlaps}{\code{logical(1)} Remove overlapping hits from the same motifs.
+Overlapping hits from different motifs are preserved. Please note that the
+current implementation of this feature can add significantly to the run
+time for large inputs.}
+
+\item{no.overlaps.by.strand}{\code{logical(1)} Whether to discard overlapping hits
+from the opposite strand, or to only discard overlapping hits on the same
+strand.}
+
+\item{no.overlaps.strat}{\code{character(1)} One of \code{c("score", "order")}.
+The former option keeps the highest scoring overlapping hit (and the first
+of these within ties), and the latter simply keeps the first overlapping hit.
+keeps the highest scoring}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and

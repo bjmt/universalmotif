@@ -8,8 +8,8 @@ scan_sequences(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE,
   allow.nonfinite = FALSE, warn.NA = TRUE, calc.pvals = FALSE,
-  return.granges = FALSE, mask.hits = FALSE, mask.hits.by.strand = FALSE,
-  mask.hits.strat = "score")
+  return.granges = FALSE, no.overlaps = FALSE,
+  no.overlaps.by.strand = FALSE, no.overlaps.strat = "score")
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -65,16 +65,19 @@ calculation.}
 \item{return.granges}{\code{logical(1)} Return the results as a \code{GRanges} object.
 Requires the \code{GenomicRanges} package to be installed.}
 
-\item{mask.hits}{\code{logical(1)} Remove overlapping hits from the same motifs.
-Overlapping hits from different motifs are preserved.}
+\item{no.overlaps}{\code{logical(1)} Remove overlapping hits from the same motifs.
+Overlapping hits from different motifs are preserved. Please note that the
+current implementation of this feature can add significantly to the run
+time for large inputs.}
 
-\item{mask.hits.by.strand}{\code{logical(1)} Whether to discard overlapping hits
+\item{no.overlaps.by.strand}{\code{logical(1)} Whether to discard overlapping hits
 from the opposite strand, or to only discard overlapping hits on the same
 strand.}
 
-\item{mask.hits.strat}{\code{character(1)} One of \code{c("score", "order")}. The former
-option keeps the highest scoring overlapping hit (and the first of these within
-ties), and the latter simply keeps the first overlapping hit.}
+\item{no.overlaps.strat}{\code{character(1)} One of \code{c("score", "order")}.
+The former option keeps the highest scoring overlapping hit (and the first
+of these within ties), and the latter simply keeps the first overlapping hit.
+keeps the highest scoring}
 }
 \value{
 \code{DataFrame} with each row representing one hit. If the input

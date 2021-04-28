@@ -42,11 +42,12 @@ NEW FEATURES
 
     o scan_sequences(..., return.granges): optionally return a GRanges object.
 
-    o scan_sequences(..., mask.hits, mask.hits.by.strand, mask.hits.strat):
-      mask motif hits in sequences during scanning, preventing overlapping hits
+    o scan_sequences(..., no.overlaps, no.overlaps.by.strand, no.overlaps.strat):
+      remove overlapping hits after scanning, preventing overlapping hits
       by the same motifs from being returned. This can optionally be done per
       strand. Either the first hit or the highest scoring hit can be preserved
-      per set of overlapping hits.
+      per set of overlapping hits. These new arguments can also be used in
+      enrich_motifs().
 
 MINOR CHANGES
 
