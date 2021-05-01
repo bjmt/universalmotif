@@ -15,7 +15,8 @@
 #'    for plotting.
 #' @param show.positions `logical(1)` Show x-axis position tick labels.
 #' @param show.positions.once `logical(1)` When plotting multiple motifs,
-#'    show x-axis position tick labels only once.
+#'    show x-axis position tick labels only once. If `FALSE`, then
+#'    x-axis tick labels are specific to each motif.
 #' @param show.names `logical(1)` Add motif names when plotting multiple
 #'    motifs.
 #' @param use.freq `numeric(1)` Plot higher order motifs from the `multifreq`
@@ -340,6 +341,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     which.rc <- res$motIsRC
     mots <- res$motifs
     mots <- check_mot_sizes(mots)
+    mots_nofix <- mots
 
     if (method %in% c("KL", "ALLR", "ALLR_LL")) {
       for (i in seq_along(mots)) {
@@ -416,6 +418,22 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
     plotobj$motif.id <- factor(plotobj$motif.id, levels = mot.names)
 
+    if (!show.positions.once) {
+      plabs <- lapply(mots_nofix, function(x) apply(x, 2, function(y) all(y == 0)))
+      plotcounter <- new.env()
+      plotcounter$p <- 0
+      labfun <- function(x) {
+        pcount <- get("p", envir = plotcounter)
+        pcount <- pcount + 1
+        assign("p", pcount, envir = plotcounter)
+        y <- plabs[[pcount]]
+        z <- seq(from = x[1], to = x[length(x)], by = 1)
+        y <- c(y, rep(TRUE, length(x) - length(y)))
+        z[y] <- ""
+        z[!y] <- seq_len(sum(!y))
+        z
+      }
+    }
     plotobj <- ggplot(plotobj, aes(.data$x, .data$y, group = .data$letter.id,
         fill = .data$group)) +
       geom_polygon() +
@@ -423,7 +441,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       xlab(element_blank()) +
       theme_minimal() +
       scale_y_continuous(breaks = breaks, limits = ylim2, expand = c(0, 0)) +
-      scale_x_continuous(breaks = breaks2, limits = limits2, expand = c(0.02, 0)) +
+      scale_x_continuous(breaks = breaks2, limits = limits2, expand = c(0.02, 0),
+        labels = if (!show.positions.once) labfun else waiver()) +
       theme(axis.line.y = element_line(size = 0.25),
         panel.grid = element_blank(),
         text = element_text(size = text.size),

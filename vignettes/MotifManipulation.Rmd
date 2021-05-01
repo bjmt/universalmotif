@@ -395,8 +395,8 @@ The `motifStack` package allows for a number of different motif stacking visuali
 library(universalmotif)
 library(MotifDb)
 
-motifs <- convert_motifs(MotifDb[1:3])
-view_motifs(motifs)
+motifs <- convert_motifs(MotifDb[50:54])
+view_motifs(motifs, show.positions.once = FALSE)
 ```
 
 ## Plot arbitrary text logos

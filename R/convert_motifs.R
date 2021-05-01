@@ -126,10 +126,11 @@ setMethod("convert_motifs", signature(motifs = "AsIs"),
 setMethod("convert_motifs", signature(motifs = "list"),
           definition = function(motifs, class) {
 
-  mot_classes <- vapply(motifs, function(x) class(x), character(1))
-  mot_classes <- unique(mot_classes)
+  motifs <- unlist(motifs)
+  if (!length(motifs)) stop("Input is an empty list")
+  mot_classes <- unique(vapply(motifs, function(x) class(x), character(1)))
   if (length(mot_classes) == 1) {
-    classin <- strsplit(class, "-")[[1]][2]
+    classin <- strsplit(class, "-", fixed = TRUE)[[1]][2]
     if (mot_classes == classin) return(motifs)
   }
   lapply(motifs, function(x) convert_motifs(x, class = class))
@@ -141,8 +142,8 @@ setMethod("convert_motifs", signature(motifs = "list"),
 setMethod("convert_motifs", signature(motifs = "universalmotif"),
           definition = function(motifs, class) {
 
-  out_class <- strsplit(class, "-")[[1]][2]
-  out_class_pkg <- strsplit(class, "-")[[1]][1]
+  out_class <- strsplit(class, "-", fixed = TRUE)[[1]][2]
+  out_class_pkg <- strsplit(class, "-", fixed = TRUE)[[1]][1]
 
   switch(out_class_pkg,
     "universalmotif" = {

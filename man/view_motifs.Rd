@@ -73,7 +73,8 @@ for plotting.}
 \item{show.positions}{\code{logical(1)} Show x-axis position tick labels.}
 
 \item{show.positions.once}{\code{logical(1)} When plotting multiple motifs,
-show x-axis position tick labels only once.}
+show x-axis position tick labels only once. If \code{FALSE}, then
+x-axis tick labels are specific to each motif.}
 
 \item{show.names}{\code{logical(1)} Add motif names when plotting multiple
 motifs.}
