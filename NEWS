@@ -67,6 +67,12 @@ MINOR CHANGES
     o view_motifs(..., dedup.names): Now TRUE by default. Furthermore, the
       make.unique() function is now used to deduplicate names.
 
+BUG FIXES
+
+    o Using create_motif() with a single character no longer throws an error.
+
+    o Generating random motifs with filled multifreq slots now works.
+
 CHANGES IN VERSION 1.8.5
 ------------------------
 

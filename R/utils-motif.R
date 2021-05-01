@@ -374,6 +374,7 @@ get_consensusAA <- function(position, type = "PPM", pseudocount = 0) {
 #' @export
 get_matches <- function(motif, score, allow.nonfinite = FALSE) {
 
+  if (length(score) > 1) stop("Please input a single `score`")
   motif <- convert_motifs(motif)
   if (motif@type != "PWM")
     motif <- convert_type_internal(motif, "PWM")
@@ -382,9 +383,9 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
   else if (is.list(motif))
     stop("a single motif must be input")
   if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
-    message(wmsg("Note: found -Inf values in PWM motif, normalizing. ",
+    message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
       "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-    motif <- normalize(motif)
+    motif <- suppressMessages(normalize(motif))
   }
 
   if (any(is.infinite(motif@motif))) {
@@ -395,11 +396,11 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
   }
 
   if (score > score.range[2])
-    stop(wmsg("input score is greater than max possible score ",
-              round(score.range[2], 3)))
+    stop(wmsg("input score is greater than max possible score [",
+              round(score.range[2], 3), "]"))
   if (score < score.range[1])
-    stop(wmsg("input score is less than min possible score ",
-              round(score.range[1], 3)))
+    stop(wmsg("input score is less than min possible score [",
+              round(score.range[1], 3), "]"))
 
   score <- as.integer(score * 1000)
 
@@ -442,7 +443,7 @@ get_scores <- function(motif, allow.nonfinite = FALSE) {
   if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
     message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
       "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-    motif <- normalize(motif)
+    motif <- suppressMessages(normalize(motif))
   }
 
   m <- motif@motif
@@ -489,7 +490,7 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
     if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
       message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
         "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-      motif <- normalize(motif)
+      motif <- suppressMessages(normalize(motif))
     } else if (any(is.infinite(motif@motif)) && threshold.type == "total") {
       stop(wmsg("Score calculates cannot be performed for `threshold.type = \"total\"`",
         "if non-finite values are present in the PWM and `allow.nonfinite = TRUE`"))
@@ -793,9 +794,9 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
     motif <- convert_type_internal(motif, "PWM")
 
   if (!allow.nonfinite && any(is.infinite(motif@motif))) {
-    message(wmsg("Note: found -Inf values in motif PWM, applying pseudocount. ",
+    message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
       "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-    motif <- normalize(motif)
+    motif <- suppressMessages(normalize(motif))
   }
 
   match <- lapply(match, safeExplode)

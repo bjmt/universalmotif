@@ -184,7 +184,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
-  motifs <- lapply(motifs, function(x) fix_mots(x, allow.nonfinite))
+  needsfix <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
+  if (any(needsfix) && !allow.nonfinite) {
+    message(wmsg("Note: found -Inf values in motif PWM(s), adding a pseudocount. ",
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+    for (i in which(needsfix)) {
+      motifs[[i]] <- suppressMessages(normalize(motifs[[i]]))
+    }
+  }
 
   mot.names <- vapply(motifs, function(x) x@name, character(1))
 
@@ -452,16 +459,6 @@ dedup_by_score <- function(x, i) {
   do.call(c, by(x, i, function(y) {
     y$index.tokeep[which.max(y$score)]
   }, simplify = FALSE))
-}
-
-fix_mots <- function(x, allow.nonfinite) {
-  if (any(is.infinite(x@motif)) && !allow.nonfinite) {
-    message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
-      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-    normalize(x)
-  } else {
-    x
-  }
 }
 
 adjust_rc_hits <- function(res, alph) {

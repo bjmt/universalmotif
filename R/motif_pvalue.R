@@ -185,10 +185,10 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   if (!is.list(motifs)) motifs <- list(motifs)
   anyinf <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
   if (any(anyinf) && !allow.nonfinite) {
-    message(wmsg("Note: found -Inf values in motif PWMs. Normalizing. ",
+    message(wmsg("Note: found -Inf values in motif PWM(s), adding a pseudocount. ",
       "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     for (i in which(anyinf)) {
-      motifs[[i]] <- normalize(motifs[[i]])
+      motifs[[i]] <- suppressMessages(normalize(motifs[[i]]))
       # motifs[[i]] <- convert_type(motifs[[i]], "PPM")
       # motifs[[i]]["pseudocount"] <- 1
       # motifs[[i]] <- convert_type(motifs[[i]], "PWM")

@@ -257,8 +257,9 @@ setMethod("create_motif", signature(input = "numeric"),
   validObject_universalmotif(motif)
 
   if (!missing(add.multifreq)) {
-    motif <- add_multifreq(motif, sample_sites(motif, motif@nsites),
-                           add.multifreq)
+    motif <- add_multifreq(motif,
+      sample_sites(motif, if (!length(motif@nsites)) 100 else motif@nsites),
+      add.multifreq)
   }
 
   motif
@@ -346,7 +347,7 @@ setMethod("create_motif", signature(input = "character"),
           missing.lets <- missing.lets[!missing.lets %in% rownames(out)]
           out2 <- rbind(out, matrix(0, ncol = ncol(out), nrow = length(missing.lets)))
           rownames(out2) <- c(rownames(out), missing.lets)
-          out <- out2[sort_unique_cpp(rownames(out2)), ]
+          out <- out2[sort_unique_cpp(rownames(out2)), , drop = FALSE]
         }
         out
       }

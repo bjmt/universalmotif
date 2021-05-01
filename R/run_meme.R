@@ -4,7 +4,7 @@
 #' see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
 #' the command parameters, run `run_meme()`. Parameters in [run_meme()]
 #' which are directly taken from the MEME program are tagged with \[MEME\].
-#' This functions requires that the \pkg{processx} package be installed
+#' This function requires that the \pkg{processx} package be installed
 #' separately.
 #'
 #' @param target.sequences \code{\link{XStringSet}} List of sequences to get motifs from.

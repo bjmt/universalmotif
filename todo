@@ -10,11 +10,9 @@
 - motif_peaks(): serious code cleanup needed
 - dependencies to consider removing:
     + !! yaml (write my own parser, doesn't matter if it's slow)
-    + Rcpp (use cpp11 w/o import instead --> maybe consider once it hits 1.0.0)
 - Remove some of the input parameter checking in merge_motifs()/view_motifs()/
   motif_tree(), rely solely on compare_motifs()
 - in read_*() files, check to input file exists
-- scan_sequences(): return a Biostring Views object?
 - change internal motif precision limit from 1e-3 to 1e-6 (will require changes
   to how allow.nonfinite works)
 - add a vignette section about pseudocounts and how the functions interact with
@@ -52,8 +50,6 @@
   since c++/R may not communicate properly about what needs to be freed
 - new view_logo() example idea: show how to plot A->C mutation change (need to
   add arrows to fontDFroboto)
-- create_motif(add.multifreq = 2) doesn't work!
-- weird error: create_motif("A", alphabet = "AB")
 - read_matrix(): make it so that it's possible to read all other formats with
   it via tweaking parsing options
 - go through vignettes again
@@ -73,15 +69,16 @@
 - scan_sequences() and large datasets: spends a LOT of time in pre- and
   post-processing... need to optimize this. The actual scanning is quite fast
   even with billions of letters.
-- create a new metric which tells us how specific/wobbly a motif is; could
-   perhaps be used as a guide during motif merging? (ie don't want to merge
-   too much and create an overly disambiguous motif)
+- Make use of average_ic() to filter motifs in more function examples? Right
+  now it just shows up in compare_motifs().
 - merge_motifs() 2nd example: also plot submotifs
 - make sure window size can't be set too low (shuffle_sequences, get_bkg)
 - motif_score(create_motif("ATCGTACGTG"), 0, allow.nonfinite = TRUE) --> broken?
-- motif_score(create_motif("ATCGTACGTG"), c(100:0 * -1, 1:20)) --> segfault
 - should I change the default comparison metric back to PCC...? I feel bad for
   constantly switching but ALLR is kind of annoying to work with in some cases
 - Something wrong with score/score.pct columns in the following code:
   + scan_sequences(create_motif("AAAAAA"), ArabidopsisMotif, allow.nonfinite = TRUE)
 - add an extranum slot
+- does view_motifs(use.type="ICM") work with KL motifs? (is ylim properly set)
+- pretty sure the allow.nonfinite option is borked in motif_pvalue()
+- be more clear about providing a single k for freqs in create_sequences()

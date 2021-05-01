@@ -22,7 +22,10 @@
 #'    representing the minimum fraction that the motifs must overlap.
 #' @param min.mean.ic `numeric(1)` Minimum mean information content between the
 #'    two motifs for an alignment to be scored. This helps prevent scoring
-#'    alignments between low information content regions of two motifs.
+#'    alignments between low information content regions of two motifs. Note that
+#'    this can result in some comparisons failing if no alignment passes the
+#'    mean IC threshold. Use [average_ic()] to filter out low IC motifs to get around
+#'    this if you want to avoid getting `NA`s in your output.
 #' @param min.position.ic `numeric(1)` Minimum information content required between
 #'    individual alignment positions for it to be counted in the final alignment
 #'    score. It is recommended to use this together with `normalise.scores = TRUE`,
@@ -115,6 +118,21 @@
 #' if (R.Version()$arch != "i386") {
 #' compare_motifs(motifs, compare.to = 2, max.p = 1, max.e = Inf)
 #' }
+#'
+#' ## If you are working with a large list of motifs and the mean.min.ic
+#' ## option is not set to zero, you may get a number of failed comparisons
+#' ## due to low IC. To filter the list of motifs to avoid these, use
+#' ## the average_ic() function to remove motifs with low average IC:
+#' \dontrun{
+#' library(MotifDb)
+#' motifs <- convert_motifs(MotifDb)[1:100]
+#' compare_motifs(motifs)
+#' #> Warning in compare_motifs(motifs) :
+#' #>   Some comparisons failed due to low IC
+#' motifs <- motifs[average_ic(motifs) > 0.5]
+#' compare_motifs(motifs)
+#' }
+#'
 #'
 #' @references
 #'

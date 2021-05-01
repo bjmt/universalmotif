@@ -35,7 +35,10 @@ representing the minimum fraction that the motifs must overlap.}
 
 \item{min.mean.ic}{\code{numeric(1)} Minimum mean information content between the
 two motifs for an alignment to be scored. This helps prevent scoring
-alignments between low information content regions of two motifs.}
+alignments between low information content regions of two motifs. Note that
+this can result in some comparisons failing if no alignment passes the
+mean IC threshold. Use \code{\link[=average_ic]{average_ic()}} to filter out low IC motifs to get around
+this if you want to avoid getting \code{NA}s in your output.}
 
 \item{tryRC}{\code{logical(1)} Try the reverse complement of the motifs as well,
 report the best score.}
