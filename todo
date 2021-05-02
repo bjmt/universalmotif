@@ -72,8 +72,6 @@
 - motif_score(create_motif("ATCGTACGTG"), 0, allow.nonfinite = TRUE) --> broken?
 - should I change the default comparison metric back to PCC...? I feel bad for
   constantly switching but ALLR is kind of annoying to work with in some cases
-- Something wrong with score/score.pct columns in the following code:
-  + scan_sequences(create_motif("AAAAAA"), ArabidopsisMotif, allow.nonfinite = TRUE)
 - add an extranum slot
 - does view_motifs(use.type="ICM") work with KL motifs? (is ylim properly set)
 - pretty sure the allow.nonfinite option is borked in motif_pvalue()

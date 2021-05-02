@@ -287,6 +287,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
       thresholds <- vector("numeric", length(motifs))
       thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                                  k = motif_pvalue.k, allow.nonfinite = allow.nonfinite)
+      if (any(is.infinite(thresholds))) {
+        stop(wmsg("Found -Inf values in threshold(s); try setting manual ",
+            "thresholds with either `threshold.type=` \"logodds\" or ",
+            "\"logodds.abs\" instead of \"pvalue\""),
+          call. = FALSE)
+      }
       for (i in seq_along(thresholds)) {
         if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
       }
