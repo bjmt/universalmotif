@@ -388,7 +388,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (RC) res$motif.i <- mot.indices[res$motif.i]
 
   out <- as(res, "DataFrame")
-  out@metadata <- args[-c(1:2)]
+  out@metadata <- list(
+    args = args[-c(1:2)],
+    seqlengths = structure(width(sequences), names = names(sequences))
+  )
 
   if (any(mot.hasgap) && use.gaps) {
     out$match <- add_gap_dots_cpp(out$match, gapdat$gaplocs[out$motif.i])
@@ -424,7 +427,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     if (RC) {
       out <- switch_antisense_coords_cpp(out)
     }
-    out <- granges_fun(GenomicRanges::GRanges(out))
+    out <- granges_fun(GenomicRanges::GRanges(out,
+        seqlengths = structure(width(sequences), names = names(sequences))))
   }
 
   out

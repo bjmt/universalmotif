@@ -277,9 +277,6 @@ motif2 <- create_motif("CWWWWCC", name = "Motif B")
 res <- scan_sequences(c(motif1, motif2), ArabidopsisPromoters[1:10],
   return.granges = TRUE)
 
-## Skipping this will result in incorrect sequence sizes:
-seqlengths(res) <- seqlengths(ArabidopsisPromoters)[names(seqlengths(res))]
-
 autoplot(res, layout = "karyogram", aes(fill = motif)) +
   theme(
     strip.background = element_rect(fill = NA, colour = NA),
