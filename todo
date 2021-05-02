@@ -58,7 +58,6 @@
 - stop this from working? motif["name"] <- NA
 - motif_pvalue() vignette bit: explain why exact calculations dont give exact
   results (rounding to three digits for use as ints)
-- some typos in introduction to sequence motifs vignette, add max() to IC fun
 - filter_motifs() example in vignette: nsites column returning NAs?
 - weird interaction:
   + mydf %>% dplyr::rename(name = altname, altname = name) %>% to_list()
@@ -78,3 +77,6 @@
 - add an extranum slot
 - does view_motifs(use.type="ICM") work with KL motifs? (is ylim properly set)
 - pretty sure the allow.nonfinite option is borked in motif_pvalue()
+- native logo plotting with trees
+- motif p-values vignette section: show effects of k using plots instead of tables
+- emit a warning whenever the multifreq/gap slots are lost

@@ -664,7 +664,7 @@ prob_match <- function(motif, match, allow.zero = TRUE) {
 
   if (!allow.zero && any(bkg == 0)) {
     message(wmsg("Note: found zero values in motif background frequencies, ",
-        "applying pseudocount. Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+        "adding a pseudocount. Set `allow.nonfinite = TRUE` to prevent this behaviour."))
     pseudo <- motif@pseudocount
     if (pseudo == 0) {
       message("Note: motif has a pseudocount of zero, using 1")
@@ -750,7 +750,7 @@ pwm_to_ppm <- function(position, bkg = numeric()) {
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
   for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
-  message("Note: position does not add up to 1; normalizing..")
+  message("Note: position does not add up to 1, adding a pseudocount.")
   pos_missing <- sum(position)
   position <- position / pos_missing
   position

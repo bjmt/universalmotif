@@ -1,7 +1,7 @@
 ---
 title: "Introduction to sequence motifs"
 shorttitle: "Intro to motifs"
-date: 25 January 2021
+date: 2 May 2021
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -22,7 +22,7 @@ suppressPackageStartupMessages(library(universalmotif))
 
 # Introduction to sequence motifs
 
-Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same `universalmotif` class. Unfortunately, the naming conventions for the various motif types are not unanimous. In order to provide a simple interface to the various types, in this package they are referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM).
+Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same `universalmotif` class. Unfortunately, the naming conventions for the various motif types are not unanimous. In order to provide a simple and consistent interface to the various types, in this package they will always be referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM).
 
 These four types are described within this vignette. Furthermore, the actual code used to go between these types can be seen in `?'utils-motif'`. They are also reviewed briefly in the [motif manipulation](MotifManipulation.pdf) vignette.
 
@@ -54,10 +54,10 @@ _(Note that all positions add up to 6, the initial number of sequences.)_
 
 # Position probability matrices
 
-Also sometimes known as position frequency matrices and position weight matrices, these represent the probabilities for each letter at each position. Using the previous motif (table \@ref(tab:pcm)) as an example, the following formula would be used to calculate the probability (_P_) of each letter _N_ at an individual position from counts (_C_):
+Also sometimes known as position frequency matrices or position weight matrices, these represent the probabilities for each letter at each position. Using the previous motif (table \@ref(tab:pcm)) as an example, the following formula would be used to calculate the probability (_P_) of each letter _N_ at an individual position from counts (_C_):
 
 \begin{equation}
-  PPM(N) = \frac{C_N}{\sum{C}}
+  P(N) = \frac{C_N}{\sum{C}}
   (\#eq:pcm2ppm)
 \end{equation}
 
@@ -79,10 +79,10 @@ Position |    1 |    2 |    3 |    4 |    5 |    6
 
 _(Note that all positions sum to 1.)_
 
-From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM. This means that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can be sometimes undesirable, as often  mismatches can be quite common in transcription factor binding sites. This can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation as such:
+From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM. This means that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can potentially be undesirable, as sometimes mismatches can occur in some transcription factor binding sites. This can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation as such:
 
 \begin{equation}
-  PPMp(N) = \frac{C_N + \frac{p}{n}}{\sum{C} + p}
+  P_{pseudo}(N) = \frac{C_N + \frac{p}{n}}{\sum{C} + p}
   (\#eq:ppmpseudo)
 \end{equation}
 
@@ -109,7 +109,7 @@ Now, though unlikely, it is no longer considered impossible for the sequence AAA
 The position weight matrix, also known as position-specific weight matrix, position-specific scoring matrix, and logodds scoring matrix, was first proposed by @pwm. In this case for each position, every letter has a 'score' which can be used to evaluate how well a sequence matches a motif. Though there can be multiple ways of calculating these scores (_S_), the most common method is to calculate the log of each probability, correcting for background frequencies (_B_). This results in the following calculation:
 
 \begin{equation}
-  S(N) = \log_{2}\left(\frac{PPM(C_N)}{B_N}\right)
+  S(N) = \log_{2}\left(\frac{P(C_N)}{B_N}\right)
   (\#eq:ppm2pwm)
 \end{equation}
 
@@ -169,22 +169,22 @@ view_motifs(motif)
 
 Now, the total height of each position is scaled using the total _information_ at that position. Simply put, the total information of each position is an indication of the level of conservation. In the example motif, the first position is highly conserved, always being the letter A, whereas the third position is less so conserved, as the probabilities for any one letter are quite lower.
 
-For every position, the letter heights are calculated as the total possible information content (_tIC_) or maximum uncertainty, then subtracting the actual uncertainty at each position [@correction; @icm]. This calculation is based on Shannon's entropy [@shannon], with the final values representing 'bits' [@bits]. The total IC is based on alphabet length (_n_), using the following equation:
+For every position, the letter heights are calculated as the total possible information content (_IC_) or maximum uncertainty, then subtracting the actual uncertainty at each position [@correction; @icm]. This calculation is based on Shannon's entropy [@shannon], with the final values representing 'bits' [@bits]. The total IC is based on alphabet length (_n_), using the following equation:
 
 \begin{equation}
-  tIC = \log_{2}n
+  IC_{total} = \log_{2}n
   (\#eq:totalic)
 \end{equation}
 
 The equivalent `R` code:
 ```{r}
-tIC <- function(C) log2(length(C))
+ICtotal <- function(C) log2(length(C))
 ```
 
 For DNA motifs which have an alphabet length of 4, the total IC is 2. To calculate the actual uncertainty (_U_) per position, the following equation is used:
 
 \begin{equation}
-  U = - \sum_{N=A}^{T} PPM(N) \times{} \log_{2}PPM(N)
+  U = - \sum_{N=A}^{T} P(N) \times{} \log_{2}P(N)
   (\#eq:posuncer)
 \end{equation}
 
@@ -194,23 +194,23 @@ The equivalent vectorized `R` code:
 U <- function(C) -sum(PPM(C) * log2(PPM(C)), na.rm = TRUE)
 ```
 
-Where the position uncertainty is the sum of the uncertainty of all alphabet letters (A, C, G, and T). To calculate the final information content (_fIC_):
+Where the position uncertainty is the sum of the uncertainty of all alphabet letters (A, C, G, and T). To calculate the final information content:
 
 \begin{equation}
-  fIC = tIC - U
+  IC_{final} = IC_{total} - U
   (\#eq:ic)
 \end{equation}
 
 The equivalent vectorized `R` code:
 
 ```{r}
-fIC <- function(C) tIC(C) - U(C)
+ICfinal <- function(C) ICtotal(C) - U(C)
 ```
 
 In the original implementation described by @correction, an additional error correction factor (_E_) is included to account for sample size. This correction is rarely used however, but can be incorporated as such:
 
 \begin{equation}
-  fIC = tIC - [ U + E ]
+  IC_{final} = IC_{total} - [ U + E ]
   (\#eq:iccorr)
 \end{equation}
 
@@ -219,14 +219,14 @@ The details for calculating this factor will not be covered here. (Refer to @cor
 Finally, to get the height of each letter at each position, the final IC is multiplied by the letter and position probabilities:
 
 \begin{equation}
-  IC(N) = PPM(N) \times{} fIC
+  IC(N) = P(N) \times{} IC_{final}
   (\#eq:finalic)
 \end{equation}
 
 The equivalent vectorized `R` code:
 
 ```{r}
-IC <- function(C) PPM(C) * fIC(C)
+IC <- function(C) PPM(C) * ICfinal(C)
 ```
 
 Using the above equations, the table \@ref(tab:ppm) motif then becomes:
@@ -244,7 +244,7 @@ _(Note that none of the positions have a sum larger than 2.)_
 An alternative to representing information content as Shannon's entropy is relative entropy, or Kullback-Leibler divergence [@kl]. While IC as Shannon's entropy has the advantage of having a consistent maximum IC for every position, it does not take into account non-uniform background frequencies. Relative entropy on the other hand will take this into account, but all positions no longer share the same maximum IC. To calculate relative entropy:
 
 \begin{equation}
-  IC(N) = PPM(N) \times{} \log_{2}\left(\frac{PPM(N)}{B_N}\right)
+  IC(N) = P(N) \times{} \log_{2}\left(\frac{P(N)}{B_N}\right)
   (\#eq:kldiv)
 \end{equation}
 

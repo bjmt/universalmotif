@@ -612,6 +612,7 @@ Rcpp::S4 universalmotif_cpp(
   x.slot("motif") = m_motif;
 
   // strand
+  if (strand == "-+") strand = "+-";
   x.slot("strand") = strand;
 
   // pval
