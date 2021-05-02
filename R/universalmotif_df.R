@@ -269,6 +269,7 @@ requires_update <- function(motifs, extrainfo = TRUE) {
 summarise_motifs_with_extras <- function(x) {
   y <- summarise_motifs(x, na.rm = FALSE)
   y$type <- vapply(x, function(x) x@type, character(1))
+  y$pseudocount <- vapply(x, function(x) x@pseudocount, numeric(1))
   y$bkg <- lapply(x, function(x) x@bkg)
   y
 }

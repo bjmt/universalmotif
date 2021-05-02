@@ -54,6 +54,10 @@
 #'    The former option keeps the highest scoring overlapping hit (and the first
 #'    of these within ties), and the latter simply keeps the first overlapping hit.
 #'    keeps the highest scoring 
+#' @param respect.strand `logical(1)` If `RC = TRUE` and motifs are DNA/RNA,
+#'    then setting this option to `TRUE` will make `scan_sequences()` only
+#'    scan the strands of the input sequences as indicated in the motif
+#'    `strand` slot.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -126,7 +130,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
   warn.NA = TRUE, calc.pvals = FALSE, return.granges = FALSE,
-  no.overlaps = FALSE, no.overlaps.by.strand = FALSE, no.overlaps.strat = "score") {
+  no.overlaps = FALSE, no.overlaps.by.strand = FALSE, no.overlaps.strat = "score",
+  respect.strand = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -175,6 +180,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   if (missing(motifs) || missing(sequences)) {
     stop("need both motifs and sequences")
   }
+
+  if (!RC && respect.strand)
+    stop("`respect.strand` cannot be TRUE if `RC = FALSE`")
 
   if (verbose > 0) message(" * Processing motifs")
 
@@ -318,16 +326,26 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   if (RC) {
-    strands <- c(strands, rep("-", length(score.mats)))
-    mot.names <- c(mot.names, mot.names)
-    thresholds <- c(thresholds, thresholds)
+    if (respect.strand) {
+      mot.strands <- vapply(motifs, function(x) x@strand, character(1))
+      keep.pos <- rep(TRUE, length(motifs))
+      keep.neg <- rep(TRUE, length(motifs))
+      keep.pos[mot.strands == "-"] <- FALSE
+      keep.neg[mot.strands == "+"] <- FALSE
+    } else {
+      keep.pos <- rep(TRUE, length(motifs))
+      keep.neg <- rep(TRUE, length(motifs))
+    }
+    strands <- c(strands[keep.pos], rep("-", length(score.mats))[keep.neg])
+    mot.names <- c(mot.names[keep.pos], mot.names[keep.neg])
+    thresholds <- c(thresholds[keep.pos], thresholds[keep.neg])
     score.mats.rc <- lapply(score.mats,
                             function(x) matrix(rev(as.numeric(x)), nrow = nrow(x)))
-    score.mats <- c(score.mats, score.mats.rc)
-    min.scores <- c(min.scores, min.scores)
-    max.scores <- c(max.scores, max.scores)
-    mot.indices <- c(seq_along(motifs), seq_along(motifs))
-    motifs <- c(motifs, motifs)
+    score.mats <- c(score.mats[keep.pos], score.mats.rc[keep.neg])
+    min.scores <- c(min.scores[keep.pos], min.scores[keep.neg])
+    max.scores <- c(max.scores[keep.pos], max.scores[keep.neg])
+    mot.indices <- c(seq_along(motifs)[keep.pos], seq_along(motifs)[keep.neg])
+    motifs <- c(motifs[keep.pos], motifs[keep.neg])
   }
 
   thresholds[thresholds == Inf] <- min_max_ints()$max / 1000

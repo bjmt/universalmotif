@@ -1607,6 +1607,8 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
     mmot1 = add_motif_columns(mmot1, mmot1.size() + maxadd, maxadd);
   }
 
+  Rcpp::NumericVector final_offsets(vmots.size());
+  final_offsets[0] = count_left_empty(mmot1);
   neg_one_to_zero(mmot1);
 
   Rcpp::NumericMatrix mot1 = cpp_to_R_motif(mmot1);
@@ -1621,6 +1623,7 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
       tttmot = add_motif_columns(tttmot, tttmot.size() + maxadd - toadd[i],
           maxadd - toadd[i]);
     }
+    final_offsets[i + 1] = count_left_empty(tttmot);
 
     neg_one_to_zero(tttmot);
 
@@ -1633,7 +1636,8 @@ Rcpp::List view_motifs_prep(const Rcpp::List &mots, const std::string &method,
 
   return Rcpp::List::create(
         Rcpp::_["motifs"] = motlist,
-        Rcpp::_["motIsRC"] = which_rc
+        Rcpp::_["motIsRC"] = which_rc,
+        Rcpp::_["offsets"] = final_offsets
       );
 
 }

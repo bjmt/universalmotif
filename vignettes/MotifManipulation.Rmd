@@ -196,15 +196,17 @@ convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 
 The `universalmotif` package includes the `merge_motifs()` function to combine motifs. Motifs are first aligned, and the best match found before the motif matrices are averaged. The implementation for this is identical to that used by `compare_motifs()` (see the [motif comparisons vignette](MotifComparisonAndPvalues.pdf) for more information).
 
-```{r}
+```{r, fig.height=5, fig.width=5}
 library(universalmotif)
 
 m1 <- create_motif("TTAAACCCC", name = "1")
 m2 <- create_motif("AACC", name = "2")
 m3 <- create_motif("AACCCCGG", name = "3")
 
-view_motifs(c(m1, m2, m3))
-
+view_motifs(c(m1, m2, m3),
+  show.positions.once = FALSE, show.names = FALSE)
+```
+```{r,fig.height=2.5,fig.width=5}
 view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
 ```
 
@@ -279,7 +281,7 @@ trim_motifs(motif)
 
 Round off near-zero probabilities.
 
-```{r}
+```{r, fig.height=4, fig.width=5}
 motif1 <- create_motif("ATCGATGC", pseudocount = 10, type = "PPM", nsites = 100)
 motif2 <- round_motif(motif1)
 view_motifs(c(motif1, motif2), dedup.names =  TRUE)
@@ -350,7 +352,7 @@ create_motif(alphabet = "QWERTY")
 
 There are several packages which offer motif visualization capabilities, such as `seqLogo`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation via the function `view_motifs()`, which renders motifs using the `ggplot2` package (similarly to `ggseqlogo`). Here I will briefly show how to use these to visualize `universalmotif` class motifs.
 
-```{r}
+```{r, fig.height=2.5, fig.width=5}
 library(universalmotif)
 data(examplemotif)
 
@@ -361,7 +363,7 @@ view_motifs(examplemotif)
 
 The `view_motifs()` function generates `ggplot` objects; feel free to manipulate them as such. For example, flipping the position numbers for larger motifs (where the text spacing can become tight):
 
-```{r}
+```{r, fig.height=2.5, fig.width=5}
 view_motifs(create_motif(15)) +
   ggplot2::theme(
     axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)
@@ -370,7 +372,7 @@ view_motifs(create_motif(15)) +
 
 Using the other Bioconductor packages to view `universalmotif` motifs is fairly easy as well:
 
-```{r}
+```{r, fig.height=2.5, fig.width=5}
 ## For all the following examples, simply passing the functions a PPM is
 ## sufficient
 motif <- convert_type(examplemotif, "PPM")
@@ -391,7 +393,7 @@ ggseqlogo::ggseqlogo(motif)
 
 The `motifStack` package allows for a number of different motif stacking visualizations. The `universalmotif` package, while not capable of emulating these, still offers basic stacking via `view_motifs()`. The motifs are aligned using `compare_motifs()`.
 
-```{r}
+```{r, fig.height=5, fig.width=5}
 library(universalmotif)
 library(MotifDb)
 
@@ -403,7 +405,7 @@ view_motifs(motifs, show.positions.once = FALSE)
 
 If you wish, the logo plotting capabilities of `view_motifs()` can be used for any kind of arbitrary text logo. All you need is a numeric matrix (the heights of the characters), with the desired characters as row names. The following example is taken from the `view_logo()` documentation.
 
-```{r}
+```{r, fig.height=2.5, fig.width=5}
 library(universalmotif)
 data(examplemotif)
 
@@ -489,7 +491,7 @@ motif.k2
 
 To plot these motifs, use `view_motifs()`:
 
-```{r}
+```{r, fig.height=2.5, fig.width=5}
 view_motifs(motif.k2, use.freq = 2)
 ```
 

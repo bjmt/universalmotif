@@ -9,6 +9,7 @@
 #' @param seqlen `numeric(1)` Length of random sequences.
 #' @param freqs `numeric` A named vector of probabilities. The length of the
 #'    vector must be the power of the number of letters in the sequence alphabet.
+#'    Probabilities can only be provided for a single size k.
 #' @param nthreads `numeric(1)` Run [create_sequences()] in parallel with `nthreads`
 #'    threads. `nthreads = 0` uses all available threads.
 #'    Note that no speed up will occur for jobs with `seqnum = 1`.

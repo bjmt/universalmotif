@@ -49,6 +49,11 @@ NEW FEATURES
       scoring hit can be preserved per set of overlapping hits. These new
       arguments can also be used in enrich_motifs().
 
+    o scan_sequences(..., respect.strand): if RC = TRUE, then whether to
+      scan the sequence strands according to the motif strand slot. Only
+      applicable to DNA/RNA motifs. This option is also available in
+      enrich_motifs().
+
 MINOR CHANGES
 
     o Some additions and clean-up to documentation and vignettes.
@@ -64,8 +69,11 @@ MINOR CHANGES
     o merge_motifs(): single-motif input now simply returns the motif instead
       of throwing an error.
 
-    o view_motifs(..., dedup.names): Now TRUE by default. Furthermore, the
+    o view_motifs(..., dedup.names): now TRUE by default. Furthermore, the
       make.unique() function is now used to deduplicate names.
+
+    o compare_motifs(..., method): the default comparison method has been
+      changed back to PCC.
 
 BUG FIXES
 

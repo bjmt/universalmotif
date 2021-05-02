@@ -8,10 +8,10 @@ view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
   return.raw = FALSE, dedup.names = TRUE, show.positions = TRUE,
-  show.positions.once = TRUE, show.names = TRUE, use.freq = 1,
-  colour.scheme = NULL, fontDF = NULL, min.height = 0.01, x.spacer = if
-  (use.freq == 1) 0.04 else 0.1, y.spacer = 0.01,
-  sort.positions = !use.type \%in\% c("PCM", "PPM"),
+  show.positions.once = TRUE, show.names = TRUE, names.pos = c("top",
+  "right"), use.freq = 1, colour.scheme = NULL, fontDF = NULL,
+  min.height = 0.01, x.spacer = if (use.freq == 1) 0.04 else 0.1,
+  y.spacer = 0.01, sort.positions = !use.type \%in\% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16, fit.to.height = if
   (use.type == "PPM") 1 else NULL, ...)
 }
@@ -78,6 +78,9 @@ x-axis tick labels are specific to each motif.}
 
 \item{show.names}{\code{logical(1)} Add motif names when plotting multiple
 motifs.}
+
+\item{names.pos}{\code{character(1)} Motif name locations. Either above (\code{top})
+or to the right (\code{right}) of the logos.}
 
 \item{use.freq}{\code{numeric(1)} Plot higher order motifs from the \code{multifreq}
 slot.}

@@ -82,7 +82,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   return.scan.results = FALSE, nthreads = 1, rng.seed = sample.int(1e4, 1),
   motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
   warn.NA = TRUE, no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
-  no.overlaps.strat = "score") {
+  no.overlaps.strat = "score", respect.strand = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -187,7 +187,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
     verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
     nthreads, args[-(1:3)], use.gaps, allow.nonfinite, warn.NA,
-    no.overlaps, no.overlaps.by.strand, no.overlaps.strat)
+    no.overlaps, no.overlaps.by.strand, no.overlaps.strat, respect.strand)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
@@ -216,7 +216,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
   nthreads, args, use.gaps, allow.nonfinite, warn.NA, no.overlaps,
-  no.overlaps.by.strand, no.overlaps.strat) {
+  no.overlaps.by.strand, no.overlaps.strat, respect.strand) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -231,14 +231,14 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
     use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
-    no.overlaps.strat = no.overlaps.strat)
+    no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand)
 
   if (verbose > 0) message(" > Scanning background sequences")
   results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
     threshold.type, RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
     use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
-    no.overlaps.strat = no.overlaps.strat))
+    no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand))
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)

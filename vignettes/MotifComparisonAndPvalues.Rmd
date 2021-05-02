@@ -238,7 +238,7 @@ There are several key parameters to keep in mind when comparing motifs. These in
 
 See the following example for an idea as to how some of these settings impact scores:
 
-```{r,echo=FALSE,fig.cap="\\label{fig:fig2}Example scores from comparing two motifs"}
+```{r,echo=FALSE,fig.cap="\\label{fig:fig2}Example scores from comparing two motifs",fig.height=4,fig.width=5}
 library(universalmotif)
 library(MotifDb)
 

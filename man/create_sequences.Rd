@@ -16,7 +16,8 @@ characters to be used as the alphabet.}
 \item{seqlen}{\code{numeric(1)} Length of random sequences.}
 
 \item{freqs}{\code{numeric} A named vector of probabilities. The length of the
-vector must be the power of the number of letters in the sequence alphabet.}
+vector must be the power of the number of letters in the sequence alphabet.
+Probabilities can only be provided for a single size k.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=create_sequences]{create_sequences()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.

@@ -19,6 +19,8 @@
 #'    x-axis tick labels are specific to each motif.
 #' @param show.names `logical(1)` Add motif names when plotting multiple
 #'    motifs.
+#' @param names.pos `character(1)` Motif name locations. Either above (`top`)
+#'    or to the right (`right`) of the logos.
 #' @param use.freq `numeric(1)` Plot higher order motifs from the `multifreq`
 #'    slot.
 #' @param colour.scheme `character` A named character vector of colour names.
@@ -104,8 +106,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
   return.raw = FALSE, dedup.names = TRUE, show.positions = TRUE,
-  show.positions.once = TRUE, show.names = TRUE, use.freq = 1,
-  colour.scheme = NULL, fontDF = NULL, min.height = 0.01,
+  show.positions.once = TRUE, show.names = TRUE, names.pos = c("top", "right"),
+  use.freq = 1, colour.scheme = NULL, fontDF = NULL, min.height = 0.01,
   x.spacer = if (use.freq == 1) 0.04 else 0.1,
   y.spacer = 0.01, sort.positions = !use.type %in% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16,
@@ -146,6 +148,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  names.pos <- match.arg(names.pos)
 
   if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean",
                           "wg.mean", "fzt"))
@@ -341,7 +345,6 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     which.rc <- res$motIsRC
     mots <- res$motifs
     mots <- check_mot_sizes(mots)
-    mots_nofix <- mots
 
     if (method %in% c("KL", "ALLR", "ALLR_LL")) {
       for (i in seq_along(mots)) {
@@ -419,7 +422,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     plotobj$motif.id <- factor(plotobj$motif.id, levels = mot.names)
 
     if (!show.positions.once) {
-      plabs <- lapply(mots_nofix, function(x) apply(x, 2, function(y) all(y == 0)))
+      plabs <- res$offsets
       plotcounter <- new.env()
       plotcounter$p <- 0
       labfun <- function(x) {
@@ -428,6 +431,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         assign("p", pcount, envir = plotcounter)
         y <- plabs[[pcount]]
         z <- seq(from = x[1], to = x[length(x)], by = 1)
+        y <- c(rep(TRUE, y), rep(FALSE, ncol(mot.mats[[pcount]])))
         y <- c(y, rep(TRUE, length(x) - length(y)))
         z[y] <- ""
         z[!y] <- seq_len(sum(!y))
@@ -448,8 +452,12 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         text = element_text(size = text.size),
         axis.ticks.y = element_line(size = 0.25), legend.position = "none",
         axis.text.y = element_text(margin = margin(r = 1))) +
-      facet_wrap(~motif.id, ncol = 1,
+      facet_wrap(~motif.id, ncol = 1, strip.position = names.pos,
         scales = if (!show.positions.once) "free_x" else "fixed")
+
+    if (!show.names) plotobj <- plotobj + theme(panel.spacing = unit(1, "lines"))
+    if (show.names && names.pos == "right")
+      plotobj <- plotobj + theme(strip.text.y.right = element_text(angle = 0))
 
     if (!show.positions) plotobj <- plotobj + theme(axis.text.x = element_blank())
 

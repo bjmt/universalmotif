@@ -11,7 +11,7 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
   nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
   use.gaps = TRUE, allow.nonfinite = FALSE, warn.NA = TRUE,
   no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
-  no.overlaps.strat = "score")
+  no.overlaps.strat = "score", respect.strand = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -101,6 +101,11 @@ strand.}
 The former option keeps the highest scoring overlapping hit (and the first
 of these within ties), and the latter simply keeps the first overlapping hit.
 keeps the highest scoring}
+
+\item{respect.strand}{\code{logical(1)} If \code{RC = TRUE} and motifs are DNA/RNA,
+then setting this option to \code{TRUE} will make \code{scan_sequences()} only
+scan the strands of the input sequences as indicated in the motif
+\code{strand} slot.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and
