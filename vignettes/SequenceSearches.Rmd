@@ -19,6 +19,8 @@ output:
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>")
 suppressPackageStartupMessages(library(universalmotif))
 suppressPackageStartupMessages(library(Biostrings))
+suppressPackageStartupMessages(library(GenomicRanges))
+suppressPackageStartupMessages(library(ggbio))
 data(ArabidopsisPromoters)
 data(ArabidopsisMotif)
 options(Biostrings.coloring = FALSE)
@@ -256,6 +258,33 @@ Finally, the results can be returned as a `GRanges` object for further manipulat
 scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
                threshold = 0.9, threshold.type = "logodds",
                return.granges = TRUE)
+```
+
+# Visualizing the output of `scan_sequences()`
+
+Using the `ggbio` package, it is rather trivial to generate nice visualizations of the output of `scan_sequences()`. This requires having the `GenomicRanges` and `ggbio` packages installed, and outputting the `scan_sequences()` result as a `GRanges` object (via `return.granges = TRUE`).
+
+```{r, fig.height = 2.5, fig.width = 6}
+library(universalmotif)
+library(GenomicRanges)
+library(ggbio)
+
+data(ArabidopsisPromoters)
+
+motif1 <- create_motif("AAAAAA", name = "Motif A")
+motif2 <- create_motif("CWWWWCC", name = "Motif B")
+
+res <- scan_sequences(c(motif1, motif2), ArabidopsisPromoters[1:10],
+  return.granges = TRUE)
+
+## Skipping this will result in incorrect sequence sizes:
+seqlengths(res) <- seqlengths(ArabidopsisPromoters)[names(seqlengths(res))]
+
+autoplot(res, layout = "karyogram", aes(fill = motif)) +
+  theme(
+    strip.background = element_rect(fill = NA, colour = NA),
+    panel.background = element_rect(fill = NA, colour = NA)
+  )
 ```
 
 # Enrichment analyses

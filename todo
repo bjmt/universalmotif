@@ -80,3 +80,8 @@
 - native logo plotting with trees
 - motif p-values vignette section: show effects of k using plots instead of tables
 - emit a warning whenever the multifreq/gap slots are lost
+- motif_tree() + view_motifs():
+  + ggtree::inset
+  + tree + ggtree::geom_subview(mot_plot_list [+theme_inset()], ...) [see inset code]
+  + ggtree::facet_plot
+  + ggtree::geom_fruit --> geom_subview for circular layouts
