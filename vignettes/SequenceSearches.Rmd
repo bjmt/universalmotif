@@ -275,9 +275,20 @@ motif1 <- create_motif("AAAAAA", name = "Motif A")
 motif2 <- create_motif("CWWWWCC", name = "Motif B")
 
 res <- scan_sequences(c(motif1, motif2), ArabidopsisPromoters[1:10],
-  return.granges = TRUE)
+  return.granges = TRUE, calc.pvals = TRUE, no.overlaps = TRUE)
 
-autoplot(res, layout = "karyogram", aes(fill = motif)) +
+## Just plot the motif hits:
+autoplot(res, layout = "karyogram", aes(fill = motif, color = motif)) +
+  theme(
+    strip.background = element_rect(fill = NA, colour = NA),
+    panel.background = element_rect(fill = NA, colour = NA)
+  )
+
+## Plot Motif A hits by P-value:
+autoplot(res[res$motif.i == 1, ], layout = "karyogram",
+  aes(fill = log10(pvalue), colour = log10(pvalue))) +
+  scale_fill_gradient(low = "black", high = "grey75") +
+  scale_colour_gradient(low = "black", high = "grey75") +
   theme(
     strip.background = element_rect(fill = NA, colour = NA),
     panel.background = element_rect(fill = NA, colour = NA)

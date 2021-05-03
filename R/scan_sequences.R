@@ -457,13 +457,13 @@ remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
 }
 
 remove_masked_hits_by_order <- function(y) {
-  sort(do.call(c, by(y, list(y$sequence, y$motif.i), function(z) {
+  sort(unlist(by(y, list(y$sequence, y$motif.i), function(z) {
     dedup_by_order(z, flatten_group_matrix(get_overlap_groups(z)))
   }, simplify = FALSE)))
 }
 
 remove_masked_hits_by_score <- function(y) {
-  sort(do.call(c, by(y, list(y$sequence, y$motif.i), function(z) {
+  sort(unlist(by(y, list(y$sequence, y$motif.i), function(z) {
     dedup_by_score(z, flatten_group_matrix(get_overlap_groups(z)))
   }, simplify = FALSE)))
 }
@@ -484,7 +484,7 @@ dedup_by_order <- function(x, i) {
 }
 
 dedup_by_score <- function(x, i) {
-  do.call(c, by(x, i, function(y) {
+  unlist(by(x, i, function(y) {
     y$index.tokeep[which.max(y$score)]
   }, simplify = FALSE))
 }
