@@ -150,5 +150,5 @@ http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12628/abstract>.
 \code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}
 }
 \author{
-Benjamin Jean-Marie Tremblay, \email{b2tremblay@uwaterloo.ca}
+Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
 }

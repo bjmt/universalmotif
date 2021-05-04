@@ -145,9 +145,9 @@ via \code{options(meme.bin = '/path/to/meme/bin')}.}
 \description{
 De novo motif discovery via MEME. For a detailed description of the command,
 see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
-the command parameters, run \code{run_meme()}. Parameters in \code{\link[=run_meme]{run_meme()}}
-which are directly taken from the MEME program are tagged with [MEME].
-This function requires that the \pkg{processx} package be installed
+the command parameters, call \code{run_meme()} without any arguments. Parameters in
+\code{\link[=run_meme]{run_meme()}} which are directly taken from the MEME program are tagged with
+[MEME]. This function requires that the \pkg{processx} package be installed
 separately.
 }
 \examples{

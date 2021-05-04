@@ -394,7 +394,7 @@ library(cowplot)
 ## Get our starting set of motifs:
 motifs <- convert_motifs(MotifDb[1:10])
 
-## Get the tree: make sure it's a horizontal type layout:
+## Get the tree: make sure it's a horizontal type layout
 tree <- motif_tree(motifs, layout = "rectangular", linecol = "none")
 
 ## Now, make sure we order our list of motifs to match the order of tips:
@@ -407,7 +407,7 @@ motifs <- motifs[new.order]
 ## Plot the two together (some finessing of margins and positions required):
 plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
   tree, NULL,
-  view_motifs(motifs, text.size = 6) +
+  view_motifs(motifs, names.pos = "right") +
     ylab(element_blank()) +
     theme(
       axis.line.y = element_blank(),

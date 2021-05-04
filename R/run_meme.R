@@ -2,9 +2,9 @@
 #'
 #' De novo motif discovery via MEME. For a detailed description of the command,
 #' see \url{http://meme-suite.org/doc/meme.html}. For a brief description of
-#' the command parameters, run `run_meme()`. Parameters in [run_meme()]
-#' which are directly taken from the MEME program are tagged with \[MEME\].
-#' This function requires that the \pkg{processx} package be installed
+#' the command parameters, call `run_meme()` without any arguments. Parameters in
+#' [run_meme()] which are directly taken from the MEME program are tagged with
+#' \[MEME\]. This function requires that the \pkg{processx} package be installed
 #' separately.
 #'
 #' @param target.sequences \code{\link{XStringSet}} List of sequences to get motifs from.
