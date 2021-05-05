@@ -58,7 +58,7 @@ Z-transform. Weights are the
 total information content shared between aligned columns.}
 
 \item{new.name}{\code{character(1)}, \code{NULL} Instead of collapsing existing names (if \code{NULL}),
-assign a new for the merged motif.}
+assign a new one manually for the merged motif.}
 }
 \value{
 A single motif object. See \code{\link[=convert_motifs]{convert_motifs()}} for

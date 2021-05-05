@@ -73,6 +73,47 @@ qwerty <- create_sequences("QWERTY")
 get_bkg(qwerty, k = 1:2)
 ```
 
+# Clustering sequences by k-let composition
+
+One way to compare sequences is by k-let composition. The following example illustrates how one could go about doing this using only the `universalmotif` package and base graphics.
+
+```{r,fig.height=4.5,fig.width=4.5}
+library(universalmotif)
+
+## Generate three random sets of sequences:
+s1 <- create_sequences(seqnum = 20,
+  freqs = c(A = 0.3, C = 0.2, G = 0.2, T = 0.3))
+s2 <- create_sequences(seqnum = 20,
+  freqs = c(A = 0.4, C = 0.4, G = 0.1, T = 0.1))
+s3 <- create_sequences(seqnum = 20,
+  freqs = c(A = 0.2, C = 0.3, G = 0.3, T = 0.2))
+
+## Create a function to get properly formatted k-let counts:
+get_klet_matrix <- function(seqs, k, groupName) {
+  bkg <- get_bkg(seqs, k = k, merge.res = FALSE)
+  bkg <- bkg[, c("sequence", "klet", "count")]
+  bkg <- reshape(bkg, idvar = "sequence", timevar = "klet",
+    direction = "wide")
+  as.data.frame(cbind(Group = groupName, bkg))
+}
+
+## Calculate k-let content (up to you what size k you want!):
+s1 <- get_klet_matrix(s1, 4, 1)
+s2 <- get_klet_matrix(s2, 4, 2)
+s3 <- get_klet_matrix(s3, 4, 3)
+
+# Combine everything into a single object:
+sAll <- rbind(s1, s2, s3)
+
+## Do the PCA:
+sPCA <- prcomp(sAll[, -(1:2)])
+
+## Plot the PCA:
+plot(sPCA$x, col = c("red", "forestgreen", "blue")[sAll$Group], pch = 19)
+```
+
+This example could be improved by using `tidyr::spread()` instead of `reshape()` (the former is much faster), and plotting the PCA using the `ggfortify` package to create a nicer `ggplot2` plot. Feel free to play around with different ways of plotting the data! Additionally, you could even try using t-SNE instead of PCA (such as via the `Rtsne` package).
+
 # Shuffling sequences
 
 When performing _de novo_ motif searches or motif enrichment analyses, it is common to do so against a set of background sequences. In order to properly identify consistent patterns or motifs in the target sequences, it is important that there be maintained a certain level of sequence composition between the target and background sequences. This reduces results which are derived purely from base differential letter frequency biases.

@@ -7,7 +7,7 @@
 #' list.
 #'
 #' @param new.name `character(1)`, `NULL` Instead of collapsing existing names (if `NULL`),
-#'    assign a new for the merged motif.
+#'    assign a new one manually for the merged motif.
 #'
 #' @return A single motif object. See [convert_motifs()] for
 #'    available formats.
