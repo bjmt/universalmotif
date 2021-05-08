@@ -189,10 +189,10 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
     }
   } else if (any(!cols_new %in% cols_old)) {
     # maybe remove this warning based on how extrainfo is implemented
-    message(
+    message(wmsg(
       "Discarding unknown slot(s) ",
       paste0(paste0("'", cols_new[!cols_new %in% cols_old], "'"), collapse = ", "),
-      " (set `extrainfo=TRUE` to preserve these).")
+      " (set `extrainfo=TRUE` to preserve these)."))
   }
   if (!extrainfo) {
     for (i in seq_along(m)) {
@@ -201,10 +201,10 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   }
   if (any(!cols_old %in% cols_new)) {
     # hide this warning when called in to_list()?
-    message(
+    message(wmsg(
       "Restoring missing slot(s) ",
       paste0(paste0("'", cols_old[!cols_old %in% cols_new], "'"), collapse = ", "),
-      ".")
+      "."))
   }
   cols_to_check <- cols_new[cols_new %in% cols_old]
   if ("bkg" %in% cols_to_check) {

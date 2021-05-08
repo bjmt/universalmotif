@@ -404,9 +404,9 @@ new.order <- tree$data$label[tree$data$isTip]
 new.order <- rev(new.order[order(tree$data$y[tree$data$isTip])])
 motifs <- motifs[new.order]
 
-## Plot the two together (some finessing of margins and positions required):
+## Plot the two together (finessing of margins and positions may be required):
 plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
-  tree, NULL,
+  tree + xlab(""), NULL,
   view_motifs(motifs, names.pos = "right") +
     ylab(element_blank()) +
     theme(
