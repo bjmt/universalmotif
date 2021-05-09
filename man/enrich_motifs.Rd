@@ -102,7 +102,7 @@ The former option keeps the highest scoring overlapping hit (and the first
 of these within ties), and the latter simply keeps the first overlapping hit.
 keeps the highest scoring}
 
-\item{respect.strand}{\code{logical(1)} If \code{RC = TRUE} and motifs are DNA/RNA,
+\item{respect.strand}{\code{logical(1)} If  motifs are DNA/RNA,
 then setting this option to \code{TRUE} will make \code{scan_sequences()} only
 scan the strands of the input sequences as indicated in the motif
 \code{strand} slot.}

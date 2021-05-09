@@ -114,6 +114,77 @@ plot(sPCA$x, col = c("red", "forestgreen", "blue")[sAll$Group], pch = 19)
 
 This example could be improved by using `tidyr::spread()` instead of `reshape()` (the former is much faster), and plotting the PCA using the `ggfortify` package to create a nicer `ggplot2` plot. Feel free to play around with different ways of plotting the data! Additionally, you could even try using t-SNE instead of PCA (such as via the `Rtsne` package).
 
+# Plotting aligned sequences as motifs
+
+By making use of `create_motif()` and `view_motifs()`, one can easily plot the distribution of letter composition of aligned sequences. Using the higher order `multifreq` motif representation, this can even be done, for example, for dinucleotide or trinucleotide distributions across sequences. In the following example the last 20 bases (a small number is used for the sake of reducing the size of the vignette; try running this example using larger values!) before the TSS of the included `ArabidopsisPromoters` data object is plotted as mono- and di-letter PPMs and ICMs. Since the higher order representations will look quite compact, the space between k-lets is increased by setting `x.spacer` to make clearer the distinction between k-lets.
+
+```{r, fig.height = 4, fig.width = 7}
+library(universalmotif)
+library(GenomicRanges)
+library(ggplot2)
+data(ArabidopsisPromoters)
+
+## First, isolate the last 20bp:
+seqs <- narrow(ArabidopsisPromoters, 980, 1000)
+
+## Then represent the sequences as a motif with a filled multifreq slot:
+seqs.mot <- create_motif(seqs, add.multifreq = 2:3)
+
+mytheme <- function() theme_void() + theme(legend.position = "none")
+
+## Plot all combinations of PPM and ICM for mono- and di-lets
+cowplot::plot_grid(ncol = 1, rel_heights = c(rep(c(1, 0.1), 3), 1),
+  view_motifs(seqs.mot, use.type = "PPM", sort.positions = TRUE) + mytheme(),
+  NULL,
+  view_motifs(seqs.mot, use.type = "PPM", use.freq = 2,
+    sort.positions = TRUE, x.spacer = 0.15) + mytheme(),
+  NULL,
+  view_motifs(seqs.mot, use.type = "ICM") + mytheme() + ylim(c(0, 0.5)),
+  NULL,
+  view_motifs(seqs.mot, use.type = "ICM", use.freq = 2,
+    x.spacer = 0.15) + mytheme() + ylim(c(0, 1))
+)
+```
+
+You could also use this trick to plot the sequence background surrounding motif hits. In the following example, a new motif object is created which includes the surrouding sequence of motif hits and plotted.
+
+```{r, fig.height = 3}
+library(universalmotif)
+library(GenomicRanges)
+library(ggplot2)
+
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+
+## Collect our motif hit results as a GRanges object
+hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = TRUE,
+  return.granges = TRUE, no.overlaps = TRUE)
+
+## Resize to include surrounding sequence
+hits <- suppressWarnings(trim(resize(hits, 35, fix = "center")))
+
+## Remove hits which are too close to the edges as these cannot be used
+hits <- hits[width(hits) == 35, ]
+
+## Retrieve the sequences
+seqs <- ArabidopsisPromoters[hits]
+
+## Create the motif
+new.mot <- create_motif(seqs, add.multifreq = 2)
+
+## Plot it, highlighting the actual motif
+cowplot::plot_grid(ncol = 1,
+  view_motifs(new.mot, show.positions = FALSE, use.type = "ICM") +
+    annotate("rect", ymin = 0, ymax = 2, xmin = 9.5, xmax = 25.5,
+      alpha = 0.1, colour = "blue", fill = "pink") +
+    ggtitle("Motif: 1-letter"),
+  view_motifs(new.mot, show.positions = FALSE, use.type = "ICM", use.freq = 2) +
+    annotate("rect", ymin = 0, ymax = 4, xmin = 9.5, xmax = 24.5,
+      alpha = 0.1, colour = "blue", fill = "pink") +
+    ggtitle("Motif: 2-letter")
+)
+```
+
 # Shuffling sequences
 
 When performing _de novo_ motif searches or motif enrichment analyses, it is common to do so against a set of background sequences. In order to properly identify consistent patterns or motifs in the target sequences, it is important that there be maintained a certain level of sequence composition between the target and background sequences. This reduces results which are derived purely from base differential letter frequency biases.
@@ -301,7 +372,7 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
                return.granges = TRUE)
 ```
 
-# Visualizing the output of `scan_sequences()`
+# Visualizing motif hits across sequences
 
 Using the `ggbio` package, it is rather trivial to generate nice visualizations of the output of `scan_sequences()`. This requires having the `GenomicRanges` and `ggbio` packages installed, and outputting the `scan_sequences()` result as a `GRanges` object (via `return.granges = TRUE`).
 

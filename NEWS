@@ -49,10 +49,9 @@ NEW FEATURES
       scoring hit can be preserved per set of overlapping hits. These new
       arguments can also be used in enrich_motifs().
 
-    o scan_sequences(..., respect.strand): if RC = TRUE, then whether to
-      scan the sequence strands according to the motif strand slot. Only
-      applicable to DNA/RNA motifs. This option is also available in
-      enrich_motifs().
+    o scan_sequences(..., respect.strand): whether to scan the sequence strands
+      according to the motif strand slot. Only applicable for DNA/RNA motifs.
+      This option is also available in enrich_motifs().
 
 MINOR CHANGES
 

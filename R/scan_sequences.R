@@ -54,7 +54,7 @@
 #'    The former option keeps the highest scoring overlapping hit (and the first
 #'    of these within ties), and the latter simply keeps the first overlapping hit.
 #'    keeps the highest scoring 
-#' @param respect.strand `logical(1)` If `RC = TRUE` and motifs are DNA/RNA,
+#' @param respect.strand `logical(1)` If  motifs are DNA/RNA,
 #'    then setting this option to `TRUE` will make `scan_sequences()` only
 #'    scan the strands of the input sequences as indicated in the motif
 #'    `strand` slot.
@@ -181,8 +181,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     stop("need both motifs and sequences")
   }
 
-  if (!RC && respect.strand)
-    stop("`respect.strand` cannot be TRUE if `RC = FALSE`")
+  if (RC && respect.strand)
+    message(wmsg("Note: `RC=TRUE` is ignored when `respect.strand=TRUE`"))
 
   if (verbose > 0) message(" * Processing motifs")
 
@@ -225,6 +225,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     seq.alph <- mot.alphs
   if (RC && !seq.alph %in% c("DNA", "RNA"))
     stop("`RC = TRUE` is only valid for DNA/RNA motifs")
+  if (respect.strand && !seq.alph %in% c("DNA", "RNA"))
+    stop("`respect.strand = TRUE` is only valid for DNA/RNA motifs")
 
   if (use.freq > 1) {
     if (any(mot.hasgap) && use.gaps)
@@ -331,7 +333,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     max.scores <- max.scores[gapdat$IDs]
   }
 
-  if (RC) {
+  if (RC || respect.strand) {
     if (respect.strand) {
       mot.strands <- vapply(motifs, function(x) x@strand, character(1))
       keep.pos <- rep(TRUE, length(motifs))

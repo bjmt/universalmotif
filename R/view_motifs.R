@@ -149,6 +149,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  dots <- list(...)
+  if (length(dots))
+    warning(wmsg("Found unknown parameters; please note that as of v1.10.0 ",
+        "the ggseqlogo package is no longer used for plotting motifs and thus ",
+        "the previously intended purpose of allowing for extra ggseqlogo ",
+        "arguments via `...` is now no longer true. [unknown arguments: ",
+        paste0(names(dots), collapse = ", "), "]"))
+
   names.pos <- match.arg(names.pos)
 
   if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean",
