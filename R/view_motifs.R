@@ -49,6 +49,8 @@
 #' @param fit.to.height `numeric(1)` Normalize the per position height to
 #'    this value. If `NULL`, no normalization is applied. Note that this
 #'    parameter is ignore if `use.type %in% c("PWM", "ICM")`.
+#' @param RC.text `character(1)` The text to display alongside the name
+#'    of motifs shown as their reverse complement.
 #' @param ... Currently unused.
 #'
 #' @return A `ggplot` object. If `return.raw = TRUE`, a list of matrices.
@@ -111,7 +113,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   x.spacer = if (use.freq == 1) 0.04 else 0.1,
   y.spacer = 0.01, sort.positions = !use.type %in% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16,
-  fit.to.height = if (use.type == "PPM") 1 else NULL, ...) {
+  fit.to.height = if (use.type == "PPM") 1 else NULL, RC.text = " [RC]", ...) {
 
   # TODO: think about plugging view_motifs() into ggtree somehow
 
@@ -133,6 +135,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   }
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method,
+                                      RC.text = args$RC.text,
                                       score.strat = args$score.strat),
                                  numeric(), logical(), TYPE_CHAR)
   num_check <- check_fun_params(list(min.overlap = args$min.overlap,
@@ -365,7 +368,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     #                mots, mot.nsites, mot.bkgs, mot.pseudo, SIMPLIFY = FALSE)
 
     for (i in seq_along(which.rc)) {
-      if (which.rc[i]) mot.names[i + 1] <- paste(mot.names[i + 1], "[RC]")
+      if (which.rc[i]) mot.names[i + 1] <- paste0(mot.names[i + 1], RC.text)
     }
     names(mots) <- mot.names
 

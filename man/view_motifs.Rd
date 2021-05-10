@@ -13,7 +13,7 @@ view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.height = 0.01, x.spacer = if (use.freq == 1) 0.04 else 0.1,
   y.spacer = 0.01, sort.positions = !use.type \%in\% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16, fit.to.height = if
-  (use.type == "PPM") 1 else NULL, ...)
+  (use.type == "PPM") 1 else NULL, RC.text = " [RC]", ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -119,6 +119,9 @@ increasing order based on letter height.}
 \item{fit.to.height}{\code{numeric(1)} Normalize the per position height to
 this value. If \code{NULL}, no normalization is applied. Note that this
 parameter is ignore if \code{use.type \%in\% c("PWM", "ICM")}.}
+
+\item{RC.text}{\code{character(1)} The text to display alongside the name
+of motifs shown as their reverse complement.}
 
 \item{...}{Currently unused.}
 }
