@@ -83,3 +83,6 @@
   + tree + ggtree::geom_subview(mot_plot_list [+theme_inset()], ...) [see inset code]
   + ggtree::facet_plot
   + ggtree::geom_fruit --> geom_subview for circular layouts
+- would it be faster to handle chars from XString directly instead of converting to
+  integer?
+- should def rework shuffle so that it doesn't create unconnected vertices!

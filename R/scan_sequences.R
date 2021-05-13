@@ -431,6 +431,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   }
 
   if (return.granges) {
+    if (is.null(names(sequences))) {
+      warning(wmsg("Input sequences have no names, assigning names 1:",
+          length(sequences)), call. = FALSE)
+      names(sequences) <- 1:length(sequences)
+    }
     colnames(out)[3] <- "seqname"
     if (RC) {
       out <- switch_antisense_coords_cpp(out)
