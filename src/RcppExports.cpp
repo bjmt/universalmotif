@@ -17,6 +17,113 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calc_wins_cpp
+std::vector<std::vector<std::size_t>> calc_wins_cpp(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window);
+RcppExport SEXP _universalmotif_calc_wins_cpp(SEXP seqlenSEXP, SEXP windowSEXP, SEXP overlapSEXP, SEXP return_incomplete_windowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::size_t >::type seqlen(seqlenSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type overlap(overlapSEXP);
+    Rcpp::traits::input_parameter< const bool >::type return_incomplete_window(return_incomplete_windowSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_wins_cpp(seqlen, window, overlap, return_incomplete_window));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_cpp
+double dust_cpp(const std::string& x);
+RcppExport SEXP _universalmotif_dust_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// trifonov_fast_cpp
+double trifonov_fast_cpp(const std::string& x, int maxWordSize, std::string alph);
+RcppExport SEXP _universalmotif_trifonov_fast_cpp(SEXP xSEXP, SEXP maxWordSizeSEXP, SEXP alphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type maxWordSize(maxWordSizeSEXP);
+    Rcpp::traits::input_parameter< std::string >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(trifonov_fast_cpp(x, maxWordSize, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// trifonov_cpp
+double trifonov_cpp(const std::string& x, int maxWordSize, std::string alph);
+RcppExport SEXP _universalmotif_trifonov_cpp(SEXP xSEXP, SEXP maxWordSizeSEXP, SEXP alphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type maxWordSize(maxWordSizeSEXP);
+    Rcpp::traits::input_parameter< std::string >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(trifonov_cpp(x, maxWordSize, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// wootton_federhen_fast_cpp
+double wootton_federhen_fast_cpp(const std::string& x, std::string alph);
+RcppExport SEXP _universalmotif_wootton_federhen_fast_cpp(SEXP xSEXP, SEXP alphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::string >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(wootton_federhen_fast_cpp(x, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// wootton_federhen_cpp
+double wootton_federhen_cpp(const std::string& x, std::string alph);
+RcppExport SEXP _universalmotif_wootton_federhen_cpp(SEXP xSEXP, SEXP alphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::string >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(wootton_federhen_cpp(x, alph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// slide_windows_cpp
+std::vector<std::string> slide_windows_cpp(const std::string& x, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window, const int nthreads);
+RcppExport SEXP _universalmotif_slide_windows_cpp(SEXP xSEXP, SEXP windowSEXP, SEXP overlapSEXP, SEXP return_incomplete_windowSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type overlap(overlapSEXP);
+    Rcpp::traits::input_parameter< const bool >::type return_incomplete_window(return_incomplete_windowSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(slide_windows_cpp(x, window, overlap, return_incomplete_window, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sliding_complexity_cpp
+std::vector<double> sliding_complexity_cpp(const std::string& x, const std::size_t window, const std::size_t overlap, const std::string metric, std::string alph, int maxWordSize, const int nthreads);
+RcppExport SEXP _universalmotif_sliding_complexity_cpp(SEXP xSEXP, SEXP windowSEXP, SEXP overlapSEXP, SEXP metricSEXP, SEXP alphSEXP, SEXP maxWordSizeSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type window(windowSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type overlap(overlapSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type metric(metricSEXP);
+    Rcpp::traits::input_parameter< std::string >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< int >::type maxWordSize(maxWordSizeSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sliding_complexity_cpp(x, window, overlap, metric, alph, maxWordSize, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // average_cpp
 double average_cpp(const std::vector<double>& scores, const std::string& type);
 RcppExport SEXP _universalmotif_average_cpp(SEXP scoresSEXP, SEXP typeSEXP) {
@@ -824,6 +931,14 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_add_multi_cpp", (DL_FUNC) &_universalmotif_add_multi_cpp, 3},
+    {"_universalmotif_calc_wins_cpp", (DL_FUNC) &_universalmotif_calc_wins_cpp, 4},
+    {"_universalmotif_dust_cpp", (DL_FUNC) &_universalmotif_dust_cpp, 1},
+    {"_universalmotif_trifonov_fast_cpp", (DL_FUNC) &_universalmotif_trifonov_fast_cpp, 3},
+    {"_universalmotif_trifonov_cpp", (DL_FUNC) &_universalmotif_trifonov_cpp, 3},
+    {"_universalmotif_wootton_federhen_fast_cpp", (DL_FUNC) &_universalmotif_wootton_federhen_fast_cpp, 2},
+    {"_universalmotif_wootton_federhen_cpp", (DL_FUNC) &_universalmotif_wootton_federhen_cpp, 2},
+    {"_universalmotif_slide_windows_cpp", (DL_FUNC) &_universalmotif_slide_windows_cpp, 5},
+    {"_universalmotif_sliding_complexity_cpp", (DL_FUNC) &_universalmotif_sliding_complexity_cpp, 7},
     {"_universalmotif_average_cpp", (DL_FUNC) &_universalmotif_average_cpp, 2},
     {"_universalmotif_compare_motifs_cpp", (DL_FUNC) &_universalmotif_compare_motifs_cpp, 15},
     {"_universalmotif_compare_motifs_all_cpp", (DL_FUNC) &_universalmotif_compare_motifs_all_cpp, 13},

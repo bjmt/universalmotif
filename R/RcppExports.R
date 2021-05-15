@@ -5,6 +5,38 @@ add_multi_cpp <- function(seqs, k, alph) {
     .Call('_universalmotif_add_multi_cpp', PACKAGE = 'universalmotif', seqs, k, alph)
 }
 
+calc_wins_cpp <- function(seqlen, window, overlap, return_incomplete_window = FALSE) {
+    .Call('_universalmotif_calc_wins_cpp', PACKAGE = 'universalmotif', seqlen, window, overlap, return_incomplete_window)
+}
+
+dust_cpp <- function(x) {
+    .Call('_universalmotif_dust_cpp', PACKAGE = 'universalmotif', x)
+}
+
+trifonov_fast_cpp <- function(x, maxWordSize, alph = "") {
+    .Call('_universalmotif_trifonov_fast_cpp', PACKAGE = 'universalmotif', x, maxWordSize, alph)
+}
+
+trifonov_cpp <- function(x, maxWordSize, alph = "") {
+    .Call('_universalmotif_trifonov_cpp', PACKAGE = 'universalmotif', x, maxWordSize, alph)
+}
+
+wootton_federhen_fast_cpp <- function(x, alph = "") {
+    .Call('_universalmotif_wootton_federhen_fast_cpp', PACKAGE = 'universalmotif', x, alph)
+}
+
+wootton_federhen_cpp <- function(x, alph = "") {
+    .Call('_universalmotif_wootton_federhen_cpp', PACKAGE = 'universalmotif', x, alph)
+}
+
+slide_windows_cpp <- function(x, window, overlap, return_incomplete_window = FALSE, nthreads = 1L) {
+    .Call('_universalmotif_slide_windows_cpp', PACKAGE = 'universalmotif', x, window, overlap, return_incomplete_window, nthreads)
+}
+
+sliding_complexity_cpp <- function(x, window, overlap, metric, alph = "", maxWordSize = 7L, nthreads = 1L) {
+    .Call('_universalmotif_sliding_complexity_cpp', PACKAGE = 'universalmotif', x, window, overlap, metric, alph, maxWordSize, nthreads)
+}
+
 average_cpp <- function(scores, type = "a.mean") {
     .Call('_universalmotif_average_cpp', PACKAGE = 'universalmotif', scores, type)
 }
