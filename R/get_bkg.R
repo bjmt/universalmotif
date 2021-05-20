@@ -237,8 +237,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
     starts <- lapply(wins, function(x) x$starts)
     stops <- lapply(wins, function(x) x$stops)
 
-    seqs.split <- mapply(split_seq_by_win, seqs1, starts, stops,
-      SIMPLIFY = FALSE)
+    seqs.split <- mapply(function(x, y, z) slide_windows_cpp(x, y, z, TRUE, nthreads), 
+      seqs1, window.size, window.overlap, SIMPLIFY = FALSE)
 
     split_n <- vapply(seqs.split, length, integer(1))
     seqnames_n <- mapply(function(x, y) rep(x, y), seq.names, split_n, SIMPLIFY = FALSE)
@@ -332,15 +332,23 @@ to_meme_bkg_single <- function(counts, meme.order, count.names) {
 }
 
 calc_wins <- function(seqlen, winsize, ovrlp) {
-  starts <- seq(from = 1, to = seqlen, by = winsize)
-  if (ovrlp == 0) {
-    stops <- c(c(1, starts[c(-1, -length(starts))]) + winsize - 1, seqlen)
-    list(starts = starts, stops = stops)
-  } else {
-    starts[-1] <- starts[-1] - ovrlp
-    starts <- c(starts, starts[length(starts)] + winsize)
-    if (starts[length(starts)] >= seqlen) starts <- starts[-length(starts)]
-    stops <- c((starts[-length(starts)] + winsize) - 1, seqlen)
-    list(starts = starts, stops = stops)
-  }
+  x <- calc_wins_cpp(seqlen, winsize, ovrlp, TRUE)
+  if (!length(x))
+    stop(wmsg("Incorrect window and/or overlap size"), call. = FALSE)
+  x[[1]] <- x[[1]] + 1
+  x[[2]] <- x[[2]] + 1
+  structure(x, names = c("starts", "stops"))
 }
+# calc_wins <- function(seqlen, winsize, ovrlp) {
+#   starts <- seq(from = 1, to = seqlen, by = winsize)
+#   if (ovrlp == 0) {
+#     stops <- c(c(1, starts[c(-1, -length(starts))]) + winsize - 1, seqlen)
+#     list(starts = starts, stops = stops)
+#   } else {
+#     starts[-1] <- starts[-1] - ovrlp
+#     starts <- c(starts, starts[length(starts)] + winsize)
+#     if (starts[length(starts)] >= seqlen) starts <- starts[-length(starts)]
+#     stops <- c((starts[-length(starts)] + winsize) - 1, seqlen)
+#     list(starts = starts, stops = stops)
+#   }
+# }

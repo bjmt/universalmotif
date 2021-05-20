@@ -86,3 +86,4 @@
 - would it be faster to handle chars from XString directly instead of converting to
   integer?
 - should def rework shuffle so that it doesn't create unconnected vertices!
+- migrate from testthat to tinytest
