@@ -111,7 +111,7 @@ std::vector<std::vector<std::size_t>> calc_wins_cpp(const std::size_t seqlen, co
     std::vector<std::size_t> starts;
     std::vector<std::size_t> stops;
 
-    // I'm dumb, can't figure out how to find out appropriate .reserve()
+    // I'm dumb, can't figure out how to find out appropriate starts.reserve()
 
     std::size_t next = 0;
     while (next < seqlen && next + window - 1 <= seqlen) {

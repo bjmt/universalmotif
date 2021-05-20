@@ -1,10 +1,13 @@
 #' Shuffle motifs by column.
 #'
-#' Given a set of motifs, shuffle the columns between them. Currently does not
+#' Given a set of motifs, shuffle the columns to create new motifs. Currently does not
 #' support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
 #' and 'bkgsites' slots will be preserved. Uses the same shuffling methods
-#' as [shuffle_sequences()]. When shuffling more than one motif, they are
-#' shuffled together.
+#' as [shuffle_sequences()]. When shuffling more than one motif, all motif
+#' columns are merged into a single pool and shuffled together, finally returning
+#' them as motifs of identical lengths as the input motifs.
+#' To instead shuffle motifs individually, call [shuffle_motifs()]
+#' using `lapply()`.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param k `numeric(1)` K-let size.
@@ -17,6 +20,9 @@
 #' @seealso [shuffle_sequences()]
 #' @export
 shuffle_motifs <- function(motifs, k = 2, method = "linear") {
+
+  # TODO: implement euler by instead shuffling the consensus sequences and
+  #       keeping track of the indices.
 
   # param check --------------------------------------------
   args <- as.list(environment())

@@ -196,6 +196,43 @@ void replace_gap_chars(str_t &seqstring, const vec_int_t &gaplocs) {
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::NumericVector calc_hit_gc(const Rcpp::StringVector &hits, const bool ignoreN = false) {
+  Rcpp::NumericVector res(hits.size());
+  if (ignoreN) {
+    int GC, AT;
+    for (R_xlen_t i = 0; i < hits.size(); ++i) {
+      GC = 0; AT = 0;
+      for (R_xlen_t j = 0; j < hits[i].size(); ++j) {
+        switch (hits[i][j]) {
+          case 'S':
+          case 'C':
+          case 'G': GC++; break;
+          case 'W':
+          case 'A':
+          case 'U':
+          case 'T': AT++; break;
+        }
+      }
+      res[i] = double(GC) / double(AT + GC);
+    }
+  } else {
+    int GC;
+    for (R_xlen_t i = 0; i < hits.size(); ++i) {
+      GC = 0;
+      for (R_xlen_t j = 0; j < hits[i].size(); ++j) {
+        switch (hits[i][j]) {
+          case 'S':
+          case 'C':
+          case 'G': GC++;
+        }
+      }
+      res[i] = double(GC) / double(hits[i].size());
+    }
+  }
+  return res;
+}
+
+// [[Rcpp::export(rng = false)]]
 Rcpp::DataFrame switch_antisense_coords_cpp(const Rcpp::DataFrame &res) {
   Rcpp::DataFrame out = Rcpp::clone(res);
   Rcpp::CharacterVector col_strand = res["strand"];

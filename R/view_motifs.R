@@ -466,9 +466,15 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       facet_wrap(~motif.id, ncol = 1, strip.position = names.pos,
         scales = if (!show.positions.once) "free_x" else "fixed")
 
-    if (!show.names) plotobj <- plotobj + theme(panel.spacing = unit(1, "lines"))
+    if (!show.names && (!show.positions || show.positions.once))
+      plotobj <- plotobj + theme(panel.spacing = unit(1, "lines"))
+    # else if ((!show.names || names.pos == "right") &&
+    #          show.positions && !show.positions.once)
+    #   plotobj <- plotobj + theme(panel.spacing = unit(0, "lines"))
+
     if (show.names && names.pos == "right")
-      plotobj <- plotobj + theme(strip.text.y.right = element_text(angle = 0))
+      plotobj <- plotobj +
+        theme(strip.text.y.right = element_text(angle = 0, hjust = 0))
 
     if (!show.positions) plotobj <- plotobj + theme(axis.text.x = element_blank())
 

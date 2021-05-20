@@ -109,6 +109,10 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
+calc_hit_gc <- function(hits, ignoreN = FALSE) {
+    .Call('_universalmotif_calc_hit_gc', PACKAGE = 'universalmotif', hits, ignoreN)
+}
+
 switch_antisense_coords_cpp <- function(res) {
     .Call('_universalmotif_switch_antisense_coords_cpp', PACKAGE = 'universalmotif', res)
 }
