@@ -11,6 +11,10 @@ MINOR CHANGES
 
     o Slight performance gains in get_bkg() window code. [in progress]
 
+    o motif_pvalue(): clarify that, indeed, background probabilities are taken
+      into account when calculating P-values from score inputs. The background
+      adjustment takes place during the initial conversion to PWM.
+
 CHANGES IN VERSION 1.10.1
 -------------------------
 

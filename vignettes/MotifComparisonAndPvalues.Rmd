@@ -504,7 +504,7 @@ For this particular motif, while the approximation worsens slightly as `k` decre
 
 ## Calculating scores from P-values
 
-The `universalmotif` also allows for calculating motifs scores from P-values. Similarly to calculating P-values, exact scores can be calculated from small motifs, and approximate scores from big motifs using subsetting. Unlike the P-value calculation however, a uniform background is assumed. When an exact calculation is performed, all possible scores are extracted and a quantile function extracts the appropriate score. For approximate calculations, the overall set of scores are approximate several times by randomly adding up all possible scores from each `k` subset before a quantile function is used.
+The `universalmotif` also allows for calculating motifs scores from P-values. Similarly to calculating P-values, exact scores can be calculated from small motifs, and approximate scores from big motifs using subsetting. When an exact calculation is performed, all possible scores are extracted and a quantile function extracts the appropriate score. For approximate calculations, the overall set of scores are approximate several times by randomly adding up all possible scores from each `k` subset before a quantile function is used.
 
 Starting from a set of P-values:
 

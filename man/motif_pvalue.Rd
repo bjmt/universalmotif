@@ -16,11 +16,13 @@ motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 8,
 \item{pvalue}{\code{numeric} Get a logodds score for a motif from a
 p-value.}
 
-\item{bkg.probs}{\code{numeric}, \code{list} If supplying individual background
-probabilities for each motif, a list. If missing, retrieves the
-background from the motif \code{bkg} slot. Note that this only influences
-calculating p-values from an input score; calculating a score from an
-input p-value currently assumes a uniform background.}
+\item{bkg.probs}{\code{numeric}, \code{list} A vector background probabilities.
+If supplying individual background
+probabilities for each motif, a list of such vectors. If missing,
+retrieves the background from the motif \code{bkg} slot. Note that this
+option is only used when providing a score and return a P-value; for
+the inverse, the motifs are first converted to PWMs using the motifs
+\code{bkg} slot for the type conversion.}
 
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
 otherwise uses the corresponding \code{multifreq} matrix. Max is 3.}
@@ -89,8 +91,7 @@ To calculate a score from a P-value, all possible scores are calculated
 and the \code{(1 - pvalue) * 100} nth percentile score returned.
 When \code{k < ncol(motif)}, the complete set of scores is instead approximated
 by randomly adding up all possible scores from each subset.
-It is important to keep in mind that no consideration is given to
-background frequencies in the score calculator. Note that this approximation
+Note that this approximation
 can actually be potentially quite expensive at times and even slower than
 the exact version; for jobs requiring lots of repeat calculations, a bit of
 benchmarking beforehand can be useful to find the optimal settings.

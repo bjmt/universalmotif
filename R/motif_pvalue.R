@@ -6,11 +6,13 @@
 #' @param score `numeric` Get a p-value for a motif from a logodds score.
 #' @param pvalue `numeric` Get a logodds score for a motif from a
 #'    p-value.
-#' @param bkg.probs `numeric`, `list` If supplying individual background
-#'    probabilities for each motif, a list. If missing, retrieves the
-#'    background from the motif `bkg` slot. Note that this only influences
-#'    calculating p-values from an input score; calculating a score from an
-#'    input p-value currently assumes a uniform background.
+#' @param bkg.probs `numeric`, `list` A vector background probabilities.
+#'    If supplying individual background
+#'    probabilities for each motif, a list of such vectors. If missing,
+#'    retrieves the background from the motif `bkg` slot. Note that this
+#'    option is only used when providing a P-value and returning a score; for
+#'    the inverse, the motifs are first converted to PWMs via [convert_type()],
+#'    which uses the motif `bkg` slot for background adjustment.
 #' @param use.freq `numeric(1)` By default uses the regular motif matrix;
 #'    otherwise uses the corresponding `multifreq` matrix. Max is 3.
 #' @param k `numeric(1)` For speed, scores/p-values can be approximated after
@@ -70,8 +72,7 @@
 #' and the `(1 - pvalue) * 100` nth percentile score returned.
 #' When `k < ncol(motif)`, the complete set of scores is instead approximated
 #' by randomly adding up all possible scores from each subset.
-#' It is important to keep in mind that no consideration is given to
-#' background frequencies in the score calculator. Note that this approximation
+#' Note that this approximation
 #' can actually be potentially quite expensive at times and even slower than
 #' the exact version; for jobs requiring lots of repeat calculations, a bit of
 #' benchmarking beforehand can be useful to find the optimal settings.

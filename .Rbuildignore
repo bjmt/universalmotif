@@ -29,3 +29,5 @@ commit.sh
 Rcheck
 Rcheck/*
 vignettes/MotifComparison.Rmd
+misc
+misc/*

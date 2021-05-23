@@ -18,11 +18,14 @@ Motifs. See \code{\link[=convert_motifs]{convert_motifs()}} for available output
 formats.
 }
 \description{
-Given a set of motifs, shuffle the columns between them. Currently does not
+Given a set of motifs, shuffle the columns to create new motifs. Currently does not
 support keeping the 'multifreq' slot. Only the 'bkg', 'nsites', 'strand',
 and 'bkgsites' slots will be preserved. Uses the same shuffling methods
-as \code{\link[=shuffle_sequences]{shuffle_sequences()}}. When shuffling more than one motif, they are
-shuffled together.
+as \code{\link[=shuffle_sequences]{shuffle_sequences()}}. When shuffling more than one motif, all motif
+columns are merged into a single pool and shuffled together, finally returning
+them as motifs of identical lengths as the input motifs.
+To instead shuffle motifs individually, call \code{\link[=shuffle_motifs]{shuffle_motifs()}}
+using \code{lapply()}.
 }
 \seealso{
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}
