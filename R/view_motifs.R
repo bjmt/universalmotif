@@ -468,9 +468,9 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
     if (!show.names && (!show.positions || show.positions.once))
       plotobj <- plotobj + theme(panel.spacing = unit(1, "lines"))
-    # else if ((!show.names || names.pos == "right") &&
-    #          show.positions && !show.positions.once)
-    #   plotobj <- plotobj + theme(panel.spacing = unit(0, "lines"))
+    else if ((!show.names || names.pos == "right") &&
+             show.positions && show.positions.once)
+      plotobj <- plotobj + theme(panel.spacing = unit(1, "lines"))
 
     if (show.names && names.pos == "right")
       plotobj <- plotobj +
