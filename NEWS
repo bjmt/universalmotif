@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.10.1
+-------------------------
+
+BUG FIXES
+
+    o Restore temporarily disabled ggtree(layout="daylight") example in the
+      MotifComparisonAndPvalues.Rmd vignette, as tidytree is now patched.
+
+    o Fixed some awkwardness in view_motifs() panel spacing and title
+      justification.
+
 CHANGES IN VERSION 1.10.0
 -------------------------
 

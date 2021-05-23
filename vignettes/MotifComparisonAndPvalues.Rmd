@@ -303,7 +303,7 @@ library(MotifDb)
 motifs <- filter_motifs(MotifDb, family = c("AP2", "B3", "bHLH", "bZIP",
                                             "AT hook"))
 motifs <- motifs[sample(seq_along(motifs), 100)]
-tree <- motif_tree(motifs, layout = "rectangular", linecol = "family")
+tree <- motif_tree(motifs, layout = "daylight", linecol = "family")
 
 ## Make some changes to the tree in regular ggplot2 fashion:
 # tree <- tree + ...
