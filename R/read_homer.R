@@ -78,27 +78,21 @@ read_homer <- function(file, skip = 0) {
                                    as.numeric(x[2])),
                    bkgsites = ifelse(is.na(as.numeric(x[3])), numeric(0),
                                      as.numeric(x[3])),
-                   # pval = ifelse(is.na(as.numeric(x[4])), numeric(0),
-                   #               as.numeric(x[4])),
-                   # pval = exp(1)^-abs(as.numeric(x[5])),
                    motif = t(y),
                    alphabet = "DNA",
                    type = "PPM",
-                   family = x[6])
-                   # extrainfo = c(logodds = x[5]))
+                   family = x[6],
+                   pval = as.numeric(x["pval"]),
+                   extrainfo = c(logodds = x["threshold"]))
     validObject_universalmotif(mot)
     mot
   }
 
   motifs <- mapply(homer2umot, motif_meta, motif_list,
                      SIMPLIFY = FALSE)
-  pvals <- motif_pvalue(motifs,
-    as.numeric(vapply(motif_meta, function(x) x["threshold"], character(1)))
-  )
-  motifs <- mapply(function(x, y) { x@pval = y ; x },
-                   motifs, pvals)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs
 
 }
+

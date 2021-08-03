@@ -15,6 +15,13 @@ MINOR CHANGES
       into account when calculating P-values from score inputs. The background
       adjustment takes place during the initial conversion to PWM.
 
+CHANGES IN VERSION 1.10.2
+-------------------------
+
+BUG FIXES
+
+    o read_homer() now correct parses enrichment P-value and logodds score.
+
 CHANGES IN VERSION 1.10.1
 -------------------------
 
