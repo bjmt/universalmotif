@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.10.2
+-------------------------
+
+BUG FIXES
+
+    o read_homer() now correct parses enrichment P-value and logodds score.
+
 CHANGES IN VERSION 1.10.1
 -------------------------
 
