@@ -41,7 +41,7 @@
 #' * PWMEnrich-PWM
 #' * Biostrings-PWM (\code{type = 'log2prob'})
 #' * rGADEM-motif
-#' * universalmotif-universalmotif
+#' * universalmotif-universalmotif (the default, no need to specify this)
 #'
 #' @examples
 #' # Convert from universalmotif:

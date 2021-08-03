@@ -3,8 +3,8 @@
 #' For calculating p-values/logodds scores for any number of motifs.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
-#' @param score `numeric` Get a p-value for a motif from a logodds score.
-#' @param pvalue `numeric` Get a logodds score for a motif from a
+#' @param score `numeric`, `list` Get a p-value for a motif from a logodds score.
+#' @param pvalue `numeric`, `list` Get a logodds score for a motif from a
 #'    p-value.
 #' @param bkg.probs `numeric`, `list` A vector background probabilities.
 #'    If supplying individual background
@@ -123,7 +123,7 @@
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   k = 8, nthreads = 1, rand.tries = 10, rng.seed = sample.int(1e4, 1),
-  allow.nonfinite = FALSE) {
+  allow.nonfinite = FALSE, method = c("dynamic", "exhaustive")) {
 
   # TODO: Need to work on support for use.freq > 1.
 
@@ -160,10 +160,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   # param check --------------------------------------------
   args <- as.list(environment())
-  num_check <- check_fun_params(list(score = args$score, pvalue = args$pvalue,
-                                     use.freq = args$use.freq, k = args$k,
+  num_check <- check_fun_params(list( use.freq = args$use.freq, k = args$k,
                                      nthreads = args$nthreads),
-                                c(0, 0, 1, 1, 1), c(TRUE, TRUE, FALSE, FALSE, FALSE),
+                                c(1, 1, 1), c(FALSE, FALSE, FALSE),
                                 TYPE_NUM)
   bkg_check <- character()
   if (!missing(bkg.probs)) {
@@ -179,7 +178,28 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   }
   all_checks <- c(num_check, bkg_check, use.freq_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  if (!missing(score)) {
+    if (!is.list(score) && !is.numeric(score))
+      stop(wmsg("`score` must be either a numeric vector or a list of ",
+          "numeric vectors"), call. = FALSE)
+    else if (is.list(score) && !all(vapply(score, is.numeric, logical(1))))
+      stop(wmsg("If `score` is a list then it must be a list of ",
+          "numeric vectors"), call. = FALSE)
+  }
+  if (!missing(pvalue)) {
+    if (!is.list(pvalue) && !is.numeric(pvalue))
+      stop(wmsg("`pvalue` must be either a numeric vector or a list of ",
+          "numeric vectors"), call. = FALSE)
+    else if (is.list(pvalue) && !all(vapply(pvalue, is.numeric, logical(1))))
+      stop(wmsg("If `pvalue` is a list then it must be a list of ",
+          "numeric vectors"), call. = FALSE)
+  }
   #---------------------------------------------------------
+
+  method <- match.arg(method)
+  if (method == "dynamic" && allow.nonfinite)
+    stop(wmsg("`method = \"dynamic\"` and `allow.nonfinite = TRUE` are not compatible"),
+      call. = FALSE)
 
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
@@ -187,12 +207,10 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   anyinf <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
   if (any(anyinf) && !allow.nonfinite) {
     message(wmsg("Note: found -Inf values in motif PWM(s), adding a pseudocount. ",
-      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+      "Set `allow.nonfinite = TRUE` to prevent this behaviour when ",
+      "`method = \"exhaustive\"`."))
     for (i in which(anyinf)) {
       motifs[[i]] <- suppressMessages(normalize(motifs[[i]]))
-      # motifs[[i]] <- convert_type(motifs[[i]], "PPM")
-      # motifs[[i]]["pseudocount"] <- 1
-      # motifs[[i]] <- convert_type(motifs[[i]], "PWM")
     }
   }
 
@@ -210,7 +228,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
   motnrows <- vapply(motifs, nrow, integer(1))
   motnrows.k <- motnrows^k
-  if (any(motnrows.k > 1e8)) {
+  if (method == "exhaustive" && any(motnrows.k > 1e8)) {
     while (any(motnrows.k > 1e8)) {
       k <- k - 1
       motnrows.k <- motnrows^k
@@ -219,59 +237,67 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     # 1e8 bytes = 200 megabytes
     # 1e9 bytes = 2 gigabytes
 
-    warning(wmsg("Be careful when using motif_pvalue() for motifs with large ",
-                 "alphabets or with use.freq > 1 in combination with high k ",
-                 "values. Currently this function does not allow use cases when ",
-                 "nrow(motif)^k > 1e8 (or the respective use.freq slot). ",
-                 "Continuing with k=", k, "."), immediate. = TRUE)
+    warning(wmsg("Be careful when using motif_pvalue(method=\"exhaustive\") for ",
+        "motifs with large ",
+        "alphabets or with use.freq > 1 in combination with high k ",
+        "values. Currently this function does not allow use cases when ",
+        "nrow(motif)^k > 1e8 (or the respective use.freq slot). ",
+        "Continuing with k=", k, "."), immediate. = TRUE)
   }
+
+  if (!missing(bkg.probs)) {
+
+    if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
+    if (length(bkg.probs) != length(motifs) && length(bkg.probs) > 1) {
+      stop(wmsg("`bkg.probs` must be either a single numeric vector set of ",
+          "background probabilities ",
+          "or a list of background probabilities equal to the number of motifs"),
+        call. = FALSE)
+    }
+    bkg.probs.len <- lapply(bkg.probs, length)
+    motif.nrow <- lapply(motifs, nrow)
+    alph.len.check <- mapply(function(x, y) x != y^use.freq,
+                             bkg.probs.len, motif.nrow, SIMPLIFY = TRUE)
+    if (any(alph.len.check))
+      stop("length(bkg.probs) must match nrow(motif)^use.freq")
+
+  } else bkg.probs <- rep(list(NULL), length(motifs))
+
+  bkg.probs <- mapply(motif_pvalue_bkg, motifs2, bkg.probs,
+                      MoreArgs = list(use.freq = use.freq),
+                      SIMPLIFY = FALSE)
 
   if (!missing(score) && missing(pvalue)) {
 
-    if (any(is.infinite(score)))
-      stop("`score` must be finite")
+    wasList <- FALSE
+    if (is.list(score)) wasList <- TRUE
+    input <- sanitize_input(motifs, bkg.probs, score, method)
 
-    if (!missing(bkg.probs)) {
-
-      if (!is.list(bkg.probs)) bkg.probs <- list(bkg.probs)
-      bkg.probs.len <- lapply(bkg.probs, length)
-      motif.nrow <- lapply(motifs, nrow)
-      alph.len.check <- mapply(function(x, y) x != y^use.freq,
-                               bkg.probs.len, motif.nrow, SIMPLIFY = TRUE)
-      if (any(alph.len.check))
-        stop("length(bkg.probs) must match nrow(motif)^use.freq")
-
-    } else bkg.probs <- rep(list(NULL), length(motifs))
-
-    bkg.probs <- mapply(motif_pvalue_bkg, motifs2, bkg.probs,
-                        MoreArgs = list(use.freq = use.freq),
-                        SIMPLIFY = FALSE)
-
-    l1 <- length(motifs)
-    l2 <- length(bkg.probs)
-    l3 <- length(score)
-    lall <- max(c(l1, l2, l3))
-    motifs <- rep_len(motifs, lall)
-    bkg.probs <- rep_len(bkg.probs, lall)
-    score <- rep_len(score, lall)
-
-    out <- motif_pvalue_cpp(motifs, bkg.probs, score, k, nthreads, allow.nonfinite)
+    if (method == "exhaustive") {
+      out <- motif_pvalue_cpp(input$motifs, input$bkg.probs, input$x,
+        k, nthreads, allow.nonfinite)
+      if (wasList) out <- restore_list(out, input$nM, input$nX)
+    } else if (method == "dynamic") {
+      out <- motif_pvalue_dynamic(input$motifs, input$bkg.probs, input$x)
+      if (!wasList) out <- out[[1]]
+    }
 
   } else if (missing(score) && !missing(pvalue)) {
 
-    if (any(is.infinite(pvalue)))
-      stop("`pvalue` must be finite")
+    wasList <- FALSE
+    if (is.list(pvalue)) wasList <- TRUE
+    input <- sanitize_input(motifs, bkg.probs, pvalue, method)
 
-    l1 <- length(motifs)
-    l3 <- length(pvalue)
-    lall <- max(c(l1, l3))
-    motifs <- rep_len(motifs, lall)
-    pvalue <- rep_len(pvalue, lall)
-
-    out <- motif_score_cpp(motifs, pvalue, rng.seed, k, nthreads, rand.tries,
-      allow.nonfinite)
-    if (allow.nonfinite) {
-      out[out <= -min_max_doubles()$max] <- -Inf
+    if (method == "exhaustive") {
+      out <- motif_score_cpp(input$motifs, input$x, rng.seed, k, nthreads,
+        rand.tries, allow.nonfinite)
+      if (allow.nonfinite) {
+        out[out <= -min_max_doubles()$max] <- -Inf
+      }
+      if (wasList) out <- restore_list(out, input$nM, input$nX)
+    } else if (method == "dynamic") {
+      out <- motif_score_dynamic(input$motifs, input$bkg.probs, input$x)
+      if (!wasList) out <- out[[1]]
     }
 
   } else if (missing(score) && missing(pvalue)) {
@@ -287,6 +313,263 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   out
 
 }
+
+restore_list <- function(x, nM, nX) {
+  if (length(nX) == 1) {
+    i <- rep(seq_len(nM), each = nX)
+    unname(tapply(x, i, list))
+  } else {
+    out <- vector("list", nM)
+    nX <- cumsum(nX)
+    out[[1]] <- x[1:nX[1]]
+    for (i in seq_along(nX)[-1]) {
+      out[[i]] <- x[(nX[i - 1] + 1):nX[i]]
+    }
+    out
+  }
+}
+
+sanitize_input <- function(mots, bkgs, x, method) {
+
+  # Note: having this function is somewhat insane, but I am trying to stay
+  # backwards-compatible.
+
+  if (is.numeric(x)) {
+    if (any(is.infinite(x))) {
+      stop(wmsg("`score`/`pvalue` cannot be non-finite"), call. = FALSE)
+    }
+  } else if (is.list(x)) {
+    if (any(vapply(x, function(y) any(is.infinite(y)), logical(1)))) {
+      stop(wmsg("`score`/`pvalue` cannot be non-finite"), call. = FALSE)
+    }
+  }
+
+  nM <- NULL
+  nX <- NULL
+
+  if (method == "dynamic") {
+
+    if (length(mots) == 1 && is.numeric(x)) {
+      x <- list(x)
+    } else if (length(mots) == 1 && is.list(x)) {
+      if (length(x) != length(mots)) {
+        stop(wmsg("If `pvalue`/`score` is a `list`, then it must be a single ",
+            "list item or be of equal length to the number of motifs"),
+          call. = FALSE)
+      }
+    } else if (length(mots) > 1 && is.numeric(x)) {
+      if (length(x) == 1) {
+        x <- as.list(rep_len(x, length(mots)))
+      } else if (length(x) == length(mots)) {
+        x <- as.list(x)
+      } else {
+        stop(wmsg("If `pvalue/`score` is a `numeric` vector, then it must be ",
+            "of length one or of equal length to the number of motifs"),
+          call. = FALSE)
+      }
+    } else if (length(mots) > 1 && is.list(x)) {
+      if (length(x) == 1) {
+        x <- rep_len(x, length(mots))
+      } else if (length(x) != length(mots)) {
+        stop(wmsg("If `pvalue`/`score` is a `list`, then it must be a single ",
+            "list item or be of equal length to the number of motifs"),
+          call. = FALSE)
+      }
+    }
+
+  } else if (method == "exhaustive") {
+
+    if (length(mots) == 1 && is.numeric(x)) {
+      if (length(x) > 1) {
+        mots <- rep_len(mots, length(x))
+        bkgs <- rep_len(bkgs, length(x))
+      }
+    } else if (length(mots) == 1 && is.list(x)) {
+      if (length(x) > 1) {
+        stop(wmsg("If `pvalue`/`score` is a `list`, then it must be a single ",
+            "list item or be of equal length to the number of motifs"),
+          call. = FALSE)
+      }
+      x <- x[[1]]
+      nM <- 1
+      nX <- length(x)
+      mots <- rep_len(mots, length(x))
+      bkgs <- rep_len(bkgs, length(x))
+    } else if (length(mots) > 1 && is.numeric(x)) {
+      if (length(x) == 1) {
+        x <- rep_len(x, length(mots))
+      } else if (length(x) != length(mots)) {
+        stop(wmsg("If `pvalue/`score` is a `numeric` vector, then it must be ",
+            "of length one or of equal length to the number of motifs"),
+          call. = FALSE)
+      }
+    } else if (length(mots) > 1 && is.list(x)) {
+      if (length(x) == 1) {
+        nM <- length(mots)
+        nX <- length(x[[1]])
+        mots <- rep(mots, each = nX)
+        bkgs <- rep(bkgs, each = nX)
+        x <- unlist(rep(x, each = nM))
+      } else if (length(x) != length(mots)) {
+        stop(wmsg("If `pvalue`/`score` is a `list`, then it must be a single ",
+            "list item or be of equal length to the number of motifs"),
+          call. = FALSE)
+      } else {
+        nM <- length(mots)
+        nX <- vapply(x, length, integer(1))
+        mots <- unlist(mapply(function(z1, z2) rep(list(z1), length(z2)),
+          mots, x, SIMPLIFY = FALSE), recursive = FALSE)
+        bkgs <- unlist(mapply(function(z1, z2) rep(list(z1), length(z2)),
+          bkgs, x, SIMPLIFY = FALSE), recursive = FALSE)
+        x <- unlist(x)
+      }
+    }
+
+  }
+
+  list(motifs = mots, bkg.probs = bkgs, x = x, nM = nM, nX = nX)
+
+}
+
+# TODO: multithreaded c++
+motif_score_dynamic <- function(motifs, bkg.probs, pvalue) {
+  mapply(motif_score_dynamic_single, motifs, bkg.probs, pvalue, SIMPLIFY = FALSE)
+}
+
+motif_pvalue_dynamic <- function(motifs, bkg.probs, score) {
+  mapply(motif_pvalue_dynamic_single, motifs, bkg.probs, score, SIMPLIFY = FALSE)
+}
+
+motif_score_dynamic_single <- function(mot, bkg, p) {
+  maxs <- sum(apply(mot, 2, max))
+  mins <- abs(sum(as.integer(apply(mot, 2, min) * 1000)))
+  mcdf <- motif_cdf(mot, bkg)
+  pindex <- vapply(p, function(x) which.max(mcdf < x), integer(1))
+  res <- (pindex - mins) / 1000
+  res[res > maxs] <- maxs
+  res
+}
+
+motif_pvalue_dynamic_single <- function(mot, bkg, s) {
+  mins <- abs(sum(as.integer(apply(mot, 2, min) * 1000)))
+  sint <- as.integer(s * 1000) + mins
+  mcdf <- motif_cdf(mot, bkg)
+  mcdf[sint]
+}
+
+# uh oh, doesnt work with ArabidopsisMotif
+motif_cdf <- function(mot, bkg) {
+  mot <- mot * 1000
+  mot <- apply(mot, 1:2, as.integer)
+  motmin <- abs(min(mot))
+  mot <- mot + motmin
+  motwidth <- ncol(mot)
+  alphlen <- nrow(mot)
+  maxscore <- max(mot)
+  # maxscore <- sum(apply(mot, 2, max))
+  cdflen <- motwidth * maxscore + 1
+  pdfnew <- rep(1, cdflen)
+  for (i in seq_len(motwidth)) {
+    maxstep <- (i - 1) * maxscore + 1
+    pdfold <- pdfnew
+    pdfnew[seq_len(maxstep + maxscore)] <- 0
+    for (j in seq_len(alphlen)) {
+      s <- mot[j, i]
+      for (k in seq_len(maxstep)) {
+        if (pdfold[k] != 0) {
+          pdfnew[k + s] <- pdfnew[k + s] + pdfold[k] * bkg[j]
+        }
+      }
+    }
+  }
+  rev(cumsum(rev(pdfnew / sum(pdfnew))))
+}
+
+scale_val <- function(x, w, scale, offset) {
+  (x - w * offset) * scale
+}
+
+scale_mot <- function(mot) {
+  offset <- min(mot)
+  scale <- (max(mot) * ncol(mot)) / (max(mot) - min(mot))
+  apply(mot, 1:2, function(x) scale_val(x, 1, scale, offset))
+}
+
+scale_scores <- function(mot, scores) {
+  offset <- min(mot)
+  scale <- (max(mot) * ncol(mot)) / (max(mot) - min(mot))
+  vapply(scores, function(x) scale_val(x, 1, scale, offset), numeric(1))
+}
+
+motif_pvalue_dynamic_single3 <- function(mot, bkg, s) {
+  s <- scale_scores(mot, s)
+  print(s)
+  plen <- max(mot) * ncol(mot)
+  print(plen)
+  smot <- scale_mot(mot)
+  print(smot)
+  # Ismot <- apply(smot, 1:2, function(x) as.integer(x * 1000))
+  Ismot <- apply(smot, 1:2, function(x) as.integer(x))
+  print(Ismot)
+  # Is <- as.integer(s * 1000)
+  Is <- as.integer(s) 
+  print(Is)
+  # mcdf <- motif_cdf2(Ismot, as.integer(plen * 1000), bkg)
+  mcdf <- motif_cdf2(Ismot, max(Ismot), bkg)
+  mcdf[Is]
+}
+
+motif_pvalue_dynamic_single2 <- function(mot, bkg, s) {
+  mot <- matrix(as.integer(mot * 1000), ncol = ncol(mot))
+
+  motmin <- abs(sum(apply(mot, 2, min)))
+  motmax <- abs(sum(apply(mot, 2, max)))
+  motrange <- length(seq(from = -motmin, to = motmax - 1, by = 1))
+  print(motrange)
+  print(mot)
+
+  mot <- mot + abs(min(mot))
+  # mot <- mot + motmin
+  motmax <- sum(apply(mot, 2, max))
+  motrange <- length(seq(from = 1, to = motmax, by = 1))
+  print(motrange)
+  print(mot)
+
+  sint <- as.integer(s * 1000) + motmin
+  mcdf <- motif_cdf2(mot, motmax, bkg)
+  mcdf[sint]
+}
+motif_cdf2 <- function(mot, motmax, bkg) {
+  # pdfnew <- get_pdf(mot, max(mot), bkg)
+  pdfnew <- get_pdf(mot, motmax, bkg)
+  rev(cumsum(rev(pdfnew / sum(pdfnew))))
+}
+
+# motif_cdf <- function(mot, bkg) {
+#   mot <- mot * 1000
+#   mot <- apply(mot, 1:2, as.integer)
+#   motmin <- abs(min(mot))
+#   mot <- mot + motmin
+#   motwidth <- ncol(mot)
+#   alphlen <- nrow(mot)
+#   maxscore <- max(mot)
+#   cdflen <- motwidth * maxscore + 1
+#   pdfnew <- rep(1, cdflen)
+#   for (i in seq_len(motwidth)) {
+#     maxstep <- (i - 1) * maxscore + 1
+#     pdfold <- pdfnew
+#     pdfnew[seq_len(maxstep + maxscore)] <- 0
+#     for (j in seq_len(alphlen)) {
+#       s <- mot[j, i]
+#       for (k in seq_len(maxstep)) {
+#         if (pdfold[k] != 0) {
+#           pdfnew[k + s] <- pdfnew[k + s] + pdfold[k] * bkg[j]
+#         }
+#       }
+#     }
+#   }
+#   rev(cumsum(rev(pdfnew / sum(pdfnew))))
+# }
 
 motif_pvalue_bkg <- function(motif, bkg.probs, use.freq) {
 

@@ -87,3 +87,18 @@
   integer?
 - should def rework shuffle so that it doesn't create unconnected vertices!
 - migrate from testthat to tinytest
+- dont think enrichment is taking into account respect.strand in enrich_motifs(),
+  only looks at RC=TRUE/FALSE
+- shuffle_motifs() adds a pseudocount??
+- klet --> kmer
+- multifreq --> higher order ? (maybe nmer motif)
+- work with methylated DNA?
+- motif_pvalue(ArabidopsisMotif, 20) --> segfault??????
+- motif_pvalue(ArabidopsisMotif, motif_score(ArabidopsisMotif, 1)) --> 0?
+- scan_sequences(motifs[1:100], athaliana, warn.NA=F,threshold=.9,
+    threshold.type="logodds",nthreads=6) --> crashes!!!
+- enrich_motifs with size 1 sequences causes crash
+- compare_motifs() using mean: why not calculate sum for all alignments, pick
+  the best one, then calculate the mean? not sure if that would work for other
+  score.strat methods though
+- view_motifs(): make sure all text is black and not grey

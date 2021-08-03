@@ -7,6 +7,14 @@ NEW FEATURES
 
     o New function, calc_gc(): [in progress]
 
+    o scan_sequences(calc.pvals, calc.pvals.method, calc.adj.pvals,
+      calc.adj.pvals.method): The calc.pvals argument now defaults to TRUE.
+      The P-value calculation method now defaults to analytical P-values (the
+      previous method was an empirical calculation), though this can be changed
+      via calc.pvals.method. Additionally, adjusted P-values can be calculated
+      as either a FDR or a Bonferroni-adjusted P-value. More details can be
+      found in the Sequence Searches vignette.
+
 MINOR CHANGES
 
     o Slight performance gains in get_bkg() window code. [in progress]

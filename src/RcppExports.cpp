@@ -394,6 +394,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_pdf
+Rcpp::NumericVector get_pdf(const Rcpp::IntegerMatrix& mot, const R_xlen_t maxscore, const Rcpp::NumericVector& bkg);
+RcppExport SEXP _universalmotif_get_pdf(SEXP motSEXP, SEXP maxscoreSEXP, SEXP bkgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type mot(motSEXP);
+    Rcpp::traits::input_parameter< const R_xlen_t >::type maxscore(maxscoreSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type bkg(bkgSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_pdf(mot, maxscore, bkg));
+    return rcpp_result_gen;
+END_RCPP
+}
 // calc_hit_gc
 Rcpp::NumericVector calc_hit_gc(const Rcpp::StringVector& hits, const bool ignoreN);
 RcppExport SEXP _universalmotif_calc_hit_gc(SEXP hitsSEXP, SEXP ignoreNSEXP) {
@@ -968,6 +980,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
+    {"_universalmotif_get_pdf", (DL_FUNC) &_universalmotif_get_pdf, 3},
     {"_universalmotif_calc_hit_gc", (DL_FUNC) &_universalmotif_calc_hit_gc, 2},
     {"_universalmotif_switch_antisense_coords_cpp", (DL_FUNC) &_universalmotif_switch_antisense_coords_cpp, 1},
     {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},

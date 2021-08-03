@@ -1,7 +1,7 @@
 ---
 title: "Sequence manipulation and scanning"
 shorttitle: "Sequence utilities"
-date: 4 May 2021
+date: 29 May 2021
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -30,7 +30,9 @@ options(Biostrings.coloring = FALSE)
 
 This vignette goes through generating your own sequences from a specified background model, shuffling sequences whilst maintaining a certain `k`-let size, and the scanning of sequences and scoring of motifs. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For a discussion on motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette.
 
-# Creating random sequences
+# Basic sequence handling
+
+## Creating random sequences
 
 The `Biostrings` package offers an excellent suite of functions for dealing with biological sequences. The `universalmotif` package hopes to help extend these by providing the `create_sequences()` and `shuffle_sequences()` functions. The first of these, `create_sequences()`, generates a set of letters in random order, then passes these strings to the `Biostrings` package to generate the final `XStringSet` object. The number and length of sequences can be specified. The probabilities of individual letters can also be set.
 
@@ -57,7 +59,7 @@ create_sequences(alphabet = "AA")
 create_sequences(alphabet = paste0(letters, collapse = ""))
 ```
 
-# Calculating sequence background
+## Calculating sequence background
 
 Sequence backgrounds can be retrieved for DNA and RNA sequences with `oligonucleotideFrequency()` from `"Biostrings`. Unfortunately, no such `Biostrings` function exists for other sequence alphabets. The `universalmotif` package proves `get_bkg()` to remedy this. Similarly, the `get_bkg()` function can calculate higher order backgrounds for any alphabet as well. It is recommended to use the original `Biostrings` for very long (e.g. billions of characters) DNA and RNA sequences whenever possible though, as it is much faster than `get_bkg()`.
 
@@ -73,7 +75,7 @@ qwerty <- create_sequences("QWERTY")
 get_bkg(qwerty, k = 1:2)
 ```
 
-# Clustering sequences by k-let composition
+## Clustering sequences by k-let composition
 
 One way to compare sequences is by k-let composition. The following example illustrates how one could go about doing this using only the `universalmotif` package and base graphics.
 
@@ -114,7 +116,9 @@ plot(sPCA$x, col = c("red", "forestgreen", "blue")[sAll$Group], pch = 19)
 
 This example could be improved by using `tidyr::spread()` instead of `reshape()` (the former is much faster), and plotting the PCA using the `ggfortify` package to create a nicer `ggplot2` plot. Feel free to play around with different ways of plotting the data! Additionally, you could even try using t-SNE instead of PCA (such as via the `Rtsne` package).
 
-# Shuffling sequences
+# Shuffling
+
+## Shuffling sequences
 
 When performing _de novo_ motif searches or motif enrichment analyses, it is common to do so against a set of background sequences. In order to properly identify consistent patterns or motifs in the target sequences, it is important that there be maintained a certain level of sequence composition between the target and background sequences. This reduces results which are derived purely from base differential letter frequency biases.
 
@@ -159,7 +163,7 @@ data.frame(original=o.counts$count, euler=e.counts$count,
   row.names = get_klets(DNA_BASES, 2))
 ```
 
-# Local shuffling
+## Local shuffling
 
 If you have a fairly heterogeneous sequence and wish to preserve the presence of local "patches" of differential sequence composition, you can set `window = TRUE` in the `shuffle_sequences()` function. In the following example, the sequence of interest has an AT rich first half followed by a second half with an even background. The impact on this specific sequence composition is observed after regular and local shuffling, using the per-window functionality of `get_bkg()` (via `window = TRUE`). Fine-tune the window size and overlap between windows with `window.size` and `window.overlap`.
 
@@ -222,11 +226,13 @@ library(universalmotif)
 get_klets(c("A", "S", "D"), 2)
 ```
 
-# Scanning sequences for motifs
+# Sequence scanning and enrichment
 
 There are many motif-programs available with sequence scanning capabilities, such as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the [MEME suite](http://meme-suite.org/). The `universalmotif` package does not aim to supplant these, but rather provide convenience functions for quickly scanning a few sequences without needing to leave the `R` environment. Furthermore, these functions allow for taking advantage of the higher-order (`multifreq`) motif format described here.
 
 Two scanning-related functions are provided: `scan_sequences()` and `enrich_motifs()`. The latter simply runs `scan_sequences()` twice on a set of target and background sequences. Given a motif of length `n`, `scan_sequences()` considers every possible `n`-length subset in a sequence and scores it using the PWM format. If the match surpasses the minimum threshold, it is reported. This is case regardless of whether one is scanning with a regular motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix is converted to a PWM).
+
+## Choosing a logodds threshold
 
 Before scanning a set of sequences, one must first decide the minimum logodds threshold for retrieving matches. This decision is not always the same between scanning programs out in the wild, nor is it usually told to the user what the cutoff is or how it is decided. As a result, `universalmotif` aims to be as transparent as possible in this regard by allowing for complete control of the threshold. For more details on PWMs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette.
 
@@ -247,11 +253,69 @@ m2["motif"]
 
 In the first example, sequences which do not have a matching base in every position are punished heavily. The maximum logodds score in this case is approximately 20, and for each incorrect position the score is reduced approximately by 5.7. This means that a threshold of zero would allow for at most three mismatches. At this point, it is up to you how many mismatches you would deem appropriate.
 
-This thinking becomes impossible for the second example. In this case, mismatches are much less punishing, to the point that one could ask: what even constitutes a mismatch? The answer to this question is much more difficult in such cases. An alternative to manually deciding upon a threshold is to instead start with maximum P-value one would consider appropriate for a match. If, say, we want matches with a P-value of at most 0.001, then we can use `motif_pvalue()` to calculate the appropriate threshold (see the [comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette for details on motif P-values).
+This thinking becomes impossible for the second example. In this case, mismatches are much less punishing, to the point that one could ask: what even constitutes a mismatch? The answer to this question is usually much more difficult in such cases. An alternative to manually deciding upon a threshold is to instead start with maximum P-value one would consider appropriate for a match. If, say, we want matches with a P-value of at most 0.001, then we can use `motif_pvalue()` to calculate the appropriate threshold (see the [comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette for details on motif P-values).
 
 ```{r}
 motif_pvalue(m2, pvalue = 0.001)
 ```
+!!!Cite the nature paper!!!
+
+This P-value can be further refined to obtain either a false discovery rate (FDR) or a Bonferroni-adjusted P-value. The former is calculated as the _ratio of null hits to observed hits in a set of sequences_, meaning that the minimum threshold for any FDR cannot be known _a priori_. Instead, the desired FDR value is first used as a P-value to calculate a threshold with `motif_pvalue()`, and then the final results are filtered based on their calculated FDR.
+
+```{r}
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+
+motif.len <- ncol(ArabidopsisMotif)
+max.hits <- sum(width(ArabidopsisPromoters) - motif.len + 1)
+max.hits
+
+## Let us imagine calculating a FDR for a motif hit with a score of 11.
+## We also need to know the number of hits with a score greater than our
+## motif hit of interest. For this motif and set of sequences, this is 
+## about 66.
+
+observed.hits <- 67
+
+pvalue <- motif_pvalue(ArabidopsisMotif, score = 11)
+pvalue
+
+null.hits <- pvalue * max.hits
+null.hits
+
+FDR <- null.hits / observed.hits
+FDR
+```
+
+One additional correction is applied to the FDR when actually calculated after scanning: to account for the fact that the FDR is not guaranteed to always increase as it is calculated for lower and lower scoring hits, for any particular motif hit the maximum FDR of all FDRs of all motif hits with an equal or higher score is used.
+
+Q-values on the other hand are calculated as the _P-value multiplied by the maximum number of possible motif hits in a set of sequences_. As one might imagine, this is an extremely strict P-value correction method which can only be used for smaller sets of sequences. Generally, the miminum possible P-value for any motif is much too large to survive being multiplied by the number of possible motif hits in, for example, an entire genome.
+
+```{r}
+## The corresponding Q-value for a score of 11:
+
+qvalue <- pmin(pvalue * max.hits, 1)
+qvalue
+
+## So, what minimum score could give a significant Q-value?
+q05 <- 0.05 / max.hits
+q05
+motif_pvalue(ArabidopsisMotif, pvalue = q05)
+
+## Now imagine calculating a Q-value for the minimum possible P-value in
+## an entire genome:
+
+pvalue2 <- motif_pvalue(ArabidopsisMotif, motif_score(ArabidopsisMotif, 1) - 0.01)
+pvalue2
+
+Arabidopsis.max.hits <- 120000000
+
+qvalue2 <- pmin(pvalue2 * Arabidopsis.max.hits, 1)
+qvalue2
+```
+
+
+## Regular and higher order scanning
 
 Furthermore, the `scan_sequences()` function offers the ability to scan using the `multifreq` slot, if available. This allows to take into account inter-positional dependencies, and get matches which more faithfully represent the original sequences from which the motif originated.
 
@@ -301,7 +365,9 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
                return.granges = TRUE)
 ```
 
-# Visualizing motif hits across sequences
+## Visualizing motif hits across sequences
+
+A few suggestions for different ways of plotting hits across sequences are presented here.
 
 Using the `ggbio` package, it is rather trivial to generate nice visualizations of the output of `scan_sequences()`. This requires having the `GenomicRanges` and `ggbio` packages installed, and outputting the `scan_sequences()` result as a `GRanges` object (via `return.granges = TRUE`).
 
@@ -336,7 +402,59 @@ autoplot(res[res$motif.i == 1, ], layout = "karyogram",
   )
 ```
 
-# Enrichment analyses
+Alternatively, just a simple heatmap with only `ggplot2`.
+
+```{r, fig.height = 4.5, fig.width=6.5}
+library(universalmotif)
+library(ggplot2)
+
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+
+res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters,
+  threshold = 0, threshold.type = "logodds.abs")
+res <- as.data.frame(res)
+res$x <- mapply(function(x, y) mean(c(x, y)), res$start, res$stop)
+
+ggplot(res, aes(x, sequence, fill = score)) +
+  scale_fill_viridis_c() +
+  scale_x_continuous(expand = c(0, 0)) +
+  xlim(0, 1000) +
+  xlab(element_blank()) +
+  ylab(element_blank()) +
+  geom_tile(width = ncol(ArabidopsisMotif)) +
+  theme_bw() +
+  theme(panel.grid = element_blank(), axis.text.y = element_text(size = 6)) 
+```
+
+Using packages such as `ggExtra` or `ggpubr`, one could even plot marginal histogram or density plots above or below to illustrate any motif positional preference within the sequences. (Though keep in mind that the hit coordinates and sequence lengths would need to be normalized if not all sequences were of the same length, as they are here.)
+
+Finally, the distribution of all possible motif scores could be shown as a line plot across the sequences.
+
+```{r,fig.height=5,fig.width=6.5}
+library(universalmotif)
+library(ggplot2)
+
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+
+res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters[1:5],
+  threshold = -Inf, threshold.type = "logodds.abs")
+res <- as.data.frame(res)
+res$position <- mapply(function(x, y) mean(c(x, y)), res$start, res$stop)
+
+ggplot(res, aes(position, score, colour = score)) +
+  geom_line() +
+  geom_hline(yintercept = 0, colour = "red", alpha = 0.3) +
+  theme_bw() +
+  scale_colour_viridis_c() +
+  facet_wrap(~sequence, ncol = 1) +
+  xlab(element_blank()) +
+  ylab(element_blank()) +
+  theme(strip.background = element_blank())
+```
+
+## Enrichment analyses
 
 The `universalmotif` package offers the ability to search for enriched motif sites in a set of sequences via `enrich_motifs()`. There is little complexity to this, as it simply runs `scan_sequences()` twice: once on a set of target sequences, and once on a set of background sequences. After which the results between the two sequences are collated and run through enrichment tests. The background sequences can be given explicitly, or else `enrich_motifs()` will create background sequences on its own by using `shuffle_sequences()` on the target sequences.
 
@@ -355,7 +473,7 @@ Here we can see that the motif is significantly enriched in the target sequences
 
 One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.)
 
-# Gapped motifs
+## Fixed and variable-length gapped motifs
 
 `universalmotif` class motifs can be gapped, which can be used by `scan_sequences()` and `enrich_motifs()`. Note that gapped motif support is currently limited to these two functions. All other functions will ignore the gap information, and even discard them in functions such as `merge_motifs()`.
 
@@ -383,7 +501,7 @@ Now, it can be used directly in `scan_sequences()` or `enrich_motifs()`:
 scan_sequences(m, ArabidopsisPromoters, threshold = 0.4, threshold.type = "logodds")
 ```
 
-# Testing for motif positional preferences in sequences
+## Testing for motif positional preferences in sequences
 
 The `universalmotif` package provides the `motif_peaks()` function, which can test for positionally preferential motif sites in a set of sequences. This can be useful, for example, when trying to determine whether a certain transcription factor binding site is more often than not located at a certain distance from the transcription start site (TSS). The `motif_peaks()` function finds density peaks in the input data, then creates a null distribution from randomly generated peaks to calculate peak P-values.
 

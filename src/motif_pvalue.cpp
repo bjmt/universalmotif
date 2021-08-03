@@ -633,3 +633,33 @@ Rcpp::StringVector paths_to_alph(const Rcpp::IntegerMatrix &paths,
   return outstr;
 
 }
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::NumericVector get_pdf(const Rcpp::IntegerMatrix &mot, const R_xlen_t maxscore, const Rcpp::NumericVector &bkg) {
+
+  R_xlen_t alphlen = mot.nrow(), width = mot.ncol();
+  R_xlen_t pdflen = width * maxscore + 1;
+  Rcpp::NumericVector pdfnew(pdflen, 1);
+  Rcpp::NumericVector pdfold(pdflen, 1);
+
+  for (R_xlen_t i = 0; i < width; ++i) {
+    R_xlen_t maxstep = i * maxscore;
+    for (R_xlen_t k = 0; k < pdflen; ++k) {
+      pdfold(k) = pdfnew(k);
+    }
+    for (R_xlen_t k = 0; k <= maxstep + maxscore; ++k) {
+      pdfnew(k) = 0;
+    }
+    for (R_xlen_t j = 0; j < alphlen; ++j) {
+      R_xlen_t s = mot(j, i);
+      for (R_xlen_t k = 0; k <= maxstep; ++k) {
+        if (pdfold(k) != 0) {
+          pdfnew(k + s) = pdfnew(k + s) + pdfold(k) * bkg(j);
+        }
+      }
+    }
+  }
+
+  return pdfnew;
+
+}

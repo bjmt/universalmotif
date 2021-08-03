@@ -1,7 +1,11 @@
 #' Import HOMER motifs.
 #'
 #' Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
-#' Assumed to be DNA motifs.
+#' Assumed to be DNA motifs. The logodds threshold is converted into a P-value
+#' and stored in the `pval` slot. To use this threshold for scanning with
+#' [scan_sequences()], you can give this P-value to the `threshold` argument of
+#' [scan_sequences()] directly with `threshold.type = "pvalue"` or calculate the
+#' threshold again manually with [motif_pvalue()].
 #'
 #' @return `list` [universalmotif-class] objects.
 #'
@@ -78,25 +82,25 @@ read_homer <- function(file, skip = 0) {
                                    as.numeric(x[2])),
                    bkgsites = ifelse(is.na(as.numeric(x[3])), numeric(0),
                                      as.numeric(x[3])),
-                   # pval = ifelse(is.na(as.numeric(x[4])), numeric(0),
-                   #               as.numeric(x[4])),
-                   # pval = exp(1)^-abs(as.numeric(x[5])),
                    motif = t(y),
                    alphabet = "DNA",
                    type = "PPM",
-                   family = x[6])
-                   # extrainfo = c(logodds = x[5]))
+                   family = x[6],
+                   pval = as.numeric(x["pval"]),
+                   extrainfo = c(logodds = x["threshold"]))
     validObject_universalmotif(mot)
     mot
   }
 
   motifs <- mapply(homer2umot, motif_meta, motif_list,
                      SIMPLIFY = FALSE)
-  pvals <- motif_pvalue(motifs,
-    as.numeric(vapply(motif_meta, function(x) x["threshold"], character(1)))
-  )
-  motifs <- mapply(function(x, y) { x@pval = y ; x },
-                   motifs, pvals)
+  # thresholds <- vapply(motif_meta, function(x) x["threshold"], character(1))
+  # pvals <- as.numeric(vapply(motif_meta, function(x) x["pval"], character(1)))
+  # motifs <- mapply(function(x, y, z) {
+  #   x@pval <- y
+  #   x@extrainfo <- c(threshold = z)
+  #   x
+  # }, motifs, pvals, thresholds)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs

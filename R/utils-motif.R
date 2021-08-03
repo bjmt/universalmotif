@@ -750,7 +750,7 @@ pwm_to_ppm <- function(position, bkg = numeric()) {
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
   for (i in seq_along(position)) position[i] <- position[i] * bkg[i]
   if (sum(position) > 0.99 && sum(position) < 1.01) return(position)
-  message("Note: position does not add up to 1, adding a pseudocount.")
+  message("Note: position does not add up to 1, adjusting.")
   pos_missing <- sum(position)
   position <- position / pos_missing
   position

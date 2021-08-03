@@ -109,6 +109,10 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
+get_pdf <- function(mot, maxscore, bkg) {
+    .Call('_universalmotif_get_pdf', PACKAGE = 'universalmotif', mot, maxscore, bkg)
+}
+
 calc_hit_gc <- function(hits, ignoreN = FALSE) {
     .Call('_universalmotif_calc_hit_gc', PACKAGE = 'universalmotif', hits, ignoreN)
 }

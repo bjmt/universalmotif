@@ -279,6 +279,7 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
       break;
     }
     case 5: {
+      // Warning: DUST only works for DNA
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins] (std::size_t i) {
             complexities[i] = dust_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1));

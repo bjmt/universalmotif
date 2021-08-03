@@ -8,7 +8,7 @@
 #'    should match motif.
 #' @param threshold `numeric(1)` See details.
 #' @param threshold.type `character(1)` One of `c('logodds', 'logodds.abs',
-#'    'pvalue')`. See details.
+#'    'pvalue', 'qvalue')`. See details.
 #' @param RC `logical(1)` If `TRUE`, check reverse complement of input
 #'    sequences.
 #' @param use.freq `numeric(1)` The default, 1, uses the motif matrix (from
@@ -58,6 +58,23 @@
 #'    then setting this option to `TRUE` will make `scan_sequences()` only
 #'    scan the strands of the input sequences as indicated in the motif
 #'    `strand` slot.
+#' @param motif_pvalue.method `character(1)` Method for calculating motif hit
+#'    P-values. Analytical P-values are calculated using [motif_pvalue()]
+#'    and the motif hit score, whereas empirical P-values are calculated
+#'    as the total number of motif hits with the particular score or higher
+#'    divided by the total possible number of motif hits. Note that the
+#'    former is orders of magnitude slower to calculate, but generally provides
+#'    a more accurate P-value for smaller sets of sequences. See the
+#'    Sequence Searches vignette for more details. Also see Noble 2009.
+#' @param calc.qvals `logical(1)` Whether to also calculate adjusted
+#'    P-values. Only valid if `calc.pvals = TRUE`.
+#' @param calc.qnvals.method `character(1)` The method for calculating
+#'    adjusted P-values. If `"fdr"`, then the Benjamini-Hochberg procedure
+#'    is used for empirical P-values, and the ratio of analytical null hits
+#'    to observed hits for analytical P-values. If `"bonferroni"`, then the
+#'    P-values are multiplied by maximum possible number of motif hits
+#'    in the input sequences. See the Sequence Searches vignette for more
+#'    details. Also see Noble 2009.
 #'
 #' @return `DataFrame` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or
@@ -101,6 +118,11 @@
 #'    this only matters if you do not have uniform background frequencies, or
 #'    else the probability of each match is simply `(1 / nrow(motif))^ncol(motif)`.
 #'
+#' @references
+#'
+#' Noble, WS (2009). "How does multiple testing work?" *Nature Biotechnology*,
+#' **27**, 1135-1137.
+#'
 #' @examples
 #' ## any alphabet can be used
 #' \dontrun{
@@ -129,16 +151,17 @@
 scan_sequences <- function(motifs, sequences, threshold = 0.001,
   threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
-  warn.NA = TRUE, calc.pvals = FALSE, return.granges = FALSE,
+  warn.NA = TRUE, calc.pvals = TRUE, return.granges = FALSE,
   no.overlaps = FALSE, no.overlaps.by.strand = FALSE, no.overlaps.strat = "score",
-  respect.strand = FALSE) {
+  respect.strand = FALSE, motif_pvalue.method = c("dynamic", "exhaustive"),
+  calc.qvals = calc.pvals, calc.qvals.method = c("BH", "fdr", "bonferroni")) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs")) {
+  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs", "qvalue")) {
     threshold.type_check <- wmsg2(paste0(" * Incorrect 'threshold.type': expected ",
-                                         "`logodds`, `logodds.abs` or `pvalue`; got `",
+                                         "`logodds`, `logodds.abs`, `pvalue` or `qvalue`; got `",
                                          threshold.type, "`"), exdent = 3, indent = 1)
     all_checks <- c(all_checks, threshold.type_check)
   }
@@ -154,6 +177,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
                                       return.granges = args$return.granges,
                                       no.overlaps = args$no.overlaps,
+                                      calc.qvals = args$calc.qvals,
                                       no.overlaps.by.strand = args$no.overlaps.by.strand),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
@@ -161,6 +185,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  motif_pvalue.method <- match.arg(motif_pvalue.method)
+  calc.qvals.method <- match.arg(calc.qvals.method)
+
+  if (motif_pvalue.method == "dynamic" && allow.nonfinite)
+    stop(wmsg("`motif_pvalue.method = \"dynamic\"` and `allow.nonfinite = TRUE` are ",
+        "not compatible"), call. = FALSE)
 
   if (verbose > 2) {
     message(" * Input parameters")
@@ -181,8 +212,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     stop("need both motifs and sequences")
   }
 
+  if (calc.qvals && !calc.pvals)
+    message("`calc.qvals = TRUE` is ignored when `calc.pvals = FALSE`")
+
   if (RC && respect.strand)
     message(wmsg("Note: `RC=TRUE` is ignored when `respect.strand=TRUE`"))
+  else if (respect.strand)
+    RC <- TRUE
 
   if (verbose > 0) message(" * Processing motifs")
 
@@ -223,10 +259,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     stop("Motif and Sequence alphabets do not match")
   else if (seq.alph == "B")
     seq.alph <- mot.alphs
-  if (RC && !seq.alph %in% c("DNA", "RNA"))
-    stop("`RC = TRUE` is only valid for DNA/RNA motifs")
   if (respect.strand && !seq.alph %in% c("DNA", "RNA"))
     stop("`respect.strand = TRUE` is only valid for DNA/RNA motifs")
+  if (RC && !seq.alph %in% c("DNA", "RNA"))
+    stop("`RC = TRUE` is only valid for DNA/RNA motifs")
 
   if (use.freq > 1) {
     if (any(mot.hasgap) && use.gaps)
@@ -263,54 +299,48 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   else
     min.scores <- vapply(motifs, function(x) motif_score_min(x, use.freq), numeric(1))
 
-  switch(threshold.type,
+  if (threshold.type == "logodds") {
 
-    "logodds" = {
+    thresholds <- max.scores * threshold
 
-      thresholds <- max.scores * threshold
+  } else if (threshold.type == "logodds.abs") {
 
-    },
+    if (!length(threshold) %in% c(length(motifs), 1))
+      stop(wmsg("for threshold.type = 'logodds.abs', a threshold must be provided for
+                every single motif or one threshold recycled for all motifs"))
 
-    "logodds.abs" = {
+    if (length(threshold) == 1) threshold <- rep(threshold, length(motifs))
+    thresholds <- threshold
 
-      if (!length(threshold) %in% c(length(motifs), 1))
-        stop(wmsg("for threshold.type = 'logodds.abs', a threshold must be provided for
-                  every single motif or one threshold recycled for all motifs"))
+  } else if (threshold.type %in% c("pvalue", "qvalue")) {
 
-      if (length(threshold) == 1) threshold <- rep(threshold, length(motifs))
-      thresholds <- threshold
+    if (threshold.type == "qvalue" && !calc.qvals) {
+      stop("`calc.qvals` must be `TRUE` if `threshold.type == \"qvalue\"`")
+    }
 
-    },
-
-    "pvalue" = {
-
-      if (verbose > 0)
-        message(" * Converting P-values to logodds thresholds")
-      thresholds <- vector("numeric", length(motifs))
-      thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
-                                 k = motif_pvalue.k, allow.nonfinite = allow.nonfinite)
-      if (any(is.infinite(thresholds))) {
-        stop(wmsg("Found -Inf values in threshold(s); try setting manual ",
-            "thresholds with either `threshold.type=` \"logodds\" or ",
-            "\"logodds.abs\" instead of \"pvalue\""),
-          call. = FALSE)
-      }
+    if (verbose > 0)
+      message(" * Converting P-values to logodds thresholds")
+    thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
+                               method = motif_pvalue.method,
+                               k = motif_pvalue.k, allow.nonfinite = allow.nonfinite)
+    if (any(is.infinite(thresholds))) {
+      stop(wmsg("Found -Inf values in threshold(s); try setting manual ",
+          "thresholds with either `threshold.type=` \"logodds\" or ",
+          "\"logodds.abs\" instead of \"pvalue\""),
+        call. = FALSE)
+    }
+    for (i in seq_along(thresholds)) {
+      if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
+    }
+    if (verbose > 3) {
       for (i in seq_along(thresholds)) {
-        if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
+        message("   * Motif ", mot.names[i], ": max.score = ", max.scores[i],
+                ", threshold = ", thresholds[i])
       }
-      if (verbose > 3) {
-        for (i in seq_along(thresholds)) {
-          message("   * Motif ", mot.names[i], ": max.score = ", max.scores[i],
-                  ", threshold = ", thresholds[i])
-        }
-      }
-      thresholds <- unlist(thresholds)
+    }
+    thresholds <- unlist(thresholds)
 
-    },
-
-    stop("unknown 'threshold.type'")
-
-  )
+  } else stop("unknown 'threshold.type'")
 
   for (i in seq_along(threshold)) {
     if (threshold[i] > max.scores[i])
@@ -321,6 +351,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
   alph <- switch(seq.alph, "DNA" = "ACGT", "RNA" = "ACGU",
                  "AA" = collapse_cpp(AA_STANDARD2), seq.alph)
+  sequences.original <- sequences
   sequences <- as.character(sequences)
   strands <- rep("+", length(score.mats))
 
@@ -332,6 +363,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     min.scores <- min.scores[gapdat$IDs]
     max.scores <- max.scores[gapdat$IDs]
   }
+
+  score.mats.original <- score.mats
 
   if (RC || respect.strand) {
     if (respect.strand) {
@@ -401,18 +434,75 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     seqlengths = structure(width(sequences), names = names(sequences))
   )
 
-  if (any(mot.hasgap) && use.gaps) {
+  if (nrow(out) && any(mot.hasgap) && use.gaps) {
     out$match <- add_gap_dots_cpp(out$match, gapdat$gaplocs[out$motif.i])
     out$motif.i <- gapdat$IDs[out$motif.i]
   }
 
-  if (calc.pvals) {
-    out$pvalue <- motif_pvalue(motifs[out$motif.i], out$score, use.freq = use.freq,
-      nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k)
+  if (nrow(out) && calc.pvals) {
+
+    out$pvalue <- NA_real_
+
+    if (motif_pvalue.method == "exhaustive") {
+      out$pvalue <- motif_pvalue(motifs[out$motif.i], out$score, use.freq = use.freq,
+        nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k,
+        method = motif_pvalue.method)
+    } else {
+      # TODO: do multithreaded w/ c++
+      for (i in unique(out$motif.i)) {
+        which.rows <- which(out$motif.i == i)
+        out$pvalue[which.rows] <- motif_pvalue(motifs[[i]], out$score[which.rows],
+          use.freq = use.freq, nthreads = nthreads, allow.nonfinite = allow.nonfinite,
+          k = motif_pvalue.k, method = motif_pvalue.method)
+      }
+    }
+
+    if (calc.qvals) {
+
+      max_hits <- function(m, seqs) {
+        mLen <- ncol(m)
+        mMax <- sum(width(seqs) - mLen + 1)
+        if (RC) mMax * 2 else mMax
+      }
+
+      out$qvalue <- NA_real_
+
+      # TODO: do multithreaded w/ c++
+      if (calc.qvals.method == "fdr") {
+        for (i in unique(out$motif.i)) {
+          which.rows <- which(out$motif.i == i)
+          out$qvalue[which.rows] <- calc_motif_fdr(
+            max_hits(motifs[[i]], sequences), out$score[which.rows], out$pvalue[which.rows])
+        }
+      } else if (calc.qvals.method == "BH") {
+        for (i in unique(out$motif.i)) {
+          which.rows <- which(out$motif.i == i)
+          out$qvalue[which.rows] <- calc_motif_bh(
+            max_hits(motifs[[i]], sequences), out$pvalue[which.rows])
+        }
+      } else if (calc.qvals.method == "bonferroni") {
+        for (i in unique(out$motif.i)) {
+          which.rows <- which(out$motif.i == i)
+          out$qvalue[which.rows] <- calc_motif_bonferroni(
+            max_hits(motifs[[i]], sequences), out$pvalue[which.rows])
+        }
+      }
+
+      if (threshold.type == "qvalue") {
+        out <- out[out$qvalue <= threshold, ]
+      }
+
+    }
+
+  } else if (!nrow(out) && calc.pvals) {
+    out$pvalue <- numeric()
+    if (calc.qvals) {
+      out$qvalue <- numeric()
+    }
   }
 
-  if (no.overlaps && nrow(out) > 1) {
-    # TODO: The no.overlaps code is rather slow, not too happy.
+  if (nrow(out) && no.overlaps) {
+    # TODO: multithreaded c++
     if (RC && no.overlaps.by.strand) {
       row.indices.plus <- which(out$strand == "+")
       row.indices.minus <- which(out$strand == "-")
@@ -448,12 +538,33 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
 
 }
 
+calc_motif_bonferroni <- function(mMax, pvals) {
+  pmin(pvals * mMax, 1)
+}
+
+calc_motif_bh <- function(mMax, pvals) {
+  pmin(pvals / ((rank(pvals) / mMax) * 100), 1)
+}
+
+calc_motif_fdr <- function(mMax, scores, pvals) {
+  scoreDF <- data.frame(OriginalOrder = seq_along(scores), Scores = scores,
+    Pvals = pvals)
+  scoreDF <- scoreDF[order(scoreDF$Scores), ]
+  scoreDF$ObsHits <- rev(seq_len(nrow(scoreDF)))
+  scoreDF$NulHits <- mMax * scoreDF$Pvals
+  scoreDF$FDR <- scoreDF$NulHits / scoreDF$ObsHits
+  scoreDF$FDR <- cummin(scoreDF$FDR)
+  scoreDF$FDR <- pmin(scoreDF$FDR, 1)
+  scoreDF$FDR[order(scoreDF$OriginalOrder)]
+}
+
 # What about this kind of situation?
 #  seq:   CAAAAACCAAAACCAAAACC
 #  hit 1: ++++++++
 #  hit 2:       ++++++++
 #  hit 3:             ++++++++
 # What should happen here? Right now only one of the three is kept.
+# (The c++ rewrite should take care of this I think.)
 
 remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
   if (!length(i)) return(i)

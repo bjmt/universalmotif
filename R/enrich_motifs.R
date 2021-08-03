@@ -82,7 +82,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   return.scan.results = FALSE, nthreads = 1, rng.seed = sample.int(1e4, 1),
   motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
   warn.NA = TRUE, no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
-  no.overlaps.strat = "score", respect.strand = FALSE) {
+  no.overlaps.strat = "score", respect.strand = FALSE,
+  motif_pvalue.method = c("dynamic", "exhaustive"),
+  scan_sequences.qvals.method = c("BH", "fdr", "bonferroni")) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -96,9 +98,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     qval.method_check <- wmsg2(qval.method_check, 4, 2)
     all_checks <- c(all_checks, qval.method_check)
   }
-  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs")) {
+  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs", "qvalue")) {
     threshold.type_check <- paste0(" * Incorrect 'threshold.type': expected ",
-                                   "`logodds`, `logodds.abs` or `pvalue`; got `",
+                                   "`logodds`, `logodds.abs`, `pvalue` or `qvalue`; got `",
                                    threshold.type, "`")
     threshold.type_check <- wmsg2(threshold.type_check, 4, 2)
     all_checks <- c(all_checks, threshold.type_check)
@@ -169,6 +171,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     if (verbose > 0)
       message(" > Converting P-values to logodds thresholds")
     threshold <- suppressMessages(motif_pvalue(motifs, pvalue = threshold,
+        method = motif_pvalue.method,
         use.freq = use.freq, k = motif_pvalue.k, allow.nonfinite = allow.nonfinite))
     max.scores <- vapply(motifs, function(x)
       suppressMessages(motif_score(x, 1, use.freq, threshold.type = "fromzero",
@@ -187,7 +190,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   res.all <- enrich_mots2(motifs, sequences, bkg.sequences, threshold,
     verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
     nthreads, args[-(1:3)], use.gaps, allow.nonfinite, warn.NA,
-    no.overlaps, no.overlaps.by.strand, no.overlaps.strat, respect.strand)
+    no.overlaps, no.overlaps.by.strand, no.overlaps.strat, respect.strand,
+    motif_pvalue.method, scan_sequences.qvals.method)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
@@ -216,7 +220,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
   nthreads, args, use.gaps, allow.nonfinite, warn.NA, no.overlaps,
-  no.overlaps.by.strand, no.overlaps.strat, respect.strand) {
+  no.overlaps.by.strand, no.overlaps.strat, respect.strand,
+  motif_pvalue.method, scan_sequences.qvals.method) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -231,14 +236,18 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
     use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
-    no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand)
+    no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand,
+    motif_pvalue.method = motif_pvalue.method,
+    calc.qvals.method = scan_sequences.qvals.method)
 
   if (verbose > 0) message(" > Scanning background sequences")
   results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
     threshold.type, RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
     use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
-    no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand))
+    no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand,
+    motif_pvalue.method = motif_pvalue.method,
+    calc.qvals.method = scan_sequences.qvals.method))
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
