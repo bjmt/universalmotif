@@ -4,7 +4,7 @@
 - Check that everything in convert_motifs() still works
 - Check that all read/write_*() functions still work
 - Add tests
-- Visualisation of scan_sequences()/enrich_motifs()
+- Visualisation of scan_sequences()/enrich_motifs() --> mention EnrichedHeatmap
 - Work on Rmd output of compare_motifs()
 - motif_peaks(): compare two sets of sequences (enrichment analysis)
 - motif_peaks(): serious code cleanup needed
@@ -19,7 +19,6 @@
   them
 - small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
   un-log for print and `[` methods?
-- get_bkg(): rewrite so that all window code is in c++ (like in sequence-utils)
 - de novo motifs:
     + first search 4/5/6/7/8-mers for enrichment differences (either
       against background or statistically expected based on 1/2/3-let frequencies)
@@ -35,12 +34,10 @@
   behaviour consistent with previous version!)
 - can motif_pvalue() sometimes return the incorrect p-value when the provided
   score is also the max possible score? (maybe something to do with rounding)
-- time for another make_DBscores() re-write I think
+- time for another make_DBscores() re-write I think --> use dynamic pvals?
 - need a function which can allow for motifs with different background freqs
    to be comparable: maybe something like PPM --> PWM (change background) PWM
    --> PPM?
-- view_motifs(show.positions.once = FALSE): actually show proper per-motif
-  positions, not just numbering all columns
 - create_motif(): is there a check for the "type" input?
     + why does create_motif(type="asdf") work?
 - read_*(): allow to set pseudocount
@@ -86,7 +83,6 @@
 - would it be faster to handle chars from XString directly instead of converting to
   integer?
 - should def rework shuffle so that it doesn't create unconnected vertices!
-- migrate from testthat to tinytest
 - dont think enrichment is taking into account respect.strand in enrich_motifs(),
   only looks at RC=TRUE/FALSE
 - shuffle_motifs() adds a pseudocount??
@@ -96,9 +92,10 @@
 - motif_pvalue(ArabidopsisMotif, 20) --> segfault??????
 - motif_pvalue(ArabidopsisMotif, motif_score(ArabidopsisMotif, 1)) --> 0?
 - scan_sequences(motifs[1:100], athaliana, warn.NA=F,threshold=.9,
-    threshold.type="logodds",nthreads=6) --> crashes!!!
-- enrich_motifs with size 1 sequences causes crash
-- compare_motifs() using mean: why not calculate sum for all alignments, pick
-  the best one, then calculate the mean? not sure if that would work for other
-  score.strat methods though
-- view_motifs(): make sure all text is black and not grey
+    threshold.type="logodds",nthreads=6) --> crashes!!! (out of memory I think)
+- enrich_motifs with size 1 sequences causes crash --> check size of seqs
+- view_motifs(): make sure all text is black and not grey (x/y tick text)
+- stop using multifreq slot; make motif objects represent a single order level
+- comparison: add option to use sum to find best alignment, then apply mean/etc
+- create a separate repo for a universalmotif website; otherwise the vignettes
+  in the package will become too big/annoying
