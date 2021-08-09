@@ -175,60 +175,64 @@ data(ArabidopsisPromoters)
 seqs <- DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3))
 motif <- create_motif(seqs, pseudocount = 1)
 
-scan_sequences(motif, ArabidopsisPromoters, threshold = 0.9,
-    threshold.type = "logodds")
-#> DataFrame with 53 rows and 12 columns
+scan_sequences(motif, ArabidopsisPromoters)
+#> DataFrame with 53 rows and 14 columns
 #>           motif   motif.i    sequence     start      stop     score       match
 #>     <character> <integer> <character> <integer> <integer> <numeric> <character>
-#> 1         motif         1   AT4G28150       621       627      9.08     CTAAACC
-#> 2         motif         1   AT1G19380       139       145      9.08     CTTATCC
-#> 3         motif         1   AT1G19380       204       210      9.08     CTAAACC
-#> 4         motif         1   AT1G03850       203       209      9.08     CTAATCC
-#> 5         motif         1   AT5G01810       821       827      9.08     CATATCC
+#> 1         motif         1   AT1G03850       203       209      9.08     CTAATCC
+#> 2         motif         1   AT1G06160       956       962      9.08     CTAATCC
+#> 3         motif         1   AT1G07490       472       478      9.08     CTTAACC
+#> 4         motif         1   AT1G07490       936       942      9.08     CATTTCC
+#> 5         motif         1   AT1G19380       139       145      9.08     CTTATCC
 #> ...         ...       ...         ...       ...       ...       ...         ...
-#> 49        motif         1   AT1G19510       960       966      9.08     CTTTTCC
+#> 49        motif         1   AT5G20200       430       436      9.08     CAATTCC
 #> 50        motif         1   AT5G22690        81        87      9.08     CAATACC
 #> 51        motif         1   AT5G22690       362       368      9.08     CAAATCC
-#> 52        motif         1   AT1G06160       956       962      9.08     CTAATCC
-#> 53        motif         1   AT3G19200       365       371      9.08     CATTACC
-#>     thresh.score min.score max.score score.pct      strand
-#>        <numeric> <numeric> <numeric> <numeric> <character>
-#> 1          8.172   -19.649      9.08       100           +
-#> 2          8.172   -19.649      9.08       100           +
-#> 3          8.172   -19.649      9.08       100           +
-#> 4          8.172   -19.649      9.08       100           +
-#> 5          8.172   -19.649      9.08       100           +
-#> ...          ...       ...       ...       ...         ...
-#> 49         8.172   -19.649      9.08       100           +
-#> 50         8.172   -19.649      9.08       100           +
-#> 51         8.172   -19.649      9.08       100           +
-#> 52         8.172   -19.649      9.08       100           +
-#> 53         8.172   -19.649      9.08       100           +
+#> 52        motif         1   AT5G58430       332       338      9.08     CATAACC
+#> 53        motif         1   AT5G58430       343       349      9.08     CAAATCC
+#>     thresh.score min.score max.score score.pct      strand      pvalue    qvalue
+#>        <numeric> <numeric> <numeric> <numeric> <character>   <numeric> <numeric>
+#> 1           9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 2           9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 3           9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 4           9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 5           9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> ...          ...       ...       ...       ...         ...         ...       ...
+#> 49          9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 50          9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 51          9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 52          9.08   -19.649      9.08       100           + 0.000976562  0.915758
+#> 53          9.08   -19.649      9.08       100           + 0.000976562  0.915758
 
 motif.k2 <- add_multifreq(motif, seqs, add.k = 2)
-scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 0.9,
-    threshold.type = "logodds")
-#> DataFrame with 8 rows and 12 columns
-#>         motif   motif.i    sequence     start      stop     score       match
-#>   <character> <integer> <character> <integer> <integer> <numeric> <character>
-#> 1       motif         1   AT4G12690       938       943    17.827      CAAAAC
-#> 2       motif         1   AT2G37950       751       756    17.827      CAAAAC
-#> 3       motif         1   AT1G49840       959       964    17.827      CTTTTC
-#> 4       motif         1   AT1G77210       184       189    17.827      CAAAAC
-#> 5       motif         1   AT1G77210       954       959    17.827      CAAAAC
-#> 6       motif         1   AT3G57640       917       922    17.827      CTTTTC
-#> 7       motif         1   AT4G14365       977       982    17.827      CTTTTC
-#> 8       motif         1   AT1G19510       960       965    17.827      CTTTTC
-#>   thresh.score min.score max.score score.pct      strand
-#>      <numeric> <numeric> <numeric> <numeric> <character>
-#> 1      16.0443   -16.842    17.827       100           +
-#> 2      16.0443   -16.842    17.827       100           +
-#> 3      16.0443   -16.842    17.827       100           +
-#> 4      16.0443   -16.842    17.827       100           +
-#> 5      16.0443   -16.842    17.827       100           +
-#> 6      16.0443   -16.842    17.827       100           +
-#> 7      16.0443   -16.842    17.827       100           +
-#> 8      16.0443   -16.842    17.827       100           +
+scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-5)
+#> DataFrame with 78 rows and 14 columns
+#>           motif   motif.i    sequence     start      stop     score       match
+#>     <character> <integer> <character> <integer> <integer> <numeric> <character>
+#> 1         motif         1   AT1G03850       111       116    12.213      ATTTTC
+#> 2         motif         1   AT1G06160       381       386    12.213      AAAAAC
+#> 3         motif         1   AT1G06160       830       835    12.213      ATTTTC
+#> 4         motif         1   AT1G07490       472       477    12.213      CTTAAC
+#> 5         motif         1   AT1G07490       749       754    12.213      TTTTTC
+#> ...         ...       ...         ...       ...       ...       ...         ...
+#> 74        motif         1   AT5G20200       808       813    12.213      ATTTTC
+#> 75        motif         1   AT5G22690       362       367    12.213      CAAATC
+#> 76        motif         1   AT5G24660       939       944    12.213      TAAAAC
+#> 77        motif         1   AT5G47230       501       506    12.213      GAAAAC
+#> 78        motif         1   AT5G58430       343       348    12.213      CAAATC
+#>     thresh.score min.score max.score score.pct      strand      pvalue    qvalue
+#>        <numeric> <numeric> <numeric> <numeric> <character>   <numeric> <numeric>
+#> 1         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 2         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 3         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 4         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 5         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> ...          ...       ...       ...       ...         ...         ...       ...
+#> 74        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 75        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 76        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 77        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
+#> 78        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.043751
 ```
 
 Note the differences between the matching sequences of regular scanning versus higher order scanning.

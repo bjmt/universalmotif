@@ -104,3 +104,4 @@
 - Add an example in vignettes about methylated DNA, referring to
   https://www.biorxiv.org/content/10.1101/043794v1
   e.g. create_motif(alphabet="ACGTm", bkg = c(A=.25,C=.125,G=.25,T=.25,m=.125))
+- Update README to show p-values in scanning
