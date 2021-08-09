@@ -42,7 +42,7 @@ All of the functions within the `universalmotif` package are fairly well documen
 - [Sequence manipulation and scanning](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/SequenceSearches.pdf)
 - [Motif comparisons and P-values](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifComparisonAndPvalues.pdf)
 
-You can also look through the slides of my [Bioc2021 presentation](https://f1000research.com/slides/10-715), which goes over some basics of motif represenations, scanning, and motif comparison.
+You can also look through the slides of my [Bioc2021 presentation](https://f1000research.com/slides/10-715), which goes over some basics of motif representations, scanning, and motif comparison.
 
 A few key functions are also explored below.
 
