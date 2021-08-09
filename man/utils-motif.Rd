@@ -12,6 +12,7 @@
 \alias{get_matches}
 \alias{get_scores}
 \alias{icm_to_ppm}
+\alias{motif_range}
 \alias{motif_score}
 \alias{log_string_pval}
 \alias{pcm_to_ppm}
@@ -48,6 +49,8 @@ get_matches(motif, score, allow.nonfinite = FALSE)
 get_scores(motif, allow.nonfinite = FALSE)
 
 icm_to_ppm(position)
+
+motif_range(motif, use.freq = 1, allow.nonfinite = FALSE)
 
 motif_score(motif, threshold = c(0, 1), use.freq = 1,
   allow.nonfinite = FALSE, threshold.type = c("total", "fromzero"))
@@ -138,13 +141,14 @@ pseudocount greater than zero and the motif is not currently of type PWM,
 then this parameter has no effect as the pseudocount will be
 applied automatically when the motif is converted to a PWM internally. This
 value is set to \code{FALSE} by default in order to stay consistent with
-pre-version 1.8.0 behaviour.}
-
-\item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
-representing score percentage.}
+pre-version 1.8.0 behaviour. A message will be printed if a pseudocount
+is applied. To disable this, set \code{options(pseudocount.warning=FALSE)}.}
 
 \item{use.freq}{\code{numeric(1)} Use regular motif or the respective \code{multifreq}
 representation.}
+
+\item{threshold}{\code{numeric(1)} Any number of numeric values between 0 and 1
+representing score percentage.}
 
 \item{threshold.type}{\code{character} For \code{"total"}, a threshold of zero
 represents the minimum possible score. This means the range of scores that
@@ -189,6 +193,8 @@ For \code{\link[=get_consensus]{get_consensus()}} and \code{\link[=get_consensus
 of length 1.
 
 For \code{\link[=get_matches]{get_matches()}}: a \code{character} vector of motif matches.
+
+For \code{\link[=motif_range]{motif_range()}}: a named \code{numeric} vector of motif scores.
 
 For \code{\link[=motif_score]{motif_score()}}: a named \code{numeric} vector of motif scores.
 
@@ -278,6 +284,12 @@ get_scores(examplemotif0, allow.nonfinite = TRUE)
 ## Do the opposite of ppm_to_icm.
 m <- create_motif(type = "ICM")["motif"]
 apply(m, 2, icm_to_ppm)
+
+#######################################################################
+## motif_range
+## Calculate the range of possible logodds scores for a motif
+motif_range(examplemotif)
+motif_range(examplemotif, allow.nonfinite = TRUE)
 
 #######################################################################
 ## motif_score

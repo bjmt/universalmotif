@@ -483,14 +483,84 @@ double motif_score_single(const list_int_t &mot, const int k, const int randtrie
 
 }
 
-/* C++ ENTRY ---------------------------------------------------------------- */
+Rcpp::NumericVector get_pdf(const Rcpp::IntegerMatrix &mot, const R_xlen_t maxscore, const Rcpp::NumericVector &bkg) {
 
-/*
- * TODO:
- *    - Add checks for empty motifs
- *    - Check for empty background vectors
- *    - Check min/max input vs actual scores?
- */
+  // Based of the get_pdf_table() function from meme/src/pssm.c
+
+  R_xlen_t alphlen = mot.nrow(), width = mot.ncol();
+  R_xlen_t pdflen = width * maxscore + 1;
+  Rcpp::NumericVector pdfnew(pdflen, 1);
+  Rcpp::NumericVector pdfold(pdflen, 1);
+
+  for (R_xlen_t i = 0; i < width; ++i) {
+    R_xlen_t maxstep = i * maxscore;
+    for (R_xlen_t k = 0; k < pdflen; ++k) {
+      pdfold[k] = pdfnew[k];
+    }
+    for (R_xlen_t k = 0; k <= maxstep + maxscore; ++k) {
+      pdfnew[k] = 0;
+    }
+    for (R_xlen_t j = 0; j < alphlen; ++j) {
+      R_xlen_t s = mot(j, i);
+      for (R_xlen_t k = 0; k <= maxstep; ++k) {
+        if (pdfold[k] != 0) {
+          pdfnew[k + s] = pdfnew[k + s] + pdfold[k] * bkg[j];
+        }
+      }
+    }
+  }
+
+  return pdfnew;
+
+}
+
+Rcpp::NumericVector motif_cdf_cpp(const Rcpp::NumericMatrix &mot, const Rcpp::NumericVector &bkg) {
+
+  Rcpp::IntegerMatrix motif(mot.nrow(), mot.ncol());
+  int motif_min = 0;
+  R_xlen_t motif_max = 0;
+
+  for (R_xlen_t i = 0; i < mot.nrow(); ++i) {
+    for (R_xlen_t j = 0; j < mot.ncol(); ++j) {
+      int tmp = mot(i, j) * 1000.0;
+      if (tmp < motif_min) {
+        motif_min = tmp;
+      }
+      motif(i, j) = tmp;
+    }
+  }
+
+  motif_min *= -1;
+
+  for (R_xlen_t i = 0; i < mot.nrow(); ++i) {
+    for (R_xlen_t j = 0; j < mot.ncol(); ++j) {
+      motif(i, j) += motif_min;
+      if (motif(i, j) > motif_max) {
+        motif_max = motif(i, j);
+      }
+    }
+  }
+
+  for (R_xlen_t i = 0; i < mot.nrow(); ++i) {
+    for (R_xlen_t j = 0; j < mot.ncol(); ++j) {
+      if (motif(i, j) < 0) {
+        Rcpp::stop("[motif_cdf_cpp] Found a -ve value in int matrix");
+      }
+    }
+  }
+
+  Rcpp::NumericVector motif_pdf = get_pdf(motif, motif_max, bkg);
+  double motif_pdf_sum = sum(motif_pdf);
+  Rcpp::NumericVector motif_cdf = motif_pdf / motif_pdf_sum;
+  for (R_xlen_t i = motif_cdf.size() - 2; i >= 0; --i) {
+    motif_cdf[i] += motif_cdf[i + 1];
+  }
+
+  return motif_cdf;
+
+}
+
+/* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
 std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
@@ -530,8 +600,8 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
     const int nthreads = 1, const int randtries = 100,
     const bool allow_nonfinite = false) {
 
-  if (k < 1) Rcpp::stop("k must be at least 1");
-  if (randtries < 1) Rcpp::stop("randtries must be at least 1");
+  if (k < 1) Rcpp::stop("[motif_score_cpp] k must be at least 1");
+  if (randtries < 1) Rcpp::stop("[motif_score_cpp] randtries must be at least 1");
 
   list_mat_t vmots(motifs.size());
   for (R_xlen_t i = 0; i < motifs.size(); ++i) {
@@ -631,5 +701,113 @@ Rcpp::StringVector paths_to_alph(const Rcpp::IntegerMatrix &paths,
   }
 
   return outstr;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::NumericVector motif_pvalue_dynamic_single_cpp(const Rcpp::NumericMatrix &mot, const Rcpp::NumericVector &bkg, const Rcpp::NumericVector &scores) {
+
+  if (!mot.nrow() || !mot.ncol()) {
+    Rcpp::stop("Motif matrix has zero rows/columns");
+  }
+  if (!bkg.size()) {
+    Rcpp::stop("Bkg vector is empty");
+  }
+  if (!scores.size()) {
+    Rcpp::stop("Scores vector is empty");
+  }
+
+  double mot_min = 0.0;
+  for (R_xlen_t i = 0; i < mot.nrow(); ++i) {
+    for (R_xlen_t j = 0; j < mot.ncol(); ++j) {
+      if (mot(i, j) < mot_min) {
+        mot_min = mot(i, j);
+      }
+    }
+  }
+  mot_min *= 1000.0;
+  mot_min = trunc(mot_min);
+  mot_min *= mot.ncol();
+
+  Rcpp::IntegerVector scores_index(scores.size());
+  for (R_xlen_t i = 0; i < scores.size(); ++i) {
+    scores_index[i] = trunc(scores[i] * 1000.0) - mot_min;
+  }
+  Rcpp::NumericVector motif_cdf = motif_cdf_cpp(mot, bkg);
+
+  Rcpp::NumericVector pvalues(scores.size());
+  for (R_xlen_t i = 0; i < scores.size(); ++i) {
+    if (scores_index[i] < 0) {
+      pvalues[i] = 1;
+    } else if (scores_index[i] < motif_cdf.size()) {
+      pvalues[i] = motif_cdf[scores_index[i]];
+    }
+  }
+
+  return pvalues;
+
+}
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::NumericVector motif_score_dynamic_single_cpp(const Rcpp::NumericMatrix &mot, const Rcpp::NumericVector &bkg, const Rcpp::NumericVector &pvalues) {
+
+  if (!mot.nrow() || !mot.ncol()) {
+    Rcpp::stop("Motif matrix has zero rows/columns");
+  }
+  if (!bkg.size()) {
+    Rcpp::stop("Bkg vector is empty");
+  }
+  if (!pvalues.size()) {
+    Rcpp::stop("P-values vector is empty");
+  }
+
+  double score_max = 0.0, score_min = 0.0, dynamic_min = 0.0;
+
+  for (R_xlen_t j = 0; j < mot.ncol(); ++j) {
+    double tmp_score_max = 0, tmp_score_min = 0.0;
+    for (R_xlen_t i = 0; i < mot.nrow(); ++i) {
+      if (mot(i, j) < dynamic_min) {
+        dynamic_min = mot(i, j);
+      }
+      if (mot(i, j) < tmp_score_min) {
+        tmp_score_min = mot(i, j);
+      }
+      if (mot(i, j) > tmp_score_max) {
+        tmp_score_max = mot(i, j);
+      }
+    }
+    score_min += tmp_score_min;
+    score_max += tmp_score_max;
+  }
+
+  dynamic_min *= -1000.0;
+  dynamic_min = trunc(dynamic_min);
+  dynamic_min *= mot.ncol();
+
+  Rcpp::NumericVector motif_cdf = motif_cdf_cpp(mot, bkg);
+  Rcpp::NumericVector scores(pvalues.size());
+
+  for (R_xlen_t i = 0; i < pvalues.size(); ++i) {
+    scores[i] = motif_cdf.size();
+    for (R_xlen_t j = 0; j < motif_cdf.size(); ++j) {
+      if (motif_cdf[j] < pvalues[i]) {
+        scores[i] = j - 1;
+        break;
+      }
+    }
+  }
+
+  scores = scores - dynamic_min;
+  scores = scores / 1000.0;
+
+  for (R_xlen_t i = 0; i < scores.size(); ++i) {
+    if (scores[i] > score_max) {
+      scores[i] = score_max;
+    } else if (scores[i] < score_min) {
+      scores[i] = score_min;
+    }
+  }
+
+  return scores;
 
 }

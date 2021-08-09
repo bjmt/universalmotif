@@ -13,6 +13,7 @@
 #' @return Single motif object or list.
 #'
 #' @details
+#' ## Input
 #' The following packge-class combinations can be used as input:
 #' * MotifDb-MotifList
 #' * TFBSTools-PFMatrix
@@ -30,6 +31,7 @@
 #' * universalmotif-universalmotif
 #' * matrix
 #'
+#' ## Output
 #' The following package-class combinations can be output:
 #' * TFBSTools-PFMatrix
 #' * TFBSTools-PWMatrix
@@ -41,7 +43,7 @@
 #' * PWMEnrich-PWM
 #' * Biostrings-PWM (\code{type = 'log2prob'})
 #' * rGADEM-motif
-#' * universalmotif-universalmotif
+#' * universalmotif-universalmotif (the default, no need to specify this)
 #'
 #' @examples
 #' # Convert from universalmotif:

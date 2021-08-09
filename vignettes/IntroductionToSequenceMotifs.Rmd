@@ -145,7 +145,11 @@ Now, the score for AAGAAA is 8.46, and the score for AAAAAA is 4.76. Though the 
 
 When searching for instances of this motif using this scoring system, one more consideration is needed: a minimum score. For example, both sequences AAGAAA and ATTTTT have positive scores; but one is much higher than the other. Should ATTTTT then be discarded? In order to answer this a threshold is set, typically this is a certain percent of the highest possible score. For example, in the table \@ref(tab:pwmpseudo) motif, the highest possible score is 8.46. Using a threshold of 25%, the minimum score then becomes 2.115. This means that ATTTTT, with a score of 1.112, would indeed be discarded.
 
-Other methods for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function. See the MotifComparisonAndPvalues vignette for a detailed overview.
+Another method for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function. See the `MotifComparisonAndPvalues` vignette for a detailed overview. 
+
+Finally, thresholds can be found by optimizing for the enrichment of the number of hits between a positive and negative set of sequences. This method is used by HOMER [@homer], and a simpler version of this concept has been made available from within the `universalmotif` package via the `find_threshold()` function.
+
+Whichever method you use however, it is important to remember that there is likely never one single threshold that works in every situation. Lower threshold sequences can be bound in the case of transcription factors which bind DNA with less specificity or are present in higher concentrations, and the opposite can be true of higher-specificity or less concentrated transcription factors. See @biophys03 and @ruan17 for some background on the topic.
 
 # Information content matrices
 

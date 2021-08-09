@@ -47,6 +47,8 @@ Given a set of input sequences, shuffle the letters within those
 sequences with any k-let size.
 }
 \details{
+\subsection{markov method}{
+
 If \code{method = 'markov'}, then the Markov model is used to
 generate sequences which will maintain (on average) the k-let
 frequencies. Please note that this method is not a 'true' shuffling, and
@@ -54,6 +56,9 @@ for short sequences (e.g. <100bp) this can result in slightly more
 dissimilar sequences versus true shuffling. See
 Fitch (1983) for a discussion on the
 topic.
+}
+
+\subsection{euler method}{
 
 If \code{method = 'euler'}, then the sequence shuffling method proposed by
 Altschul and Erickson (1985) is used. As opposed
@@ -64,14 +69,21 @@ available letters however, so the cycle-popping algorithm proposed by
 Propp and Wilson (1998) is used to find a
 random Eulerian path. A side effect of using this method is that the
 starting and ending sequence letters will remain unshuffled.
+}
+
+\subsection{linear method}{
 
 If \code{method = 'linear'}, then the input sequences are split linearly
 every \code{k} letters. For example, for \code{k = 3} 'ACAGATAGACCC' becomes
 'ACA GAT AGA CCC'; after which these \code{3}-lets are shuffled randomly.
+}
+
+\subsection{Single-letter shuffling}{
 
 Do note however, that the \code{method} parameter is only relevant for \code{k > 1}.
 For \code{k = 1}, a simple shuffling is performed using the \code{shuffle} function
 from the C++ standard library.
+}
 }
 \examples{
 if (R.Version()$arch != "i386") {

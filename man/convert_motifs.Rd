@@ -68,6 +68,8 @@ nearly all other functions in this package, so any motifs of a compatible
 class can be used without needing to be converted beforehand.
 }
 \details{
+\subsection{Input}{
+
 The following packge-class combinations can be used as input:
 \itemize{
 \item MotifDb-MotifList
@@ -86,6 +88,9 @@ The following packge-class combinations can be used as input:
 \item universalmotif-universalmotif
 \item matrix
 }
+}
+
+\subsection{Output}{
 
 The following package-class combinations can be output:
 \itemize{
@@ -99,7 +104,8 @@ The following package-class combinations can be output:
 \item PWMEnrich-PWM
 \item Biostrings-PWM (\code{type = 'log2prob'})
 \item rGADEM-motif
-\item universalmotif-universalmotif
+\item universalmotif-universalmotif (the default, no need to specify this)
+}
 }
 }
 \section{Methods (by class)}{

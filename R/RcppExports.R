@@ -109,6 +109,14 @@ paths_to_alph <- function(paths, alph) {
     .Call('_universalmotif_paths_to_alph', PACKAGE = 'universalmotif', paths, alph)
 }
 
+motif_pvalue_dynamic_single_cpp <- function(mot, bkg, scores) {
+    .Call('_universalmotif_motif_pvalue_dynamic_single_cpp', PACKAGE = 'universalmotif', mot, bkg, scores)
+}
+
+motif_score_dynamic_single_cpp <- function(mot, bkg, pvalues) {
+    .Call('_universalmotif_motif_score_dynamic_single_cpp', PACKAGE = 'universalmotif', mot, bkg, pvalues)
+}
+
 calc_hit_gc <- function(hits, ignoreN = FALSE) {
     .Call('_universalmotif_calc_hit_gc', PACKAGE = 'universalmotif', hits, ignoreN)
 }

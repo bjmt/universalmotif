@@ -394,6 +394,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// motif_pvalue_dynamic_single_cpp
+Rcpp::NumericVector motif_pvalue_dynamic_single_cpp(const Rcpp::NumericMatrix& mot, const Rcpp::NumericVector& bkg, const Rcpp::NumericVector& scores);
+RcppExport SEXP _universalmotif_motif_pvalue_dynamic_single_cpp(SEXP motSEXP, SEXP bkgSEXP, SEXP scoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type mot(motSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type scores(scoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_pvalue_dynamic_single_cpp(mot, bkg, scores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// motif_score_dynamic_single_cpp
+Rcpp::NumericVector motif_score_dynamic_single_cpp(const Rcpp::NumericMatrix& mot, const Rcpp::NumericVector& bkg, const Rcpp::NumericVector& pvalues);
+RcppExport SEXP _universalmotif_motif_score_dynamic_single_cpp(SEXP motSEXP, SEXP bkgSEXP, SEXP pvaluesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type mot(motSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type bkg(bkgSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type pvalues(pvaluesSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_score_dynamic_single_cpp(mot, bkg, pvalues));
+    return rcpp_result_gen;
+END_RCPP
+}
 // calc_hit_gc
 Rcpp::NumericVector calc_hit_gc(const Rcpp::StringVector& hits, const bool ignoreN);
 RcppExport SEXP _universalmotif_calc_hit_gc(SEXP hitsSEXP, SEXP ignoreNSEXP) {
@@ -968,6 +992,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_expand_scores", (DL_FUNC) &_universalmotif_expand_scores, 1},
     {"_universalmotif_paths_alph_unsort", (DL_FUNC) &_universalmotif_paths_alph_unsort, 2},
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
+    {"_universalmotif_motif_pvalue_dynamic_single_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_dynamic_single_cpp, 3},
+    {"_universalmotif_motif_score_dynamic_single_cpp", (DL_FUNC) &_universalmotif_motif_score_dynamic_single_cpp, 3},
     {"_universalmotif_calc_hit_gc", (DL_FUNC) &_universalmotif_calc_hit_gc, 2},
     {"_universalmotif_switch_antisense_coords_cpp", (DL_FUNC) &_universalmotif_switch_antisense_coords_cpp, 1},
     {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},

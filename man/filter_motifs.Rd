@@ -46,7 +46,7 @@ class, see \code{\link[=convert_motifs]{convert_motifs()}} for limitations.
 }
 \description{
 Filter motifs based on the contents of available \linkS4class{universalmotif}
-slots. If the input motifs are not of \linkS4class{universalmotif}, then they
+slots. If the input motifs are not of \linkS4class{universalmotif}, then
 they will be converted for the duration of the \code{\link[=filter_motifs]{filter_motifs()}} operation.
 }
 \examples{

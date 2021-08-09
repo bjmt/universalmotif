@@ -11,7 +11,9 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
   nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
   use.gaps = TRUE, allow.nonfinite = FALSE, warn.NA = TRUE,
   no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
-  no.overlaps.strat = "score", respect.strand = FALSE)
+  no.overlaps.strat = "score", respect.strand = FALSE,
+  motif_pvalue.method = c("dynamic", "exhaustive"),
+  scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -36,12 +38,12 @@ P-value with the number of input motifs times two
 
 \item{threshold}{\code{numeric(1)} See details.}
 
-\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
+\item{threshold.type}{\code{character(1)} One of \code{c('pvalue', 'qvalue', 'logodds', 'logodds.abs')}. See details.}
 
 \item{verbose}{\code{numeric(1)} 0 for no output, 4 for max verbosity.}
 
-\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
-sequences.}
+\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of the input
+sequences. Only available for DNA/RNA.}
 
 \item{use.freq}{\code{numeric(1)} The default, 1, uses the motif matrix (from
 the \code{motif['motif']} slot) to search for sequences. If a higher
@@ -83,7 +85,8 @@ pseudocount greater than zero and the motif is not currently of type PWM,
 then this parameter has no effect as the pseudocount will be
 applied automatically when the motif is converted to a PWM internally. This
 value is set to \code{FALSE} by default in order to stay consistent with
-pre-version 1.8.0 behaviour.}
+pre-version 1.8.0 behaviour. A message will be printed if a pseudocount
+is applied. To disable this, set \code{options(pseudocount.warning=FALSE)}.}
 
 \item{warn.NA}{\code{logical(1)} Whether to warn about the presence of non-standard
 letters in the input sequence, such as those in masked sequences.}
@@ -99,13 +102,24 @@ strand.}
 
 \item{no.overlaps.strat}{\code{character(1)} One of \code{c("score", "order")}.
 The former option keeps the highest scoring overlapping hit (and the first
-of these within ties), and the latter simply keeps the first overlapping hit.
-keeps the highest scoring}
+of these within ties), and the latter simply keeps the first overlapping hit.}
 
 \item{respect.strand}{\code{logical(1)} If  motifs are DNA/RNA,
 then setting this option to \code{TRUE} will make \code{scan_sequences()} only
 scan the strands of the input sequences as indicated in the motif
 \code{strand} slot.}
+
+\item{motif_pvalue.method}{\code{character(1)} One of \code{c("dynamic", "exhaustive")}.
+Algorithm used for calculating P-values. The \code{"exhaustive"} method
+involves finding all possible motif matches at or above the specified
+score using a branch-and-bound algorithm, which can be computationally
+intensive (Hartman et al., 2013). Additionally, the computation
+must be repeated for each hit. The \code{"dynamic"} method calculates the
+distribution of possible motif scores using a much faster dynamic
+programming algorithm, and can be recycled for multiple
+scores (Grant et al., 2011). The only
+disadvantage is the inability to use \code{allow.nonfinite = TRUE}.
+See \code{\link[=motif_pvalue]{motif_pvalue()}} for details.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and

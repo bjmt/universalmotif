@@ -4,23 +4,33 @@
 \alias{write_homer}
 \title{Export motifs in HOMER format.}
 \usage{
-write_homer(motifs, file, logodds_threshold = 0.6, overwrite = FALSE,
-  append = FALSE)
+write_homer(motifs, file, logodds_threshold = NULL, overwrite = FALSE,
+  append = FALSE, threshold = 0.8, threshold.type = c("logodds",
+  "logodds.abs", "pvalue"))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
 \item{file}{\code{character(1)} File name.}
 
-\item{logodds_threshold}{\code{numeric} Stringency required for HOMER to match a motif.
-See \code{\link[=scan_sequences]{scan_sequences()}}.}
+\item{logodds_threshold}{Deprecated. If set, \code{\link[=read_homer]{read_homer()}} will behave like
+pre-version 1.12.0 of the \code{universalmotif} package for backwards
+compatibility (though a warning will be printed).}
 
 \item{overwrite}{\code{logical(1)} Overwrite existing file.}
 
 \item{append}{\code{logical(1)} Add to an existing file.}
+
+\item{threshold}{\code{numeric(1)} Stringency required for HOMER to match a motif.
+See \code{\link[=scan_sequences]{scan_sequences()}} for how to use this argument. Can be a single value to
+be recycled for all motifs, or a vector of equal length to the number of motifs.}
+
+\item{threshold.type}{\code{character(1)} How the \code{threshold} value should be used
+to obtain the final threshold value in the written motif. See \code{\link[=scan_sequences]{scan_sequences()}}
+for how to use this.}
 }
 \value{
-NULL, invisibly.
+\code{NULL}, invisibly.
 }
 \description{
 Convert DNA motifs to HOMER format and write to file.

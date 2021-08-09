@@ -420,8 +420,6 @@ plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
 
 # Motif P-values
 
-## Calculating P-values from scores
-
 Motif P-values are not usually discussed outside of the bioinformatics literature, but are actually quite a challenging topic. To illustrate this, consider the following example motif:
 
 ```{r}
@@ -442,14 +440,14 @@ Let us then use this motif with `scan_sequences()`:
 data(ArabidopsisPromoters)
 
 res <- scan_sequences(motif, ArabidopsisPromoters, verbose = 0,
-                      threshold = 0.8, threshold.type = "logodds")
+  calc.pvals = FALSE, threshold = 0.8, threshold.type = "logodds")
 head(res)
 ```
 
 Now let us imagine that we wish to rank these matches by P-value. First, we must calculate the match probabilities:
 
 ```{r}
-## The second match was CTCTAGAGAC, with a score of 5.869 (max possible = 6.531)
+## One of the matches was CTCTAGAGAC, with a score of 5.869 (max possible = 6.531)
 
 bkg <- get_bkg(ArabidopsisPromoters, 1)
 bkg <- structure(bkg$probability, names = bkg$klet)
@@ -464,15 +462,89 @@ hit.prob
 
 Calculating the probability of a single match was easy, but then comes the challenging part: calculating the probability of all possible matches with a score higher than 5.869, and then summing these. This final sum then represents the probability of finding a match which scores at least 5.869. One way is to list all possible sequence combinations, then filtering based on score; however this "brute force" approach is unreasonable for all but the smallest of motifs.
 
-A few algorithms have been proposed to make this more efficient, but the method adopted by the `universalmotif` package is that of @pvalues. The authors propose using a branch-and-bound^[https://en.wikipedia.org/wiki/Branch_and_bound] algorithm (with a few tricks) alongside a certain approximation. Briefly: motifs are first reorganized so that the highest scoring positions and letters are considered first in the branch-and-bound algorithm. Then, motifs past a certain width (in the original paper, 10) are split in sub-motifs. All possible combinations are found in these sub-motifs using the branch-and-bound algorithm, and P-values calculated for the sub-motifs. Finally, the P-values are combined.
+## The dynamic programming algorithm for calculating P-values and scores
 
-The `motif_pvalue()` function modifies this process slightly by allowing the size of the sub-motifs to be specified via the `k` parameter; and additionally, whereas the original implementation can only calculate P-values for motifs with a maximum of 17 positions (and motifs can only be split in at most two), the `universalmotif` implementation allows for any length of motif to be used (and motifs can be split any number of times). Changing `k` allows one to decide between speed and accuracy; smaller `k` leads to faster but worse approximations, and larger `k` leads to slower but better approximations. If `k` is equal to the width of the motif, then the calculation is _exact_.
+Instead of trying to find and calculate the probabilities of all matches with a score or higher than the query score, one can use a dynamic programming algorithm to generate a much smaller distribution of probabilities for the possible range of scores using set intervals. This method is implemented by the FIMO tool [@grant11]. The theory behind it is also explained in @gupta07, though the purpose of the algorithm is for motif comparison instead of motif P-values (however it is the same algorithm). The basic concept will also be briefly explained here.
 
-Now, let us return to our original example:
+For each individual position-letter score in the PWM, the chance of getting that score from the respective background probability of that letter is added to the intervals in which getting that specific score could allow the final score to land. Once this probability distribution is generated, it can be converted to a cumulative distribution and re-used for any input P-value/score to output the equivalent score/P-value. For P-value inputs, it finds the specific score interval where the accompanying P-value in the cumulative distribution smaller or equal to it, then reports the score of the previous interval. For score inputs, the scores are rounded to the nearest interval in the cumulative distribution and the accompanying P-value retrieved. The major advantages of this method include only looking for the probabilities of the range of scores with a set interval, cutting down on needing to find the probabilities of all actual possible scores (and thus increasing performance by several orders of magnitude for larger/higher-order motifs), and being able to re-use the distribution for any number of query P-value/scores. Although this method involves rounding off scores to allow a small set interval, in practice in the `universalmotif` package it offers the same maximum possible level of accuracy as the exhaustive method (described in the next section) as motif PWMs are always internally rounded to a thousandth of a decimal place for speed. This leaves as the only downside the inability to allow non-finite values to exist in the PWM (e.g. from zero-probabilities) since then a known range with set intervals could not possibly be created.
+
+Going back to our example, we can see this in action using the `motif_pvalue()` function:
 
 ```{r}
 res <- res[1:6, ]
 pvals <- motif_pvalue(motif, res$score, bkg.probs = bkg)
+res2 <- data.frame(motif=res$motif,match=res$match,pval=pvals)[order(pvals), ]
+knitr::kable(res2, digits = 22, row.names = FALSE, format = "markdown")
+```
+
+To illustrate that we can also do the inverse of this calculation:
+
+```{r}
+res$score
+motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg)
+```
+
+You may occasionally see slight errors at the last couple of digits. These are generally unavoidable to the internal rounding mechanisms of the `universalmotif` package.
+
+Let us consider more examples, such as the following larger motif:
+
+```{r}
+data(ArabidopsisMotif)
+ArabidopsisMotif
+```
+
+Using the `motif_range()` utility, we can get an idea of the possible range of scores:
+
+```{r}
+motif_range(ArabidopsisMotif)
+```
+
+We can use these ranges to confirm our cumulative distribution of P-values:
+
+```{r}
+(pvals2 <- motif_pvalue(ArabidopsisMotif, score = motif_range(ArabidopsisMotif)))
+```
+
+And again, going back to scores from these P-values:
+
+```{r}
+motif_pvalue(ArabidopsisMotif, pvalue = pvals2)
+```
+
+As a note: if you ever provide scores which are outside the possible ranges, then you will get the following behaviour:
+
+```{r}
+motif_pvalue(ArabidopsisMotif, score = c(-200, 100))
+```
+
+We can also use this function for the higher-order `multifreq` motif representation.
+
+```{r}
+data(examplemotif2)
+examplemotif2["multifreq"]["2"]
+motif_range(examplemotif2, use.freq = 2)
+motif_pvalue(examplemotif2, score = 15, use.freq = 2)
+motif_pvalue(examplemotif2, pvalue = 0.00001, use.freq = 2)
+```
+
+Feel free to use this function with any alphabets, such as amino acid motifs or even made up ones!
+
+```{r}
+(m <- create_motif(alphabet = "QWERTY"))
+motif_pvalue(m, pvalue = c(1, 0.1, 0.001, 0.0001, 0.00001))
+```
+
+## The branch-and-bound algorithm for calculating P-values from scores
+
+The alternative to the dynamic programming algorithm is to exhaustively find all actual possible hits with a score equal to or greater than the input score. Generally there is no advantage to solving this exhaustively, with the exception that it allows non-finite values to be present (i.e., zero-probability letters which were not pseudocount-adjusted during the calculation of the PWM). A few algorithms have been proposed to make solving this problem exhaustively more efficient, but the method adopted by the `universalmotif` package is that of @pvalues. The authors propose using a branch-and-bound^[https://en.wikipedia.org/wiki/Branch_and_bound] algorithm (with a few tricks) alongside a certain approximation. Briefly: motifs are first reorganized so that the highest scoring positions and letters are considered first in the branch-and-bound algorithm. Then, motifs past a certain width (in the original paper, 10) are split in sub-motifs. All possible combinations are found in these sub-motifs using the branch-and-bound algorithm, and P-values calculated for the sub-motifs. Finally, the P-values are combined.
+
+The `motif_pvalue()` function modifies this process slightly by allowing the size of the sub-motifs to be specified via the `k` parameter; and additionally, whereas the original implementation can only calculate P-values for motifs with a maximum of 17 positions (and motifs can only be split in at most two), the `universalmotif` implementation allows for any length of motif to be used (and motifs can be split any number of times). Changing `k` allows one to decide between speed and accuracy; smaller `k` leads to faster but worse approximations, and larger `k` leads to slower but better approximations. If `k` is equal to the width of the motif, then the calculation is _exact_. Is it important to note however that this is is still a computationally intenstive task for larger motifs unless it is broken up into several sub-motifs, though at this point significant accuracy is lost due to the high level of approximation.
+
+Now, let us return to our original example, and this time for the branch-and-bound algorithm set `method = "exhaustive"`:
+
+```{r}
+res <- res[1:6, ]
+pvals <- motif_pvalue(motif, res$score, bkg.probs = bkg, method = "e")
 res2 <- data.frame(motif=res$motif,match=res$match,pval=pvals)[order(pvals), ]
 knitr::kable(res2, digits = 22, row.names = FALSE, format = "markdown")
 ```
@@ -493,7 +565,8 @@ out <- data.frame(k = c(2, 4, 6, 8, 10),
 
 for (i in seq_along(scores)) {
   for (j in seq_along(k)) {
-    out[j, i + 1] <- motif_pvalue(motif, scores[i], k = k[j], bkg.probs = bkg)
+    out[j, i + 1] <- motif_pvalue(motif, scores[i], k = k[j], bkg.probs = bkg,
+      method = "e")
   }
 }
 
@@ -502,24 +575,30 @@ knitr::kable(out, format = "markdown", digits = 10)
 
 For this particular motif, while the approximation worsens slightly as `k` decreases, it is still quite accurate when the number of motif subsets is limited to two. Usually, you should only have to worry about `k` for longer motifs (such as those sometimes generated by `MEME`), where the number of sub-motifs increases.
 
-## Calculating scores from P-values
+## The random subsetting algorithm for calculating scores from P-values
 
-The `universalmotif` also allows for calculating motifs scores from P-values. Similarly to calculating P-values, exact scores can be calculated from small motifs, and approximate scores from big motifs using subsetting. When an exact calculation is performed, all possible scores are extracted and a quantile function extracts the appropriate score. For approximate calculations, the overall set of scores are approximate several times by randomly adding up all possible scores from each `k` subset before a quantile function is used.
+Similarly to calculating P-values, exact scores can be calculated from small motifs, and approximate scores from big motifs using subsetting. When an exact calculation is performed, all possible scores are extracted and a quantile function extracts the appropriate score. For approximate calculations, the overall set of scores are approximate several times by randomly adding up all possible scores from each `k` subset before a quantile function is used.
 
-Starting from a set of P-values:
+Starting from a set of P-values and setting `method = "exhaustive"`:
 
 ```{r}
 bkg <- c(A=0.25, C=0.25, G=0.25, T=0.25)
 pvals <- c(0.1, 0.01, 0.001, 0.0001, 0.00001)
-scores <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 10)
+scores <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 10,
+  method = "e")
 
-scores.approx6 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 6)
-scores.approx8 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 8)
+scores.approx6 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 6,
+  method = "e")
+scores.approx8 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 8,
+  method = "e")
 
-pvals.exact <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 10)
+pvals.exact <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 10,
+  method = "e")
 
-pvals.approx6 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 6)
-pvals.approx8 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 8)
+pvals.approx6 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 6,
+  method = "e")
+pvals.approx8 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 8,
+  method = "e")
 
 res <- data.frame(pvalue = pvals, score = scores,
                   pvalue.exact = pvals.exact,
@@ -535,15 +614,21 @@ Starting from a set of scores:
 ```{r}
 bkg <- c(A=0.25, C=0.25, G=0.25, T=0.25)
 scores <- -2:6
-pvals <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 10)
+pvals <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 10,
+  method = "e")
 
-scores.exact <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 10)
+scores.exact <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 10,
+  method = "e")
 
-scores.approx6 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 6)
-scores.approx8 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 8)
+scores.approx6 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 6,
+  method = "e")
+scores.approx8 <- motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg, k = 8,
+  method = "e")
 
-pvals.approx6 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 6)
-pvals.approx8 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 8)
+pvals.approx6 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 6,
+  method = "e")
+pvals.approx8 <- motif_pvalue(motif, score = scores, bkg.probs = bkg, k = 8,
+  method = "e")
 
 res <- data.frame(score = scores, pvalue = pvals,
                   pvalue.k6 = pvals.approx6,

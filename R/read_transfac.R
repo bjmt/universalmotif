@@ -22,6 +22,35 @@
 #' @export
 read_transfac <- function(file, skip = 0) {
 
+  # From https://biopython.readthedocs.io/en/latest/chapter_motifs.html:
+  #
+  # AC	Accession number
+  # AS	Accession numbers, secondary
+  # BA	Statistical basis
+  # BF	Binding factors
+  # BS	Factor binding sites underlying the matrix
+  # CC	Comments
+  # CO	Copyright notice
+  # DE	Short factor description
+  # DR	External databases
+  # DT	Date created/updated
+  # HC	Subfamilies
+  # HP	Superfamilies
+  # ID	Identifier
+  # NA	Name of the binding factor
+  # OC	Taxonomic classification
+  # OS	Species/Taxon
+  # OV	Older version
+  # PV	Preferred version
+  # TY	Type
+  # XX	Empty line; these are not stored in the Record.
+  #
+  # RN	Reference number
+  # RA	Reference authors
+  # RL	Reference data
+  # RT	Reference title
+  # RX	PubMed ID
+
   # param check --------------------------------------------
   args <- as.list(environment())
   char_check <- check_fun_params(list(file = args$file),

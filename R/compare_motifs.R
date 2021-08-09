@@ -62,6 +62,7 @@
 #'    latter, function args are stored in the `metadata` slot.
 #'
 #' @details
+#' ## Available metrics
 #' The following metrics are available:
 #'
 #' * Euclidean distance (`EUCL`) (Choi et al. 2004)
@@ -92,6 +93,7 @@
 #' is used: `KL`, `ALLR`, `ALLR_LL`, `IS`. This is avoid
 #' zeros in the calculations.
 #'
+#' ## Calculating P-values
 #' To note regarding p-values: P-values are pre-computed using the
 #' [make_DBscores()] function. If not given, then uses a set of internal
 #' precomputed P-values from the JASPAR2018 CORE motifs. These precalculated

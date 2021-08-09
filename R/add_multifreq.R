@@ -47,7 +47,8 @@
 #'    \pkg{universalmotif} environment. Despite this, if you wish it can be
 #'    preserved in text using [write_motifs()].
 #'
-#'    Note: the number of rows for each k-let matrix is `n^k`, with `n` being the
+#'    ## A note on motif size
+#'    The number of rows for each k-let matrix is `n^k`, with `n` being the
 #'    number of letters in the alphabet being used. This means that the size
 #'    of the k-let matrix can become quite large as k increases. For example,
 #'    if one were to wish to represent a DNA motif of length 10 as a 10-let,
