@@ -82,7 +82,7 @@
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences,
   max.p = 10e-6, max.q = 10e-6, max.e = 10e-4, qval.method = "fdr",
-  threshold = 0.001, threshold.type = "pvalue", verbose = 0, RC = FALSE,
+  threshold = 0.0001, threshold.type = "pvalue", verbose = 0, RC = FALSE,
   use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
   return.scan.results = FALSE, nthreads = 1, rng.seed = sample.int(1e4, 1),
   motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,

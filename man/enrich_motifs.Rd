@@ -5,7 +5,7 @@
 \title{Enrich for input motifs in a set of sequences.}
 \usage{
 enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
-  max.q = 1e-05, max.e = 0.001, qval.method = "fdr", threshold = 0.001,
+  max.q = 1e-05, max.e = 0.001, qval.method = "fdr", threshold = 1e-04,
   threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler", return.scan.results = FALSE,
   nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
