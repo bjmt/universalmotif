@@ -33,6 +33,10 @@ BiocManager::install("bjmt/universalmotif")
 
 Note: building the vignettes when installing from source is not recommended, unless you don't mind waiting an hour for the necessary dependencies to install.
 
+### Error when installing from source
+
+If you trying to install the package from source and are getting compiler errors similar [to](https://github.com/bjmt/universalmotif/issues/3) [these](https://github.com/bjmt/universalmotif/issues/16) [issues](https://github.com/tnagler/RcppThread/issues/13), then update your C++ compiler. This is an issue regarding older compilers and the C++11 lambda functions from the [RcppThread](https://github.com/tnagler/RcppThread) package, which is used by the `universalmotif` package.
+
 ## Brief overview
 
 All of the functions within the `universalmotif` package are fairly well documented. You can access it from within R, reading the [Bioconductor PDF](https://bioconductor.org/packages/release/bioc/manuals/universalmotif/man/universalmotif.pdf), or browsing the [rdrr.io](https://rdrr.io/bioc/universalmotif/) website. Additionally, several vignettes come with the package, which you can access from within R or on the Bioconductor website:
