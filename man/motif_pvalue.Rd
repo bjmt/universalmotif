@@ -23,7 +23,8 @@ for \code{method = "dynamic"}.}
 If supplying individual background
 probabilities for each motif, a list of such vectors. If missing,
 retrieves the background from the motif \code{bkg} slot. Note that this
-option is only used when providing a P-value and returning a score; for
+option is only used when \code{method = "dynamic"}, or when
+\code{method = "exhaustive"} and providing a P-value and returning a score; for
 the inverse, the motifs are first converted to PWMs via \code{\link[=convert_type]{convert_type()}},
 which uses the motif \code{bkg} slot for background adjustment.}
 
@@ -32,9 +33,10 @@ otherwise uses the corresponding \code{multifreq} matrix. Max is 3 when
 \code{method = "exhaustive"}.}
 
 \item{k}{\code{numeric(1)} For speed, scores/P-values can be approximated after
-subsetting the motif every \code{k} columns. If \code{k} is a value
+subsetting the motif every \code{k} columns when \code{method = "exhaustive"}.
+If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
-are (nearly) exact. The default, 8, is recommended to those looking for
+are exact. The default, 8, is recommended to those looking for
 a good tradeoff between speed and accuracy for jobs requiring repeated
 calculations. Note that this is ignored when \code{method = "dynamic"},
 as subsetting is not required.}
@@ -43,7 +45,8 @@ as subsetting is not required.}
 threads. \code{nthreads = 0} uses all available threads. Currently only
 applied when \code{method = "exhaustive"}.}
 
-\item{rand.tries}{\code{numeric(1)} When \code{ncol(motif) < k}, an approximation is
+\item{rand.tries}{\code{numeric(1)} When \code{ncol(motif) < k} and
+\code{method = "exhaustive"}, an approximation is
 used. This involves randomly approximating the overall
 motif score distribution. To increase accuracy, the distribution is
 approximated \code{rand.tries} times and the final scores averaged. Note
@@ -207,7 +210,7 @@ Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
 matrices.” \emph{Genome Research}, \strong{23}, 181-194.
 }
 \seealso{
-\code{\link[=get_match]{get_match()}}, \code{\link[=get_scores]{get_scores()}}, \code{\link[=motif_range]{motif_range()}}, \code{\link[=motif_score]{motif_score()}},
+\code{\link[=get_matches]{get_matches()}}, \code{\link[=get_scores]{get_scores()}}, \code{\link[=motif_range]{motif_range()}}, \code{\link[=motif_score]{motif_score()}},
 \code{\link[=prob_match]{prob_match()}}, \code{\link[=prob_match_bkg]{prob_match_bkg()}}, \code{\link[=score_match]{score_match()}}
 }
 \author{

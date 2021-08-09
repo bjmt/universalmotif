@@ -48,6 +48,10 @@
 #'    is applied. To disable this, set `options(pseudocount.warning=FALSE)`.
 #' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
 #'    letters in the input sequence, such as those in masked sequences.
+#' @param scan_sequences.qvals.method `character(1)` One of
+#'    `c("fdr", "BH", "bonferroni")`. The method for calculating adjusted
+#'    P-values for individual motif hits. These are described in depth in the
+#'    Sequence Searches vignette.
 #'
 #' @return `DataFrame` Enrichment results in a `DataFrame`. Function args and
 #'    (optionally) scan results are stored in the `metadata` slot.

@@ -184,7 +184,7 @@
 #' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
-#' @seealso [get_match()], [get_scores()], [motif_range()], [motif_score()],
+#' @seealso [get_matches()], [get_scores()], [motif_range()], [motif_score()],
 #'   [prob_match()], [prob_match_bkg()], [score_match()]
 #' @export
 motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,

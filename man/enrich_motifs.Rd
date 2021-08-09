@@ -120,6 +120,11 @@ programming algorithm, and can be recycled for multiple
 scores (Grant et al., 2011). The only
 disadvantage is the inability to use \code{allow.nonfinite = TRUE}.
 See \code{\link[=motif_pvalue]{motif_pvalue()}} for details.}
+
+\item{scan_sequences.qvals.method}{\code{character(1)} One of
+\code{c("fdr", "BH", "bonferroni")}. The method for calculating adjusted
+P-values for individual motif hits. These are described in depth in the
+Sequence Searches vignette.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and
