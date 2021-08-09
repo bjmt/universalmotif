@@ -205,7 +205,7 @@ scan_sequences(motif, ArabidopsisPromoters)
 #> 53          9.08   -19.649      9.08       100           + 0.000976562  0.915758
 
 motif.k2 <- add_multifreq(motif, seqs, add.k = 2)
-scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-5)
+scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-6)
 #> DataFrame with 8 rows and 14 columns
 #>         motif   motif.i    sequence     start      stop     score       match
 #>   <character> <integer> <character> <integer> <integer> <numeric> <character>
