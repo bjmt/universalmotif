@@ -206,33 +206,27 @@ scan_sequences(motif, ArabidopsisPromoters)
 
 motif.k2 <- add_multifreq(motif, seqs, add.k = 2)
 scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-5)
-#> DataFrame with 78 rows and 14 columns
-#>           motif   motif.i    sequence     start      stop     score       match
-#>     <character> <integer> <character> <integer> <integer> <numeric> <character>
-#> 1         motif         1   AT1G03850       111       116    12.213      ATTTTC
-#> 2         motif         1   AT1G06160       381       386    12.213      AAAAAC
-#> 3         motif         1   AT1G06160       830       835    12.213      ATTTTC
-#> 4         motif         1   AT1G07490       472       477    12.213      CTTAAC
-#> 5         motif         1   AT1G07490       749       754    12.213      TTTTTC
-#> ...         ...       ...         ...       ...       ...       ...         ...
-#> 74        motif         1   AT5G20200       808       813    12.213      ATTTTC
-#> 75        motif         1   AT5G22690       362       367    12.213      CAAATC
-#> 76        motif         1   AT5G24660       939       944    12.213      TAAAAC
-#> 77        motif         1   AT5G47230       501       506    12.213      GAAAAC
-#> 78        motif         1   AT5G58430       343       348    12.213      CAAATC
-#>     thresh.score min.score max.score score.pct      strand      pvalue    qvalue
-#>        <numeric> <numeric> <numeric> <numeric> <character>   <numeric> <numeric>
-#> 1         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 2         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 3         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 4         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 5         12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> ...          ...       ...       ...       ...         ...         ...       ...
-#> 74        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 75        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 76        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 77        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.0437516
-#> 78        12.213   -16.842    17.827   68.5084           + 6.86646e-05 0.043751
+#> DataFrame with 8 rows and 14 columns
+#>         motif   motif.i    sequence     start      stop     score       match
+#>   <character> <integer> <character> <integer> <integer> <numeric> <character>
+#> 1       motif         1   AT1G19510       960       965    17.827      CTTTTC
+#> 2       motif         1   AT1G49840       959       964    17.827      CTTTTC
+#> 3       motif         1   AT1G77210       184       189    17.827      CAAAAC
+#> 4       motif         1   AT1G77210       954       959    17.827      CAAAAC
+#> 5       motif         1   AT2G37950       751       756    17.827      CAAAAC
+#> 6       motif         1   AT3G57640       917       922    17.827      CTTTTC
+#> 7       motif         1   AT4G12690       938       943    17.827      CAAAAC
+#> 8       motif         1   AT4G14365       977       982    17.827      CTTTTC
+#>   thresh.score min.score max.score score.pct      strand      pvalue    qvalue
+#>      <numeric> <numeric> <numeric> <numeric> <character>   <numeric> <numeric>
+#> 1       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 2       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 3       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 4       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 5       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 6       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 7       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
+#> 8       17.827   -16.842    17.827       100           + 1.90735e-06 0.0118494
 ```
 
 Note the differences between the matching sequences of regular scanning versus higher order scanning.
