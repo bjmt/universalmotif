@@ -44,7 +44,8 @@
 #'    then this parameter has no effect as the pseudocount will be
 #'    applied automatically when the motif is converted to a PWM internally. This
 #'    value is set to `FALSE` by default in order to stay consistent with
-#'    pre-version 1.8.0 behaviour.
+#'    pre-version 1.8.0 behaviour. A message will be printed if a pseudocount
+#'    is applied. To disable this, set `options(pseudocount.warning=FALSE)`.
 #' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
 #'    letters in the input sequence, such as those in masked sequences.
 #'
@@ -85,6 +86,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
   scan_sequences.qvals.method = c("BH", "fdr", "bonferroni")) {
+
+  motif_pvalue.method <- match.arg(motif_pvalue.method)
+  scan_sequences.qvals.method <- match.arg(scan_sequences.qvals.method)
 
   # param check --------------------------------------------
   args <- as.list(environment())

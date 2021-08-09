@@ -4,13 +4,16 @@
 \alias{scan_sequences}
 \title{Scan sequences for matches to input motifs.}
 \usage{
-scan_sequences(motifs, sequences, threshold = 0.001,
-  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
-  nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE,
-  allow.nonfinite = FALSE, warn.NA = TRUE, calc.pvals = FALSE,
-  return.granges = FALSE, no.overlaps = FALSE,
-  no.overlaps.by.strand = FALSE, no.overlaps.strat = "score",
-  respect.strand = FALSE)
+scan_sequences(motifs, sequences, threshold = 1e-04,
+  threshold.type = c("pvalue", "qvalue", "logodds", "logodds.abs"),
+  RC = FALSE, use.freq = 1, verbose = 0, nthreads = 1,
+  motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
+  warn.NA = TRUE, calc.pvals = TRUE, return.granges = FALSE,
+  no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
+  no.overlaps.strat = c("score", "order"), respect.strand = FALSE,
+  motif_pvalue.method = c("dynamic", "exhaustive"),
+  calc.qvals = calc.pvals, calc.qvals.method = c("fdr", "BH",
+  "bonferroni"))
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -20,10 +23,10 @@ should match motif.}
 
 \item{threshold}{\code{numeric(1)} See details.}
 
-\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
+\item{threshold.type}{\code{character(1)} One of \code{c('pvalue', 'qvalue', 'logodds', 'logodds.abs')}. See details.}
 
-\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
-sequences.}
+\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of the input
+sequences. Only available for DNA/RNA.}
 
 \item{use.freq}{\code{numeric(1)} The default, 1, uses the motif matrix (from
 the \code{motif['motif']} slot) to search for sequences. If a higher
@@ -39,7 +42,7 @@ Note that no speed up will occur for jobs with only a single motif and
 sequence.}
 
 \item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.
-See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
+See \code{\link[=motif_pvalue]{motif_pvalue()}}. Only used if \code{motif_pvalue.method = "exhaustive"}.}
 
 \item{use.gaps}{\code{logical(1)} Set this to \code{FALSE} to ignore motif gaps, if
 present.}
@@ -50,7 +53,10 @@ pseudocount greater than zero and the motif is not currently of type PWM,
 then this parameter has no effect as the pseudocount will be
 applied automatically when the motif is converted to a PWM internally. This
 value is set to \code{FALSE} by default in order to stay consistent with
-pre-version 1.8.0 behaviour.}
+pre-version 1.8.0 behaviour. Also note that this parameter is not
+compatible with \code{motif_pvalue.method = "dynamic"}. A message will be printed
+if a pseudocount is applied. To disable this, set
+\code{options(pseudocount.warning=FALSE)}.}
 
 \item{warn.NA}{\code{logical(1)} Whether to warn about the presence of non-standard
 letters in the input sequence, such as those in masked sequences.}
@@ -58,10 +64,12 @@ letters in the input sequence, such as those in masked sequences.}
 \item{calc.pvals}{\code{logical(1)} Calculate P-values for each hit. This is a
 convenience option which simply gives \code{motif_pvalue()} the input motifs
 and the scores of each hit. Be careful about setting this to \code{TRUE} if
-you anticipate getting thousands of hits: expect to wait a few seconds or
+you anticipate getting thousands of hits and are using
+\code{motif_pvalue.method = "exhaustive"}: expect to wait a few seconds or
 minutes for the calculations to finish. Increasing the \code{nthreads} value
 can help greatly here. See Details for more information on P-value
-calculation.}
+calculation. If \code{motif_pvalue.method = "dynamic"}, then this is usually
+not an issue.}
 
 \item{return.granges}{\code{logical(1)} Return the results as a \code{GRanges} object.
 Requires the \code{GenomicRanges} package to be installed.}
@@ -77,26 +85,46 @@ strand.}
 
 \item{no.overlaps.strat}{\code{character(1)} One of \code{c("score", "order")}.
 The former option keeps the highest scoring overlapping hit (and the first
-of these within ties), and the latter simply keeps the first overlapping hit.
-keeps the highest scoring}
+of these within ties), and the latter simply keeps the first overlapping hit.}
 
 \item{respect.strand}{\code{logical(1)} If  motifs are DNA/RNA,
 then setting this option to \code{TRUE} will make \code{scan_sequences()} only
 scan the strands of the input sequences as indicated in the motif
 \code{strand} slot.}
+
+\item{motif_pvalue.method}{\code{character(1)} One of \code{c("dynamic", "exhaustive")}.
+Algorithm used for calculating P-values. The \code{"exhaustive"} method
+involves finding all possible motif matches at or above the specified
+score using a branch-and-bound algorithm, which can be computationally
+intensive (Hartman et al., 2013). Additionally, the computation
+must be repeated for each hit. The \code{"dynamic"} method calculates the
+distribution of possible motif scores using a much faster dynamic
+programming algorithm, and can be recycled for multiple
+scores (Grant et al., 2011). The only
+disadvantage is the inability to use \code{allow.nonfinite = TRUE}.
+See \code{\link[=motif_pvalue]{motif_pvalue()}} for details.}
+
+\item{calc.qvals}{\code{logical(1)} Whether to also calculate adjusted
+P-values. Only valid if \code{calc.pvals = TRUE}.}
+
+\item{calc.qvals.method}{\code{character(1)} One of \code{c("fdr", "BH", "bonferroni")}.
+The method for calculating adjusted P-values. These are described in
+depth in the Sequence Searches vignette. Also see Noble (2009).}
 }
 \value{
-\code{DataFrame} with each row representing one hit. If the input
-sequences are \code{\link{DNAStringSet}} or
-\code{\link{RNAStringSet}}, then an
-additional column with the strand is included. Function args are stored
-in the \code{metadata} slot.
+\code{DataFrame}, \code{GRanges} with each row representing one hit. If the input
+sequences are \code{\link{DNAStringSet}} or \code{\link{RNAStringSet}},
+then an additional column with the strand is included. Function args are
+stored in the \code{metadata} slot. Alternatively, if \code{return.granges = TRUE}
+then a \code{GRanges} object is returned.
 }
 \description{
 For sequences of any alphabet, scan them using the PWM matrices of
 a set of input motifs.
 }
 \details{
+\subsection{Logodds scoring}{
+
 Similar to \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}}, the scanning method uses
 logodds scoring. (To see the scoring matrix for any motif, simply
 run \code{convert_type(motif, "PWM")}. For a \code{multifreq} scoring
@@ -104,6 +132,9 @@ matrix: \code{apply(motif["multifreq"][["2"]], 2, ppm_to_pwm)}). In order
 to score a sequence, at each position within a sequence of length equal
 to the length of the motif, the scores for each base are summed. If the
 score sum is above the desired threshold, it is kept.
+}
+
+\subsection{Thresholds}{
 
 If \code{threshold.type = 'logodds'}, then the \code{threshold} value is multiplied
 by the maximum possible motif scores. To calculate the
@@ -111,7 +142,17 @@ maximum possible scores a motif (of type PWM) manually, run
 \code{motif_score(motif, 1)}. If \code{threshold.type = 'pvalue'},
 then threshold logodds scores are generated using \code{\link[=motif_pvalue]{motif_pvalue()}}.
 Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
-provided will be used as thresholds.
+provided will be used as thresholds. Finally, if \code{threshold.type = 'qvalue'},
+then the threshold is calculated as if \code{threshold.type = 'pvalue'} and the
+final set of hits are filtered based on their calculated Q-value. (Note:
+this means that the \code{thresh.score} column will be incorrect!) This is done
+since most Q-values cannot be calculated prior to scanning. If you are
+running a very large job, it may be wise to use a P-value threshold
+followed by manually filtering by Q-value; this will avoid the scanning
+have to parse the larger number of hits from the internally-lowered threshold.
+}
+
+\subsection{Non-standard letters}{
 
 Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
 objects) will be safely ignored, resulting only in a warning and a very
@@ -121,16 +162,7 @@ for masking sequences
 (generating \code{\link{MaskedXString}} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
 to recover masked \code{\link{XStringSet}} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
 There is also a provided wrapper function which performs both steps: \code{\link[=mask_seqs]{mask_seqs()}}.
-
-When \code{calc.pvals = TRUE}, \code{\link[=motif_pvalue]{motif_pvalue()}} will calculate the probabilities
-of getting the input scores or higher, which is why it can take time to
-calculate the P-values. If you simply wish to calculate the
-probabilities of getting individual matches based on background frequencies,
-then the following code can be used to achieve
-this (using the list of input motifs and \code{\link[=scan_sequences]{scan_sequences()}} results):
-\code{mapply(prob_match, motifs[scanRes$motif.i], scanRes$match)}. Of course
-this only matters if you do not have uniform background frequencies, or
-else the probability of each match is simply \code{(1 / nrow(motif))^ncol(motif)}.
+}
 }
 \examples{
 ## any alphabet can be used
@@ -153,6 +185,17 @@ scan_sequences(ArabidopsisMotif, seq)
 # but can be safely ignored in this case.
 }
 
+}
+\references{
+Grant CE, Bailey TL, Noble WS (2011). "FIMO: scanning for occurrences
+of a given motif." \emph{Bioinformatics}, \strong{27}, 1017-1018.
+
+Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
+“P-value-based regulatory motif discovery using positional weight
+matrices.” \emph{Genome Research}, \strong{23}, 181-194.
+
+Noble WS (2009). "How does multiple testing work?" \emph{Nature Biotechnology},
+\strong{27}, 1135-1137.
 }
 \seealso{
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}},

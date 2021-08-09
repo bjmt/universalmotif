@@ -33,12 +33,17 @@ Switch between position count matrix (PCM), position probability matrix
 types. See the "Introduction to sequence motifs" vignette for details.
 }
 \details{
+\subsection{PCM}{
+
 Position count matrix (PCM), also known as position frequency matrix
 (PFM). For n sequences from which the motif was built, each position is
 represented by the numbers of each letter at that position. In theory
 all positions should have sums equal to n, but not all databases are
 this consistent. If converting from another type to PCM, column sums
 will be equal to the 'nsites' slot. If empty, 100 is used.
+}
+
+\subsection{PPM}{
 
 Position probability matrix (PPM), also known as position frequency
 matrix (PFM). At each position, the probability of individual letters
@@ -48,6 +53,9 @@ As a result, each position will sum to 1. Letters with counts of 0 will
 thus have a probability of 0, which can be undesirable when searching for
 motifs in a set of sequences. To avoid this a pseudocount can be added
 (\code{(letter_count + pseudocount) / (position_total + pseudocount)}).
+}
+
+\subsection{PWM}{
 
 Position weight matrix (PWM; Stormo et al. (1982)),
 also known as position-specific weight
@@ -58,6 +66,9 @@ which is normalized using the background letter frequencies. A PWM matrix
 is constructed from a PPM. If any position has 0-probability letters to
 which pseudocounts were not added, then the final log-likelihood of these
 letters will be \code{-Inf}.
+}
+
+\subsection{ICM}{
 
 Information content matrix (ICM; Schneider and Stephens 1990).
 An ICM is a PPM where each letter probability is multiplied by the total
@@ -98,6 +109,7 @@ each position will always be \code{log2(alphabet_length)}. This does
 not hold for information content calculated as relative entropy.
 Please note that conversion from ICM assumes the information content
 was \emph{not} calculated as relative entropy.
+}
 }
 \examples{
 jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",

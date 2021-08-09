@@ -19,6 +19,7 @@
 #' @return See [convert_motifs()] for possible output motif objects.
 #'
 #' @details
+#'    ## PCM
 #'    Position count matrix (PCM), also known as position frequency matrix
 #'    (PFM). For n sequences from which the motif was built, each position is
 #'    represented by the numbers of each letter at that position. In theory
@@ -26,6 +27,7 @@
 #'    this consistent. If converting from another type to PCM, column sums
 #'    will be equal to the 'nsites' slot. If empty, 100 is used.
 #'
+#'    ## PPM
 #'    Position probability matrix (PPM), also known as position frequency
 #'    matrix (PFM). At each position, the probability of individual letters
 #'    is calculated by dividing the count for that letter by the total sum of
@@ -35,6 +37,7 @@
 #'    motifs in a set of sequences. To avoid this a pseudocount can be added
 #'    (`(letter_count + pseudocount) / (position_total + pseudocount)`).
 #'
+#'    ## PWM
 #'    Position weight matrix (PWM; Stormo et al. (1982)),
 #'    also known as position-specific weight
 #'    matrix (PSWM), position-specific scoring matrix (PSSM), or
@@ -45,6 +48,7 @@
 #'    which pseudocounts were not added, then the final log-likelihood of these
 #'    letters will be `-Inf`.
 #'
+#'    ## ICM
 #'    Information content matrix (ICM; Schneider and Stephens 1990).
 #'    An ICM is a PPM where each letter probability is multiplied by the total
 #'    information content at that position. The information content of each

@@ -115,6 +115,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   sort.positions.decreasing = TRUE, text.size = 16,
   fit.to.height = if (use.type == "PPM") 1 else NULL, RC.text = " [RC]", ...) {
 
+  # TODO: give option to only use limits as breaks (eg 0-2 instead of 0-1-2)
+
   # TODO: think about plugging view_motifs() into ggtree somehow
 
   # TODO: need to implement arg checks for new options
@@ -157,8 +159,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     warning(wmsg("Found unknown parameters; please note that as of v1.10.0 ",
         "the ggseqlogo package is no longer used for plotting motifs and thus ",
         "the previously intended purpose of allowing for extra ggseqlogo ",
-        "arguments via `...` is now no longer true. [unknown arguments: ",
-        paste0(names(dots), collapse = ", "), "]"))
+        "arguments via `...` is now no longer needed [unknown arguments: ",
+        paste0(names(dots), collapse = ", "), "]"), call. = FALSE, immediate. = TRUE)
 
   names.pos <- match.arg(names.pos)
 
@@ -337,7 +339,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         panel.grid = element_blank(),
         text = element_text(size = text.size),
         axis.ticks.y = element_line(size = 0.25), legend.position = "none",
-        axis.text.y = element_text(margin = margin(r = 1)))
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black", margin = margin(r = 1)))
 
     if (!show.positions) plotobj <- plotobj + theme(axis.text.x = element_blank())
 
@@ -462,7 +465,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         panel.grid = element_blank(),
         text = element_text(size = text.size),
         axis.ticks.y = element_line(size = 0.25), legend.position = "none",
-        axis.text.y = element_text(margin = margin(r = 1))) +
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black", margin = margin(r = 1))) +
       facet_wrap(~motif.id, ncol = 1, strip.position = names.pos,
         scales = if (!show.positions.once) "free_x" else "fixed")
 

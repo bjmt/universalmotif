@@ -22,12 +22,12 @@ within these.}
 
 \item{add.k}{\code{numeric(1)} The k-let lengths to add.}
 
-\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of input
-sequences.}
+\item{RC}{\code{logical(1)} If \code{TRUE}, check reverse complement of the input
+sequences. Only available for DNA/RNA.}
 
 \item{threshold}{\code{numeric(1)} See details.}
 
-\item{threshold.type}{\code{character(1)} One of \code{c('logodds', 'logodds.abs', 'pvalue')}. See details.}
+\item{threshold.type}{\code{character(1)} One of \code{c('pvalue', 'qvalue', 'logodds', 'logodds.abs')}. See details.}
 
 \item{motifs.perseq}{\code{numeric(1)} If \code{\link[=scan_sequences]{scan_sequences()}} is run,
 then this indicates how many hits from each sequence is to be used.}
@@ -72,14 +72,16 @@ best matches to construct the multifreq matrices.
 This 'multifreq' representation is only really useful within the
 \pkg{universalmotif} environment. Despite this, if you wish it can be
 preserved in text using \code{\link[=write_motifs]{write_motifs()}}.
+\subsection{A note on motif size}{
 
-Note: the number of rows for each k-let matrix is \code{n^k}, with \code{n} being the
+The number of rows for each k-let matrix is \code{n^k}, with \code{n} being the
 number of letters in the alphabet being used. This means that the size
 of the k-let matrix can become quite large as k increases. For example,
 if one were to wish to represent a DNA motif of length 10 as a 10-let,
 this would require a matrix with 1,048,576 rows (though at this point
 if what you want is to search for exact sequence matches,
 the motif format itself is not very useful).
+}
 }
 \examples{
 sequences <- create_sequences(seqlen = 10)

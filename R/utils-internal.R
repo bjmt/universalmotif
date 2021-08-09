@@ -69,6 +69,22 @@ AA_COLOURS <- c(G = "#058644", S = "#058644", T = "#058644", Y = "#058644",
 
 # INTERNAL UTILITIES ----------------------------------------------------------- 
 
+warn_pseudo <- function(v = 1) {
+  if (isTRUE(getOption("pseudocount.warning"))) {
+    if (v == 1) {
+      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+        "(To turn off this message: `options(pseudocount.warning=FALSE)`) ",
+        "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+    } else if (v == 2) {
+      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+        "(To turn off this message: `options(pseudocount.warning=FALSE)`)"))
+    } else {
+      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+        "(To turn off this message: `options(pseudocount.warning=FALSE)`) ", v))
+    }
+  }
+}
+
 get_nsites <- function(motifs) {
   out <- numeric(length(motifs))
   for (i in seq_along(out)) {

@@ -92,6 +92,8 @@ Compare motifs using one of the several available metrics. See the
 "Motif comparisons and P-values" vignette for detailed information.
 }
 \details{
+\subsection{Available metrics}{
+
 The following metrics are available:
 \itemize{
 \item Euclidean distance (\code{EUCL}) (Choi et al. 2004)
@@ -122,6 +124,9 @@ to zero represent more similar motifs.
 Small pseudocounts are automatically added when one of the following methods
 is used: \code{KL}, \code{ALLR}, \code{ALLR_LL}, \code{IS}. This is avoid
 zeros in the calculations.
+}
+
+\subsection{Calculating P-values}{
 
 To note regarding p-values: P-values are pre-computed using the
 \code{\link[=make_DBscores]{make_DBscores()}} function. If not given, then uses a set of internal
@@ -134,6 +139,7 @@ higher.
 The default P-values have been precalculated for regular DNA motifs. They
 are of little use for motifs with a different number of alphabet letters
 (or even the \code{multifreq} slot).
+}
 }
 \examples{
 motif1 <- create_motif(name = "1")

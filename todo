@@ -1,6 +1,6 @@
 - Do the read/write_motifs() functions work with the gap slots?
-- Still need to rework compare_motifs() p-values
-- Scan for motif clusters
+- Scan for motif clusters?
+- motif_peaks() is in dire need of a re-write
 - Check that everything in convert_motifs() still works
 - Check that all read/write_*() functions still work
 - Add tests
@@ -32,8 +32,6 @@
 - is the MEME E/p-value log10 or natural log?
 - let switch_alph() be used to change to arbitrary alphabets (but keep default
   behaviour consistent with previous version!)
-- can motif_pvalue() sometimes return the incorrect p-value when the provided
-  score is also the max possible score? (maybe something to do with rounding)
 - time for another make_DBscores() re-write I think --> use dynamic pvals?
 - need a function which can allow for motifs with different background freqs
    to be comparable: maybe something like PPM --> PWM (change background) PWM
@@ -89,13 +87,19 @@
 - klet --> kmer
 - multifreq --> higher order ? (maybe nmer motif)
 - work with methylated DNA?
-- motif_pvalue(ArabidopsisMotif, 20) --> segfault??????
-- motif_pvalue(ArabidopsisMotif, motif_score(ArabidopsisMotif, 1)) --> 0?
 - scan_sequences(motifs[1:100], athaliana, warn.NA=F,threshold=.9,
     threshold.type="logodds",nthreads=6) --> crashes!!! (out of memory I think)
 - enrich_motifs with size 1 sequences causes crash --> check size of seqs
 - view_motifs(): make sure all text is black and not grey (x/y tick text)
 - stop using multifreq slot; make motif objects represent a single order level
 - comparison: add option to use sum to find best alignment, then apply mean/etc
+  (or p-value? see gupta et al 2007)
 - create a separate repo for a universalmotif website; otherwise the vignettes
   in the package will become too big/annoying
+- read_homer() p-value: read from P:#, or log enrichment column?
+- scan_sequences() P-values: should they use the bkg of the input sequences instead
+  of the motif? wouldn't this calculate a better null for calc.qvals.method="fdr"?
+- Really need to get straight what background probabilities to use in motif_pvalue()
+  when scanning; the motifs own, or those of the sequences being scanned? Also need
+  to make sure that feeding bkg.probs to motif_pvalue() actually uses those in the
+  create of the PWMs!

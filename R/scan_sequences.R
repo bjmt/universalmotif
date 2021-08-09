@@ -7,10 +7,10 @@
 #' @param sequences \code{\link{XStringSet}} Sequences to scan. Alphabet
 #'    should match motif.
 #' @param threshold `numeric(1)` See details.
-#' @param threshold.type `character(1)` One of `c('logodds', 'logodds.abs',
-#'    'pvalue', 'qvalue')`. See details.
-#' @param RC `logical(1)` If `TRUE`, check reverse complement of input
-#'    sequences.
+#' @param threshold.type `character(1)` One of `c('pvalue', 'qvalue',
+#'    'logodds', 'logodds.abs')`. See details.
+#' @param RC `logical(1)` If `TRUE`, check reverse complement of the input
+#'    sequences. Only available for DNA/RNA.
 #' @param use.freq `numeric(1)` The default, 1, uses the motif matrix (from
 #'    the `motif['motif']` slot) to search for sequences. If a higher
 #'    number is used, then the matching k-let matrix from the
@@ -22,7 +22,7 @@
 #'    Note that no speed up will occur for jobs with only a single motif and
 #'    sequence.
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
-#'    See [motif_pvalue()].
+#'    See [motif_pvalue()]. Only used if `motif_pvalue.method = "exhaustive"`.
 #' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
 #'    present.
 #' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
@@ -31,16 +31,21 @@
 #'    then this parameter has no effect as the pseudocount will be
 #'    applied automatically when the motif is converted to a PWM internally. This
 #'    value is set to `FALSE` by default in order to stay consistent with
-#'    pre-version 1.8.0 behaviour.
+#'    pre-version 1.8.0 behaviour. Also note that this parameter is not
+#'    compatible with `motif_pvalue.method = "dynamic"`. A message will be printed
+#'    if a pseudocount is applied. To disable this, set
+#'    `options(pseudocount.warning=FALSE)`.
 #' @param warn.NA `logical(1)` Whether to warn about the presence of non-standard
 #'    letters in the input sequence, such as those in masked sequences.
 #' @param calc.pvals `logical(1)` Calculate P-values for each hit. This is a
 #'    convenience option which simply gives `motif_pvalue()` the input motifs
 #'    and the scores of each hit. Be careful about setting this to `TRUE` if
-#'    you anticipate getting thousands of hits: expect to wait a few seconds or
+#'    you anticipate getting thousands of hits and are using
+#'    `motif_pvalue.method = "exhaustive"`: expect to wait a few seconds or
 #'    minutes for the calculations to finish. Increasing the `nthreads` value
 #'    can help greatly here. See Details for more information on P-value
-#'    calculation.
+#'    calculation. If `motif_pvalue.method = "dynamic"`, then this is usually
+#'    not an issue.
 #' @param return.granges `logical(1)` Return the results as a `GRanges` object.
 #'    Requires the `GenomicRanges` package to be installed.
 #' @param no.overlaps `logical(1)` Remove overlapping hits from the same motifs.
@@ -53,74 +58,80 @@
 #' @param no.overlaps.strat `character(1)` One of `c("score", "order")`.
 #'    The former option keeps the highest scoring overlapping hit (and the first
 #'    of these within ties), and the latter simply keeps the first overlapping hit.
-#'    keeps the highest scoring 
 #' @param respect.strand `logical(1)` If  motifs are DNA/RNA,
 #'    then setting this option to `TRUE` will make `scan_sequences()` only
 #'    scan the strands of the input sequences as indicated in the motif
 #'    `strand` slot.
-#' @param motif_pvalue.method `character(1)` Method for calculating motif hit
-#'    P-values. Analytical P-values are calculated using [motif_pvalue()]
-#'    and the motif hit score, whereas empirical P-values are calculated
-#'    as the total number of motif hits with the particular score or higher
-#'    divided by the total possible number of motif hits. Note that the
-#'    former is orders of magnitude slower to calculate, but generally provides
-#'    a more accurate P-value for smaller sets of sequences. See the
-#'    Sequence Searches vignette for more details. Also see Noble 2009.
+#' @param motif_pvalue.method `character(1)` One of `c("dynamic", "exhaustive")`.
+#'    Algorithm used for calculating P-values. The `"exhaustive"` method
+#'    involves finding all possible motif matches at or above the specified
+#'    score using a branch-and-bound algorithm, which can be computationally
+#'    intensive (Hartman et al., 2013). Additionally, the computation
+#'    must be repeated for each hit. The `"dynamic"` method calculates the
+#'    distribution of possible motif scores using a much faster dynamic
+#'    programming algorithm, and can be recycled for multiple
+#'    scores (Grant et al., 2011). The only
+#'    disadvantage is the inability to use `allow.nonfinite = TRUE`.
+#'    See [motif_pvalue()] for details.
 #' @param calc.qvals `logical(1)` Whether to also calculate adjusted
 #'    P-values. Only valid if `calc.pvals = TRUE`.
-#' @param calc.qnvals.method `character(1)` The method for calculating
-#'    adjusted P-values. If `"fdr"`, then the Benjamini-Hochberg procedure
-#'    is used for empirical P-values, and the ratio of analytical null hits
-#'    to observed hits for analytical P-values. If `"bonferroni"`, then the
-#'    P-values are multiplied by maximum possible number of motif hits
-#'    in the input sequences. See the Sequence Searches vignette for more
-#'    details. Also see Noble 2009.
+#' @param calc.qvals.method `character(1)` One of `c("fdr", "BH", "bonferroni")`.
+#'    The method for calculating adjusted P-values. These are described in
+#'    depth in the Sequence Searches vignette. Also see Noble (2009).
 #'
-#' @return `DataFrame` with each row representing one hit. If the input
-#'    sequences are \code{\link{DNAStringSet}} or
-#'    \code{\link{RNAStringSet}}, then an
-#'    additional column with the strand is included. Function args are stored
-#'    in the `metadata` slot.
+#' @return `DataFrame`, `GRanges` with each row representing one hit. If the input
+#'    sequences are \code{\link{DNAStringSet}} or \code{\link{RNAStringSet}},
+#'    then an additional column with the strand is included. Function args are
+#'    stored in the `metadata` slot. Alternatively, if `return.granges = TRUE`
+#'    then a `GRanges` object is returned.
 #'
 #' @details
-#'    Similar to [Biostrings::matchPWM()], the scanning method uses
-#'    logodds scoring. (To see the scoring matrix for any motif, simply
-#'    run `convert_type(motif, "PWM")`. For a `multifreq` scoring
-#'    matrix: `apply(motif["multifreq"][["2"]], 2, ppm_to_pwm)`). In order
-#'    to score a sequence, at each position within a sequence of length equal
-#'    to the length of the motif, the scores for each base are summed. If the
-#'    score sum is above the desired threshold, it is kept.
 #'
-#'    If `threshold.type = 'logodds'`, then the `threshold` value is multiplied
-#'    by the maximum possible motif scores. To calculate the
-#'    maximum possible scores a motif (of type PWM) manually, run
-#'    `motif_score(motif, 1)`. If \code{threshold.type = 'pvalue'},
-#'    then threshold logodds scores are generated using [motif_pvalue()].
-#'    Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
-#'    provided will be used as thresholds.
+#' ## Logodds scoring
+#' Similar to [Biostrings::matchPWM()], the scanning method uses
+#' logodds scoring. (To see the scoring matrix for any motif, simply
+#' run `convert_type(motif, "PWM")`. For a `multifreq` scoring
+#' matrix: `apply(motif["multifreq"][["2"]], 2, ppm_to_pwm)`). In order
+#' to score a sequence, at each position within a sequence of length equal
+#' to the length of the motif, the scores for each base are summed. If the
+#' score sum is above the desired threshold, it is kept.
 #'
-#'    Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
-#'    objects) will be safely ignored, resulting only in a warning and a very
-#'    minor performance cost. This can used to scan
-#'    masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
-#'    for masking sequences
-#'    (generating \code{\link{MaskedXString}} objects), and [Biostrings::injectHardMask()]
-#'    to recover masked \code{\link{XStringSet}} objects for use with [scan_sequences()].
-#'    There is also a provided wrapper function which performs both steps: [mask_seqs()].
+#' ## Thresholds
+#' If `threshold.type = 'logodds'`, then the `threshold` value is multiplied
+#' by the maximum possible motif scores. To calculate the
+#' maximum possible scores a motif (of type PWM) manually, run
+#' `motif_score(motif, 1)`. If \code{threshold.type = 'pvalue'},
+#' then threshold logodds scores are generated using [motif_pvalue()].
+#' Finally, if \code{threshold.type = 'logodds.abs'}, then the exact values
+#' provided will be used as thresholds. Finally, if `threshold.type = 'qvalue'`,
+#' then the threshold is calculated as if `threshold.type = 'pvalue'` and the
+#' final set of hits are filtered based on their calculated Q-value. (Note:
+#' this means that the `thresh.score` column will be incorrect!) This is done
+#' since most Q-values cannot be calculated prior to scanning. If you are
+#' running a very large job, it may be wise to use a P-value threshold
+#' followed by manually filtering by Q-value; this will avoid the scanning
+#' have to parse the larger number of hits from the internally-lowered threshold.
 #'
-#'    When `calc.pvals = TRUE`, [motif_pvalue()] will calculate the probabilities
-#'    of getting the input scores or higher, which is why it can take time to
-#'    calculate the P-values. If you simply wish to calculate the
-#'    probabilities of getting individual matches based on background frequencies,
-#'    then the following code can be used to achieve
-#'    this (using the list of input motifs and [scan_sequences()] results):
-#'    `mapply(prob_match, motifs[scanRes$motif.i], scanRes$match)`. Of course
-#'    this only matters if you do not have uniform background frequencies, or
-#'    else the probability of each match is simply `(1 / nrow(motif))^ncol(motif)`.
+#' ## Non-standard letters
+#' Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
+#' objects) will be safely ignored, resulting only in a warning and a very
+#' minor performance cost. This can used to scan
+#' masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
+#' for masking sequences
+#' (generating \code{\link{MaskedXString}} objects), and [Biostrings::injectHardMask()]
+#' to recover masked \code{\link{XStringSet}} objects for use with [scan_sequences()].
+#' There is also a provided wrapper function which performs both steps: [mask_seqs()].
 #'
 #' @references
 #'
-#' Noble, WS (2009). "How does multiple testing work?" *Nature Biotechnology*,
+#' Grant CE, Bailey TL, Noble WS (2011). "FIMO: scanning for occurrences
+#' of a given motif." *Bioinformatics*, **27**, 1017-1018.
+#'
+#' Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
+#' “P-value-based regulatory motif discovery using positional weight
+#' matrices.” *Genome Research*, **23**, 181-194.
+#'
+#' Noble WS (2009). "How does multiple testing work?" *Nature Biotechnology*,
 #' **27**, 1135-1137.
 #'
 #' @examples
@@ -148,26 +159,22 @@
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
 #'    [enrich_motifs()], [motif_pvalue()]
 #' @export
-scan_sequences <- function(motifs, sequences, threshold = 0.001,
-  threshold.type = "pvalue", RC = FALSE, use.freq = 1, verbose = 0,
+scan_sequences <- function(motifs, sequences, threshold = 0.0001,
+  threshold.type = c("pvalue", "qvalue", "logodds", "logodds.abs"),
+  RC = FALSE, use.freq = 1, verbose = 0,
   nthreads = 1, motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
   warn.NA = TRUE, calc.pvals = TRUE, return.granges = FALSE,
-  no.overlaps = FALSE, no.overlaps.by.strand = FALSE, no.overlaps.strat = "score",
+  no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
+  no.overlaps.strat = c("score", "order"),
   respect.strand = FALSE, motif_pvalue.method = c("dynamic", "exhaustive"),
-  calc.qvals = calc.pvals, calc.qvals.method = c("BH", "fdr", "bonferroni")) {
+  calc.qvals = calc.pvals, calc.qvals.method = c("fdr", "BH", "bonferroni")) {
+
+  # TODO: add a flag to use the bkg probabilities from the actual input sequence
+  # to be used in motif_pvalue() instead of using the bkgs from the motifs
 
   # param check --------------------------------------------
   args <- as.list(environment())
-  all_checks <- character(0)
-  if (!threshold.type %in% c("logodds", "pvalue", "logodds.abs", "qvalue")) {
-    threshold.type_check <- wmsg2(paste0(" * Incorrect 'threshold.type': expected ",
-                                         "`logodds`, `logodds.abs`, `pvalue` or `qvalue`; got `",
-                                         threshold.type, "`"), exdent = 3, indent = 1)
-    all_checks <- c(all_checks, threshold.type_check)
-  }
-  char_check <- check_fun_params(list(threshold.type = args$threshold.type,
-                                      no.overlaps.strat = args$no.overlaps.strat),
-                                 1, FALSE, TYPE_CHAR)
+  all_checks <- character()
   num_check <- check_fun_params(list(threshold = args$threshold,
                                      use.freq = args$use.freq,
                                      verbose = args$verbose,
@@ -182,16 +189,20 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences), numeric(),
                                logical(), TYPE_S4)
-  all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
+  all_checks <- c(all_checks, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
   motif_pvalue.method <- match.arg(motif_pvalue.method)
   calc.qvals.method <- match.arg(calc.qvals.method)
+  threshold.type <- match.arg(threshold.type)
+  no.overlaps.strat <- match.arg(no.overlaps.strat)
 
-  if (motif_pvalue.method == "dynamic" && allow.nonfinite)
+  if (motif_pvalue.method == "dynamic" && allow.nonfinite
+      && (calc.pvals = TRUE || threshold.type %in% c("pvalue", "qvalue")))
     stop(wmsg("`motif_pvalue.method = \"dynamic\"` and `allow.nonfinite = TRUE` are ",
-        "not compatible"), call. = FALSE)
+        "not compatible when `calc.pvals = TRUE` or ",
+        "`threshold.type = c(\"pvalue\", \"qvalue\")`"), call. = FALSE)
 
   if (verbose > 2) {
     message(" * Input parameters")
@@ -230,8 +241,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   motifs <- convert_type_internal(motifs, "PWM")
   needsfix <- vapply(motifs, function(x) any(is.infinite(x@motif)), logical(1))
   if (any(needsfix) && !allow.nonfinite) {
-    message(wmsg("Note: found -Inf values in motif PWM(s), adding a pseudocount. ",
-      "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+    warn_pseudo(paste0("Set `allow.nonfinite = TRUE` to prevent this behaviour ",
+      "(when `motif_pvalue.method = \"exhaustive\", or `calc.pvals = FALSE`",
+      " and `threshold.type = c(\"logodds\", \"logodds.abs\")`)."))
     for (i in which(needsfix)) {
       motifs[[i]] <- suppressMessages(normalize(motifs[[i]]))
     }
@@ -315,7 +327,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
   } else if (threshold.type %in% c("pvalue", "qvalue")) {
 
     if (threshold.type == "qvalue" && !calc.qvals) {
-      stop("`calc.qvals` must be `TRUE` if `threshold.type == \"qvalue\"`")
+      stop("`calc.qvals` must be `TRUE` if `threshold.type = \"qvalue\"`")
     }
 
     if (verbose > 0)
@@ -532,9 +544,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.001,
     }
     out <- granges_fun(GenomicRanges::GRanges(out,
         seqlengths = structure(width(sequences), names = names(sequences))))
+    sort(out)
+  } else {
+    out[order(out$motif.i, out$sequence, out$start), ]
   }
-
-  out
 
 }
 
@@ -544,6 +557,7 @@ calc_motif_bonferroni <- function(mMax, pvals) {
 
 calc_motif_bh <- function(mMax, pvals) {
   pmin(pvals / ((rank(pvals) / mMax) * 100), 1)
+  # pmin(pvals * (rank(pvals) / mMax), 1)
 }
 
 calc_motif_fdr <- function(mMax, scores, pvals) {
@@ -556,6 +570,9 @@ calc_motif_fdr <- function(mMax, scores, pvals) {
   scoreDF$FDR <- cummin(scoreDF$FDR)
   scoreDF$FDR <- pmin(scoreDF$FDR, 1)
   scoreDF$FDR[order(scoreDF$OriginalOrder)]
+  # ObsHits <- rank(-scores)
+  # NulHits <- mMax * pvals
+  # pmin(NulHits / ObsHits, 1)
 }
 
 # What about this kind of situation?

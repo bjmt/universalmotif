@@ -7,21 +7,51 @@ NEW FEATURES
 
     o New function, calc_gc(): [in progress]
 
-    o scan_sequences(calc.pvals, calc.pvals.method, calc.adj.pvals,
-      calc.adj.pvals.method): The calc.pvals argument now defaults to TRUE.
-      The P-value calculation method now defaults to analytical P-values (the
-      previous method was an empirical calculation), though this can be changed
-      via calc.pvals.method. Additionally, adjusted P-values can be calculated
-      as either a FDR or a Bonferroni-adjusted P-value. More details can be
-      found in the Sequence Searches vignette.
+    o New function, motif_range(): Get the min/max range of possible logodds
+      scores for a motif.
+
+    o motif_pvalue(method): P-values and scores can now be calculated
+      dynamically instead of exhaustively, substantially increasing both speed
+      and accuracy for bigger jobs. The previous exhaustive method can still be
+      used however, as the dynamic method does not allow non-finite values and
+      thus must be pseudocount-adjusted.
+
+    o scan_sequences(calc.pvals, calc.qvals, motif_pvalue.method,
+      calc.qvals.method): The calc.pvals argument defaults to TRUE.
+      The P-value calculation method now defaults to dynamic P-values (the
+      previous method was an exhaustive calculation), though this can be
+      changed via motif_pvalue.method. Additionally, adjusted P-values can be
+      calculated as either BH, FDR or a Bonferroni-adjusted P-value. More
+      details can be found in the Sequence Searches vignette.
+
+    o write_homer(threshold, threshold.type): Finer control over the final
+      motif logodds threshold included with the written motif is now
+      available, using the style of argument parsing from scan_sequences().
+      The previous logodds_threshold argument is now deprecated and set to
+      NULL, but if set (e.g. an older script is being re-run) then the old
+      behaviour of write_homer() will be used.
 
 MINOR CHANGES
 
+    o New global option, options(pseudocount.warning): Disable the message
+      printed when a motif is pseudocount-adjusted.
+    
     o Slight performance gains in get_bkg() window code. [in progress]
 
-    o motif_pvalue(): clarify that, indeed, background probabilities are taken
+    o motif_pvalue(): Clarify that, indeed, background probabilities are taken
       into account when calculating P-values from score inputs. The background
       adjustment takes place during the initial conversion to PWM.
+
+    o motif_pvalue(): When bkg.probs are provided, use those when converting to
+      a PWM.
+
+    o scan_sequences(): The default threshold is now 0.0001 (using
+      threshold.type = "pvalue").
+
+    o The axis text in view_motifs() is now black instead of grey.
+
+    o Miscellaneous changes and additions to the vignettes and various
+      function manual pages.
 
 CHANGES IN VERSION 1.10.1
 -------------------------

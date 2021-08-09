@@ -1,17 +1,19 @@
 #' Import HOMER motifs.
 #'
 #' Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
-#' Assumed to be DNA motifs. The logodds threshold is converted into a P-value
-#' and stored in the `pval` slot. To use this threshold for scanning with
-#' [scan_sequences()], you can give this P-value to the `threshold` argument of
-#' [scan_sequences()] directly with `threshold.type = "pvalue"` or calculate the
-#' threshold again manually with [motif_pvalue()].
+#' Assumed to be DNA motifs. Note that HOMER motifs come with a pre-determined
+#' logodds threshold; if you wish to re-create HOMER's motif scanning, then use
+#' it in [scan_sequences()] (see examples).
 #'
 #' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
+#' data(ArabidopsisPromoters)
 #' homer <- read_homer(system.file("extdata", "homer.txt",
 #'                                 package = "universalmotif"))
+#' thresholds <- homer |> to_df() |> with(logodds.threshold) |> as.numeric()
+#' scan_sequences(homer, ArabidopsisPromoters,
+#'   threshold = thresholds, threshold.type = "logodds.abs")
 #'
 #' @references
 #'
@@ -26,6 +28,8 @@
 #' @inheritParams read_cisbp
 #' @export
 read_homer <- function(file, skip = 0) {
+
+  # TODO: better integration of the motif's own threshold with scan_sequences
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -94,13 +98,6 @@ read_homer <- function(file, skip = 0) {
 
   motifs <- mapply(homer2umot, motif_meta, motif_list,
                      SIMPLIFY = FALSE)
-  # thresholds <- vapply(motif_meta, function(x) x["threshold"], character(1))
-  # pvals <- as.numeric(vapply(motif_meta, function(x) x["pval"], character(1)))
-  # motifs <- mapply(function(x, y, z) {
-  #   x@pval <- y
-  #   x@extrainfo <- c(threshold = z)
-  #   x
-  # }, motifs, pvals, thresholds)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
   motifs

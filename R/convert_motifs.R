@@ -13,6 +13,7 @@
 #' @return Single motif object or list.
 #'
 #' @details
+#' ## Input
 #' The following packge-class combinations can be used as input:
 #' * MotifDb-MotifList
 #' * TFBSTools-PFMatrix
@@ -30,6 +31,7 @@
 #' * universalmotif-universalmotif
 #' * matrix
 #'
+#' ## Output
 #' The following package-class combinations can be output:
 #' * TFBSTools-PFMatrix
 #' * TFBSTools-PWMatrix

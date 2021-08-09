@@ -6,41 +6,49 @@
 \usage{
 motif_pvalue(motifs, score, pvalue, bkg.probs, use.freq = 1, k = 8,
   nthreads = 1, rand.tries = 10, rng.seed = sample.int(10000, 1),
-  allow.nonfinite = FALSE)
+  allow.nonfinite = FALSE, method = c("dynamic", "exhaustive"))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{score}{\code{numeric} Get a p-value for a motif from a logodds score.}
+\item{score}{\code{numeric}, \code{list} Get a P-value for a motif from a logodds score.
+See details for an explanation of how to vectorize the calculation for
+\code{method = "dynamic"}.}
 
-\item{pvalue}{\code{numeric} Get a logodds score for a motif from a
-p-value.}
+\item{pvalue}{\code{numeric}, \code{list} Get a logodds score for a motif from a
+P-value. See details for an explanation of how to vectorize the calculation
+for \code{method = "dynamic"}.}
 
 \item{bkg.probs}{\code{numeric}, \code{list} A vector background probabilities.
 If supplying individual background
 probabilities for each motif, a list of such vectors. If missing,
 retrieves the background from the motif \code{bkg} slot. Note that this
-option is only used when providing a score and return a P-value; for
-the inverse, the motifs are first converted to PWMs using the motifs
-\code{bkg} slot for the type conversion.}
+option is only used when providing a P-value and returning a score; for
+the inverse, the motifs are first converted to PWMs via \code{\link[=convert_type]{convert_type()}},
+which uses the motif \code{bkg} slot for background adjustment.}
 
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
-otherwise uses the corresponding \code{multifreq} matrix. Max is 3.}
+otherwise uses the corresponding \code{multifreq} matrix. Max is 3 when
+\code{method = "exhaustive"}.}
 
-\item{k}{\code{numeric(1)} For speed, scores/p-values can be approximated after
+\item{k}{\code{numeric(1)} For speed, scores/P-values can be approximated after
 subsetting the motif every \code{k} columns. If \code{k} is a value
 equal or higher to the size of input motif(s), then the calculations
 are (nearly) exact. The default, 8, is recommended to those looking for
 a good tradeoff between speed and accuracy for jobs requiring repeated
-calculations.}
+calculations. Note that this is ignored when \code{method = "dynamic"},
+as subsetting is not required.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalue]{motif_pvalue()}} in parallel with \code{nthreads}
-threads. \code{nthreads = 0} uses all available threads.}
+threads. \code{nthreads = 0} uses all available threads. Currently only
+applied when \code{method = "exhaustive"}.}
 
 \item{rand.tries}{\code{numeric(1)} When \code{ncol(motif) < k}, an approximation is
 used. This involves randomly approximating the overall
 motif score distribution. To increase accuracy, the distribution is
-approximated \code{rand.tries} times and the final scores averaged.}
+approximated \code{rand.tries} times and the final scores averaged. Note
+that this is ignored when \code{method = "dynamic"}, as subsetting is not
+required.}
 
 \item{rng.seed}{\code{numeric(1)} In order to allow \code{\link[=motif_pvalue]{motif_pvalue()}} to perform
 C++ level parallelisation, it must work independently from R. This means
@@ -51,40 +59,86 @@ is multiplied with the iteration count. For example: when working with
 two motifs, the second motif gets the following seed: \code{rng.seed * 2}.
 The default is to pick a random
 number as chosen by \code{\link[=sample]{sample()}}, which effectively makes \code{\link[=motif_pvalue]{motif_pvalue()}}
-dependent on the R RNG state.}
+dependent on the R RNG state. Note that this is ignored when
+\code{method = "dynamic"}, as the random subsetting is only used for
+\code{method = "exhaustive"}.}
 
 \item{allow.nonfinite}{\code{logical(1)} If \code{FALSE}, then apply a pseudocount if
 non-finite values are found in the PWM. Note that if the motif has a
 pseudocount greater than zero and the motif is not currently of type PWM,
 then this parameter has no effect as the pseudocount will be
-applied automatically when the motif is converted to a PWM internally. This
-value is set to \code{FALSE} by default in order to stay consistent with
-pre-version 1.8.0 behaviour.}
+applied automatically when the motif is converted to a PWM internally.
+Note that this option is incompatible with \code{method = "dynamic"}.
+A message will be printed if a pseudocount
+is applied. To disable this, set \code{options(pseudocount.warning=FALSE)}.}
+
+\item{method}{\code{character(1)} One of \code{c("dynamic", "exhaustive")}.
+Algorithm used for calculating P-values. The \code{"exhaustive"} method
+involves finding all possible motif matches at or above the specified
+score using a branch-and-bound algorithm, which can be computationally
+intensive (Hartman et al., 2013). Additionally, the computation
+must be repeated for each hit. The \code{"dynamic"} method calculates the
+distribution of possible motif scores using a much faster dynamic
+programming algorithm, and can be recycled for multiple
+scores (Grant et al., 2011). The only
+disadvantage is the inability to use \code{allow.nonfinite = TRUE}.}
 }
 \value{
-\code{numeric} A vector of scores/p-values.
+\code{numeric}, \code{list} A vector or list of vectors of scores/P-values.
 }
 \description{
-For calculating p-values/logodds scores for any number of motifs.
+For calculating P-values and logodds scores from P-values for any number of motifs.
 }
 \details{
-Calculating p-values for motifs can be very computationally intensive. This
-is due to how p-values must be calculated: for a given score, all possible
+\subsection{Regarding vectorization}{
+
+A note regarding vectorizing the calculation when \code{method = "dynamic"} (no
+vectorization is possible with \code{method = "exhaustive"}): to avoid performing
+the P-value/score calculation repeatedly for individual motifs, provide the
+\code{score}/\code{pvalue} arguments as a list, with each entry corresponding to the
+scores/P-values to be calculated for the respective motifs provided to
+\code{motifs}. If you simply provide a list of repeating motifs and a single
+numeric vector of corresponding input scores/P-values, then \code{\link[=motif_pvalue]{motif_pvalue()}}
+will not vectorize. See the Examples section.
+}
+
+\subsection{The dynamic method}{
+
+One of the algorithms available to \code{\link[=motif_pvalue]{motif_pvalue()}} to calculate scores or
+P-values is the dynamic programming algorithm used by FIMO (Grant et al., 2011).
+In this method, a small range of possible scores from the possible miminum and maximum
+is created and the cumulative probability of each score in this distribution is
+incrementally
+calculated using the logodds scores and the background probabilities. This
+distribution of scores and associated P-values can be used to calculate P-values
+or scores for any input, any number of times. This method scales well with large
+motifs, and \code{multifreq} representations. The only downside is that it is
+incompatible with \code{allow.nonfinite = TRUE}, as this would not allow for the
+creation of the initial range of scores. Although described for a different
+purpose, the basic premise of the dynamic programming algorithm is also
+described in Gupta et al. (2007).
+}
+
+\subsection{The exhaustive method}{
+
+Calculating P-values exhaustively for motifs can be very computationally
+intensive. This
+is due to how P-values must be calculated: for a given score, all possible
 sequences which score equal or higher must be found, and the probability for
 each of these sequences (based on background probabilities) summed. For a DNA
 motif of length 10, the number of possible unique sequences is 4^10 = 1,048,576.
 Finding all possible sequences higher than a given score can be done
 very efficiently and quickly with a branch-and-bound algorithm, but as the
 motif length increases even this calculation becomes impractical. To get
-around this, the p-value calculation can be approximated.
+around this, the P-value calculation can be approximated.
 
-In order to calculate p-values for longer motifs, this function uses the
+In order to calculate P-values for longer motifs, this function uses the
 approximation proposed by Hartmann et al. (2013), where
-the motif is subset, p-values calculated for the subsets, and finally
-combined for a total p-value. The smaller the size of the subsets, the
+the motif is subset, P-values calculated for the subsets, and finally
+combined for a total P-value. The smaller the size of the subsets, the
 faster the calculation; but also, the bigger the approximation. This can be
 controlled by setting \code{k}. In fact, for smaller motifs (< 13 positions)
-calculating exact p-values can be done individually in reasonable time by
+calculating exact P-values can be done individually in reasonable time by
 setting \code{k = 12}.
 
 To calculate a score from a P-value, all possible scores are calculated
@@ -96,10 +150,11 @@ can actually be potentially quite expensive at times and even slower than
 the exact version; for jobs requiring lots of repeat calculations, a bit of
 benchmarking beforehand can be useful to find the optimal settings.
 
-To get an idea as to how the score calculator works (without approximation),
-try the following code with your motif (be careful with longer motifs):
-
-\code{quantile(get_scores(motif), probs = 0.99)}
+Please note that bugs are more likely to occur when using the exhaustive
+method, as the algorithm contains several times more code compared to the
+dynamic method. Unless you have a strong need to use \code{allow.nonfinite = TRUE}
+then avoid using this method.
+}
 }
 \examples{
 if (R.Version()$arch != "i386") {
@@ -108,14 +163,14 @@ if (R.Version()$arch != "i386") {
 ## motif
 data(examplemotif)
 
-## Get a minimum score based on a p-value
+## Get a minimum score based on a P-value
 motif_pvalue(examplemotif, pvalue = 0.001)
 
 ## Get the probability of a particular sequence hit
 motif_pvalue(examplemotif, score = 0)
 
 ## The calculations can be performed for multiple motifs
-motif_pvalue(list(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
+motif_pvalue(c(examplemotif, examplemotif), pvalue = c(0.001, 0.0001))
 
 ## Compare score thresholds and P-value:
 scores <- motif_score(examplemotif, c(0.6, 0.7, 0.8, 0.9))
@@ -129,16 +184,31 @@ motif_pvalue(examplemotif, TATATAG)
 
 ## Get all possible matches by P-value:
 get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
+
+## Vectorize the calculation for multiple motifs and scores/P-values:
+m <- create_motif()
+motif_pvalue(c(examplemotif, m), list(1:5, 2:3))
+## The non-vectorized equivalent:
+motif_pvalue(
+  c(rep(list(examplemotif), 5), rep(list(m), 2)), c(1:5, 2:3)
+)
 }
 
 }
 \references{
+Grant CE, Bailey TL, Noble WS (2011). "FIMO: scanning for occurrences
+of a given motif." \emph{Bioinformatics}, \strong{27}, 1017-1018.
+
+Gupta S, Stamatoyannopoulos JA, Bailey TL, Noble WS (2007). "Quantifying
+similarity between motifs." \emph{Genome Biology}, \strong{8}, R24.
+
 Hartmann H, Guthohrlein EW, Siebert M, Soding SLJ (2013).
 “P-value-based regulatory motif discovery using positional weight
 matrices.” \emph{Genome Research}, \strong{23}, 181-194.
 }
 \seealso{
-\code{\link[=motif_score]{motif_score()}}
+\code{\link[=get_match]{get_match()}}, \code{\link[=get_scores]{get_scores()}}, \code{\link[=motif_range]{motif_range()}}, \code{\link[=motif_score]{motif_score()}},
+\code{\link[=prob_match]{prob_match()}}, \code{\link[=prob_match_bkg]{prob_match_bkg()}}, \code{\link[=score_match]{score_match()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

@@ -29,6 +29,7 @@
 #'    identical names and lengths.
 #'
 #' @details
+#'    ## markov method
 #'    If `method = 'markov'`, then the Markov model is used to
 #'    generate sequences which will maintain (on average) the k-let
 #'    frequencies. Please note that this method is not a 'true' shuffling, and
@@ -37,6 +38,7 @@
 #'    Fitch (1983) for a discussion on the
 #'    topic.
 #'
+#'    ## euler method
 #'    If `method = 'euler'`, then the sequence shuffling method proposed by
 #'    Altschul and Erickson (1985) is used. As opposed
 #'    to the 'markov' method, this one preserves exact k-let frequencies. This
@@ -47,10 +49,12 @@
 #'    random Eulerian path. A side effect of using this method is that the
 #'    starting and ending sequence letters will remain unshuffled.
 #'
+#'    ## linear method
 #'    If `method = 'linear'`, then the input sequences are split linearly
 #'    every `k` letters. For example, for `k = 3` 'ACAGATAGACCC' becomes
 #'    'ACA GAT AGA CCC'; after which these `3`-lets are shuffled randomly.
 #'
+#'    ## Single-letter shuffling
 #'    Do note however, that the `method` parameter is only relevant for `k > 1`.
 #'    For `k = 1`, a simple shuffling is performed using the `shuffle` function
 #'    from the C++ standard library.

@@ -17,11 +17,17 @@ file before starting to read.}
 }
 \description{
 Import HOMER formatted motifs. See \url{http://homer.ucsd.edu/homer/motif/}.
-Assumed to be DNA motifs.
+Assumed to be DNA motifs. Note that HOMER motifs come with a pre-determined
+logodds threshold; if you wish to re-create HOMER's motif scanning, then use
+it in \code{\link[=scan_sequences]{scan_sequences()}} (see examples).
 }
 \examples{
+data(ArabidopsisPromoters)
 homer <- read_homer(system.file("extdata", "homer.txt",
                                 package = "universalmotif"))
+thresholds <- homer |> to_df() |> with(logodds.threshold) |> as.numeric()
+scan_sequences(homer, ArabidopsisPromoters,
+  threshold = thresholds, threshold.type = "logodds.abs")
 
 }
 \references{
