@@ -35,7 +35,7 @@ Note: building the vignettes when installing from source is not recommended, unl
 
 ### Error when installing from source
 
-If you trying to install the package from source and are getting compiler errors similar [to](https://github.com/bjmt/universalmotif/issues/3) [these](https://github.com/bjmt/universalmotif/issues/16) [issues](https://github.com/tnagler/RcppThread/issues/13), then update your C++ compiler. This is an issue regarding older compilers and the C++11 lambda functions from the [RcppThread](https://github.com/tnagler/RcppThread) package, which is used by the `universalmotif` package.
+If you trying to install the package from source and are getting compiler errors similar to these issues ([1](https://github.com/bjmt/universalmotif/issues/3), [2](https://github.com/bjmt/universalmotif/issues/16), [3](https://github.com/tnagler/RcppThread/issues/13)), then update your C++ compiler. This is an issue regarding older compilers and the C++11 lambda functions from the [RcppThread](https://github.com/tnagler/RcppThread) package, which is used by the `universalmotif` package.
 
 ## Brief overview
 
