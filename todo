@@ -90,16 +90,17 @@
 - scan_sequences(motifs[1:100], athaliana, warn.NA=F,threshold=.9,
     threshold.type="logodds",nthreads=6) --> crashes!!! (out of memory I think)
 - enrich_motifs with size 1 sequences causes crash --> check size of seqs
-- view_motifs(): make sure all text is black and not grey (x/y tick text)
 - stop using multifreq slot; make motif objects represent a single order level
 - comparison: add option to use sum to find best alignment, then apply mean/etc
   (or p-value? see gupta et al 2007)
 - create a separate repo for a universalmotif website; otherwise the vignettes
   in the package will become too big/annoying
-- read_homer() p-value: read from P:#, or log enrichment column?
 - scan_sequences() P-values: should they use the bkg of the input sequences instead
   of the motif? wouldn't this calculate a better null for calc.qvals.method="fdr"?
 - Really need to get straight what background probabilities to use in motif_pvalue()
   when scanning; the motifs own, or those of the sequences being scanned? Also need
   to make sure that feeding bkg.probs to motif_pvalue() actually uses those in the
   create of the PWMs!
+- Add an example in vignettes about methylated DNA, referring to
+  https://www.biorxiv.org/content/10.1101/043794v1
+  e.g. create_motif(alphabet="ACGTm", bkg = c(A=.25,C=.125,G=.25,T=.25,m=.125))

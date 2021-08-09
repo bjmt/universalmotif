@@ -286,14 +286,29 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     seq2_vecs.push_back(vec_char_t(seq_vecs[i].begin(), seq_vecs[i].end()));
   }
 
+  std::vector<int> motif_sizes(score_mats.size());
+  std::vector<int> seq_sizes(seq_vecs.size());
+
   list_mat_t score2_mats(score_mats.size());
   for (R_xlen_t i = 0; i < score_mats.size(); ++i) {
     Rcpp::NumericMatrix tmp = score_mats[i];
     score2_mats[i].reserve(tmp.ncol());
+    motif_sizes[i] = tmp.ncol();
     for (R_xlen_t j = 0; j < tmp.ncol(); ++j) {
       Rcpp::NumericVector tmp2 = tmp(Rcpp::_, j);
       tmp2 = tmp2 * 1000;
       score2_mats[i].push_back(vec_int_t(tmp2.begin(), tmp2.end()));
+    }
+  }
+
+  for (std::size_t i = 0; i < seq_vecs.size(); ++i) {
+    seq_sizes[i] = seq_vecs[i].size();
+  }
+  for (std::size_t i = 0; i < motif_sizes.size(); ++i) {
+    for (std::size_t j = 0; j < seq_sizes.size(); ++j) {
+      if (seq_sizes[j] < motif_sizes[i]) {
+        Rcpp::stop("Found sequence(s) shorter than the width of the motif(s)");
+      }
     }
   }
 

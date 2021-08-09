@@ -164,10 +164,29 @@ Rcpp::NumericVector universalmotif_icscore(Rcpp::NumericVector icscore,
 
 }
 
+Rcpp::NumericVector reorder_named_num_vec_cpp(const Rcpp::NumericVector x,
+    const Rcpp::IntegerVector index) {
+  if (x.size() != index.size()) {
+    Rcpp::stop("[reorder_named_num_vec_cpp] x.size() != index.size()");
+  }
+  SEXP x_names = x.attr("names");
+  if (Rf_isNull(x_names)) {
+    Rcpp::stop("[reorder_named_num_vec_cpp] x is not named");
+  }
+  Rcpp::CharacterVector x_names2 = Rcpp::as<Rcpp::CharacterVector>(x_names);
+  Rcpp::CharacterVector x_names3(x_names2.size());
+  Rcpp::NumericVector x2(x.size());
+  for (R_xlen_t i = 0; i < x.size(); ++i) {
+    int j = index[i] - 1;
+    x_names3[i] = x_names2[j];
+    x2[i] = x[j];
+  }
+  x2.attr("names") = x_names3;
+  return x2;
+}
+
 Rcpp::NumericVector universalmotif_bkg(Rcpp::NumericVector bkg,
     const Rcpp::NumericMatrix &m_motif) {
-
-  // NOTE: Assumes the vector is already properly alphabetically sorted.
 
   R_xlen_t alph_len = m_motif.nrow();
   R_xlen_t bkg_len = bkg.size();
@@ -187,6 +206,9 @@ Rcpp::NumericVector universalmotif_bkg(Rcpp::NumericVector bkg,
     return bkg;
 
   }
+
+  Rcpp::IntegerVector bkg_order = order_char_cpp(bkg.attr("names"));
+  bkg = reorder_named_num_vec_cpp(bkg, bkg_order);
 
   if (bkg_len < alph_len) Rcpp::stop("'bkg' vector is too short");
 

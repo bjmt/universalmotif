@@ -18,4 +18,6 @@ std::string get_consensusC(std::vector<double> pos,
 std::string get_consensusAAC(std::vector<double> pos,
     const std::string &type = "PPM", double pseudocount = 0.0);
 
+Rcpp::IntegerVector order_char_cpp(const Rcpp::CharacterVector x);
+
 #endif

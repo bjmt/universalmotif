@@ -50,6 +50,12 @@ MINOR CHANGES
 
     o The axis text in view_motifs() is now black instead of grey.
 
+    o create_motif(): When a named background vector is provided, it is
+      sorted according to the alphabet characters.
+
+    o scan_sequences(): Check that the sequences aren't shorter than the
+      motifs.
+
     o Miscellaneous changes and additions to the vignettes and various
       function manual pages.
 

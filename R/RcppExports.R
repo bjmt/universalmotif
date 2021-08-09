@@ -221,6 +221,10 @@ table_cpp <- function(x) {
     .Call('_universalmotif_table_cpp', PACKAGE = 'universalmotif', x)
 }
 
+order_char_cpp <- function(x) {
+    .Call('_universalmotif_order_char_cpp', PACKAGE = 'universalmotif', x)
+}
+
 sort_unique_cpp <- function(x) {
     .Call('_universalmotif_sort_unique_cpp', PACKAGE = 'universalmotif', x)
 }

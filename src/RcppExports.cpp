@@ -742,6 +742,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// order_char_cpp
+Rcpp::IntegerVector order_char_cpp(const Rcpp::CharacterVector x);
+RcppExport SEXP _universalmotif_order_char_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(order_char_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sort_unique_cpp
 Rcpp::StringVector sort_unique_cpp(const Rcpp::StringVector& x);
 RcppExport SEXP _universalmotif_sort_unique_cpp(SEXP xSEXP) {
@@ -1020,6 +1030,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_min_max_doubles", (DL_FUNC) &_universalmotif_min_max_doubles, 0},
     {"_universalmotif_comb2_cpp", (DL_FUNC) &_universalmotif_comb2_cpp, 1},
     {"_universalmotif_table_cpp", (DL_FUNC) &_universalmotif_table_cpp, 1},
+    {"_universalmotif_order_char_cpp", (DL_FUNC) &_universalmotif_order_char_cpp, 1},
     {"_universalmotif_sort_unique_cpp", (DL_FUNC) &_universalmotif_sort_unique_cpp, 1},
     {"_universalmotif_collapse_rows_mat", (DL_FUNC) &_universalmotif_collapse_rows_mat, 1},
     {"_universalmotif_collapse_cols_mat", (DL_FUNC) &_universalmotif_collapse_cols_mat, 1},

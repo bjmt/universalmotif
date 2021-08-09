@@ -237,6 +237,12 @@ Rcpp::IntegerVector table_cpp(const Rcpp::StringVector &x) {
 }
 
 // [[Rcpp::export(rng = false)]]
+Rcpp::IntegerVector order_char_cpp(const Rcpp::CharacterVector x) {
+  Rcpp::CharacterVector y = clone(x).sort();
+  return match(y, x);
+}
+
+// [[Rcpp::export(rng = false)]]
 Rcpp::StringVector sort_unique_cpp(const Rcpp::StringVector &x) {
   return Rcpp::sort_unique(x);
 }
