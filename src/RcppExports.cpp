@@ -17,9 +17,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_wins_cpp
-std::vector<std::vector<std::size_t>> calc_wins_cpp(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window);
-RcppExport SEXP _universalmotif_calc_wins_cpp(SEXP seqlenSEXP, SEXP windowSEXP, SEXP overlapSEXP, SEXP return_incomplete_windowSEXP) {
+// get_alphabet_cpp
+std::string get_alphabet_cpp(const std::string& x);
+RcppExport SEXP _universalmotif_get_alphabet_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_alphabet_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_wins_cpp2
+std::vector<std::vector<std::size_t>> calc_wins_cpp2(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window);
+RcppExport SEXP _universalmotif_calc_wins_cpp2(SEXP seqlenSEXP, SEXP windowSEXP, SEXP overlapSEXP, SEXP return_incomplete_windowSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,7 +37,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::size_t >::type window(windowSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type overlap(overlapSEXP);
     Rcpp::traits::input_parameter< const bool >::type return_incomplete_window(return_incomplete_windowSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_wins_cpp(seqlen, window, overlap, return_incomplete_window));
+    rcpp_result_gen = Rcpp::wrap(calc_wins_cpp2(seqlen, window, overlap, return_incomplete_window));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -976,7 +986,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_add_multi_cpp", (DL_FUNC) &_universalmotif_add_multi_cpp, 3},
-    {"_universalmotif_calc_wins_cpp", (DL_FUNC) &_universalmotif_calc_wins_cpp, 4},
+    {"_universalmotif_get_alphabet_cpp", (DL_FUNC) &_universalmotif_get_alphabet_cpp, 1},
+    {"_universalmotif_calc_wins_cpp2", (DL_FUNC) &_universalmotif_calc_wins_cpp2, 4},
     {"_universalmotif_dust_cpp", (DL_FUNC) &_universalmotif_dust_cpp, 1},
     {"_universalmotif_trifonov_fast_cpp", (DL_FUNC) &_universalmotif_trifonov_fast_cpp, 3},
     {"_universalmotif_trifonov_cpp", (DL_FUNC) &_universalmotif_trifonov_cpp, 3},

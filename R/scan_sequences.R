@@ -82,7 +82,7 @@
 #' @return `DataFrame`, `GRanges` with each row representing one hit. If the input
 #'    sequences are \code{\link{DNAStringSet}} or \code{\link{RNAStringSet}},
 #'    then an additional column with the strand is included. Function args are
-#'    stored in the `metadata` slot. Alternatively, if `return.granges = TRUE`
+#'    stored in the `metadata` slot. If `return.granges = TRUE`
 #'    then a `GRanges` object is returned.
 #'
 #' @details
@@ -534,8 +534,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   if (return.granges) {
     if (is.null(names(sequences))) {
-      warning(wmsg("Input sequences have no names, assigning names 1:",
-          length(sequences)), call. = FALSE)
+      # warning(wmsg("Input sequences have no names, assigning names 1:",
+      #     length(sequences)), call. = FALSE)
       names(sequences) <- 1:length(sequences)
     }
     colnames(out)[3] <- "seqname"

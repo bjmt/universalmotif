@@ -8,7 +8,8 @@
 #' minutes to calculate the results (depending on requested k-let sizes).
 #'
 #' @param sequences \code{\link{XStringSet}} Input sequences. Note that if
-#'    multiple sequences are present, the results will be combined into one.
+#'    multiple sequences are present, the results will be combined into one
+#'    (unless `merge.res = FALSE`).
 #' @param k `integer` Size of k-let. Background can be calculated for any
 #'    k-let size.
 #' @param as.prob Deprecated.
@@ -78,6 +79,8 @@
 get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   alphabet = NULL, to.meme = NULL, RC = FALSE, list.out = NULL, nthreads = 1,
   merge.res = TRUE, window = FALSE, window.size = 0.1, window.overlap = 0) {
+
+  # TODO: return.granges (only for when window = TRUE?)
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -217,6 +220,11 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
 
   } else {
 
+    if (merge.res && length(window.size) > 1 || length(window.overlap) > 1) {
+      stop(wmsg("`window.size` and `window.overlap` must be single values ",
+          "when `merge.res = TRUE`"), call. = FALSE)
+    }
+
     window.size <- rep_len(window.size, length(sequences))
     window.overlap <- rep_len(window.overlap, length(sequences))
 
@@ -271,6 +279,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
       if (length(unique(seqlens)) != 1)
         stop(wmsg("`merge.res = TRUE` and `window = TRUE` is only valid if ",
             "all sequences are of equal length"))
+      # TODO: find a faster replacement
       res <- aggregate(count ~ start + stop + klet, data = res[, -1], sum)
       if (pseudocount > 0) res$count <- res$count + pseudocount
       res <- by(res, INDICES = list(res$start, nchar(res$klet)), FUN = function(x) {
@@ -281,11 +290,14 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
       res <- res[, c("start", "stop", "klet", "count", "probability")]
     } else {
       if (pseudocount > 0) res$count <- res$count + pseudocount
+      # TODO: find a faster replacement
       res <- by(res, INDICES = list(res$sequence, res$start, nchar(res$klet)),
         FUN = function(x) {
           x$probability <- x$count / sum(x$count) ; x
         }
       )
+      # Don't understand why this line is needed
+      res <- res[!vapply(res, is.null, logical(1))]
       res <- do.call(rbind, res)
       rownames(res) <- NULL
       res <- res[, c("sequence", "start", "stop", "klet", "count", "probability")]
@@ -304,6 +316,20 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   }
 
   res$probability[is.nan(res$probability)] <- 0
+
+  # if (return.granges) {
+  #   if (merge.res) {
+  #     res$seqname <- "1"
+  #     colnames(res)[2] <- "end"
+  #     res <- granges_fun(GenomicRanges::GRanges(res,
+  #         seqlengths = c("1" = max(res$end))))
+  #   } else {
+  #     colnames(res)[1] <- "seqname"
+  #     colnames(res)[3] <- "end"
+  #     res <- granges_fun(GenomicRanges::GRanges(res,
+  #         seqlengths = structure(width(sequences), names = seq.names)))
+  #   }
+  # }
 
   res
 
@@ -332,23 +358,24 @@ to_meme_bkg_single <- function(counts, meme.order, count.names) {
 }
 
 calc_wins <- function(seqlen, winsize, ovrlp) {
-  x <- calc_wins_cpp(seqlen, winsize, ovrlp, TRUE)
+  x <- calc_wins_cpp2(seqlen, winsize, ovrlp, TRUE)
   if (!length(x))
     stop(wmsg("Incorrect window and/or overlap size"), call. = FALSE)
-  x[[1]] <- x[[1]] + 1
-  x[[2]] <- x[[2]] + 1
+  x[[1]] <- x[[1]]
+  x[[2]] <- x[[2]]
   structure(x, names = c("starts", "stops"))
 }
-# calc_wins <- function(seqlen, winsize, ovrlp) {
-#   starts <- seq(from = 1, to = seqlen, by = winsize)
-#   if (ovrlp == 0) {
-#     stops <- c(c(1, starts[c(-1, -length(starts))]) + winsize - 1, seqlen)
-#     list(starts = starts, stops = stops)
-#   } else {
-#     starts[-1] <- starts[-1] - ovrlp
-#     starts <- c(starts, starts[length(starts)] + winsize)
-#     if (starts[length(starts)] >= seqlen) starts <- starts[-length(starts)]
-#     stops <- c((starts[-length(starts)] + winsize) - 1, seqlen)
-#     list(starts = starts, stops = stops)
-#   }
-# }
+
+calc_wins_old <- function(seqlen, winsize, ovrlp) {
+  starts <- seq(from = 1, to = seqlen, by = winsize)
+  if (ovrlp == 0) {
+    stops <- c(c(1, starts[c(-1, -length(starts))]) + winsize - 1, seqlen)
+    list(starts = starts, stops = stops)
+  } else {
+    starts[-1] <- starts[-1] - ovrlp
+    starts <- c(starts, starts[length(starts)] + winsize)
+    if (starts[length(starts)] >= seqlen) starts <- starts[-length(starts)]
+    stops <- c((starts[-length(starts)] + winsize) - 1, seqlen)
+    list(starts = starts, stops = stops)
+  }
+}

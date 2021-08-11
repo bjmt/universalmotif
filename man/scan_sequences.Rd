@@ -115,7 +115,7 @@ depth in the Sequence Searches vignette. Also see Noble (2009).}
 \code{DataFrame}, \code{GRanges} with each row representing one hit. If the input
 sequences are \code{\link{DNAStringSet}} or \code{\link{RNAStringSet}},
 then an additional column with the strand is included. Function args are
-stored in the \code{metadata} slot. Alternatively, if \code{return.granges = TRUE}
+stored in the \code{metadata} slot. If \code{return.granges = TRUE}
 then a \code{GRanges} object is returned.
 }
 \description{

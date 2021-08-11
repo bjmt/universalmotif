@@ -5,8 +5,12 @@ add_multi_cpp <- function(seqs, k, alph) {
     .Call('_universalmotif_add_multi_cpp', PACKAGE = 'universalmotif', seqs, k, alph)
 }
 
-calc_wins_cpp <- function(seqlen, window, overlap, return_incomplete_window = FALSE) {
-    .Call('_universalmotif_calc_wins_cpp', PACKAGE = 'universalmotif', seqlen, window, overlap, return_incomplete_window)
+get_alphabet_cpp <- function(x) {
+    .Call('_universalmotif_get_alphabet_cpp', PACKAGE = 'universalmotif', x)
+}
+
+calc_wins_cpp2 <- function(seqlen, window, overlap, return_incomplete_window = FALSE) {
+    .Call('_universalmotif_calc_wins_cpp2', PACKAGE = 'universalmotif', seqlen, window, overlap, return_incomplete_window)
 }
 
 dust_cpp <- function(x) {

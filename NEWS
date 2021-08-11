@@ -3,9 +3,9 @@ CHANGES IN VERSION 1.12.0
 
 NEW FEATURES
 
-    o New function, calc_complexity(): [in progress]
-
-    o New function, calc_gc(): [in progress]
+    o New function, sequence_complexity(): Using either the Wootton-Federhen,
+      Trifonov, or DUST algorithms, calculate sequence complexity in sliding
+      windows.
 
     o New function, motif_range(): Get the min/max range of possible logodds
       scores for a motif.
@@ -36,7 +36,7 @@ MINOR CHANGES
     o New global option, options(pseudocount.warning): Disable the message
       printed when a motif is pseudocount-adjusted.
     
-    o Slight performance gains in get_bkg() window code. [in progress]
+    o Slight performance gains in get_bkg() window code.
 
     o motif_pvalue(): Clarify that, indeed, background probabilities are taken
       into account when calculating P-values from score inputs. The background

@@ -22,6 +22,14 @@ std::unordered_map<std::string, int> COMPLEXITY_METRICS = {
   {"DUST", 5}
 };
 
+enum COMPLEXITY_METRICS_ENUM {
+  WoottonFederhen = 1,
+  WoottonFederhenFast = 2,
+  Trifonov = 3,
+  TrifonovFast = 4,
+  DUST = 5
+};
+
 std::vector<double> get_complexity_state_vector(const std::string &x, const std::string &alph) {
   std::map<char, double> S;
   for (std::size_t i = 0; i < alph.size(); ++i) {
@@ -37,6 +45,7 @@ std::vector<double> get_complexity_state_vector(const std::string &x, const std:
   return S_d;
 }
 
+// [[Rcpp::export(rng = false)]]
 std::string get_alphabet_cpp(const std::string &x) {
   std::set<char> alph(x.begin(), x.end());
   return std::string(alph.begin(), alph.end());
@@ -75,77 +84,40 @@ std::vector<double> count_unique_strings(const std::vector<std::string> &y) {
 }
 
 // [[Rcpp::export]]
-std::vector<std::vector<std::size_t>> calc_wins_cpp(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = false) {
-
-  // This seems like it should be trivial but figuring this code out was a puzzling experience.
-  // Have to use a bunch of extra checks and .pop_back()s to make up for my bad code.
-  // Wouldn't be surprised to encounter bugs later.
+std::vector<std::vector<std::size_t>> calc_wins_cpp2(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = false) {
 
   if (window > seqlen) return std::vector<std::vector<std::size_t>>();
   if (overlap >= window) return std::vector<std::vector<std::size_t>>();
 
+  std::vector<std::size_t> starts;
+  std::vector<std::size_t> stops;
+
+  starts.push_back(1);
+  stops.push_back(window);
+  
+  std::size_t i = 0;
+  while (true) {
+    if (starts[i] == seqlen) break;
+    std::size_t next_start = starts[i] + window - overlap;
+    std::size_t next_stop = next_start + window - 1;
+    if (next_stop > seqlen) {
+      next_stop = seqlen;
+      if (next_start > seqlen) {
+        next_start = seqlen;
+      }
+      if (next_stop == stops[i]) break;
+      starts.push_back(next_start);
+      stops.push_back(next_stop);
+      break;
+    }
+    starts.push_back(next_start);
+    stops.push_back(next_stop);
+    ++i;
+  }
+
   std::vector<std::vector<std::size_t>> wins(2);
-
-  if (!overlap) {
-
-    std::vector<std::size_t> starts(seqlen / window + (seqlen % window != 0));
-    std::vector<std::size_t> stops(starts.size(), 0);
-
-    starts[0] = 0;
-    for (std::size_t i = 1; i < starts.size(); ++i) {
-      starts[i] = starts[i - 1] + window;
-    }
-
-    for (std::size_t i = 0; i < stops.size(); ++i) {
-      stops[i] = starts[i] + window - 1;
-    }
-    if (stops[stops.size() - 1] >= seqlen - 1) {
-      stops[stops.size() - 1] = seqlen - 1;
-    }
-
-    wins[0] = starts;
-    wins[1] = stops;
-
-  } else {
-
-    std::vector<std::size_t> starts;
-    std::vector<std::size_t> stops;
-
-    // I'm dumb, can't figure out how to find out appropriate starts.reserve()
-
-    std::size_t next = 0;
-    while (next < seqlen && next + window - 1 <= seqlen) {
-      starts.push_back(next);
-      next += window - overlap;
-    }
-
-    stops.reserve(starts.size());
-    for (std::size_t i = 0; i < starts.size(); ++i) {
-      stops.push_back(starts[i] + window - 1);
-    }
-    if (stops[stops.size() - 1] >= seqlen - 1) {
-      stops[stops.size() - 1] = seqlen - 1;
-    }
-
-    if (stops[stops.size() - 2] >= seqlen - 1) {
-      starts.pop_back();
-      stops.pop_back();
-    }
-
-    wins[0] = starts;
-    wins[1] = stops;
-
-  }
-
-  if (!return_incomplete_window &&
-      wins[1][wins[1].size() - 1] - wins[0][wins[0].size() - 1] + 1 < window) {
-    wins[0].pop_back();
-    wins[1].pop_back();
-  } else if (overlap && return_incomplete_window &&
-             wins[1][wins[1].size() - 1] < seqlen - 1) {
-    wins[0].push_back(wins[0][wins[0].size() - 1] + window - overlap);
-    wins[1].push_back(seqlen - 1);
-  }
+  wins[0] = starts;
+  wins[1] = stops;
 
   return wins;
 
@@ -232,7 +204,7 @@ double wootton_federhen_cpp(const std::string &x, std::string alph = "") {
 
 // [[Rcpp::export]]
 std::vector<std::string> slide_windows_cpp(const std::string &x, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = false, const int nthreads = 1) {
-  std::vector<std::vector<std::size_t>> win_locs = calc_wins_cpp(x.size(), window, overlap, return_incomplete_window);
+  std::vector<std::vector<std::size_t>> win_locs = calc_wins_cpp2(x.size(), window, overlap, return_incomplete_window);
   std::vector<std::string> win_strs(win_locs[0].size());
   RcppThread::parallelFor(0, win_strs.size(),
       [&win_strs, &x, &win_locs] (std::size_t i) {
@@ -244,25 +216,25 @@ std::vector<std::string> slide_windows_cpp(const std::string &x, const std::size
 // [[Rcpp::export]]
 std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size_t window, const std::size_t overlap, const std::string metric, std::string alph = "", int maxWordSize = 7, const int nthreads = 1) {
   if (!alph.size()) alph = get_alphabet_cpp(x);
-  std::vector<std::vector<std::size_t>> wins = calc_wins_cpp(x.size(), window, overlap);
+  std::vector<std::vector<std::size_t>> wins = calc_wins_cpp2(x.size(), window, overlap);
   if (!wins.size()) return std::vector<double>();
   std::vector<double> complexities(wins[0].size());
   switch (::COMPLEXITY_METRICS[metric]) {
-    case 1: {
+    case WoottonFederhen: {
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph] (std::size_t i) {
             complexities[i] = wootton_federhen_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1), alph);
           }, nthreads);
       break;
     }
-    case 2: {
+    case WoottonFederhenFast: {
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph] (std::size_t i) {
             complexities[i] = wootton_federhen_fast_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1), alph);
           }, nthreads);
       break;
     }
-    case 3: {
+    case Trifonov: {
       if (maxWordSize > int(window)) maxWordSize = int(window);
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph, &maxWordSize] (std::size_t i) {
@@ -270,7 +242,7 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
           }, nthreads);
       break;
     }
-    case 4: {
+    case TrifonovFast: {
       if (maxWordSize > int(window)) maxWordSize = int(window);
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph, &maxWordSize] (std::size_t i) {
@@ -278,7 +250,7 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
           }, nthreads);
       break;
     }
-    case 5: {
+    case DUST: {
       // Warning: DUST only works for DNA
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins] (std::size_t i) {

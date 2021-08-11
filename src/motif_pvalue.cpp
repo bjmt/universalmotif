@@ -489,8 +489,8 @@ Rcpp::NumericVector get_pdf(const Rcpp::IntegerMatrix &mot, const R_xlen_t maxsc
 
   R_xlen_t alphlen = mot.nrow(), width = mot.ncol();
   R_xlen_t pdflen = width * maxscore + 1;
-  Rcpp::NumericVector pdfnew(pdflen, 1);
-  Rcpp::NumericVector pdfold(pdflen, 1);
+  Rcpp::NumericVector pdfnew(pdflen, 1.0);
+  Rcpp::NumericVector pdfold(pdflen, 1.0);
 
   for (R_xlen_t i = 0; i < width; ++i) {
     R_xlen_t maxstep = i * maxscore;
