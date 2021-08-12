@@ -49,7 +49,7 @@ increasing order based on letter height.}
 
 \item{fit.to.height}{\code{numeric(1)} Normalize the per position height to
 this value. If \code{NULL}, no normalization is applied. Note that this
-parameter is ignore if \code{use.type \%in\% c("PWM", "ICM")}.}
+parameter is ignored if \code{use.type = c("PWM", "ICM")}.}
 }
 \value{
 A \code{ggplot} object. If you wish to plot the data yourself from

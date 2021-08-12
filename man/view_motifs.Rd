@@ -118,12 +118,14 @@ increasing order based on letter height.}
 
 \item{fit.to.height}{\code{numeric(1)} Normalize the per position height to
 this value. If \code{NULL}, no normalization is applied. Note that this
-parameter is ignore if \code{use.type \%in\% c("PWM", "ICM")}.}
+parameter is ignored if \code{use.type = c("PWM", "ICM")}.}
 
 \item{RC.text}{\code{character(1)} The text to display alongside the name
 of motifs shown as their reverse complement.}
 
-\item{...}{Currently unused.}
+\item{...}{Unused. Was previously in place to allow extra args to be given
+to \code{ggseqlogo::ggseqlogo}, however \code{universalmotif} now implements its
+own motif plotting code directly with \code{ggplot2}.}
 }
 \value{
 A \code{ggplot} object. If \code{return.raw = TRUE}, a list of matrices.

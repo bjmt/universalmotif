@@ -72,9 +72,29 @@
 #' sequence_complexity(test.seq, method = "Trifonov")
 #' sequence_complexity(test.seq, method = "TrifonovFast")
 #' sequence_complexity(test.seq, method = "DUST")
+#'
+#' ## You could also use this in conjuction with mask_ranges() to hide
+#' ## low complexity regions from scanning, de novo motif discovery, etc
+#'
+#' if (requireNamespace("GenomicRanges", quiet = TRUE)) {
+#' data(ArabidopsisPromoters)
+#'
+#' # Calculate complexity in 20 bp windows, sliding every 1 bp
+#' to.mask <- sequence_complexity(ArabidopsisPromoters, method = "DUST",
+#'   window.size = 20, window.overlap = 19, return.granges = TRUE)
+#'
+#' # Get the ranges with a complexity score greater than 3.5
+#' to.mask <- to.mask[to.mask$complexity > 3.5]
+#'
+#' # See what the low complexity regions look like
+#' ArabidopsisPromoters[IRanges::reduce(to.mask)]
+#'
+#' # Mask them with the '-' character:
+#' mask_ranges(ArabidopsisPromoters, to.mask)
+#' }
 #' 
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
-#' @seealso [count_klets()], [get_bkg()], [mask_seqs()]
+#' @seealso [count_klets()], [get_bkg()], [mask_ranges()], [mask_seqs()]
 #' @export
 sequence_complexity <- function(seqs, window.size = 20,
   window.overlap = round(window.size / 2),

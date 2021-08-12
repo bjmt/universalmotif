@@ -77,6 +77,26 @@ sequence_complexity(test.seq, method = "Trifonov")
 sequence_complexity(test.seq, method = "TrifonovFast")
 sequence_complexity(test.seq, method = "DUST")
 
+## You could also use this in conjuction with mask_ranges() to hide
+## low complexity regions from scanning, de novo motif discovery, etc
+
+if (requireNamespace("GenomicRanges", quiet = TRUE)) {
+data(ArabidopsisPromoters)
+
+# Calculate complexity in 20 bp windows, sliding every 1 bp
+to.mask <- sequence_complexity(ArabidopsisPromoters, method = "DUST",
+  window.size = 20, window.overlap = 19, return.granges = TRUE)
+
+# Get the ranges with a complexity score greater than 3.5
+to.mask <- to.mask[to.mask$complexity > 3.5]
+
+# See what the low complexity regions look like
+ArabidopsisPromoters[IRanges::reduce(to.mask)]
+
+# Mask them with the '-' character:
+mask_ranges(ArabidopsisPromoters, to.mask)
+}
+
 }
 \references{
 Morgulis A, Gertz EM, Schaffer AA, Agarwala R (2006). "A fast and symmetric
@@ -93,7 +113,7 @@ Wootton JC, Federhen S (1993). "Statistics of local complexity in amino acid
 sequences and sequence databses." \emph{Computers & Chemistry}, \strong{17}, 149-163.
 }
 \seealso{
-\code{\link[=count_klets]{count_klets()}}, \code{\link[=get_bkg]{get_bkg()}}, \code{\link[=mask_seqs]{mask_seqs()}}
+\code{\link[=count_klets]{count_klets()}}, \code{\link[=get_bkg]{get_bkg()}}, \code{\link[=mask_ranges]{mask_ranges()}}, \code{\link[=mask_seqs]{mask_seqs()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

@@ -35,11 +35,11 @@ Note: building the vignettes when installing from source is not recommended, unl
 
 ### Error when installing from source
 
-If you trying to install the package from source and are getting compiler errors similar to these issues ([1](https://github.com/bjmt/universalmotif/issues/3), [2](https://github.com/bjmt/universalmotif/issues/16), [3](https://github.com/tnagler/RcppThread/issues/13)), then update your C++ compiler. This is an issue regarding incompatibilities between older compilers and the C++11 lambda functions from the [RcppThread](https://github.com/tnagler/RcppThread) package, which is used by the `universalmotif` package.
+If you trying to install the package from source and are getting compiler errors similar to these issues [[1](https://github.com/bjmt/universalmotif/issues/3), [2](https://github.com/bjmt/universalmotif/issues/16), [3](https://github.com/tnagler/RcppThread/issues/13)], then update your C++ compiler. This is an issue regarding incompatibilities between older compilers and the C++11 lambda functions from the [RcppThread](https://github.com/tnagler/RcppThread) package, which is used by the `universalmotif` package.
 
 ## Brief overview
 
-All of the functions within the `universalmotif` package are fairly well documented. You can access it from within R, reading the [Bioconductor PDF](https://bioconductor.org/packages/release/bioc/manuals/universalmotif/man/universalmotif.pdf), or browsing the [rdrr.io](https://rdrr.io/bioc/universalmotif/) website. Additionally, several vignettes come with the package, which you can access from within R or on the Bioconductor website:
+All of the functions within the `universalmotif` package are fairly well documented. You can access the documentation from within R, reading the [Bioconductor PDF](https://bioconductor.org/packages/release/bioc/manuals/universalmotif/man/universalmotif.pdf), or browsing the [rdrr.io](https://rdrr.io/bioc/universalmotif/) website (the latter is not always up to date). Additionally, several vignettes come with the package, which you can access from within R or on the Bioconductor website:
 
 - [Introduction to sequence motifs](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/IntroductionToSequenceMotifs.pdf)
 - [Motif import, export, and manipulation](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifManipulation.pdf)
@@ -98,6 +98,8 @@ create_motif()
 #> G 0.00 1 0.03 0.95 0.00 0.00 0.04 0.28 0.86 0.23
 #> T 0.47 0 0.96 0.02 0.00 0.03 0.00 0.09 0.00 0.00
 ```
+
+See `?universalmotif` for a list of available metadata slots. Most slots can be accessed using square brackets, e.g. `MotifObject["motif"]` accesses the raw numeric matrix. You can also dump the contents of all user-facing motif slots at once into a list, e.g. `MotifObject[]`.
 
 ### Sequence creation, shuffling and background calculation
 
@@ -171,7 +173,7 @@ get_bkg(ArabidopsisPromoters, window = TRUE)
 
 ### Sequence scanning and higher order motifs
 
-The `universalmotif` package provides the `scan_sequences()` function to quickly scan a set of input sequences for motif hits. Additionally, the `add_multifreq()` function can be used to generate higher order motifs. These can also be used to scan sequences with higher accuracy.
+The `universalmotif` package provides the `scan_sequences()` function to quickly scan a set of input sequences for motif hits. Additionally, the `add_multifreq()` function can be used to generate higher order motifs. These can also be used to scan sequences with higher accuracy. By default `scan_sequences()` calculates a threshold cutoff from a P-value, though this can be changed to a manual logodds threshold.
 
 ```r
 library(universalmotif)
@@ -277,3 +279,5 @@ view_motifs(c(new.motif, old.motif, merged.motif), method = "PCC",
 ```
 
 <img src="inst/figures/example1.png" width="100%" />
+
+By default `compare_motifs()` returns a numeric matrix, meaning the output from comparisons between large numbers of motifs can be easily used to generate heatmaps or dendrograms.

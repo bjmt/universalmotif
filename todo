@@ -107,3 +107,5 @@
 - to_df() et al: don't show warning when printing if errors are present?
 - calc_gc() function
 - DUST algorithm returning NaNs sometimes?
+- change the default pseudocount value to 0.1? (instead of 1) 
+  --> OR... change default nsites to 1000

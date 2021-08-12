@@ -7,6 +7,8 @@
 #' @param k `integer(1)` K-let size.
 #' @param letter `character(1)` Character to use for masking.
 #' @param pattern `character(1)` Pattern to mask.
+#' @param ranges `GRanges` The ranges to mask. Must be a `GRanges` object
+#'    from the `GenomicRanges` package.
 #' @param seqs `XStringSet` Sequences to mask. Cannot be `BStringSet`.
 #' @param string `character(1)` A length one character vector.
 #' @param method `character(1)` Shuffling method. One of `c("euler", "linear",
@@ -24,6 +26,8 @@
 #'    For [count_klets()]: A `data.frame` with columns `lets` and `counts`.
 #'
 #'    For [get_klets()]: A `character` vector of k-lets.
+#'
+#'    For [mask_ranges()]: The masked `XStringSet` object.
 #'
 #'    For [mask_seqs()]: The masked `XStringSet` object.
 #'
@@ -44,6 +48,15 @@
 #' ## Note that each element in 'lets' is considered a single unit;
 #' ## see:
 #' get_klets(c("AA", "B"), k = 2)
+#'
+#' #######################################################################
+#' ## mask_ranges
+#' ## Mask arbitrary ranges
+#' if (requireNamespace("GenomicRanges", quiet = TRUE)) {
+#' ranges <- GenomicRanges::GRanges("A", IRanges::IRanges(1, 5))
+#' seq <- Biostrings::DNAStringSet(c(A = "ATGACTGATTACTTATA"))
+#' mask_ranges(seq, ranges, ".")
+#' }
 #'
 #' #######################################################################
 #' ## mask_seqs
@@ -93,6 +106,38 @@ get_klets <- function(lets, k = 1) {
 
   get_klets_cpp(lets, k)
 
+}
+
+granges_fun2 <- function(FUN, env = parent.frame()) {
+  if (requireNamespace("GenomicRanges", quietly = TRUE)) {
+    eval(substitute(FUN), envir = env)
+  } else {
+    stop(wmsg("The 'GenomicRanges' package must be installed to use mask_ranges(). ",
+        "[BiocManager::install(\"GenomicRanges\")]"), call. = FALSE)
+  }
+}
+
+#' @rdname utils-sequence
+#' @export
+mask_ranges <- function(seqs, ranges, letter = "-") {
+  if (!is(seqs, "XStringSet")) {
+    stop(wmsg("`seqs` must be an XStringSet object"), call. = FALSE)
+  }
+  if (!is(ranges, "GRanges")) {
+    stop(wmsg("`ranges` must be GRanges object"), call. = FALSE)
+  }
+  if (!is.character(letter) || length(letter) != 1) {
+    stop(wmsg("`letter` must be a single character"), call. = FALSE)
+  }
+  ranges <- granges_fun2(GenomicRanges::reduce(ranges))
+  ranges <- unname(as(ranges, "IRangesList")[names(seqs)])
+  letterList <- sapply(ranges,
+    function(x) vapply(width(x),
+      function(y) collapse_cpp(rep(letter, y)),
+      character(1)
+    )
+  )
+  Biostrings::replaceAt(seqs, ranges, letterList)
 }
 
 #' @rdname utils-sequence

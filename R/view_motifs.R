@@ -48,10 +48,12 @@
 #' @param text.size `numeric(1)` Text size for labels.
 #' @param fit.to.height `numeric(1)` Normalize the per position height to
 #'    this value. If `NULL`, no normalization is applied. Note that this
-#'    parameter is ignore if `use.type %in% c("PWM", "ICM")`.
+#'    parameter is ignored if `use.type = c("PWM", "ICM")`.
 #' @param RC.text `character(1)` The text to display alongside the name
 #'    of motifs shown as their reverse complement.
-#' @param ... Currently unused.
+#' @param ... Unused. Was previously in place to allow extra args to be given
+#'    to `ggseqlogo::ggseqlogo`, however `universalmotif` now implements its
+#'    own motif plotting code directly with `ggplot2`.
 #'
 #' @return A `ggplot` object. If `return.raw = TRUE`, a list of matrices.
 #'

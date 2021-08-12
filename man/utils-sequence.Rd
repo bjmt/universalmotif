@@ -4,6 +4,7 @@
 \alias{utils-sequence}
 \alias{count_klets}
 \alias{get_klets}
+\alias{mask_ranges}
 \alias{mask_seqs}
 \alias{shuffle_string}
 \title{Sequence-related utility functions.}
@@ -11,6 +12,8 @@
 count_klets(string, k = 1, alph)
 
 get_klets(lets, k = 1)
+
+mask_ranges(seqs, ranges, letter = "-")
 
 mask_seqs(seqs, pattern, RC = FALSE, letter = "-")
 
@@ -30,11 +33,14 @@ considered a single unit.}
 
 \item{seqs}{\code{XStringSet} Sequences to mask. Cannot be \code{BStringSet}.}
 
+\item{ranges}{\code{GRanges} The ranges to mask. Must be a \code{GRanges} object
+from the \code{GenomicRanges} package.}
+
+\item{letter}{\code{character(1)} Character to use for masking.}
+
 \item{pattern}{\code{character(1)} Pattern to mask.}
 
 \item{RC}{\code{logical(1)} Whether to mask the reverse complement of the pattern.}
-
-\item{letter}{\code{character(1)} Character to use for masking.}
 
 \item{method}{\code{character(1)} Shuffling method. One of \code{c("euler", "linear", "markov")}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
@@ -50,6 +56,8 @@ run in serial.}
 For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns \code{lets} and \code{counts}.
 
 For \code{\link[=get_klets]{get_klets()}}: A \code{character} vector of k-lets.
+
+For \code{\link[=mask_ranges]{mask_ranges()}}: The masked \code{XStringSet} object.
 
 For \code{\link[=mask_seqs]{mask_seqs()}}: The masked \code{XStringSet} object.
 
@@ -73,6 +81,15 @@ get_klets(c("A", "C", "G", "T"), 3)
 ## Note that each element in 'lets' is considered a single unit;
 ## see:
 get_klets(c("AA", "B"), k = 2)
+
+#######################################################################
+## mask_ranges
+## Mask arbitrary ranges
+if (requireNamespace("GenomicRanges", quiet = TRUE)) {
+ranges <- GenomicRanges::GRanges("A", IRanges::IRanges(1, 5))
+seq <- Biostrings::DNAStringSet(c(A = "ATGACTGATTACTTATA"))
+mask_ranges(seq, ranges, ".")
+}
 
 #######################################################################
 ## mask_seqs
