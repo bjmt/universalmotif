@@ -2,6 +2,7 @@
 % Please edit documentation in R/utils-sequence.R
 \name{utils-sequence}
 \alias{utils-sequence}
+\alias{calc_complexity}
 \alias{count_klets}
 \alias{get_klets}
 \alias{mask_ranges}
@@ -9,6 +10,10 @@
 \alias{shuffle_string}
 \title{Sequence-related utility functions.}
 \usage{
+calc_complexity(string, complexity.method = c("WoottonFederhen",
+  "WoottonFederhenFast", "Trifonov", "TrifonovFast", "DUST"), alph = NULL,
+  trifonov.max.word.size = 7)
+
 count_klets(string, k = 1, alph)
 
 get_klets(lets, k = 1)
@@ -23,10 +28,16 @@ shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
 \arguments{
 \item{string}{\code{character(1)} A length one character vector.}
 
-\item{k}{\code{integer(1)} K-let size.}
+\item{complexity.method}{\code{character(1)} Complexity algorithm. See
+\code{\link[=sequence_complexity]{sequence_complexity()}}.}
 
 \item{alph}{\code{character(1)} A single character string with the desired
 sequence alphabet. If missing, finds the unique letters in the string.}
+
+\item{trifonov.max.word.size}{\code{integer(1)} Maximum word size for use
+in the Trifonov complexity methods. See \code{\link[=sequence_complexity]{sequence_complexity()}}.}
+
+\item{k}{\code{integer(1)} K-let size.}
 
 \item{lets}{\code{character} A character vector where each element will be
 considered a single unit.}
@@ -53,6 +64,8 @@ as \code{\link[=shuffle_sequences]{shuffle_sequences()}}, it also requires a sep
 run in serial.}
 }
 \value{
+For \code{\link[=calc_complexity]{calc_complexity()}}: A single \code{numeric(1)} value.
+
 For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns \code{lets} and \code{counts}.
 
 For \code{\link[=get_klets]{get_klets()}}: A \code{character} vector of k-lets.
@@ -67,6 +80,15 @@ For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} s
 Sequence-related utility functions.
 }
 \examples{
+#######################################################################
+## calc_complexity
+## Calculate complexity for abitrary strings
+calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "WoottonFederhen")
+calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "WoottonFederhenFast")
+calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "Trifonov")
+calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "TrifonovFast")
+calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "DUST")
+
 #######################################################################
 ## count_klets
 ## Count k-lets for any string of characters
@@ -104,7 +126,7 @@ shuffle_string("ASDADASDASDASD", k = 2)
 
 }
 \seealso{
-\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
+\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=sequence_complexity]{sequence_complexity()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

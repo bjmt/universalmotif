@@ -58,7 +58,7 @@
 #' MH (Eds), *Structure & Methods* Adenine Press, Albany, **1**, 69-77.
 #'
 #' Wootton JC, Federhen S (1993). "Statistics of local complexity in amino acid
-#' sequences and sequence databses." *Computers & Chemistry*, **17**, 149-163.
+#' sequences and sequence databases." *Computers & Chemistry*, **17**, 149-163.
 #'
 #' @examples
 #' ## Feel free to play around with different toy sequences to get a feel for
@@ -94,7 +94,8 @@
 #' }
 #' 
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
-#' @seealso [count_klets()], [get_bkg()], [mask_ranges()], [mask_seqs()]
+#' @seealso [calc_complexity()], [count_klets()], [get_bkg()], [mask_ranges()],
+#'  [mask_seqs()]
 #' @export
 sequence_complexity <- function(seqs, window.size = 20,
   window.overlap = round(window.size / 2),

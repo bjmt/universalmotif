@@ -203,8 +203,9 @@ ggplot(myseq_all, aes(x = start, y = probability, colour = klet)) +
 
 # Miscellaneous string utilities
 
-Since biological sequences are usually contained in `XStringSet` class objects, `get_bkg()` and `shuffle_sequences()` are designed to work with such objects. For cases when strings are not `XStringSet` objects, the following functions are available:
+Since biological sequences are usually contained in `XStringSet` class objects, `sequence_complexity()`, `get_bkg()` and `shuffle_sequences()` are designed to work with such objects. For cases when strings are not `XStringSet` objects, the following functions are available:
 
+* `calc_complexity()`: alternative to `sequence_complexity()`
 * `count_klets()`: alternative to `get_bkg()`
 * `shuffle_string()`: alternative to `shuffle_sequences()`
 
@@ -212,6 +213,8 @@ Since biological sequences are usually contained in `XStringSet` class objects, 
 library(universalmotif)
 
 string <- "DASDSDDSASDSSA"
+
+calc_complexity(string)
 
 count_klets(string, 2)
 
@@ -555,6 +558,45 @@ res$Plot
 ```
 
 In this plot, red dots are used to indicate density peaks and the blue line shows the P-value cutoff.
+
+## Detecting low complexity regions and sequence masking
+
+Highly-repetitive low complexity regions can oftentimes cause problems during _de novo_ motif discovery, leading to obviously false motifs being returned. One way to get around this issue is to preemptively remove or mask these regions. The `universalmotif` package includes a few functions which can help carry out this task.
+
+Using `mask_seqs()`, one can mask a specific pattern of letters in `XStringSet` objects. Consider the following sequences:
+
+```{r}
+library(universalmotif)
+library(Biostrings)
+
+Ex.seq <- DNAStringSet(c(
+  A = "GTTGAAAAAAAAAAAAAAAACAGACGT",
+  B = "TTAGATGGCCCATAGCTTATACGGCAA",
+  C = "AATAAAATGCTTAGGAAATCGATTGCC"
+))
+```
+
+We can easily mask portions that contain, say, stretches of at least 8 `A`s:
+
+```{r}
+mask_seqs(Ex.seq, "AAAAAAAA")
+```
+
+Alternatively, instead of masking a know stretch of letters one can find low complexity regions using `sequence_complexity()`, and then mask specific regions in the sequences using `mask_ranges()`. The `sequence_complexity()` function has several complexity metrics available: the Wootton-Federhen [@wootton93] and Trifonov [@trifonov90] algorithms (and their approximations) are well described in @orlov04, and DUST in @morgulis06. See `?sequence_complexity` for more details.
+
+```{r}
+(Ex.DUST <- sequence_complexity(Ex.seq, window.size = 10, method = "DUST",
+    return.granges = TRUE))
+```
+
+Using the DUST algorithm, we can see there are a couple of regions which spike in the complexity score (for this particular algorithm, more complex sequences converge towards zero). Now it is only a matter of filtering for those regions and using `mask_ranges()`.
+
+```{r}
+(Ex.DUST <- Ex.DUST[Ex.DUST$complexity >= 3])
+mask_ranges(Ex.seq, Ex.DUST)
+```
+
+Now these sequences could be used directly with `scan_sequences()` or written to a fasta file using `Biostrings::writeXStringSet()` for use with an external _de novo_ motif discovery program such as MEME.
 
 # Motif discovery with MEME
 

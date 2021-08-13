@@ -2,17 +2,17 @@
 #'
 #' @param alph `character(1)` A single character string with the desired
 #'    sequence alphabet. If missing, finds the unique letters in the string.
+#' @param complexity.method `character(1)` Complexity algorithm. See
+#'    [sequence_complexity()].
 #' @param lets `character` A character vector where each element will be
 #'    considered a single unit.
 #' @param k `integer(1)` K-let size.
 #' @param letter `character(1)` Character to use for masking.
+#' @param method `character(1)` Shuffling method. One of `c("euler", "linear",
+#'    "markov")`. See [shuffle_sequences()].
 #' @param pattern `character(1)` Pattern to mask.
 #' @param ranges `GRanges` The ranges to mask. Must be a `GRanges` object
 #'    from the `GenomicRanges` package.
-#' @param seqs `XStringSet` Sequences to mask. Cannot be `BStringSet`.
-#' @param string `character(1)` A length one character vector.
-#' @param method `character(1)` Shuffling method. One of `c("euler", "linear",
-#'    "markov")`. See [shuffle_sequences()].
 #' @param RC `logical(1)` Whether to mask the reverse complement of the pattern.
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    in [shuffle_sequences()] can occur simultaneously in multiple threads using C++,
@@ -21,8 +21,14 @@
 #'    independent seed. Since [shuffle_string()] uses the same underlying code
 #'    as [shuffle_sequences()], it also requires a separate seed even if it is
 #'    run in serial.
+#' @param seqs `XStringSet` Sequences to mask. Cannot be `BStringSet`.
+#' @param string `character(1)` A length one character vector.
+#' @param trifonov.max.word.size `integer(1)` Maximum word size for use
+#'    in the Trifonov complexity methods. See [sequence_complexity()].
 #'
 #' @return
+#'    For [calc_complexity()]: A single `numeric(1)` value.
+#'
 #'    For [count_klets()]: A `data.frame` with columns `lets` and `counts`.
 #'
 #'    For [get_klets()]: A `character` vector of k-lets.
@@ -34,6 +40,15 @@
 #'    For [shuffle_string()]: A single `character` string.
 #'
 #' @examples
+#' #######################################################################
+#' ## calc_complexity
+#' ## Calculate complexity for abitrary strings
+#' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "WoottonFederhen")
+#' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "WoottonFederhenFast")
+#' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "Trifonov")
+#' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "TrifonovFast")
+#' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "DUST")
+#'
 #' #######################################################################
 #' ## count_klets
 #' ## Count k-lets for any string of characters
@@ -69,10 +84,34 @@
 #' ## Shuffle any string of characters
 #' shuffle_string("ASDADASDASDASD", k = 2)
 #'
-#' @seealso [create_sequences()], [shuffle_sequences()]
+#' @seealso [create_sequences()], [sequence_complexity()], [shuffle_sequences()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name utils-sequence
 NULL
+
+#' @rdname utils-sequence
+#' @export
+calc_complexity <- function(string, complexity.method = c("WoottonFederhen",
+  "WoottonFederhenFast", "Trifonov", "TrifonovFast", "DUST"), alph = NULL,
+  trifonov.max.word.size = 7) {
+
+  method <- match.arg(complexity.method)
+
+  if (is.null(alph)) alph <- ""
+  trifonov.max.word.size <- as.integer(trifonov.max.word.size)
+  if (is.na(trifonov.max.word.size) || trifonov.max.word.size <= 0) {
+    stop("trifonov.max.word.size must be a positive integer")
+  }
+  
+  switch(method,
+    WoottonFederhen = wootton_federhen_cpp(string, alph),
+    WoottonFederhenFast = wootton_federhen_fast_cpp(string, alph),
+    Trifonov = trifonov_cpp(string, trifonov.max.word.size, alph),
+    TrifonovFast = trifonov_fast_cpp(string, trifonov.max.word.size, alph),
+    DUST = dust_cpp(string)
+  )
+
+}
 
 #' @rdname utils-sequence
 #' @export

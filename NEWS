@@ -5,7 +5,8 @@ NEW FEATURES
 
     o New function, sequence_complexity(): Using either the Wootton-Federhen,
       Trifonov, or DUST algorithms, calculate sequence complexity in sliding
-      windows.
+      windows. A version for small arbitrary strings is also provided:
+      calc_complexity().
 
     o New function, mask_ranges(): Similarly to mask_seqs(), mask specific
       positions in a XStringSet object by replacing the letters with a specific

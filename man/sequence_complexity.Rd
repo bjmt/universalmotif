@@ -110,10 +110,11 @@ Trifonov EN (1990). "Making sense of the human genome." In Sarma RH, Sarma
 MH (Eds), \emph{Structure & Methods} Adenine Press, Albany, \strong{1}, 69-77.
 
 Wootton JC, Federhen S (1993). "Statistics of local complexity in amino acid
-sequences and sequence databses." \emph{Computers & Chemistry}, \strong{17}, 149-163.
+sequences and sequence databases." \emph{Computers & Chemistry}, \strong{17}, 149-163.
 }
 \seealso{
-\code{\link[=count_klets]{count_klets()}}, \code{\link[=get_bkg]{get_bkg()}}, \code{\link[=mask_ranges]{mask_ranges()}}, \code{\link[=mask_seqs]{mask_seqs()}}
+\code{\link[=calc_complexity]{calc_complexity()}}, \code{\link[=count_klets]{count_klets()}}, \code{\link[=get_bkg]{get_bkg()}}, \code{\link[=mask_ranges]{mask_ranges()}},
+\code{\link[=mask_seqs]{mask_seqs()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

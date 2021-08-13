@@ -109,3 +109,4 @@
 - DUST algorithm returning NaNs sometimes?
 - change the default pseudocount value to 0.1? (instead of 1) 
   --> OR... change default nsites to 1000
+- the return_incomplete_window options in calc_wins_cpp2 currently does nothing!
