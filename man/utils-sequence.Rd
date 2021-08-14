@@ -3,16 +3,20 @@
 \name{utils-sequence}
 \alias{utils-sequence}
 \alias{calc_complexity}
+\alias{calc_windows}
 \alias{count_klets}
 \alias{get_klets}
 \alias{mask_ranges}
 \alias{mask_seqs}
 \alias{shuffle_string}
+\alias{window_string}
 \title{Sequence-related utility functions.}
 \usage{
 calc_complexity(string, complexity.method = c("WoottonFederhen",
   "WoottonFederhenFast", "Trifonov", "TrifonovFast", "DUST"), alph = NULL,
   trifonov.max.word.size = 7)
+
+calc_windows(n, window = 1, overlap = 0, return.incomp = TRUE)
 
 count_klets(string, k = 1, alph)
 
@@ -24,6 +28,9 @@ mask_seqs(seqs, pattern, RC = FALSE, letter = "-")
 
 shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
   rng.seed = sample.int(10000, 1))
+
+window_string(string, window = 1, overlap = 0, return.incomp = TRUE,
+  nthreads = 1)
 }
 \arguments{
 \item{string}{\code{character(1)} A length one character vector.}
@@ -36,6 +43,15 @@ sequence alphabet. If missing, finds the unique letters in the string.}
 
 \item{trifonov.max.word.size}{\code{integer(1)} Maximum word size for use
 in the Trifonov complexity methods. See \code{\link[=sequence_complexity]{sequence_complexity()}}.}
+
+\item{n}{\code{integer(1)} Total size from which to calculate sliding windows.}
+
+\item{window}{\code{integer(1)} Window size to slide along.}
+
+\item{overlap}{\code{integer(1)} Overlap size between windows.}
+
+\item{return.incomp}{\code{logical(1)} Whether to return the last window if it is
+smaller then the requested window size.}
 
 \item{k}{\code{integer(1)} K-let size.}
 
@@ -62,9 +78,14 @@ with the regular \code{R} random number generator state and thus requires an
 independent seed. Since \code{\link[=shuffle_string]{shuffle_string()}} uses the same underlying code
 as \code{\link[=shuffle_sequences]{shuffle_sequences()}}, it also requires a separate seed even if it is
 run in serial.}
+
+\item{nthreads}{\code{integer(1)} Number of threads to use. Zero uses all
+available threads.}
 }
 \value{
 For \code{\link[=calc_complexity]{calc_complexity()}}: A single \code{numeric(1)} value.
+
+For \code{\link[=calc_windows]{calc_windows()}}: A \code{data.frame} with columns \code{start} and \code{stop}.
 
 For \code{\link[=count_klets]{count_klets()}}: A \code{data.frame} with columns \code{lets} and \code{counts}.
 
@@ -75,6 +96,8 @@ For \code{\link[=mask_ranges]{mask_ranges()}}: The masked \code{XStringSet} obje
 For \code{\link[=mask_seqs]{mask_seqs()}}: The masked \code{XStringSet} object.
 
 For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} string.
+
+For \code{\link[=window_string]{window_string()}}: A \code{character} vector.
 }
 \description{
 Sequence-related utility functions.
@@ -88,6 +111,11 @@ calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "WoottonFederhenFast")
 calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "Trifonov")
 calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "TrifonovFast")
 calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "DUST")
+
+#######################################################################
+## calc_windows
+## Calculate window coordinates for any n value.
+calc_windows(100, 10, 5)
 
 #######################################################################
 ## count_klets
@@ -124,9 +152,15 @@ mask_seqs(ArabidopsisPromoters, "AAAAAA")
 ## Shuffle any string of characters
 shuffle_string("ASDADASDASDASD", k = 2)
 
+#######################################################################
+## window_string
+## Get sliding windows for a string of characters
+window_string("ABCDEFGHIJ", 2, 1)
+
 }
 \seealso{
-\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=sequence_complexity]{sequence_complexity()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
+\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=get_bkg]{get_bkg()}}, \code{\link[=sequence_complexity]{sequence_complexity()}},
+\code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

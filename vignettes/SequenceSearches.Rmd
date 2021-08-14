@@ -221,12 +221,20 @@ count_klets(string, 2)
 shuffle_string(string, 2)
 ```
 
-Finally, the `get_klets()` function can be used to get a list of all possible `k`-lets for any sequence alphabet:
+A few other utilities have also been made available (based on the internal code of other `universalmotif` functions) that work on simple character vectors:
+
+* `calc_windows()`: calculate the coordinates for sliding windows from 1 to any number `n`
+* `get_klets()`: get a list of all possible `k`-lets for any sequence alphabet
+* `window_string()`: retrieve characters from sliding windows of a single string
 
 ```{r}
 library(universalmotif)
 
+calc_windows(n = 12, window = 4, overlap = 2)
+
 get_klets(c("A", "S", "D"), 2)
+
+window_string("ABCDEFGH", window = 2, overlap = 1)
 ```
 
 # Sequence scanning and enrichment

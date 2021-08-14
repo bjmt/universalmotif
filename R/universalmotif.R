@@ -36,6 +36,7 @@
 #' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums
 #' @importFrom BiocGenerics as.data.frame
 #' @importFrom S4Vectors safeExplode wmsg DataFrame Rle aggregate
+#' @importFrom S4Vectors isTRUEorFALSE
 #' @importFrom yaml as.yaml yaml.load
 #' @useDynLib universalmotif
 NULL

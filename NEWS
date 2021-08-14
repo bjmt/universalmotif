@@ -15,6 +15,12 @@ NEW FEATURES
     o New function, motif_range(): Get the min/max range of possible logodds
       scores for a motif.
 
+    o New function, calc_windows(): Utility function for calculating
+      coordinates for sliding windows.
+
+    o New function, window_string(): Utility function for retrieving sliding
+      windows in a string.
+
     o motif_pvalue(method): P-values and scores can now be calculated
       dynamically instead of exhaustively, substantially increasing both speed
       and accuracy for bigger jobs. The previous exhaustive method can still be

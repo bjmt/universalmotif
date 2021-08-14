@@ -84,7 +84,10 @@ std::vector<double> count_unique_strings(const std::vector<std::string> &y) {
 }
 
 // [[Rcpp::export]]
-std::vector<std::vector<std::size_t>> calc_wins_cpp2(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = false) {
+std::vector<std::vector<std::size_t>> calc_wins_cpp2(const std::size_t seqlen, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = true) {
+  
+  // REMEMBER: THIS FUNCTION RETURNS 1-INDEX COORDINATES!!! CAREFUL WHEN USING
+  // FROM WITHIN C++ CODE.
 
   if (window > seqlen) return std::vector<std::vector<std::size_t>>();
   if (overlap >= window) return std::vector<std::vector<std::size_t>>();
@@ -113,6 +116,13 @@ std::vector<std::vector<std::size_t>> calc_wins_cpp2(const std::size_t seqlen, c
     starts.push_back(next_start);
     stops.push_back(next_stop);
     ++i;
+  }
+
+  if (!return_incomplete_window) {
+    if (stops[stops.size() - 1] - starts[starts.size() - 1] < window) {
+      stops.pop_back();
+      starts.pop_back();
+    }
   }
 
   std::vector<std::vector<std::size_t>> wins(2);
@@ -203,12 +213,12 @@ double wootton_federhen_cpp(const std::string &x, std::string alph = "") {
 }
 
 // [[Rcpp::export]]
-std::vector<std::string> slide_windows_cpp(const std::string &x, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = false, const int nthreads = 1) {
+std::vector<std::string> slide_windows_cpp(const std::string &x, const std::size_t window, const std::size_t overlap, const bool return_incomplete_window = true, const int nthreads = 1) {
   std::vector<std::vector<std::size_t>> win_locs = calc_wins_cpp2(x.size(), window, overlap, return_incomplete_window);
   std::vector<std::string> win_strs(win_locs[0].size());
   RcppThread::parallelFor(0, win_strs.size(),
       [&win_strs, &x, &win_locs] (std::size_t i) {
-        win_strs[i] = x.substr(win_locs[0][i], win_locs[1][i] - win_locs[0][i] + 1);
+        win_strs[i] = x.substr(win_locs[0][i] - 1, win_locs[1][i] - win_locs[0][i] + 1);
       }, nthreads);
   return win_strs;
 }
@@ -223,14 +233,14 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
     case WoottonFederhen: {
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph] (std::size_t i) {
-            complexities[i] = wootton_federhen_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1), alph);
+            complexities[i] = wootton_federhen_cpp(x.substr(wins[0][i] - 1, wins[1][i] - wins[0][i] + 1), alph);
           }, nthreads);
       break;
     }
     case WoottonFederhenFast: {
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph] (std::size_t i) {
-            complexities[i] = wootton_federhen_fast_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1), alph);
+            complexities[i] = wootton_federhen_fast_cpp(x.substr(wins[0][i] - 1, wins[1][i] - wins[0][i] + 1), alph);
           }, nthreads);
       break;
     }
@@ -238,7 +248,7 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
       if (maxWordSize > int(window)) maxWordSize = int(window);
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph, &maxWordSize] (std::size_t i) {
-            complexities[i] = trifonov_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1), maxWordSize, alph);
+            complexities[i] = trifonov_cpp(x.substr(wins[0][i] - 1, wins[1][i] - wins[0][i] + 1), maxWordSize, alph);
           }, nthreads);
       break;
     }
@@ -246,7 +256,7 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
       if (maxWordSize > int(window)) maxWordSize = int(window);
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins, &alph, &maxWordSize] (std::size_t i) {
-            complexities[i] = trifonov_fast_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1), maxWordSize, alph);
+            complexities[i] = trifonov_fast_cpp(x.substr(wins[0][i] - 1, wins[1][i] - wins[0][i] + 1), maxWordSize, alph);
           }, nthreads);
       break;
     }
@@ -254,7 +264,7 @@ std::vector<double> sliding_complexity_cpp(const std::string &x, const std::size
       // Warning: DUST only works for DNA
       RcppThread::parallelFor(0, complexities.size(),
           [&complexities, &x, &wins] (std::size_t i) {
-            complexities[i] = dust_cpp(x.substr(wins[0][i], wins[1][i] - wins[0][i] + 1));
+            complexities[i] = dust_cpp(x.substr(wins[0][i] - 1, wins[1][i] - wins[0][i] + 1));
           }, nthreads);
       break;
     }

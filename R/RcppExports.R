@@ -9,7 +9,7 @@ get_alphabet_cpp <- function(x) {
     .Call('_universalmotif_get_alphabet_cpp', PACKAGE = 'universalmotif', x)
 }
 
-calc_wins_cpp2 <- function(seqlen, window, overlap, return_incomplete_window = FALSE) {
+calc_wins_cpp2 <- function(seqlen, window, overlap, return_incomplete_window = TRUE) {
     .Call('_universalmotif_calc_wins_cpp2', PACKAGE = 'universalmotif', seqlen, window, overlap, return_incomplete_window)
 }
 
@@ -33,7 +33,7 @@ wootton_federhen_cpp <- function(x, alph = "") {
     .Call('_universalmotif_wootton_federhen_cpp', PACKAGE = 'universalmotif', x, alph)
 }
 
-slide_windows_cpp <- function(x, window, overlap, return_incomplete_window = FALSE, nthreads = 1L) {
+slide_windows_cpp <- function(x, window, overlap, return_incomplete_window = TRUE, nthreads = 1L) {
     .Call('_universalmotif_slide_windows_cpp', PACKAGE = 'universalmotif', x, window, overlap, return_incomplete_window, nthreads)
 }
 

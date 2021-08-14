@@ -10,10 +10,16 @@
 #' @param letter `character(1)` Character to use for masking.
 #' @param method `character(1)` Shuffling method. One of `c("euler", "linear",
 #'    "markov")`. See [shuffle_sequences()].
+#' @param n `integer(1)` Total size from which to calculate sliding windows.
+#' @param nthreads `integer(1)` Number of threads to use. Zero uses all
+#'    available threads.
+#' @param overlap `integer(1)` Overlap size between windows.
 #' @param pattern `character(1)` Pattern to mask.
 #' @param ranges `GRanges` The ranges to mask. Must be a `GRanges` object
 #'    from the `GenomicRanges` package.
 #' @param RC `logical(1)` Whether to mask the reverse complement of the pattern.
+#' @param return.incomp `logical(1)` Whether to return the last window if it is
+#'    smaller then the requested window size.
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    in [shuffle_sequences()] can occur simultaneously in multiple threads using C++,
 #'    it cannot communicate
@@ -25,9 +31,12 @@
 #' @param string `character(1)` A length one character vector.
 #' @param trifonov.max.word.size `integer(1)` Maximum word size for use
 #'    in the Trifonov complexity methods. See [sequence_complexity()].
+#' @param window `integer(1)` Window size to slide along.
 #'
 #' @return
 #'    For [calc_complexity()]: A single `numeric(1)` value.
+#'
+#'    For [calc_windows()]: A `data.frame` with columns `start` and `stop`.
 #'
 #'    For [count_klets()]: A `data.frame` with columns `lets` and `counts`.
 #'
@@ -39,6 +48,8 @@
 #'
 #'    For [shuffle_string()]: A single `character` string.
 #'
+#'    For [window_string()]: A `character` vector.
+#'
 #' @examples
 #' #######################################################################
 #' ## calc_complexity
@@ -48,6 +59,11 @@
 #' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "Trifonov")
 #' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "TrifonovFast")
 #' calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "DUST")
+#'
+#' #######################################################################
+#' ## calc_windows
+#' ## Calculate window coordinates for any n value.
+#' calc_windows(100, 10, 5)
 #'
 #' #######################################################################
 #' ## count_klets
@@ -84,7 +100,13 @@
 #' ## Shuffle any string of characters
 #' shuffle_string("ASDADASDASDASD", k = 2)
 #'
-#' @seealso [create_sequences()], [sequence_complexity()], [shuffle_sequences()]
+#' #######################################################################
+#' ## window_string
+#' ## Get sliding windows for a string of characters
+#' window_string("ABCDEFGHIJ", 2, 1)
+#'
+#' @seealso [create_sequences()], [get_bkg()], [sequence_complexity()],
+#'    [shuffle_sequences()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name utils-sequence
 NULL
@@ -111,6 +133,35 @@ calc_complexity <- function(string, complexity.method = c("WoottonFederhen",
     DUST = dust_cpp(string)
   )
 
+}
+
+#' @rdname utils-sequence
+#' @export
+calc_windows <- function(n, window = 1, overlap = 0, return.incomp = TRUE) {
+  n <- as.integer(n)
+  window <- as.integer(window)
+  overlap <- as.integer(overlap)
+  if (is.na(n) || n < 1) {
+    stop("`n` should be a positive integer")
+  }
+  if (is.na(window) || window < 1) {
+    stop("`window` should be a positive integer")
+  }
+  if (is.na(overlap) || overlap < 0) {
+    stop("`overlap` should be a non-negative integer")
+  }
+  if (!isTRUEorFALSE(return.incomp) || length(return.incomp) != 1) {
+    stop("`return.incomp` should be a single boolean value")
+  }
+  if (window > n) {
+    window <- n
+    overlap <- 0
+  }
+  if (overlap >= window) {
+    stop("`overlap` cannot be greater or equal to `window`")
+  }
+  as.data.frame(structure(calc_wins_cpp2(n, window, overlap, return.incomp),
+    names = c("start", "stop")))
 }
 
 #' @rdname utils-sequence
@@ -242,5 +293,45 @@ shuffle_string <- function(string, k = 1, method = c("euler", "linear", "markov"
     stop("k must be greater than 0")
 
   }
+
+}
+
+#' @rdname utils-sequence
+#' @export
+window_string <- function(string, window = 1, overlap = 0,
+  return.incomp = TRUE, nthreads = 1) {
+
+  if (!is.character(string) || length(string) > 1) {
+    stop("`string` should be a length 1 character vector")
+  }
+  if (!nchar(string)) return(string)
+
+  window <- as.integer(window)
+  overlap <- as.integer(overlap)
+  nthreads <- as.integer(nthreads)
+  if (is.na(window) || window < 1) {
+    stop("`window` should be a positive integer")
+  }
+  if (is.na(overlap) || overlap < 0) {
+    stop("`overlap` should be a non-negative integer")
+  }
+  if (is.na(nthreads) || nthreads < 0) {
+    stop("`nthreads` should be a non-negative integer")
+  }
+
+  if (window > nchar(string)) {
+    window <- nchar(string)
+    overlap <- 0
+  }
+
+  if (overlap >= window) {
+    stop("`overlap` cannot be greater or equal to `window`")
+  }
+
+  if (!isTRUEorFALSE(return.incomp) || length(return.incomp) != 1) {
+    stop("`return.incomp` should be a single boolean value")
+  }
+
+  slide_windows_cpp(string, window, overlap, return.incomp, nthreads)
 
 }
