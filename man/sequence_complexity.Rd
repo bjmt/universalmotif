@@ -58,11 +58,32 @@ implementation is described in Morgulis et al. (2006). In this case,
 less complex sequences score higher, and more complex ones closer
 to 0.
 
+Briefly, the Wootton-Federhen complexity score is a reflection of the
+numbers of each unique letter found in the window (e.g. for DNA, the
+more of all four letters can be found in the window the higher the
+score). An increasing Trifonov score is a relection of the numbers of increasingly
+larger k-mers (e.g. the count of possible 1-mers, 2-mers, 3-mers, ...,
+until \code{trifonov.max.word.size}). Finally, the DUST score approaches 0
+as the count of unique 3-mers increases. (See the final section in
+the examples to see how different types of sequence compositions affect
+the methods.)
+
 Please note that the authors of the different methods recommend various
 window sizes and complexity thresholds. The authors of DUST for example,
 suggest using a window size of 64 and a threshold of 2 for low complexity.
 Wootton and Federhen suggest a window size of 40, though show that 10
-and 20 can be appropriate as well.
+and 20 can be appropriate as well (for amino acid sequences). Keep in
+mind however that these algorithms were implemented at a time when
+computers were much slower; perhaps the authors would suggest different
+window sizes today. One thing to note is that the Wootton-Federhen
+algorithm has a hard limit due to the need to caculate the product from
+\code{1:window.size}. This can end up calculating values which are greater
+than what a double can hold (e.g. try \code{prod(1:500)}). Its approximation
+does not suffer from this though, as it skips calculating the product.
+
+In terms of speed, the Wootton-Federhen algorithms are fastest, with DUST
+being 1-3 times slower and the Trifonov algorithms being several times
+slower (though the exact amount depends on the max word size).
 }
 \examples{
 ## Feel free to play around with different toy sequences to get a feel for
@@ -93,9 +114,66 @@ to.mask <- to.mask[to.mask$complexity > 3.5]
 # See what the low complexity regions look like
 ArabidopsisPromoters[IRanges::reduce(to.mask)]
 
-# Mask them with the '-' character:
+# Mask them with the default '-' character:
 mask_ranges(ArabidopsisPromoters, to.mask)
 }
+
+## To demonstrate how the methods work, consider:
+## (These examples use the calc_complexity() utility which utilizes
+## the same algorithms and works on character vectors, but lacks
+## the ability to use sliding windows.)
+a <- "ACGT"
+
+# For Wootton-Federhen, it can be easily shown it is only dependent
+# on the counts of individual letters (though do note that the
+# original paper discusses this method in the context of amino acid
+calc_complexity("AAACCCGGGTTT", alph = a)  # 0.7707
+calc_complexity("AACCGGTTACGT", alph = a)  # 0.7707
+calc_complexity("ACGTACGTACGT", alph = a)  # 0.7707
+
+# As letters start to see drops in counts, the scores go down too:
+calc_complexity("AAAACCCCGGGG", alph = a)  # 0.6284
+calc_complexity("AAAAAACCCCCC", alph = a)  # 0.4105
+calc_complexity("AAAAAAAAAACC", alph = a)  # 0.2518
+
+# Trifonov on the other hand is greatly affected by the number
+# of higher order combinations:
+calc_complexity("AAACCCGGGTTT", c = "Trifonov", alph = a)  # 0.6364
+calc_complexity("AACCGGTTACGT", c = "Trifonov", alph = a)  # 0.7273
+
+# This next one may seem surprising, but it indeed scores very low.
+# This is because although it has many of each individual letter,
+# the number of higher order letter combinations in fact is quite
+# low due to this particular repeating pattern!
+calc_complexity("ACGTACGTACGT", c = "Trifonov", alph = a)  # 0.01231
+
+# By extension, this means it scores sequences with fewer
+# counts of individual letters lower too.
+calc_complexity("AAAACCCCGGGG", c = "Trifonov", alph = a)  # 0.2386
+calc_complexity("AAAAAACCCCCC", c = "Trifonov", alph = a)  # 0.0227
+calc_complexity("AAAAAAAAAACC", c = "Trifonov", alph = a)  # 0.0011
+
+# As for DUST, it considers the number of 3-mers in the sequence.
+# The higher the numbers of 3-mers, the lower the score.
+# (0 = the max possible number of DNA 3-mers for the window size)
+calc_complexity("AAACCCGGGTTT", c = "DUST", alph = a)  # 0
+calc_complexity("AACCGGTTACGT", c = "DUST", alph = a)  # 0
+calc_complexity("ACGTACGTACGT", c = "DUST", alph = a)  # 0.8889
+calc_complexity("AAAACCCCGGGG", c = "DUST", alph = a)  # 0.333
+calc_complexity("ACGACGACGACG", c = "DUST", alph = a)  # 1.333
+calc_complexity("AAAAAACCCCCC", c = "DUST", alph = a)  # 1.333
+# Similarly to Trifonov, the next one also scores as less complex
+# compared to the previous one:
+calc_complexity("ACACACACACAC", c = "DUST", alph = a)  # 2.222
+calc_complexity("AAAAAAAAAACC", c = "DUST", alph = a)  # 3.111
+calc_complexity("AAAAAAAAAAAC", c = "DUST", alph = a)  # 4
+calc_complexity("AAAAAAAAAAAA", c = "DUST", alph = a)  # 5
+
+# Just to show once more why the seemingly more complex sequences
+# such as "ACACACACACAC" score as less complex than "AAAAAACCCCCC"
+# for the Trifonov and DUST methods:
+count_klets("ACACACACACAC", k = 3)  # Only 2 possible 3-mers
+count_klets("AAAAAACCCCCC", k = 3)  # Now 4 possible 3-mers!
 
 }
 \references{

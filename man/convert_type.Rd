@@ -30,7 +30,12 @@ See \code{\link[=convert_motifs]{convert_motifs()}} for possible output motif ob
 \description{
 Switch between position count matrix (PCM), position probability matrix
 (PPM), position weight matrix (PWM), and information count matrix (ICM)
-types. See the "Introduction to sequence motifs" vignette for details.
+types. See the "Introduction to sequence motifs" vignette for details. Please
+also note that type conversion occurs implicitly throughout the
+\code{universalmotif} package, so there is generally no need to perform this
+manual conversion. Also please be aware that the message concerning
+pseudocount-adjusting motifs can be disabled via
+\code{options(pseudocount.warning=FALSE)}.
 }
 \details{
 \subsection{PCM}{

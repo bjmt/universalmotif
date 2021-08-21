@@ -56,6 +56,10 @@ For \code{\link[=to_list]{to_list()}}: a list of motifs.
 \description{
 Tidy manipulation of motifs.
 }
+\details{
+To turn off the informative messages/warnings when printing the object to
+the console, set \code{options(universalmotif_df.warning=FALSE)}.
+}
 \examples{
 \dontrun{
 library(universalmotif)

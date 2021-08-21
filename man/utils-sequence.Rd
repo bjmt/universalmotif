@@ -9,6 +9,7 @@
 \alias{mask_ranges}
 \alias{mask_seqs}
 \alias{shuffle_string}
+\alias{slide_fun}
 \alias{window_string}
 \title{Sequence-related utility functions.}
 \usage{
@@ -29,17 +30,23 @@ mask_seqs(seqs, pattern, RC = FALSE, letter = "-")
 shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
   rng.seed = sample.int(10000, 1))
 
+slide_fun(string, FUN, FUN.VALUE, window = 1, overlap = 0,
+  return.incomp = TRUE)
+
 window_string(string, window = 1, overlap = 0, return.incomp = TRUE,
   nthreads = 1)
 }
 \arguments{
-\item{string}{\code{character(1)} A length one character vector.}
+\item{string}{\code{character(1)} A character vector containing a single string,
+with the exception of \code{\link[=calc_complexity]{calc_complexity()}} where \code{string} can be a length
+greater than one.}
 
 \item{complexity.method}{\code{character(1)} Complexity algorithm. See
 \code{\link[=sequence_complexity]{sequence_complexity()}}.}
 
 \item{alph}{\code{character(1)} A single character string with the desired
-sequence alphabet. If missing, finds the unique letters in the string.}
+sequence alphabet. If missing, finds the unique letters within each
+string.}
 
 \item{trifonov.max.word.size}{\code{integer(1)} Maximum word size for use
 in the Trifonov complexity methods. See \code{\link[=sequence_complexity]{sequence_complexity()}}.}
@@ -79,11 +86,15 @@ independent seed. Since \code{\link[=shuffle_string]{shuffle_string()}} uses the
 as \code{\link[=shuffle_sequences]{shuffle_sequences()}}, it also requires a separate seed even if it is
 run in serial.}
 
+\item{FUN}{\code{closure} The function to apply per window. (See \code{?vapply}.)}
+
+\item{FUN.VALUE}{The expected return type for \code{FUN}. (See \code{?vapply}.)}
+
 \item{nthreads}{\code{integer(1)} Number of threads to use. Zero uses all
 available threads.}
 }
 \value{
-For \code{\link[=calc_complexity]{calc_complexity()}}: A single \code{numeric(1)} value.
+For \code{\link[=calc_complexity]{calc_complexity()}}: A vector of \code{numeric} values.
 
 For \code{\link[=calc_windows]{calc_windows()}}: A \code{data.frame} with columns \code{start} and \code{stop}.
 
@@ -96,6 +107,8 @@ For \code{\link[=mask_ranges]{mask_ranges()}}: The masked \code{XStringSet} obje
 For \code{\link[=mask_seqs]{mask_seqs()}}: The masked \code{XStringSet} object.
 
 For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} string.
+
+For \code{\link[=slide_fun]{slide_fun()}}: A vector with type \code{FUN.VALUE}.
 
 For \code{\link[=window_string]{window_string()}}: A \code{character} vector.
 }
@@ -114,7 +127,7 @@ calc_complexity("GTGCCCCGCGGGAACCCCGC", c = "DUST")
 
 #######################################################################
 ## calc_windows
-## Calculate window coordinates for any n value.
+## Calculate window coordinates for any value 'n'.
 calc_windows(100, 10, 5)
 
 #######################################################################
@@ -151,6 +164,15 @@ mask_seqs(ArabidopsisPromoters, "AAAAAA")
 ## shuffle_string
 ## Shuffle any string of characters
 shuffle_string("ASDADASDASDASD", k = 2)
+
+#######################################################################
+## slide_fun
+## Apply a function to a character vector along sliding windows
+FUN <- function(x) grepl("[GC]", x)
+data.frame(
+  Window = window_string("ATGCATCTATGCA", 2, 1),
+  HasGC = slide_fun("ATGCATCTATGCA", FUN, logical(1), 2, 1)
+)
 
 #######################################################################
 ## window_string

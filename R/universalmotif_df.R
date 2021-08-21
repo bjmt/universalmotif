@@ -13,6 +13,10 @@
 #'
 #'    For [to_list()]: a list of motifs.
 #'
+#' @details
+#' To turn off the informative messages/warnings when printing the object to
+#' the console, set `options(universalmotif_df.warning=FALSE)`.
+#'
 #' @examples
 #' \dontrun{
 #' library(universalmotif)
@@ -75,18 +79,17 @@ print.universalmotif_df <- function(x, na.rm = TRUE, ...) {
   }
   print.data.frame(x)
   printNL <- FALSE
-  if (na.rm && any(empty_cols)) {
+  if (na.rm && any(empty_cols) && !isFALSE(getOption("universalmotif_df.warning"))) {
     empty_cols <- names(empty_cols)[empty_cols]
     empty_cols <- paste0(empty_cols, collapse = ", ")
     cat("\n", wmsg("[Hidden empty columns: ", empty_cols, ".]"), sep = "")
     printNL <- TRUE
   }
-  if (founderr) {
-    cat("\n", wmsg("[WARNING: detected errors. Run update_motifs() or to_list() ",
-        "for information.]"), sep = "")
+  if (founderr && !isFALSE(getOption("universalmotif_df.warning"))) {
+    cat("\n", wmsg("[Note: incomplete universalmotif_df object.]"), sep = "")
     printNL <- TRUE
   }
-  if (founddiff) {
+  if (founddiff && !isFALSE(getOption("universalmotif_df.warning"))) {
     cat("\n", wmsg("[Rows marked with * are changed. Run update_motifs()",
         " or to_list() to apply changes.]"), sep = "")
     printNL <- TRUE

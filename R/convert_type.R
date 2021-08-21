@@ -2,7 +2,12 @@
 #'
 #' Switch between position count matrix (PCM), position probability matrix
 #' (PPM), position weight matrix (PWM), and information count matrix (ICM)
-#' types. See the "Introduction to sequence motifs" vignette for details.
+#' types. See the "Introduction to sequence motifs" vignette for details. Please
+#' also note that type conversion occurs implicitly throughout the
+#' `universalmotif` package, so there is generally no need to perform this
+#' manual conversion. Also please be aware that the message concerning
+#' pseudocount-adjusting motifs can be disabled via
+#' `options(pseudocount.warning=FALSE)`.
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
@@ -171,7 +176,7 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   if (type %in% c("PCM", "PWM")) {
     nsiteLens <- vapply(lapply(motifs, function(x) x@nsites), length, integer(1))
     for (i in which(nsiteLens == 0)) {
-      message(wmsg("Note: motif [", motifs[[i]]@name, "] has an empty ",
+      message(wmsg("Note: motif [", shrink_string(motifs[[i]]@name), "] has an empty ",
           "nsites slot, using 100."))
     }
   }

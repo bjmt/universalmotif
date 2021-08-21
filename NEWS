@@ -21,6 +21,9 @@ NEW FEATURES
     o New function, window_string(): Utility function for retrieving sliding
       windows in a string.
 
+    o New function, slide_fun(): Utility function which wraps window_string()
+      and vapply() together.
+
     o motif_pvalue(method): P-values and scores can now be calculated
       dynamically instead of exhaustively, substantially increasing both speed
       and accuracy for bigger jobs. The previous exhaustive method can still be
@@ -66,6 +69,11 @@ MINOR CHANGES
 
     o scan_sequences(): Check that the sequences aren't shorter than the
       motifs.
+
+    o print.universalmotif_df: Changed warning message when subsetting to an
+      incomplete universalmotif_df object. Also added a way to turn off
+      informative messages/warnings via the boolean universalmotif_df.warning
+      global option.
 
     o Miscellaneous changes and additions to the vignettes and various
       function manual pages.

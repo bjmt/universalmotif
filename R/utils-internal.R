@@ -69,6 +69,13 @@ AA_COLOURS <- c(G = "#058644", S = "#058644", T = "#058644", Y = "#058644",
 
 # INTERNAL UTILITIES ----------------------------------------------------------- 
 
+shrink_string <- function(name, maxLen = 5, suffix = "..") {
+  if (nchar(name) > maxLen) {
+    name <- paste0(substr(name, 1, maxLen), suffix)
+  }
+  name
+}
+
 warn_pseudo <- function(v = 1) {
   if (isTRUE(getOption("pseudocount.warning"))) {
     if (v == 1) {

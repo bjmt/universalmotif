@@ -225,6 +225,7 @@ A few other utilities have also been made available (based on the internal code 
 
 * `calc_windows()`: calculate the coordinates for sliding windows from 1 to any number `n`
 * `get_klets()`: get a list of all possible `k`-lets for any sequence alphabet
+* `slide_fun()`: apply a function over sliding windows across a single string
 * `window_string()`: retrieve characters from sliding windows of a single string
 
 ```{r}
@@ -233,6 +234,8 @@ library(universalmotif)
 calc_windows(n = 12, window = 4, overlap = 2)
 
 get_klets(c("A", "S", "D"), 2)
+
+slide_fun("ABCDEFGH", charToRaw, raw(2), window = 2, overlap = 1)
 
 window_string("ABCDEFGH", window = 2, overlap = 1)
 ```

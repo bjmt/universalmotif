@@ -105,8 +105,6 @@
   https://www.biorxiv.org/content/10.1101/043794v1
   e.g. create_motif(alphabet="ACGTm", bkg = c(A=.25,C=.125,G=.25,T=.25,m=.125))
 - to_df() et al: don't show warning when printing if errors are present?
-- calc_gc() function
-- DUST algorithm returning NaNs sometimes?
 - change the default pseudocount value to 0.1? (instead of 1) 
-  --> OR... change default nsites to 1000
+  --> or... change default nsites to 1000?
 - fix motif_peaks()

@@ -1,9 +1,12 @@
 #' Sequence-related utility functions.
 #'
 #' @param alph `character(1)` A single character string with the desired
-#'    sequence alphabet. If missing, finds the unique letters in the string.
+#'    sequence alphabet. If missing, finds the unique letters within each
+#'    string.
 #' @param complexity.method `character(1)` Complexity algorithm. See
 #'    [sequence_complexity()].
+#' @param FUN `closure` The function to apply per window. (See `?vapply`.)
+#' @param FUN.VALUE The expected return type for `FUN`. (See `?vapply`.)
 #' @param lets `character` A character vector where each element will be
 #'    considered a single unit.
 #' @param k `integer(1)` K-let size.
@@ -28,13 +31,15 @@
 #'    as [shuffle_sequences()], it also requires a separate seed even if it is
 #'    run in serial.
 #' @param seqs `XStringSet` Sequences to mask. Cannot be `BStringSet`.
-#' @param string `character(1)` A length one character vector.
+#' @param string `character(1)` A character vector containing a single string,
+#'    with the exception of [calc_complexity()] where `string` can be a length
+#'    greater than one.
 #' @param trifonov.max.word.size `integer(1)` Maximum word size for use
 #'    in the Trifonov complexity methods. See [sequence_complexity()].
 #' @param window `integer(1)` Window size to slide along.
 #'
 #' @return
-#'    For [calc_complexity()]: A single `numeric(1)` value.
+#'    For [calc_complexity()]: A vector of `numeric` values.
 #'
 #'    For [calc_windows()]: A `data.frame` with columns `start` and `stop`.
 #'
@@ -47,6 +52,8 @@
 #'    For [mask_seqs()]: The masked `XStringSet` object.
 #'
 #'    For [shuffle_string()]: A single `character` string.
+#'
+#'    For [slide_fun()]: A vector with type `FUN.VALUE`.
 #'
 #'    For [window_string()]: A `character` vector.
 #'
@@ -62,7 +69,7 @@
 #'
 #' #######################################################################
 #' ## calc_windows
-#' ## Calculate window coordinates for any n value.
+#' ## Calculate window coordinates for any value 'n'.
 #' calc_windows(100, 10, 5)
 #'
 #' #######################################################################
@@ -101,6 +108,15 @@
 #' shuffle_string("ASDADASDASDASD", k = 2)
 #'
 #' #######################################################################
+#' ## slide_fun
+#' ## Apply a function to a character vector along sliding windows
+#' FUN <- function(x) grepl("[GC]", x)
+#' data.frame(
+#'   Window = window_string("ATGCATCTATGCA", 2, 1),
+#'   HasGC = slide_fun("ATGCATCTATGCA", FUN, logical(1), 2, 1)
+#' )
+#'
+#' #######################################################################
 #' ## window_string
 #' ## Get sliding windows for a string of characters
 #' window_string("ABCDEFGHIJ", 2, 1)
@@ -124,13 +140,23 @@ calc_complexity <- function(string, complexity.method = c("WoottonFederhen",
   if (is.na(trifonov.max.word.size) || trifonov.max.word.size <= 0) {
     stop("trifonov.max.word.size must be a positive integer")
   }
-  
+
   switch(method,
-    WoottonFederhen = wootton_federhen_cpp(string, alph),
-    WoottonFederhenFast = wootton_federhen_fast_cpp(string, alph),
-    Trifonov = trifonov_cpp(string, trifonov.max.word.size, alph),
-    TrifonovFast = trifonov_fast_cpp(string, trifonov.max.word.size, alph),
-    DUST = dust_cpp(string)
+    WoottonFederhen = vapply(string,
+      function(x) wootton_federhen_cpp(x, alph),
+      numeric(1), USE.NAMES = FALSE),
+    WoottonFederhenFast = vapply(string,
+      function(x) wootton_federhen_fast_cpp(x, alph),
+      numeric(1), USE.NAMES = FALSE),
+    Trifonov = vapply(string,
+      function(x) trifonov_cpp(x, trifonov.max.word.size, alph),
+      numeric(1), USE.NAMES = FALSE),
+    TrifonovFast = vapply(string,
+      function(x) trifonov_fast_cpp(x, trifonov.max.word.size, alph),
+      numeric(1), USE.NAMES = FALSE),
+    DUST = vapply(string,
+      function(x) dust_cpp(x),
+      numeric(1), USE.NAMES = FALSE)
   )
 
 }
@@ -184,7 +210,8 @@ count_klets <- function(string, k = 1, alph) {
     klets <- get_klets_cpp(sort_unique_cpp(safeExplode(alph)), k)
   }
 
-  data.frame(klets, counts, stringsAsFactors = FALSE)
+  structure(data.frame(klets, counts, stringsAsFactors = FALSE),
+    names = c("klets", "counts"))
 
 }
 
@@ -296,10 +323,63 @@ shuffle_string <- function(string, k = 1, method = c("euler", "linear", "markov"
 
 }
 
+# calc_gc <- function(string) {
+#   x <- table(safeExplode(gsub("G", "C", string)))
+#   unname(x[names(x) == "C"]) / nchar(string)
+# }
+
+#' @rdname utils-sequence
+#' @export
+slide_fun <- function(string, FUN, FUN.VALUE, window = 1, overlap = 0,
+  return.incomp = TRUE) {
+
+  string <- as.character(string)
+  if (!length(string) || is.na(string) || !nchar(string)) {
+    stop("`string` must be a non-empty length 1 character vector")
+  }
+
+  window <- as.integer(window)
+  overlap <- as.integer(overlap)
+  if (is.na(window) || window < 1) {
+    stop("`window` should be a positive integer")
+  }
+  if (is.na(overlap) || overlap < 0) {
+    stop("`overlap` should be a non-negative integer")
+  }
+
+  if (!isTRUEorFALSE(return.incomp) || length(return.incomp) != 1) {
+    stop("`return.incomp` should be a single boolean value")
+  }
+
+  if (window > nchar(string)) {
+    if (!return.incomp) {
+      stop(wmsg("`string` is smaller than `window`; set `return.incomp=TRUE`",
+          " to automatically shorten the window"))
+    }
+    window <- nchar(string)
+    overlap <- 0
+  }
+
+  if (overlap >= window) {
+    stop("`overlap` cannot be greater or equal to `window`")
+  }
+
+  vapply(
+    slide_windows_cpp(string, window, overlap, return.incomp),
+    FUN, FUN.VALUE, USE.NAMES = FALSE
+  )
+
+}
+
 #' @rdname utils-sequence
 #' @export
 window_string <- function(string, window = 1, overlap = 0,
   return.incomp = TRUE, nthreads = 1) {
+
+  string <- as.character(string)
+  if (any(is.na(string)) || any(!nchar(string))) {
+    stop("`string` must be a character vector without any blank strings")
+  }
 
   if (!is.character(string) || length(string) > 1) {
     stop("`string` should be a length 1 character vector")

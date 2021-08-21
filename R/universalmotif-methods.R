@@ -420,8 +420,7 @@ setMethod("normalize", signature(object = "universalmotif"),
   type <- object@type
   pseudo <- object@pseudocount
   if (pseudo == 0) {
-    message(wmsg("Note: motif [", object@name,
-        "] has a pseudocount of 0, 1 will be used."))
+    message(wmsg("Note: motif [", shrink_string(object@name), "] has a pseudocount of 0, using 1."))
     pseudo <- 1
   }
   object <- convert_type(object, "PCM")
