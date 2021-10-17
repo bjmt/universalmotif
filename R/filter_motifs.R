@@ -29,7 +29,11 @@
 #' ## By minimum IC:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
-#' jaspar.ic10 <- filter_motifs(jaspar, icscore = 10)
+#' jaspar.ic3 <- filter_motifs(jaspar, icscore = 3)
+#'
+#' ## Starting from version 1.10.0 of the universalmotif package, one
+#' ## could instead make use of the universalmotif_df structure:
+#' jaspar.ic3 <- jaspar |> to_df() |> subset(icscore > 3) |> to_list()
 #'
 #' ## By organism:
 #' \dontrun{
@@ -37,6 +41,10 @@
 #' motifs <- convert_motifs(MotifDb)
 #' motifs <- filter_motifs(motifs, organism = c("Athaliana", "Mmusculus"),
 #'                         extrainfo = c("dataSource" = "cisbp_1.02"))
+#' ## Or:
+#' motifs <- convert_motifs(MotifDb) |> to_df() |>
+#'   subset(organism %in% c("Athaliana", "Mmusculus") &
+#'     dataSource == "cisbp_1.02") |> to_list()
 #' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

@@ -405,10 +405,10 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
 
   if (score > score.range[2])
     stop(wmsg("input score is greater than max possible score [",
-              round(score.range[2], 3), "]"))
+        score.range[2], "]"))
   if (score < score.range[1])
     stop(wmsg("input score is less than min possible score [",
-              round(score.range[1], 3), "]"))
+        score.range[2], "]"))
 
   score <- as.integer(score * 1000)
 
@@ -825,6 +825,8 @@ round_motif <- function(motif, pct.tolerance = 0.05) {
 #' @export
 score_match <- function(motif, match, allow.nonfinite = FALSE) {
 
+  # TODO: Add use.freq option! (Also applies to many other functions here.)
+
   if (missing(motif) || missing(match))
     stop("motif and/or match are missing")
 
@@ -858,9 +860,9 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
   if (!all(unique(unlist(match)) %in% rownames(motif@motif)))
     stop("Found letters in match not found in motif")
 
-  score <- rep(0, length(match))
+  score <- numeric(length(match))
 
-  mat <- matrix(motif@motif,
+  mat <- matrix(as.integer(motif@motif * 1000) / 1000,
                 nrow = nrow(motif@motif),
                 dimnames = dimnames(motif@motif))
 

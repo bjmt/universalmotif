@@ -158,9 +158,7 @@ in E. coli.” \emph{Nucleic Acids Research}, \strong{10}, 2997-3011.
 
 Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
 transcription factor binding site analysis.” \emph{Bioinformatics},
-\strong{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
-https://doi.org/10.1093/bioinformatics/btw024), <URL:
-http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
+\strong{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024.
 }
 \seealso{
 \code{\link[=convert_motifs]{convert_motifs()}}

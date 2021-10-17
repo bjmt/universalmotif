@@ -1,7 +1,7 @@
 ---
 title: "Motif import, export, and manipulation"
 shorttitle: "Motif manipulation"
-date: 2 May 2021
+date: 17 October 2021
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -641,7 +641,7 @@ prob_match(examplemotif, "TTTTTTT", allow.zero = FALSE)
 score_match(examplemotif, "TTTTTTT")
 
 ## Take a look at the distribution of scores:
-plot(density(get_scores(examplemotif)))
+plot(density(get_scores(examplemotif), bw = 5))
 ```
 
 ## Type conversion functions

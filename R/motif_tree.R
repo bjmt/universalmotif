@@ -85,9 +85,7 @@
 #' Yu G, Smith D, Zhu H, Guan Y, Lam TT (2017). “ggtree: an R package
 #' for visualization and annotation of phylogenetic trees with their
 #' covariates and other associated data.” *Methods in Ecology and
-#' Evolution*, **8**, 28-36. doi: 10.1111/2041-210X.12628 (URL:
-#' https://doi.org/10.1111/2041-210X.12628), <URL:
-#' http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12628/abstract>.
+#' Evolution*, **8**, 28-36. doi: 10.1111/2041-210X.12628.
 #'
 #' @seealso [motifStack::motifStack()], [compare_motifs()],
 #'    [ggtree::ggtree()], [ggplot2::ggplot()]

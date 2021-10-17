@@ -1,6 +1,6 @@
 ---
 title: "Motif comparisons and P-values"
-date: 2 May 2021
+date: 17 October 2021
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib

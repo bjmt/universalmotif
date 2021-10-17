@@ -5,7 +5,7 @@
 \title{Utility functions.}
 \description{
 Utility functions have been split into two categories: those related to
-motifs ?\code{utils-motif}, and those related to sequences ?\code{utils-sequence}.
+motifs ?'utils-motif', and those related to sequences ?'utils-sequence'.
 }
 \seealso{
 \link{utils-motif}, \link{utils-sequence}

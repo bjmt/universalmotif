@@ -1,7 +1,7 @@
 #' Utility functions.
 #'
 #' Utility functions have been split into two categories: those related to
-#' motifs ?`utils-motif`, and those related to sequences ?`utils-sequence`.
+#' motifs ?'utils-motif', and those related to sequences ?'utils-sequence'.
 #'
 #' @seealso [utils-motif], [utils-sequence]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
@@ -90,6 +90,7 @@ warn_pseudo <- function(v = 1) {
         "(To turn off this message: `options(pseudocount.warning=FALSE)`) ", v))
     }
   }
+  invisible()
 }
 
 get_nsites <- function(motifs) {

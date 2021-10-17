@@ -151,7 +151,7 @@ get_klets(c("AA", "B"), k = 2)
 if (requireNamespace("GenomicRanges", quiet = TRUE)) {
 ranges <- GenomicRanges::GRanges("A", IRanges::IRanges(1, 5))
 seq <- Biostrings::DNAStringSet(c(A = "ATGACTGATTACTTATA"))
-mask_ranges(seq, ranges, ".")
+mask_ranges(seq, ranges, "-")
 }
 
 #######################################################################
@@ -163,7 +163,7 @@ mask_seqs(ArabidopsisPromoters, "AAAAAA")
 #######################################################################
 ## shuffle_string
 ## Shuffle any string of characters
-shuffle_string("ASDADASDASDASD", k = 2)
+shuffle_string("ASDADASDASDASD", k = 1)
 
 #######################################################################
 ## slide_fun

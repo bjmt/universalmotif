@@ -49,7 +49,7 @@ MINOR CHANGES
 
     o New global option, options(pseudocount.warning): Disable the message
       printed when a motif is pseudocount-adjusted.
-    
+
     o Slight performance gains in get_bkg() window code.
 
     o motif_pvalue(): Clarify that, indeed, background probabilities are taken

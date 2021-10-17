@@ -1,7 +1,7 @@
 ---
 title: "Introduction to sequence motifs"
 shorttitle: "Intro to motifs"
-date: 2 May 2021
+date: 17 October 2021
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -109,7 +109,7 @@ Now, though unlikely, it is no longer considered impossible for the sequence AAA
 The position weight matrix, also known as position-specific weight matrix, position-specific scoring matrix, and logodds scoring matrix, was first proposed by @pwm. In this case for each position, every letter has a 'score' which can be used to evaluate how well a sequence matches a motif. Though there can be multiple ways of calculating these scores (_S_), the most common method is to calculate the log of each probability, correcting for background frequencies (_B_). This results in the following calculation:
 
 \begin{equation}
-  S(N) = \log_{2}\left(\frac{P(C_N)}{B_N}\right)
+  S(N) = \log_{2}\frac{P(C_N)}{B_N}
   (\#eq:ppm2pwm)
 \end{equation}
 
@@ -248,7 +248,7 @@ _(Note that none of the positions have a sum larger than 2.)_
 An alternative to representing information content as Shannon's entropy is relative entropy, or Kullback-Leibler divergence [@kl]. While IC as Shannon's entropy has the advantage of having a consistent maximum IC for every position, it does not take into account non-uniform background frequencies. Relative entropy on the other hand will take this into account, but all positions no longer share the same maximum IC. To calculate relative entropy:
 
 \begin{equation}
-  IC(N) = P(N) \times{} \log_{2}\left(\frac{P(N)}{B_N}\right)
+  IC(N) = P(N) \times{} \log_{2}\frac{P(N)}{B_N}
   (\#eq:kldiv)
 \end{equation}
 

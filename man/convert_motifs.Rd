@@ -181,8 +181,7 @@ Validation}. R package version 1.36.0.
 
 Ou J, Wolfe SA, Brodsky MH, Zhu LJ (2018). “motifStack for the
 analysis of transcription factor binding site evolution.” \emph{Nature
-Methods}, \strong{15}, 8-9. doi: 10.1038/nmeth.4555 (URL:
-https://doi.org/10.1038/nmeth.4555).
+Methods}, \strong{15}, 8-9. doi: 10.1038/nmeth.4555.
 
 Shannon P, Richards M (2018). \emph{MotifDb: An Annotated Collection of
 Protein-DNA Binding Sequence Motifs}. R package version 1.22.0.
@@ -192,9 +191,7 @@ package version 4.16.0.
 
 Tan G, Lenhard B (2016). “TFBSTools: an R/Bioconductor package for
 transcription factor binding site analysis.” \emph{Bioinformatics},
-\strong{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024 (URL:
-https://doi.org/10.1093/bioinformatics/btw024), <URL:
-http://bioinformatics.oxfordjournals.org/content/32/10/1555>.
+\strong{32}, 1555-1556. doi: 10.1093/bioinformatics/btw024.
 
 Yao Z (2012). \emph{motifRG: A package for discriminative motif
 discovery, designed for high throughput sequencing dataset}. R
