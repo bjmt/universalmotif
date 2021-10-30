@@ -52,6 +52,13 @@
 #'    `c("fdr", "BH", "bonferroni")`. The method for calculating adjusted
 #'    P-values for individual motif hits. These are described in depth in the
 #'    Sequence Searches vignette.
+#' @param mode `character(1)` One of `c("total.hits", "seq.hits")`. The former
+#'    enriches for the total count of motif hits across all sequences,
+#'    whereas the latter only counts motif hits once per sequence (please note
+#'    that this is only really useful if you have a specific set of bkg sequences
+#'    to compare to).
+#' @param pseudocount `integer(1)` Add a pseudocount to the motif hit counts
+#'    when performing the Fisher test.
 #'
 #' @return `DataFrame` Enrichment results in a `DataFrame`. Function args and
 #'    (optionally) scan results are stored in the `metadata` slot.
@@ -89,10 +96,13 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   warn.NA = TRUE, no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
-  scan_sequences.qvals.method = c("BH", "fdr", "bonferroni")) {
+  scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"),
+  mode = c("total.hits", "seq.hits"),
+  pseudocount = if (mode[1] == "seq.hits") 1 else 0) {
 
   motif_pvalue.method <- match.arg(motif_pvalue.method)
   scan_sequences.qvals.method <- match.arg(scan_sequences.qvals.method)
+  mode <- match.arg(mode)
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -140,6 +150,9 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                                numeric(), c(FALSE, TRUE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  pseudocount <- as.integer(pseudocount)[1]
+  if (is.na(pseudocount))
+    stop(" * Incorrect 'pseudocount': got `NA`", call. = FALSE)
   #---------------------------------------------------------
 
   if (verbose > 2) {
@@ -199,7 +212,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
     nthreads, args[-(1:3)], use.gaps, allow.nonfinite, warn.NA,
     no.overlaps, no.overlaps.by.strand, no.overlaps.strat, respect.strand,
-    motif_pvalue.method, scan_sequences.qvals.method)
+    motif_pvalue.method, scan_sequences.qvals.method, mode, pseudocount)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
@@ -229,7 +242,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
   nthreads, args, use.gaps, allow.nonfinite, warn.NA, no.overlaps,
   no.overlaps.by.strand, no.overlaps.strat, respect.strand,
-  motif_pvalue.method, scan_sequences.qvals.method) {
+  motif_pvalue.method, scan_sequences.qvals.method, mode, pseudocount) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -257,6 +270,12 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     motif_pvalue.method = motif_pvalue.method,
     calc.qvals.method = scan_sequences.qvals.method))
 
+  if (mode == "seq.hits") {
+    results <- results[!duplicated(paste0(results$motif.i, results$sequence)), ]
+    results.bkg <- results.bkg[!duplicated(paste0(results.bkg$motif.i,
+        results.bkg$sequence)), ]
+  }
+
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
 
@@ -280,10 +299,11 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                           enrich_mots2_subworker(x, y, z, seq.widths,
                                                   bkg.widths, sequences,
                                                   RC, bkg.sequences, verbose,
-                                                  use.gaps),
+                                                  use.gaps, pseudocount),
                         results2, results.bkg2, motifs,
                         SIMPLIFY = FALSE)
 
+  # print(results.all)
   results.all <- do.call(rbind, results.all)
   results.all$motif.i <- as.integer(seq_along(motifs))
 
@@ -309,24 +329,27 @@ split_by_motif_enrich <- function(motifs, results) {
 
 enrich_mots2_subworker <- function(results, results.bkg, motifs,
                                    seq.widths, bkg.widths, sequences, RC,
-                                   bkg.sequences, verbose, use.gaps) {
+                                   bkg.sequences, verbose, use.gaps,
+                                   pseudocount) {
 
   seq.hits <- as.vector(results$start)
 
   bkg.hits <- as.vector(results.bkg$start)
 
-  if (length(seq.hits) > 0 && length(bkg.hits) == 0) {
+  if (length(seq.hits) > 0 && length(bkg.hits) == 0 && pseudocount == 0) {
     warning(wmsg("Found hits for motif '", motifs@name,
                  "' in target sequences but none in bkg, ",
                  "significance will not be calculated and instead a ",
-                 "P-value of 0 will be assigned"), immediate. = TRUE)
+                 "P-value of 0 will be assigned. Set a pseudocount ",
+                 "greater than 0 to calculate a P-value."), immediate. = TRUE,
+            call. = FALSE)
     skip.calc <- TRUE
   } else {
     skip.calc <- FALSE
   }
 
   if (length(seq.hits) == 0 && length(bkg.hits) == 0)
-    return(DataFrame(motif = motifs@name, target.hits = 0L,
+    return(DataFrame(motif = motifs@name, motif.i = NA_integer_, target.hits = 0L,
                      target.seq.hits = 0L, target.seq.count = length(sequences),
                      bkg.hits = 0L, bkg.seq.hits = 0L,
                      bkg.seq.count = length(bkg.sequences), Pval = 1.0,
@@ -344,12 +367,16 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     bkg.total <- bkg.total * x
   }
 
-  seq.no <- seq.total - length(seq.hits)
-  bkg.norm <- seq.total / bkg.total
-  bkg.no <- bkg.total - length(bkg.hits)
+  seq.hits.n <- length(seq.hits)
+  bkg.hits.n <- length(bkg.hits)
 
-  results.table <- matrix(c(length(seq.hits), seq.no,
-                            length(bkg.hits) * bkg.norm, bkg.no * bkg.norm),
+  seq.no <- seq.total - seq.hits.n
+  bkg.norm <- seq.total / bkg.total
+  bkg.no <- bkg.total - bkg.hits.n
+
+  results.table <- matrix(c(seq.hits.n + pseudocount, seq.no,
+                            as.integer(bkg.hits.n * bkg.norm) + pseudocount,
+                            as.integer(bkg.no * bkg.norm)),
                           nrow = 2, byrow = TRUE)
 
   if (verbose > 3) message(" > Testing motif for enrichment: ", motifs@name)
@@ -366,10 +393,10 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
 
   results <- DataFrame(motif = motifs@name,
                        motif.i = NA_integer_,
-                       target.hits = length(seq.hits),
+                       target.hits = seq.hits.n,
                        target.seq.hits = length(unique(as.vector(results$sequence))),
                        target.seq.count = length(sequences),
-                       bkg.hits = length(bkg.hits),
+                       bkg.hits = bkg.hits.n,
                        bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
                        bkg.seq.count = length(bkg.sequences),
                        Pval = hits.p,
