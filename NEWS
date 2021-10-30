@@ -3,7 +3,7 @@ CHANGES IN VERSION 1.14.0
 
 NEW FEATURES
 
-    o enrich_motifs(mode, pseudocount): Choose whether to counts motif hits
+    o enrich_motifs(mode, pseudocount): Choose whether to count motif hits
       once per sequence, and whether to add a pseudocount for P-value
       calculation.
 

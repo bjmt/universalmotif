@@ -13,7 +13,9 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
   no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
-  scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"))
+  scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"),
+  mode = c("total.hits", "seq.hits"), pseudocount = if (mode[1] ==
+  "seq.hits") 1 else 0)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -125,6 +127,15 @@ See \code{\link[=motif_pvalue]{motif_pvalue()}} for details.}
 \code{c("fdr", "BH", "bonferroni")}. The method for calculating adjusted
 P-values for individual motif hits. These are described in depth in the
 Sequence Searches vignette.}
+
+\item{mode}{\code{character(1)} One of \code{c("total.hits", "seq.hits")}. The former
+enriches for the total count of motif hits across all sequences,
+whereas the latter only counts motif hits once per sequence (please note
+that this is only really useful if you have a specific set of bkg sequences
+to compare to).}
+
+\item{pseudocount}{\code{integer(1)} Add a pseudocount to the motif hit counts
+when performing the Fisher test.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and

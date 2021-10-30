@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // add_multi_cpp
 Rcpp::NumericMatrix add_multi_cpp(const std::vector<std::string>& seqs, const int k, const std::vector<std::string>& alph);
 RcppExport SEXP _universalmotif_add_multi_cpp(SEXP seqsSEXP, SEXP kSEXP, SEXP alphSEXP) {
