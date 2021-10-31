@@ -7,6 +7,15 @@ NEW FEATURES
       once per sequence, and whether to add a pseudocount for P-value
       calculation.
 
+CHANGES IN VERSION 1.12.1
+-------------------------
+
+BUG FIXES
+
+    o DNA ambiguity letters can be used with create_motif() when
+      alphabet="DNA" is specified. Previously ambiguity letters only worked
+      when alphabet was not specified.
+
 CHANGES IN VERSION 1.12.0
 -------------------------
 
