@@ -311,7 +311,7 @@ setMethod("create_motif", signature(input = "character"),
               "the actual letters"))
   } else if (alphabet %in% c("DNA", "RNA", "AA")) {
     switch(alphabet,
-      "DNA" = if (any(!lets.uniq %in% DNA_BASES)) {
+      "DNA" = if (any(!lets.uniq %in% DNA_ALPHABET[1:15])) {
         stop(wmsg(
           "Detected non-DNA letters in input, despite `alphabet='DNA'` [",
           collapse_cpp(lets.uniq[!lets.uniq %in% DNA_BASES]), "]"
