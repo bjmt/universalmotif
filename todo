@@ -113,5 +113,4 @@
   homer)
 - compare_motifs(): dynamic P-values!
 - create a separate container for higher order motifs
-- create_motif("SSRCGCC", alph = "DNA") --> error!
 - scan_sequences(): for large jobs, save temporary results on disk; maybe use the qs pkg?
