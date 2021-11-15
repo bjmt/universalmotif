@@ -7,6 +7,16 @@ NEW FEATURES
       once per sequence, and whether to add a pseudocount for P-value
       calculation.
 
+MINOR CHANGES
+
+    o enrich_motifs(): RC argument now defaults to TRUE, increased max
+      significance values, no.overlaps now defaults to TRUE. Additional
+      columns showing the motif consensus sequence and percent of sequences
+      with hits are now included.
+
+    o scan_sequences(RC): Only print a warning if RC=TRUE for non-DNA/RNA
+      motifs.
+
 CHANGES IN VERSION 1.12.1
 -------------------------
 

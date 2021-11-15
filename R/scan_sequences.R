@@ -273,8 +273,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     seq.alph <- mot.alphs
   if (respect.strand && !seq.alph %in% c("DNA", "RNA"))
     stop("`respect.strand = TRUE` is only valid for DNA/RNA motifs")
-  if (RC && !seq.alph %in% c("DNA", "RNA"))
-    stop("`RC = TRUE` is only valid for DNA/RNA motifs")
+  if (RC && !seq.alph %in% c("DNA", "RNA")) {
+    warning("`RC = TRUE` is only valid for DNA/RNA motifs, ignoring")
+    RC <- FALSE
+  }
 
   if (use.freq > 1) {
     if (any(mot.hasgap) && use.gaps)

@@ -4,18 +4,17 @@
 \alias{enrich_motifs}
 \title{Enrich for input motifs in a set of sequences.}
 \usage{
-enrich_motifs(motifs, sequences, bkg.sequences, max.p = 1e-05,
-  max.q = 1e-05, max.e = 0.001, qval.method = "fdr", threshold = 1e-04,
-  threshold.type = "pvalue", verbose = 0, RC = FALSE, use.freq = 1,
+enrich_motifs(motifs, sequences, bkg.sequences, max.p = 0.001,
+  max.q = 0.001, max.e = 0.001, qval.method = "fdr", threshold = 1e-04,
+  threshold.type = "pvalue", verbose = 0, RC = TRUE, use.freq = 1,
   shuffle.k = 2, shuffle.method = "euler", return.scan.results = FALSE,
   nthreads = 1, rng.seed = sample.int(10000, 1), motif_pvalue.k = 8,
   use.gaps = TRUE, allow.nonfinite = FALSE, warn.NA = TRUE,
-  no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
+  no.overlaps = TRUE, no.overlaps.by.strand = FALSE,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
   scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"),
-  mode = c("total.hits", "seq.hits"), pseudocount = if (mode[1] ==
-  "seq.hits") 1 else 0)
+  mode = c("total.hits", "seq.hits"), pseudocount = 1)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -32,7 +31,7 @@ the input sequences.}
 \item{max.q}{\code{numeric(1)} Adjusted P-value threshold. This is only useful
 if multiple motifs are being enriched for.}
 
-\item{max.e}{\code{numeric(1)}. The E-value is calculated by multiplying the adjusted
+\item{max.e}{\code{numeric(1)}. The E-value is calculated by multiplying the
 P-value with the number of input motifs times two
 (McLeay and Bailey 2010).}
 

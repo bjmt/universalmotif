@@ -11,7 +11,7 @@
 #' @param max.p `numeric(1)` P-value threshold.
 #' @param max.q `numeric(1)` Adjusted P-value threshold. This is only useful
 #'    if multiple motifs are being enriched for.
-#' @param max.e `numeric(1)`. The E-value is calculated by multiplying the adjusted
+#' @param max.e `numeric(1)`. The E-value is calculated by multiplying the
 #'    P-value with the number of input motifs times two
 #'    (McLeay and Bailey 2010).
 #' @param qval.method `character(1)` See [stats::p.adjust()].
@@ -88,17 +88,16 @@
 #' @inheritParams scan_sequences
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences,
-  max.p = 10e-6, max.q = 10e-6, max.e = 10e-4, qval.method = "fdr",
-  threshold = 0.0001, threshold.type = "pvalue", verbose = 0, RC = FALSE,
+  max.p = 10e-4, max.q = 10e-4, max.e = 10e-4, qval.method = "fdr",
+  threshold = 0.0001, threshold.type = "pvalue", verbose = 0, RC = TRUE,
   use.freq = 1, shuffle.k = 2, shuffle.method = "euler",
   return.scan.results = FALSE, nthreads = 1, rng.seed = sample.int(1e4, 1),
   motif_pvalue.k = 8, use.gaps = TRUE, allow.nonfinite = FALSE,
-  warn.NA = TRUE, no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
+  warn.NA = TRUE, no.overlaps = TRUE, no.overlaps.by.strand = FALSE,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
   scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"),
-  mode = c("total.hits", "seq.hits"),
-  pseudocount = if (mode[1] == "seq.hits") 1 else 0) {
+  mode = c("total.hits", "seq.hits"), pseudocount = 1) {
 
   motif_pvalue.method <- match.arg(motif_pvalue.method)
   scan_sequences.qvals.method <- match.arg(scan_sequences.qvals.method)
@@ -149,7 +148,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                                     bkg.sequences = args$bkg.sequences),
                                numeric(), c(FALSE, TRUE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
-  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
+  if (length(all_checks) > 0) stop(all_checks_collapse(print(all_checks)))
   pseudocount <- as.integer(pseudocount)[1]
   if (is.na(pseudocount))
     stop(" * Incorrect 'pseudocount': got `NA`", call. = FALSE)
@@ -220,7 +219,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   }
 
   res.all$Qval <- p.adjust(res.all$Pval, method = qval.method)
-  res.all$Eval <- res.all$Qval * length(motifs) * 2
+  res.all$Eval <- res.all$Pval * length(motifs) * 2
 
   res.all <- res.all[!is.na(res.all$motif), ]
 
@@ -228,6 +227,12 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   res.all <- res.all[res.all$Pval < max.p, ]
   res.all <- res.all[res.all$Qval < max.q, ]
   res.all <- res.all[res.all$Eval < max.e, ]
+
+  res.all$pct.target.seq.hits <- 100 * (res.all$target.seq.hits / res.all$target.seq.count)
+  res.all$pct.bkg.seq.hits <- 100 * (res.all$bkg.seq.hits / res.all$bkg.seq.count)
+
+  res.all$motif.consensus <- to_df(motifs)$consensus[res.all$motif.i]
+  res.all$target.enrichment <- res.all$pct.target.seq.hits / res.all$pct.bkg.seq.hits
 
   if (nrow(res.all) < 1 || is.null(res.all)) {
     message(" ! No enriched motifs")
@@ -270,12 +275,6 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     motif_pvalue.method = motif_pvalue.method,
     calc.qvals.method = scan_sequences.qvals.method))
 
-  if (mode == "seq.hits") {
-    results <- results[!duplicated(paste0(results$motif.i, results$sequence)), ]
-    results.bkg <- results.bkg[!duplicated(paste0(results.bkg$motif.i,
-        results.bkg$sequence)), ]
-  }
-
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
 
@@ -299,11 +298,10 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
                           enrich_mots2_subworker(x, y, z, seq.widths,
                                                   bkg.widths, sequences,
                                                   RC, bkg.sequences, verbose,
-                                                  use.gaps, pseudocount),
+                                                  use.gaps, pseudocount, mode),
                         results2, results.bkg2, motifs,
                         SIMPLIFY = FALSE)
 
-  # print(results.all)
   results.all <- do.call(rbind, results.all)
   results.all$motif.i <- as.integer(seq_along(motifs))
 
@@ -330,10 +328,9 @@ split_by_motif_enrich <- function(motifs, results) {
 enrich_mots2_subworker <- function(results, results.bkg, motifs,
                                    seq.widths, bkg.widths, sequences, RC,
                                    bkg.sequences, verbose, use.gaps,
-                                   pseudocount) {
+                                   pseudocount, mode) {
 
   seq.hits <- as.vector(results$start)
-
   bkg.hits <- as.vector(results.bkg$start)
 
   if (length(seq.hits) > 0 && length(bkg.hits) == 0 && pseudocount == 0) {
@@ -349,34 +346,50 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
   }
 
   if (length(seq.hits) == 0 && length(bkg.hits) == 0)
-    return(DataFrame(motif = motifs@name, motif.i = NA_integer_, target.hits = 0L,
+    return(DataFrame(motif = motifs@name, motif.i = NA_integer_,
+                     motif.consensus = NA_character_, target.hits = 0L,
                      target.seq.hits = 0L, target.seq.count = length(sequences),
                      bkg.hits = 0L, bkg.seq.hits = 0L,
                      bkg.seq.count = length(bkg.sequences), Pval = 1.0,
                      Qval = NA_real_, Eval = NA_real_))
 
-  seq.total <- (mean(seq.widths) - ncol(motifs@motif) + 1) * length(sequences)
-  if (RC) seq.total <- seq.total * 2
-  bkg.total <- (mean(bkg.widths) - ncol(motifs@motif) + 1) * length(bkg.sequences)
-  if (RC) bkg.total <- bkg.total * 2
+  if (mode == "seq.hits") {
+    seq.total <- length(seq.widths)
+    bkg.total <- length(bkg.widths)
+  } else {
+    seq.total <- (mean(seq.widths) - ncol(motifs@motif) + 1) * length(sequences)
+    if (RC) seq.total <- seq.total * 2
+    bkg.total <- (mean(bkg.widths) - ncol(motifs@motif) + 1) * length(bkg.sequences)
+    if (RC) bkg.total <- bkg.total * 2
+  }
 
   if (use.gaps && motifs@gapinfo@isgapped) {
     x <- motifs@gapinfo@maxgap - motifs@gapinfo@mingap
     x <- prod(x + 1)
-    seq.total <- seq.total * x
-    bkg.total <- bkg.total * x
+    if (mode == "total.hits") {
+      seq.total <- seq.total * x
+      bkg.total <- bkg.total * x
+    }
   }
 
-  seq.hits.n <- length(seq.hits)
-  bkg.hits.n <- length(bkg.hits)
+  seq.hits.n.n <- length(seq.hits)
+  bkg.hits.n.n <- length(bkg.hits)
+
+  if (mode == "total.hits") {
+    seq.hits.n <- length(seq.hits)
+    bkg.hits.n <- length(bkg.hits)
+  } else {
+    seq.hits.n <- sum(!duplicated(results$sequence))
+    bkg.hits.n <- sum(!duplicated(results.bkg$sequence))
+  }
 
   seq.no <- seq.total - seq.hits.n
   bkg.norm <- seq.total / bkg.total
   bkg.no <- bkg.total - bkg.hits.n
 
-  results.table <- matrix(c(seq.hits.n + pseudocount, seq.no,
+  results.table <- matrix(c(seq.hits.n + pseudocount, seq.no + pseudocount,
                             as.integer(bkg.hits.n * bkg.norm) + pseudocount,
-                            as.integer(bkg.no * bkg.norm)),
+                            as.integer(bkg.no * bkg.norm) + pseudocount),
                           nrow = 2, byrow = TRUE)
 
   if (verbose > 3) message(" > Testing motif for enrichment: ", motifs@name)
@@ -393,10 +406,11 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
 
   results <- DataFrame(motif = motifs@name,
                        motif.i = NA_integer_,
-                       target.hits = seq.hits.n,
+                       motif.consensus = NA_character_,
+                       target.hits = seq.hits.n.n,
                        target.seq.hits = length(unique(as.vector(results$sequence))),
                        target.seq.count = length(sequences),
-                       bkg.hits = bkg.hits.n,
+                       bkg.hits = bkg.hits.n.n,
                        bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
                        bkg.seq.count = length(bkg.sequences),
                        Pval = hits.p,
