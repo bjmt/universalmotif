@@ -17,6 +17,8 @@ MINOR CHANGES
     o scan_sequences(RC): Only print a warning if RC=TRUE for non-DNA/RNA
       motifs.
 
+    o Reduced the size of the message when a pseudocount is added to motifs.
+
 CHANGES IN VERSION 1.12.1
 -------------------------
 

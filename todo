@@ -108,7 +108,6 @@
 - change the default pseudocount value to 0.1? (instead of 1) 
   --> or... change default nsites to 1000?
 - fix motif_peaks()
-- udpate dates in vignettes to reflect new work
 - compare_motifs(): allow overhangs to be compared to background fequencies (see
   homer)
 - compare_motifs(): dynamic P-values!

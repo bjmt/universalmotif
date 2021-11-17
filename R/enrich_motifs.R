@@ -32,8 +32,8 @@
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    can occur simultaneously in multiple threads using C++, it cannot communicate
 #'    with the regular `R` random number generator state and thus requires an
-#'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
-#'    given the following seed: `rng.seed * index`. See [shuffle_sequences()].
+#'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object
+#'    will be given the following seed: `rng.seed * index`. See [shuffle_sequences()].
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].
 #' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
@@ -54,9 +54,8 @@
 #'    Sequence Searches vignette.
 #' @param mode `character(1)` One of `c("total.hits", "seq.hits")`. The former
 #'    enriches for the total count of motif hits across all sequences,
-#'    whereas the latter only counts motif hits once per sequence (please note
-#'    that this is only really useful if you have a specific set of bkg sequences
-#'    to compare to).
+#'    whereas the latter only counts motif hits once per sequence (useful for
+#'    cases where there are many small sequences).
 #' @param pseudocount `integer(1)` Add a pseudocount to the motif hit counts
 #'    when performing the Fisher test.
 #'
@@ -161,6 +160,10 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     message("   > bkg.sequences:       ", ifelse(!missing(bkg.sequences),
                                                  deparse(substitute(bkg.sequences)),
                                                  "none"))
+    if (missing(bkg.sequences)) {
+      message("   > shuffle.k:           ", shuffle.k)
+      message("   > shuffle.method:      ", shuffle.method)
+    }
     message("   > max.p:               ", max.p)
     message("   > max.q:               ", max.q)
     message("   > max.e:               ", max.e)
@@ -169,10 +172,18 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     message("   > threshold.type:      ", threshold.type)
     message("   > verbose:             ", verbose)
     message("   > RC:                  ", RC)
+    message("   > respect.strand:      ", respect.strand)
     message("   > use.freq:            ", use.freq)
-    message("   > shuffle.k:           ", shuffle.k)
-    message("   > shuffle.method:      ", shuffle.method)
+    message("   > use.gaps:            ", use.gaps)
+    message("   > no.overlaps:         ", no.overlaps)
     message("   > return.scan.results: ", return.scan.results)
+  }
+
+  if (mode == "seq.hits" && no.overlaps) {
+    if (verbose > 2) {
+      message(" ! ignoring `no.overlaps=TRUE`, not needed when `mode=\"seq.hits\"`")
+    }
+    no.overlaps <- FALSE
   }
 
   motifs <- convert_motifs(motifs)
@@ -267,13 +278,15 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     calc.qvals.method = scan_sequences.qvals.method)
 
   if (verbose > 0) message(" > Scanning background sequences")
-  results.bkg <- suppressMessages(scan_sequences(motifs, bkg.sequences, threshold,
+  results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
     threshold.type, RC, use.freq, verbose = verbose - 1, nthreads = nthreads,
     use.gaps = use.gaps, allow.nonfinite = allow.nonfinite, warn.NA = warn.NA,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
     no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand,
     motif_pvalue.method = motif_pvalue.method,
-    calc.qvals.method = scan_sequences.qvals.method))
+    calc.qvals.method = scan_sequences.qvals.method)
+
+  if (verbose > 0) message(" > Processing output")
 
   results2 <- split_by_motif_enrich(motifs, results)
   results.bkg2 <- split_by_motif_enrich(motifs, results.bkg)
@@ -346,12 +359,20 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
   }
 
   if (length(seq.hits) == 0 && length(bkg.hits) == 0)
-    return(DataFrame(motif = motifs@name, motif.i = NA_integer_,
-                     motif.consensus = NA_character_, target.hits = 0L,
-                     target.seq.hits = 0L, target.seq.count = length(sequences),
-                     bkg.hits = 0L, bkg.seq.hits = 0L,
-                     bkg.seq.count = length(bkg.sequences), Pval = 1.0,
-                     Qval = NA_real_, Eval = NA_real_))
+    return(DataFrame(
+        motif = motifs@name,
+        motif.i = NA_integer_,
+        motif.consensus = NA_character_,
+        target.hits = 0L,
+        target.seq.hits = 0L,
+        target.seq.count = length(sequences),
+        bkg.hits = 0L,
+        bkg.seq.hits = 0L,
+        bkg.seq.count = length(bkg.sequences),
+        Pval = 1.0,
+        Qval = NA_real_,
+        Eval = NA_real_
+    ))
 
   if (mode == "seq.hits") {
     seq.total <- length(seq.widths)
@@ -387,12 +408,12 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
   bkg.norm <- seq.total / bkg.total
   bkg.no <- bkg.total - bkg.hits.n
 
-  results.table <- matrix(c(seq.hits.n + pseudocount, seq.no + pseudocount,
-                            as.integer(bkg.hits.n * bkg.norm) + pseudocount,
-                            as.integer(bkg.no * bkg.norm) + pseudocount),
-                          nrow = 2, byrow = TRUE)
+  results.table <- matrix(
+    c(seq.hits.n, seq.no,
+      as.integer(bkg.hits.n * bkg.norm), as.integer(bkg.no * bkg.norm)
+     ) + pseudocount, nrow = 2, byrow = TRUE)
 
-  if (verbose > 3) message(" > Testing motif for enrichment: ", motifs@name)
+  # if (verbose > 3) message(" > Testing motif for enrichment: ", motifs@name)
 
   if (!skip.calc) {
     hits.p <- fisher.test(results.table, alternative = "greater")$p.value
@@ -401,21 +422,23 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
   }
 
   if (verbose > 3) {
-    message("       occurrences p-value: ", hits.p)
+    message("       ", motifs@name, " occurrences p-value: ", hits.p)
   }
 
-  results <- DataFrame(motif = motifs@name,
-                       motif.i = NA_integer_,
-                       motif.consensus = NA_character_,
-                       target.hits = seq.hits.n.n,
-                       target.seq.hits = length(unique(as.vector(results$sequence))),
-                       target.seq.count = length(sequences),
-                       bkg.hits = bkg.hits.n.n,
-                       bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
-                       bkg.seq.count = length(bkg.sequences),
-                       Pval = hits.p,
-                       Qval = NA_real_,
-                       Eval = NA_real_)
+  results <- DataFrame(
+    motif = motifs@name,
+    motif.i = NA_integer_,
+    motif.consensus = NA_character_,
+    target.hits = seq.hits.n.n,
+    target.seq.hits = length(unique(as.vector(results$sequence))),
+    target.seq.count = length(sequences),
+    bkg.hits = bkg.hits.n.n,
+    bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
+    bkg.seq.count = length(bkg.sequences),
+    Pval = hits.p,
+    Qval = NA_real_,
+    Eval = NA_real_
+  )
 
   results
 

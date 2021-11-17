@@ -80,8 +80,8 @@ current implementation of this feature can add significantly to the run
 time for large inputs.}
 
 \item{no.overlaps.by.strand}{\code{logical(1)} Whether to discard overlapping hits
-from the opposite strand, or to only discard overlapping hits on the same
-strand.}
+from the opposite strand (\code{TRUE}), or to only discard overlapping hits on the
+same strand (\code{FALSE}).}
 
 \item{no.overlaps.strat}{\code{character(1)} One of \code{c("score", "order")}.
 The former option keeps the highest scoring overlapping hit (and the first

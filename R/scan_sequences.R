@@ -53,8 +53,8 @@
 #'    current implementation of this feature can add significantly to the run
 #'    time for large inputs.
 #' @param no.overlaps.by.strand `logical(1)` Whether to discard overlapping hits
-#'    from the opposite strand, or to only discard overlapping hits on the same
-#'    strand.
+#'    from the opposite strand (`TRUE`), or to only discard overlapping hits on the
+#'    same strand (`FALSE`).
 #' @param no.overlaps.strat `character(1)` One of `c("score", "order")`.
 #'    The former option keeps the highest scoring overlapping hit (and the first
 #'    of these within ties), and the latter simply keeps the first overlapping hit.
@@ -212,7 +212,13 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
                                                  threshold))
     message("   * threshold.type:      ", threshold.type)
     message("   * RC:                  ", RC)
+    message("   * respect.strand:      ", respect.strand)
     message("   * use.freq:            ", use.freq)
+    message("   * use.gaps:            ", use.gaps)
+    message("   * calc.pvals:          ", calc.pvals)
+    message("   * calc.qvals:          ", calc.qvals)
+    message("   * calc.qvals.method:   ", calc.qvals.method)
+    message("   * no.overlaps:         ", no.overlaps)
     message("   * verbose:             ", verbose)
   }
 
@@ -233,8 +239,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   if (verbose > 0) message(" * Processing motifs")
 
-  if (verbose > 1) message("   * Scanning ", length(motifs),
-                           ifelse(length(motifs) > 1, " motifs", " motif"))
+  if (verbose > 1) message(
+    "   * Scanning ", length(motifs),
+    ifelse(length(motifs) > 1, " motifs", " motif"), " in ", length(sequences),
+    ifelse(length(sequences) > 1, " sequences", " sequence"),
+    " of average size ", round(mean(width(sequences))))
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -453,6 +462,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     out$motif.i <- gapdat$IDs[out$motif.i]
   }
 
+  if (verbose > 1) message("   * Calculating P-values")
   if (nrow(out) && calc.pvals) {
 
     out$pvalue <- NA_real_
@@ -471,6 +481,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
       }
     }
 
+    if (verbose > 1) message("   * Calculating Q-values")
     if (calc.qvals) {
 
       max_hits <- function(m, seqs) {
@@ -516,6 +527,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   }
 
   if (nrow(out) && no.overlaps) {
+    if (verbose > 1) message("   * Removing overlapping hits")
     # TODO: multithreaded c++
     if (RC && no.overlaps.by.strand) {
       row.indices.plus <- which(out$strand == "+")
@@ -534,7 +546,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     out <- out[row.indices, ]
   }
 
+  if (verbose > 1) message(" * Final number of matches: ", nrow(out))
+
   if (return.granges) {
+    if (verbose > 1) message("   * Processing results as GRanges")
     if (is.null(names(sequences))) {
       # warning(wmsg("Input sequences have no names, assigning names 1:",
       #     length(sequences)), call. = FALSE)
@@ -571,19 +586,9 @@ calc_motif_fdr <- function(mMax, scores, pvals) {
   scoreDF$FDR <- scoreDF$NulHits / scoreDF$ObsHits
   scoreDF$FDR <- cummin(scoreDF$FDR)
   scoreDF$FDR <- pmin(scoreDF$FDR, 1)
-  scoreDF$FDR[order(scoreDF$OriginalOrder)]
-  # ObsHits <- rank(-scores)
-  # NulHits <- mMax * pvals
-  # pmin(NulHits / ObsHits, 1)
-}
 
-# What about this kind of situation?
-#  seq:   CAAAAACCAAAACCAAAACC
-#  hit 1: ++++++++
-#  hit 2:       ++++++++
-#  hit 3:             ++++++++
-# What should happen here? Right now only one of the three is kept.
-# (The c++ rewrite should take care of this I think.)
+  scoreDF$FDR[order(scoreDF$OriginalOrder)]
+}
 
 remove_masked_hits <- function(x, i = seq_len(nrow(x)), strat = "score") {
   if (!length(i)) return(i)
@@ -612,8 +617,16 @@ get_overlap_groups <- function(x) {
 }
 
 flatten_group_matrix <- function(x) {
-  if (all(x == 1)) return(seq_len(nrow(x)))
-  cutree(hclust(as.dist(1 - x)), h = 0.5)
+  if (all(x == 1)) {
+    # All overlapping
+    rep(1, length(diag(x)))
+  } else if (!sum(x[lower.tri(x)]) && !sum(x[upper.tri(x)])) {
+    # None overlapping
+    seq_along(diag(x))
+  } else {
+    # Cluster overlapping
+    cutree(hclust(as.dist(1 - x)), h = 0.5)
+  }
 }
 
 dedup_by_order <- function(x, i) {

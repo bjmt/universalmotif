@@ -77,18 +77,20 @@ shrink_string <- function(name, maxLen = 5, suffix = "..") {
 }
 
 warn_pseudo <- function(v = 1) {
+  # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {
-    if (v == 1) {
-      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
-        "(To turn off this message: `options(pseudocount.warning=FALSE)`) ",
-        "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
-    } else if (v == 2) {
-      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
-        "(To turn off this message: `options(pseudocount.warning=FALSE)`)"))
-    } else {
-      message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
-        "(To turn off this message: `options(pseudocount.warning=FALSE)`) ", v))
-    }
+    message(wmsg("Note: Added a pseudocount."))
+    # if (v == 1) {
+    #   message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+    #     "(To turn off this message: `options(pseudocount.warning=FALSE)`.) ",
+    #     "Set `allow.nonfinite = TRUE` to prevent this behaviour."))
+    # } else if (v == 2) {
+    #   message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+    #     "(To turn off this message: `options(pseudocount.warning=FALSE)`.)"))
+    # } else {
+    #   message(wmsg("Note: found -Inf values in motif PWM, adding a pseudocount. ",
+    #     "(To turn off this message: `options(pseudocount.warning=FALSE)`.) ", v))
+    # }
   }
   invisible()
 }

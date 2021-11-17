@@ -71,8 +71,8 @@ sequence.}
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
 can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
-independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
-given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
+independent seed. Each individual sequence in an \code{\link{XStringSet}} object
+will be given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.
 See \code{\link[=motif_pvalue]{motif_pvalue()}}.}
@@ -98,8 +98,8 @@ current implementation of this feature can add significantly to the run
 time for large inputs.}
 
 \item{no.overlaps.by.strand}{\code{logical(1)} Whether to discard overlapping hits
-from the opposite strand, or to only discard overlapping hits on the same
-strand.}
+from the opposite strand (\code{TRUE}), or to only discard overlapping hits on the
+same strand (\code{FALSE}).}
 
 \item{no.overlaps.strat}{\code{character(1)} One of \code{c("score", "order")}.
 The former option keeps the highest scoring overlapping hit (and the first
@@ -129,9 +129,8 @@ Sequence Searches vignette.}
 
 \item{mode}{\code{character(1)} One of \code{c("total.hits", "seq.hits")}. The former
 enriches for the total count of motif hits across all sequences,
-whereas the latter only counts motif hits once per sequence (please note
-that this is only really useful if you have a specific set of bkg sequences
-to compare to).}
+whereas the latter only counts motif hits once per sequence (useful for
+cases where there are many small sequences).}
 
 \item{pseudocount}{\code{integer(1)} Add a pseudocount to the motif hit counts
 when performing the Fisher test.}
