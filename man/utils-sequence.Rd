@@ -8,6 +8,7 @@
 \alias{get_klets}
 \alias{mask_ranges}
 \alias{mask_seqs}
+\alias{meme_alph}
 \alias{shuffle_string}
 \alias{slide_fun}
 \alias{window_string}
@@ -26,6 +27,9 @@ get_klets(lets, k = 1)
 mask_ranges(seqs, ranges, letter = "-")
 
 mask_seqs(seqs, pattern, RC = FALSE, letter = "-")
+
+meme_alph(core, file = stdout(), complements = NULL, ambiguity = NULL,
+  like = NULL, alph.name = NULL, letter.names = NULL, colours = NULL)
 
 shuffle_string(string, k = 1, method = c("euler", "linear", "markov"),
   rng.seed = sample.int(10000, 1))
@@ -76,6 +80,26 @@ from the \code{GenomicRanges} package.}
 
 \item{RC}{\code{logical(1)} Whether to mask the reverse complement of the pattern.}
 
+\item{core}{\code{character(1)} Core alphabet symbols. If complements are also
+provided, then only half of the letters should be provided to this argument.}
+
+\item{file}{Output file.}
+
+\item{complements}{\code{character(1)}, \code{NULL} Complementary letters to the core symbols.}
+
+\item{ambiguity}{\code{character(1)}, \code{NULL} A named vector providing ambiguity codes for
+the custom alphabet.}
+
+\item{like}{\code{character(1)}, \code{NULL} How to classify the custom alphabet. If not
+\code{NULL}, then one of \code{c("DNA", "RNA", "PROTEIN")}.}
+
+\item{alph.name}{\code{character(1)}, \code{NULL} Custom alphabet name.}
+
+\item{letter.names}{\code{character}, \code{NULL} Named vector of core symbol names.}
+
+\item{colours}{\code{character}, \code{NULL} Named vector of core symbol colours.
+MEME requires hex colours.}
+
 \item{method}{\code{character(1)} Shuffling method. One of \code{c("euler", "linear", "markov")}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
@@ -105,6 +129,8 @@ For \code{\link[=get_klets]{get_klets()}}: A \code{character} vector of k-lets.
 For \code{\link[=mask_ranges]{mask_ranges()}}: The masked \code{XStringSet} object.
 
 For \code{\link[=mask_seqs]{mask_seqs()}}: The masked \code{XStringSet} object.
+
+For \code{\link[=meme_alph]{meme_alph()}}: \code{NULL}, invisibly.
 
 For \code{\link[=shuffle_string]{shuffle_string()}}: A single \code{character} string.
 
@@ -159,6 +185,14 @@ mask_ranges(seq, ranges, "-")
 ## Mask repetitive seqeuences
 data(ArabidopsisPromoters)
 mask_seqs(ArabidopsisPromoters, "AAAAAA")
+
+#######################################################################
+## meme_alph
+## Create MEME custom alphabet definition files
+meme_alph("ACm", complements = "TGM", alph.name = "MethDNA",
+  letter.names = c(A = "Adenine", C = "Cytosine", G = "Guanine",
+    T = "Thymine", m = "Methylcytosine", M = "mC:Guanine"),
+  like = "DNA", ambiguity = c(N = "ACGTmM"))
 
 #######################################################################
 ## shuffle_string

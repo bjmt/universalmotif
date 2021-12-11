@@ -3,14 +3,26 @@
 #' @param alph `character(1)` A single character string with the desired
 #'    sequence alphabet. If missing, finds the unique letters within each
 #'    string.
+#' @param alph.name `character(1)`, `NULL` Custom alphabet name.
+#' @param ambiguity `character(1)`, `NULL` A named vector providing ambiguity codes for
+#'    the custom alphabet.
+#' @param core `character(1)` Core alphabet symbols. If complements are also
+#'    provided, then only half of the letters should be provided to this argument.
+#' @param colours `character`, `NULL` Named vector of core symbol colours.
+#'    MEME requires hex colours.
+#' @param complements `character(1)`, `NULL` Complementary letters to the core symbols.
 #' @param complexity.method `character(1)` Complexity algorithm. See
 #'    [sequence_complexity()].
+#' @param file Output file.
 #' @param FUN `closure` The function to apply per window. (See `?vapply`.)
 #' @param FUN.VALUE The expected return type for `FUN`. (See `?vapply`.)
 #' @param lets `character` A character vector where each element will be
 #'    considered a single unit.
 #' @param k `integer(1)` K-let size.
 #' @param letter `character(1)` Character to use for masking.
+#' @param letter.names `character`, `NULL` Named vector of core symbol names.
+#' @param like `character(1)`, `NULL` How to classify the custom alphabet. If not
+#'    `NULL`, then one of `c("DNA", "RNA", "PROTEIN")`.
 #' @param method `character(1)` Shuffling method. One of `c("euler", "linear",
 #'    "markov")`. See [shuffle_sequences()].
 #' @param n `integer(1)` Total size from which to calculate sliding windows.
@@ -50,6 +62,8 @@
 #'    For [mask_ranges()]: The masked `XStringSet` object.
 #'
 #'    For [mask_seqs()]: The masked `XStringSet` object.
+#'
+#'    For [meme_alph()]: `NULL`, invisibly.
 #'
 #'    For [shuffle_string()]: A single `character` string.
 #'
@@ -101,6 +115,14 @@
 #' ## Mask repetitive seqeuences
 #' data(ArabidopsisPromoters)
 #' mask_seqs(ArabidopsisPromoters, "AAAAAA")
+#'
+#' #######################################################################
+#' ## meme_alph
+#' ## Create MEME custom alphabet definition files
+#' meme_alph("ACm", complements = "TGM", alph.name = "MethDNA",
+#'   letter.names = c(A = "Adenine", C = "Cytosine", G = "Guanine",
+#'     T = "Thymine", m = "Methylcytosine", M = "mC:Guanine"),
+#'   like = "DNA", ambiguity = c(N = "ACGTmM"))
 #'
 #' #######################################################################
 #' ## shuffle_string
@@ -286,6 +308,94 @@ mask_seqs <- function(seqs, pattern, RC = FALSE, letter = "-") {
     seqs <- fix_seqs(seqs, pattern, letter)
   }
   seqs
+}
+
+#' @rdname utils-sequence
+#' @export
+meme_alph <- function(core, file = stdout(), complements = NULL, ambiguity = NULL,
+  like = NULL, alph.name = NULL, letter.names = NULL, colours = NULL) {
+
+  alph <- "ALPHABET"
+  if (!is.null(alph.name)) {
+    if (length(alph.name) != 1) {
+      stop("\"alph.name\" must be length 1", call. = FALSE)
+    }
+    alph <- paste0(alph, " \"", alph.name, "\"")
+  }
+  if (!is.null(like)) { 
+    if (length(like) != 1 || !like %in% c("DNA", "RNA", "PROTEIN")) {
+      stop("\"like\" must be one of NULL, DNA, RNA, PROTEIN", call. = FALSE)
+    } else {
+      alph <- paste0(alph, " ", like, "-LIKE")
+    }
+  }
+
+  alph <- c(alph, "", "# Core symbols")
+
+  if (length(core) != 1) {
+    stop("\"core\" must be length 1", call. = FALSE)
+  }
+  lets <- strsplit(core, "")[[1]]
+  lets0 <- lets
+
+  compl <- NULL
+  if (!is.null(complements)) {
+    if (length(complements) != 1) {
+      stop("\"complements\" must be length 1", call. = FALSE)
+    }
+    compl <- strsplit(complements, "")[[1]]
+    if (length(lets) != length(compl)) {
+      stop("\"core\" and \"complements\" do not have the same number of letters",
+        call. = FALSE)
+    }
+  }
+  compl0 <- compl
+
+  if (!is.null(letter.names)) {
+    if (anyNA(letter.names[lets0])) {
+      stop("Found letters with missing \"letter.names\"", call. = FALSE)
+    }
+    lets <- paste(lets, paste0("\"", letter.names[lets0], "\""))
+    if (!is.null(compl)) {
+      if (anyNA(letter.names[compl])) {
+        stop("Found letters with missing \"letter.names\"", call. = FALSE)
+      }
+      compl <- paste(compl, paste0("\"", letter.names[compl0], "\""))
+    }
+  }
+
+  if (!is.null(colours)) {
+    if (anyNA(colours[lets0])) {
+      stop("Found letters with missing \"colours\"", call. = FALSE)
+    }
+    lets <- paste(lets, colours[lets0])
+    if (!is.null(compl)) {
+      if (anyNA(colours[compl0])) {
+        stop("Found letters with missing \"colours\"", call. = FALSE)
+      }
+      compl <- paste(compl, colours[compl0])
+    }
+  }
+
+  if (!is.null(compl)) {
+    alph <- c(alph, paste(lets, compl, sep = " ~ "))
+  } else {
+    alph <- c(alph, lets)
+  }
+
+  if (!is.null(ambiguity)) {
+    alph <- c(alph, "", "# Ambiguous symbols")
+    if (is.null(names(ambiguity)) || anyNA(names(ambiguity))) {
+      stop("\"ambiguity\" must be a named vector", call. = FALSE)
+    }
+    amb <- paste(names(ambiguity), unname(ambiguity), sep = " = ")
+    alph <- c(alph, amb)
+  }
+
+  cat(alph, file = file, sep = "\n")
+
+  invisible(NULL)
+
 }
 
 #' @rdname utils-sequence

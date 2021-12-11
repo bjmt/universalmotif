@@ -7,6 +7,10 @@ NEW FEATURES
       once per sequence, and whether to add a pseudocount for P-value
       calculation.
 
+    o New function, meme_alph(): Create MEME custom alphabet definition files.
+
+    o merge_similar(return.clusters): Return the clusters without merging.
+
 MINOR CHANGES
 
     o enrich_motifs(): RC argument now defaults to TRUE, increased max

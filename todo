@@ -104,6 +104,7 @@
 - Add an example in vignettes about methylated DNA, referring to
   https://www.biorxiv.org/content/10.1101/043794v1
   e.g. create_motif(alphabet="ACGTm", bkg = c(A=.25,C=.125,G=.25,T=.25,m=.125))
+  + however this means no reverse complement scanning...
 - to_df() et al: don't show warning when printing if errors are present?
 - change the default pseudocount value to 0.1? (instead of 1) 
   --> or... change default nsites to 1000?
@@ -113,3 +114,5 @@
 - compare_motifs(): dynamic P-values!
 - create a separate container for higher order motifs
 - scan_sequences(): for large jobs, save temporary results on disk; maybe use the qs pkg?
+- combine view_motifs() with EnrichedHeatmap/ComplexHeatmap?
+

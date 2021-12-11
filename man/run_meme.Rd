@@ -58,7 +58,8 @@ sequence weights.}
 
 \item{seed}{\code{numeric(1)} [MEME]}
 
-\item{alph}{\code{character(1)} [MEME]}
+\item{alph}{\code{character(1)} [MEME] Note: custom alphabet definition files can
+be created using \code{\link[=meme_alph]{meme_alph()}}.}
 
 \item{revcomp}{\code{logical(1)} [MEME]}
 

@@ -2,13 +2,14 @@
 % Please edit documentation in R/merge_similar.R
 \name{merge_similar}
 \alias{merge_similar}
-\title{Identify and merge similar motifs within a collection of motifs.}
+\title{Identify and merge similar motifs within a collection of motifs (or simply
+cluster motifs).}
 \usage{
 merge_similar(motifs, threshold = 0.95, threshold.type = "score.abs",
   method = "PCC", use.type = "PPM", min.overlap = 6, min.mean.ic = 0,
   tryRC = TRUE, relative_entropy = FALSE, normalise.scores = FALSE,
   min.position.ic = 0, score.strat.compare = "a.mean",
-  score.strat.merge = "sum", nthreads = 1)
+  score.strat.merge = "sum", nthreads = 1, return.clusters = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -68,6 +69,9 @@ is recommended over \code{"a.mean"} to maximize the overlap between motifs.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=compare_motifs]{compare_motifs()}} in parallel with \code{nthreads}
 threads. \code{nthreads = 0} uses all available threads.}
+
+\item{return.clusters}{\code{logical(1)} Return the clusters instead of
+merging.}
 }
 \value{
 See \code{\link[=convert_motifs]{convert_motifs()}} for available output formats.

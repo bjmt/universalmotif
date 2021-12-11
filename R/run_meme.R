@@ -28,7 +28,8 @@
 #' @param norand `logical(1)` \[MEME\]
 #' @param csites `numeric(1)` \[MEME\]
 #' @param seed `numeric(1)` \[MEME\]
-#' @param alph `character(1)` \[MEME\]
+#' @param alph `character(1)` \[MEME\] Note: custom alphabet definition files can
+#'  be created using [meme_alph()].
 #' @param revcomp `logical(1)` \[MEME\]
 #' @param pal `logical(1)` \[MEME\]
 #' @param mod `character(1)` \[MEME\]

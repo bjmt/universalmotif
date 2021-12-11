@@ -1,4 +1,5 @@
-#' Identify and merge similar motifs within a collection of motifs.
+#' Identify and merge similar motifs within a collection of motifs (or simply
+#' cluster motifs).
 #'
 #' Given a list of motifs, [merge_similar()] will identify similar motifs with
 #' [compare_motifs()], and merge similar ones with [merge_motifs()].
@@ -16,6 +17,8 @@
 #' @param score.strat.merge `character(1)` The `score.strat` parameter used
 #'   by [merge_motifs()]. As discussed in [merge_motifs()], the `"sum"` option
 #'   is recommended over `"a.mean"` to maximize the overlap between motifs.
+#' @param return.clusters `logical(1)` Return the clusters instead of
+#'   merging.
 #'
 #' @return See [convert_motifs()] for available output formats.
 #'
@@ -41,7 +44,7 @@ merge_similar <- function(motifs,
   use.type = "PPM", min.overlap = 6, min.mean.ic = 0,
   tryRC = TRUE, relative_entropy = FALSE, normalise.scores = FALSE,
   min.position.ic = 0, score.strat.compare = "a.mean",
-  score.strat.merge = "sum", nthreads = 1) {
+  score.strat.merge = "sum", nthreads = 1, return.clusters = FALSE) {
 
   if (is.list(motifs)) CLASS_IN <- vapply(motifs, .internal_convert, character(1))
   else CLASS_IN <- .internal_convert(motifs)
@@ -80,14 +83,23 @@ merge_similar <- function(motifs,
   comp.clust <- hclust(as.dist(comp.mat))
   comp.groups <- cutree(comp.clust, h = threshold)
 
-  final.mots <- unname(tapply(motifs, comp.groups,
-      function(x) merge_motifs(sort_by_ic(x),
-      method = method, use.type = use.type, min.overlap = min.overlap,
-      min.mean.ic = min.mean.ic, tryRC = tryRC,
-      relative_entropy = relative_entropy, normalise.scores = normalise.scores,
-      min.position.ic = min.position.ic, score.strat = score.strat.merge)))
+  if (!return.clusters) {
 
-  .internal_convert(final.mots, unique(CLASS_IN))
+    final.mots <- unname(tapply(motifs, comp.groups,
+        function(x) merge_motifs(sort_by_ic(x),
+        method = method, use.type = use.type, min.overlap = min.overlap,
+        min.mean.ic = min.mean.ic, tryRC = tryRC,
+        relative_entropy = relative_entropy, normalise.scores = normalise.scores,
+        min.position.ic = min.position.ic, score.strat = score.strat.merge)))
+
+    .internal_convert(final.mots, unique(CLASS_IN))
+
+  } else {
+
+    lapply(tapply(motifs, comp.groups, list),
+      function(x) .internal_convert(x, unique(CLASS_IN)))
+
+  }
 
 }
 
