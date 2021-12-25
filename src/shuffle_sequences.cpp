@@ -316,7 +316,7 @@ vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_cou
   }
 
   int previous_mlet;
-  for (std::size_t i = k - 1; i < seqsize; ++i) {
+  for (std::size_t i = k - 1; i < seqsize - 1; ++i) {
     previous_mlet = 0;
     for (int j = k - 1; j >= 1; --j) {
       previous_mlet += out[i - j] * pow(alphlen, j - 1);
