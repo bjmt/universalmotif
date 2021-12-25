@@ -23,6 +23,14 @@ MINOR CHANGES
 
     o Reduced the size of the message when a pseudocount is added to motifs.
 
+CHANGES IN VERSION 1.12.2
+-------------------------
+
+BUG FIXES
+
+    o shuffle_sequences(..., method="markov"): Previously the returning
+      sequences were longer by 1.
+
 CHANGES IN VERSION 1.12.1
 -------------------------
 
