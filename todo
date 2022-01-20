@@ -115,4 +115,4 @@
 - create a separate container for higher order motifs
 - scan_sequences(): for large jobs, save temporary results on disk; maybe use the qs pkg?
 - combine view_motifs() with EnrichedHeatmap/ComplexHeatmap?
-
+- enrich_motifs(): what about duplicate sequences!!!
