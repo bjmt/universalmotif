@@ -326,11 +326,17 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
   }
 
   if (length(seq.hits) == 0 && length(bkg.hits) == 0)
-    return(DataFrame(motif = motifs@name, target.hits = 0L,
-                     target.seq.hits = 0L, target.seq.count = length(sequences),
-                     bkg.hits = 0L, bkg.seq.hits = 0L,
-                     bkg.seq.count = length(bkg.sequences), Pval = 1.0,
-                     Qval = NA_real_, Eval = NA_real_))
+    return(DataFrame(motif = motifs@name,
+                     motif.i = NA_integer_,
+                     target.hits = 0L,
+                     target.seq.hits = 0L,
+                     target.seq.count = length(sequences),
+                     bkg.hits = 0L,
+                     bkg.seq.hits = 0L,
+                     bkg.seq.count = length(bkg.sequences),
+                     Pval = 1.0,
+                     Qval = NA_real_,
+                     Eval = NA_real_))
 
   seq.total <- (mean(seq.widths) - ncol(motifs@motif) + 1) * length(sequences)
   if (RC) seq.total <- seq.total * 2
@@ -367,10 +373,10 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
   results <- DataFrame(motif = motifs@name,
                        motif.i = NA_integer_,
                        target.hits = length(seq.hits),
-                       target.seq.hits = length(unique(as.vector(results$sequence))),
+                       target.seq.hits = length(unique(as.vector(results$sequence.i))),
                        target.seq.count = length(sequences),
                        bkg.hits = length(bkg.hits),
-                       bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
+                       bkg.seq.hits = length(unique(as.vector(results.bkg$sequence.i))),
                        bkg.seq.count = length(bkg.sequences),
                        Pval = hits.p,
                        Qval = NA_real_,

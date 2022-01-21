@@ -1,3 +1,20 @@
+CHANGES IN VERSION 1.12.3
+-------------------------
+
+BUG FIXES
+
+    o scan_sequences(): Previously this function did not account for the fact
+      that duplicate sequence names are allowed within XStringSet objects. To
+      better keep track of which sequence hits are associated with, an
+      additional sequence.i column has been added which keeps track of the
+      sequence number. This change also fixes a knock-on issue with
+      enrich_motifs(), where sequences with duplicate names did not contribute
+      to the count of sequences containing hits.
+    
+    o enrich_motifs(): Fixed an issue wherein motifs with no hits in either
+      the target and background sequences would cause an error during final
+      assembly of the results.
+
 CHANGES IN VERSION 1.12.2
 -------------------------
 

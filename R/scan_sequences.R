@@ -356,7 +356,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   for (i in seq_along(threshold)) {
     if (threshold[i] > max.scores[i])
-      warning(wmsg("Threshold [", threshold[i], "] for motif ", i,
+      warning(wmsg("Threshold [", round(threshold[i], 3), "] for motif ", i,
           " is higher than the max possible threshold [", max.scores[i], "]"),
         immediate. = TRUE, call. = FALSE)
   }
