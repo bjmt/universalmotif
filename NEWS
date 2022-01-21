@@ -23,6 +23,19 @@ MINOR CHANGES
 
     o Reduced the size of the message when a pseudocount is added to motifs.
 
+CHANGES IN VERSION 1.12.3
+-------------------------
+
+BUG FIXES
+
+    o scan_sequences(): Previously this function did not account for the fact
+      that duplicate sequence names are allowed within XStringSet objects. To
+      better keep track of which sequence hits are associated with, an
+      additional sequence.i column has been added which keeps track of the
+      sequence number. This change also fixes a knock-on issue with
+      enrich_motifs(), where sequences with duplicate names did not contribute
+      to the count of sequences containing hits.
+
 CHANGES IN VERSION 1.12.2
 -------------------------
 

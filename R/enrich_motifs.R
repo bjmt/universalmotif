@@ -400,8 +400,8 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     seq.hits.n <- length(seq.hits)
     bkg.hits.n <- length(bkg.hits)
   } else {
-    seq.hits.n <- sum(!duplicated(results$sequence))
-    bkg.hits.n <- sum(!duplicated(results.bkg$sequence))
+    seq.hits.n <- sum(!duplicated(results$sequence.i))
+    bkg.hits.n <- sum(!duplicated(results.bkg$sequence.i))
   }
 
   seq.no <- seq.total - seq.hits.n
@@ -430,10 +430,10 @@ enrich_mots2_subworker <- function(results, results.bkg, motifs,
     motif.i = NA_integer_,
     motif.consensus = NA_character_,
     target.hits = seq.hits.n.n,
-    target.seq.hits = length(unique(as.vector(results$sequence))),
+    target.seq.hits = length(unique(as.vector(results$sequence.i))),
     target.seq.count = length(sequences),
     bkg.hits = bkg.hits.n.n,
-    bkg.seq.hits = length(unique(as.vector(results.bkg$sequence))),
+    bkg.seq.hits = length(unique(as.vector(results.bkg$sequence.i))),
     bkg.seq.count = length(bkg.sequences),
     Pval = hits.p,
     Qval = NA_real_,
