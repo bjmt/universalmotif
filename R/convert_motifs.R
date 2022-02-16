@@ -33,6 +33,7 @@
 #'
 #' ## Output
 #' The following package-class combinations can be output:
+#' * MotifDb-MotifList
 #' * TFBSTools-PFMatrix
 #' * TFBSTools-PWMatrix
 #' * TFBSTools-ICMatrix
@@ -132,7 +133,14 @@ setMethod("convert_motifs", signature(motifs = "list"),
     classin <- strsplit(class, "-", fixed = TRUE)[[1]][2]
     if (mot_classes == classin) return(motifs)
   }
-  lapply(motifs, function(x) convert_motifs(x, class = class))
+  if (class == "MotifDb-MotifList") {
+    motifs <- lapply(motifs, function(x) convert_motifs(x))
+    motifs <- convert_to_motifdb_motiflist(motifs)
+  } else {
+    motifs <- lapply(motifs, function(x) convert_motifs(x, class = class))
+  }
+
+  motifs
 
 })
 
@@ -184,6 +192,12 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
     "rGADEM" = {
       if (out_class == "motif")
         convert_to_rgadem_motif(motifs)
+      else
+        stop("unknown 'class'")
+    },
+    "MotifDb" = {
+      if (out_class == "MotifList") 
+        convert_to_motifdb_motiflist(motifs)
       else
         stop("unknown 'class'")
     },
@@ -277,6 +291,82 @@ convert_to_seqlogo_pwm <- function(motifs) {
     motifs <- seqLogo::makePWM(motifs@motif)
   } else {
     stop("'seqLogo' package not installed")
+  }
+  motifs
+}
+
+convert_to_motifdb_motiflist <- function(motifs) {
+  if (!is.list(motifs)) motifs <- list(motifs)
+  if (requireNamespace("MotifDb", quietly = TRUE)) {
+    motiflist_class <- getClass("MotifList", where = "MotifDb")
+    motifs <- convert_type(motifs, "PPM")
+    m <- lapply(motifs, function(x) x["motif"])
+    for (i in seq_along(m)) {
+      colnames(m[[i]]) <- seq_len(ncol(m[[i]]))
+    }
+    m_names <- vapply(motifs, function(x) x["name"], character(1))
+    m_altnames <- vapply(motifs, function(x) {
+        x <- x["altname"]
+        if (!length(x)) "<ID:unknown>"
+        else x
+      }, character(1))
+    m_family <- vapply(motifs, function(x) {
+        x <- x["family"]
+        if (!length(x)) "<family:unknown>"
+        else x
+      }, character(1))
+    m_organisms <- vapply(motifs, function(x) {
+        x <- x["organism"]
+        if (!length(x)) "<organism:unknown>"
+        else x
+      }, character(1))
+    m_nsites <- as.numeric(sapply(motifs, function(x) {
+        x <- x["nsites"]
+        if (!length(x)) NA_real_
+        else x
+      }))
+    if (any(duplicated(m_names))) {
+      stop("MotifDb-MotifList cannot be created from motifs with duplicated 'name' slots",
+        call. = FALSE)
+    }
+    names(m) <- m_names
+    extras <- c("dataSource", "geneSymbol", "geneId", "proteinId", "proteinType",
+      "bindingSequence", "bindingDomain", "experimentType", "pubmedID")
+    meta <- DataFrame(
+      providerName = m_names,
+      providerId = m_altnames,
+      dataSource = "<dataSource:unknown>",
+      geneSymbol = NA_character_,
+      geneId = NA_character_,
+      proteinId = NA_character_,
+      proteinIdType = NA_character_,
+      organism = m_organisms,
+      sequenceCount = m_nsites,
+      bindingSequence = NA_character_,
+      bindingDomain = NA_character_,
+      tfFamily = m_family,
+      experimentType = NA_character_,
+      pubmedID = NA_character_
+    )
+    for (i in seq_along(m)) {
+      m_ex_i <- motifs[[i]]["extrainfo"]
+      for (j in seq_along(extras)) {
+        m_ex_i_j <- m_ex_i[extras[j]]
+        if (!is.na(m_ex_i_j)) {
+          meta[[extras[j]]][i] <- m_ex_i_j
+        }
+      }
+    }
+    assoctab <- data.frame(
+      motif = m_names,
+      tf.gene = NA_character_,
+      tf.ensg = NA_character_
+    )
+    motifs <- new(motiflist_class, listData = m,
+      elementMetadata = meta,
+      manuallyCuratedGeneMotifAssociationTable = assoctab)
+  } else {
+    stop("'MotifDb' package not installed")
   }
   motifs
 }

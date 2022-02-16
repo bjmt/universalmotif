@@ -94,6 +94,7 @@ The following packge-class combinations can be used as input:
 
 The following package-class combinations can be output:
 \itemize{
+\item MotifDb-MotifList
 \item TFBSTools-PFMatrix
 \item TFBSTools-PWMatrix
 \item TFBSTools-ICMatrix

@@ -140,12 +140,13 @@ get_bkgs <- function(motifs, use.freq = 1) {
 
   } else {
 
-    if (length(class) == 1 && class[1] != "universalmotif-universalmotif") {
+    if (length(class) == 1 && class[1] != "universalmotif-universalmotif" &&
+        class[1] != "MotifDb-MotifList") {
 
       tryCatch(motifs <- convert_motifs(motifs, class),
                error = function(e) message("motifs converted to class 'universalmotif'"))
 
-    } else if (length(class) > 1)
+    } else if (length(class) > 1 || class[1] == "MotifDb-MotifList")
       message("motifs converted to class 'universalmotif'")
 
     motifs

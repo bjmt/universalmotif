@@ -11,6 +11,8 @@ NEW FEATURES
 
     o merge_similar(return.clusters): Return the clusters without merging.
 
+    o convert_motifs(): MotifDb-MotifList now available as an output format.
+
 MINOR CHANGES
 
     o enrich_motifs(): RC argument now defaults to TRUE, increased max
