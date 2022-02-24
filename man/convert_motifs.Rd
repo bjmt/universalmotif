@@ -107,6 +107,13 @@ The following package-class combinations can be output:
 \item rGADEM-motif
 \item universalmotif-universalmotif (the default, no need to specify this)
 }
+
+Note: MotifDb-MotifList output was a later addition to \code{\link[=convert_motifs]{convert_motifs()}}.
+As a result, to stay consistent with previous behaviour most functions
+will always convert MotifDb-MotifList objects to a list of \code{universalmotif}
+motifs, even if other formats would be simply returned as is (e.g. for
+other formats, \code{\link[=filter_motifs]{filter_motifs()}} will return the input format; for
+MotifDb-MotifList, a list of \code{universalmotif} objects will be returned).
 }
 }
 \section{Methods (by class)}{

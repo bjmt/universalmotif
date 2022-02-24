@@ -46,6 +46,13 @@
 #' * rGADEM-motif
 #' * universalmotif-universalmotif (the default, no need to specify this)
 #'
+#' Note: MotifDb-MotifList output was a later addition to [convert_motifs()].
+#' As a result, to stay consistent with previous behaviour most functions
+#' will always convert MotifDb-MotifList objects to a list of `universalmotif`
+#' motifs, even if other formats would be simply returned as is (e.g. for
+#' other formats, [filter_motifs()] will return the input format; for
+#' MotifDb-MotifList, a list of `universalmotif` objects will be returned).
+#'
 #' @examples
 #' # Convert from universalmotif:
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
