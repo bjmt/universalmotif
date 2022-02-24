@@ -582,21 +582,25 @@ Rcpp::S4 universalmotif_cpp(
   // sometimes nsites can slip through (?) as nan (not R_NaN)
   if (std::isnan(nsites[0])) nsites = Rcpp::NumericVector::create();
 
-  if (Rcpp::StringVector::is_na(Rcpp::StringVector::create(name)[0]))
+  if (Rcpp::StringVector::is_na(Rcpp::StringVector::create(name)[0]) ||
+      name == "")
     name = "[no name]";
   // name
   x.slot("name") = name;
 
   // altname
-  if (!Rcpp::StringVector::is_na(altname[0]) && altname.length() > 0)
+  if (!Rcpp::StringVector::is_na(altname[0]) && altname.length() > 0
+      && altname[0] != "")
     x.slot("altname") = altname;
 
   // family
-  if (!Rcpp::StringVector::is_na(family[0]) && family.length() > 0)
+  if (!Rcpp::StringVector::is_na(family[0]) && family.length() > 0
+      && family[0] != "")
     x.slot("family") = family;
 
   // organism
-  if (!Rcpp::StringVector::is_na(organism[0]) && organism.length() > 0)
+  if (!Rcpp::StringVector::is_na(organism[0]) && organism.length() > 0
+      && organism[0] != "")
     x.slot("organism") = organism;
 
   // alphabet (&m_motif)
@@ -634,7 +638,7 @@ Rcpp::S4 universalmotif_cpp(
   x.slot("motif") = m_motif;
 
   // strand
-  if (strand == "-+") strand = "+-";
+  if (strand == "-+" || strand == "*") strand = "+-";
   x.slot("strand") = strand;
 
   // pval

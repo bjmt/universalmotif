@@ -24,6 +24,9 @@
 #' @param organism `character(1)` Species of origin.
 #' @param bkgsites `numeric(1)` Total number of sites used to find the motif.
 #' @param strand `character(1)` Whether the motif is specific to a certain strand.
+#'    Acceptable strands are '+', '-', and '+-' (to represent both strands). Note
+#'    that '-+' and '*' can also be provided to represent both strands, but the
+#'    final strand in the `universalmotif` object will be set to '+-'.
 #' @param pval `numeric(1)` P-value associated with motif.
 #' @param qval `numeric(1)` Adjusted P-value associated with motif.
 #' @param eval `numeric(1)` E-value associated with motif.

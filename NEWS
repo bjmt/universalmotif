@@ -1,3 +1,13 @@
+CHANGES IN VERSION 1.12.4
+-------------------------
+
+BUG FIXES
+
+    o convert_motifs(): Properly handle TFBSTools class motifs with '*' as
+      their strand. This was achieved by making the universalmotif object
+      creator tolerant to using '*' as a user input. Thanks to David Oliver
+      for the bug report (#22).
+
 CHANGES IN VERSION 1.12.3
 -------------------------
 
@@ -9,7 +19,8 @@ BUG FIXES
       additional sequence.i column has been added which keeps track of the
       sequence number. This change also fixes a knock-on issue with
       enrich_motifs(), where sequences with duplicate names did not contribute
-      to the count of sequences containing hits.
+      to the count of sequences containing hits. Thanks to Alexandre Blais for
+      mentioning this issue.
     
     o enrich_motifs(): Fixed an issue wherein motifs with no hits in either
       the target and background sequences would cause an error during final

@@ -80,7 +80,10 @@ To prevent this, provide \code{nsites = numeric()}.}
 
 \item{bkgsites}{\code{numeric(1)} Total number of sites used to find the motif.}
 
-\item{strand}{\code{character(1)} Whether the motif is specific to a certain strand.}
+\item{strand}{\code{character(1)} Whether the motif is specific to a certain strand.
+Acceptable strands are '+', '-', and '+-' (to represent both strands). Note
+that '-+' and '*' can also be provided to represent both strands, but the
+final strand in the \code{universalmotif} object will be set to '+-'.}
 
 \item{pval}{\code{numeric(1)} P-value associated with motif.}
 
