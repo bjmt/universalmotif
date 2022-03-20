@@ -6,8 +6,20 @@
 #' @param file `character(1)` File name.
 #' @param overwrite `logical(1)` Overwrite existing file.
 #' @param append `logical(1)` Add to an existing file.
+#' @param name.tag `character(1)` The tag to use when writing the motifs
+#'   name slot.
+#' @param altname.tag `character(1)` The tag to use when writing the
+#'   motifs altname slot. Note that no tag will be written if the
+#'   slot is empty.
 #'
 #' @return `NULL`, invisibly.
+#'
+#' @details
+#'
+#' If the family slot of a motif is not empty, then its contents will
+#' included using the HC tag. Similarly for the organism slot using the
+#' tag OS. The default name and alternate name tags are ID and NA,
+#' respectively, though these can be set manually.
 #'
 #' @examples
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -24,7 +36,8 @@
 #' @seealso [read_transfac()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
-write_transfac <- function(motifs, file, overwrite = FALSE, append = FALSE) {
+write_transfac <- function(motifs, file, overwrite = FALSE, append = FALSE,
+  name.tag = "ID", altname.tag = "NA") {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -46,9 +59,9 @@ write_transfac <- function(motifs, file, overwrite = FALSE, append = FALSE) {
   .write_transfac <- function(motifs) {
     motif <- motifs
     lines_out <- vector()
-    lines_out <- c(lines_out, paste("ID", motif@name))
+    lines_out <- c(lines_out, paste(name.tag, motif@name))
     if (length(motif@altname) > 0) {
-      lines_out <- c(lines_out, paste("NA", motif@altname))
+      lines_out <- c(lines_out, paste(altname.tag, motif@altname))
     }
     if (length(motif@family) > 0) {
       lines_out <- c(lines_out, paste("HC", motif@family))

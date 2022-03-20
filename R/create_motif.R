@@ -246,7 +246,7 @@ setMethod("create_motif", signature(input = "numeric"),
     nsites <- sample.int(201, 1) + 49
   } else if (missing(type)) type <- "PPM"
   else if (missing(nsites) && type == "PCM") nsites <- 100
-  else nsites <- numeric(0)
+  else if (missing(nsites)) nsites <- numeric(0)
 
   margs <- parse_args(as.list(environment()),
                       c("name", "altname", "bkg", "pseudocount", "family",

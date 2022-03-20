@@ -4,7 +4,8 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.
-#' @param positions `character(1)` One of `c('columns', 'rows')`.
+#' @param positions `character(1)` One of `c('columns', 'rows')`. Partial
+#'   matching allowed.
 #' @param rownames `logical(1)` Include alphabet letters as rownames.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`. If missing
 #'   will use whatever type the motif is currently stored as.
@@ -54,6 +55,8 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   all_checks <- c(char_check, logi_check, header_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
+
+  positions <- match.arg(positions, c("columns", "rows"))
 
   if (file.exists(file) && !overwrite && !append)
     stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))

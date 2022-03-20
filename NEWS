@@ -13,6 +13,9 @@ NEW FEATURES
 
     o convert_motifs(): MotifDb-MotifList now available as an output format.
 
+    o write_transfac(name.tag, altname.tag): New arguments to manually set the
+      name and altname tags in the final TRANSFAC motifs.
+
 MINOR CHANGES
 
     o enrich_motifs(): RC argument now defaults to TRUE, increased max
@@ -24,6 +27,13 @@ MINOR CHANGES
       motifs.
 
     o Reduced the size of the message when a pseudocount is added to motifs.
+
+    o write_matrix(positions): Partial argument matching allowed.
+
+BUG FIXES
+
+    o create_motif(): Don't ignore the nsites argument when generating random
+      motifs.
 
 CHANGES IN VERSION 1.12.4
 -------------------------
