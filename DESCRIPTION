@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.13.9
+Version: 1.14.0
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "benjamin.tremblay@uwaterloo.ca",
