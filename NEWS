@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.14.1
+-------------------------
+
+BUG FIXES
+
+    o read_meme(): Handle motif files with custom alphabets and no 'END'
+      line in alphabet definition. Thanks to @manoloff (#24) for the bug
+      report, and Spencer Nystrom for the fix (#25).
+
 CHANGES IN VERSION 1.14.0
 -------------------------
 
