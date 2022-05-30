@@ -322,6 +322,17 @@ get_custom_meme_alph <- function(raw_lines) {
 
   i <- grep("^ALPHABET", raw_lines) + 1
   n <- grep("^END ALPHABET", raw_lines) - 1
+  
+  if (length(n) == 0){
+    # For parsing meme.txt output when run w/ custom alph file,
+    # Might not be the best fix.
+    # https://github.com/bjmt/universalmotif/issues/24
+    n <- grep("^TRAINING SET", raw_lines) - 1
+  }
+  
+  if (length(n) == 0){
+    stop("Problem parsing custom alphabet.\nPlease file a bug report at: github.com/bjmt/universalmotif/issues/", call. = FALSE)
+  }
 
   alph_lines <- raw_lines[i:n]
 
