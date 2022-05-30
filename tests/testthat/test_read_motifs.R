@@ -10,6 +10,8 @@ test_that("read functions work ok", {
                                     package="universalmotif"))
   dreme <- read_meme(system.file("extdata", "dreme.txt",
                                     package="universalmotif"))
+  meme_custom_alph <- read_meme(system.file("extdata", "meme_custom_alph.txt",
+                                    package="universalmotif"))
   m <- system.file("extdata", "meme_full.txt", package = "universalmotif")
   meme <- read_meme(file = m)
   transfac <- read_transfac(system.file("extdata", "transfac.txt",
