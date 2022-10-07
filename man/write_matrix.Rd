@@ -13,7 +13,8 @@ write_matrix(motifs, file, positions = "columns", rownames = FALSE, type,
 
 \item{file}{\code{character(1)} File name.}
 
-\item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}.}
+\item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}. Partial
+matching allowed.}
 
 \item{rownames}{\code{logical(1)} Include alphabet letters as rownames.}
 

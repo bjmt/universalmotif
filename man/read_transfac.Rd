@@ -20,6 +20,13 @@ Import TRANSFAC formatted motifs. Assumed to be DNA motifs, type PCM.
 See \code{system.file("extdata", "transfac.txt", pacakge="universalmotif")}
 for an example motif.
 }
+\details{
+A few TRANSFAC tags are recognized, including AC, ID, NA, HC and OS.
+HC will be set to the family slot and OS to the organism slot.
+If AC, ID and NA are present, then AC will be set as the motif name
+and NA as the alternate name. If AC is absent, then ID is set as the
+name. If ID is also absent, then NA is set as the motif name.
+}
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",
                                       package = "universalmotif"))

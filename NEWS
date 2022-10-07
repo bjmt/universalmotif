@@ -10,10 +10,15 @@ MINOR CHANGES
 
     o write_matrix(positions): Partial argument matching allowed.
 
+    o motif_tree(): Silence messages from ggtree.
+
 BUG FIXES
 
     o create_motif(): Don't ignore the nsites argument when generating random
       motifs.
+
+    o read_meme(): Correctly parse background if lines are prepended with a
+      space.
 
 CHANGES IN VERSION 1.14.1
 -------------------------

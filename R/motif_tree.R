@@ -313,7 +313,7 @@ ape_fun <- function(FUN, env = parent.frame()) {
 
 ggtree_fun <- function(FUN, env = parent.frame()) {
   if (requireNamespace("ggtree", quietly = TRUE)) {
-    eval(substitute(FUN), envir = env)
+    suppressMessages(eval(substitute(FUN), envir = env))
   } else {
     stop(wmsg("The 'ggtree' package must be installed to use motif_tree(). ",
         "[BiocManager::install(\"ggtree\")]"), call. = FALSE)
