@@ -220,7 +220,11 @@ convert_type_single <- function(motif, type, pseudocount,
 
   if (in_type == type) return(motif)
 
-  if (is.null(pseudocount)) pseudocount <- motif@pseudocount
+  if (is.null(pseudocount)) {
+    pseudocount <- motif@pseudocount
+  } else {
+    motif@pseudocount <- pseudocount
+  }
   bkg <- motif@bkg[rownames(motif@motif)]
   if (anyNA(bkg)) bkg <- motif@bkg[seq_len(nrow(motif@motif))]
   if (any(bkg == 0)) bkg <- pcm_to_ppmC(bkg * 1000, 1)

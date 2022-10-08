@@ -20,6 +20,9 @@ BUG FIXES
     o read_meme(): Correctly parse background if lines are prepended with a
       space.
 
+    o convert_type(pseudocount): Change the pseudocount within the motif when
+      performing a type conversion and the option is set.
+
 CHANGES IN VERSION 1.14.1
 -------------------------
 
