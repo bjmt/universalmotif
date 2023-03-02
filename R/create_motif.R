@@ -929,6 +929,19 @@ parse_args <- function(args, names) {
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  if (is.character(args$type) && !args$type %in% c("PCM", "PPM", "PWM", "ICM")) {
+    stop("* Incorrect `type` argument (must be one of ",
+      "\"PCM\", \"PPM\", \"PWM\", \"ICM\")")
+  }
+  if (is.character(args$strand) && !args$strand %in% c("+", "-", "+-", "-+", "*")) {
+    stop("* Incorrect `strand` argument (must be one of ",
+      "\"+\", \"-\", \"+-\")")
+  }
+  if (is.numeric(args$nsites) && args$nsites < 1) {
+    stop("* Incorrect `nsites` argument (must be a positive",
+      " integer)")
+  }
+
   to.keep <- !vapply(args, is.symbol, logical(1))
   args <- args[to.keep]
   args <- args[names(args) %in% names]

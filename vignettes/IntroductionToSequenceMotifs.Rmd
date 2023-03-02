@@ -147,8 +147,6 @@ When searching for instances of this motif using this scoring system, one more c
 
 Another method for determining the minimum score include starting from P-values. The package `TFMPvalue` for example can calculate minimum scores from P-values, using the algorithm described by @pval. The `universalmotif` package also offers this capability with the `motif_pvalue()` function. See the `MotifComparisonAndPvalues` vignette for a detailed overview. 
 
-Finally, thresholds can be found by optimizing for the enrichment of the number of hits between a positive and negative set of sequences. This method is used by HOMER [@homer], and a simpler version of this concept has been made available from within the `universalmotif` package via the `find_threshold()` function.
-
 Whichever method you use however, it is important to remember that there is likely never one single threshold that works in every situation. Lower threshold sequences can be bound in the case of transcription factors which bind DNA with less specificity or are present in higher concentrations, and the opposite can be true of higher-specificity or less concentrated transcription factors. See @biophys03 and @ruan17 for some background on the topic.
 
 # Information content matrices
@@ -268,7 +266,7 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
        T |  0.000 |  0.177 |  0.090 |  0.000 |  0.000 |  0.117
 : (\#tab:icmkl) Information Content Matrix as relative divergence.
 
-This motif would look significantly different with non-uniform background frequencies. For example, starting from the following background frequencies: `c(A = 0.4, C = 0.1, G = 0.1, T= 0.4)`, the motif resembles:
+This motif would look significantly different with non-uniform background frequencies. For example, starting from the following background frequencies: `c(A = 0.4, C = 0.1, G = 0.1, T = 0.4)`, the motif resembles:
 
 Position |      1 |      2 |      3 |      4 |      5 |      6
 -------- | ------ | ------ | ------ | ------ | ------ | ------

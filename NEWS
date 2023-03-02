@@ -1,3 +1,25 @@
+CHANGES IN VERSION 1.18.0
+-------------------------
+
+NEW FEATURES
+
+  o read_meme(readsites.meta.tidy): New option to tidy the output of the
+    readsites.meta option into a single data.frame.
+
+MINOR CHANGES
+
+  o create_motif(): More robust argument checking.
+
+BUG FIXES
+
+  o Clean up output of argument checks internal to exported functions.
+
+  o Delete a reference in IntroductionToSequenceMotifs vignette to a
+    non-exported function.
+
+  o Delete outdated in MotifManipulation vignette regarding convert_motifs
+    function.
+
 CHANGES IN VERSION 1.16.0
 -------------------------
 

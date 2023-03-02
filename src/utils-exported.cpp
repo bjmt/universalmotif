@@ -337,9 +337,17 @@ Rcpp::String all_checks_collapse(const Rcpp::StringVector &checks) {
     if (i % 2 == 0) {
       out_pre[i] = "\n";
     } else {
-      out_pre[i] = checks[i_];
+      if (i > 1) {
+        out_pre[i] = "  " + checks[i_];
+      } else {
+        out_pre[i] = checks[i_];
+      }
       i_ += 1;
     }
+  }
+
+  if (out_pre.size() > 0 && out_pre[0][0] == '\n') {
+    out_pre[0] = "";
   }
 
   return Rcpp::collapse(out_pre);

@@ -575,8 +575,7 @@ Filter a list of motifs, using the `universalmotif` slots with `filter_motifs()`
 library(universalmotif)
 library(MotifDb)
 
-## Let us extract all of the Arabidopsis and C. elegans motifs (note that
-## conversion from the MotifDb format is final)
+## Let us extract all of the Arabidopsis and C. elegans motifs 
 
 motifs <- filter_motifs(MotifDb, organism = c("Athaliana", "Celegans"))
 

@@ -11,12 +11,16 @@
 #' @param readsites `logical(1)` If `TRUE`, the motif sites will be read as well.
 #' @param readsites.meta `logical(1)` If `readsites = TRUE`, then additionally
 #'    read site positions and P-values.
+#' @param readsites.meta.tidy `logical(1)` If `readsites.meta = TRUE`, merge the
+#'    position site information for all motifs into a single tidy `data.frame`.
 #'
 #' @return `list` [universalmotif-class] objects. If `readsites = TRUE`, a list
 #'    comprising of a sub-list of motif objects and a sub-list of
 #'    motif sites will be returned. If `readsites.meta = TRUE`, then two
 #'    additional list items will be present, one containing site positions
-#'    and P-values, and another containing combined sequence p-values.
+#'    and P-values, and another containing combined sequence p-values. If
+#'    `readsites.meta.tidy = TRUE`, an additional list entry named
+#'    `sites.meta.tidy` will be added containing a `data.frame`.
 #'
 #' @details
 #' Please note that the typical number precision limit in R is around 1e-308.
@@ -44,7 +48,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 read_meme <- function(file, skip = 0, readsites = FALSE,
-                      readsites.meta = FALSE) {
+                      readsites.meta = FALSE, readsites.meta.tidy = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -52,6 +56,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                                  1, FALSE, TYPE_CHAR)
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(readsites = args$readsites,
+                                      readsites.meta.tidy = args$readsites.meta.tidy,
                                       readsites.meta = args$readsites.meta),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
@@ -193,7 +198,9 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
       motif_list <- list(motifs = motif_list, sites = sites)
     }
 
-    if (readsites.meta) {
+    if (!readsites.meta && readsites.meta.tidy) {
+      warning("'readsites.meta.tidy' is not valid if 'readsites.meta = FALSE'")
+    } else if (readsites.meta) {
       site.starts <- grep("sites sorted by position p-value", raw_lines)
       site.stops <- grep("block diagrams$", raw_lines)
       if (length(site.starts) == 0 || length(site.stops) == 0) {
@@ -262,12 +269,23 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
       }
     }
 
+    if (readsites.meta.tidy) {
+      motif_list$sites.meta.tidy <- tidy_meme_meta(motif_list$sites.meta)
+    }
+
   } else if (readsites.meta) {
     warning("'readsites.meta' is not valid if 'readsites = FALSE'")
   }
 
   motif_list
 
+}
+
+tidy_meme_meta <- function(sites.meta) {
+  m <- names(sites.meta)
+  for (i in seq_along(sites.meta)) sites.meta[[i]]$Motif <- m[i]
+  sites.meta <- do.call(rbind, sites.meta)
+  sites.meta[order(sites.meta$Sequence, sites.meta$Position), ]
 }
 
 #' Returns type of MEME alphabet to use
