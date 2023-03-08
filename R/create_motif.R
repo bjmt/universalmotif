@@ -251,8 +251,9 @@ setMethod("create_motif", signature(input = "numeric"),
   margs <- parse_args(as.list(environment()),
                       c("name", "altname", "bkg", "pseudocount", "family",
                         "organism", "bkgsites", "strand", "pval", "qval",
-                        "eval", "extrainfo"))
-  margs <- c(margs, list(type = type), list(nsites = nsites))
+                        "eval", "extrainfo", "nsites"))
+  # margs <- c(margs, list(type = type), list(nsites = nsites))
+  margs <- c(margs, list(type = type))
 
   motif <- do.call(create_motif, c(list(input = mot), margs,
                                    list(alphabet = alphabet)))
@@ -937,7 +938,7 @@ parse_args <- function(args, names) {
     stop("* Incorrect `strand` argument (must be one of ",
       "\"+\", \"-\", \"+-\")")
   }
-  if (is.numeric(args$nsites) && args$nsites < 1) {
+  if (is.numeric(args$nsites) && length(args$nsites) && args$nsites < 1) {
     stop("* Incorrect `nsites` argument (must be a positive",
       " integer)")
   }

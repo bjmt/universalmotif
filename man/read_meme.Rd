@@ -4,7 +4,8 @@
 \alias{read_meme}
 \title{Import MEME motifs.}
 \usage{
-read_meme(file, skip = 0, readsites = FALSE, readsites.meta = FALSE)
+read_meme(file, skip = 0, readsites = FALSE, readsites.meta = FALSE,
+  readsites.meta.tidy = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}
@@ -16,13 +17,18 @@ file before starting to read.}
 
 \item{readsites.meta}{\code{logical(1)} If \code{readsites = TRUE}, then additionally
 read site positions and P-values.}
+
+\item{readsites.meta.tidy}{\code{logical(1)} If \code{readsites.meta = TRUE}, merge the
+position site information for all motifs into a single tidy \code{data.frame}.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects. If \code{readsites = TRUE}, a list
 comprising of a sub-list of motif objects and a sub-list of
 motif sites will be returned. If \code{readsites.meta = TRUE}, then two
 additional list items will be present, one containing site positions
-and P-values, and another containing combined sequence p-values.
+and P-values, and another containing combined sequence p-values. If
+\code{readsites.meta.tidy = TRUE}, an additional list entry named
+\code{sites.meta.tidy} will be added containing a \code{data.frame}.
 }
 \description{
 Import MEME formatted motifs, as well as original motif sequences. See
