@@ -6,7 +6,7 @@ all: prep build check clean
 
 prep:
 	R -q -e "Rcpp::compileAttributes(); devtools::document()";\
-	R -q -e "l <- readLines(con <- file('man/reexports.Rd')); close(con); l <- sub('[BiocGenerics]{ncol}', '[BiocGenerics:nrow]{ncol}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rownames}', '[BiocGenerics:row_colnames]{rownames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colnames}', '[BiocGenerics:row_colnames]{colnames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rowSums}', '[BiocGenerics:colSums]{rowSums}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colSums}', '[BiocGenerics:colSums]{colSums}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rowMeans}', '[BiocGenerics:colSums]{rowMeans}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colMeans}', '[BiocGenerics:colSums]{colMeans}', l, fixed = TRUE); writeLines(l, 'man/reexports.Rd')";\
+	R -q -e "l <- readLines(con <- file('man/reexports.Rd')); close(con); l <- sub('[BiocGenerics]{ncol}', '[BiocGenerics:nrow]{ncol}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rownames}', '[BiocGenerics:row_colnames]{rownames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colnames}', '[BiocGenerics:row_colnames]{colnames}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{rowSums}', '[MatrixGenerics:colSums]{rowSums}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{colSums}', '[MatrixGenerics:colSums]{colSums}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{rowMeans}', '[MatrixGenerics:colSums]{rowMeans}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{colMeans}', '[MatrixGenerics:colSums]{colMeans}', l, fixed = TRUE); writeLines(l, 'man/reexports.Rd')";\
 
 build:
 	cd ..;\

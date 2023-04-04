@@ -346,16 +346,16 @@ BiocGenerics::ncol
 BiocGenerics::nrow
 
 #' @export
-BiocGenerics::rowSums
+MatrixGenerics::rowSums
 
 #' @export
-BiocGenerics::colSums
+MatrixGenerics::colSums
 
 #' @export
-BiocGenerics::colMeans
+MatrixGenerics::colMeans
 
 #' @export
-BiocGenerics::rowMeans
+MatrixGenerics::rowMeans
 
 #' @export
 BiocGenerics::normalize

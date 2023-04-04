@@ -32,9 +32,9 @@
 #' @importFrom Biostrings mask injectHardMask
 #' @importFrom IRanges stack IRanges findOverlaps
 #' @importFrom Rcpp sourceCpp
-#' @importFrom BiocGenerics cbind rownames colnames ncol nrow rowSums
-#' @importFrom BiocGenerics colMeans rowMeans normalize subset colSums
-#' @importFrom BiocGenerics as.data.frame
+#' @importFrom BiocGenerics cbind rownames colnames ncol nrow
+#' @importFrom BiocGenerics normalize subset as.data.frame
+#' @importFrom MatrixGenerics colMeans rowMeans colSums rowSums
 #' @importFrom S4Vectors safeExplode wmsg DataFrame Rle aggregate
 #' @importFrom S4Vectors isTRUEorFALSE
 #' @importFrom yaml as.yaml yaml.load

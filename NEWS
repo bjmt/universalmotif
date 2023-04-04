@@ -10,6 +10,9 @@ MINOR CHANGES
 
   o create_motif(): More robust argument checking.
 
+  o The rowMeans, colMeans, rowSums, and colSums generics are now imported
+    from the MatrixGenerics package instead of BiocGenerics.
+
 BUG FIXES
 
   o Clean up output of argument checks internal to exported functions.

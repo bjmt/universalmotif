@@ -22,6 +22,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{BiocGenerics}{\code{\link[BiocGenerics]{as.data.frame}}, \code{\link[BiocGenerics]{cbind}}, \code{\link[BiocGenerics:colSums]{colMeans}}, \code{\link[BiocGenerics:colSums]{colSums}}, \code{\link[BiocGenerics:row_colnames]{colnames}}, \code{\link[BiocGenerics:nrow]{ncol}}, \code{\link[BiocGenerics]{normalize}}, \code{\link[BiocGenerics]{nrow}}, \code{\link[BiocGenerics:colSums]{rowMeans}}, \code{\link[BiocGenerics:colSums]{rowSums}}, \code{\link[BiocGenerics:row_colnames]{rownames}}, \code{\link[BiocGenerics]{subset}}}
+  \item{BiocGenerics}{\code{\link[BiocGenerics]{as.data.frame}}, \code{\link[BiocGenerics]{cbind}}, \code{\link[BiocGenerics:row_colnames]{colnames}}, \code{\link[BiocGenerics:nrow]{ncol}}, \code{\link[BiocGenerics]{normalize}}, \code{\link[BiocGenerics]{nrow}}, \code{\link[BiocGenerics:row_colnames]{rownames}}, \code{\link[BiocGenerics]{subset}}}
+
+  \item{MatrixGenerics}{\code{\link[MatrixGenerics:rowMeans]{colMeans}}, \code{\link[MatrixGenerics:rowSums]{colSums}}, \code{\link[MatrixGenerics:colSums]{rowMeans}}, \code{\link[MatrixGenerics:colSums]{rowSums}}}
 }}
 
