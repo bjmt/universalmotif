@@ -797,7 +797,8 @@ setMethod("create_motif", signature(input = "AAStringSet"),
   margs <- c(margs, list(name = name), list(pseudocount = pseudocount))
 
   sequences <- consensusMatrix(sequences)
-  if (any(!rownames(sequences) %in% AA_STANDARD2))
+
+  if (any(colSums(sequences) != colSums(sequences[AA_STANDARD2, ])))
     stop("only ACDEFGHIKLMNPQRSTVWY are accepted for AA")
 
   motif <- vector("list", 20)
