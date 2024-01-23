@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.22.0
+-------------------------
+
+BUG FIXES
+
+  o The ggseqlogo is currently not on CRAN. Example code has been
+    inactivated in the MotifManipulation vignette.
+
 CHANGES IN VERSION 1.18.1
 -------------------------
 
