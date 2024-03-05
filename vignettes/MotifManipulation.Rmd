@@ -388,8 +388,7 @@ seqLogo::seqLogo(motif)
 motifStack::plotMotifLogo(motif)
 
 ## ggseqlogo:
-# NOTE: ggseqlogo is currently not on CRAN
-# ggseqlogo::ggseqlogo(motif)
+ggseqlogo::ggseqlogo(motif)
 ```
 
 ## Stacked motif logos

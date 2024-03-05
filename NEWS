@@ -3,9 +3,6 @@ CHANGES IN VERSION 1.22.0
 
 BUG FIXES
 
-  o The ggseqlogo package is currently not on CRAN. Example code has
-    been inactivated in the MotifManipulation vignette.
-
   o Address C++ compiler warnings.
 
 CHANGES IN VERSION 1.18.1
