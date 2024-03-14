@@ -5,6 +5,9 @@ BUG FIXES
 
   o Address C++ compiler warnings.
 
+  o Suppress warnings when using as.data.frame() on DataFrame objects
+    in the SequenceSearches.Rmd vignette.
+
 CHANGES IN VERSION 1.18.1
 -------------------------
 

@@ -96,7 +96,7 @@ get_klet_matrix <- function(seqs, k, groupName) {
   bkg <- bkg[, c("sequence", "klet", "count")]
   bkg <- reshape(bkg, idvar = "sequence", timevar = "klet",
     direction = "wide")
-  as.data.frame(cbind(Group = groupName, bkg))
+  suppressWarnings(as.data.frame(cbind(Group = groupName, bkg)))
 }
 
 ## Calculate k-let content (up to you what size k you want!):
@@ -188,9 +188,9 @@ myseq_bkg$group <- "original"
 myseq_shuf_bkg$group <- "shuffled"
 myseq_shuf_local_bkg$group <- "shuffled-local"
 
-myseq_all <- as.data.frame(
+myseq_all <- suppressWarnings(as.data.frame(
   rbind(myseq_bkg, myseq_shuf_bkg, myseq_shuf_local_bkg)
-)
+))
 
 ggplot(myseq_all, aes(x = start, y = probability, colour = klet)) +
   geom_line() +
@@ -414,7 +414,7 @@ data(ArabidopsisPromoters)
 
 res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters,
   threshold = 0, threshold.type = "logodds.abs")
-res <- as.data.frame(res)
+res <- suppressWarnings(as.data.frame(res))
 res$x <- mapply(function(x, y) mean(c(x, y)), res$start, res$stop)
 
 ggplot(res, aes(x, sequence, fill = score)) +
@@ -441,7 +441,7 @@ data(ArabidopsisPromoters)
 
 res <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters[1:5],
   threshold = -Inf, threshold.type = "logodds.abs")
-res <- as.data.frame(res)
+res <- suppressWarnings(as.data.frame(res))
 res$position <- mapply(function(x, y) mean(c(x, y)), res$start, res$stop)
 
 ggplot(res, aes(position, score, colour = score)) +
