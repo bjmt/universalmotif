@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.22.1
+-------------------------
+
+BUG FIXES
+
+  o Always check object sizes before indexing in universalmotif_cpp().
+    Fixes build timeouts on Bioconductor.
+
 CHANGES IN VERSION 1.22.0
 -------------------------
 
