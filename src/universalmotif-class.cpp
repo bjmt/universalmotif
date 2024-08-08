@@ -82,7 +82,7 @@ Rcpp::StringVector universalmotif_type(Rcpp::NumericMatrix &m_motif,
   Rcpp::LogicalVector mat_099_101_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
   Rcpp::LogicalVector mat_pos_check = m_motif >= 0;
 
-  if (Rcpp::StringVector::is_na(type[0]) || type.size() == 0) {
+  if (type.size() == 0 || Rcpp::StringVector::is_na(type[0])) {
     if (Rcpp::is_true(Rcpp::all(mat_1_0_check)))
       type = Rcpp::StringVector::create("PCM");
     else if (Rcpp::is_true(Rcpp::all(mat_099_101_check))
@@ -107,7 +107,7 @@ Rcpp::NumericVector universalmotif_nsites(Rcpp::NumericVector nsites,
     const Rcpp::StringVector &type, Rcpp::NumericMatrix &m_motif,
     const Rcpp::NumericVector &motif_colsums) {
 
-  if (Rcpp::NumericVector::is_na(nsites[0]) || nsites.size() == 0) {
+  if (nsites.size() == 0 || Rcpp::NumericVector::is_na(nsites[0])) {
 
     if (type[0] == "PCM") nsites[0] = Rcpp::sum(m_motif(Rcpp::_, 0));
     else nsites = Rcpp::NumericVector::create();
@@ -147,7 +147,7 @@ Rcpp::NumericVector universalmotif_icscore(Rcpp::NumericVector icscore,
   R_xlen_t alph_len = m_motif.nrow();
   Rcpp::IntegerVector bkg_i = Rcpp::seq_len(alph_len) - 1;
 
-  if (Rcpp::NumericVector::is_na(icscore[0]) || icscore.size() == 0) {
+  if (icscore.size() == 0 || Rcpp::NumericVector::is_na(icscore[0])) {
     double tmp_nsites = 0;
     if (nsites.size() != 0) tmp_nsites = nsites[0];
     Rcpp::NumericVector icscore_tmp(m_motif.ncol());
@@ -157,7 +157,7 @@ Rcpp::NumericVector universalmotif_icscore(Rcpp::NumericVector icscore,
           Rcpp::as<std::vector<double>>(bkg[bkg_i]), Rcpp::as<std::string>(type[0]),
           pseudocount, tmp_nsites);
     }
-    icscore[0] = Rcpp::sum(icscore_tmp);
+    icscore = Rcpp::NumericVector::create(Rcpp::sum(icscore_tmp));
   }
 
   return icscore;
@@ -191,7 +191,7 @@ Rcpp::NumericVector universalmotif_bkg(Rcpp::NumericVector bkg,
   R_xlen_t alph_len = m_motif.nrow();
   R_xlen_t bkg_len = bkg.size();
 
-  if (Rcpp::NumericVector::is_na(bkg[0]) || bkg_len == 0) {
+  if (bkg_len == 0 || Rcpp::NumericVector::is_na(bkg[0])) {
 
     bkg = Rcpp::rep(1.0 / m_motif.nrow(), m_motif.nrow());
     bkg.attr("names") = Rcpp::rownames(m_motif);
@@ -580,7 +580,7 @@ Rcpp::S4 universalmotif_cpp(
   Rcpp::NumericMatrix m_motif = Rcpp::clone(motif);
   Rcpp::NumericVector motif_colsums = Rcpp::colSums(m_motif);
   // sometimes nsites can slip through (?) as nan (not R_NaN)
-  if (std::isnan(nsites[0])) nsites = Rcpp::NumericVector::create();
+  if (nsites.size() == 0 || std::isnan(nsites[0])) nsites = Rcpp::NumericVector::create();
 
   if (Rcpp::StringVector::is_na(Rcpp::StringVector::create(name)[0]) ||
       name == "")
@@ -589,18 +589,15 @@ Rcpp::S4 universalmotif_cpp(
   x.slot("name") = name;
 
   // altname
-  if (!Rcpp::StringVector::is_na(altname[0]) && altname.length() > 0
-      && altname[0] != "")
+  if (altname.length() > 0 && !Rcpp::StringVector::is_na(altname[0]) && altname[0] != "")
     x.slot("altname") = altname;
 
   // family
-  if (!Rcpp::StringVector::is_na(family[0]) && family.length() > 0
-      && family[0] != "")
+  if (family.length() > 0 && !Rcpp::StringVector::is_na(family[0]) && family[0] != "")
     x.slot("family") = family;
 
   // organism
-  if (!Rcpp::StringVector::is_na(organism[0]) && organism.length() > 0
-      && organism[0] != "")
+  if (organism.length() > 0 && !Rcpp::StringVector::is_na(organism[0]) && organism[0] != "")
     x.slot("organism") = organism;
 
   // alphabet (&m_motif)
@@ -627,7 +624,7 @@ Rcpp::S4 universalmotif_cpp(
   x.slot("icscore") = icscore[0];
 
   // bkgsites
-  if (!Rcpp::NumericVector::is_na(bkgsites[0]))
+  if (bkgsites.size() > 0 && !Rcpp::NumericVector::is_na(bkgsites[0]))
     x.slot("bkgsites") = bkgsites;
 
   // consensus (&m_motif)
@@ -642,36 +639,36 @@ Rcpp::S4 universalmotif_cpp(
   x.slot("strand") = strand;
 
   // pval
-  if (!Rcpp::NumericVector::is_na(pval[0]))
+  if (pval.size() > 0 && !Rcpp::NumericVector::is_na(pval[0]))
     x.slot("pval") = pval;
 
   // qval
-  if (!Rcpp::NumericVector::is_na(qval[0]))
+  if (qval.size() > 0 && !Rcpp::NumericVector::is_na(qval[0]))
     x.slot("qval") = qval;
 
   // eval
-  if (!Rcpp::NumericVector::is_na(eval[0]))
+  if (eval.size() > 0 && !Rcpp::NumericVector::is_na(eval[0]))
     x.slot("eval") = eval;
 
   // extrainfo
-  if (!Rcpp::StringVector::is_na(extrainfo[0]))
+  if (extrainfo.size() > 0 && !Rcpp::StringVector::is_na(extrainfo[0]))
     x.slot("extrainfo") = extrainfo;
 
   // gapinfo
   Rcpp::S4 gap("universalmotif_gapped");
 
-  if (!Rcpp::LogicalVector::is_na(isgapped[0]) && isgapped.length() == 1)
+  if (isgapped.length() == 1 && !Rcpp::LogicalVector::is_na(isgapped[0]))
     gap.slot("isgapped") = isgapped;
   else
     gap.slot("isgapped") = false;
 
-  if (!Rcpp::NumericVector::is_na(gaploc[0]) && gaploc.length() > 0)
+  if (gaploc.length() > 0 && !Rcpp::NumericVector::is_na(gaploc[0]))
     gap.slot("gaploc") = mingap;
 
-  if (!Rcpp::NumericVector::is_na(mingap[0]) && mingap.length() > 0)
+  if (mingap.length() > 0 && !Rcpp::NumericVector::is_na(mingap[0]))
     gap.slot("mingap") = mingap;
 
-  if (!Rcpp::NumericVector::is_na(maxgap[0]) && maxgap.length() > 0)
+  if (maxgap.length() > 0 && !Rcpp::NumericVector::is_na(maxgap[0]))
     gap.slot("maxgap") = maxgap;
 
   x.slot("gapinfo") = gap;
