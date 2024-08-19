@@ -1,0 +1,11 @@
+citHeader("Please cite the following publication if the universalmotif package has been useful for your research.")
+
+citEntry(
+  entry = "Article",
+  title = "universalmotif: An R package for biological motif analysis", author = as.person("Benjamin JM Tremblay"),
+  journal = "Journal of Open Source Software", volume = 9, year = 2024, pages = "7012",
+  url = "https://joss.theoj.org/papers/10.21105/joss.07012",
+  doi = "10.21105/joss.07012",
+  textVersion = "Tremblay BJM (2024). universalmotif: An R package for biological motif analysis. Journal of Open Source Software, 9, 7012."
+)
+
