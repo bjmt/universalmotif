@@ -37,6 +37,12 @@ Note: building the vignettes when installing from source is not recommended, unl
 
 If you trying to install the package from source and are getting compiler errors similar to these issues [[1](https://github.com/bjmt/universalmotif/issues/3), [2](https://github.com/bjmt/universalmotif/issues/16), [3](https://github.com/tnagler/RcppThread/issues/13)], then update your C++ compiler. This is an issue regarding incompatibilities between older compilers and the C++11 lambda functions from the [RcppThread](https://github.com/tnagler/RcppThread) package, which is used by the `universalmotif` package.
 
+## Citation
+
+If the `universalmotif` package has been useful for your research, please cite the follow article:
+
+Tremblay BJM (2024). universalmotif: An R package for biological motif analysis. _Journal of Open Source Software_ **9**, 7012. DOI:[10.21105/joss.07012](https://doi.org/10.21105/joss.07012)
+
 ## Brief overview
 
 All of the functions within the `universalmotif` package are fairly well documented. You can access the documentation from within R, reading the [Bioconductor PDF](https://bioconductor.org/packages/release/bioc/manuals/universalmotif/man/universalmotif.pdf), or browsing the [rdrr.io](https://rdrr.io/bioc/universalmotif/) website (the latter is not always up to date). Additionally, several vignettes come with the package, which you can access from within R or on the Bioconductor website:
