@@ -39,7 +39,7 @@ If you trying to install the package from source and are getting compiler errors
 
 ## Citation
 
-If the `universalmotif` package has been useful for your research, please cite the follow article:
+If the `universalmotif` package has been useful for your research, please cite the following article:
 
 Tremblay BJM (2024). universalmotif: An R package for biological motif analysis. _Journal of Open Source Software_ **9**, 7012. DOI:[10.21105/joss.07012](https://doi.org/10.21105/joss.07012)
 
