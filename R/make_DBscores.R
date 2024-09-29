@@ -75,8 +75,7 @@ make_DBscores <- function(db.motifs,
     # method. Finally, all data.frames are kept in a list with an additional entry
     # for function args.
 
-    out <- vector("list", length(method) + 1)
-    names(out) <- c(method, "args")
+    out <- vector("list", length(method))
     mc <- 1
     total <- length(method) * length(normalise.scores) * length(score.strat)
 
