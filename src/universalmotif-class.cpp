@@ -109,8 +109,10 @@ Rcpp::NumericVector universalmotif_nsites(Rcpp::NumericVector nsites,
 
   if (nsites.size() == 0 || Rcpp::NumericVector::is_na(nsites[0])) {
 
-    if (type[0] == "PCM") nsites[0] = Rcpp::sum(m_motif(Rcpp::_, 0));
-    else nsites = Rcpp::NumericVector::create();
+    if (type[0] == "PCM")
+      nsites = Rcpp::NumericVector::create(Rcpp::sum(m_motif(Rcpp::_, 0)));
+    else
+      nsites = Rcpp::NumericVector::create();
 
   } else if (type[0] == "PCM" && Rcpp::is_true(Rcpp::any(motif_colsums != nsites[0]))) {
 
