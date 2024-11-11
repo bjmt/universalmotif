@@ -1,5 +1,21 @@
+CHANGES IN VERSION 1.24.2
+-------------------------
+
+BUG FIXES
+
+  o Incorrect version number in last NEWS update.
+
+CHANGES IN VERSION 1.24.1
+-------------------------
+
+BUG FIXES
+
+  o Fixed another missed Rcpp bounds check warning.
+
 CHANGES IN VERSION 1.22.3
 -------------------------
+
+BUG FIXES
 
   o Fixed make_DBscores() crash.
 
