@@ -7,7 +7,7 @@
 view_logo(x, fontDF = NULL, fill = "black", colour.scheme = NULL,
   min.height = 0.01, x.spacer = 0.04, y.spacer = 0.01,
   sort.positions = FALSE, sort.positions.decreasing = TRUE,
-  fit.to.height = NULL)
+  fit.to.height = NULL, flip.neg = FALSE)
 }
 \arguments{
 \item{x}{A numeric matrix with row names. The row names can be a mix of
@@ -50,6 +50,8 @@ increasing order based on letter height.}
 \item{fit.to.height}{\code{numeric(1)} Normalize the per position height to
 this value. If \code{NULL}, no normalization is applied. Note that this
 parameter is ignored if \code{use.type = c("PWM", "ICM")}.}
+
+\item{flip.neg}{\code{logical(1)} Flip letters with negative heights.}
 }
 \value{
 A \code{ggplot} object. If you wish to plot the data yourself from

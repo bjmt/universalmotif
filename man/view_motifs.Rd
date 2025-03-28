@@ -13,7 +13,8 @@ view_motifs(motifs, use.type = "ICM", method = "ALLR", tryRC = TRUE,
   min.height = 0.01, x.spacer = if (use.freq == 1) 0.04 else 0.1,
   y.spacer = 0.01, sort.positions = !use.type \%in\% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16, fit.to.height = if
-  (use.type == "PPM") 1 else NULL, RC.text = " [RC]", ...)
+  (use.type == "PPM") 1 else NULL, RC.text = " [RC]", flip.neg = FALSE,
+  ...)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -122,6 +123,8 @@ parameter is ignored if \code{use.type = c("PWM", "ICM")}.}
 
 \item{RC.text}{\code{character(1)} The text to display alongside the name
 of motifs shown as their reverse complement.}
+
+\item{flip.neg}{\code{logical(1)} Flip letters with negative heights.}
 
 \item{...}{Unused. Was previously in place to allow extra args to be given
 to \code{ggseqlogo::ggseqlogo}, however \code{universalmotif} now implements its

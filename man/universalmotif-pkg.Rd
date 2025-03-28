@@ -2,8 +2,26 @@
 % Please edit documentation in R/universalmotif.R
 \docType{package}
 \name{universalmotif-pkg}
+\alias{universalmotif-package}
 \alias{universalmotif-pkg}
 \title{universalmotif: Import, Modify and Export Motifs with R}
 \description{
 A collection of utility functions for working with motifs.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://bioconductor.org/packages/universalmotif/}
+  \item Report bugs at \url{https://github.com/bjmt/universalmotif/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@uwaterloo.ca} (\href{https://orcid.org/0000-0002-7441-2951}{ORCID})
+
+Other contributors:
+\itemize{
+  \item Spencer Nystrom (\href{https://orcid.org/0000-0003-1000-1579}{ORCID}) [contributor]
+}
+
 }

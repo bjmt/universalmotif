@@ -118,23 +118,23 @@ See the \code{examples} section for more info on motif creation.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{missing}: Create a random motif of length 10.
+\item \code{create_motif(missing)}: Create a random motif of length 10.
 
-\item \code{numeric}: Create a random motif with a specified length.
+\item \code{create_motif(numeric)}: Create a random motif with a specified length.
 
-\item \code{character}: Create motif from a consensus string.
+\item \code{create_motif(character)}: Create motif from a consensus string.
 
-\item \code{matrix}: Create motif from a matrix.
+\item \code{create_motif(matrix)}: Create motif from a matrix.
 
-\item \code{DNAStringSet}: Create motif from a \code{\link{DNAStringSet}}.
+\item \code{create_motif(DNAStringSet)}: Create motif from a \code{\link{DNAStringSet}}.
 
-\item \code{RNAStringSet}: Create motif from a \code{\link{RNAStringSet}}.
+\item \code{create_motif(RNAStringSet)}: Create motif from a \code{\link{RNAStringSet}}.
 
-\item \code{AAStringSet}: Create motif from a \code{\link{AAStringSet}}.
+\item \code{create_motif(AAStringSet)}: Create motif from a \code{\link{AAStringSet}}.
 
-\item \code{BStringSet}: Create motif from a \code{\link{BStringSet}}.
+\item \code{create_motif(BStringSet)}: Create motif from a \code{\link{BStringSet}}.
+
 }}
-
 \examples{
 ##### create motifs from a single string
 

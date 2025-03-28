@@ -28,7 +28,7 @@ Enhances: PWMEnrich, rGADEM
 LinkingTo: Rcpp, RcppThread
 VignetteBuilder: knitr
 biocViews: MotifAnnotation, MotifDiscovery, DataImport, GeneRegulation
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE, old_usage = TRUE)
 Language: en-GB
 Collate:

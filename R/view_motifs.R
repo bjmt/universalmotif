@@ -51,6 +51,7 @@
 #'    parameter is ignored if `use.type = c("PWM", "ICM")`.
 #' @param RC.text `character(1)` The text to display alongside the name
 #'    of motifs shown as their reverse complement.
+#' @param flip.neg `logical(1)` Flip letters with negative heights.
 #' @param ... Unused. Was previously in place to allow extra args to be given
 #'    to `ggseqlogo::ggseqlogo`, however `universalmotif` now implements its
 #'    own motif plotting code directly with `ggplot2`.
@@ -115,7 +116,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   x.spacer = if (use.freq == 1) 0.04 else 0.1,
   y.spacer = 0.01, sort.positions = !use.type %in% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16,
-  fit.to.height = if (use.type == "PPM") 1 else NULL, RC.text = " [RC]", ...) {
+  fit.to.height = if (use.type == "PPM") 1 else NULL, RC.text = " [RC]",
+  flip.neg = FALSE, ...) {
 
   # TODO: give option to only use limits as breaks (eg 0-2 instead of 0-1-2)
 
@@ -150,7 +152,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
                                       relative_entropy = args$relative_entropy,
                                       normalise.scores = args$normalise.scores,
                                       return.raw = args$return.raw,
-                                      dedup.names = args$dedup.names),
+                                      dedup.names = args$dedup.names,
+                                      flip.neg = args$flip.neg),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(all_checks, char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -303,7 +306,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
     plotobj <- prep_single_motif_plot_data(mot.mats[[1]], use.type, fontDF,
       min.height, x.spacer, y.spacer, sort.positions, sort.positions.decreasing,
-      fit.to.height, 1)
+      fit.to.height, 1, flip.neg = flip.neg)
 
     breaks2 <- seq_len(ncol(mot.mats[[1]]))
     limits2 <- c(min(breaks2) - 0.501, max(breaks2) + 0.501)
@@ -357,7 +360,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     # TODO: Use PPM to compare motifs but visualize using ICM?
     res <- view_motifs_prep(mot.mats, method, tryRC, min.overlap,
       min.mean.ic, min.position.ic, mot.bkgs, relative_entropy,
-      normalise.scores, alph, get_nsites(motifs), score.strat)
+      normalise.scores, alph, get_nsites(motifs), score.strat, flip.neg = flip.neg)
     which.rc <- res$motIsRC
     mots <- res$motifs
     mots <- check_mot_sizes(mots)
@@ -390,7 +393,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     for (i in seq_along(plotobj_multi)) {
       plotobj_multi[[i]] <- prep_single_motif_plot_data(
         mots[[i]], use.type, fontDF, min.height, x.spacer, y.spacer, sort.positions,
-        sort.positions.decreasing, fit.to.height, 1
+        sort.positions.decreasing, fit.to.height, 1, flip.neg = flip.neg
       )
       plotobj_multi[[i]]$motif.id <- names(mots)[i]
     }
@@ -502,20 +505,23 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
 
 prep_single_motif_plot_data <- function(mat, use.type, fontDF, min.height = 0.03,
   x.spacer = 0.04, y.spacer = 0.01, sort.positions = FALSE,
-  sort.positions.decreasing = TRUE, fit.to.height = NULL, fit.to.width = 1) {
+  sort.positions.decreasing = TRUE, fit.to.height = NULL, fit.to.width = 1,
+  flip.neg = flip.neg) {
 
   if (use.type == "PPM") {
 
     mat[mat > 1] <- 1
     make_matrix_polygon_data(mat, fontDF, min.height, x.spacer, y.spacer,
-      sort.positions, sort.positions.decreasing, fit.to.height, fit.to.width)
+      sort.positions, sort.positions.decreasing, fit.to.height, fit.to.width,
+      flip.neg = flip.neg)
 
   } else if (use.type == "PCM") {
 
     maxheight <- max(colSums(mat))
     make_matrix_polygon_data(mat, fontDF, min.height * maxheight,
       x.spacer, y.spacer * maxheight, sort.positions,
-      sort.positions.decreasing, fit.to.height, fit.to.width)
+      sort.positions.decreasing, fit.to.height, fit.to.width,
+      flip.neg = flip.neg)
 
   } else if (use.type == "PWM") {
 
@@ -524,7 +530,7 @@ prep_single_motif_plot_data <- function(mat, use.type, fontDF, min.height = 0.03
     if (any(mat < 0)) maxheight <- maxheight - min(mat)
     make_matrix_polygon_data(mat, fontDF, min.height * log2(nrow(mat)),
       x.spacer, y.spacer * maxheight, sort.positions,
-      sort.positions.decreasing, NULL, fit.to.width)
+      sort.positions.decreasing, NULL, fit.to.width, flip.neg = flip.neg)
 
   } else if (use.type == "ICM") {
 
@@ -532,7 +538,7 @@ prep_single_motif_plot_data <- function(mat, use.type, fontDF, min.height = 0.03
     mat[mat > maxheight] <- maxheight
     make_matrix_polygon_data(mat, fontDF, min.height * maxheight,
       x.spacer, y.spacer * maxheight, sort.positions,
-      sort.positions.decreasing, NULL, fit.to.width)
+      sort.positions.decreasing, NULL, fit.to.width, flip.neg = flip.neg)
 
   }
 
@@ -605,8 +611,7 @@ make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
   vec <- vec[vec >= min.height]
 
   if (all(vec == 0) && !anyNeg) {
-    return(
-    data.frame(x = NA_real_, y = NA_real_, order = NA_integer_,
+    return(data.frame(x = NA_real_, y = NA_real_, order = NA_integer_,
       group = NA_character_, letter.id = NA_character_))
   } else if (all(vec == 0) && anyNeg) {
     return(negout)

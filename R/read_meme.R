@@ -294,7 +294,7 @@ tidy_meme_meta <- function(sites.meta) {
 #'
 #' @param raw_lines raw lines from .meme file
 #'
-#' @return
+#' @return Alphabet type
 #'
 #' @noRd
 check_meme_alph_type <- function(raw_lines){
@@ -312,7 +312,7 @@ check_meme_alph_type <- function(raw_lines){
 #'
 #' @param raw_lines raw lines from .meme file
 #'
-#' @return
+#' @return The alphabet
 #'
 #' @noRd
 get_default_meme_alph <- function(raw_lines) {
@@ -335,7 +335,7 @@ get_default_meme_alph <- function(raw_lines) {
 #'
 #' @param raw_lines raw lines from .meme file
 #'
-#' @return
+#' @return The alphabet
 #'
 #' @noRd
 get_custom_meme_alph <- function(raw_lines) {
