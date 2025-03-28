@@ -337,10 +337,10 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       theme_minimal() +
       scale_y_continuous(breaks = breaks, limits = ylim2, expand = c(0, 0)) +
       scale_x_continuous(breaks = breaks2, limits = limits2, expand = c(0.02, 0)) +
-      theme(axis.line.y = element_line(size = 0.25),
+      theme(axis.line.y = element_line(linewidth = 0.25),
         panel.grid = element_blank(),
         text = element_text(size = text.size),
-        axis.ticks.y = element_line(size = 0.25), legend.position = "none",
+        axis.ticks.y = element_line(linewidth = 0.25), legend.position = "none",
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black", margin = margin(r = 1)))
 
@@ -463,10 +463,10 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       scale_y_continuous(breaks = breaks, limits = ylim2, expand = c(0, 0)) +
       scale_x_continuous(breaks = breaks2, limits = limits2, expand = c(0.02, 0),
         labels = if (!show.positions.once) labfun else waiver()) +
-      theme(axis.line.y = element_line(size = 0.25),
+      theme(axis.line.y = element_line(linewidth = 0.25),
         panel.grid = element_blank(),
         text = element_text(size = text.size),
-        axis.ticks.y = element_line(size = 0.25), legend.position = "none",
+        axis.ticks.y = element_line(linewidth = 0.25), legend.position = "none",
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black", margin = margin(r = 1))) +
       facet_wrap(~motif.id, ncol = 1, strip.position = names.pos,
@@ -541,14 +541,16 @@ prep_single_motif_plot_data <- function(mat, use.type, fontDF, min.height = 0.03
 make_matrix_polygon_data <- function(mat, fontDF, min.height = 0.03,
   x.spacer = 0.04, y.spacer = 0.01, sort.positions = FALSE,
   sort.positions.decreasing = TRUE, fit.to.height = NULL,
-  fit.to.width = 1) {
+  fit.to.width = 1, flip.neg = FALSE) {
 
   out <- vector("list", ncol(mat))
+  fontDF$group <- as.character(fontDF$group)
 
   for (i in seq_along(out)) {
     out[[i]] <- make_position_polygon_data(mat[, i, drop = TRUE], fontDF,
       min.height, x.spacer, y.spacer, sort.positions,
-      sort.positions.decreasing, fit.to.height, fit.to.width, i)
+      sort.positions.decreasing, fit.to.height, fit.to.width, i,
+      flip.neg = flip.neg)
     if (nrow(out[[i]])) {
       out[[i]]$x <- out[[i]]$x + i - 1
     }
@@ -558,18 +560,42 @@ make_matrix_polygon_data <- function(mat, fontDF, min.height = 0.03,
 
 }
 
+flip_neg_letters <- function(d, s, spd, flip) {
+  j <- gsub("[.]\\d+$", "", d$letter.id)
+  if (flip) {
+    d$y <- unlist(tapply(d$y, j, function(x) (-x) - (-min(x))))
+  } else {
+    d$y <- unlist(tapply(d$y, j, function(x) -(abs(x) - min(abs(x)))))
+  }
+  lets <- unique(j)
+  letMins <- tapply(d$y, j, min)
+  if (s) {
+    lets <- lets[order(letMins, decreasing = spd)]
+    letMins <- letMins[order(letMins, decreasing = spd)]
+  }
+  # letMins <- c(0, cumsum(letMins))
+  letMins <- c(0, letMins)
+  for (i in seq_along(lets)) {
+    lets_i <- lets[i]
+    j_i <- j == lets_i
+    d$y[j_i] <- d$y[j_i] + letMins[i]
+  }
+  d
+}
+
 make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
   x.spacer = 0.04, y.spacer = 0.01, sort.positions = FALSE,
   sort.positions.decreasing = TRUE, fit.to.height = NULL, fit.to.width = 1,
-  position.id, trim.top = FALSE, trim.bot = FALSE) {
+  position.id, trim.top = FALSE, trim.bot = FALSE, flip.neg = FALSE) {
 
   anyNeg <- any(vec < 0) && any(abs(vec[vec < 0]) >= 0.03)
   if (anyNeg) {
     negvec <- abs(vec[vec < 0])
     negout <- make_position_polygon_data(negvec, fontDF, min.height,
-      x.spacer, y.spacer, sort.positions, !sort.positions.decreasing, NULL,
+      x.spacer, y.spacer, FALSE, !sort.positions.decreasing, NULL,
       fit.to.width, position.id, TRUE)
     negout$y <- negout$y - max(negout$y)
+    negout <- flip_neg_letters(negout, sort.positions, !sort.positions.decreasing, flip.neg)
     vec <- vec[vec >= 0]
   } else {
     vec[vec < 0] <- 0
@@ -578,11 +604,13 @@ make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
   if (is.null(fit.to.height)) fit.to.height <- sum(vec)
   vec <- vec[vec >= min.height]
 
-  if (all(vec == 0)) return(
+  if (all(vec == 0) && !anyNeg) {
+    return(
     data.frame(x = NA_real_, y = NA_real_, order = NA_integer_,
-      group = NA_character_, letter.id = NA_character_)
-      # letter.id = NA_character_, position.id = position.id)
-  )
+      group = NA_character_, letter.id = NA_character_))
+  } else if (all(vec == 0) && anyNeg) {
+    return(negout)
+  }
 
   vec <- (vec / sum(vec)) * fit.to.height
 

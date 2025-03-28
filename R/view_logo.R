@@ -37,7 +37,7 @@
 #' @export
 view_logo <- function(x, fontDF = NULL, fill = "black", colour.scheme = NULL,
   min.height = 0.01, x.spacer = 0.04, y.spacer = 0.01, sort.positions = FALSE,
-  sort.positions.decreasing = TRUE, fit.to.height = NULL) {
+  sort.positions.decreasing = TRUE, fit.to.height = NULL, flip.neg = FALSE) {
 
   x <- as.matrix(x)
 
@@ -58,7 +58,7 @@ view_logo <- function(x, fontDF = NULL, fill = "black", colour.scheme = NULL,
         "characters present"))
 
   plotdata <- make_matrix_polygon_data(x, fontDF, min.height, x.spacer, y.spacer,
-    sort.positions, sort.positions.decreasing, fit.to.height)
+    sort.positions, sort.positions.decreasing, fit.to.height, flip.neg = flip.neg)
 
   limits_x <- c(1 - 0.501, ncol(x) + 0.501)
 
