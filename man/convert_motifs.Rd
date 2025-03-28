@@ -21,35 +21,50 @@
 \usage{
 convert_motifs(motifs, class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{AsIs}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{AsIs}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{list}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{list}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{universalmotif}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{universalmotif}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{MotifList}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{MotifList}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{TFFMFirst}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{TFFMFirst}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{PFMatrix}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{PFMatrix}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{PWMatrix}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{PWMatrix}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{ICMatrix}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{ICMatrix}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{XMatrixList}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{XMatrixList}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{pwm}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{pwm}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{pcm}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{pcm}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{pfm}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{pfm}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{PWM}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{PWM}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{Motif}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{Motif}(motifs,
+  class = "universalmotif-universalmotif")
 
-\S4method{convert_motifs}{matrix}(motifs, class = "universalmotif-universalmotif")
+\S4method{convert_motifs}{matrix}(motifs,
+  class = "universalmotif-universalmotif")
 }
 \arguments{
 \item{motifs}{Single motif object or list. See details.}
@@ -118,38 +133,38 @@ MotifDb-MotifList, a list of \code{universalmotif} objects will be returned).
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{AsIs}: Generate an error to remind users to run
+\item \code{convert_motifs(AsIs)}: Generate an error to remind users to run
 \code{\link[=to_list]{to_list()}} instead of using the column from \code{\link[=to_df]{to_df()}} directly.
 
-\item \code{list}: Convert a list of motifs.
+\item \code{convert_motifs(list)}: Convert a list of motifs.
 
-\item \code{universalmotif}: Convert a \linkS4class{universalmotif} object.
+\item \code{convert_motifs(universalmotif)}: Convert a \linkS4class{universalmotif} object.
 
-\item \code{MotifList}: Convert MotifList motifs. (\pkg{MotifDb})
+\item \code{convert_motifs(MotifList)}: Convert MotifList motifs. (\pkg{MotifDb})
 
-\item \code{TFFMFirst}: Convert TFFMFirst motifs. (\pkg{TFBSTools})
+\item \code{convert_motifs(TFFMFirst)}: Convert TFFMFirst motifs. (\pkg{TFBSTools})
 
-\item \code{PFMatrix}: Convert PFMatrix motifs. (\pkg{TFBSTools})
+\item \code{convert_motifs(PFMatrix)}: Convert PFMatrix motifs. (\pkg{TFBSTools})
 
-\item \code{PWMatrix}: Convert PWMatrix motifs. (\pkg{TFBSTools})
+\item \code{convert_motifs(PWMatrix)}: Convert PWMatrix motifs. (\pkg{TFBSTools})
 
-\item \code{ICMatrix}: Convert ICMatrix motifs. (\pkg{TFBSTools})
+\item \code{convert_motifs(ICMatrix)}: Convert ICMatrix motifs. (\pkg{TFBSTools})
 
-\item \code{XMatrixList}: Convert XMatrixList motifs. (\pkg{TFBSTools})
+\item \code{convert_motifs(XMatrixList)}: Convert XMatrixList motifs. (\pkg{TFBSTools})
 
-\item \code{pwm}: Convert pwm motifs. (\pkg{seqLogo})
+\item \code{convert_motifs(pwm)}: Convert pwm motifs. (\pkg{seqLogo})
 
-\item \code{pcm}: Convert pcm motifs. (\pkg{motifStack})
+\item \code{convert_motifs(pcm)}: Convert pcm motifs. (\pkg{motifStack})
 
-\item \code{pfm}: Convert pfm motifs. (\pkg{motifStack})
+\item \code{convert_motifs(pfm)}: Convert pfm motifs. (\pkg{motifStack})
 
-\item \code{PWM}: Convert PWM motifs. (\pkg{PWMEnrich})
+\item \code{convert_motifs(PWM)}: Convert PWM motifs. (\pkg{PWMEnrich})
 
-\item \code{Motif}: Convert Motif motifs. (\pkg{motifRG})
+\item \code{convert_motifs(Motif)}: Convert Motif motifs. (\pkg{motifRG})
 
-\item \code{matrix}: Create motif from matrices.
+\item \code{convert_motifs(matrix)}: Create motif from matrices.
+
 }}
-
 \examples{
 # Convert from universalmotif:
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",

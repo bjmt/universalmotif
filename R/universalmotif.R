@@ -39,7 +39,7 @@
 #' @importFrom S4Vectors isTRUEorFALSE
 #' @importFrom yaml as.yaml yaml.load
 #' @useDynLib universalmotif
-NULL
+"_PACKAGE"
 
 # Notes:
 #   - Printing abridged strings: S4Vectors:::sketchStr()
