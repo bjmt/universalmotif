@@ -127,6 +127,7 @@ a <- "ACGT"
 # For Wootton-Federhen, it can be easily shown it is only dependent
 # on the counts of individual letters (though do note that the
 # original paper discusses this method in the context of amino acid
+# sequences and not DNA):
 calc_complexity("AAACCCGGGTTT", alph = a)  # 0.7707
 calc_complexity("AACCGGTTACGT", alph = a)  # 0.7707
 calc_complexity("ACGTACGTACGT", alph = a)  # 0.7707
