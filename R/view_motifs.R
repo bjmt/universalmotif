@@ -360,7 +360,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     # TODO: Use PPM to compare motifs but visualize using ICM?
     res <- view_motifs_prep(mot.mats, method, tryRC, min.overlap,
       min.mean.ic, min.position.ic, mot.bkgs, relative_entropy,
-      normalise.scores, alph, get_nsites(motifs), score.strat, flip.neg = flip.neg)
+      normalise.scores, alph, get_nsites(motifs), score.strat)
     which.rc <- res$motIsRC
     mots <- res$motifs
     mots <- check_mot_sizes(mots)
