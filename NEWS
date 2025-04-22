@@ -3,6 +3,13 @@ CHANGES IN VERSION 1.26.1
 
 BUG FIXES
 
+  o Fixed a bug introduced by the last bug fix.
+
+CHANGES IN VERSION 1.26.1
+-------------------------
+
+BUG FIXES
+
   o Plotting logos with negative letter heights is now fixed.
 
 CHANGES IN VERSION 1.24.2
