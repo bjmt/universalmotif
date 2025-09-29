@@ -336,7 +336,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     plotobj <- ggplot(plotobj, aes(.data$x, .data$y, group = .data$letter.id, fill = .data$group)) +
       geom_polygon() +
       ylab(yname) +
-      xlab(element_blank()) +
+      xlab(NULL) +
       theme_minimal() +
       scale_y_continuous(breaks = breaks, limits = ylim2, expand = c(0, 0)) +
       scale_x_continuous(breaks = breaks2, limits = limits2, expand = c(0.02, 0)) +
@@ -353,7 +353,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       scale_fill_manual(values = colour.scheme[alph], limits = alph)
 
     if (use.type == "PWM")
-      plotobj <- plotobj + geom_hline(yintercept = 0, size = 0.25, colour = "grey75")
+      plotobj <- plotobj + geom_hline(yintercept = 0, linewidth = 0.25, colour = "grey75")
 
   } else {
 
@@ -461,7 +461,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         fill = .data$group)) +
       geom_polygon() +
       ylab(yname) +
-      xlab(element_blank()) +
+      xlab(NULL) +
       theme_minimal() +
       scale_y_continuous(breaks = breaks, limits = ylim2, expand = c(0, 0)) +
       scale_x_continuous(breaks = breaks2, limits = limits2, expand = c(0.02, 0),

@@ -1,4 +1,12 @@
-CHANGES IN VERSION 1.26.1
+CHANGES IN VERSION 1.26.3
+-------------------------
+
+BUG FIXES
+
+  o Update a few lines in view_motfs() to stay up-to-date with ggplot2. Thanks
+    to Stevie Pederson for the fix (#31).
+
+CHANGES IN VERSION 1.26.2
 -------------------------
 
 BUG FIXES
