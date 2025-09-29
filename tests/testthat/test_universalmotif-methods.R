@@ -32,7 +32,7 @@ test_that("accessor functions work", {
   expect_error(m["icscore"] <- 5)
   expect_error(m["multifreq"] <- list())
   expect_error(m["consensus"] <- "AASDAD")
-  expect_error(universalmotif())
+  expect_error(suppressWarnings(universalmotif()))
 
 })
 

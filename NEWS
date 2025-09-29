@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.28.0
+-------------------------
+
+BUG FIXES
+
+  o Quiet a couple of warnings triggered during testing the universalmotif
+    initializer function. These warnings should never trigger in real-world
+    scenarios.
+
 CHANGES IN VERSION 1.26.3
 -------------------------
 
