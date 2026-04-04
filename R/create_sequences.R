@@ -68,7 +68,7 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
 
   freqs <- freqs[order(names(freqs))]
   k <- logb(length(freqs), length(alph.letters))
-  if (k %% 1 != 0)
+  if (!isTRUE(all.equal(k %% 1, 0)))
     stop(wmsg("The length of `freqs` must be the power of the number of letters ",
               "in the sequence alphabet"))
 
