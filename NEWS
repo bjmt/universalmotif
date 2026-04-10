@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.30.0
+-------------------------
+
+BUG FIXES
+
+o Fixed create_sequences() not properly validating alphabet and freq values
+  due to a floating point error with logb(). Thanks to @CountercurrentLinda
+  for the bug report (#32).
+
 CHANGES IN VERSION 1.28.0
 -------------------------
 
