@@ -26,3 +26,15 @@ test_that("motif_pvalue() allow.nonfinite=TRUE doesn't error on score path (regr
   expect_true(pval >= 0 && pval <= 1)
 
 })
+
+test_that("motif_pvalue(method='exhaustive') agrees with 'dynamic' for motifs wider than 2*k (regression: wrong inner-loop index)", {
+
+  # k=4, motif width 12 -> nsplit=3 -> triggers the mot_split.size() > 2 branch
+  set.seed(1)
+  m <- create_motif(create_sequences(seqlen = 12, seqnum = 50), pseudocount = 1)
+  s <- 1.0
+  p_dyn <- motif_pvalue(m, score = s, method = "dynamic")
+  p_exh <- motif_pvalue(m, score = s, k = 4, method = "exhaustive")
+  expect_equal(as.numeric(p_dyn), as.numeric(p_exh), tolerance = 0.05)
+
+})

@@ -144,7 +144,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   if (nchar(new.family) == 0) new.family <- character(0)
   new.organism <- paste0(mot.orgs, collapse = "/")
   if (nchar(new.organism) == 0) new.organism <- character(0)
-  if (length(mot.bkgsites) > 1) {
+  if (length(mot.bkgsites) >= 1) {
     new.bkgsites <- max(mot.bkgsites)
   } else new.bkgsites <- numeric(0)
   if (length(unique(mot.strands)) > 1) {

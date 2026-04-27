@@ -553,7 +553,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     if (is.null(names(sequences))) {
       # warning(wmsg("Input sequences have no names, assigning names 1:",
       #     length(sequences)), call. = FALSE)
-      names(sequences) <- 1:length(sequences)
+      names(sequences) <- seq_along(sequences)
     }
     colnames(out)[3] <- "seqname"
     if (RC) {
@@ -573,8 +573,7 @@ calc_motif_bonferroni <- function(mMax, pvals) {
 }
 
 calc_motif_bh <- function(mMax, pvals) {
-  pmin(pvals / ((rank(pvals) / mMax) * 100), 1)
-  # pmin(pvals * (rank(pvals) / mMax), 1)
+  pmin(pvals * mMax / rank(pvals), 1)
 }
 
 calc_motif_fdr <- function(mMax, scores, pvals) {

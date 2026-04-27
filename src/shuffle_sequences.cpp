@@ -496,7 +496,8 @@ std::vector<std::string> shuffle_markov_cpp(const std::vector<std::string> &sequ
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &useed, &k] (std::size_t i) {
 
-        std::mt19937 gen(useed * (int(i) + 1));
+        unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
         out[i] = shuffle_markov_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -515,7 +516,8 @@ std::vector<std::string> shuffle_euler_cpp(const std::vector<std::string> &seque
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &k, &useed] (std::size_t i) {
 
-        std::mt19937 gen(useed * (int(i) + 1));
+        unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
         out[i] = shuffle_euler_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -537,7 +539,8 @@ std::vector<std::string> shuffle_seq_local_cpp(const std::vector<std::string> &s
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &k, &useed, &starts, &stops, &method] (std::size_t i) {
 
-        std::mt19937 gen(useed * (int(i) + 1));
+        unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
         out[i] = shuffle_seq_local_one(sequences[i], k, gen, starts[i], stops[i], method);
 
       }, nthreads);
@@ -556,7 +559,8 @@ std::vector<std::string> shuffle_linear_cpp(const std::vector<std::string> &sequ
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &k, &useed] (std::size_t i) {
 
-        std::mt19937 gen(useed * (int(i) + 1));
+        unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
         out[i] = shuffle_linear_one(sequences[i], k, gen);
 
       }, nthreads);
@@ -574,7 +578,8 @@ std::vector<std::string> shuffle_k1_cpp(const std::vector<std::string> &sequence
   vec_str_t out(sequences.size());
   RcppThread::parallelFor(0, sequences.size(),
       [&out, &sequences, &useed] (std::size_t i) {
-        std::mt19937 gen(useed * (int(i) + 1));
+        unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
         out[i] = sequences[i];
         shuffle(out[i].begin(), out[i].end(), gen);
       }, nthreads);
@@ -643,7 +648,8 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
         [&seqlen, &alph, &useed, &out, &freqs] (std::size_t i) {
 
           out[i].reserve(seqlen);
-          std::mt19937 gen(useed * (int(i) + 1));
+          unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
           std::discrete_distribution<int> nextlet(freqs.begin(), freqs.end());
 
           for (int j = 0; j < seqlen; ++j) {
@@ -660,7 +666,8 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
 
           vec_int_t out_i;
           out_i.reserve(seqlen);
-          std::mt19937 gen(useed * (int(i) + 1));
+          unsigned int useed_safe = useed == 0 ? 1 : useed;
+        std::mt19937 gen(useed_safe * (int(i) + 1));
 
           std::discrete_distribution<int> let1(freqs.begin(), freqs.end());
           int firstletters = let1(gen);

@@ -220,7 +220,7 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
 
   } else {
 
-    if (merge.res && length(window.size) > 1 || length(window.overlap) > 1) {
+    if (merge.res && (length(window.size) > 1 || length(window.overlap) > 1)) {
       stop(wmsg("`window.size` and `window.overlap` must be single values ",
           "when `merge.res = TRUE`"), call. = FALSE)
     }

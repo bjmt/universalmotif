@@ -50,6 +50,39 @@ o Fixed a wrong assignment operator (= instead of ==) in the
   motif_pvalue.method compatibility check in scan_sequences() which was
   silently clobbering the calc.pvals variable.
 
+o Fixed scan_sequences() BH q-value calculation; previously used an inverted
+  ratio with an erroneous 100x factor instead of the standard BH formula.
+
+o Fixed a wrong inner-loop index in motif_pvalue(method="exhaustive") that
+  produced incorrect p-values for motifs wider than 2*k.
+
+o Fixed get_matches() failing when passed a length-1 list of motifs due to an
+  undefined variable and the list-unwrapping occurring after the @ access.
+
+o Fixed get_bkg() validation incorrectly rejecting multi-element window.overlap
+  when merge.res = FALSE, due to missing parentheses around an || sub-expression.
+
+o Fixed merge_motifs() silently dropping the bkgsites slot when only one of the
+  merged motifs had it populated (threshold was > 1 instead of >= 1).
+
+o Fixed get_matches() error message incorrectly referencing the max possible
+  score when reporting a min-score violation.
+
+o Removed a dead NULL check in enrich_motifs() that would have errored
+  (nrow(NULL) < 1 yields logical(0)) had it ever been reached.
+
+o Removed a leftover debug print() call in enrich_motifs() input validation that
+  caused error messages to be printed twice.
+
+o Fixed scan_sequences(return.granges = TRUE) failing when sequences is empty,
+  due to 1:length(sequences) producing c(1, 0) for length-0 input.
+
+o Fixed shuffle_sequences() producing identical shuffles across parallel threads
+  when rng.seed = 0.
+
+o Fixed score_match(allow.nonfinite = TRUE) returning NA instead of -Inf for
+  match positions that correspond to non-finite motif cells.
+
 CHANGES IN VERSION 1.30.0
 -------------------------
 

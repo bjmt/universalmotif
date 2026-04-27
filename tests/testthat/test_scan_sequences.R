@@ -71,3 +71,21 @@ test_that("scan_sequences() with use.freq=3 doesn't underflow for sequences exac
   expect_true(is(r, "DataFrame"))
 
 })
+
+test_that("calc.qvals.method = 'BH' matches the textbook BH formula (regression: inverted ratio + 100x bias)", {
+
+  motif <- create_motif("ACGT", pseudocount = 1, nsites = 100)
+  set.seed(1)
+  seq <- create_sequences(seqlen = 200, seqnum = 5)
+  r <- suppressWarnings(scan_sequences(motif, seq, threshold = 1e-3,
+                      threshold.type = "pvalue", calc.pvals = TRUE,
+                      calc.qvals = TRUE, calc.qvals.method = "BH",
+                      verbose = 0))
+  if (nrow(r) > 0) {
+    mLen <- ncol(motif@motif)
+    mMax <- sum(Biostrings::width(seq) - mLen + 1)
+    expected <- pmin(r$pvalue * mMax / rank(r$pvalue), 1)
+    expect_equal(r$qvalue, expected, tolerance = 1e-12)
+  }
+
+})

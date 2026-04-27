@@ -147,7 +147,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                                     bkg.sequences = args$bkg.sequences),
                                numeric(), c(FALSE, TRUE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
-  if (length(all_checks) > 0) stop(all_checks_collapse(print(all_checks)))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   pseudocount <- as.integer(pseudocount)[1]
   if (is.na(pseudocount))
     stop(" * Incorrect 'pseudocount': got `NA`", call. = FALSE)
@@ -251,11 +251,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
   res.all$motif.consensus <- to_df(motifs)$consensus[res.all$motif.i]
   res.all$target.enrichment <- res.all$pct.target.seq.hits / res.all$pct.bkg.seq.hits
-
-  if (nrow(res.all) < 1 || is.null(res.all)) {
-    message(" ! No enriched motifs")
-    return(res.all)
-  }
 
   res.all
 
