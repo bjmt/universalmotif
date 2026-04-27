@@ -31,6 +31,34 @@ test_that("Results are accurate", {
 
 })
 
+test_that("scan_sequences() streaming kernel doesn't OOM: no-hit path returns 0-row DataFrame (regression: full O(nmotifs*nseqs*seqlen) grid)", {
+
+  set.seed(1)
+  motifs <- lapply(1:30, function(i) create_motif(create_sequences(seqlen = 8, seqnum = 5)))
+  seq <- create_sequences(seqlen = 5000, seqnum = 1)
+  # Threshold above any achievable score => zero hits, but the old kernel
+  # would still build the full 30 x 5000 score grid before filtering.
+  r <- suppressWarnings(
+    scan_sequences(motifs, seq, threshold = 1e9,
+                   threshold.type = "logodds.abs",
+                   calc.pvals = FALSE, verbose = 0)
+  )
+  expect_equal(nrow(r), 0)
+
+})
+
+test_that("scan_sequences() streaming kernel: hits pass threshold invariant (score >= thresh.score)", {
+
+  set.seed(1)
+  motifs <- lapply(1:10, function(i) create_motif(create_sequences(seqlen = 6, seqnum = 5)))
+  seq <- create_sequences(seqlen = 500, seqnum = 2)
+  r <- scan_sequences(motifs, seq, threshold = 0.8, threshold.type = "logodds",
+                      calc.pvals = FALSE, verbose = 0)
+  expect_true(nrow(r) > 0)
+  expect_true(all(r$score >= r$thresh.score))
+
+})
+
 test_that("scan_sequences() with use.freq=3 doesn't underflow for sequences exactly as wide as the motif (regression: unsigned underflow in scan loop)", {
 
   # With motif width W and k=3, a sequence of length W satisfies the existing

@@ -37,14 +37,21 @@ void deal_with_higher_k(list_int_t &seq_ints, const int &k, const int &let_len) 
 
 }
 
+struct Hit {
+  int motif;
+  int sequence;
+  int start;
+  int stop;
+  int score;
+};
+typedef std::vector<Hit> hit_buf_t;
 
-vec_int_t scan_single_seq_NA(const list_int_t &motif, const vec_int_t &sequence,
-    const int &k) {
+void scan_single_seq_NA(const list_int_t &motif, const vec_int_t &sequence,
+    const int &k, const int min_score,
+    const int motif_idx_1based, const int seq_idx_1based,
+    hit_buf_t &out) {
 
-  vec_int_t result;
-  result.reserve(sequence.size());
-
-  if (sequence.size() + 2 < static_cast<std::size_t>(k) + motif.size()) return result;
+  if (sequence.size() + 2 < static_cast<std::size_t>(k) + motif.size()) return;
 
   int tmp = 0;
   for (std::size_t i = 0; i < sequence.size() - k + 1 - motif.size() + 1; ++i) {
@@ -55,20 +62,21 @@ vec_int_t scan_single_seq_NA(const list_int_t &motif, const vec_int_t &sequence,
       else
         tmp += motif[j][sequence[i + j]];
     }
-    result.push_back(tmp);
+    if (tmp >= min_score)
+      out.push_back({motif_idx_1based, seq_idx_1based,
+                     static_cast<int>(i + 1),
+                     static_cast<int>(i + motif.size()),
+                     tmp});
   }
-
-  return result;
 
 }
 
-vec_int_t scan_single_seq(const list_int_t &motif, const vec_int_t &sequence,
-    const int &k) {
+void scan_single_seq(const list_int_t &motif, const vec_int_t &sequence,
+    const int &k, const int min_score,
+    const int motif_idx_1based, const int seq_idx_1based,
+    hit_buf_t &out) {
 
-  vec_int_t result;
-  result.reserve(sequence.size());
-
-  if (sequence.size() + 2 < static_cast<std::size_t>(k) + motif.size()) return result;
+  if (sequence.size() + 2 < static_cast<std::size_t>(k) + motif.size()) return;
 
   int tmp = 0;
   for (std::size_t i = 0; i < sequence.size() - k + 1 - motif.size() + 1; ++i) {
@@ -76,16 +84,18 @@ vec_int_t scan_single_seq(const list_int_t &motif, const vec_int_t &sequence,
     for (std::size_t j = 0; j < motif.size(); ++j) {
       tmp += motif[j][sequence[i + j]];
     }
-    result.push_back(tmp);
+    if (tmp >= min_score)
+      out.push_back({motif_idx_1based, seq_idx_1based,
+                     static_cast<int>(i + 1),
+                     static_cast<int>(i + motif.size()),
+                     tmp});
   }
-
-  return result;
 
 }
 
-list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
+list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
     const list_char_t &seq_vecs, const int &k, vec_char_t &alph,
-    const int &nthreads, const bool &warnNA) {
+    const vec_int_t &min_scores2, const int &nthreads, const bool &warnNA) {
 
   bool use_na_fun = false;
   list_int_t seq_ints(seq_vecs.size());
@@ -124,52 +134,43 @@ list_mat_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
   else if (k > 1)
     deal_with_higher_k(seq_ints, k, alph.size());
 
-  list_mat_t out(score_mats.size());
+  std::vector<hit_buf_t> hit_bufs(score_mats.size());
 
   if (use_na_fun) {
 
-    RcppThread::parallelFor(0, out.size(),
-        [&out, &score_mats, &seq_ints, &k] (std::size_t i) {
-          out[i].reserve(seq_ints.size());
+    RcppThread::parallelFor(0, score_mats.size(),
+        [&hit_bufs, &score_mats, &seq_ints, &min_scores2, &k] (std::size_t i) {
+          int min_score_i = min_scores2[i];
           for (std::size_t j = 0; j < seq_ints.size(); ++j) {
-            out[i].push_back(scan_single_seq_NA(score_mats[i], seq_ints[j], k));
+            scan_single_seq_NA(score_mats[i], seq_ints[j], k, min_score_i,
+                               int(i) + 1, int(j) + 1, hit_bufs[i]);
           }
         }, nthreads);
 
   } else {
 
-    RcppThread::parallelFor(0, out.size(),
-        [&out, &score_mats, &seq_ints, &k] (std::size_t i) {
-          out[i].reserve(seq_ints.size());
+    RcppThread::parallelFor(0, score_mats.size(),
+        [&hit_bufs, &score_mats, &seq_ints, &min_scores2, &k] (std::size_t i) {
+          int min_score_i = min_scores2[i];
           for (std::size_t j = 0; j < seq_ints.size(); ++j) {
-            out[i].push_back(scan_single_seq(score_mats[i], seq_ints[j], k));
+            scan_single_seq(score_mats[i], seq_ints[j], k, min_score_i,
+                            int(i) + 1, int(j) + 1, hit_bufs[i]);
           }
         }, nthreads);
 
   }
 
-  return out;
-
-}
-
-list_int_t format_results(const list_mat_t &out_pre, const vec_int_t &scores,
-    const list_mat_t &motifs) {
-
   list_int_t res(5);
-
-  /* not sure what to do about .reserve() here */
-
-  for (std::size_t i = 0; i < out_pre.size(); ++i) {              // motif
-    for (std::size_t j = 0; j < out_pre[i].size(); ++j) {         // sequence
-      for (std::size_t b = 0; b < out_pre[i][j].size(); ++b) {    // position
-        if (out_pre[i][j][b] >= scores[i]) {                      // score
-          res[0].push_back(i + 1);                 // motif
-          res[1].push_back(j + 1);                 // sequence
-          res[2].push_back(b + 1);                 // start
-          res[3].push_back(b + motifs[i].size());  // stop
-          res[4].push_back(out_pre[i][j][b]);      // score
-        }
-      }
+  std::size_t total = 0;
+  for (auto &b : hit_bufs) total += b.size();
+  for (auto &v : res) v.reserve(total);
+  for (auto &b : hit_bufs) {
+    for (auto &h : b) {
+      res[0].push_back(h.motif);
+      res[1].push_back(h.sequence);
+      res[2].push_back(h.start);
+      res[3].push_back(h.stop);
+      res[4].push_back(h.score);
     }
   }
 
@@ -253,7 +254,7 @@ Rcpp::DataFrame switch_antisense_coords_cpp(const Rcpp::DataFrame &res) {
       col_start_new[i] = col_stop[i];
       col_stop_new[i] = col_start[i];
     }
-  } 
+  }
   out["start"] = col_start_new;
   out["stop"] = col_stop_new;
   return out;
@@ -316,10 +317,8 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     }
   }
 
-  list_mat_t out_pre = scan_sequences_cpp_internal(score2_mats, seq2_vecs, k,
-      alph2, nthreads, warnNA);
-
-  list_int_t res = format_results(out_pre, min_scores2, score2_mats);
+  list_int_t res = scan_sequences_cpp_internal(score2_mats, seq2_vecs, k,
+      alph2, min_scores2, nthreads, warnNA);
 
   vec_num_t scores2 = vec_num_t(res[4].begin(), res[4].end());
   for (std::size_t i = 0; i < scores2.size(); ++i) {

@@ -75,13 +75,6 @@
 - klet --> kmer
 - multifreq --> higher order ? (maybe nmer motif)
 - work with methylated DNA?
-- scan_sequences() OOM crash with many motifs and large sequences: the C++ scan
-  kernel (src/scan_sequences.cpp, scan_single_seq/scan_single_seq_NA) builds a full
-  O(nmotifs x nseqs x seqlen) integer-score grid in memory before format_results()
-  applies the threshold filter. For 100 motifs x athaliana-sized input this is ~13 GB
-  resident before any filtering. Fix: merge score-emission and threshold filter into
-  a streaming hit-emitter so only hits above threshold are kept; restructure
-  format_results() accordingly. See scan_sequences.cpp lines 41-79 and 123-173.
 - stop using multifreq slot; make motif objects represent a single order level
 - comparison: add option to use sum to find best alignment, then apply mean/etc
   (or p-value? see gupta et al 2007)
