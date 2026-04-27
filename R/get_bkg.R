@@ -237,8 +237,13 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
       window.overlap[window.overlap < 1 & window.overlap > 0] *
       seqlens[window.overlap < 1 & window.overlap > 0])
 
+    if (any(window.size == 0))
+      stop("`window.size` is too small for these sequences (resolved to 0 bp)",
+           call. = FALSE)
     if (any(window.size <= window.overlap))
       stop("`window.overlap` cannot be larger than or equal to `window.size`")
+    if (any(window.size < max(k)))
+      stop("`window.size` must be >= `k`", call. = FALSE)
 
     wins <- mapply(calc_wins, seqlens, window.size, window.overlap,
       SIMPLIFY = FALSE)

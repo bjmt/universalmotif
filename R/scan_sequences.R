@@ -199,7 +199,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   no.overlaps.strat <- match.arg(no.overlaps.strat)
 
   if (motif_pvalue.method == "dynamic" && allow.nonfinite
-      && (calc.pvals = TRUE || threshold.type %in% c("pvalue", "qvalue")))
+      && (calc.pvals || threshold.type %in% c("pvalue", "qvalue")))
     stop(wmsg("`motif_pvalue.method = \"dynamic\"` and `allow.nonfinite = TRUE` are ",
         "not compatible when `calc.pvals = TRUE` or ",
         "`threshold.type = c(\"pvalue\", \"qvalue\")`"), call. = FALSE)

@@ -13,3 +13,10 @@ test_that("get_bkg() == oligonucleotideFrequency()", {
   expect_equal(bkg.DNA, bkg.DNA2)
 
 })
+
+test_that("get_bkg() rejects fractional window.size that resolves to 0 (regression)", {
+
+  short_seq <- Biostrings::DNAStringSet("ACGT")
+  expect_error(get_bkg(short_seq, k = 1, window = TRUE, window.size = 0.001))
+
+})

@@ -542,9 +542,6 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
     if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
       warn_pseudo()
       motif <- suppressMessages(normalize(motif))
-    } else if (any(is.infinite(motif@motif)) && threshold.type == "total") {
-      stop(wmsg("Score calculates cannot be performed for `threshold.type = \"total\"`",
-        "if non-finite values are present in the PWM and `allow.nonfinite = TRUE`"))
     }
 
     mat <- matrix(suppressWarnings(as.integer(motif@motif * 1000)), nrow = nrow(motif@motif))
@@ -565,8 +562,8 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
   }
 
   if (threshold.type == "total") {
-    s.max <- sum(apply(mat, 2, max))
-    s.min <- sum(apply(mat, 2, min))
+    s.max <- sum(apply(mat, 2, max, na.rm = TRUE))
+    s.min <- sum(apply(mat, 2, min, na.rm = TRUE))
     s.total <- abs(s.max) + abs(s.min)
     out <- s.total * threshold - abs(s.min)
   } else {

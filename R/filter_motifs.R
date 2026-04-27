@@ -114,8 +114,10 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
   }
 
   if (!missing(nsites)) {
-    motif_nsites <- apply(motifs, function(x) x@nsites)
-    motifs <- motifs[motif_nsites >= nsites]
+    motif_nsites <- vapply(motifs, function(x) {
+      n <- x@nsites; if (length(n)) n else NA_real_
+    }, numeric(1))
+    motifs <- motifs[!is.na(motif_nsites) & motif_nsites >= nsites]
   }
 
   if (!missing(strand)) {

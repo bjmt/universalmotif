@@ -1,3 +1,4 @@
+- Add a function to substitute ambiguous letters with ACGT
 - Do the read/write_motifs() functions work with the gap slots?
 - Scan for motif clusters?
 - motif_peaks() is in dire need of a re-write
@@ -36,8 +37,6 @@
 - need a function which can allow for motifs with different background freqs
    to be comparable: maybe something like PPM --> PWM (change background) PWM
    --> PPM?
-- create_motif(): is there a check for the "type" input?
-    + why does create_motif(type="asdf") work?
 - read_*(): allow to set pseudocount
 - make n^k protection in motif_pvalue() optional
 - make sure no errors are possible inside c++ code -- can lead to memory leaks
@@ -50,26 +49,18 @@
 - use NULL instead of missing for optional args
 - get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
 - better manipulation of alphabet slot
-- stop this from working? motif["name"] <- NA
 - motif_pvalue() vignette bit: explain why exact calculations dont give exact
   results (rounding to three digits for use as ints)
-- filter_motifs() example in vignette: nsites column returning NAs?
-- weird interaction:
-  + mydf %>% dplyr::rename(name = altname, altname = name) %>% to_list()
-  + if altname was blank, this causes "0" to be filled in the name slot
 - scan_sequences() and large datasets: spends a LOT of time in pre- and
   post-processing... need to optimize this. The actual scanning is quite fast
   even with billions of letters.
 - Make use of average_ic() to filter motifs in more function examples? Right
   now it just shows up in compare_motifs().
 - merge_motifs() 2nd example: also plot submotifs
-- make sure window size can't be set too low (shuffle_sequences, get_bkg)
-- motif_score(create_motif("ATCGTACGTG"), 0, allow.nonfinite = TRUE) --> broken?
 - should I change the default comparison metric back to PCC...? I feel bad for
   constantly switching but ALLR is kind of annoying to work with in some cases
 - add an extranum slot
 - does view_motifs(use.type="ICM") work with KL motifs? (is ylim properly set)
-- pretty sure the allow.nonfinite option is borked in motif_pvalue()
 - native logo plotting with trees
 - motif p-values vignette section: show effects of k using plots instead of tables
 - emit a warning whenever the multifreq/gap slots are lost
@@ -81,15 +72,16 @@
 - would it be faster to handle chars from XString directly instead of converting to
   integer?
 - should def rework shuffle so that it doesn't create unconnected vertices!
-- dont think enrichment is taking into account respect.strand in enrich_motifs(),
-  only looks at RC=TRUE/FALSE
-- shuffle_motifs() adds a pseudocount??
 - klet --> kmer
 - multifreq --> higher order ? (maybe nmer motif)
 - work with methylated DNA?
-- scan_sequences(motifs[1:100], athaliana, warn.NA=F,threshold=.9,
-    threshold.type="logodds",nthreads=6) --> crashes!!! (out of memory I think)
-- enrich_motifs with size 1 sequences causes crash --> check size of seqs
+- scan_sequences() OOM crash with many motifs and large sequences: the C++ scan
+  kernel (src/scan_sequences.cpp, scan_single_seq/scan_single_seq_NA) builds a full
+  O(nmotifs x nseqs x seqlen) integer-score grid in memory before format_results()
+  applies the threshold filter. For 100 motifs x athaliana-sized input this is ~13 GB
+  resident before any filtering. Fix: merge score-emission and threshold filter into
+  a streaming hit-emitter so only hits above threshold are kept; restructure
+  format_results() accordingly. See scan_sequences.cpp lines 41-79 and 123-173.
 - stop using multifreq slot; make motif objects represent a single order level
 - comparison: add option to use sum to find best alignment, then apply mean/etc
   (or p-value? see gupta et al 2007)
@@ -106,7 +98,7 @@
   e.g. create_motif(alphabet="ACGTm", bkg = c(A=.25,C=.125,G=.25,T=.25,m=.125))
   + however this means no reverse complement scanning...
 - to_df() et al: don't show warning when printing if errors are present?
-- change the default pseudocount value to 0.1? (instead of 1) 
+- change the default pseudocount value to 0.1? (instead of 1)
   --> or... change default nsites to 1000?
 - fix motif_peaks()
 - compare_motifs(): allow overhangs to be compared to background fequencies (see
@@ -117,3 +109,6 @@
 - combine view_motifs() with EnrichedHeatmap/ComplexHeatmap?
 - compare_motifs() w/ normalization: does this still work for scores w/ -ve values?
 - scan_sequences(): needs a serious performance overhaul for large jobs
+- write_*(): always write all digits in numbers, never scientific notation! (eg 1e5 vs 10000)
+- implant_motifs(): insert motifs (generated using sample_sites()) into seqs
+- proper dendros? just need all motifs in one plot: https://teunbrand.github.io/legendry/reference/scale_x_dendro.html, https://github.com/teunbrand/legendry/blob/main/R/scale-dendro.R

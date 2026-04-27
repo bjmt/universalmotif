@@ -43,3 +43,12 @@ test_that("read functions work ok", {
   expect_s4_class(meme2$sites[[1]], "DNAStringSet")
 
 })
+
+test_that("read_jaspar() derives nsites from PCM column sums (regression: was always numeric(0))", {
+
+  jaspar <- read_jaspar(system.file("extdata", "jaspar.txt", package = "universalmotif"))
+  if (!is.list(jaspar)) jaspar <- list(jaspar)
+  expect_true(all(vapply(jaspar, function(m) length(m@nsites) == 1L, logical(1))))
+  expect_equal(jaspar[[1]]@nsites, 100)
+
+})

@@ -24,3 +24,11 @@ test_that("motif enrichment works", {
                c("scan.target", "scan.bkg", "args"))
 
 })
+
+test_that("enrich_motifs() gives a clear error for sequences shorter than motif (regression: was crashing in fisher.test)", {
+
+  m <- create_motif("TTTAAA", pseudocount = 1)
+  too_short <- Biostrings::DNAStringSet("A")
+  expect_error(enrich_motifs(m, too_short, verbose = 0), regexp = "widest motif")
+
+})

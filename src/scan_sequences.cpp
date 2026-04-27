@@ -44,6 +44,8 @@ vec_int_t scan_single_seq_NA(const list_int_t &motif, const vec_int_t &sequence,
   vec_int_t result;
   result.reserve(sequence.size());
 
+  if (sequence.size() + 2 < static_cast<std::size_t>(k) + motif.size()) return result;
+
   int tmp = 0;
   for (std::size_t i = 0; i < sequence.size() - k + 1 - motif.size() + 1; ++i) {
     tmp = 0;
@@ -65,6 +67,8 @@ vec_int_t scan_single_seq(const list_int_t &motif, const vec_int_t &sequence,
 
   vec_int_t result;
   result.reserve(sequence.size());
+
+  if (sequence.size() + 2 < static_cast<std::size_t>(k) + motif.size()) return result;
 
   int tmp = 0;
   for (std::size_t i = 0; i < sequence.size() - k + 1 - motif.size() + 1; ++i) {

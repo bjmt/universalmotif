@@ -218,22 +218,22 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   }
   for (i in seq_along(cols_to_check)) {
     checking <- cols_to_check[i]
-    # need a better way to deal with NAs...
-    # TODO: this causes 0s to be permanently introduced when altname is missing:
-    # dplyr::rename(mydf, name = altname, altname  name)
-    updated_df[[checking]][is.na(updated_df[[checking]])] <- 0
-    old_df[[checking]][is.na(old_df[[checking]])] <- 0
-    if (any(updated_df[[checking]] != old_df[[checking]])) {
+    changed <- xor(is.na(updated_df[[checking]]), is.na(old_df[[checking]])) |
+      (!is.na(updated_df[[checking]]) & !is.na(old_df[[checking]]) &
+       updated_df[[checking]] != old_df[[checking]])
+    if (any(changed)) {
       if (checking == "type") {
-        for (j in which(updated_df[[checking]] != old_df[[checking]])) {
+        for (j in which(changed)) {
           m[[j]] <- convert_type(m[[j]], updated_df[[checking]][j])
         }
       } else if (checking %in% c("icscore", "consensus", "alphabet")) {
         warning("Discarding changes in unmodifiable slot(s) '", checking, "'.",
           immediate. = TRUE, call. = FALSE)
       } else {
-        for (j in which(updated_df[[checking]] != old_df[[checking]])) {
-          msg <- try(m[[j]][checking] <- updated_df[[checking]][j], silent = TRUE)
+        for (j in which(changed)) {
+          val <- updated_df[[checking]][j]
+          if (is.character(val) && length(val) == 1 && is.na(val)) val <- character(0)
+          msg <- try(m[[j]][checking] <- val, silent = TRUE)
           if (inherits(msg, "try-error")) {
             stop("Got the following error for motif in row ", j, ":\n", msg,
               call. = FALSE)

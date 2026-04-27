@@ -166,6 +166,11 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
     window.size <- as.integer(window.size)
     window.overlap <- as.integer(window.overlap)
 
+    if (any(window.size <= window.overlap))
+      stop("`window.overlap` must be less than `window.size`", call. = FALSE)
+    if (any(window.size < k))
+      stop("`window.size` must be >= `k`", call. = FALSE)
+
     sequences <- shuffle_local(sequences, k, method, nthreads, rng.seed,
       window.size, window.overlap)
 

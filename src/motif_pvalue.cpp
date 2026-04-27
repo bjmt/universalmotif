@@ -584,10 +584,16 @@ std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
     vbkg[i] = Rcpp::as<std::vector<double>>(single);
   }
 
+  const double dbl_max_sentinel = -std::numeric_limits<double>::max() / 2.0;
+
   std::vector<long double> pvalues(scores.size());
   RcppThread::parallelFor(0, pvalues.size(),
-      [&vmotifs, &pvalues, &scores, &k, &vbkg] (std::size_t i) {
-        pvalues[i] = motif_pvalue_single(vmotifs[i], scores[i], k, vbkg[i]);
+      [&vmotifs, &pvalues, &scores, &k, &vbkg, &allow_nonfinite, &dbl_max_sentinel] (std::size_t i) {
+        if (allow_nonfinite && scores[i] <= dbl_max_sentinel) {
+          pvalues[i] = 1.0;
+        } else {
+          pvalues[i] = motif_pvalue_single(vmotifs[i], scores[i], k, vbkg[i]);
+        }
       }, nthreads);
 
   return pvalues;

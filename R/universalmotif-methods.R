@@ -47,9 +47,13 @@ setMethod("[", "universalmotif", function(x, i) {
 #' @aliases [<-,universalmotif-method
 setMethod("[<-", "universalmotif", function(x, i, value) {
 
-  # TODO: alphabet? type?
   if (i %in% c("icscore", "multifreq", "consensus", "motif"))
     stop(wmsg("this slot is unmodifiable with [<-"))
+
+  if (i %in% c("name", "altname", "family", "organism", "alphabet", "type",
+               "strand", "pseudocount") &&
+      length(value) == 1 && is.na(value))
+    stop(wmsg("'", i, "' cannot be NA"))
 
   if (i == "bkg") {
     value <- new_bkg(x, value)
@@ -135,7 +139,7 @@ setMethod("initialize", signature = "universalmotif",
   message("Please use create_motif() instead.")
 
   if (!missing(name)) .Object@name <- name
-  if (!missing(altname)) .Object@altname
+  if (!missing(altname)) .Object@altname <- altname
   if (!missing(family)) .Object@family <- family
   if (!missing(organism)) .Object@organism <- organism
   if (!missing(motif)) .Object@motif <- motif

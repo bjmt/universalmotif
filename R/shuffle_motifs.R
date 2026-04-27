@@ -46,6 +46,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
 
+  orig.types <- vapply(motifs, function(x) x@type, character(1))
   motifs <- convert_type_internal(motifs, "PPM")
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   if (length(unique(mot.alphs)) > 1)
@@ -74,7 +75,7 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
   new.mats <- lapply(seq_along(mot.mats),
                      function(x) mot.cols[, (1 + mot.offsets[x]):(mot.lens[x] + mot.offsets[x])])
 
-  new.motifs <- mapply(shuffle_new_mot, new.mats, motifs,
+  new.motifs <- mapply(shuffle_new_mot, new.mats, motifs, orig.types,
                          SIMPLIFY = FALSE)
 
   new.motifs <- .internal_convert(new.motifs, unique(CLASS_IN))
@@ -83,14 +84,17 @@ shuffle_motifs <- function(motifs, k = 2, method = "linear") {
 
 }
 
-shuffle_new_mot <- function(new.mat, motif) {
+shuffle_new_mot <- function(new.mat, motif, orig.type) {
 
   mot <- universalmotif_cpp(motif = new.mat, alphabet = motif@alphabet,
                             bkg = motif@bkg, bkgsites = motif@bkgsites,
                             nsites = motif@nsites, strand = motif@strand,
+                            pseudocount = motif@pseudocount,
                             name = collapse_cpp(c(motif@name, " [shuffled]")))
 
   validObject_universalmotif(mot)
+  if (orig.type != "PPM")
+    mot <- convert_type_internal(list(mot), orig.type)[[1]]
   mot
 
 }

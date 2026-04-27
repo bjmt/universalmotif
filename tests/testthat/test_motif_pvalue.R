@@ -15,3 +15,14 @@ test_that("scores from p-values are ok", {
   expect_equal(round(res, 3), -0.037)
 
 })
+
+test_that("motif_pvalue() allow.nonfinite=TRUE doesn't error on score path (regression: sanitize_input rejected -Inf scores)", {
+
+  m <- create_motif("ATCGTACGTG")
+  s <- motif_score(m, 0, allow.nonfinite = TRUE)
+  expect_true(is.numeric(s))
+  pval <- motif_pvalue(m, score = s, allow.nonfinite = TRUE, method = "exhaustive")
+  expect_true(is.numeric(pval))
+  expect_true(pval >= 0 && pval <= 1)
+
+})

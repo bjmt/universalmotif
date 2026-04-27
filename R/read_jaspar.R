@@ -98,6 +98,7 @@ read_jaspar <- function(file, skip = 0) {
     } else alphabet <- "DNA"
     mot <- universalmotif_cpp(name = name[1], altname = name[2],
                    type = "PCM", alphabet = alphabet,
+                   nsites = max(colSums(motif)),
                    motif = motif)
     validObject_universalmotif(mot)
     mot

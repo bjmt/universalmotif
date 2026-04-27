@@ -34,6 +34,18 @@ test_that("accessor functions work", {
   expect_error(m["consensus"] <- "AASDAD")
   expect_error(suppressWarnings(universalmotif()))
 
+  expect_error(m["name"] <- NA_character_)
+  expect_error(m["altname"] <- NA_character_)
+  expect_error(m["family"] <- NA_character_)
+  expect_error(m["type"] <- NA_character_)
+  expect_error(m["strand"] <- NA_character_)
+  expect_error(m["pseudocount"] <- NA_real_)
+
+})
+
+test_that("create_motif() sets altname correctly", {
+  m <- create_motif("ATCG", altname = "myalt")
+  expect_equal(m@altname, "myalt")
 })
 
 test_that("misc methods work", {

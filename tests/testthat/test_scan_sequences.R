@@ -30,3 +30,16 @@ test_that("Results are accurate", {
   expect_true(is(r, "DataFrame"))
 
 })
+
+test_that("scan_sequences() with use.freq=3 doesn't underflow for sequences exactly as wide as the motif (regression: unsigned underflow in scan loop)", {
+
+  # With motif width W and k=3, a sequence of length W satisfies the existing
+  # width check (W >= W) but triggers the unsigned underflow:
+  # W - 3 + 1 - W + 1 = -1 wraps to UINT_MAX without the guard.
+  seqs <- create_sequences(seqlen = 10)
+  motif <- suppressMessages(create_motif(seqs, pseudocount = 1, add.multifreq = 3))
+  exact_seq <- Biostrings::DNAStringSet("ACGTACGTAC")  # exactly 10 bp == motif width
+  r <- scan_sequences(motif, exact_seq, use.freq = 3, verbose = 0)
+  expect_true(is(r, "DataFrame"))
+
+})
