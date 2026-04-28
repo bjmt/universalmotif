@@ -3,7 +3,8 @@ CHANGES IN VERSION 1.30.1
 
 MINOR CHANGES
 
-o Improved memory usage of scan_sequences() for larger motif collections.
+o Improved memory usage of scan_sequences() for larger motif collections &
+  genomes.
 
 BUG FIXES
 
@@ -122,8 +123,6 @@ o Fixed runtime error ('argument FUN.VALUE is missing') in read_motifs() when
 o Fixed filter_motifs() erroring when filtering by pval, qval, eval, altname,
   family, or organism and any motif had an empty slot for that field (sapply
   returned a list of mixed lengths; now uses vapply).
-
-o Removed leftover debug print() call in motif_finder().
 
 o Fixed shuffle_motifs() dropping the matrix dimension when shuffling a
   length-1 motif (missing drop = FALSE in column slice), causing downstream
