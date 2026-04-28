@@ -265,7 +265,7 @@ The first correction method, Bonferroni, is by far the simplest. To calculate it
 
 As you can imagine, the level of punishment the P-value receives corresponds to the size of the sequences you are scanning. If you are scanning an entire genome, then you can expect this to be  very punishing and only return near-perfect matches (or no matches). However for smaller sets of sequences this correction can be more appropriate.
 
-Next, Benjamini & Hochberg. To perform this correction, the P-value is divided by the percentile rank of the P-value in the list of P-values for all theoretically possible hits sorted in ascending order (it also assumes that P-values are normally distributed under the null hypothesis). It is important to note that this means the correction cannot be calculated before the sequences have been scanned for the motif, and P-values have been calculated for all returned hits. When requesting this type of Q-value for the minimum threshold of score, `scan_sequences()` instead calculates the threshold from the input Q-value as a P-value, then filters the final results after Q-values have been calculated. Returning to our example:
+Next, Benjamini & Hochberg. To perform this correction, the P-value is divided by its fractional rank in the list of P-values for all theoretically possible hits sorted in ascending order (this assumes that P-values are independent and uniformly distributed on [0, 1] under the null hypothesis). It is important to note that this means the correction cannot be calculated before the sequences have been scanned for the motif, and P-values have been calculated for all returned hits. When requesting this type of Q-value for the minimum threshold of score, `scan_sequences()` instead calculates the threshold from the input Q-value as a P-value, then filters the final results after Q-values have been calculated. Returning to our example:
 
 
 ```{r}
@@ -273,12 +273,12 @@ Next, Benjamini & Hochberg. To perform this correction, the P-value is divided b
   threshold = 0.8, threshold.type = "logodds", calc.qvals = FALSE))
 ```
 
-First we sort and calculate the percentile ranks of our P-values, and then divide the P-values:
+First we sort and calculate the fractional ranks of our P-values, and then divide the P-values:
 
 
 ```{r}
 Pvalues <- Scan.Results$pvalue
-Pvalues.Ranks <- (rank(Pvalues) / Max.Possible.Hits) * 100
+Pvalues.Ranks <- rank(Pvalues) / Max.Possible.Hits
 Qvalues.BH <- Pvalues / Pvalues.Ranks
 (Example.BH <- Qvalues.BH[Scan.Results$match == "TTCTCTTTTTTTTTT"][1])
 ```

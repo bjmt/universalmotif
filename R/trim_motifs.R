@@ -92,7 +92,6 @@ trim_motifs <- function(motifs, min.ic = 0.25, trim.from = c("both", "left", "ri
     }
     message("The following motifs were completely trimmed: ",
             mot.names[num_bar])
-    return(invisible(NULL))
   }
 
   motifs <- motifs[!dont_keep]

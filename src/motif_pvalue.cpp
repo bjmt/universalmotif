@@ -284,7 +284,7 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
         vec_bool_t gscores(all_scores[i + 2].size(), false);
         for (std::size_t b = 0; b < all_scores[i + 2].size(); ++b) {
-          if (all_scores[i + 2][b] > iscore - all_scores[i + 1][i] - tscore)
+          if (all_scores[i + 2][b] > iscore - all_scores[i + 1][j] - tscore)
             gscores[b] = true;
         }
 
@@ -584,10 +584,16 @@ std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
     vbkg[i] = Rcpp::as<std::vector<double>>(single);
   }
 
+  const double dbl_max_sentinel = -std::numeric_limits<double>::max() / 2.0;
+
   std::vector<long double> pvalues(scores.size());
   RcppThread::parallelFor(0, pvalues.size(),
-      [&vmotifs, &pvalues, &scores, &k, &vbkg] (std::size_t i) {
-        pvalues[i] = motif_pvalue_single(vmotifs[i], scores[i], k, vbkg[i]);
+      [&vmotifs, &pvalues, &scores, &k, &vbkg, &allow_nonfinite, &dbl_max_sentinel] (std::size_t i) {
+        if (allow_nonfinite && scores[i] <= dbl_max_sentinel) {
+          pvalues[i] = 1.0;
+        } else {
+          pvalues[i] = motif_pvalue_single(vmotifs[i], scores[i], k, vbkg[i]);
+        }
       }, nthreads);
 
   return pvalues;

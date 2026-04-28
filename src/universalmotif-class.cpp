@@ -712,6 +712,17 @@ Rcpp::StringVector validObject_universalmotif(const Rcpp::S4 &motif,
       m_icscore, m_nsites, m_pseudocount, m_bkgsites, m_consensus, m_strand,
       m_pval, m_qval, m_eval, msg);
 
+  // Skip remaining checks when required-length slots are missing: downstream
+  // helpers dereference [0] which is UB when size == 0.
+  if (m_name.size() != 1 || m_type.size() != 1 || m_strand.size() != 1 ||
+      m_alphabet.size() != 1) {
+    if (msg.length() > 0) {
+      msg = Rcpp::StringVector::create(all_checks_collapse(msg));
+      if (throw_error) Rcpp::stop(Rcpp::as<std::string>(msg[0]));
+    }
+    return msg;
+  }
+
   // character slot checks
   msg = check_char_slots(m_type, m_strand, msg);
 

@@ -79,18 +79,24 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
   }
 
   if (!missing(altname)) {
-    motif_altnames <- sapply(motifs, function(x) x@altname)
-    motifs <- motifs[motif_altnames %in% altname]
+    motif_altnames <- vapply(motifs, function(x) {
+      if (length(x@altname)) x@altname[1] else NA_character_
+    }, character(1))
+    motifs <- motifs[!is.na(motif_altnames) & motif_altnames %in% altname]
   }
 
   if (!missing(family)) {
-    motif_families <- sapply(motifs, function(x) x@family)
-    motifs <- motifs[motif_families %in% family]
+    motif_families <- vapply(motifs, function(x) {
+      if (length(x@family)) x@family[1] else NA_character_
+    }, character(1))
+    motifs <- motifs[!is.na(motif_families) & motif_families %in% family]
   }
 
   if (!missing(organism)) {
-    motif_organisms <- sapply(motifs, function(x) x@organism)
-    motifs <- motifs[motif_organisms %in% organism]
+    motif_organisms <- vapply(motifs, function(x) {
+      if (length(x@organism)) x@organism[1] else NA_character_
+    }, character(1))
+    motifs <- motifs[!is.na(motif_organisms) & motif_organisms %in% organism]
   }
 
   if (!missing(width)) {
@@ -114,8 +120,10 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
   }
 
   if (!missing(nsites)) {
-    motif_nsites <- apply(motifs, function(x) x@nsites)
-    motifs <- motifs[motif_nsites >= nsites]
+    motif_nsites <- vapply(motifs, function(x) {
+      n <- x@nsites; if (length(n)) n else NA_real_
+    }, numeric(1))
+    motifs <- motifs[!is.na(motif_nsites) & motif_nsites >= nsites]
   }
 
   if (!missing(strand)) {
@@ -124,18 +132,24 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
   }
 
   if (!missing(pval)) {
-    motif_pvals <- sapply(motifs, function(x) x@pval)
-    motifs <- motifs[motif_pvals <= pval]
+    motif_pvals <- vapply(motifs, function(x) {
+      if (length(x@pval)) x@pval[1] else NA_real_
+    }, numeric(1))
+    motifs <- motifs[!is.na(motif_pvals) & motif_pvals <= pval]
   }
 
   if (!missing(qval)) {
-    motif_qvals <- sapply(motifs, function(x) x@qval)
-    motifs <- motifs[motif_qvals <= qval]
+    motif_qvals <- vapply(motifs, function(x) {
+      if (length(x@qval)) x@qval[1] else NA_real_
+    }, numeric(1))
+    motifs <- motifs[!is.na(motif_qvals) & motif_qvals <= qval]
   }
 
   if (!missing(eval)) {
-    motif_evals <- sapply(motifs, function(x) x@eval)
-    motifs <- motifs[motif_evals <= eval]
+    motif_evals <- vapply(motifs, function(x) {
+      if (length(x@eval)) x@eval[1] else NA_real_
+    }, numeric(1))
+    motifs <- motifs[!is.na(motif_evals) & motif_evals <= eval]
   }
 
   if (!missing(extrainfo)) {

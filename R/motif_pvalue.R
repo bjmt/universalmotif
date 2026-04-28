@@ -328,7 +328,7 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
 
     wasList <- FALSE
     if (is.list(score)) wasList <- TRUE
-    input <- sanitize_input(motifs, bkg.probs, score, method)
+    input <- sanitize_input(motifs, bkg.probs, score, method, allow.nonfinite)
 
     if (method == "exhaustive") {
       out <- motif_pvalue_cpp(input$motifs, input$bkg.probs, input$x,
@@ -388,18 +388,20 @@ restore_list <- function(x, nM, nX) {
   }
 }
 
-sanitize_input <- function(mots, bkgs, x, method) {
+sanitize_input <- function(mots, bkgs, x, method, allow.nonfinite = FALSE) {
 
   # Note: having this function is somewhat insane, but I am trying to stay
   # backwards-compatible.
 
-  if (is.numeric(x)) {
-    if (any(is.infinite(x))) {
-      stop(wmsg("`score`/`pvalue` cannot be non-finite"), call. = FALSE)
-    }
-  } else if (is.list(x)) {
-    if (any(vapply(x, function(y) any(is.infinite(y)), logical(1)))) {
-      stop(wmsg("`score`/`pvalue` cannot be non-finite"), call. = FALSE)
+  if (!allow.nonfinite) {
+    if (is.numeric(x)) {
+      if (any(is.infinite(x))) {
+        stop(wmsg("`score`/`pvalue` cannot be non-finite"), call. = FALSE)
+      }
+    } else if (is.list(x)) {
+      if (any(vapply(x, function(y) any(is.infinite(y)), logical(1)))) {
+        stop(wmsg("`score`/`pvalue` cannot be non-finite"), call. = FALSE)
+      }
     }
   }
 

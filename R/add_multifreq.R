@@ -134,14 +134,11 @@ add_multifreq <- function(motif, sequences, add.k = 2:3, RC = FALSE,
     stop(wmsg("something went wrong with extracting motif matches, ",
               "check input carefully"))
 
-  counter  <- 1
-  for (i in seq_along(add.k)) {
-    if (seqlen < add.k[i]) {
-      warning("motif is not long enough for use.freq>=", add.k[i],
-              immediate. = TRUE)
-      add.k <- add.k[seq_len(counter)]
-    }
-    counter <- counter + 1
+  too_big <- add.k > seqlen
+  if (any(too_big)) {
+    warning("motif is not long enough for use.freq>=",
+            paste(add.k[too_big], collapse = ", "), immediate. = TRUE)
+    add.k <- add.k[!too_big]
   }
 
 

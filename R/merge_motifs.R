@@ -144,7 +144,7 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   if (nchar(new.family) == 0) new.family <- character(0)
   new.organism <- paste0(mot.orgs, collapse = "/")
   if (nchar(new.organism) == 0) new.organism <- character(0)
-  if (length(mot.bkgsites) > 1) {
+  if (length(mot.bkgsites) >= 1) {
     new.bkgsites <- max(mot.bkgsites)
   } else new.bkgsites <- numeric(0)
   if (length(unique(mot.strands)) > 1) {
@@ -152,11 +152,11 @@ merge_motifs_all <- function(motifs, method, tryRC, min.overlap, min.mean.ic,
   } else new.strand <- unique(mot.strands)
   new.extrainfo <- do.call(c, mot.extrainfo)
   new.extrainfo <- new.extrainfo[!duplicated(new.extrainfo)]
-  new.pseudo <- ifelse(length(mot.pseudo) > 0, mean(mot.pseudo, na.rm = TRUE), numeric())
-  new.nsites <- ifelse(length(mot.nsites) > 0, max(mot.nsites, na.rm = TRUE), numeric())
-  new.pvals <- ifelse(length(mot.pvals) > 0, max(mot.pvals, na.rm = TRUE), numeric())
-  new.qvals <- ifelse(length(mot.qvals) > 0, max(mot.qvals, na.rm = TRUE), numeric())
-  new.evals <- ifelse(length(mot.evals) > 0, max(mot.evals, na.rm = TRUE), numeric())
+  new.pseudo <- if (length(mot.pseudo) > 0) mean(mot.pseudo, na.rm = TRUE) else numeric(0)
+  new.nsites <- if (length(mot.nsites) > 0) max(mot.nsites, na.rm = TRUE) else numeric(0)
+  new.pvals  <- if (length(mot.pvals) > 0)  max(mot.pvals,  na.rm = TRUE) else numeric(0)
+  new.qvals  <- if (length(mot.qvals) > 0)  max(mot.qvals,  na.rm = TRUE) else numeric(0)
+  new.evals  <- if (length(mot.evals) > 0)  max(mot.evals,  na.rm = TRUE) else numeric(0)
 
   mot <- universalmotif_cpp(motif = ans[[1]], name = new.name, altname = new.altname, 
                             family = new.family, organism = new.organism,

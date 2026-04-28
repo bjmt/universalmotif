@@ -43,3 +43,23 @@ test_that("read functions work ok", {
   expect_s4_class(meme2$sites[[1]], "DNAStringSet")
 
 })
+
+test_that("read_jaspar() derives nsites from PCM column sums (regression: was always numeric(0))", {
+
+  jaspar <- read_jaspar(system.file("extdata", "jaspar.txt", package = "universalmotif"))
+  if (!is.list(jaspar)) jaspar <- list(jaspar)
+  expect_true(all(vapply(jaspar, function(m) length(m@nsites) == 1L, logical(1))))
+  expect_equal(jaspar[[1]]@nsites, 100)
+
+})
+
+test_that("read_motifs() version dispatch uses numeric_version not lexicographic comparison (regression)", {
+
+  # "1.1.100" is > "1.1.67" numerically but < "1.1.67" lexicographically
+  # (because "1" < "6" at the third segment's first char).
+  # Without numeric_version(), the pre-1.2.x reader path would be wrongly
+  # selected for any version whose third segment exceeds one digit.
+  expect_true(numeric_version("1.1.100") > numeric_version("1.1.67"))
+  expect_true("1.1.100" < "1.1.67")
+
+})

@@ -123,7 +123,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   }
   if (!shuffle.method %in% c("euler", "markov", "linear", "random")) {
     shuffle.method_check <- paste0(" * Incorrect 'shuffle.method': expected ",
-                                   "`markov`, `linear` or `random`; got `",
+                                   "`euler`, `markov`, `linear` or `random`; got `",
                                    shuffle.method, "`")
     shuffle.method_check <- wmsg2(shuffle.method_check, 4, 2)
     all_checks <- c(all_checks, shuffle.method_check)
@@ -147,7 +147,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                                     bkg.sequences = args$bkg.sequences),
                                numeric(), c(FALSE, TRUE), TYPE_S4)
   all_checks <- c(all_checks, char_check, num_check, logi_check, s4_check)
-  if (length(all_checks) > 0) stop(all_checks_collapse(print(all_checks)))
+  if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   pseudocount <- as.integer(pseudocount)[1]
   if (is.na(pseudocount))
     stop(" * Incorrect 'pseudocount': got `NA`", call. = FALSE)
@@ -198,6 +198,13 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   if (!is.list(motifs)) motifs <- list(motifs)
   motcount <- length(motifs)
 
+  min_seqlen <- min(width(sequences))
+  max_motif_width <- max(vapply(motifs, function(m) ncol(m@motif), integer(1)))
+  if (min_seqlen < max_motif_width)
+    stop(wmsg("All sequences must be at least as wide as the widest motif (",
+              max_motif_width, " bp); shortest input sequence is ",
+              min_seqlen, " bp."), call. = FALSE)
+
   if (threshold.type == "pvalue") {
     if (verbose > 0)
       message(" > Converting P-values to logodds thresholds")
@@ -245,11 +252,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   res.all$motif.consensus <- to_df(motifs)$consensus[res.all$motif.i]
   res.all$target.enrichment <- res.all$pct.target.seq.hits / res.all$pct.bkg.seq.hits
 
-  if (nrow(res.all) < 1 || is.null(res.all)) {
-    message(" ! No enriched motifs")
-    return(res.all)
-  }
-
   res.all
 
 }
@@ -263,7 +265,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
   bkg.names <- names(bkg.sequences)
-  if (is.null(seq.names)) bkg.names <- seq_len(length(bkg.sequences))
+  if (is.null(bkg.names)) bkg.names <- seq_len(length(bkg.sequences))
 
   seq.widths <- width(sequences)
   bkg.widths <- width(bkg.sequences)

@@ -385,12 +385,12 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
 
   if (length(score) > 1) stop("Please input a single `score`")
   motif <- convert_motifs(motif)
-  if (motif@type != "PWM")
-    motif <- convert_type_internal(motif, "PWM")
   if (is.list(motif) && length(motif) == 1)
-    motif <- motif[[i]]
+    motif <- motif[[1]]
   else if (is.list(motif))
     stop("a single motif must be input")
+  if (motif@type != "PWM")
+    motif <- convert_type_internal(motif, "PWM")
   if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
     warn_pseudo()
     motif <- suppressMessages(normalize(motif))
@@ -408,7 +408,7 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
         score.range[2], "]"))
   if (score < score.range[1])
     stop(wmsg("input score is less than min possible score [",
-        score.range[2], "]"))
+        score.range[1], "]"))
 
   score <- as.integer(score * 1000)
 
@@ -542,9 +542,6 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
     if (any(is.infinite(motif@motif)) && !allow.nonfinite) {
       warn_pseudo()
       motif <- suppressMessages(normalize(motif))
-    } else if (any(is.infinite(motif@motif)) && threshold.type == "total") {
-      stop(wmsg("Score calculates cannot be performed for `threshold.type = \"total\"`",
-        "if non-finite values are present in the PWM and `allow.nonfinite = TRUE`"))
     }
 
     mat <- matrix(suppressWarnings(as.integer(motif@motif * 1000)), nrow = nrow(motif@motif))
@@ -565,8 +562,8 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
   }
 
   if (threshold.type == "total") {
-    s.max <- sum(apply(mat, 2, max))
-    s.min <- sum(apply(mat, 2, min))
+    s.max <- sum(apply(mat, 2, max, na.rm = TRUE))
+    s.min <- sum(apply(mat, 2, min, na.rm = TRUE))
     s.total <- abs(s.max) + abs(s.min)
     out <- s.total * threshold - abs(s.min)
   } else {
@@ -862,9 +859,9 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
 
   score <- numeric(length(match))
 
-  mat <- matrix(as.integer(motif@motif * 1000) / 1000,
-                nrow = nrow(motif@motif),
-                dimnames = dimnames(motif@motif))
+  mat <- motif@motif
+  finite <- is.finite(mat)
+  mat[finite] <- as.integer(mat[finite] * 1000) / 1000
 
   for (i in seq_len(ncol(mat))) {
     for (j in seq_along(score)) {

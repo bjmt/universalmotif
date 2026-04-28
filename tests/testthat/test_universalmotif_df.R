@@ -71,6 +71,30 @@ test_that("extrainfo gets moved around correctly", {
   expect_message(update_motifs(mydf3[, -which(names(mydf3) == "altname")]), "Restoring")
 })
 
+test_that("to_list() rename with blank altname errors cleanly, not silently writing '0' (regression)", {
+
+  m <- create_motif("ATCG", name = "mymotif")
+  df <- to_df(m)
+  expect_true(is.na(df$altname))
+  df2 <- df
+  df2$altname <- df$name   # altname <- "mymotif"
+  df2$name <- NA_character_ # name <- NA (invalid: required slot)
+  expect_error(suppressMessages(to_list(df2)), "name must be length 1")
+
+})
+
+test_that("to_list() correctly updates altname when both name and altname are present", {
+
+  m <- create_motif("ATCG", name = "mymotif", altname = "myalt")
+  df <- to_df(m)
+  df$altname <- "newalt"
+  m2 <- suppressMessages(to_list(df))
+  if (is.list(m2)) m2 <- m2[[1]]
+  expect_equal(m2@altname, "newalt")
+  expect_equal(m2@name, "mymotif")
+
+})
+
 test_that("update works", {
   m <- create_motif()
   m <- c(m, m)
