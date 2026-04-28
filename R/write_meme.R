@@ -179,7 +179,9 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
     cat(lines_out, sep = "\n", file = file, append = TRUE)
   } else {
     lines_out <- c(lines_out, unlist(lapply(motifs, .write_meme)))
-    writeLines(lines_out, con <- file(file)); close(con)
+    con <- file(file)
+    on.exit(close(con), add = TRUE)
+    writeLines(lines_out, con)
   }
 
   invisible(NULL)

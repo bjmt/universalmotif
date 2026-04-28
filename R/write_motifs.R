@@ -46,7 +46,9 @@ write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
 
   if (file.exists(file) && append) {
 
-    old <- readLines(con <- file(file), n = 1); close(con)
+    con <- file(file)
+    on.exit(close(con), add = TRUE)
+    old <- readLines(con, n = 1)
 
     if (substr(old[1], 1, 24) == "# universalmotif version") {
 
@@ -79,7 +81,9 @@ write_motifs <- function(motifs, file, minimal = FALSE, multifreq = TRUE,
     mots <- collapse_cpp(c("# universalmotif version ",
                            packageDescription("universalmotif")$Version,
                            "\n", mots))
-    writeLines(mots, con <- file(file)); close(con)
+    con <- file(file)
+    on.exit(close(con), add = TRUE)
+    writeLines(mots, con)
 
   }
 

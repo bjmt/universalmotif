@@ -26,12 +26,13 @@ read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {
   logi_check <- check_fun_params(list(progress = args$progress,
                                       BP = args$BP),
                                  c(1, 1), c(FALSE, FALSE), TYPE_LOGI)
-  all_checks <- c(char_check, num_check)
+  all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  raw_lines <- readLines(con <- file(file))
-  close(con)
+  con <- file(file)
+  on.exit(close(con), add = TRUE)
+  raw_lines <- readLines(con)
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
   raw_lines <- raw_lines[raw_lines != ""]
 
@@ -45,7 +46,7 @@ read_motifs <- function(file, skip = 0, progress = FALSE, BP = FALSE) {
 
   raw_lines <- raw_lines[!grepl("^#", raw_lines)]
 
-  if (version < "1.1.67")
+  if (numeric_version(version) < numeric_version("1.1.67"))
     motifs <- read_motifs_1_0(raw_lines, version)
   else
     motifs <- read_motifs_1_2(raw_lines, progress, BP)
@@ -105,6 +106,8 @@ read_motifs_single <- function(mot) {
 
   if ("multifreq" %in% fields) {
 
+    motif <- do.call(universalmotif_cpp, mot[fields != "multifreq"])
+
     mult.names <- names(mot$multifreq)
     mults <- vector("list", length(mult.names))
     for (i in seq_along(mults)) {
@@ -118,7 +121,6 @@ read_motifs_single <- function(mot) {
     }
 
     names(mults) <- mult.names
-    motif <- do.call(universalmotif_cpp, mot[fields != "multifreq"])
     motif@multifreq <- mults
 
   } else {
@@ -330,7 +332,7 @@ parse_multi <- function(lines) {
   mults <- mapply(function(x, y) motifs_to_list(lines, x, y),
                   mult.starts + 1, mult.ends, SIMPLIFY = FALSE)
   mults <- lapply(mults, parse_matrix)
-  names(mults) <- vapply(mult.starts, function(x) lines[[x]][2])
+  names(mults) <- vapply(mult.starts, function(x) lines[[x]][2], character(1))
 
   mults
 

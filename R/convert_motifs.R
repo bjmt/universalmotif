@@ -670,7 +670,7 @@ setMethod("convert_motifs", signature(motifs = "Motif"),
                            extrainfo = c(score = motifs@score),
                    strand = paste(unique(motifs@match$match.strand),
                                   collapse = ""),
-  motif <- create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
+  motif = create_motif(input = DNAStringSet(motifs@match$pattern))@motif)
   validObject_universalmotif(motifs)
   convert_motifs(motifs, class = class)
 })

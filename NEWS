@@ -83,6 +83,58 @@ o Fixed shuffle_sequences() producing identical shuffles across parallel threads
 o Fixed score_match(allow.nonfinite = TRUE) returning NA instead of -Inf for
   match positions that correspond to non-finite motif cells.
 
+o Fixed read_motifs() failing with 'object motif not found' when reading a
+  saved motif file containing a multifreq block, because the motif object was
+  used before it was constructed.
+
+o Fixed convert_motifs() Motif-method (motifRG) passing the PCM matrix as a
+  positional argument due to a stray <- instead of = in the argument list.
+
+o Fixed possible undefined behaviour in scan_sequences() when scanning
+  sequences shorter than k with a multifreq motif (size_t underflow in
+  deal_with_higher_k / deal_with_higher_k_NA).
+
+o Fixed merge_motifs() populating pval, qval, eval, nsites, and pseudocount
+  slots with NA when all input motifs had those slots empty; they are now
+  correctly left empty.
+
+o Fixed trim_motifs() discarding all successfully-trimmed motifs when any
+  single input motif was fully trimmed away (partial-trim case now correctly
+  returns only the surviving motifs).
+
+o Fixed read_motifs() using lexicographic string comparison for version
+  dispatch; 1.1.7 was incorrectly treated as older than 1.1.67. Now uses
+  numeric_version().
+
+o Fixed read_cisbp() off-by-one error when CIS-BP files contain consecutive
+  TF metadata lines, caused by mutating meta_starts during seq_along iteration.
+
+o Fixed a temp-file leak in the compare_motifs() HTML report path where the
+  second on.exit() call overwrote the first (now uses add = TRUE).
+
+o Fixed add_multifreq() retry loop erroring with 'missing value where
+  TRUE/FALSE needed' or keeping the failing k value, due to a stale seq_along
+  and an off-by-one in seq_len(counter) vs seq_len(counter - 1).
+
+o Fixed runtime error ('argument FUN.VALUE is missing') in read_motifs() when
+  reading pre-1.2.x files containing multifreq blocks.
+
+o Fixed filter_motifs() erroring when filtering by pval, qval, eval, altname,
+  family, or organism and any motif had an empty slot for that field (sapply
+  returned a list of mixed lengths; now uses vapply).
+
+o Removed leftover debug print() call in motif_finder().
+
+o Fixed shuffle_motifs() dropping the matrix dimension when shuffling a
+  length-1 motif (missing drop = FALSE in column slice), causing downstream
+  errors.
+
+o Fixed read_motifs() silently accepting non-logical values for the progress
+  and BP arguments (logi_check was computed but not appended to all_checks).
+
+o File connections in all read_*() and write_*() functions are now closed via
+  on.exit() so they are released cleanly even when an error occurs mid-read.
+
 CHANGES IN VERSION 1.30.0
 -------------------------
 

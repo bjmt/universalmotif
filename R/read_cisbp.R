@@ -42,8 +42,9 @@ read_cisbp <- function(file, skip = 0) {
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  raw_lines <- readLines(con <- file(file))
-  close(con)
+  con <- file(file)
+  on.exit(close(con), add = TRUE)
+  raw_lines <- readLines(con)
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
   raw_lines <- raw_lines[raw_lines != ""]
 
@@ -54,11 +55,8 @@ read_cisbp <- function(file, skip = 0) {
 
   if (length(meta_starts)) {
 
-    for (i in seq_along(meta_starts)) {
-      if ((meta_starts[i] + 1) %in% meta_starts) {
-        meta_starts <- meta_starts[-(i + 1)]
-      }
-    }
+    is_run_continuation <- c(FALSE, diff(meta_starts) == 1)
+    meta_starts <- meta_starts[!is_run_continuation]
     if (length(meta_starts) == 1) {
       motif_stops <- length(raw_lines)
     } else {

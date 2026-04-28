@@ -20,3 +20,15 @@ test_that("merge_motifs() preserves bkgsites when exactly one motif has it (regr
   expect_equal(merged@bkgsites, 500)
 
 })
+
+test_that("merge_motifs() leaves pval/qval/eval empty when no input has them (regression: ifelse(., numeric()))", {
+
+  m1 <- create_motif("ACGT", pseudocount = 1, nsites = 100)
+  m2 <- create_motif("ACGT", pseudocount = 1, nsites = 100)
+  merged <- merge_motifs(c(m1, m2))
+  expect_equal(length(merged@pval), 0L)
+  expect_equal(length(merged@qval), 0L)
+  expect_equal(length(merged@eval), 0L)
+  expect_false(any(is.na(c(merged@pval, merged@qval, merged@eval))))
+
+})

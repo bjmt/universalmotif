@@ -33,3 +33,14 @@ test_that("filter_motifs() nsites filter works (regression: was using apply() wi
   expect_equal(length(filter_motifs(list(m_without), nsites = 3)), 0)
 
 })
+
+test_that("filter_motifs() handles motifs with empty pval/qval/eval slots (regression: sapply -> list)", {
+
+  m1 <- create_motif("ACGT", pseudocount = 1, nsites = 100)
+  m2 <- create_motif("ACGT", pseudocount = 1, nsites = 100)
+  m1["pval"] <- 0.01
+  out <- filter_motifs(c(m1, m2), pval = 0.05)
+  expect_equal(length(out), 1L)
+  expect_equal(out[[1]]@pval, 0.01)
+
+})

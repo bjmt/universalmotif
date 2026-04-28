@@ -49,8 +49,9 @@ read_matrix <- function(file, skip = 0, type, positions = "columns",
 
   positions <- match.arg(positions, c("columns", "rows"))
 
-  raw_lines <- readLines(con <- file(file))
-  close(con)
+  con <- file(file)
+  on.exit(close(con), add = TRUE)
+  raw_lines <- readLines(con)
   if (skip > 0) raw_lines <- raw_lines[-seq_len(skip)]
 
   if (!is.null(comment))

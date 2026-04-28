@@ -85,7 +85,6 @@ motif_finder <- function(sequences, bkg.sequences = NULL, nmotifs = 5,
 
   # Next step is to find motifs within each k-mer size.
 
-  print(seqsk)
   suppressMessages(scan_sequences(
     lapply(seqsk$klet, function(x) create_motif(x, name = x)),
     sequences, threshold = 1, RC = RC, nthreads = nthreads, warn.NA = FALSE,

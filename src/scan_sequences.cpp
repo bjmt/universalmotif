@@ -9,6 +9,7 @@ void deal_with_higher_k_NA(list_int_t &seq_ints, const int &k, const int &let_le
 
   int tmp = 0;
   for (std::size_t i = 0; i < seq_ints.size(); ++i) {
+    if ((std::size_t) k > seq_ints[i].size()) continue;
     for (std::size_t j = 0; j < seq_ints[i].size() - k + 1; ++j) {
       tmp = 0;
       for (int b = 0; b < k; ++b) {
@@ -27,6 +28,7 @@ void deal_with_higher_k(list_int_t &seq_ints, const int &k, const int &let_len) 
 
   int tmp = 0;
   for (std::size_t i = 0; i < seq_ints.size(); ++i) {
+    if ((std::size_t) k > seq_ints[i].size()) continue;
     for (std::size_t j = 0; j < seq_ints[i].size() - k + 1; ++j) {
       tmp = 0;
       for (int b = 0; b < k; ++b) {

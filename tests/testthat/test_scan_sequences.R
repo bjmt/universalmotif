@@ -89,3 +89,15 @@ test_that("calc.qvals.method = 'BH' matches the textbook BH formula (regression:
   }
 
 })
+
+test_that("scan_sequences() with multifreq motif on a short sequence gives a friendly error (regression: size_t underflow)", {
+
+  m <- create_motif("ACGT", nsites = 100, pseudocount = 1)
+  # Sequences the same length as the motif are used directly (no scan step)
+  seqs_match <- Biostrings::DNAStringSet(rep("ACGT", 20))
+  m <- add_multifreq(m, seqs_match, add.k = 2)
+  short <- Biostrings::DNAStringSet("AC")
+  expect_error(suppressWarnings(scan_sequences(m, short, use.freq = 2,
+      verbose = 0)), regexp = "shorter than the width", fixed = TRUE)
+
+})

@@ -86,7 +86,9 @@ write_transfac <- function(motifs, file, overwrite = FALSE, append = FALSE,
   if (append) {
     cat(lines_out, sep = "\n", file = file, append = TRUE)
   } else {
-    writeLines(lines_out, con <- file(file)); close(con)
+    con <- file(file)
+    on.exit(close(con), add = TRUE)
+    writeLines(lines_out, con)
   }
 
   invisible(NULL)

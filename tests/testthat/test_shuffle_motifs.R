@@ -19,3 +19,11 @@ test_that("shuffle_motifs() preserves pseudocount and type (regression: both wer
   expect_equal(s@type, "PCM")
 
 })
+
+test_that("shuffle_motifs() handles a list containing a length-1 motif (regression: missing drop=FALSE)", {
+
+  m1 <- create_motif("A", nsites = 10, pseudocount = 1)
+  m2 <- create_motif("ACGT", nsites = 10, pseudocount = 1)
+  expect_error(shuffle_motifs(c(m1, m2)), regexp = NA)
+
+})

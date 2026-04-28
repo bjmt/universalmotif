@@ -107,7 +107,9 @@ write_homer <- function(motifs, file, logodds_threshold = NULL,
   if (append) {
     cat(lines_out, sep = "\n", file = file, append = TRUE)
   } else {
-    writeLines(lines_out, con <- file(file)); close(con)
+    con <- file(file)
+    on.exit(close(con), add = TRUE)
+    writeLines(lines_out, con)
   }
 
   invisible(NULL)

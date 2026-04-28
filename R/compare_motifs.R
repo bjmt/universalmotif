@@ -485,10 +485,10 @@ compare_motifs_reporter <- function(fun.call, res, output, max.print, args) {
   motifs <- motifs[which.m]
 
   f <- tempfile(fileext = ".Rmd")
-  on.exit(unlink(f))
+  on.exit(unlink(f), add = TRUE)
 
   m <- tempfile(fileext = ".RDS")
-  on.exit(unlink(m))
+  on.exit(unlink(m), add = TRUE)
 
   saveRDS(motifs, m)
 

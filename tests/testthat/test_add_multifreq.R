@@ -28,3 +28,14 @@ test_that("filling multifreq works", {
   # expect_equal(add_multi(s, 2), add_multi_ANY(s, 2, Biostrings::DNA_BASES))
 
 })
+
+test_that("add_multifreq() drops too-large k with a warning and keeps valid k (regression: stale seq_along loop)", {
+
+  m <- create_motif("ACG", nsites = 100, pseudocount = 1)
+  seqs <- Biostrings::DNAStringSet(rep("ACG", 5))
+  expect_warning(out <- add_multifreq(m, seqs, add.k = c(2, 5)),
+                 regexp = "use.freq>=5")
+  expect_true("2" %in% names(out@multifreq))
+  expect_false("5" %in% names(out@multifreq))
+
+})

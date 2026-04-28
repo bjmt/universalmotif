@@ -52,3 +52,14 @@ test_that("read_jaspar() derives nsites from PCM column sums (regression: was al
   expect_equal(jaspar[[1]]@nsites, 100)
 
 })
+
+test_that("read_motifs() version dispatch uses numeric_version not lexicographic comparison (regression)", {
+
+  # "1.1.100" is > "1.1.67" numerically but < "1.1.67" lexicographically
+  # (because "1" < "6" at the third segment's first char).
+  # Without numeric_version(), the pre-1.2.x reader path would be wrongly
+  # selected for any version whose third segment exceeds one digit.
+  expect_true(numeric_version("1.1.100") > numeric_version("1.1.67"))
+  expect_true("1.1.100" < "1.1.67")
+
+})
