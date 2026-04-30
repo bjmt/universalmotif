@@ -354,7 +354,13 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
   vec_int_t min_scores2;
   min_scores2.reserve(min_scores.size());
   for (std::size_t i = 0; i < min_scores.size(); ++i) {
-    min_scores2.push_back(min_scores[i] * 1000);
+    double val = min_scores[i] * 1000.0;
+    if (val >= static_cast<double>(INT_MAX))
+      min_scores2.push_back(INT_MAX);
+    else if (val <= static_cast<double>(INT_MIN))
+      min_scores2.push_back(INT_MIN);
+    else
+      min_scores2.push_back(static_cast<int>(val));
   }
 
   std::vector<int> motif_sizes(score_mats.size());

@@ -3,145 +3,150 @@ CHANGES IN VERSION 1.30.1
 
 MINOR CHANGES
 
-o Improved memory usage of scan_sequences() for larger motif collections &
-  genomes.
+  o Improved memory usage of scan_sequences() for larger motif collections &
+    genomes.
 
 BUG FIXES
 
-o Fixed filter_motifs() erroring when filtering by nsites (malformed apply()
-  call instead of vapply()).
+  o Fixed filter_motifs() erroring when filtering by nsites (malformed apply()
+    call instead of vapply()).
 
-o Fixed motif["name"] <- NA_character_ (and other atomic slots) being silently
-  accepted instead of raising an error.
+  o Fixed motif["name"] <- NA_character_ (and other atomic slots) being silently
+    accepted instead of raising an error.
 
-o Fixed to_list() writing literal "0" into the name slot when altname was NA
-  and a dplyr::rename() swap was performed on the data frame.
+  o Fixed to_list() writing literal "0" into the name slot when altname was NA
+    and a dplyr::rename() swap was performed on the data frame.
 
-o Fixed new("universalmotif", altname = ...) silently dropping the altname
-  argument due to a missing assignment operator.
+  o Fixed new("universalmotif", altname = ...) silently dropping the altname
+    argument due to a missing assignment operator.
 
-o Fixed motif_score() erroring with allow.nonfinite = TRUE and the default
-  threshold.type = "total".
+  o Fixed motif_score() erroring with allow.nonfinite = TRUE and the default
+    threshold.type = "total".
 
-o Fixed motif_pvalue() rejecting non-finite scores even when allow.nonfinite =
-  TRUE was specified (sanitize_input() was not checking the flag).
+  o Fixed motif_pvalue() rejecting non-finite scores even when allow.nonfinite =
+    TRUE was specified (sanitize_input() was not checking the flag).
 
-o Fixed shuffle_motifs() silently resetting the pseudocount to 1 and the type
-  to PPM regardless of the input motif's values.
+  o Fixed shuffle_motifs() silently resetting the pseudocount to 1 and the type
+    to PPM regardless of the input motif's values.
 
-o Fixed shuffle_sequences() and get_bkg() not guarding against window.size <
-  k, or fractional window.size values that resolve to 0 after expansion.
+  o Fixed shuffle_sequences() and get_bkg() not guarding against window.size <
+    k, or fractional window.size values that resolve to 0 after expansion.
 
-o Fixed enrich_motifs() crashing inside fisher.test() when input sequences are
-  shorter than the widest motif. Now gives a clear error message.
+  o Fixed enrich_motifs() crashing inside fisher.test() when input sequences are
+    shorter than the widest motif. Now gives a clear error message.
 
-o Fixed read_jaspar() leaving the nsites slot empty for PCM motifs; it is now
-  derived from the column sums of the count matrix.
+  o Fixed read_jaspar() leaving the nsites slot empty for PCM motifs; it is now
+    derived from the column sums of the count matrix.
 
-o Fixed an unsigned-integer underflow in src/scan_sequences.cpp that could
-  cause out-of-bounds reads when scanning sequences shorter than motif width + k.
+  o Fixed an unsigned-integer underflow in src/scan_sequences.cpp that could
+    cause out-of-bounds reads when scanning sequences shorter than motif width + k.
 
-o Fixed the shuffle.method error message in enrich_motifs() which listed
-  "random" instead of "euler" as a valid option.
+  o Fixed a signed-integer overflow in scan_sequences_cpp() when the threshold
+    supplied via threshold.type = "logodds.abs" exceeded ~2e6; on x86_64 the
+    overflow wrapped to INT_MIN, causing all positions to be returned regardless
+    of the threshold.
 
-o Fixed a wrong variable name (seq.names instead of bkg.names) in the fallback
-  for unnamed background sequences in enrich_motifs().
+  o Fixed the shuffle.method error message in enrich_motifs() which listed
+    "random" instead of "euler" as a valid option.
 
-o Fixed a wrong assignment operator (= instead of ==) in the
-  motif_pvalue.method compatibility check in scan_sequences() which was
-  silently clobbering the calc.pvals variable.
+  o Fixed a wrong variable name (seq.names instead of bkg.names) in the fallback
+    for unnamed background sequences in enrich_motifs().
 
-o Fixed scan_sequences() BH q-value calculation; previously used an inverted
-  ratio with an erroneous 100x factor instead of the standard BH formula.
+  o Fixed a wrong assignment operator (= instead of ==) in the
+    motif_pvalue.method compatibility check in scan_sequences() which was
+    silently clobbering the calc.pvals variable.
 
-o Fixed a wrong inner-loop index in motif_pvalue(method="exhaustive") that
-  produced incorrect p-values for motifs wider than 2*k.
+  o Fixed scan_sequences() BH q-value calculation; previously used an inverted
+    ratio with an erroneous 100x factor instead of the standard BH formula.
 
-o Fixed get_matches() failing when passed a length-1 list of motifs due to an
-  undefined variable and the list-unwrapping occurring after the @ access.
+  o Fixed a wrong inner-loop index in motif_pvalue(method="exhaustive") that
+    produced incorrect p-values for motifs wider than 2*k.
 
-o Fixed get_bkg() validation incorrectly rejecting multi-element window.overlap
-  when merge.res = FALSE, due to missing parentheses around an || sub-expression.
+  o Fixed get_matches() failing when passed a length-1 list of motifs due to an
+    undefined variable and the list-unwrapping occurring after the @ access.
 
-o Fixed merge_motifs() silently dropping the bkgsites slot when only one of the
-  merged motifs had it populated (threshold was > 1 instead of >= 1).
+  o Fixed get_bkg() validation incorrectly rejecting multi-element window.overlap
+    when merge.res = FALSE, due to missing parentheses around an || sub-expression.
 
-o Fixed get_matches() error message incorrectly referencing the max possible
-  score when reporting a min-score violation.
+  o Fixed merge_motifs() silently dropping the bkgsites slot when only one of the
+    merged motifs had it populated (threshold was > 1 instead of >= 1).
 
-o Removed a dead NULL check in enrich_motifs() that would have errored
-  (nrow(NULL) < 1 yields logical(0)) had it ever been reached.
+  o Fixed get_matches() error message incorrectly referencing the max possible
+    score when reporting a min-score violation.
 
-o Removed a leftover debug print() call in enrich_motifs() input validation that
-  caused error messages to be printed twice.
+  o Removed a dead NULL check in enrich_motifs() that would have errored
+    (nrow(NULL) < 1 yields logical(0)) had it ever been reached.
 
-o Fixed scan_sequences(return.granges = TRUE) failing when sequences is empty,
-  due to 1:length(sequences) producing c(1, 0) for length-0 input.
+  o Removed a leftover debug print() call in enrich_motifs() input validation that
+    caused error messages to be printed twice.
 
-o Fixed shuffle_sequences() producing identical shuffles across parallel threads
-  when rng.seed = 0.
+  o Fixed scan_sequences(return.granges = TRUE) failing when sequences is empty,
+    due to 1:length(sequences) producing c(1, 0) for length-0 input.
 
-o Fixed score_match(allow.nonfinite = TRUE) returning NA instead of -Inf for
-  match positions that correspond to non-finite motif cells.
+  o Fixed shuffle_sequences() producing identical shuffles across parallel threads
+    when rng.seed = 0.
 
-o Fixed read_motifs() failing with 'object motif not found' when reading a
-  saved motif file containing a multifreq block, because the motif object was
-  used before it was constructed.
+  o Fixed score_match(allow.nonfinite = TRUE) returning NA instead of -Inf for
+    match positions that correspond to non-finite motif cells.
 
-o Fixed convert_motifs() Motif-method (motifRG) passing the PCM matrix as a
-  positional argument due to a stray <- instead of = in the argument list.
+  o Fixed read_motifs() failing with 'object motif not found' when reading a
+    saved motif file containing a multifreq block, because the motif object was
+    used before it was constructed.
 
-o Fixed possible undefined behaviour in scan_sequences() when scanning
-  sequences shorter than k with a multifreq motif (size_t underflow in
-  deal_with_higher_k / deal_with_higher_k_NA).
+  o Fixed convert_motifs() Motif-method (motifRG) passing the PCM matrix as a
+    positional argument due to a stray <- instead of = in the argument list.
 
-o Fixed merge_motifs() populating pval, qval, eval, nsites, and pseudocount
-  slots with NA when all input motifs had those slots empty; they are now
-  correctly left empty.
+  o Fixed possible undefined behaviour in scan_sequences() when scanning
+    sequences shorter than k with a multifreq motif (size_t underflow in
+    deal_with_higher_k / deal_with_higher_k_NA).
 
-o Fixed trim_motifs() discarding all successfully-trimmed motifs when any
-  single input motif was fully trimmed away (partial-trim case now correctly
-  returns only the surviving motifs).
+  o Fixed merge_motifs() populating pval, qval, eval, nsites, and pseudocount
+    slots with NA when all input motifs had those slots empty; they are now
+    correctly left empty.
 
-o Fixed read_motifs() using lexicographic string comparison for version
-  dispatch; 1.1.7 was incorrectly treated as older than 1.1.67. Now uses
-  numeric_version().
+  o Fixed trim_motifs() discarding all successfully-trimmed motifs when any
+    single input motif was fully trimmed away (partial-trim case now correctly
+    returns only the surviving motifs).
 
-o Fixed read_cisbp() off-by-one error when CIS-BP files contain consecutive
-  TF metadata lines, caused by mutating meta_starts during seq_along iteration.
+  o Fixed read_motifs() using lexicographic string comparison for version
+    dispatch; 1.1.7 was incorrectly treated as older than 1.1.67. Now uses
+    numeric_version().
 
-o Fixed a temp-file leak in the compare_motifs() HTML report path where the
-  second on.exit() call overwrote the first (now uses add = TRUE).
+  o Fixed read_cisbp() off-by-one error when CIS-BP files contain consecutive
+    TF metadata lines, caused by mutating meta_starts during seq_along iteration.
 
-o Fixed add_multifreq() retry loop erroring with 'missing value where
-  TRUE/FALSE needed' or keeping the failing k value, due to a stale seq_along
-  and an off-by-one in seq_len(counter) vs seq_len(counter - 1).
+  o Fixed a temp-file leak in the compare_motifs() HTML report path where the
+    second on.exit() call overwrote the first (now uses add = TRUE).
 
-o Fixed runtime error ('argument FUN.VALUE is missing') in read_motifs() when
-  reading pre-1.2.x files containing multifreq blocks.
+  o Fixed add_multifreq() retry loop erroring with 'missing value where
+    TRUE/FALSE needed' or keeping the failing k value, due to a stale seq_along
+    and an off-by-one in seq_len(counter) vs seq_len(counter - 1).
 
-o Fixed filter_motifs() erroring when filtering by pval, qval, eval, altname,
-  family, or organism and any motif had an empty slot for that field (sapply
-  returned a list of mixed lengths; now uses vapply).
+  o Fixed runtime error ('argument FUN.VALUE is missing') in read_motifs() when
+    reading pre-1.2.x files containing multifreq blocks.
 
-o Fixed shuffle_motifs() dropping the matrix dimension when shuffling a
-  length-1 motif (missing drop = FALSE in column slice), causing downstream
-  errors.
+  o Fixed filter_motifs() erroring when filtering by pval, qval, eval, altname,
+    family, or organism and any motif had an empty slot for that field (sapply
+    returned a list of mixed lengths; now uses vapply).
 
-o Fixed read_motifs() silently accepting non-logical values for the progress
-  and BP arguments (logi_check was computed but not appended to all_checks).
+  o Fixed shuffle_motifs() dropping the matrix dimension when shuffling a
+    length-1 motif (missing drop = FALSE in column slice), causing downstream
+    errors.
 
-o File connections in all read_*() and write_*() functions are now closed via
-  on.exit() so they are released cleanly even when an error occurs mid-read.
+  o Fixed read_motifs() silently accepting non-logical values for the progress
+    and BP arguments (logi_check was computed but not appended to all_checks).
+
+  o File connections in all read_*() and write_*() functions are now closed via
+    on.exit() so they are released cleanly even when an error occurs mid-read.
 
 CHANGES IN VERSION 1.30.0
 -------------------------
 
 BUG FIXES
 
-o Fixed create_sequences() not properly validating alphabet and freq values
-  due to a floating point error with logb(). Thanks to @CountercurrentLinda
-  for the bug report (#32).
+  o Fixed create_sequences() not properly validating alphabet and freq values
+    due to a floating point error with logb(). Thanks to @CountercurrentLinda
+    for the bug report (#32).
 
 CHANGES IN VERSION 1.28.0
 -------------------------
