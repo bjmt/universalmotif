@@ -1,12 +1,12 @@
 ---
 title: "Motif import, export, and manipulation"
 shorttitle: "Motif manipulation"
-date: 17 October 2021
+date: 5 May 2026
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
-  The universalmotif package offers a number of functions to manipulate motifs. These are introduced and explored here, including those relating to: import, export, motif modification, creation, visualization, and other miscellaneous utilities.
+  The universalmotif package offers a number of functions to manipulate motifs. These are introduced and explored here, including those relating to: import, export, motif modification, creation, visualisation, and other miscellaneous utilities.
 vignette: >
   %\VignetteIndexEntry{Motif import, export, and manipulation}
   %\VignetteEngine{knitr::rmarkdown}
@@ -26,13 +26,13 @@ data(MA0003.2)
 
 # Introduction
 
-This vignette will introduce the `universalmotif` class and its structure, the import and export of motifs in R, basic motif manipulation, creation, and visualization. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette. For motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette.
+This vignette will introduce the `universalmotif` class and its structure, the import and export of motifs in R, basic motif manipulation, creation, and visualisation. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette. For motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette.
 
 # The universalmotif class and conversion utilities
 
 ## The universalmotif class
 
-The `universalmotif` package stores motifs using the `universalmotif` class. The most basic `universalmotif` object exposes the `name`, `alphabet`, `type`, `type`, `strand`, `icscore`, `consensus`, and `motif` slots; furthermore, the `pseudocount` and `bkg` slots are also stored but not shown. `universalmotif` class motifs can be PCM, PPM, PWM, or ICM type.
+The `universalmotif` package stores motifs using the `universalmotif` class. The most basic `universalmotif` object exposes the `name`, `alphabet`, `type`, `strand`, `icscore`, `consensus`, and `motif` slots; furthermore, the `pseudocount` and `bkg` slots are also stored but not shown. `universalmotif` class motifs can be PCM, PPM, PWM, or ICM type.
 
 ```{r}
 library(universalmotif)
@@ -51,7 +51,7 @@ A brief description of all the available slots:
 * `type`: motif 'type', one of PCM, PPM, PWM, ICM; see the [introductory](IntroductionToSequenceMotifs.pdf) vignette
 * `icscore`: (generated automatically) Sum of information content for the motif
 * `nsites`: (optional) number of sites the motif was created from
-* `pseudocount`: this value to added to the motif matrix during certain type conversions; this is necessary to avoid `-Inf` values from appearing in PWM type motifs
+* `pseudocount`: this value is added to the motif matrix during certain type conversions; this is necessary to avoid `-Inf` values from appearing in PWM type motifs
 * `bkg`: a named vector of probabilities which represent the background letter frequencies
 * `bkgsites`: (optional) total number of background sequences from motif creation
 * `consensus`: (generated automatically) for DNA/RNA/AA motifs, the motif consensus
@@ -97,13 +97,13 @@ examplemotif["consensus"] <- "GGGAGAG"
 examplemotif["strand"] <- "x"
 ```
 
-Below the exposed metadata slots, the actual 'motif' matrix is shown. Each position is its own column: row names showing the alphabet letters, and the column names showing the consensus letter at each position.
+Below the exposed metadata slots, the actual 'motif' matrix is shown. Each position is its own column, with row names showing the alphabet letters and column names showing the consensus letter at each position.
 
 ## Converting to and from another package's class
 
 The `universalmotif` package aims to unify most of the motif-related Bioconductor packages by providing the `convert_motifs()` function. This allows for easy transition between supported packages (see `?convert_motifs` for a complete list of supported packages). Should you ever come across a motif class from another Bioconductor package which is not supported by the `universalmotif` package, but believe it should be, then feel free to bring it up with me.
 
-The `convert_motifs` function is embedded in most of the `universalmotif` functions, meaning that compatible motif classes from other packages can be used without needed to manually convert them first. However keep in mind some conversions are final. Furthermore, internally, all motifs regardless of class are handled as `universalmotif` objects, even if the returning class is not. This will result in at times slightly different objects (though usually no information should be lost).
+The `convert_motifs` function is embedded in most of the `universalmotif` functions, meaning that compatible motif classes from other packages can be used without needing to manually convert them first. However, keep in mind some conversions are final. Furthermore, internally, all motifs regardless of class are handled as `universalmotif` objects, even if the returning class is not. This will result in at times slightly different objects (though usually no information should be lost).
 
 ```{r}
 library(universalmotif)
@@ -139,7 +139,7 @@ The `universalmotif` package offers a number of `read_*()` functions to allow fo
 * `read_transfac()`: TRANSFAC [@transfac]
 * `read_uniprobe()`: UniPROBE [@uniprobe]
 
-These functions should work natively with these formats, but if you are generating your own motifs in one of these formats than it must adhere quite strictly to the format. An example of each of these is included in this package (see `system.file("extdata", package="universalmotif")`). If you know of additional motif formats which are not supported in the `universalmotif` package that you believe should be, or of any mistakes in the way the `universalmotif` package parses supported formats, then please let me know.
+These functions should work natively with these formats, but if you are generating your own motifs in one of these formats then it must adhere quite strictly to the format. An example of each of these is included in this package (see `system.file("extdata", package="universalmotif")`). If you know of additional motif formats which are not supported in the `universalmotif` package that you believe should be, or of any mistakes in the way the `universalmotif` package parses supported formats, then please let me know.
 
 ## Exporting
 
@@ -223,7 +223,7 @@ motifs <- merge_similar(motifs)
 length(motifs)
 ```
 
-Comparison and merging parameters can be fine-tuned as users wish. See the `compare_motifs()` and `merge_motifs()` documentation for more details, as well as the "Motif comparison and P-values" vignette.
+Comparison and merging parameters can be fine-tuned as users wish. See the `compare_motifs()` and `merge_motifs()` documentation for more details, as well as the "Motif comparisons and P-values" vignette.
 
 ## Motif reverse complement
 
@@ -290,7 +290,7 @@ view_motifs(c(motif1, motif2))
 
 # Motif creation
 
-Though `universalmotif` class motifs can be created using the `new` constructor, the `universalmotif` package provides the `create_motif()` function which aims to provide a simpler interface to motif creation. The `universalmotif` class was initially designed to work natively with DNA, RNA, and amino acid motifs. Currently though, it can handle any custom alphabet just as easily. The only downsides to custom alphabets is the lack of support for certain slots such as the `consensus` and `strand` slots.
+Though `universalmotif` class motifs can be created using the `new` constructor, the `universalmotif` package provides the `create_motif()` function which aims to provide a simpler interface to motif creation. The `universalmotif` class was initially designed to work natively with DNA, RNA, and amino acid motifs. Currently though, it can handle any custom alphabet just as easily. The only downside to custom alphabets is the lack of support for certain slots such as the `consensus` and `strand` slots.
 
 The `create_motif()` function will be introduced here only briefly; see `?create_motif` for details.
 
@@ -333,7 +333,7 @@ motif
 
 ## Generating random motifs
 
-If you wish to, it's easy to create random motifs. The values within the motif are generated using `rgamma()` to avoid creating low information content motifs. If background probabilities are not provided, then they are generated with `rpois()`.
+If you wish, it is easy to create random motifs. The values within the motif are generated using `rgamma()` to avoid creating low information content motifs. If background probabilities are not provided, then they are generated with `rpois()`.
 
 ```{r}
 create_motif()
@@ -347,11 +347,11 @@ create_motif(bkg = c(A = 0.2, C = 0.4, G = 0.2, T = 0.2))
 create_motif(alphabet = "QWERTY")
 ```
 
-# Motif visualization
+# Motif visualisation
 
 ## Motif logos
 
-There are several packages which offer motif visualization capabilities, such as `seqLogo`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation via the function `view_motifs()`, which renders motifs using the `ggplot2` package (similar to `ggseqlogo`). Here I will briefly show how to use these to visualize `universalmotif` class motifs.
+There are several packages which offer motif visualisation capabilities, such as `seqLogo`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation via the function `view_motifs()`, which renders motifs using the `ggplot2` package (similar to `ggseqlogo`). Here I will briefly show how to use these to visualise `universalmotif` class motifs.
 
 ```{r, fig.height=2, fig.width=5}
 library(universalmotif)
@@ -393,7 +393,7 @@ ggseqlogo::ggseqlogo(motif)
 
 ## Stacked motif logos
 
-The `motifStack` package allows for a number of different motif stacking visualizations. The `universalmotif` package, while not capable of emulating most of these, still offers basic stacking via `view_motifs()`. The motifs are aligned using `compare_motifs()`.
+The `motifStack` package allows for a number of different motif stacking visualisations. The `universalmotif` package, while not capable of emulating most of these, still offers basic stacking via `view_motifs()`. The motifs are aligned using `compare_motifs()`.
 
 ```{r, fig.height=5, fig.width=5}
 library(universalmotif)
@@ -452,7 +452,7 @@ Position |   1 |   2 |   3 |   4 |   5 |   6 |   7
        T | 0.0 | 0.5 | 0.5 | 0.5 | 0.5 | 0.0 | 0.0
 : (\#tab:ppm2) Position Probability Matrix.
 
-Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered so? For transcription factor binding sites, this sometimes is not the case. By incorporating this type of information into the motif, it can allow for increased accuracy in motif searching. A few example implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
+Based on the PPM representation, all three of CAAAACC, CTTTTCC, and CTATACC are equally likely. Though looking at the starting sequences, should CTATACC really be considered equally likely? For transcription factor binding sites, this sometimes is not the case. By incorporating this type of information into the motif, it can allow for increased accuracy in motif searching. A few example implementations of this include: TFFM by @tffm, BaMM by @bamm, and KSM by @ksm.
 
 The `universalmotif` package implements its own, rather simplified, version of this concept. Plainly, the standard PPM has been extended to include `k`-letter frequencies, with `k` being any number higher than 1. For example, the 2-letter version of the table \@ref(tab:ppm2) motif would be:
 
@@ -497,11 +497,11 @@ To plot these motifs, use `view_motifs()`:
 view_motifs(motif.k2, use.freq = 2)
 ```
 
-This information is most useful with functions such as `scan_sequences()` and `enrich_motifs()`. Though other tools in the `universalmotif` can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`), keep in mind they are not as well supported as regular motifs (getting P-values from `multifreq` motifs is exponentially slower, and P-values from using `compare_motifs()` for `multifreq` motifs are not available by default). See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()` with the `multifreq` slot.
+This information is most useful with functions such as `scan_sequences()` and `enrich_motifs()`. Though other tools in the `universalmotif` package can work with `multifreq` motifs (such as `motif_pvalue()`, `compare_motifs()`), keep in mind they are not as well supported as regular motifs (getting P-values from `multifreq` motifs is exponentially slower, and P-values from using `compare_motifs()` for `multifreq` motifs are not available by default). See the [sequences](SequenceSearches.pdf) vignette for using `scan_sequences()` with the `multifreq` slot.
 
 # Tidy motif manipulation with the `universalmotif_df` data structure
 
-For those who enjoy using the tidyverse functions for data handling, motifs can additionally represented as the modified `data.frame` format: `universalmotif_df`. This format allows one to modify motif slots for multiples motifs simultaneously using the `universalmotif_df` columns, and then return to a list of motifs afterwards to resume use with `universalmotif` package functions. A few key functions have been provided in relation to this format:
+For those who enjoy using the tidyverse functions for data handling, motifs can additionally be represented as the modified `data.frame` format: `universalmotif_df`. This format allows one to modify motif slots for multiple motifs simultaneously using the `universalmotif_df` columns, and then return to a list of motifs afterwards to resume use with `universalmotif` package functions. A few key functions have been provided in relation to this format:
 
 * `to_df()`: Generate a `universalmotif_df` object from a list of motifs.
 * `update_motifs()`: After modifying the `universalmotif_df` object, apply these modifications to the actual `universalmotif` objects (contained within the `motif` column).
@@ -530,7 +530,7 @@ motifs <- motifs %>%
 head(filter(motifs, organism == "Athaliana"))
 ```
 
-Feel free to add columns as well. You can add 1d vectors which will be added to the `extrainfo` slots of motifs. (Note that they will be coerced to character vectors!)
+Feel free to add columns as well. You can add one-dimensional vectors which will be added to the `extrainfo` slots of motifs. (Note that they will be coerced to character vectors!)
 
 ```{r}
 motifs <- motifs %>%
@@ -552,7 +552,7 @@ A number of convenience functions are included for manipulating motifs.
 
 ## DNA/RNA/AA consensus functions
 
-For DNA, RNA and AA motifs, the `universalmotif` will automatically generate a `consensus` string slot. Furthermore, `create_motif()` can generate motifs from consensus strings. The internal functions for these have been made available:
+For DNA, RNA and AA motifs, the `universalmotif` package will automatically generate a `consensus` string slot. Furthermore, `create_motif()` can generate motifs from consensus strings. The internal functions for these have been made available:
 
 * `consensus_to_ppm()`
 * `consensus_to_ppmAA()`
@@ -654,7 +654,7 @@ While `convert_type()` will take care of switching the current type for `univers
 * `ppm_to_pwm()`
 * `pwm_to_ppm()`
 
-These functions take a one dimensional vector. To use these for matrices:
+These functions take a one-dimensional vector. To use these for matrices:
 
 ```{r}
 library(universalmotif)
@@ -665,7 +665,7 @@ m
 apply(m, 2, pcm_to_ppm)
 ```
 
-Additionally, the `position_icscore()` can be used to get the total information content per position:
+Additionally, `position_icscore()` can be used to get the total information content per position:
 
 ```{r}
 library(universalmotif)

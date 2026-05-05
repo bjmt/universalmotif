@@ -1,7 +1,7 @@
 ---
 title: "Sequence manipulation and scanning"
 shorttitle: "Sequence utilities"
-date: 17 October 2021
+date: 5 May 2026
 author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
@@ -61,7 +61,7 @@ create_sequences(alphabet = paste0(letters, collapse = ""))
 
 ## Calculating sequence background
 
-Sequence backgrounds can be retrieved for DNA and RNA sequences with `oligonucleotideFrequency()` from `"Biostrings`. Unfortunately, no such `Biostrings` function exists for other sequence alphabets. The `universalmotif` package proves `get_bkg()` to remedy this. Similarly, the `get_bkg()` function can calculate higher order backgrounds for any alphabet as well. It is recommended to use the original `Biostrings` for very long (e.g. billions of characters) DNA and RNA sequences whenever possible though, as it is much faster than `get_bkg()`.
+Sequence backgrounds can be retrieved for DNA and RNA sequences with `oligonucleotideFrequency()` from `Biostrings`. Unfortunately, no such `Biostrings` function exists for other sequence alphabets. The `universalmotif` package provides `get_bkg()` to remedy this. Similarly, the `get_bkg()` function can calculate higher order backgrounds for any alphabet as well. It is recommended to use `oligonucleotideFrequency()` for very long (e.g. billions of characters) DNA and RNA sequences whenever possible though, as it is much faster than `get_bkg()`.
 
 ```{r}
 library(universalmotif)
@@ -114,7 +114,7 @@ sPCA <- prcomp(sAll[, -(1:2)])
 plot(sPCA$x, col = c("red", "forestgreen", "blue")[sAll$Group], pch = 19)
 ```
 
-This example could be improved by using `tidyr::spread()` instead of `reshape()` (the former is much faster), and plotting the PCA using the `ggfortify` package to create a nicer `ggplot2` plot. Feel free to play around with different ways of plotting the data! Additionally, you could even try using t-SNE instead of PCA (such as via the `Rtsne` package).
+This example could be improved by using `tidyr::pivot_wider()` instead of `reshape()` (the former is much faster), and plotting the PCA using the `ggfortify` package to create a nicer `ggplot2` plot. Feel free to play around with different ways of plotting the data! Additionally, you could even try using t-SNE instead of PCA (such as via the `Rtsne` package).
 
 # Shuffling
 
@@ -122,13 +122,13 @@ This example could be improved by using `tidyr::spread()` instead of `reshape()`
 
 When performing _de novo_ motif searches or motif enrichment analyses, it is common to do so against a set of background sequences. In order to properly identify consistent patterns or motifs in the target sequences, it is important that there be maintained a certain level of sequence composition between the target and background sequences. This reduces results which are derived purely from base differential letter frequency biases.
 
-In order to avoid these results, typically it desirable to use a set of background sequences which preserve a certain `k`-let size (such as dinucleotide or trinucleotide frequencies in the case of DNA sequences). Though for some cases a set of similar sequences may already be available for use as background sequences, usually background sequences are obtained by shuffling the target sequences, while preserving a desired `k`-let size. For this purpose, a commonly used tool is `uShuffle` [@ushuffle]. The `universalmotif` package aims to provide its own `k`-let shuffling capabilities for use within `R` via `shuffle_sequences()`.
+In order to avoid these results, typically it is desirable to use a set of background sequences which preserve a certain `k`-let size (such as dinucleotide or trinucleotide frequencies in the case of DNA sequences). Though for some cases a set of similar sequences may already be available for use as background sequences, usually background sequences are obtained by shuffling the target sequences, while preserving a desired `k`-let size. For this purpose, a commonly used tool is `uShuffle` [@ushuffle]. The `universalmotif` package aims to provide its own `k`-let shuffling capabilities for use within `R` via `shuffle_sequences()`.
 
-The `universalmotif` package offers three different methods for sequence shuffling: `euler`, `markov` and `linear`. The first method, `euler`, can shuffle sequences while preserving any desired `k`-let size. Furthermore 1-letter counts will always be maintained. However due to the nature of the method, the first and last letters will remain unshuffled. This method is based on the initial random Eulerian walk algorithm proposed by @markovmodel2 and the subsequent cycle-popping algorithm detailed by @eulerAlgo for quickly and efficiently finding Eulerian walks.
+The `universalmotif` package offers three different methods for sequence shuffling: `euler`, `markov` and `linear`. The first method, `euler`, can shuffle sequences while preserving any desired `k`-let size. Furthermore, 1-letter counts will always be maintained. However, due to the nature of the method, the first and last letters will remain unshuffled. This method is based on the initial random Eulerian walk algorithm proposed by @markovmodel2 and the subsequent cycle-popping algorithm detailed by @eulerAlgo for quickly and efficiently finding Eulerian walks.
 
-The second method, `markov` can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different. Essentially, it involves a combination of determining `k`-let frequencies followed by `create_sequences()`. This type of pseudo-shuffling is discussed by @markovmodel.
+The second method, `markov`, can only guarantee that the approximate `k`-let frequency will be maintained, but not that the original letter counts will be preserved. The `markov` method involves determining the original `k`-let frequencies, then creating a new set of sequences which will have approximately similar `k`-let frequency. As a result the counts for the individual letters will likely be different. Essentially, it involves a combination of determining `k`-let frequencies followed by `create_sequences()`. This type of pseudo-shuffling is discussed by @markovmodel.
 
-The third method `linear` preserves the original 1-letter counts exactly, but uses a more crude shuffling technique. In this case the sequence is split into sub-sequences every `k`-let (of any size), which are then re-assembled randomly. This means that while shuffling the same sequence multiple times with `method = "linear"` will result in different sequences, they will all have started from the same set of `k`-length sub-sequences (just re-assembled differently).
+The third method, `linear`, preserves the original 1-letter counts exactly, but uses a more crude shuffling technique. In this case the sequence is split into sub-sequences every `k`-let (of any size), which are then re-assembled randomly. This means that while shuffling the same sequence multiple times with `method = "linear"` will result in different sequences, they will all have started from the same set of `k`-length sub-sequences (just re-assembled differently).
 
 ```{r}
 library(universalmotif)
@@ -205,7 +205,7 @@ ggplot(myseq_all, aes(x = start, y = probability, colour = klet)) +
 
 There are many motif-programs available with sequence scanning capabilities, such as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the [MEME suite](http://meme-suite.org/). The `universalmotif` package does not aim to supplant these, but rather provide convenience functions for quickly scanning a few sequences without needing to leave the `R` environment. Furthermore, these functions allow for taking advantage of the higher-order (`multifreq`) motif format described here.
 
-Two scanning-related functions are provided: `scan_sequences()` and `enrich_motifs()`. The latter simply runs `scan_sequences()` twice on a set of target and background sequences. Given a motif of length `n`, `scan_sequences()` considers every possible `n`-length subset in a sequence and scores it using the PWM format. If the match surpasses the minimum threshold, it is reported. This is case regardless of whether one is scanning with a regular motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix is converted to a PWM).
+Two scanning-related functions are provided: `scan_sequences()` and `enrich_motifs()`. The latter simply runs `scan_sequences()` twice on a set of target and background sequences. Given a motif of length `n`, `scan_sequences()` considers every possible `n`-length subsequence in a sequence and scores it using the PWM format. If the match surpasses the minimum threshold, it is reported. This is the case regardless of whether one is scanning with a regular motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix is converted to a PWM).
 
 ## Choosing a logodds threshold
 
@@ -213,7 +213,7 @@ Before scanning a set of sequences, one must first decide the minimum logodds th
 
 ### Logodds thresholds {.unnumbered}
 
-One way is to set a cutoff between 0 and 1, then multiplying the highest possible PWM score to get a threshold. The `matchPWM()` function from the `Biostrings` package for example uses a default of 0.8 (shown as `"80%"`). This is quite arbitrary of course, and every motif will end up with a different threshold. For high information content motifs, there is really no right or wrong threshold, as they tend to have fewer non-specific positions. This means that incorrect letters in a match will be more punishing. To illustrate this, contrast the following PWMs:
+One way is to set a cutoff between 0 and 1, then multiply it by the highest possible PWM score to get a threshold. The `matchPWM()` function from the `Biostrings` package for example uses a default of 0.8 (shown as `"80%"`). This is quite arbitrary of course, and every motif will end up with a different threshold. For high information content motifs, there is really no right or wrong threshold, as they tend to have fewer non-specific positions. This means that incorrect letters in a match will be more punishing. To illustrate this, contrast the following PWMs:
 
 ```{r}
 library(universalmotif)
@@ -232,7 +232,7 @@ In the first example, sequences which do not have a matching base in every posit
 
 ### P-values {.unnumbered}
 
-This thinking becomes impossible for the second example. In this case, mismatches are much less punishing, to the point that one could ask: what even constitutes a mismatch? The answer to this question is usually much more difficult in such cases. An alternative to manually deciding upon a threshold is to instead start with maximum P-value one would consider appropriate for a match. If, say, we want matches with a P-value of at most 0.001, then we can use `motif_pvalue()` to calculate the appropriate threshold (see the [comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette for details on motif P-values).
+This thinking becomes impossible for the second example. In this case, mismatches are much less punishing, to the point that one could ask: what even constitutes a mismatch? The answer to this question is usually much more difficult in such cases. An alternative to manually deciding upon a threshold is to instead start with the maximum P-value one would consider appropriate for a match. If, say, we want matches with a P-value of at most 0.001, then we can use `motif_pvalue()` to calculate the appropriate threshold (see the [comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette for details on motif P-values).
 
 ```{r}
 motif_pvalue(m2, pvalue = 0.001)
@@ -263,7 +263,7 @@ The first correction method, Bonferroni, is by far the simplest. To calculate it
 (Example.bonferroni <- Example.Pvalue * Max.Possible.Hits)
 ```
 
-As you can imagine, the level of punishment the P-value receives corresponds to the size of the sequences you are scanning. If you are scanning an entire genome, then you can expect this to be  very punishing and only return near-perfect matches (or no matches). However for smaller sets of sequences this correction can be more appropriate.
+As you can imagine, the level of punishment the P-value receives corresponds to the size of the sequences you are scanning. If you are scanning an entire genome, then you can expect this to be very punishing and only return near-perfect matches (or no matches). However, for smaller sets of sequences, this correction can be more appropriate.
 
 Next, Benjamini & Hochberg. To perform this correction, the P-value is divided by its fractional rank in the list of P-values for all theoretically possible hits sorted in ascending order (this assumes that P-values are independent and uniformly distributed on [0, 1] under the null hypothesis). It is important to note that this means the correction cannot be calculated before the sequences have been scanned for the motif, and P-values have been calculated for all returned hits. When requesting this type of Q-value for the minimum threshold of score, `scan_sequences()` instead calculates the threshold from the input Q-value as a P-value, then filters the final results after Q-values have been calculated. Returning to our example:
 
@@ -283,7 +283,7 @@ Qvalues.BH <- Pvalues / Pvalues.Ranks
 (Example.BH <- Qvalues.BH[Scan.Results$match == "TTCTCTTTTTTTTTT"][1])
 ```
 
-Finally, calculating the false discovery rate from the empirical distribution of scores. This method requires some additional steps, as we must obtain the observed and null distributions of hits in our sequences. Then for each hit, divide the number of hits with a score equal to or greater in the null distribution with the number of hits with a score equal to or greater in the observed distribution. Along the way we must be wary of the nonmonotonicity of the final Q-values (meaning that as scores get smaller the Q-value does not always increase), and thus always select the minimum available Q-value as the score increases. To get the null distribution of hits, we can simply use the P-values associated with each score as these are analytically calculated from the null based on the background probabilities (see `?motif_pvalue`).
+Finally, calculating the false discovery rate from the empirical distribution of scores. This method requires some additional steps, as we must obtain the observed and null distributions of hits in our sequences. Then for each hit, divide the number of hits with a score equal to or greater in the null distribution by the number of hits with a score equal to or greater in the observed distribution. Along the way we must be wary of the nonmonotonicity of the final Q-values (meaning that as scores get smaller the Q-value does not always increase), and thus always select the minimum available Q-value as the score increases. To get the null distribution of hits, we can simply use the P-values associated with each score as these are analytically calculated from the null based on the background probabilities (see `?motif_pvalue`).
 
 
 ```{r}
@@ -317,7 +317,7 @@ Use your best judgement as to which method is most appropriate for your specific
 
 ## Regular and higher order scanning
 
-Furthermore, the `scan_sequences()` function offers the ability to scan using the `multifreq` slot, if available. This allows to take into account inter-positional dependencies, and get matches which more faithfully represent the original sequences from which the motif originated.
+Furthermore, the `scan_sequences()` function offers the ability to scan using the `multifreq` slot, if available. This allows one to take into account inter-positional dependencies, and get matches which more faithfully represent the original sequences from which the motif originated.
 
 ```{r}
 library(universalmotif)
@@ -369,7 +369,7 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
 
 A few suggestions for different ways of plotting hits across sequences are presented here.
 
-Using the `ggbio` package, it is rather trivial to generate nice visualizations of the output of `scan_sequences()`. This requires having the `GenomicRanges` and `ggbio` packages installed, and outputting the `scan_sequences()` result as a `GRanges` object (via `return.granges = TRUE`).
+Using the `ggbio` package, it is rather trivial to generate nice visualisations of the output of `scan_sequences()`. This requires having the `GenomicRanges` and `ggbio` packages installed, and outputting the `scan_sequences()` result as a `GRanges` object (via `return.granges = TRUE`).
 
 ```{r, fig.height = 2.5, fig.width = 6}
 library(universalmotif)
@@ -525,7 +525,7 @@ We can easily mask portions that contain, say, stretches of at least 8 `A`s:
 mask_seqs(Ex.seq, "AAAAAAAA")
 ```
 
-Alternatively, instead of masking a know stretch of letters one can find low complexity regions using `sequence_complexity()`, and then mask specific regions in the sequences using `mask_ranges()`. The `sequence_complexity()` function has several complexity metrics available: the Wootton-Federhen [@wootton93] and Trifonov [@trifonov90] algorithms (and their approximations) are well described in @orlov04, and DUST in @morgulis06. See `?sequence_complexity` for more details.
+Alternatively, instead of masking a known stretch of letters, one can find low complexity regions using `sequence_complexity()`, and then mask specific regions in the sequences using `mask_ranges()`. The `sequence_complexity()` function has several complexity metrics available: the Wootton-Federhen [@wootton93] and Trifonov [@trifonov90] algorithms (and their approximations) are well described in @orlov04, and DUST in @morgulis06. See `?sequence_complexity` for more details.
 
 ```{r}
 (Ex.DUST <- sequence_complexity(Ex.seq, window.size = 10, method = "DUST",
@@ -543,7 +543,7 @@ Now these sequences could be used directly with `scan_sequences()` or written to
 
 # Motif discovery with MEME
 
-_Note: In the time since the inception of the `run_meme()` function, Spencer Nystrom (a contributor to `universalmotif`) has created the `memes` package as a interface to much of the `MEME` suite. It is fully interoperable with the `universalmotif` package and provides a much more convenient way to run `MEME` programs from within `R`. Install it from Bioconductor with `BiocManager::install("memes")`._
+_Note: In the time since the inception of the `run_meme()` function, Spencer Nystrom (a contributor to `universalmotif`) has created the `memes` package as an interface to much of the `MEME` suite. It is fully interoperable with the `universalmotif` package and provides a much more convenient way to run `MEME` programs from within `R`. Install it from Bioconductor with `BiocManager::install("memes")`._
 
 The `universalmotif` package provides a simple wrapper to the powerful motif discovery tool `MEME` [@meme3]. To run an analysis with `MEME`, all that is required is a set of `XStringSet` class sequences (defined in the `Biostrings` package), and `run_meme()` will take care of running the program and reading the output for use within `R`.
 
@@ -624,7 +624,7 @@ promoters <- getPromoterSeq(transcripts,
 run_meme(promoters, ...)
 ```
 
-Once the sequences are ready, there are few important options to keep in mind. One is whether to conserve the output from `MEME`. The default is not to, but this can be changed by setting the relevant option:
+Once the sequences are ready, there are a few important options to keep in mind. One is whether to conserve the output from `MEME`. The default is not to, but this can be changed by setting the relevant option:
 
 ```{r,eval=FALSE}
 run_meme(sequences, output = "/path/to/desired/output/folder")
