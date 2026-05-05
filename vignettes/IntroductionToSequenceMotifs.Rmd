@@ -57,7 +57,7 @@ _(Note that all positions add up to 6, the initial number of sequences.)_
 Also sometimes known as position frequency matrices or position weight matrices, these represent the probabilities for each letter at each position. Using the previous motif (table \@ref(tab:pcm)) as an example, the following formula would be used to calculate the probability (_P_) of each letter _N_ at an individual position from counts (_C_):
 
 \begin{equation}
-  P(N) = \frac{C_N}{\sum{C}}
+  P(N) = \frac{C_N}{\sum C}
   (\#eq:pcm2ppm)
 \end{equation}
 
@@ -82,7 +82,7 @@ _(Note that all positions sum to 1.)_
 From this type of representation, the probability of any combination of letters can be calculated. For example, the probability for AAGAAA is about 15%. However, when starting from a small pool of sequences, many zeroes can appear in the PPM. This means that, for example, the probability of AAAAAA is currently zero. When scanning through large numbers of biological sequences, throwing away combinations of letters such as these can potentially be undesirable, as sometimes mismatches can occur in some transcription factor binding sites. This can be fixed by adding a pseudocount (_p_). Usually a small number such as 1, it is introduced into the PCM to PPM calculation as such:
 
 \begin{equation}
-  P_{pseudo}(N) = \frac{C_N + \frac{p}{n}}{\sum{C} + p}
+  P_{\text{pseudo}}(N) = \frac{C_N + \frac{p}{n}}{\sum C + p}
   (\#eq:ppmpseudo)
 \end{equation}
 
@@ -109,7 +109,7 @@ Now, though unlikely, it is no longer considered impossible for the sequence AAA
 The position weight matrix, also known as position-specific weight matrix, position-specific scoring matrix, and logodds scoring matrix, was first proposed by @pwm. In this case for each position, every letter has a 'score' which can be used to evaluate how well a sequence matches a motif. Though there can be multiple ways of calculating these scores (_S_), the most common method is to calculate the log of each probability, correcting for background frequencies (_B_). This results in the following calculation:
 
 \begin{equation}
-  S(N) = \log_{2}\frac{P(C_N)}{B_N}
+  S(N) = \log_2 \frac{P(N)}{B_N}
   (\#eq:ppm2pwm)
 \end{equation}
 
@@ -174,7 +174,7 @@ Now, the total height of each position is scaled using the total _information_ a
 For every position, the letter heights are calculated by taking the total possible information content (_IC_), or maximum uncertainty, and then subtracting the actual uncertainty at each position [@correction; @icm]. This calculation is based on Shannon's entropy [@shannon], with the final values representing 'bits' [@bits]. The total IC is based on alphabet length (_n_), using the following equation:
 
 \begin{equation}
-  IC_{total} = \log_{2}n
+  IC_{\text{total}} = \log_2 n
   (\#eq:totalic)
 \end{equation}
 
@@ -186,7 +186,7 @@ ICtotal <- function(C) log2(length(C))
 For DNA motifs which have an alphabet length of 4, the total IC is 2. To calculate the actual uncertainty (_U_) per position, the following equation is used:
 
 \begin{equation}
-  U = - \sum_{N=A}^{T} P(N) \times{} \log_{2}P(N)
+  U = -\sum_N P(N) \times \log_2 P(N)
   (\#eq:posuncer)
 \end{equation}
 
@@ -199,7 +199,7 @@ U <- function(C) -sum(PPM(C) * log2(PPM(C)), na.rm = TRUE)
 Here, the position uncertainty is the sum of the uncertainties contributed by all alphabet letters (A, C, G, and T). To calculate the final information content:
 
 \begin{equation}
-  IC_{final} = IC_{total} - U
+  IC_{\text{final}} = IC_{\text{total}} - U
   (\#eq:ic)
 \end{equation}
 
@@ -212,7 +212,7 @@ ICfinal <- function(C) ICtotal(C) - U(C)
 In the original implementation described by @correction, an additional error correction factor (_E_) is included to account for sample size. This correction is rarely used, but can be incorporated as follows:
 
 \begin{equation}
-  IC_{final} = IC_{total} - [ U + E ]
+  IC_{\text{final}} = IC_{\text{total}} - [ U + E ]
   (\#eq:iccorr)
 \end{equation}
 
@@ -221,7 +221,7 @@ The details for calculating this factor will not be covered here. (Refer to @cor
 Finally, to get the height of each letter at each position, the final IC is multiplied by the letter and position probabilities:
 
 \begin{equation}
-  IC(N) = P(N) \times{} IC_{final}
+  IC(N) = P(N) \times IC_{\text{final}}
   (\#eq:finalic)
 \end{equation}
 
@@ -246,7 +246,7 @@ _(Note that none of the positions have a sum larger than 2.)_
 An alternative to representing information content as Shannon's entropy is relative entropy, or Kullback-Leibler divergence [@kl]. While IC computed via Shannon's entropy has the advantage of having a consistent maximum IC for every position, it does not take into account non-uniform background frequencies. Relative entropy on the other hand will take this into account, but all positions no longer share the same maximum IC. To calculate relative entropy:
 
 \begin{equation}
-  IC(N) = P(N) \times{} \log_{2}\frac{P(N)}{B_N}
+  IC(N) = P(N) \times \log_2 \frac{P(N)}{B_N}
   (\#eq:kldiv)
 \end{equation}
 

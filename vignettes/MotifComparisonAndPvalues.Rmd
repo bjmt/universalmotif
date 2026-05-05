@@ -179,13 +179,12 @@ for (m in metrics) {
 
 l_2_df <- function(x) {
 
-  d <- data.frame(key = character(), scores = numeric(), stringsAsFactors = FALSE)
+  d <- data.frame(key = character(), scores = numeric())
 
   for (i in seq_along(x)) {
     y <- x[[i]]
     y <- y[!is.na(y)]
-    d <- rbind(d, data.frame(key = rep(names(x)[i], length(y)), scores = y,
-                             stringsAsFactors = FALSE))
+    d <- rbind(d, data.frame(key = rep(names(x)[i], length(y)), scores = y))
   }
 
   d
@@ -213,7 +212,7 @@ res6 <- rbind(res, res3, res4, res5, res9, res8, res99)
 
 dres <- res6 %>%
           group_by(key, type) %>%
-          summarise(mean = mean(scores, na.rm = TRUE))
+          summarise(mean = mean(scores, na.rm = TRUE), .groups = "drop")
 
 ggplot(res6, aes(x = scores, fill = type)) +
   geom_density(alpha = 0.3, adjust = 2) +

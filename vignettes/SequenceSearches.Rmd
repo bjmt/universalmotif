@@ -419,8 +419,7 @@ res$x <- mapply(function(x, y) mean(c(x, y)), res$start, res$stop)
 
 ggplot(res, aes(x, sequence, fill = score)) +
   scale_fill_viridis_c() +
-  scale_x_continuous(expand = c(0, 0)) +
-  xlim(0, 1000) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1000)) +
   xlab(element_blank()) +
   ylab(element_blank()) +
   geom_tile(width = ncol(ArabidopsisMotif)) +
