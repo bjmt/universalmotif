@@ -157,6 +157,8 @@ make_DBscores <- function(db.motifs,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   # having min.mean.ic > 0 can really mess with scores sometimes
 
   if (score.strat %in% c("g.mean", "wg.mean") && method %in%

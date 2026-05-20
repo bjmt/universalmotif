@@ -140,6 +140,8 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   if (!score.strat %in% c("sum", "a.mean", "g.mean", "median", "wa.mean",
                           "wg.mean", "fzt"))
     stop("'score.strat' must be one of 'sum', 'a.mean', 'g.mean', 'median', ",

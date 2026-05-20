@@ -77,6 +77,40 @@ shrink_string <- function(name, maxLen = 5, suffix = "..") {
   name
 }
 
+# Resolve the user-supplied `nthreads` value before handing it to C++.
+#
+# The documented contract for every user-facing function in this package is
+# that `nthreads = 0` means "use all available threads". However,
+# RcppThread::parallelFor(..., nthreads = 0) actually sets the global pool to
+# zero workers, and then ThreadPool::parallelFor() clamps the worker count
+# back up to 1 (RcppThread/ThreadPool.hpp). The work completes but runs
+# serially -- silently violating the documented behaviour.
+#
+# This helper translates `0` into the detected hardware concurrency before
+# the value ever reaches C++, so the documented behaviour matches reality
+# for every nthreads-aware function in the package.
+#
+# - `nthreads = 0`     -> parallel::detectCores() (with a floor of 1)
+# - `nthreads = NA`    -> 1 (defensive)
+# - `nthreads < 0`     -> error (caller is asking for nonsense)
+# - otherwise          -> as.integer(nthreads)
+resolve_nthreads <- function(nthreads) {
+  if (length(nthreads) != 1L)
+    stop("'nthreads' must be a single non-negative integer", call. = FALSE)
+  if (is.na(nthreads)) return(1L)
+  nthreads <- as.integer(nthreads)
+  if (is.na(nthreads))
+    stop("'nthreads' must be a single non-negative integer", call. = FALSE)
+  if (nthreads < 0L)
+    stop("'nthreads' cannot be less than 0", call. = FALSE)
+  if (nthreads == 0L) {
+    n <- parallel::detectCores(logical = TRUE)
+    if (is.na(n) || n < 1L) n <- 1L
+    return(as.integer(n))
+  }
+  nthreads
+}
+
 warn_pseudo <- function(v = 1) {
   # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {

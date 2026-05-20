@@ -262,6 +262,8 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   if (use.type == "ICM" && method %in% c("ALLR", "ALLR_LL"))
     stop("'use.type = \"ICM\"' is not allowed for ALLR/ALLR_LL methods")
 

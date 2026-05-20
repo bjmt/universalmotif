@@ -102,6 +102,8 @@ get_bkg <- function(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   if (!is.null(as.prob))
     warning(wmsg("`as.prob` has been disabled and now does nothing ",
         "(both counts and probabilities are now shown)"), immediate. = TRUE)

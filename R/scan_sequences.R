@@ -193,6 +193,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   motif_pvalue.method <- match.arg(motif_pvalue.method)
   calc.qvals.method <- match.arg(calc.qvals.method)
   threshold.type <- match.arg(threshold.type)

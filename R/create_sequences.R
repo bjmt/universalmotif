@@ -53,6 +53,8 @@ create_sequences <- function(alphabet = "DNA", seqnum = 100, seqlen = 100,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   alph.letters <- switch(alphabet,
                          "DNA" = DNA_BASES,
                          "RNA" = RNA_BASES,

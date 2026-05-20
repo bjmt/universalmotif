@@ -498,15 +498,12 @@ window_string <- function(string, window = 1, overlap = 0,
 
   window <- as.integer(window)
   overlap <- as.integer(overlap)
-  nthreads <- as.integer(nthreads)
+  nthreads <- resolve_nthreads(nthreads)
   if (is.na(window) || window < 1) {
     stop("`window` should be a positive integer")
   }
   if (is.na(overlap) || overlap < 0) {
     stop("`overlap` should be a non-negative integer")
-  }
-  if (is.na(nthreads) || nthreads < 0) {
-    stop("`nthreads` should be a non-negative integer")
   }
 
   if (window > nchar(string)) {

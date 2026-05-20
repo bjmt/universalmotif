@@ -151,6 +151,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   pseudocount <- as.integer(pseudocount)[1]
   if (is.na(pseudocount))
     stop(" * Incorrect 'pseudocount': got `NA`", call. = FALSE)
+  nthreads <- resolve_nthreads(nthreads)
   #---------------------------------------------------------
 
   if (verbose > 2) {

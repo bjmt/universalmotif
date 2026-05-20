@@ -249,6 +249,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
   }
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   method <- match.arg(method)
   if (method == "dynamic" && allow.nonfinite)
     stop(wmsg("`method = \"dynamic\"` and `allow.nonfinite = TRUE` are not compatible"),

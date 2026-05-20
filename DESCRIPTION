@@ -19,7 +19,7 @@ Description: Allows for importing most common motif types into R for use by
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
-Imports: methods, stats, utils, MASS, ggplot2, yaml, IRanges, Rcpp,
+Imports: methods, stats, utils, parallel, MASS, ggplot2, yaml, IRanges, Rcpp,
     Biostrings, BiocGenerics, S4Vectors, rlang, grid, MatrixGenerics
 Suggests: spelling, knitr, bookdown, TFBSTools, rmarkdown, MotifDb, testthat,
     BiocParallel, seqLogo, motifStack, dplyr, ape, ggtree, processx,

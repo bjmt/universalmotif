@@ -209,6 +209,8 @@ sequence_complexity <- function(seqs, window.size = 20,
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
+  nthreads <- resolve_nthreads(nthreads)
+
   seq.names <- names(seqs)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(seqs)))
 

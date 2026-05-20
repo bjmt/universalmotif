@@ -143,8 +143,7 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
 
   sequences <- as.character(sequences)
   seed <- as.integer(abs(rng.seed))
-  if (nthreads < 0) stop("'nthreads' cannot be less than 0")
-  nthreads <- as.integer(nthreads)
+  nthreads <- resolve_nthreads(nthreads)
   if (k < 1) stop("'k' must be greater than 0")
   k <- as.integer(k)
 
