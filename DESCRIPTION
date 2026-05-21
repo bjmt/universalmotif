@@ -64,6 +64,7 @@ Collate:
     'run_meme.R'
     'sample_sites.R'
     'scan_sequences.R'
+    'scan_sequences2.R'
     'sequence_complexity.R'
     'shuffle_motifs.R'
     'shuffle_sequences.R'
