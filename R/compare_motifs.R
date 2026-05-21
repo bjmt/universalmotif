@@ -2,6 +2,8 @@
 #'
 #' Compare motifs using one of the several available metrics. See the
 #' "Motif comparisons and P-values" vignette for detailed information.
+#' Note: for regular DNA/RNA motif comparison using PCC, see
+#' [compare_motifs2()] for a faster and simpler alternative.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param compare.to `numeric` If missing, compares all motifs to all other motifs.

@@ -90,6 +90,8 @@ latter, function args are stored in the \code{metadata} slot.
 \description{
 Compare motifs using one of the several available metrics. See the
 "Motif comparisons and P-values" vignette for detailed information.
+Note: for regular DNA/RNA motif comparison using PCC, see
+\code{\link[=compare_motifs2]{compare_motifs2()}} for a faster and simpler alternative.
 }
 \details{
 \subsection{Available metrics}{
