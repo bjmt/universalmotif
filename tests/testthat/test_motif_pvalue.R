@@ -38,3 +38,51 @@ test_that("motif_pvalue(method='exhaustive') agrees with 'dynamic' for motifs wi
   expect_equal(as.numeric(p_dyn), as.numeric(p_exh), tolerance = 0.05)
 
 })
+
+test_that("motif_{pvalue,score}_dynamic_batch_cpp matches the per-motif path bit-for-bit", {
+  # The batched C++ entry point parallelises over motifs but must produce
+  # identical numbers to the legacy `mapply(motif_pvalue_dynamic_single_cpp, ...)`
+  # path. nthreads is also exercised.
+  set.seed(1)
+  mk <- function() {
+    consensus <- paste(sample(c("A","C","G","T"), 8, replace = TRUE), collapse = "")
+    convert_type(suppressMessages(normalize(create_motif(consensus))), "PWM")
+  }
+  motifs <- replicate(6, mk(), simplify = FALSE)
+  mats   <- lapply(motifs, function(m) m@motif)
+  bkgs   <- lapply(motifs, function(m) m@bkg[seq_len(nrow(m@motif))])
+  scores <- lapply(seq_along(motifs), function(i) sort(runif(7, -3, 5)))
+  pvals  <- lapply(seq_along(motifs), function(i)
+                   sort(c(1e-1, 1e-2, 1e-3, 1e-4, 1e-5)))
+
+  old_p <- mapply(motif_pvalue_dynamic_single_cpp, mats, bkgs, scores,
+                  SIMPLIFY = FALSE)
+  new_p1 <- motif_pvalue_dynamic_batch_cpp(mats, bkgs, scores, nthreads = 1)
+  new_p4 <- motif_pvalue_dynamic_batch_cpp(mats, bkgs, scores, nthreads = 4)
+  expect_identical(old_p, new_p1)
+  expect_identical(new_p1, new_p4)
+
+  old_s <- mapply(motif_score_dynamic_single_cpp, mats, bkgs, pvals,
+                  SIMPLIFY = FALSE)
+  new_s1 <- motif_score_dynamic_batch_cpp(mats, bkgs, pvals, nthreads = 1)
+  new_s4 <- motif_score_dynamic_batch_cpp(mats, bkgs, pvals, nthreads = 4)
+  expect_identical(old_s, new_s1)
+  expect_identical(new_s1, new_s4)
+})
+
+test_that("motif_pvalue() dynamic batched path agrees with per-motif loop on a real fixture", {
+  # End-to-end smoke: the same answer should come back whether we call
+  # motif_pvalue() with a list of motifs + list of score-vectors (batched
+  # under the hood) or loop in R.
+  set.seed(2)
+  motifs <- lapply(seq_len(4), function(i)
+    suppressMessages(normalize(create_motif(
+      paste(sample(c("A","C","G","T"), 7, replace = TRUE), collapse = "")))))
+  scores <- lapply(seq_along(motifs), function(i) sort(runif(5, -3, 6)))
+
+  one_shot <- motif_pvalue(motifs, score = scores, method = "dynamic")
+  loop     <- lapply(seq_along(motifs),
+                     function(i) motif_pvalue(motifs[[i]], score = scores[[i]],
+                                              method = "dynamic"))
+  expect_equal(one_shot, loop)
+})

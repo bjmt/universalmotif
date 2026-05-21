@@ -121,6 +121,14 @@ motif_score_dynamic_single_cpp <- function(mot, bkg, pvalues) {
     .Call('_universalmotif_motif_score_dynamic_single_cpp', PACKAGE = 'universalmotif', mot, bkg, pvalues)
 }
 
+motif_pvalue_dynamic_batch_cpp <- function(motifs, bkgs, scores, nthreads = 1L) {
+    .Call('_universalmotif_motif_pvalue_dynamic_batch_cpp', PACKAGE = 'universalmotif', motifs, bkgs, scores, nthreads)
+}
+
+motif_score_dynamic_batch_cpp <- function(motifs, bkgs, pvalues, nthreads = 1L) {
+    .Call('_universalmotif_motif_score_dynamic_batch_cpp', PACKAGE = 'universalmotif', motifs, bkgs, pvalues, nthreads)
+}
+
 calc_hit_gc <- function(hits, ignoreN = FALSE) {
     .Call('_universalmotif_calc_hit_gc', PACKAGE = 'universalmotif', hits, ignoreN)
 }

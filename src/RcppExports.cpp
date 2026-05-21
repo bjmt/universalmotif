@@ -434,6 +434,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// motif_pvalue_dynamic_batch_cpp
+Rcpp::List motif_pvalue_dynamic_batch_cpp(const Rcpp::List& motifs, const Rcpp::List& bkgs, const Rcpp::List& scores, const int nthreads);
+RcppExport SEXP _universalmotif_motif_pvalue_dynamic_batch_cpp(SEXP motifsSEXP, SEXP bkgsSEXP, SEXP scoresSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type bkgs(bkgsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_pvalue_dynamic_batch_cpp(motifs, bkgs, scores, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// motif_score_dynamic_batch_cpp
+Rcpp::List motif_score_dynamic_batch_cpp(const Rcpp::List& motifs, const Rcpp::List& bkgs, const Rcpp::List& pvalues, const int nthreads);
+RcppExport SEXP _universalmotif_motif_score_dynamic_batch_cpp(SEXP motifsSEXP, SEXP bkgsSEXP, SEXP pvaluesSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type motifs(motifsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type bkgs(bkgsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type pvalues(pvaluesSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_score_dynamic_batch_cpp(motifs, bkgs, pvalues, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // calc_hit_gc
 Rcpp::NumericVector calc_hit_gc(const Rcpp::StringVector& hits, const bool ignoreN);
 RcppExport SEXP _universalmotif_calc_hit_gc(SEXP hitsSEXP, SEXP ignoreNSEXP) {
@@ -1021,6 +1047,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_paths_to_alph", (DL_FUNC) &_universalmotif_paths_to_alph, 2},
     {"_universalmotif_motif_pvalue_dynamic_single_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_dynamic_single_cpp, 3},
     {"_universalmotif_motif_score_dynamic_single_cpp", (DL_FUNC) &_universalmotif_motif_score_dynamic_single_cpp, 3},
+    {"_universalmotif_motif_pvalue_dynamic_batch_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_dynamic_batch_cpp, 4},
+    {"_universalmotif_motif_score_dynamic_batch_cpp", (DL_FUNC) &_universalmotif_motif_score_dynamic_batch_cpp, 4},
     {"_universalmotif_calc_hit_gc", (DL_FUNC) &_universalmotif_calc_hit_gc, 2},
     {"_universalmotif_switch_antisense_coords_cpp", (DL_FUNC) &_universalmotif_switch_antisense_coords_cpp, 1},
     {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},

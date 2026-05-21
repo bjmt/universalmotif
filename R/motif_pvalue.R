@@ -337,7 +337,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
         k, nthreads, allow.nonfinite)
       if (wasList) out <- restore_list(out, input$nM, input$nX)
     } else if (method == "dynamic") {
-      out <- motif_pvalue_dynamic(input$motifs, input$bkg.probs, input$x)
+      out <- motif_pvalue_dynamic(input$motifs, input$bkg.probs, input$x,
+                                  nthreads = nthreads)
       # if (!wasList) out <- out[[1]]
       if (!wasList) out <- unlist(out)
     }
@@ -356,7 +357,8 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
       }
       if (wasList) out <- restore_list(out, input$nM, input$nX)
     } else if (method == "dynamic") {
-      out <- motif_score_dynamic(input$motifs, input$bkg.probs, input$x)
+      out <- motif_score_dynamic(input$motifs, input$bkg.probs, input$x,
+                                 nthreads = nthreads)
       # if (!wasList) out <- out[[1]]
       if (!wasList) out <- unlist(out)
     }
@@ -494,13 +496,17 @@ sanitize_input <- function(mots, bkgs, x, method, allow.nonfinite = FALSE) {
 
 }
 
-# TODO: multithreaded
-motif_score_dynamic <- function(motifs, bkg.probs, pvalue) {
-  mapply(motif_score_dynamic_single_cpp, motifs, bkg.probs, pvalue, SIMPLIFY = FALSE)
+# Batched dynamic-DP helpers. One C++ call computes p-values / scores for the
+# whole list, parallelising over motifs with RcppThread. The per-motif
+# single-cpp entry points are still available for callers that hold one
+# motif at a time; these wrappers exist so motif_pvalue() can dispatch the
+# whole list in one shot.
+motif_score_dynamic <- function(motifs, bkg.probs, pvalue, nthreads = 1) {
+  motif_score_dynamic_batch_cpp(motifs, bkg.probs, pvalue, nthreads = nthreads)
 }
 
-motif_pvalue_dynamic <- function(motifs, bkg.probs, score) {
-  mapply(motif_pvalue_dynamic_single_cpp, motifs, bkg.probs, score, SIMPLIFY = FALSE)
+motif_pvalue_dynamic <- function(motifs, bkg.probs, score, nthreads = 1) {
+  motif_pvalue_dynamic_batch_cpp(motifs, bkg.probs, score, nthreads = nthreads)
 }
 
 motif_score_dynamic_single <- function(mot, bkg, p) {

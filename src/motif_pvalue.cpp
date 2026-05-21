@@ -817,3 +817,268 @@ Rcpp::NumericVector motif_score_dynamic_single_cpp(const Rcpp::NumericMatrix &mo
   return scores;
 
 }
+
+/* ============================================================================
+ * Batched dynamic-DP path: parallel over motifs.
+ *
+ * The existing motif_{pvalue,score}_dynamic_single_cpp entry points are kept
+ * untouched -- callers that hold one motif and a vector of scores/pvalues
+ * still hit them directly. The functions below add the same algorithm
+ * exposed as a batch over multiple (motif, bkg, scores/pvalues) triples,
+ * parallelised with RcppThread over the motif axis. The R helpers
+ * motif_pvalue_dynamic() / motif_score_dynamic() are switched over to
+ * these new entry points, eliminating per-motif R-side overhead and
+ * unlocking multithreading for the dynamic p-value path.
+ * ========================================================================= */
+
+// Position-major motif representation used inside the parallel region:
+// mot[i][j] is the PWM value at position i, alphabet letter j, scaled by
+// 1000 and cast to int (matching the convention of `R_to_cpp_motif`).
+
+static vec_num_t get_pdf_internal(const list_int_t &mot,
+                                  const std::size_t max_score,
+                                  const vec_num_t &bkg) {
+  std::size_t width   = mot.size();
+  std::size_t alphlen = bkg.size();
+  std::size_t pdflen  = width * max_score + 1;
+  vec_num_t pdfnew(pdflen, 1.0);
+  vec_num_t pdfold(pdflen, 1.0);
+
+  for (std::size_t i = 0; i < width; ++i) {
+    std::size_t maxstep = i * max_score;
+    for (std::size_t k = 0; k < pdflen; ++k) pdfold[k] = pdfnew[k];
+    for (std::size_t k = 0; k <= maxstep + max_score; ++k) pdfnew[k] = 0.0;
+    for (std::size_t j = 0; j < alphlen; ++j) {
+      std::size_t s = (std::size_t) mot[i][j];
+      for (std::size_t k = 0; k <= maxstep; ++k) {
+        if (pdfold[k] != 0.0) {
+          pdfnew[k + s] += pdfold[k] * bkg[j];
+        }
+      }
+    }
+  }
+  return pdfnew;
+}
+
+// Build the CDF from a raw (un-scaled, position-major) PWM. Returns the
+// shifted CDF and writes the offset (mot_min_scaled * width) into `mot_min_out`
+// so callers can index into it the same way motif_pvalue_dynamic_single_cpp
+// does.
+static vec_num_t motif_cdf_internal(const list_num_t &mot,
+                                    const vec_num_t &bkg,
+                                    double &mot_min_out,
+                                    std::size_t &motif_max_out) {
+  std::size_t width   = mot.size();
+  std::size_t alphlen = bkg.size();
+
+  list_int_t motif_int(width, vec_int_t(alphlen));
+  int motif_min = 0;
+  for (std::size_t i = 0; i < width; ++i) {
+    for (std::size_t j = 0; j < alphlen; ++j) {
+      int tmp = int(mot[i][j] * 1000.0);
+      if (tmp < motif_min) motif_min = tmp;
+      motif_int[i][j] = tmp;
+    }
+  }
+
+  // record the per-position min offset for caller (used to index into CDF).
+  double raw_min = 0.0;
+  for (std::size_t i = 0; i < width; ++i) {
+    for (std::size_t j = 0; j < alphlen; ++j) {
+      if (mot[i][j] < raw_min) raw_min = mot[i][j];
+    }
+  }
+  mot_min_out = trunc(raw_min * 1000.0) * (double) width;
+
+  motif_min *= -1;
+  std::size_t motif_max = 0;
+  for (std::size_t i = 0; i < width; ++i) {
+    for (std::size_t j = 0; j < alphlen; ++j) {
+      motif_int[i][j] += motif_min;
+      if ((std::size_t) motif_int[i][j] > motif_max)
+        motif_max = motif_int[i][j];
+    }
+  }
+  motif_max_out = motif_max;
+
+  vec_num_t pdf = get_pdf_internal(motif_int, motif_max, bkg);
+  double pdf_sum = std::accumulate(pdf.begin(), pdf.end(), 0.0);
+  if (pdf_sum > 0.0) {
+    for (auto &v : pdf) v /= pdf_sum;
+  }
+  // build CDF from the right (same as motif_cdf_cpp at lines 555-557)
+  for (long i = (long) pdf.size() - 2; i >= 0; --i) {
+    pdf[i] += pdf[i + 1];
+  }
+  return pdf;
+}
+
+static vec_num_t pvalue_from_cdf(const vec_num_t &cdf,
+                                 double mot_min_scaled,
+                                 const vec_num_t &scores) {
+  vec_num_t pvalues(scores.size(), 0.0);
+  long cdf_size = (long) cdf.size();
+  for (std::size_t i = 0; i < scores.size(); ++i) {
+    long idx = (long)(trunc(scores[i] * 1000.0) - mot_min_scaled);
+    if (idx < 0) {
+      pvalues[i] = 1.0;
+    } else if (idx < cdf_size) {
+      pvalues[i] = cdf[idx];
+    } else {
+      pvalues[i] = 0.0;
+    }
+  }
+  return pvalues;
+}
+
+static vec_num_t score_from_cdf(const vec_num_t &cdf,
+                                double dynamic_min_scaled,
+                                double score_min,
+                                double score_max,
+                                const vec_num_t &pvalues) {
+  vec_num_t scores(pvalues.size(), 0.0);
+  long cdf_size = (long) cdf.size();
+  for (std::size_t i = 0; i < pvalues.size(); ++i) {
+    long s = cdf_size;
+    for (long j = 0; j < cdf_size; ++j) {
+      if (cdf[j] < pvalues[i]) {
+        s = j - 1;
+        break;
+      }
+    }
+    scores[i] = ((double) s - dynamic_min_scaled) / 1000.0;
+    if (scores[i] > score_max) scores[i] = score_max;
+    else if (scores[i] < score_min) scores[i] = score_min;
+  }
+  return scores;
+}
+
+// Convert a list of (raw double) PWM matrices from Rcpp into the
+// position-major list_num_t layout used by the workers above. Done in the
+// serial pre-extract phase because Rcpp accessors are not thread-safe.
+static void extract_motifs(const Rcpp::List &motifs,
+                           std::vector<list_num_t> &out) {
+  out.resize(motifs.size());
+  for (R_xlen_t m = 0; m < motifs.size(); ++m) {
+    Rcpp::NumericMatrix mat = motifs[m];
+    std::size_t width   = (std::size_t) mat.ncol();
+    std::size_t alphlen = (std::size_t) mat.nrow();
+    out[m].assign(width, vec_num_t(alphlen));
+    for (std::size_t i = 0; i < width; ++i) {
+      for (std::size_t j = 0; j < alphlen; ++j) {
+        out[m][i][j] = mat(j, i);
+      }
+    }
+  }
+}
+
+static void extract_vec_list(const Rcpp::List &lst,
+                             std::vector<vec_num_t> &out) {
+  out.resize(lst.size());
+  for (R_xlen_t i = 0; i < lst.size(); ++i) {
+    Rcpp::NumericVector v = lst[i];
+    out[i] = Rcpp::as<vec_num_t>(v);
+  }
+}
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::List motif_pvalue_dynamic_batch_cpp(const Rcpp::List &motifs,
+                                          const Rcpp::List &bkgs,
+                                          const Rcpp::List &scores,
+                                          const int nthreads = 1) {
+
+  R_xlen_t M = motifs.size();
+  if (bkgs.size() != M || scores.size() != M) {
+    Rcpp::stop("motif_pvalue_dynamic_batch_cpp: motifs, bkgs and scores must "
+               "all be lists of the same length");
+  }
+
+  // --- serial pre-extract --------------------------------------------------
+  std::vector<list_num_t> v_motifs;
+  std::vector<vec_num_t>  v_bkgs, v_scores;
+  extract_motifs(motifs, v_motifs);
+  extract_vec_list(bkgs,   v_bkgs);
+  extract_vec_list(scores, v_scores);
+
+  std::vector<vec_num_t> out((std::size_t) M);
+
+  // --- parallel over motifs ------------------------------------------------
+  RcppThread::parallelFor(0, (std::size_t) M,
+    [&v_motifs, &v_bkgs, &v_scores, &out] (std::size_t m) {
+      double mot_min_scaled = 0.0;
+      std::size_t motif_max = 0;
+      vec_num_t cdf = motif_cdf_internal(v_motifs[m], v_bkgs[m],
+                                         mot_min_scaled, motif_max);
+      out[m] = pvalue_from_cdf(cdf, mot_min_scaled, v_scores[m]);
+    }, nthreads);
+
+  // --- serial wrap ---------------------------------------------------------
+  Rcpp::List res(M);
+  for (R_xlen_t m = 0; m < M; ++m) {
+    res[m] = Rcpp::wrap(out[(std::size_t) m]);
+  }
+  return res;
+}
+
+// [[Rcpp::export(rng = false)]]
+Rcpp::List motif_score_dynamic_batch_cpp(const Rcpp::List &motifs,
+                                         const Rcpp::List &bkgs,
+                                         const Rcpp::List &pvalues,
+                                         const int nthreads = 1) {
+
+  R_xlen_t M = motifs.size();
+  if (bkgs.size() != M || pvalues.size() != M) {
+    Rcpp::stop("motif_score_dynamic_batch_cpp: motifs, bkgs and pvalues must "
+               "all be lists of the same length");
+  }
+
+  std::vector<list_num_t> v_motifs;
+  std::vector<vec_num_t>  v_bkgs, v_pvalues;
+  extract_motifs(motifs, v_motifs);
+  extract_vec_list(bkgs,    v_bkgs);
+  extract_vec_list(pvalues, v_pvalues);
+
+  // Also pre-compute per-motif score_min / score_max / dynamic_min in serial
+  // (touching v_motifs is std-only at this point, so this is just convenience).
+  std::vector<double> score_min(M, 0.0), score_max(M, 0.0), dyn_min(M, 0.0);
+  for (R_xlen_t m = 0; m < M; ++m) {
+    const list_num_t &mot = v_motifs[(std::size_t) m];
+    double smin = 0.0, smax = 0.0, dmin = 0.0;
+    std::size_t width   = mot.size();
+    std::size_t alphlen = mot.empty() ? 0 : mot[0].size();
+    for (std::size_t i = 0; i < width; ++i) {
+      double pmin = 0.0, pmax = 0.0;
+      for (std::size_t j = 0; j < alphlen; ++j) {
+        if (mot[i][j] < dmin) dmin = mot[i][j];
+        if (mot[i][j] < pmin) pmin = mot[i][j];
+        if (mot[i][j] > pmax) pmax = mot[i][j];
+      }
+      smin += pmin;
+      smax += pmax;
+    }
+    dmin *= -1000.0;
+    dmin = trunc(dmin) * (double) width;
+    score_min[(std::size_t) m] = smin;
+    score_max[(std::size_t) m] = smax;
+    dyn_min[(std::size_t) m]   = dmin;
+  }
+
+  std::vector<vec_num_t> out((std::size_t) M);
+
+  RcppThread::parallelFor(0, (std::size_t) M,
+    [&v_motifs, &v_bkgs, &v_pvalues, &out,
+     &score_min, &score_max, &dyn_min] (std::size_t m) {
+      double mot_min_scaled = 0.0;   // unused here -- score_from_cdf uses dyn_min
+      std::size_t motif_max = 0;
+      vec_num_t cdf = motif_cdf_internal(v_motifs[m], v_bkgs[m],
+                                         mot_min_scaled, motif_max);
+      out[m] = score_from_cdf(cdf, dyn_min[m], score_min[m], score_max[m],
+                              v_pvalues[m]);
+    }, nthreads);
+
+  Rcpp::List res(M);
+  for (R_xlen_t m = 0; m < M; ++m) {
+    res[m] = Rcpp::wrap(out[(std::size_t) m]);
+  }
+  return res;
+}
