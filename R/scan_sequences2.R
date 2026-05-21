@@ -37,6 +37,19 @@
 #' @param return.granges `logical(1)` or `NULL`. When `NULL` (default), returns
 #'   a `GRanges` if the `GenomicRanges` package is installed, otherwise a
 #'   `data.frame`. Set `TRUE` / `FALSE` to force one or the other.
+#' @param no.overlaps `logical(1)`. If `TRUE`, drop overlapping hits within
+#'   each `(sequence, motif, strand)` group using the yamtk-style greedy
+#'   algorithm (see [dedup_hits()]). Default `FALSE`.
+#' @param no.overlaps.by `character(1)`. Which column to use as the priority
+#'   for breaking ties between overlapping hits. `"pvalue"` (default) keeps
+#'   the lowest p-value; `"score"` keeps the highest log-odds score. Only
+#'   used when `no.overlaps = TRUE`.
+#' @param no.overlaps.by.strand `logical(1)`. If `TRUE`, overlapping hits on
+#'   opposite strands compete with each other. If `FALSE` (default), each
+#'   strand is deduplicated independently.
+#' @param no.overlaps.by.motif `logical(1)`. If `TRUE`, overlapping hits from
+#'   different motifs compete with each other. If `FALSE` (default), each
+#'   motif is deduplicated independently.
 #'
 #' @return Either a `GRanges` or a `data.frame`.
 #'
@@ -73,7 +86,11 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 scan_sequences2 <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
-                            nthreads = 1, return.granges = NULL) {
+                            nthreads = 1, return.granges = NULL,
+                            no.overlaps = FALSE,
+                            no.overlaps.by = c("pvalue", "score"),
+                            no.overlaps.by.strand = FALSE,
+                            no.overlaps.by.motif  = FALSE) {
 
   if (missing(motifs) || missing(sequences))
     stop("need both `motifs` and `sequences`", call. = FALSE)
@@ -84,6 +101,13 @@ scan_sequences2 <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
     stop("`RC` must be a single logical", call. = FALSE)
   if (!is.null(return.granges) && !isTRUEorFALSE(return.granges))
     stop("`return.granges` must be TRUE, FALSE, or NULL", call. = FALSE)
+  if (!isTRUEorFALSE(no.overlaps))
+    stop("`no.overlaps` must be a single logical", call. = FALSE)
+  no.overlaps.by <- match.arg(no.overlaps.by)
+  if (!isTRUEorFALSE(no.overlaps.by.strand))
+    stop("`no.overlaps.by.strand` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(no.overlaps.by.motif))
+    stop("`no.overlaps.by.motif` must be a single logical", call. = FALSE)
 
   nthreads <- resolve_nthreads(nthreads)
 
@@ -201,6 +225,15 @@ scan_sequences2 <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
   res <- res[, c("motif", "motif.i", "sequence", "sequence.i",
                  "start", "end", "strand",
                  "score", "score.pct", "match", "pvalue")]
+
+  ## --- optional yamtk-style dedup --------------------------------------
+  if (no.overlaps && nrow(res) > 0L) {
+    res <- dedup_hits(res,
+                      by            = no.overlaps.by,
+                      ignore.strand = no.overlaps.by.strand,
+                      ignore.motif  = no.overlaps.by.motif)
+    rownames(res) <- NULL
+  }
 
   build_scan2_result(res, sequences, return.granges)
 }

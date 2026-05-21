@@ -5,7 +5,9 @@
 \title{Minimalist motif scanner aligned with \verb{yamtk scan} defaults.}
 \usage{
 scan_sequences2(motifs, sequences, pvalue = 1e-04, RC = TRUE,
-  nthreads = 1, return.granges = NULL)
+  nthreads = 1, return.granges = NULL, no.overlaps = FALSE,
+  no.overlaps.by = c("pvalue", "score"), no.overlaps.by.strand = FALSE,
+  no.overlaps.by.motif = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or RNA
@@ -26,6 +28,23 @@ over the motif x sequence cross-product.}
 \item{return.granges}{\code{logical(1)} or \code{NULL}. When \code{NULL} (default), returns
 a \code{GRanges} if the \code{GenomicRanges} package is installed, otherwise a
 \code{data.frame}. Set \code{TRUE} / \code{FALSE} to force one or the other.}
+
+\item{no.overlaps}{\code{logical(1)}. If \code{TRUE}, drop overlapping hits within
+each \verb{(sequence, motif, strand)} group using the yamtk-style greedy
+algorithm (see \code{\link[=dedup_hits]{dedup_hits()}}). Default \code{FALSE}.}
+
+\item{no.overlaps.by}{\code{character(1)}. Which column to use as the priority
+for breaking ties between overlapping hits. \code{"pvalue"} (default) keeps
+the lowest p-value; \code{"score"} keeps the highest log-odds score. Only
+used when \code{no.overlaps = TRUE}.}
+
+\item{no.overlaps.by.strand}{\code{logical(1)}. If \code{TRUE}, overlapping hits on
+opposite strands compete with each other. If \code{FALSE} (default), each
+strand is deduplicated independently.}
+
+\item{no.overlaps.by.motif}{\code{logical(1)}. If \code{TRUE}, overlapping hits from
+different motifs compete with each other. If \code{FALSE} (default), each
+motif is deduplicated independently.}
 }
 \value{
 Either a \code{GRanges} or a \code{data.frame}.

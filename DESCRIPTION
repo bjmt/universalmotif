@@ -41,6 +41,7 @@ Collate:
     'create_motif.R'
     'create_sequences.R'
     'data.R'
+    'dedup_hits.R'
     'enrich_motifs.R'
     'filter_motifs.R'
     'get_bkg.R'

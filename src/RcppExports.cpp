@@ -288,6 +288,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dedup_hits_cpp
+Rcpp::LogicalVector dedup_hits_cpp(const Rcpp::IntegerVector& seq_i, const Rcpp::IntegerVector& motif_i, const Rcpp::IntegerVector& start, const Rcpp::IntegerVector& end, const Rcpp::IntegerVector& strand_i, const Rcpp::NumericVector& priority, const bool ignore_strand, const bool ignore_motif);
+RcppExport SEXP _universalmotif_dedup_hits_cpp(SEXP seq_iSEXP, SEXP motif_iSEXP, SEXP startSEXP, SEXP endSEXP, SEXP strand_iSEXP, SEXP prioritySEXP, SEXP ignore_strandSEXP, SEXP ignore_motifSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type seq_i(seq_iSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type motif_i(motif_iSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type end(endSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type strand_i(strand_iSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type priority(prioritySEXP);
+    Rcpp::traits::input_parameter< const bool >::type ignore_strand(ignore_strandSEXP);
+    Rcpp::traits::input_parameter< const bool >::type ignore_motif(ignore_motifSEXP);
+    rcpp_result_gen = Rcpp::wrap(dedup_hits_cpp(seq_i, motif_i, start, end, strand_i, priority, ignore_strand, ignore_motif));
+    return rcpp_result_gen;
+END_RCPP
+}
 // count_klets_alph_cpp
 std::vector<std::vector<int>> count_klets_alph_cpp(const std::vector<std::string>& sequences, const std::string& alph, const int& k, const int& nthreads);
 RcppExport SEXP _universalmotif_count_klets_alph_cpp(SEXP sequencesSEXP, SEXP alphSEXP, SEXP kSEXP, SEXP nthreadsSEXP) {
@@ -1035,6 +1052,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 11},
     {"_universalmotif_compare_columns_cpp", (DL_FUNC) &_universalmotif_compare_columns_cpp, 7},
     {"_universalmotif_pval_extractor", (DL_FUNC) &_universalmotif_pval_extractor, 11},
+    {"_universalmotif_dedup_hits_cpp", (DL_FUNC) &_universalmotif_dedup_hits_cpp, 8},
     {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_calc_seq_probs_cpp", (DL_FUNC) &_universalmotif_calc_seq_probs_cpp, 4},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},

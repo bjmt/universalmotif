@@ -73,6 +73,10 @@ pval_extractor <- function(ncols, scores, indices1, indices2, method, subject, t
     .Call('_universalmotif_pval_extractor', PACKAGE = 'universalmotif', ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution, nthreads)
 }
 
+dedup_hits_cpp <- function(seq_i, motif_i, start, end, strand_i, priority, ignore_strand = FALSE, ignore_motif = FALSE) {
+    .Call('_universalmotif_dedup_hits_cpp', PACKAGE = 'universalmotif', seq_i, motif_i, start, end, strand_i, priority, ignore_strand, ignore_motif)
+}
+
 count_klets_alph_cpp <- function(sequences, alph, k, nthreads) {
     .Call('_universalmotif_count_klets_alph_cpp', PACKAGE = 'universalmotif', sequences, alph, k, nthreads)
 }
