@@ -289,6 +289,105 @@ head(compare_motifs(motifs, 1))
 
 P-values are made possible by estimating distribution (usually the best fitting distribution for motif comparisons) parameters from randomised motif scores, then using the appropriate `stats::p*()` distribution function to return P-values. These estimated parameters are pre-computed with `make_DBscores()` and stored as `JASPAR2018_CORE_DBSCORES` and `JASPAR2018_CORE_DBSCORES_NORM`. Since changing any of the settings and motif sizes will affect the estimated distribution parameters, estimated parameters have been pre-computed for a variety of these. See `?make_DBscores` if you would like to generate your own set of pre-computed scores using your own parameters and motifs.
 
+## A faster alternative: `compare_motifs2()`
+
+For DNA/RNA motif comparison that does not need alternative similarity
+metrics (EUCL, KL, ALLR, …), score-aggregation strategies, IC-based
+filters, multifreq scoring, or the JASPAR-derived `db.scores`
+lookup-table P-value path, the lighter `compare_motifs2()` function is
+generally much faster than `compare_motifs()` and parallelises better
+across queries. It uses Pearson correlation per column as the only
+similarity metric, computes p-values from a TOMTOM-style empirical or
+parametric null PMF (with Bonferroni + Benjamini-Hochberg adjustment),
+and returns either a square matrix or a long-format `data.frame`. The
+default surface is aligned with the command-line tool `yamtk cmp`
+([yamtk](https://github.com/bjmt/yamtk)).
+
+The function has eight formals (`motifs`, `compare.to`, `qvalue`,
+`min.overlap`, `RC`, `null`, `bkg`, `matrix.out`, `nthreads`); see
+`?compare_motifs2` for details. Two null-PMF modes are supported:
+
+- **`null = "empirical"`** (default): per-query column, score against
+  every target-database column, histogram into 51 PCC bins, convolve
+  to overlap length $L$. Cost per query scales with database size;
+  best for databases with more than a few hundred total columns.
+- **`null = "parametric"`**: enumerate the 56 compositions of A/C/G/T
+  on a $K=5$ simplex grid, weight each by a Dirichlet-Multinomial PMF
+  under $\alpha = 4 \times \mathtt{bkg}$, score against the query
+  column. Per-query cost is constant in database size; best for small
+  databases or when histogram sparsity would distort the empirical
+  estimate.
+
+```{r, eval = FALSE}
+## Score matrix (default: matrix.out = "score" returns mean PCC,
+## always in [-1, 1])
+m <- compare_motifs2(motifs)
+
+## Significance matrix (p-values or BH q-values across the
+## query-vs-database axis)
+mp <- compare_motifs2(motifs, matrix.out = "pvalue")
+mq <- compare_motifs2(motifs, matrix.out = "qvalue")
+
+## Long-format: motif 1 against the rest, q-value <= 0.05
+hits <- compare_motifs2(motifs, compare.to = 1, qvalue = 0.05)
+```
+
+When `compare_motifs()` is called with arguments that map cleanly onto
+`compare_motifs2()`'s feature set (PCC + sum strategy, default IC
+filters, no multifreq, no HTML report, no `db.scores`, DNA/RNA
+alphabet), it emits a one-line hint pointing at the faster function.
+Silence with
+`options(universalmotif.suggest.compare_motifs2 = FALSE)`.
+
+### Speed comparison vs `compare_motifs()` and `yamtk cmp` {.unnumbered}
+
+The table below records wall-clock time for the three functions on the
+same fixture: the first 50 (or 200) motifs of HOCOMOCOv11 compared
+against themselves, RC = TRUE, min.overlap = 5, uniform background,
+empirical null PMF. `compare_motifs2()` numbers are shown for both
+`matrix.out = "score"` (which skips the p-value path entirely, since
+the best alignment is chosen by score not by p-value) and
+`matrix.out = "pvalue"` (full significance computation, equivalent
+work to `yamtk cmp`). Each cell shows `nthreads = 1 / nthreads = 4`.
+The benchmark script lives at
+`benchmarks/compare_motifs2_vignette.log` in the package repository;
+values are baked in here rather than recomputed at vignette build
+time. These benchmarks were run using a MBP M5 running R 4.4.1.
+
+| Workload | yamtk¹ | `compare_motifs()` | `cm2()` score² | `cm2()` pvalue |
+|---|---:|---:|---:|---:|
+| 50 × 50 (2 500 pairs) | 0.028 / 0.012 | 0.598 / 0.194 | 0.014 / 0.004 | 0.285 / 0.082 |
+| 200 × 200 (40 000 pairs) | 0.114 / 0.038 | 9.537 / 2.590 | 0.224 / 0.064 | 1.673 / 0.470 |
+
+`cm2()` is shorthand for `compare_motifs2()`; the `score` / `pvalue`
+labels indicate the value of the `matrix.out` argument.
+
+¹ `yamtk cmp` is a dedicated C CLI tool; threading is by query motif.
+The `compare_motifs2()` algorithm is a port of yamtk's.
+
+² Score-only matrix mode skips the per-pair p-value lookup, which
+otherwise dominates runtime on dense fixtures. This is safe because
+the best alignment is selected by score, not p-value -- p-values are
+computed only as a post-hoc significance check on the already-chosen
+alignment.
+
+Practical takeaways:
+
+- `yamtk cmp` is the fastest of the three at every scale; the
+  `compare_motifs2()` port stays within ~2× at 4 threads for score-only
+  output and within ~12× for full p-value output.
+- `compare_motifs2()` is **5-40× faster than `compare_motifs()`** at
+  4 threads on the same fixture, with the larger speedups in score-only
+  mode. `compare_motifs()`'s p-value path uses pre-computed JASPAR
+  score-distribution tables (`JASPAR2018_CORE_DBSCORES`) and a different
+  null model, so the numbers are not directly comparable as
+  "significance" but are comparable as "wall-clock to a similarity
+  matrix".
+- Threading scales 3-3.5× at 4 threads in all three universalmotif
+  modes.
+- For new code that does not need any of `compare_motifs()`'s
+  advanced features, prefer `compare_motifs2()`.
+
 # Motif trees with ggtree
 
 ## Using `motif_tree()`

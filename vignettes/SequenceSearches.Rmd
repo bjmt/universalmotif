@@ -335,7 +335,9 @@ Regular scanning:
 scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
                threshold = 0.9, threshold.type = "logodds")
 ```
+
 Using 2-letter information to scan:
+
 ```{r}
 scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, RC = TRUE,
                threshold = 0.9, threshold.type = "logodds")
