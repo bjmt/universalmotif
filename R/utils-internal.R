@@ -183,6 +183,45 @@ suggest_compare_motifs2 <- function(method, use.freq, use.type,
   invisible()
 }
 
+# Emit a one-time-per-call hint if an enrich_motifs() invocation could be
+# served by enrich_motifs2() without losing any functionality. Same pattern
+# as suggest_scan_sequences2() / suggest_compare_motifs2(). Fires when every
+# argument maps cleanly onto enrich_motifs2()'s feature set: pvalue
+# threshold type, BH/fdr q-value adjustment, use.freq = 1, no gapped
+# motifs, default allow.nonfinite/respect.strand/no.overlaps, dynamic
+# motif_pvalue, and DNA/RNA alphabet.
+#
+# Opt out: options(universalmotif.suggest.enrich_motifs2 = FALSE).
+suggest_enrich_motifs2 <- function(threshold.type, qval.method, use.freq,
+                                   use.gaps, allow.nonfinite, no.overlaps,
+                                   respect.strand, motif_pvalue.method,
+                                   mode, alphabet, mot.hasgap) {
+  if (!isTRUE(getOption("universalmotif.suggest.enrich_motifs2")))
+    return(invisible())
+  if (threshold.type != "pvalue")                      return(invisible())
+  if (!qval.method %in% c("BH", "fdr"))                return(invisible())
+  if (use.freq != 1)                                   return(invisible())
+  if (any(mot.hasgap) && isTRUE(use.gaps))             return(invisible())
+  if (isTRUE(allow.nonfinite))                         return(invisible())
+  ## no.overlaps is only meaningful in total.hits mode; enrich_motifs()
+  ## forces it off in seq.hits mode internally (R/enrich_motifs.R:183-188),
+  ## so the v1/v2 hit counts are equivalent there.
+  if (mode == "total.hits" && isTRUE(no.overlaps))     return(invisible())
+  if (isTRUE(respect.strand))                          return(invisible())
+  if (motif_pvalue.method != "dynamic")                return(invisible())
+  if (!mode %in% c("seq.hits", "total.hits"))          return(invisible())
+  if (!alphabet %in% c("DNA", "RNA"))                  return(invisible())
+
+  message(wmsg(
+    "Tip: this enrich_motifs() call uses only arguments supported by ",
+    "enrich_motifs2(), a leaner counterpart that builds on scan_sequences2() ",
+    "and parallelises better. ",
+    "See ?enrich_motifs2. ",
+    "Silence with `options(universalmotif.suggest.enrich_motifs2 = FALSE)`."
+  ))
+  invisible()
+}
+
 warn_pseudo <- function(v = 1) {
   # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {

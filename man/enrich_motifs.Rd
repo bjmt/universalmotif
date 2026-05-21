@@ -143,6 +143,8 @@ when performing the Fisher test.}
 Given a set of target and background sequences, test if the input motifs
 are significantly enriched in the targets sequences relative to the
 background sequences. See the "Sequence manipulation and scanning" vignette.
+Note: for regular DNA/RNA motif enrichment, see \code{\link[=enrich_motifs2]{enrich_motifs2()}} for a
+faster and simpler alternative.
 }
 \details{
 To find enriched motifs, \code{\link[=scan_sequences]{scan_sequences()}} is run on both

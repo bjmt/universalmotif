@@ -44,6 +44,7 @@ Collate:
     'data.R'
     'dedup_hits.R'
     'enrich_motifs.R'
+    'enrich_motifs2.R'
     'filter_motifs.R'
     'get_bkg.R'
     'make_DBscores.R'

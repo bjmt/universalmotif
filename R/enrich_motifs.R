@@ -3,6 +3,8 @@
 #' Given a set of target and background sequences, test if the input motifs
 #' are significantly enriched in the targets sequences relative to the
 #' background sequences. See the "Sequence manipulation and scanning" vignette.
+#' Note: for regular DNA/RNA motif enrichment, see [enrich_motifs2()] for a
+#' faster and simpler alternative.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param bkg.sequences \code{\link{XStringSet}} Optional. If missing,
@@ -198,6 +200,20 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
 
   if (!is.list(motifs)) motifs <- list(motifs)
   motcount <- length(motifs)
+
+  mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
+  mot.hasgap <- vapply(motifs, function(x) x@gapinfo@isgapped, logical(1))
+  suggest_enrich_motifs2(threshold.type      = threshold.type,
+                         qval.method         = qval.method,
+                         use.freq            = use.freq,
+                         use.gaps            = use.gaps,
+                         allow.nonfinite     = allow.nonfinite,
+                         no.overlaps         = no.overlaps,
+                         respect.strand      = respect.strand,
+                         motif_pvalue.method = motif_pvalue.method,
+                         mode                = mode,
+                         alphabet            = unique(mot.alphs)[1L],
+                         mot.hasgap          = mot.hasgap)
 
   min_seqlen <- min(width(sequences))
   max_motif_width <- max(vapply(motifs, function(m) ncol(m@motif), integer(1)))
