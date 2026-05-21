@@ -35,6 +35,7 @@ Collate:
     'RcppExports.R'
     'add_multifreq.R'
     'compare_motifs.R'
+    'compare_motifs2.R'
     'universalmotif-class.R'
     'convert_motifs.R'
     'convert_type.R'

@@ -145,6 +145,44 @@ suggest_scan_sequences2 <- function(threshold.type, use.freq, use.gaps,
   invisible()
 }
 
+# Emit a one-time-per-call hint if a compare_motifs() invocation could be
+# served by compare_motifs2() without losing any functionality. Same
+# pattern as suggest_scan_sequences2(). Fires when every argument maps
+# cleanly onto compare_motifs2()'s feature set (PCC + sum, default IC
+# filters, no multifreq, no report, no normalisation, no db.scores
+# lookup, DNA/RNA alphabet).
+#
+# Opt out: options(universalmotif.suggest.compare_motifs2 = FALSE).
+suggest_compare_motifs2 <- function(method, use.freq, use.type,
+                                    min.mean.ic, min.position.ic,
+                                    relative_entropy, normalise.scores,
+                                    score.strat, has.db.scores,
+                                    has.output.report, alphabet) {
+  if (!isTRUE(getOption("universalmotif.suggest.compare_motifs2")))
+    return(invisible())
+  if (method != "PCC")                                return(invisible())
+  if (!score.strat %in% c("sum", "a.mean"))           return(invisible())
+  if (use.freq != 1)                                  return(invisible())
+  if (!use.type %in% c("PPM"))                        return(invisible())
+  if (!isTRUE(all.equal(min.mean.ic, 0.25)) &&
+      !isTRUE(all.equal(min.mean.ic, 0)))             return(invisible())
+  if (!isTRUE(all.equal(min.position.ic, 0)))         return(invisible())
+  if (isTRUE(relative_entropy))                       return(invisible())
+  if (isTRUE(normalise.scores))                       return(invisible())
+  if (isTRUE(has.db.scores))                          return(invisible())
+  if (isTRUE(has.output.report))                      return(invisible())
+  if (!alphabet %in% c("DNA", "RNA"))                 return(invisible())
+
+  message(wmsg(
+    "Tip: this compare_motifs() call uses only arguments supported by ",
+    "compare_motifs2(), a leaner counterpart that computes empirical-null",
+    "p-values and parallelises better. ",
+    "See ?compare_motifs2. ",
+    "Silence with `options(universalmotif.suggest.compare_motifs2 = FALSE)`."
+  ))
+  invisible()
+}
+
 warn_pseudo <- function(v = 1) {
   # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {

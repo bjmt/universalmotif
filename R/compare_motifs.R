@@ -285,6 +285,20 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
 
+  suggest_compare_motifs2(
+    method            = method,
+    use.freq          = use.freq,
+    use.type          = use.type,
+    min.mean.ic       = min.mean.ic,
+    min.position.ic   = min.position.ic,
+    relative_entropy  = relative_entropy,
+    normalise.scores  = normalise.scores,
+    score.strat       = score.strat,
+    has.db.scores     = !missing(db.scores),
+    has.output.report = !missing(output.report) && !is.null(output.report),
+    alphabet          = unique(vapply(motifs, function(x) x@alphabet, character(1)))[1]
+  )
+
   mot.names <- vapply(motifs, function(x) x@name, character(1))
   mot.dup <- mot.names[duplicated(mot.names)]
   if (length(mot.dup) > 0) {

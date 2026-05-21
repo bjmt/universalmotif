@@ -73,6 +73,18 @@ pval_extractor <- function(ncols, scores, indices1, indices2, method, subject, t
     .Call('_universalmotif_pval_extractor', PACKAGE = 'universalmotif', ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution, nthreads)
 }
 
+compare_motifs2_align_cpp <- function(mots, qi, ti, min_overlap, RC, nthreads = 1L) {
+    .Call('_universalmotif_compare_motifs2_align_cpp', PACKAGE = 'universalmotif', mots, qi, ti, min_overlap, RC, nthreads)
+}
+
+compare_motifs2_pvalue_cpp <- function(query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads = 1L) {
+    .Call('_universalmotif_compare_motifs2_pvalue_cpp', PACKAGE = 'universalmotif', query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads)
+}
+
+compare_motifs2_consensus_cpp <- function(mots, mot_i, start, len) {
+    .Call('_universalmotif_compare_motifs2_consensus_cpp', PACKAGE = 'universalmotif', mots, mot_i, start, len)
+}
+
 dedup_hits_cpp <- function(seq_i, motif_i, start, end, strand_i, priority, ignore_strand = FALSE, ignore_motif = FALSE) {
     .Call('_universalmotif_dedup_hits_cpp', PACKAGE = 'universalmotif', seq_i, motif_i, start, end, strand_i, priority, ignore_strand, ignore_motif)
 }
