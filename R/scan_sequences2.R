@@ -2,15 +2,15 @@
 #'
 #' `scan_sequences2()` is a deliberately stripped-down counterpart to
 #' [scan_sequences()] whose default surface mirrors the command-line tool
-#' `yamtk scan` (Tremblay 2026). It exposes a single threshold (a P-value),
+#' `yamtk scan` (see [yamtk](https://github.com/bjmt/yamtk)).
+#' It exposes a single threshold (a P-value),
 #' always scans both strands by default, always computes per-hit P-values,
 #' and returns either a `GRanges` (preferred when GenomicRanges is
 #' installed) or a `data.frame`. Use [scan_sequences()] when you need any of
-#' multifreq scoring, gapped motifs, q-values, exhaustive P-values, intra-motif
-#' overlap removal, `respect.strand`, `allow.nonfinite`, or `threshold.type`s
-#' other than P-value.
+#' multifreq scoring, gapped motifs, q-values, exhaustive P-values, `respect.strand`,
+#' `allow.nonfinite`, or `threshold.type`s other than P-value.
 #'
-#' The scanner re-uses the same C++ core (`scan_sequences_cpp`) as
+#' The scanner re-uses the same C++ core as
 #' [scan_sequences()]; the speed advantage comes from skipping the R-side
 #' bookkeeping for features this function does not support.
 #'
@@ -18,18 +18,12 @@
 #' [motif_pvalue()] (FIMO-style; Grant et al. 2011), which is also what
 #' `yamtk scan` uses.
 #'
-#' The position weight matrix is built via universalmotif's standard
-#' [convert_motifs()] / `convert_type` pipeline, using each motif's stored
-#' `bkg` and `pseudocount` slots. This will not match `yamtk scan` bit-for-bit
-#' (yamtk uses continuous PPM throughout, while universalmotif rounds counts
-#' during a PCM step) but agrees to within rounding for typical input.
-#'
 #' @param motifs See [convert_motifs()] for accepted motif formats. DNA or RNA
-#'   only -- amino-acid motifs are rejected.
+#'   only -- amino-acid and custom alphabet motifs are rejected.
 #' @param sequences `XStringSet`. DNA or RNA sequences to scan; the alphabet
 #'   must match the motif alphabet.
 #' @param pvalue `numeric(1)`. P-value cutoff for reporting hits. Default
-#'   `1e-4`, matching `yamtk scan`'s default.
+#'   `1e-4`.
 #' @param RC `logical(1)`. If `TRUE` (default), scan both strands.
 #' @param nthreads `numeric(1)`. Number of threads. `nthreads = 0` uses all
 #'   available threads. Parallelisation happens inside `scan_sequences_cpp`
@@ -38,7 +32,7 @@
 #'   a `GRanges` if the `GenomicRanges` package is installed, otherwise a
 #'   `data.frame`. Set `TRUE` / `FALSE` to force one or the other.
 #' @param no.overlaps `logical(1)`. If `TRUE`, drop overlapping hits within
-#'   each `(sequence, motif, strand)` group using the yamtk-style greedy
+#'   each `(sequence, motif, strand)` group using a greedy
 #'   algorithm (see [dedup_hits()]). Default `FALSE`.
 #' @param no.overlaps.by `character(1)`. Which column to use as the priority
 #'   for breaking ties between overlapping hits. `"pvalue"` (default) keeps
@@ -63,9 +57,7 @@
 #' Coordinates are always 1-based, inclusive, with `start <= end` regardless of
 #' strand. For hits on the `-` strand the `match` column is the reverse
 #' complement of the sequence substring -- i.e. the sequence as matched against
-#' the motif. This is the convention used by `yamtk scan`, BED, GFF, and
-#' `GRanges`, but differs from [scan_sequences()] which swaps `start` and
-#' `stop` on the negative strand.
+#' the motif. 
 #'
 #' @references
 #'

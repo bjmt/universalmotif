@@ -46,7 +46,8 @@ order.
 Given a set of motif hits -- typically the output of
 \code{\link[=scan_sequences2]{scan_sequences2()}} or \code{\link[=scan_sequences]{scan_sequences()}}, or a \code{GRanges} /
 \code{data.frame} from any other source -- drop overlapping hits within
-each \verb{(sequence, motif, strand)} group using yamtk's greedy
+each \verb{(sequence, motif, strand)} group using
+\href{https://github.com/bjmt/yamtk}{yamtk}'s greedy
 algorithm: cluster overlapping hits, then within each cluster keep
 the hit with the best priority and, after that, any other hit that
 does not overlap an already-kept hit. This is the same algorithm
@@ -61,7 +62,7 @@ hits even when an intermediate noisy hit bridges them, which is
 usually what users want.
 
 Coordinate convention: rows must have \code{start <= end}. Overlaps are
-inclusive: two hits overlap iff \code{a$start <= b$end & b$start <= a$end}.
+inclusive: two hits overlap if \code{a$start <= b$end & b$start <= a$end}.
 }
 \examples{
 library(universalmotif)
@@ -74,6 +75,10 @@ deduped <- dedup_hits(hits)
 nrow(hits)
 nrow(deduped)
 
+}
+\references{
+Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
+\url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
 \code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=scan_sequences]{scan_sequences()}}

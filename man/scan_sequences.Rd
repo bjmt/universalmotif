@@ -120,7 +120,8 @@ then a \code{GRanges} object is returned.
 }
 \description{
 For sequences of any alphabet, scan them using the PWM matrices of
-a set of input motifs.
+a set of input motifs. Note: for regular DNA/RNA scanning, see
+\code{\link[=scan_sequences2]{scan_sequences2()}} for a faster and simpler alternative.
 }
 \details{
 \subsection{Logodds scoring}{
@@ -199,7 +200,7 @@ Noble WS (2009). "How does multiple testing work?" \emph{Nature Biotechnology},
 }
 \seealso{
 \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[Biostrings:matchPWM]{Biostrings::matchPWM()}},
-\code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
+\code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}, \code{\link[=scan_sequences2]{scan_sequences2()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

@@ -1,7 +1,8 @@
 #' Scan sequences for matches to input motifs.
 #'
 #' For sequences of any alphabet, scan them using the PWM matrices of
-#' a set of input motifs.
+#' a set of input motifs. Note: for regular DNA/RNA scanning, see
+#' [scan_sequences2()] for a faster and simpler alternative.
 #'
 #' @param motifs See `convert_motifs()` for acceptable motif formats.
 #' @param sequences \code{\link{XStringSet}} Sequences to scan. Alphabet
@@ -157,7 +158,7 @@
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [add_multifreq()], [Biostrings::matchPWM()],
-#'    [enrich_motifs()], [motif_pvalue()]
+#'    [enrich_motifs()], [motif_pvalue()], [scan_sequences2()]
 #' @export
 scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   threshold.type = c("pvalue", "qvalue", "logodds", "logodds.abs"),

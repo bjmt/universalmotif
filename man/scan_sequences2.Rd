@@ -11,13 +11,13 @@ scan_sequences2(motifs, sequences, pvalue = 1e-04, RC = TRUE,
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or RNA
-only -- amino-acid motifs are rejected.}
+only -- amino-acid and custom alphabet motifs are rejected.}
 
 \item{sequences}{\code{XStringSet}. DNA or RNA sequences to scan; the alphabet
 must match the motif alphabet.}
 
 \item{pvalue}{\code{numeric(1)}. P-value cutoff for reporting hits. Default
-\code{1e-4}, matching \verb{yamtk scan}'s default.}
+\code{1e-4}.}
 
 \item{RC}{\code{logical(1)}. If \code{TRUE} (default), scan both strands.}
 
@@ -30,7 +30,7 @@ a \code{GRanges} if the \code{GenomicRanges} package is installed, otherwise a
 \code{data.frame}. Set \code{TRUE} / \code{FALSE} to force one or the other.}
 
 \item{no.overlaps}{\code{logical(1)}. If \code{TRUE}, drop overlapping hits within
-each \verb{(sequence, motif, strand)} group using the yamtk-style greedy
+each \verb{(sequence, motif, strand)} group using a greedy
 algorithm (see \code{\link[=dedup_hits]{dedup_hits()}}). Default \code{FALSE}.}
 
 \item{no.overlaps.by}{\code{character(1)}. Which column to use as the priority
@@ -61,35 +61,27 @@ Coordinate fields:
 Coordinates are always 1-based, inclusive, with \code{start <= end} regardless of
 strand. For hits on the \code{-} strand the \code{match} column is the reverse
 complement of the sequence substring -- i.e. the sequence as matched against
-the motif. This is the convention used by \verb{yamtk scan}, BED, GFF, and
-\code{GRanges}, but differs from \code{\link[=scan_sequences]{scan_sequences()}} which swaps \code{start} and
-\code{stop} on the negative strand.
+the motif.
 }
 \description{
 \code{scan_sequences2()} is a deliberately stripped-down counterpart to
 \code{\link[=scan_sequences]{scan_sequences()}} whose default surface mirrors the command-line tool
-\verb{yamtk scan} (Tremblay 2026). It exposes a single threshold (a P-value),
+\verb{yamtk scan} (see \href{https://github.com/bjmt/yamtk}{yamtk}).
+It exposes a single threshold (a P-value),
 always scans both strands by default, always computes per-hit P-values,
 and returns either a \code{GRanges} (preferred when GenomicRanges is
 installed) or a \code{data.frame}. Use \code{\link[=scan_sequences]{scan_sequences()}} when you need any of
-multifreq scoring, gapped motifs, q-values, exhaustive P-values, intra-motif
-overlap removal, \code{respect.strand}, \code{allow.nonfinite}, or \code{threshold.type}s
-other than P-value.
+multifreq scoring, gapped motifs, q-values, exhaustive P-values, \code{respect.strand},
+\code{allow.nonfinite}, or \code{threshold.type}s other than P-value.
 }
 \details{
-The scanner re-uses the same C++ core (\code{scan_sequences_cpp}) as
+The scanner re-uses the same C++ core as
 \code{\link[=scan_sequences]{scan_sequences()}}; the speed advantage comes from skipping the R-side
 bookkeeping for features this function does not support.
 
 P-values are computed via the dynamic-programming algorithm of
 \code{\link[=motif_pvalue]{motif_pvalue()}} (FIMO-style; Grant et al. 2011), which is also what
 \verb{yamtk scan} uses.
-
-The position weight matrix is built via universalmotif's standard
-\code{\link[=convert_motifs]{convert_motifs()}} / \code{convert_type} pipeline, using each motif's stored
-\code{bkg} and \code{pseudocount} slots. This will not match \verb{yamtk scan} bit-for-bit
-(yamtk uses continuous PPM throughout, while universalmotif rounds counts
-during a PCM step) but agrees to within rounding for typical input.
 }
 \examples{
 library(universalmotif)

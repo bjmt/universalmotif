@@ -365,6 +365,107 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
                return.granges = TRUE)
 ```
 
+## A faster alternative: `scan_sequences2()`
+
+For DNA/RNA scans that don't need multifreq scoring, gapped motifs,
+q-values, exhaustive P-values, or any
+threshold type other than P-value, the lighter `scan_sequences2()`
+function is generally faster and parallelises better across motifs.
+It uses the same C++ scanner internally, computes per-hit P-values
+via the same FIMO-style dynamic programming algorithm, and returns
+the same hit set, but skips all of the optional R-side bookkeeping
+that `scan_sequences()` does to support its broader API.
+
+The default surface of `scan_sequences2()` is intentionally minimal
+(six formals: `motifs`, `sequences`, `pvalue = 1e-4`, `RC = TRUE`,
+`nthreads = 1`, `return.granges = NULL`). When `GenomicRanges` is
+installed, the default output is a `GRanges`; otherwise it falls back
+to a `data.frame`. Coordinates always satisfy `start <= end`
+regardless of strand (matching BED / GFF / `GRanges` convention), and
+the `match` column on `-`-strand hits is the reverse complement of
+the sequence substring -- i.e. the matched orientation. Hit-level
+deduplication using a greedy algorithm is
+available via `no.overlaps = TRUE`, and is also exposed as the
+standalone `dedup_hits()` function for post-processing.
+
+```{r, eval = FALSE}
+## scan_sequences2() with all defaults
+hits <- scan_sequences2(ArabidopsisMotif, ArabidopsisPromoters)
+
+## Optional deduplication of overlapping hits
+hits <- scan_sequences2(ArabidopsisMotif, ArabidopsisPromoters,
+                        no.overlaps = TRUE)
+```
+
+When `scan_sequences()` is called with arguments that map cleanly onto
+`scan_sequences2()`'s feature set, it emits a one-line hint pointing at
+the faster function. This can be silenced with
+`options(universalmotif.suggest.scan_sequences2 = FALSE)`.
+
+### Speed comparison vs `motifmatchr` and `yamtk scan` {.unnumbered}
+
+To put the trade-offs in perspective, the table below records
+end-to-end wall-clock time for the four scanners on the same fixture:
+the first 50 motifs of HOCOMOCOv11 against random DNA at five sizes,
+P-value cutoff $5 \times 10^{-5}$, both strands, uniform background.
+`motifmatchr::matchMotifs()` is included in two output modes -- its
+default `out = "matches"` (per `(motif, sequence)`, strictly less
+work than the other three tools) and `out = "positions"` (per
+position, directly comparable to the others). Hit sets across
+the cli tool [`yamtk`](https://github.com/bjmt/yamtk) (by
+the same author as the author of `universalmotif`),
+`scan_sequences()`, `scan_sequences2()`, and `motifmatchr` in
+`positions` mode agree to within ~5% (due to a drift between
+`yamtk`'s continuous-PPM PWM construction and `universalmotif`'s
+PCM-rounding). Reported times are in seconds; each cell
+shows `nthreads = 1 / nthreads = 4` where threading applies.
+These benchmarks were run using a MBP M5 running R 4.4.1.
+
+| Workload | yamtk | mm matches¹ | mm positions² | scan_sequences2 | scan_sequences³ |
+|---|---:|---:|---:|---:|---:|
+| 10 mot × 500 seq × 500 bp | 0.03 / 0.01 | 0.05 | 5.67 | 0.30 / 0.13 | 0.39 / 0.39 |
+| 50 mot × 500 seq × 500 bp | 0.12 / 0.03 | 0.17 | 28.19 | 1.48 / 0.44 | 1.62 / 1.56 |
+| 200 mot × 1000 seq × 500 bp | 0.71 / 0.20 | 0.71 | 237.32 | 6.62 / 1.91 | 7.02 / 6.46 |
+| 50 mot × 100 seq × 50 kb | 1.34 / 0.37 | 0.30 | 6.09 | 3.71 / 1.11 | 3.79 / 2.18 |
+| 200 mot × 100 seq × 50 kb | 5.17 / 1.49 | 1.12 | 24.83 | 14.92 / 4.40 | 15.50 / 9.01 |
+
+¹ `motifmatchr::matchMotifs(..., out = "matches")` (default): returns
+a sparse `(motif × sequence)` yes/no matrix. Strictly less work than
+the per-position scanners; a fair comparison only when you really
+only need to know whether each motif matched each sequence at all.
+
+² `motifmatchr::matchMotifs(..., out = "positions")`: returns the
+full set of per-position hits as a list of `IRangesList`. This is the
+fair comparison against `yamtk`, `scan_sequences()`, and
+`scan_sequences2()`. `motifmatchr` is single-threaded from the R API
+in both modes.
+
+³ `scan_sequences(..., calc.pvals = TRUE)`, which performs the same
+work per hit as `scan_sequences2()`. The older `mapply`-based dispatch
+in `scan_sequences()` parallelises poorly for short-sequence
+workloads; this is the main cost that
+`scan_sequences2()` eliminates.
+
+Practical takeaways:
+
+- [`yamtk`](https://github.com/bjmt/yamtk) (a dedicated CLI tool
+  written in C) is the fastest scanner at every scale. The
+  `universalmotif` package does not aim to match it; the goal is to
+  stay within a small multiple while keeping everything inside `R`.
+- `scan_sequences2()` reaches within ~3× of `yamtk scan` at 4 threads
+  on long-sequence workloads, and is 2-3× faster than
+  `scan_sequences(calc.pvals = TRUE)` at 4 threads across every
+  configuration tested.
+- For equivalent-work (per-position) scanning, `scan_sequences2()` is
+  also substantially faster than `motifmatchr::matchMotifs(out =
+  "positions")` at every scale: 5-100× depending on the input.
+- `motifmatchr` is faster than the per-position scanners only in
+  its default `out = "matches"` mode, where it skips per-position
+  reporting entirely. Choose that mode when "did this motif match
+  this sequence at all?" is the question you are actually asking.
+- For new code that does not need any of `scan_sequences()`'s
+  advanced features, prefer `scan_sequences2()`.
+
 ## Visualizing motif hits across sequences
 
 A few suggestions for different ways of plotting hits across sequences are presented here.

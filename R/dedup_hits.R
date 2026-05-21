@@ -3,7 +3,8 @@
 #' Given a set of motif hits -- typically the output of
 #' [scan_sequences2()] or [scan_sequences()], or a `GRanges` /
 #' `data.frame` from any other source -- drop overlapping hits within
-#' each `(sequence, motif, strand)` group using yamtk's greedy
+#' each `(sequence, motif, strand)` group using
+#' [yamtk](https://github.com/bjmt/yamtk)'s greedy
 #' algorithm: cluster overlapping hits, then within each cluster keep
 #' the hit with the best priority and, after that, any other hit that
 #' does not overlap an already-kept hit. This is the same algorithm
@@ -17,7 +18,7 @@
 #' usually what users want.
 #'
 #' Coordinate convention: rows must have `start <= end`. Overlaps are
-#' inclusive: two hits overlap iff `a$start <= b$end & b$start <= a$end`.
+#' inclusive: two hits overlap if `a$start <= b$end & b$start <= a$end`.
 #'
 #' @param hits `data.frame` or `GRanges`. For a `data.frame`, must have
 #'   columns `start`, `end`, and the columns named by `by`, `seq`,
@@ -43,6 +44,11 @@
 #'
 #' @return The input `hits`, subsetted to the kept rows in the original
 #'   order.
+#'
+#' @references
+#'
+#' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
+#' \url{https://github.com/bjmt/yamtk}.
 #'
 #' @examples
 #' library(universalmotif)
