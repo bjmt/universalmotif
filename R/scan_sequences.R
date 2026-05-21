@@ -274,6 +274,17 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   mot.alphs <- unique(mot.alphs)
   if (verbose > 1) message("   * Motif alphabet: ", mot.alphs)
 
+  suggest_scan_sequences2(threshold.type      = threshold.type,
+                          use.freq            = use.freq,
+                          use.gaps            = use.gaps,
+                          allow.nonfinite     = allow.nonfinite,
+                          no.overlaps         = no.overlaps,
+                          calc.qvals          = calc.qvals,
+                          respect.strand      = respect.strand,
+                          motif_pvalue.method = motif_pvalue.method,
+                          alphabet            = mot.alphs,
+                          mot.hasgap          = mot.hasgap)
+
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
 

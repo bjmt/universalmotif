@@ -111,6 +111,40 @@ resolve_nthreads <- function(nthreads) {
   nthreads
 }
 
+# Emit a one-time-per-call hint if a scan_sequences() invocation could be
+# served by the faster, multi-threaded scan_sequences2() without losing any
+# functionality. Only fires when every argument the user passed maps cleanly
+# onto scan_sequences2()'s feature set; advanced features (multifreq,
+# gapped motifs, q-values, exhaustive p-values, respect.strand,
+# allow.nonfinite, intra-motif overlap removal via the connected-components
+# algorithm, non-pvalue threshold types, amino-acid alphabets) suppress it.
+#
+# Opt out: options(universalmotif.suggest.scan_sequences2 = FALSE).
+suggest_scan_sequences2 <- function(threshold.type, use.freq, use.gaps,
+                                    allow.nonfinite, no.overlaps,
+                                    calc.qvals, respect.strand,
+                                    motif_pvalue.method, alphabet,
+                                    mot.hasgap) {
+  if (!isTRUE(getOption("universalmotif.suggest.scan_sequences2"))) return(invisible())
+  if (threshold.type != "pvalue")        return(invisible())
+  if (use.freq != 1)                      return(invisible())
+  if (any(mot.hasgap) && isTRUE(use.gaps)) return(invisible())
+  if (isTRUE(allow.nonfinite))            return(invisible())
+  if (isTRUE(no.overlaps))                return(invisible())
+  if (isTRUE(calc.qvals))                 return(invisible())
+  if (isTRUE(respect.strand))             return(invisible())
+  if (motif_pvalue.method != "dynamic")   return(invisible())
+  if (!alphabet %in% c("DNA", "RNA"))     return(invisible())
+
+  message(wmsg(
+    "Tip: this scan_sequences() call uses only arguments supported by ",
+    "scan_sequences2(), a leaner counterpart that parallelises better. ",
+    "See ?scan_sequences2. ",
+    "Silence with `options(universalmotif.suggest.scan_sequences2 = FALSE)`."
+  ))
+  invisible()
+}
+
 warn_pseudo <- function(v = 1) {
   # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {

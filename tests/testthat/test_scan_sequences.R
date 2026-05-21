@@ -101,3 +101,66 @@ test_that("scan_sequences() with multifreq motif on a short sequence gives a fri
       verbose = 0)), regexp = "shorter than the width", fixed = TRUE)
 
 })
+
+test_that("scan_sequences() suggests scan_sequences2() when arguments are compatible", {
+
+  m <- create_motif("ACGTAC")
+  seqs <- create_sequences(seqnum = 3, seqlen = 100, rng.seed = 1)
+
+  old_opt <- getOption("universalmotif.suggest.scan_sequences2")
+  on.exit(options(universalmotif.suggest.scan_sequences2 = old_opt), add = TRUE)
+
+  # Default call -- should fire.
+  options(universalmotif.suggest.scan_sequences2 = TRUE)
+  expect_message(
+    suppressWarnings(scan_sequences(m, seqs, threshold = 1e-2,
+                                    threshold.type = "pvalue", RC = TRUE,
+                                    calc.pvals = FALSE, calc.qvals = FALSE,
+                                    verbose = 0)),
+    "scan_sequences2()", fixed = TRUE
+  )
+
+  # Each disqualifying argument should suppress the hint.
+  hint_silent <- function(...) {
+    msgs <- capture_messages(
+      suppressWarnings(scan_sequences(m, seqs, threshold = 1e-2,
+                                      threshold.type = "pvalue", RC = TRUE,
+                                      calc.pvals = FALSE, calc.qvals = FALSE,
+                                      verbose = 0, ...))
+    )
+    expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+  }
+  hint_silent(no.overlaps         = TRUE)
+  hint_silent(respect.strand      = TRUE)
+  hint_silent(motif_pvalue.method = "exhaustive")
+  # allow.nonfinite is incompatible with threshold.type = "pvalue" + dynamic,
+  # so verify suppression via a logodds-threshold path instead.
+  msgs <- capture_messages(
+    suppressWarnings(scan_sequences(m, seqs, threshold = 0.6,
+                                    threshold.type = "logodds.abs", RC = TRUE,
+                                    allow.nonfinite = TRUE,
+                                    calc.pvals = FALSE, calc.qvals = FALSE,
+                                    verbose = 0))
+  )
+  expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+
+  # threshold.type other than pvalue: also suppress.
+  msgs <- capture_messages(
+    suppressWarnings(scan_sequences(m, seqs, threshold = 0.6,
+                                    threshold.type = "logodds", RC = TRUE,
+                                    calc.pvals = FALSE, calc.qvals = FALSE,
+                                    verbose = 0))
+  )
+  expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+
+  # The option silences the hint even when conditions are met.
+  options(universalmotif.suggest.scan_sequences2 = FALSE)
+  msgs <- capture_messages(
+    suppressWarnings(scan_sequences(m, seqs, threshold = 1e-2,
+                                    threshold.type = "pvalue", RC = TRUE,
+                                    calc.pvals = FALSE, calc.qvals = FALSE,
+                                    verbose = 0))
+  )
+  expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+
+})
