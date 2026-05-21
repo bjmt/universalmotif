@@ -576,6 +576,42 @@ Here we can see that the motif is significantly enriched in the target sequences
 
 One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.)
 
+## A faster alternative: `enrich_motifs2()`
+
+For users who only need the common case (DNA/RNA motifs, P-value
+hit threshold, Fisher's exact test, Benjamini-Hochberg q-values),
+`enrich_motifs2()` offers a stripped-down counterpart to
+`enrich_motifs()` whose defaults mirror the command-line tool
+[`yamtk enr`](https://github.com/bjmt/yamtk). It is built on
+`scan_sequences2()` and inherits its speed advantages.
+
+```{r}
+library(universalmotif)
+data(ArabidopsisMotif)
+data(ArabidopsisPromoters)
+
+enrich_motifs2(ArabidopsisMotif, ArabidopsisPromoters,
+               pvalue = 1e-3, qvalue = 0.1, rng.seed = 1)
+```
+
+The output is a plain `data.frame` whose 13 columns mirror `yamtk enr`'s
+TSV one-for-one: `motif`, `motif.i`, `consensus`,
+`target.seq.n`, `target.seq.hits`, `target.site.hits`,
+`bkg.seq.n`, `bkg.seq.hits`, `bkg.site.hits`,
+`enrichment`, `log2.enrichment`, `pvalue`, `qvalue`.
+
+Two test modes are supported:
+
+- `test = "seqs"` (default): Fisher's exact on per-sequence hit
+  presence, equivalent to `enrich_motifs(mode = "seq.hits")`.
+- `test = "sites"`: Fisher's exact on per-position rates,
+  equivalent to `enrich_motifs(mode = "total.hits")`.
+
+When a `enrich_motifs()` call uses only features that map
+cleanly onto `enrich_motifs2()`'s surface, a one-line hint is emitted
+pointing at the leaner function. Silence with
+`options(universalmotif.suggest.enrich_motifs2 = FALSE)`.
+
 ## Fixed and variable-length gapped motifs
 
 `universalmotif` class motifs can be gapped, which can be used by `scan_sequences()` and `enrich_motifs()`. Note that gapped motif support is currently limited to these two functions. All other functions will ignore the gap information, and even discard them in functions such as `merge_motifs()`.
