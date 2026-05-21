@@ -3,6 +3,21 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added compare_motifs2(), a minimalist DNA/RNA motif-vs-motif
+    comparison function aligned with the command-line tool yamtk cmp
+    (https://github.com/bjmt/yamtk). Uses Pearson correlation per
+    column as the only similarity metric and computes per-pair
+    p-values from a TOMTOM-style null PMF -- either empirical from the
+    target database (default) or parametric via Dirichlet-Multinomial
+    over a K=5 simplex grid -- with Bonferroni + Benjamini-Hochberg
+    adjustment. Returns either a square matrix
+    (matrix.out = "score" / "pvalue" / "qvalue") or a long-format
+    data.frame of significant pairs. On a 50-motif HOCOMOCOv11
+    self-comparison the port reproduces yamtk's hits exactly and the
+    p/q-values to within 5e-6 relative error; matrix.out = "score"
+    runs ~40x faster than compare_motifs() on a 200x200 fixture at 4
+    threads.
+
   o Added scan_sequences2(), a minimalist DNA/RNA scanner aligned with
     the defaults of the yamtk scan command-line tool
     (https://github.com/bjmt/yamtk). Reuses the same C++ scanning core
@@ -25,6 +40,11 @@ NEW FEATURES
     clustering and is left unchanged.
 
 MINOR CHANGES
+
+  o compare_motifs() now emits a one-line hint pointing at
+    compare_motifs2() when the user's argument set maps cleanly onto
+    the leaner function. Silence with
+    options(universalmotif.suggest.compare_motifs2 = FALSE).
 
   o motif_pvalue(method = "dynamic") now batches across motifs in a
     single C++ call parallelised with RcppThread, instead of
