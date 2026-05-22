@@ -102,6 +102,20 @@ test_that("scan_sequences2 GRanges path picks up seq.length automatically", {
   expect_equal(r$seq.length, 300L)
 })
 
+test_that("scan_sequences (v1) GRanges path picks up seq.length automatically", {
+  set.seed(1)
+  seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)
+  seqs <- plant_centred(seqs, "TTGACATA", n = 70, target_center = 150L)
+  m <- create_motif("TTGACATA", name = "x")
+  hits <- suppressWarnings(suppressMessages(
+    scan_sequences(m, seqs, threshold = 0.001, threshold.type = "pvalue",
+                   return.granges = TRUE, no.overlaps = FALSE)
+  ))
+  r <- motif_peaks(hits, qvalue = 1)
+  expect_equal(nrow(r), 1L)
+  expect_equal(r$seq.length, 300L)
+})
+
 test_that("scan_sequences (v1) data.frame input is accepted (uses `stop` column)", {
   set.seed(1)
   seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)

@@ -54,7 +54,7 @@
 #'   `motif.i`, `mode`, `seq.length`, `nhits`, `best.window`,
 #'   `best.center`, `hits.in`, `hits.out`, `expected.in`,
 #'   `enrichment`, `log2.enrichment`, `pvalue`, `qvalue`, `centers`
-#'   (list-column of integer vectors of hit centres -- one entry per
+#'   (list-column of integer vectors of hit centres, one entry per
 #'   sequence after best-hit-per-sequence dedup; consumed by
 #'   [plot_motif_peaks()]).
 #'
@@ -225,8 +225,15 @@ plot_motif_peaks <- function(peaks, motifs = NULL, ncol = 2L,
     motif = factor(peaks$motif, levels = peaks$motif),
     xmin  = peaks$best.center - peaks$best.window / 2,
     xmax  = peaks$best.center + peaks$best.window / 2,
-    label = sprintf("p = %.2g | %.1fx", peaks$pvalue, peaks$enrichment),
     stringsAsFactors = FALSE
+  )
+
+  ## Annotate the strip label with the per-motif stats (avoids any
+  ## overlap with bars that might land at the corners).
+  strip_labels <- setNames(
+    sprintf("%s  (p = %.2g | %.1fx)",
+            peaks$motif, peaks$pvalue, peaks$enrichment),
+    peaks$motif
   )
 
   ggplot2::ggplot(long, ggplot2::aes(x = .data$center)) +
@@ -235,16 +242,21 @@ plot_motif_peaks <- function(peaks, motifs = NULL, ncol = 2L,
                                     ymin = -Inf, ymax = Inf),
                        fill = fill.window, alpha = 0.5,
                        inherit.aes = FALSE) +
-    ggplot2::geom_histogram(bins = bins, colour = NA, fill = "grey25") +
-    ggplot2::geom_text(data = rects,
-                       ggplot2::aes(x = -Inf, y = Inf, label = .data$label),
-                       hjust = -0.05, vjust = 1.4, size = 3,
-                       inherit.aes = FALSE) +
-    ggplot2::facet_wrap(~ motif, ncol = ncol, scales = "free_y") +
+    ggplot2::geom_histogram(bins = bins, colour = NA, fill = "black") +
+    ggplot2::facet_wrap(~ motif, ncol = ncol, scales = "free_y",
+                        axes = "all_x", axis.labels = "all_x",
+                        labeller = ggplot2::as_labeller(strip_labels)) +
     ggplot2::labs(x = "Hit centre position", y = "Count") +
     ggplot2::theme_bw() +
-    ggplot2::theme(strip.background = ggplot2::element_rect(fill = NA),
-                   panel.grid.minor = ggplot2::element_blank())
+    ggplot2::theme(
+      strip.background    = ggplot2::element_rect(fill = NA, colour = NA),
+      ## no interior grid lines at all
+      panel.grid          = ggplot2::element_blank(),
+      ## L-shaped axes: kill the full panel border, draw only bottom + left
+      panel.border        = ggplot2::element_blank(),
+      axis.line.x.bottom  = ggplot2::element_line(colour = "black"),
+      axis.line.y.left    = ggplot2::element_line(colour = "black")
+    )
 }
 
 ## ---------------------------------------------------------------------------
