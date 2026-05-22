@@ -68,16 +68,27 @@
 #'
 #' @details
 #' Algorithm and defaults are a faithful port of `yamtk me`
-#' (https://github.com/bjmt/yamtk). The C++ inner loops (seed
-#' enumeration, PPM refinement, per-motif Fisher's evaluation,
-#' cross-width dedup) live in `src/motif_finder.cpp` and are
-#' parallelised across motif widths via `RcppThread::parallelFor`.
+#' (https://github.com/bjmt/yamtk), whose own design is in turn based
+#' on the STREME algorithm (Bailey 2021): seed enumeration via word
+#' counting with per-sequence Fisher's exact ranking, iterative PPM
+#' refinement on positive sequences, per-motif Fisher's exact
+#' significance against a shuffled or user-supplied background, and
+#' position masking between discoveries.
+#'
+#' The C++ inner loops (seed enumeration, PPM refinement, per-motif
+#' Fisher's evaluation, cross-width dedup) live in
+#' `src/motif_finder.cpp` and are parallelised across motif widths via
+#' `RcppThread::parallelFor`.
 #'
 #' Motifs with `qvalue > qvalue` are dropped from the result. To see
 #' all discovered motifs regardless of significance, set
 #' `qvalue = 1`.
 #'
 #' @references
+#'
+#' Bailey TL (2021). "STREME: accurate and versatile sequence motif
+#' discovery." *Bioinformatics*, **37**(18), 2834-2840.
+#' \doi{10.1093/bioinformatics/btab203}.
 #'
 #' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
 #' \url{https://github.com/bjmt/yamtk}.

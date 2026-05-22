@@ -58,14 +58,13 @@ the width level. \code{nthreads = 0} uses all available threads.}
 A \code{universalmotif_df} (see \code{\link[=to_df]{to_df()}}) with one row per
 discovered motif, sorted by \code{pvalue} ascending. The standard
 \code{to_df()} columns (\code{name}, \code{altname}, \code{family}, \code{organism},
-\code{alphabet}, \code{type}, \code{nsites}, \code{pval}, \code{eval}, \code{motif}, ...) are
-populated from each discovered motif. The yamtk-specific stats are
-carried as additional columns:
+\code{consensus}, \code{alphabet}, \code{type}, \code{nsites}, \code{pval}, \code{eval}, \code{motif},
+...) are populated from each discovered motif. The yamtk-specific
+stats are carried as additional columns:
 
 \itemize{
 \item \code{rank}: 1-based discovery rank
 \item \code{width}: motif width (post IC-trim)
-\item \code{consensus}: IUPAC consensus from the PPM
 \item \code{seqs_pos}: positive sequences with >=1 hit
 \item \code{seqs_neg}: background sequences with >=1 hit
 \item \code{sites_pos}: total target hits
@@ -80,7 +79,7 @@ Use \code{\link[=to_list]{to_list()}} on the returned object to recover a plain 
 \code{universalmotif} S4 objects.
 }
 \description{
-\code{motif_finder()} is a minimalist yamtk-aligned \emph{de novo} motif discovery
+\code{motif_finder()} is a minimalist \emph{de novo} motif discovery
 function. Its defaults mirror the command-line tool \verb{yamtk me} (see
 \href{https://github.com/bjmt/yamtk}{yamtk}). The pipeline iterates over a
 user-controlled range of motif widths; at each width it enumerates
@@ -95,10 +94,17 @@ p-value order.
 }
 \details{
 Algorithm and defaults are a faithful port of \verb{yamtk me}
-(https://github.com/bjmt/yamtk). The C++ inner loops (seed
-enumeration, PPM refinement, per-motif Fisher's evaluation,
-cross-width dedup) live in \code{src/motif_finder.cpp} and are
-parallelised across motif widths via \code{RcppThread::parallelFor}.
+(https://github.com/bjmt/yamtk), whose own design is in turn based
+on the STREME algorithm (Bailey 2021): seed enumeration via word
+counting with per-sequence Fisher's exact ranking, iterative PPM
+refinement on positive sequences, per-motif Fisher's exact
+significance against a shuffled or user-supplied background, and
+position masking between discoveries.
+
+The C++ inner loops (seed enumeration, PPM refinement, per-motif
+Fisher's evaluation, cross-width dedup) live in
+\code{src/motif_finder.cpp} and are parallelised across motif widths via
+\code{RcppThread::parallelFor}.
 
 Motifs with \code{qvalue > qvalue} are dropped from the result. To see
 all discovered motifs regardless of significance, set
@@ -122,6 +128,10 @@ to_list(motifs)[[1]]
 
 }
 \references{
+Bailey TL (2021). "STREME: accurate and versatile sequence motif
+discovery." \emph{Bioinformatics}, \strong{37}(18), 2834-2840.
+\doi{10.1093/bioinformatics/btab203}.
+
 Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
 \url{https://github.com/bjmt/yamtk}.
 }
