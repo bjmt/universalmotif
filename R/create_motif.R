@@ -647,7 +647,7 @@ setMethod("create_motif", signature(input = "matrix"),
   else if (all(rownames(matrix) %in% AA_STANDARD2) &&
            missing(alphabet) && nrow(matrix) == 20)
     alphabet <- "AA"
-  else if (!is.null(rownames(matrix)))
+  else if (!is.null(rownames(matrix)) && missing(alphabet))
     alphabet <- collapse_cpp(rownames(matrix))
   else if (nrow(matrix) == 4 && missing(alphabet))
     alphabet <- "DNA"
