@@ -222,6 +222,70 @@ suggest_enrich_motifs2 <- function(threshold.type, qval.method, use.freq,
   invisible()
 }
 
+# Emit a one-time-per-call hint if a merge_motifs() invocation could be
+# served by merge_motifs2() without losing any functionality.
+#
+# Opt out: options(universalmotif.suggest.merge_motifs2 = FALSE).
+suggest_merge_motifs2 <- function(method, use.type, min.mean.ic,
+                                  min.position.ic, relative_entropy,
+                                  normalise.scores, score.strat, alphabet) {
+  if (!isTRUE(getOption("universalmotif.suggest.merge_motifs2")))
+    return(invisible())
+  if (method != "PCC")                                return(invisible())
+  if (use.type != "PPM")                              return(invisible())
+  if (!isTRUE(all.equal(min.mean.ic, 0.25)) &&
+      !isTRUE(all.equal(min.mean.ic, 0)))             return(invisible())
+  if (!isTRUE(all.equal(min.position.ic, 0)))         return(invisible())
+  if (isTRUE(relative_entropy))                       return(invisible())
+  if (isTRUE(normalise.scores))                       return(invisible())
+  if (!score.strat %in% c("sum", "a.mean"))           return(invisible())
+  if (!alphabet %in% c("DNA", "RNA"))                 return(invisible())
+
+  message(wmsg(
+    "Tip: this merge_motifs() call uses only arguments supported by ",
+    "merge_motifs2(), a leaner counterpart built on compare_motifs2() ",
+    "with an anchor-based (input-order-independent) merge. ",
+    "See ?merge_motifs2. ",
+    "Silence with `options(universalmotif.suggest.merge_motifs2 = FALSE)`."
+  ))
+  invisible()
+}
+
+# Emit a one-time-per-call hint if a merge_similar() invocation could be
+# served by merge_similar2() without losing any functionality.
+#
+# Opt out: options(universalmotif.suggest.merge_similar2 = FALSE).
+suggest_merge_similar2 <- function(method, use.type, threshold.type,
+                                   min.mean.ic, min.position.ic,
+                                   relative_entropy, normalise.scores,
+                                   score.strat.compare, alphabet) {
+  if (!isTRUE(getOption("universalmotif.suggest.merge_similar2")))
+    return(invisible())
+  if (method != "PCC")                                return(invisible())
+  if (use.type != "PPM")                              return(invisible())
+  ## merge_similar() uses score-based thresholds; merge_similar2() uses
+  ## q-value-based ones. We only suggest when the v1 caller is on the
+  ## default score.abs path -- a v1 user already on threshold.type =
+  ## "pvalue" / "qvalue" probably wants the v2 q-value cutoff but is
+  ## better served by reading the docs explicitly.
+  if (!threshold.type %in% c("score.abs", "score"))   return(invisible())
+  if (!isTRUE(all.equal(min.mean.ic, 0)))             return(invisible())
+  if (!isTRUE(all.equal(min.position.ic, 0)))         return(invisible())
+  if (isTRUE(relative_entropy))                       return(invisible())
+  if (isTRUE(normalise.scores))                       return(invisible())
+  if (!score.strat.compare %in% c("sum", "a.mean"))   return(invisible())
+  if (!alphabet %in% c("DNA", "RNA"))                 return(invisible())
+
+  message(wmsg(
+    "Tip: this merge_similar() call uses only arguments supported by ",
+    "merge_similar2(), a leaner counterpart that clusters motifs by ",
+    "compare_motifs2() significance (q-value) instead of absolute score. ",
+    "See ?merge_similar2. ",
+    "Silence with `options(universalmotif.suggest.merge_similar2 = FALSE)`."
+  ))
+  invisible()
+}
+
 warn_pseudo <- function(v = 1) {
   # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {

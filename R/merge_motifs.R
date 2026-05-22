@@ -88,6 +88,16 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   }
   if (!is.list(motifs)) motifs <- list(motifs)
 
+  mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
+  suggest_merge_motifs2(method      = method,
+                        use.type    = use.type,
+                        min.mean.ic = min.mean.ic,
+                        min.position.ic = min.position.ic,
+                        relative_entropy = relative_entropy,
+                        normalise.scores = normalise.scores,
+                        score.strat = score.strat,
+                        alphabet    = unique(mot.alphs)[1L])
+
   motifs <- convert_type_internal(motifs, "PPM")
 
   # if (method %in% c("ALLR", "KL", "ALLR_LL")) {

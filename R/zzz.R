@@ -7,6 +7,8 @@ if (is.null(getOption("universalmotif_df.warning"))) options(universalmotif_df.w
 if (is.null(getOption("universalmotif.suggest.scan_sequences2"))) options(universalmotif.suggest.scan_sequences2 = TRUE)
 if (is.null(getOption("universalmotif.suggest.compare_motifs2")))  options(universalmotif.suggest.compare_motifs2  = TRUE)
 if (is.null(getOption("universalmotif.suggest.enrich_motifs2")))   options(universalmotif.suggest.enrich_motifs2   = TRUE)
+if (is.null(getOption("universalmotif.suggest.merge_motifs2")))    options(universalmotif.suggest.merge_motifs2    = TRUE)
+if (is.null(getOption("universalmotif.suggest.merge_similar2")))   options(universalmotif.suggest.merge_similar2   = TRUE)
 
 .onUnload <- function(libpath) {
   library.dynam.unload("universalmotif", libpath)

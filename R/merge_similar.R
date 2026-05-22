@@ -55,6 +55,16 @@ merge_similar <- function(motifs,
     return(.internal_convert(motifs[[1]], unique(CLASS_IN)))
   }
 
+  mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
+  suggest_merge_similar2(method = method, use.type = use.type,
+                         threshold.type = threshold.type,
+                         min.mean.ic = min.mean.ic,
+                         min.position.ic = min.position.ic,
+                         relative_entropy = relative_entropy,
+                         normalise.scores = normalise.scores,
+                         score.strat.compare = score.strat.compare,
+                         alphabet = unique(mot.alphs)[1L])
+
   # For now, just merge based on score -- add p-value merging later.
 
   if (score.strat.compare == "sum")
