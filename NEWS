@@ -3,6 +3,22 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added merge_motifs2() and merge_similar2(), minimalist DNA/RNA
+    counterparts to merge_motifs() and merge_similar() built on
+    compare_motifs2(). merge_motifs2() uses anchor-based progressive
+    alignment (highest-IC anchor + single-call alignment of every
+    other motif against it) and column-union averaging (optionally
+    @nsites-weighted) -- the result is independent of input order,
+    unlike v1's iterative pairwise scheme. merge_similar2() clusters
+    motifs by statistical significance: pairs are linked when their
+    compare_motifs2() q-value meets the user's cutoff, and connected
+    components on the resulting graph (via a small union-find) define
+    the clusters. Each multi-motif cluster is then collapsed via
+    merge_motifs2(). This matches the STAMP / TOMTOM-clustering
+    semantics ("group all motifs that are pairwise significantly
+    similar") and removes v1's linkage-method choice and abstract
+    distance-unit cutoff. See ?merge_motifs2 and ?merge_similar2.
+
   o Added motif_finder(), a DNA/RNA _de novo_ motif discovery function
     aligned with the command-line tool yamtk me
     (https://github.com/bjmt/yamtk), whose own design is based on the
@@ -68,6 +84,12 @@ NEW FEATURES
     clustering and is left unchanged.
 
 MINOR CHANGES
+
+  o merge_motifs() and merge_similar() now emit one-line hints
+    pointing at merge_motifs2() / merge_similar2() when the user's
+    argument set maps cleanly onto the leaner functions. Silence with
+    options(universalmotif.suggest.merge_motifs2 = FALSE) and
+    options(universalmotif.suggest.merge_similar2 = FALSE).
 
   o enrich_motifs() now emits a one-line hint pointing at
     enrich_motifs2() when the user's argument set maps cleanly onto
