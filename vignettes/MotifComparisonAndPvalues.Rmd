@@ -388,6 +388,52 @@ Practical takeaways:
 - For new code that does not need any of `compare_motifs()`'s
   advanced features, prefer `compare_motifs2()`.
 
+# Merging motifs
+
+The `universalmotif` package offers two ways to collapse similar motifs
+into consensus motifs: `merge_motifs()` / `merge_similar()` (v1, score-
+threshold clustering via hierarchical clustering on a distance matrix)
+and `merge_motifs2()` / `merge_similar2()` (v2, built on
+`compare_motifs2()`, with significance-based clustering).
+
+## A faster alternative: `merge_motifs2()` / `merge_similar2()`
+
+For users on DNA/RNA motifs who want the v2-stack defaults:
+
+- `merge_motifs2(motifs)` aligns every motif against the highest-IC
+  anchor via `compare_motifs2()` and column-averages them in a single
+  shared frame. This is anchor-based rather than v1's iterative
+  pairwise scheme, so the result is independent of input order.
+
+- `merge_similar2(motifs, qvalue)` clusters motifs by **statistical
+  significance**: two motifs are linked iff their pairwise q-value
+  meets the user's `qvalue` cutoff. Clustering is by connected
+  components on the resulting graph (deterministic, no linkage-method
+  to choose). Each component is collapsed via `merge_motifs2()`.
+
+```{r}
+library(universalmotif)
+m1 <- create_motif("TTGACATA", name = "a")
+m2 <- create_motif("CTTGACAT", name = "b")
+m3 <- create_motif("TGACATAT", name = "c")
+m4 <- create_motif("GGGCCCCC", name = "unrelated")
+
+## Single merged consensus across 3 related motifs:
+merge_motifs2(list(m1, m2, m3))
+
+## Cluster + merge: returns a shorter list, with similar motifs collapsed.
+merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05)
+
+## Or just the cluster assignments (no merging):
+merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE)
+```
+
+When a `merge_motifs()` / `merge_similar()` call uses only features
+that map cleanly onto v2, a one-line hint is emitted pointing at the
+leaner function. Silence with
+`options(universalmotif.suggest.merge_motifs2 = FALSE)` and
+`options(universalmotif.suggest.merge_similar2 = FALSE)`.
+
 # Motif trees with ggtree
 
 ## Using `motif_tree()`

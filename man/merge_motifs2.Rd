@@ -42,15 +42,14 @@ A single \code{universalmotif} S4 object of type \code{"PPM"}.
 aligns motifs using \code{compare_motifs2()}'s alignment finder and averages
 their position-probability columns in a single shared coordinate frame.
 All alignment / similarity decisions go through \code{compare_motifs2()}
-(Pearson correlation, optionally reverse-complement aware), so the
-merge behaviour stays in step with the rest of the v2 stack.
+(Pearson correlation, optionally reverse-complement aware).
 }
 \details{
-Unlike \code{\link[=merge_motifs]{merge_motifs()}}, the algorithm is \strong{anchor-based}, not
+Unlike \code{\link[=merge_motifs]{merge_motifs()}}, the algorithm is anchor-based, not
 iterative-pairwise: the highest-IC input motif is chosen as the
 anchor, every other motif is aligned against it once, and all motifs
 are then averaged together in a single shared column frame. This
-removes the input-order dependence of the v1 iterative scheme.
+removes the input-order dependence of \code{\link[=merge_motifs]{merge_motifs()}}.
 
 For each non-anchor motif, \code{\link[=compare_motifs2]{compare_motifs2()}} gives the best
 alignment offset, strand, and overlap against the anchor. Each
