@@ -60,7 +60,7 @@ at frame position \code{p} is the (optionally \verb{@nsites}-weighted) mean of
 the PPM columns from all input motifs that cover \code{p}; positions
 covered by only some motifs are still emitted (no automatic
 IC-trimming). Run \code{\link[=trim_motifs]{trim_motifs()}} on the result if you want to
-shrink low-information flanks.
+shrink low-information edges.
 
 The merged motif's \verb{@bkg} is the unweighted mean of the input
 motifs' \verb{@bkg} vectors (or uniform if missing). \verb{@nsites} is the

@@ -371,7 +371,7 @@ the best alignment is selected by score, not p-value -- p-values are
 computed only as a post-hoc significance check on the already-chosen
 alignment.
 
-Practical takeaways:
+To summarise:
 
 - `yamtk cmp` is the fastest of the three at every scale; the
   `compare_motifs2()` port stays within ~2× at 4 threads for score-only
@@ -391,14 +391,14 @@ Practical takeaways:
 # Merging motifs
 
 The `universalmotif` package offers two ways to collapse similar motifs
-into consensus motifs: `merge_motifs()` / `merge_similar()` (v1, score-
+into consensus motifs: `merge_motifs()` / `merge_similar()` (older score-
 threshold clustering via hierarchical clustering on a distance matrix)
-and `merge_motifs2()` / `merge_similar2()` (v2, built on
+and `merge_motifs2()` / `merge_similar2()` (new, built on
 `compare_motifs2()`, with significance-based clustering).
 
 ## A faster alternative: `merge_motifs2()` / `merge_similar2()`
 
-For users on DNA/RNA motifs who want the v2-stack defaults:
+For simple DNA/RNA motif merging tasks:
 
 - `merge_motifs2(motifs)` aligns every motif against the highest-IC
   anchor via `compare_motifs2()` and column-averages them in a single
@@ -429,7 +429,8 @@ merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE)
 ```
 
 When a `merge_motifs()` / `merge_similar()` call uses only features
-that map cleanly onto v2, a one-line hint is emitted pointing at the
+available to `merge_motifs2()` / `merge_similar2()`,
+a one-line hint is emitted pointing at the
 leaner function. Silence with
 `options(universalmotif.suggest.merge_motifs2 = FALSE)` and
 `options(universalmotif.suggest.merge_similar2 = FALSE)`.

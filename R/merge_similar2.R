@@ -6,10 +6,10 @@
 #' connected components on that graph, and collapses each component
 #' (cluster) into a single merged motif via [merge_motifs2()].
 #'
-#' Unlike [merge_similar()] -- which builds a distance matrix from raw
+#' Unlike [merge_similar()] (which builds a distance matrix from raw
 #' similarity scores and applies hierarchical clustering at an absolute
-#' score cutoff -- this function clusters on **statistical
-#' significance**: two motifs are linked iff their pairwise q-value
+#' score cutoff) this function clusters on statistical
+#' significance: two motifs are linked if their pairwise q-value
 #' meets the user's `qvalue` cutoff. This matches the STAMP /
 #' TOMTOM-clustering semantics ("group all motifs that are
 #' significantly similar"), is deterministic, has no linkage-method
@@ -45,13 +45,13 @@
 #'
 #' @details
 #' The significance graph is built from a symmetrised q-value matrix:
-#' `Qsym[i,j] = pmin(Q[i,j], Q[j,i])`. compare_motifs2()'s per-query BH
+#' `Qsym[i,j] = pmin(Q[i,j], Q[j,i])`. [compare_motifs2()]'s per-query BH
 #' adjustment makes its native q-value matrix non-symmetric; the min-
 #' symmetrisation defines a pair as linked if either direction meets
 #' the cutoff (more permissive of the two, which is appropriate when
-#' the goal is to *group* similar motifs).
+#' the goal is to group similar motifs).
 #'
-#' Clustering is by **connected components** on the resulting graph,
+#' Clustering is by connected components on the resulting graph,
 #' implemented with a small union-find. Each component (size >= 2)
 #' becomes a single merged motif via [merge_motifs2()]; singletons
 #' (size == 1) pass through unchanged.

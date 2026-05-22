@@ -69,7 +69,8 @@ Aligns the motifs using \code{\link[=compare_motifs]{compare_motifs()}}, then av
 motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped. Only 0-order background probabilities will be kept.
 Motifs are merged one at a time, starting with the first entry in the
-list.
+list. For merging regular DNA/RNA motifs, see the simpler and
+faster \code{\link[=merge_motifs2]{merge_motifs2()}}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.

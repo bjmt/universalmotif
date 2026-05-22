@@ -4,7 +4,8 @@
 #' motif PPMs. Currently the `multifreq` slot, if filled in any of the motifs,
 #' will be dropped. Only 0-order background probabilities will be kept.
 #' Motifs are merged one at a time, starting with the first entry in the
-#' list.
+#' list. For merging regular DNA/RNA motifs, see the simpler and
+#' faster [merge_motifs2()].
 #'
 #' @param new.name `character(1)`, `NULL` Instead of collapsing existing names (if `NULL`),
 #'    assign a new one manually for the merged motif.

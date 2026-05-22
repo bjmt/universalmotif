@@ -45,7 +45,7 @@
 #' the PPM columns from all input motifs that cover `p`; positions
 #' covered by only some motifs are still emitted (no automatic
 #' IC-trimming). Run [trim_motifs()] on the result if you want to
-#' shrink low-information flanks.
+#' shrink low-information edges.
 #'
 #' The merged motif's `@bkg` is the unweighted mean of the input
 #' motifs' `@bkg` vectors (or uniform if missing). `@nsites` is the

@@ -2,7 +2,8 @@
 #' cluster motifs).
 #'
 #' Given a list of motifs, [merge_similar()] will identify similar motifs with
-#' [compare_motifs()], and merge similar ones with [merge_motifs()].
+#' [compare_motifs()], and merge similar ones with [merge_motifs()]. For merging
+#' regular DNA/RNA motifs, see the simpler and faster [merge_similar2()].
 #'
 #' @param threshold `numeric(1)` The minimum (for similarity metrics) or maximum (for
 #'   distance metrics) threshold score for merging.
