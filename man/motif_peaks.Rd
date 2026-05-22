@@ -2,92 +2,105 @@
 % Please edit documentation in R/motif_peaks.R
 \name{motif_peaks}
 \alias{motif_peaks}
-\title{Look for overrepresented motif position peaks in a set of sequences.}
+\title{CentriMo-style positional enrichment of motif hits.}
 \usage{
-motif_peaks(hits, seq.length, seq.count, bandwidth, max.p = 1e-06,
-  peak.width = 3, nrand = 100, plot = TRUE, BP = FALSE)
+motif_peaks(hits, seq.length = NULL, mode = c("central", "local"),
+  qvalue = 0.1, min.window = 10L, max.window = NULL, window.step = 10L,
+  position.step = 5L, nthreads = 1)
 }
 \arguments{
-\item{hits}{\code{numeric} A vector of sequence positions indicating motif sites.}
+\item{hits}{Motif hit table from \code{\link[=scan_sequences]{scan_sequences()}} or
+\code{\link[=scan_sequences2]{scan_sequences2()}}. Accepted as either a \code{data.frame} or a
+\code{GRanges}. Required columns / metadata: \code{motif}, \code{score},
+\code{start}, and either \code{end} (scan_sequences2) or \code{stop}
+(scan_sequences). For \code{data.frame} input, a \code{sequence} /
+\code{sequence.i} column identifies which sequence each hit belongs
+to. For \code{GRanges} input, the sequence is taken from
+\code{seqnames()}.}
 
-\item{seq.length}{\code{numeric(1)} Length of sequences. Only one number is
-allowed, as all sequences must be of identical length. If missing,
-then the largest number from \code{hits} is used.}
+\item{seq.length}{\code{integer(1)}. Common length of the input
+sequences (in bases). Required for \code{data.frame} input. For
+\code{GRanges} input, taken from \code{seqlengths(hits)} if not provided.}
 
-\item{seq.count}{\code{numeric(1)} Number of sequences with motif sites. If
-missing, then the number of unique values in \code{hits} is used.}
+\item{mode}{\code{character(1)}. \code{"central"} (default) tests only
+centre-of-sequence windows; \code{"local"} also varies the window
+centre across the sequence.}
 
-\item{bandwidth}{\code{numeric(1)} Peak smoothing parameter. Smaller numbers
-will result in skinnier peaks, larger numbers will result in wider
-peaks. Leaving this empty will cause \code{\link[=motif_peaks]{motif_peaks()}} to generate one
-by itself (see 'details').}
+\item{qvalue}{\code{numeric(1)}. BH-adjusted q-value cutoff for the
+final reported motifs. Default \code{0.1}. Set to \code{1} to return every
+motif.}
 
-\item{max.p}{\code{numeric(1)} Maximum P-value allowed for finding significant
-motif site peaks.}
+\item{min.window, max.window}{\code{integer(1)}. Bounds of the window
+widths to test. \code{max.window = NULL} (default) uses
+\code{floor(seq.length / 2)}. \code{min.window} defaults to \code{10L}.}
 
-\item{peak.width}{\code{numeric(1)} Minimum peak width. A peak is defined as
-as the highest point within the value set by \code{peak.width}.}
+\item{window.step}{\code{integer(1)}. Step between consecutive window
+widths. Default \code{10L}.}
 
-\item{nrand}{\code{numeric(1)} Number of random permutations for generating a
-null distribution. In order to calculate P-values, a set of random
-motif site positions are generated \code{nrand} times.}
+\item{position.step}{\code{integer(1)}. Step between consecutive window
+centres in \code{mode = "local"}. Ignored in \code{mode = "central"}.
+Default \code{5L}.}
 
-\item{plot}{\code{logical(1)} Will create a \code{ggplot2} object displaying motif
-peaks.}
-
-\item{BP}{\code{logical(1)} Allows for the use of \pkg{BiocParallel} within
-\code{\link[=motif_peaks]{motif_peaks()}}. See \code{\link[BiocParallel:register]{BiocParallel::register()}} to change the
-default backend. Setting \code{BP = TRUE} is only recommended for
-exceptionally large jobs. Keep in mind that this function will not
-attempt to limit its memory usage.}
+\item{nthreads}{\code{numeric(1)}. Number of threads. \code{nthreads = 0}
+uses all available cores. Default \code{1}.}
 }
 \value{
-A \code{DataFrame} with peak positions and P-values. If \code{plot = TRUE},
-then a list is returned with the \code{DataFrame} as the first item and
-the \code{ggplot2} object as the second item.
+A \code{data.frame} with one row per motif passing the q-value
+cutoff, sorted by \code{pvalue} ascending. Columns: \code{motif},
+\code{motif.i}, \code{mode}, \code{seq.length}, \code{nhits}, \code{best.window},
+\code{best.center}, \code{hits.in}, \code{hits.out}, \code{expected.in},
+\code{enrichment}, \code{log2.enrichment}, \code{pvalue}, \code{qvalue}, \code{centers}
+(list-column of integer vectors of hit centres -- one entry per
+sequence after best-hit-per-sequence dedup; consumed by
+\code{\link[=plot_motif_peaks]{plot_motif_peaks()}}).
 }
 \description{
-Using the motif position data from \code{\link[=scan_sequences]{scan_sequences()}} (or elsewhere),
-test whether certain positions in the sequences have significantly higher
-motif density.
+\code{motif_peaks()} tests whether motif hits cluster non-uniformly along
+input sequences. It implements an analytical CentriMo-style test
+(Bailey & Machanick 2012): under the null that hit positions are
+uniformly distributed over \verb{[1, seq.length]}, the count of hits
+falling inside a candidate window follows a binomial distribution.
+For each motif and each candidate window, a one-sided binomial
+p-value is computed; the best-scoring window per motif is reported,
+Bonferroni-corrected over the number of windows tested, then BH-
+adjusted across motifs.
 }
 \details{
-Kernel smoothing is used to calculate motif position density. The
-implementation for this process is based on code from the
-\pkg{KernSmooth} R package (Wand 2015). These
-density estimates are used to
-determine peak locations and heights. To calculate the P-values of
-these peaks, a null distribution is calculated from peak heights of
-randomly generated motif positions.
+Two modes are supported. \code{mode = "central"} (default) tests only
+windows centred on \code{seq.length / 2}, which is the appropriate
+hypothesis for centred input sequences (e.g. ChIP-seq peak summits).
+\code{mode = "local"} additionally varies the window centre, scanning the
+whole sequence for any positionally-enriched region; this is more
+permissive and uses a larger Bonferroni correction.
 
-If the \code{bandwidth} option is not supplied, then the following code is used
-(from \pkg{KernSmooth}):
-
-\code{del0 <- (1 / (4 * pi))^(1 / 10)}
-
-\code{bandwidth <- del0 * (243 / (35 * length(hits)))^(1 / 5) * sqrt(var(hits))}
+All sequences are assumed to be of equal length; the function does
+not enforce centring on a biological reference, but its results are
+only meaningful if such centring is in place upstream.
 }
 \examples{
-data(ArabidopsisMotif)
-data(ArabidopsisPromoters)
-if (R.Version()$arch != "i386") {
-hits <- scan_sequences(ArabidopsisMotif, ArabidopsisPromoters, RC = FALSE)
-res <- motif_peaks(as.vector(hits$start), 1000, 50)
-# View plot:
-res$Plot
-
-# The raw plot data can be found in:
-res$Plot$data
+\dontrun{
+library(universalmotif)
+library(Biostrings)
+set.seed(1)
+seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
+planted <- DNAString("TTGACATA")
+for (i in seq_len(150)) {
+  pos <- 246L + sample.int(8, 1) - 1L
+  subseq(seqs[[i]], start = pos, width = 8) <- planted
+}
+m <- create_motif("TTGACATA", name = "test")
+hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+motif_peaks(hits)
 }
 
 }
 \references{
-Wand M (2015). \emph{KernSmooth: Functions for Kernel Smoothing
-Supporting Wand and Jones (1995)}. R package version 2.23-15,
-<URL: https://CRAN.R-project.org/package=KernSmooth>.
+Bailey TL, Machanick P (2012). "Inferring direct DNA binding from
+ChIP-seq." \emph{Nucleic Acids Research}, \strong{40}(17):e128.
+\doi{10.1093/nar/gks433}.
 }
 \seealso{
-\code{\link[=scan_sequences]{scan_sequences()}}
+\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=plot_motif_peaks]{plot_motif_peaks()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

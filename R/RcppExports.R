@@ -97,14 +97,6 @@ motif_finder_cpp <- function(pos_seqs, neg_seqs, min_w, max_w, nmotifs, hit_pval
     .Call('_universalmotif_motif_finder_cpp', PACKAGE = 'universalmotif', pos_seqs, neg_seqs, min_w, max_w, nmotifs, hit_pvalue, stop_pvalue, dedup_overlap, RC, bkg_in, pseudocount, nthreads)
 }
 
-peakfinder_cpp <- function(x, m = 3L) {
-    .Call('_universalmotif_peakfinder_cpp', PACKAGE = 'universalmotif', x, m)
-}
-
-linbin_cpp <- function(x, gpoints) {
-    .Call('_universalmotif_linbin_cpp', PACKAGE = 'universalmotif', x, gpoints)
-}
-
 motif_pvalue_cpp <- function(motifs, bkg, scores, k = 6L, nthreads = 1L, allow_nonfinite = FALSE) {
     .Call('_universalmotif_motif_pvalue_cpp', PACKAGE = 'universalmotif', motifs, bkg, scores, k, nthreads, allow_nonfinite)
 }

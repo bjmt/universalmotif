@@ -387,28 +387,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// peakfinder_cpp
-Rcpp::IntegerVector peakfinder_cpp(const Rcpp::NumericVector& x, int m);
-RcppExport SEXP _universalmotif_peakfinder_cpp(SEXP xSEXP, SEXP mSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type m(mSEXP);
-    rcpp_result_gen = Rcpp::wrap(peakfinder_cpp(x, m));
-    return rcpp_result_gen;
-END_RCPP
-}
-// linbin_cpp
-std::vector<double> linbin_cpp(const std::vector<int>& x, const std::vector<int>& gpoints);
-RcppExport SEXP _universalmotif_linbin_cpp(SEXP xSEXP, SEXP gpointsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const std::vector<int>& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::vector<int>& >::type gpoints(gpointsSEXP);
-    rcpp_result_gen = Rcpp::wrap(linbin_cpp(x, gpoints));
-    return rcpp_result_gen;
-END_RCPP
-}
 // motif_pvalue_cpp
 std::vector<long double> motif_pvalue_cpp(const Rcpp::List& motifs, const Rcpp::List& bkg, const std::vector<double>& scores, const int& k, const int& nthreads, const bool allow_nonfinite);
 RcppExport SEXP _universalmotif_motif_pvalue_cpp(SEXP motifsSEXP, SEXP bkgSEXP, SEXP scoresSEXP, SEXP kSEXP, SEXP nthreadsSEXP, SEXP allow_nonfiniteSEXP) {
@@ -1114,8 +1092,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_dedup_hits_cpp", (DL_FUNC) &_universalmotif_dedup_hits_cpp, 8},
     {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_motif_finder_cpp", (DL_FUNC) &_universalmotif_motif_finder_cpp, 12},
-    {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
-    {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 6},
     {"_universalmotif_motif_score_cpp", (DL_FUNC) &_universalmotif_motif_score_cpp, 7},
     {"_universalmotif_branch_and_bound_cpp_exposed", (DL_FUNC) &_universalmotif_branch_and_bound_cpp_exposed, 2},
