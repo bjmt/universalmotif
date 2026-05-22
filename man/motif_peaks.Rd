@@ -50,7 +50,7 @@ cutoff, sorted by \code{pvalue} ascending. Columns: \code{motif},
 \code{motif.i}, \code{mode}, \code{seq.length}, \code{nhits}, \code{best.window},
 \code{best.center}, \code{hits.in}, \code{hits.out}, \code{expected.in},
 \code{enrichment}, \code{log2.enrichment}, \code{pvalue}, \code{qvalue}, \code{centers}
-(list-column of integer vectors of hit centres -- one entry per
+(list-column of integer vectors of hit centres, one entry per
 sequence after best-hit-per-sequence dedup; consumed by
 \code{\link[=plot_motif_peaks]{plot_motif_peaks()}}).
 }

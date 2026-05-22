@@ -48,6 +48,7 @@ Collate:
     'filter_motifs.R'
     'get_bkg.R'
     'make_DBscores.R'
+    'match_bkg.R'
     'merge_motifs.R'
     'merge_motifs2.R'
     'merge_similar.R'
