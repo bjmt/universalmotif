@@ -3,6 +3,21 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added match_bkg() and plot_match_bkg(): composition-matched
+    background sampling for DNA/RNA motif enrichment and de novo
+    discovery analyses. Given a target XStringSet and a larger
+    universe XStringSet (typically extracted from a BSgenome over a
+    pool of candidate regions), match_bkg() samples background
+    sequences from the universe that match the target on GC fraction
+    and length, the HOMER-style binned approach. This complements
+    shuffle_sequences(), which preserves each input's own k-let
+    composition by shuffling in place; match_bkg() instead controls
+    for composition bias relative to a genomic universe. The result
+    is an XStringSet usable directly as `bkg.sequences` in
+    enrich_motifs2() / motif_finder(). plot_match_bkg() returns a
+    ggplot of overlaid target vs matched-background GC and length
+    densities for visual match-quality QC. See ?match_bkg.
+
   o Rewrote motif_peaks() as an analytical CentriMo-style positional
     enrichment function (Bailey & Machanick 2012). It takes a hit
     table from scan_sequences() or scan_sequences2() (data.frame or
