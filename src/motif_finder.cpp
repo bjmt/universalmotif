@@ -1,6 +1,6 @@
 // motif_finder.cpp -- yamtk-aligned _de novo_ motif discovery.
 //
-// Faithful port of /Users/gok24jef/yamtk/src/yamme.c. Pipeline:
+// Faithful port of yamtk/src/yamme.c. Pipeline:
 //   1. For each motif width w in [min_w, max_w], discover up to nmotifs:
 //      a. Enumerate candidate seeds (k-mer Fisher's exact log-p, per-seq
 //         canonical-strand presence).
@@ -75,6 +75,7 @@ struct Motif {
   std::vector<int>    pwm_rc;         // size = w*5
   std::vector<std::array<double, 4>> pwm_probs;  // size = w  (pseudocount-adj)
   std::vector<double> cdf;            // null score CDF (tail prob)
+  std::vector<double> tmp_pdf;        // scratch buffer for fill_cdf
   int                 threshold;      // accept-hit score cutoff
   int                 mn;             // min per-position PWM entry
   int                 mx;             // max per-position PWM entry
@@ -163,17 +164,18 @@ static int get_pwm_max(const Motif &m) {
 static int fill_cdf(Motif &m, const std::array<double, 4> &bkg) {
   if (m.cdf_size == 0 || m.cdf_size > MAX_CDF_SIZE) return 1;
   m.cdf.assign(m.cdf_size, 1.0);
-  std::vector<double> tmp_pdf(m.cdf_size);
+  // Reuse the Motif's tmp_pdf buffer; grow as needed but never shrink.
+  if (m.tmp_pdf.size() < m.cdf_size) m.tmp_pdf.resize(m.cdf_size);
   for (uint64_t i = 0; i < m.size; i++) {
     uint64_t max_step = i * (uint64_t) m.cdf_max;
-    std::copy(m.cdf.begin(), m.cdf.end(), tmp_pdf.begin());
+    std::copy(m.cdf.begin(), m.cdf.end(), m.tmp_pdf.begin());
     std::fill(m.cdf.begin(),
               m.cdf.begin() + std::min<uint64_t>(max_step + m.cdf_max + 1, m.cdf_size),
               0.0);
     for (int j = 0; j < 4; j++) {
       uint64_t s = (uint64_t) (get_score_i(m, j, i) - m.mn);
       for (uint64_t k = 0; k <= max_step; k++)
-        m.cdf[k + s] += tmp_pdf[k] * bkg[j];
+        m.cdf[k + s] += m.tmp_pdf[k] * bkg[j];
     }
   }
   double pdf_sum = 0.0;
@@ -364,13 +366,15 @@ static int enumerate_seeds(const std::vector<std::string> &pos_seqs,
   out.clear();
   std::unordered_map<uint64_t, uint64_t> pos_h, neg_h;
 
+  // Reuse the `seen` set across sequences within this call. clear() preserves
+  // bucket capacity, so subsequent inserts hit a warm hash table.
+  std::unordered_set<uint64_t> seen;
   auto count_set = [&](const std::vector<std::string> &seqs,
                        std::unordered_map<uint64_t, uint64_t> &h) {
     for (const auto &seq : seqs) {
       uint64_t seqlen = seq.size();
       if (seqlen < w) continue;
-      std::unordered_set<uint64_t> seen;
-      seen.reserve(seqlen);
+      seen.clear();
       for (uint64_t off = 0; off + w <= seqlen; off++) {
         uint64_t kmer = kmer_encode4(seq, w, off);
         if (kmer == UINT64_MAX) continue;
@@ -685,20 +689,34 @@ static void discover_for_width(const std::vector<std::string> &pristine_pos,
                                std::vector<DiscResult> &local_results) {
   std::vector<std::string> mut_pos = pristine_pos;  // mutable copy for masking
 
+  // Scratch buffers reused across iterations and across seed attempts; only
+  // moved-from when a motif is accepted (in which case the next attempt re-
+  // allocates lazily). Pre-allocate covered's per-sequence shape once.
+  Motif m;
+  std::vector<std::vector<uint8_t>> covered(mut_pos.size());
+  for (uint64_t sj = 0; sj < mut_pos.size(); sj++) {
+    uint64_t nbytes = (mut_pos[sj].size() + 7) / 8;
+    covered[sj].assign(nbytes, 0);
+  }
+  std::vector<Seed> seeds;
+  int ppm[MAX_MOTIF_WIDTH][4];
+
   uint64_t intra = 0;
   for (int ki = 0; ki < nmotifs; ki++) {
-    std::vector<Seed> seeds;
+    // Allow R-level Ctrl-C to break out cleanly. RcppThread's variant
+    // throws a C++ exception (not a longjmp), so STL destructors fire and
+    // all per-width buffers are released before control returns to R.
+    RcppThread::checkUserInterrupt();
+
     if (enumerate_seeds(mut_pos, neg_seqs, w, RC, seeds) != 0) return;
     if (seeds.empty()) break;
 
     bool accepted = false;
     for (uint64_t si = 0; si < seeds.size() && !accepted; si++) {
-      int ppm[MAX_MOTIF_WIDTH][4];
       std::memset(ppm, 0, sizeof(ppm));
       int nsites = build_ppm_from_seed(mut_pos, seeds[si].kmer, w, RC, ppm);
       if (nsites < MIN_REFINE_HITS) continue;
 
-      Motif m;
       convert_ppm_to_motif(m, ppm, w, nsites, bkg, pseudocount, hit_pval);
       if (m.threshold == INT_MAX) continue;
 
@@ -708,11 +726,19 @@ static void discover_for_width(const std::vector<std::string> &pristine_pos,
       }
       if (m.threshold == INT_MAX) continue;
 
-      // Allocate coverage bitmask
-      std::vector<std::vector<uint8_t>> covered(mut_pos.size());
-      for (uint64_t sj = 0; sj < mut_pos.size(); sj++) {
-        uint64_t nbytes = (mut_pos[sj].size() + 7) / 8;
-        covered[sj].assign(nbytes, 0);
+      // Reset coverage bitmask without freeing (preserves capacity).
+      // If a previous accepted motif moved `covered` away, recreate the
+      // outer shape lazily here.
+      if (covered.empty()) {
+        covered.resize(mut_pos.size());
+        for (uint64_t sj = 0; sj < mut_pos.size(); sj++) {
+          uint64_t nbytes = (mut_pos[sj].size() + 7) / 8;
+          covered[sj].assign(nbytes, 0);
+        }
+      } else {
+        for (uint64_t sj = 0; sj < mut_pos.size(); sj++) {
+          std::fill(covered[sj].begin(), covered[sj].end(), 0);
+        }
       }
 
       uint64_t sp, sn, ep, en;
@@ -811,11 +837,35 @@ Rcpp::List motif_finder_cpp(const std::vector<std::string> &pos_seqs,
                             int pseudocount, int nthreads) {
   init_char2idx();
 
+  // ---- Defensive input bounds (the R wrapper already validates these,
+  // but we guard the C++ entry separately so direct callers can't
+  // wander into runaway allocations or out-of-range arithmetic). ----
+  if (pos_seqs.empty())
+    Rcpp::stop("`pos_seqs` is empty.");
+  if (neg_seqs.empty())
+    Rcpp::stop("`neg_seqs` is empty.");
   if (min_w < 3 || max_w > MAX_MOTIF_WIDTH || min_w > max_w)
     Rcpp::stop("Invalid width range: need 3 <= min.width <= max.width <= %d.",
                MAX_MOTIF_WIDTH);
+  if (nmotifs < 1)
+    Rcpp::stop("`nmotifs` must be >= 1.");
+  if (pseudocount < 0)
+    Rcpp::stop("`pseudocount` must be non-negative.");
+  if (nthreads < 1)
+    Rcpp::stop("`nthreads` must be >= 1 (resolve_nthreads() should map 0 -> all cores in the R wrapper).");
+  if (hit_pvalue <= 0.0 || hit_pvalue >= 1.0)
+    Rcpp::stop("`hit_pvalue` must be in (0, 1).");
+  if (stop_pvalue <= 0.0 || stop_pvalue > 1.0)
+    Rcpp::stop("`stop_pvalue` must be in (0, 1].");
+  if (dedup_overlap < 0.0 || dedup_overlap > 1.0)
+    Rcpp::stop("`dedup_overlap` must be in [0, 1].");
   if (bkg_in.size() != 4)
     Rcpp::stop("bkg must be a length-4 numeric vector (A,C,G,T).");
+  // Reject obviously degenerate background (zero or negative on any base).
+  for (int i = 0; i < 4; i++) {
+    if (!(bkg_in[i] > 0.0))
+      Rcpp::stop("bkg values must all be strictly positive.");
+  }
 
   std::array<double, 4> bkg = {bkg_in[0], bkg_in[1], bkg_in[2], bkg_in[3]};
 

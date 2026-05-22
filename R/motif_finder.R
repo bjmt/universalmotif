@@ -1,6 +1,6 @@
 #' Discover _de novo_ motifs in a set of sequences.
 #'
-#' `motif_finder()` is a minimalist yamtk-aligned _de novo_ motif discovery
+#' `motif_finder()` is a minimalist _de novo_ motif discovery
 #' function. Its defaults mirror the command-line tool `yamtk me` (see
 #' [yamtk](https://github.com/bjmt/yamtk)). The pipeline iterates over a
 #' user-controlled range of motif widths; at each width it enumerates
@@ -170,9 +170,20 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
          ") do not match", call. = FALSE)
 
   ## --- background frequencies ------------------------------------------
-  ## Use uniform A=C=G=T=0.25 (matches yamtk me default with -b unset).
-  ## Caller can post-process the returned motifs to adjust @bkg if needed.
-  bkg <- c(0.25, 0.25, 0.25, 0.25)
+  ## Compute background from the actual base composition of sequences +
+  ## bkg.sequences combined, matching yamtk me's default (yamme.c
+  ## compute_bkg_from_counts). The order is A, C, G, T/U.
+  combined <- c(sequences, bkg.sequences)
+  letter_set <- if (seq.alph == "DNA") c("A", "C", "G", "T")
+                else                   c("A", "C", "G", "U")
+  freqs <- Biostrings::letterFrequency(combined, letters = letter_set,
+                                       OR = 0, as.prob = FALSE)
+  totals <- colSums(freqs)
+  bkg <- as.numeric(totals / sum(totals))
+  ## Guard against zero / very low values (yamtk applies a 0.001 floor).
+  bkg[bkg < 1e-3] <- 1e-3
+  bkg <- bkg / sum(bkg)
+  names(bkg) <- letter_set
 
   ## --- call C++ pipeline -----------------------------------------------
   raw <- motif_finder_cpp(as.character(sequences),
@@ -201,26 +212,15 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
     ## (alphabet x width), so transpose.
     ppm <- t(r$ppm)
     rownames(ppm) <- alph.letters
-    mo <- create_motif(ppm,
-                       alphabet = seq.alph,
-                       type     = "PPM",
-                       name     = paste0("motif_", i),
-                       nsites   = as.numeric(r$nsites),
-                       pseudocount = as.numeric(pseudocount),
-                       pval     = as.numeric(r$pvalue),
-                       eval     = as.numeric(r$qvalue))
-    ## create_motif() of a matrix does not auto-populate @consensus or
-    ## the motif's column names. Use universalmotif's column-level
-    ## get_consensus() to derive both (the validator requires the two
-    ## to agree, otherwise to_list() / update_motifs() trip a slot
-    ## comparison error).
-    per_col <- vapply(seq_len(ncol(mo@motif)), function(j) {
-      get_consensus(mo@motif[, j], alphabet = seq.alph,
-                    type = "PPM", pseudocount = as.numeric(pseudocount))
-    }, character(1))
-    colnames(mo@motif) <- per_col
-    mo@consensus <- paste(per_col, collapse = "")
-    mlist[[i]] <- mo
+    mlist[[i]] <- create_motif(ppm,
+                               alphabet = seq.alph,
+                               type     = "PPM",
+                               name     = paste0("motif_", i),
+                               nsites   = as.numeric(r$nsites),
+                               pseudocount = as.numeric(pseudocount),
+                               bkg      = bkg,
+                               pval     = as.numeric(r$pvalue),
+                               eval     = as.numeric(r$qvalue))
   }
 
   ## --- filter by qvalue ------------------------------------------------
