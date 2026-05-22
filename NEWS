@@ -3,6 +3,22 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added motif_finder(), a DNA/RNA _de novo_ motif discovery function
+    aligned with the command-line tool yamtk me
+    (https://github.com/bjmt/yamtk), whose own design is based on the
+    STREME algorithm (Bailey 2021): per-width word-counting seed
+    enumeration (Fisher's exact on per-sequence presence), iterative
+    PPM refinement, per-motif Fisher's exact significance against a
+    shuffled or user-supplied background, cross-width coverage-overlap
+    dedup, BH q-value filtering, and IC-trimming of low-information
+    flanks. Returns a universalmotif_df with one row per discovered
+    motif; the standard slot columns (name, consensus, alphabet, type,
+    nsites, pval, eval, motif, ...) sit alongside yamtk-style stats
+    (rank, width, seqs_pos, seqs_neg, sites_pos, sites_neg, n_pos,
+    n_neg, pvalue, qvalue). Width-parallel via RcppThread. Replaces
+    a long-standing unexported, untested motif_finder() stub. See
+    ?motif_finder.
+
   o Added enrich_motifs2(), a minimalist DNA/RNA motif-enrichment
     function aligned with the command-line tool yamtk enr
     (https://github.com/bjmt/yamtk). Built on scan_sequences2() and
@@ -78,6 +94,16 @@ MINOR CHANGES
   o Various textual improvements to the vignettes.
 
 BUG FIXES
+
+  o Fixed create_motif() matrix dispatch silently dropping an
+    explicitly supplied alphabet = "DNA"/"RNA"/"AA" when the input
+    matrix also carried rownames. The else-if chain fell through to a
+    clause that overwrote the user's alphabet with collapse_cpp(
+    rownames(matrix)) ("ACGT" for DNA), which is not a key in the C++
+    alphabet lookup, leaving @consensus empty and colnames(@motif)
+    NULL. Downstream this broke to_list() round-trips via
+    update_motifs() (slot comparison error). Added the missing
+    `&& missing(alphabet)` guard.
 
   o Fixed nthreads = 0 silently running serially instead of using all
     available threads as documented (RcppThread::parallelFor treats 0
