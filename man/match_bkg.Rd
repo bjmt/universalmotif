@@ -49,7 +49,7 @@ entries correspond to \code{sequences[[1]]}, the next to
 \code{target.length}, \code{universe.i}, \code{universe.gc}, \code{universe.length}.
 }
 \description{
-For each sequence in \code{sequences}, \code{match_bkg()} draws one or more
+For each sequence in \code{sequences}, \code{\link[=match_bkg]{match_bkg()}} draws one or more
 background sequences from \code{universe} that share its GC fraction and
 length. This is the HOMER-style binned matching used by motif
 enrichment tools to control for sequence-composition biases (GC,
@@ -73,7 +73,7 @@ Use the result as a \code{bkg.sequences} argument to \code{\link[=enrich_motifs2
 or \code{\link[=motif_finder]{motif_finder()}} for a composition-controlled null.
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is a complementary alternative that
 randomises each input in place (preserves k-let composition);
-\code{match_bkg()} instead samples real sequences from a larger pool.
+\code{\link[=match_bkg]{match_bkg()}} instead samples real sequences from a larger pool.
 }
 \examples{
 \dontrun{
@@ -95,11 +95,6 @@ lineage-determining transcription factors prime cis-regulatory
 elements required for macrophage and B cell identities."
 \emph{Molecular Cell}, \strong{38}(4):576-589.
 \doi{10.1016/j.molcel.2010.05.004}.
-
-Schep AN, Wu B, Buenrostro JD, Greenleaf WJ (2017). "chromVAR:
-inferring transcription-factor-associated accessibility from
-single-cell epigenomic data." \emph{Nature Methods}, \strong{14}:975-978.
-(Algorithmic neighbour using kNN matching; not ported.)
 }
 \seealso{
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}, \code{\link[=motif_finder]{motif_finder()}},

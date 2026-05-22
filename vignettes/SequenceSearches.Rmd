@@ -208,8 +208,8 @@ preserving its own k-let composition. That's appropriate when the
 input set is roughly homogeneous, but it leaves a confounder: if the
 input sequences have a systematic composition bias relative to the
 genome (GC-rich ChIP-seq peaks, AT-rich promoters, ...), shuffling
-alone won't control for it. `match_bkg()` instead **samples real
-sequences from a larger universe** that match the input on GC
+alone won't control for it. `match_bkg()` instead samples real
+sequences from a larger universe that match the input on GC
 fraction and length, the HOMER-style binned approach:
 
 ```{r}
@@ -218,7 +218,7 @@ library(Biostrings)
 data(ArabidopsisPromoters)
 
 ## Pretend the first 10 promoters are "target" and the next 40 are the
-## universe -- in real usage `universe` would be extracted from a
+## universe; in real usage `universe` would be extracted from a
 ## BSgenome over a larger pool of genomic regions.
 target   <- ArabidopsisPromoters[1:10]
 universe <- ArabidopsisPromoters[11:50]
@@ -227,7 +227,7 @@ bkg <- match_bkg(target, universe, n.per.target = 2, rng.seed = 1)
 length(bkg)   # 20 = 10 targets x 2 matches each
 ```
 
-The result is an `XStringSet` you can pass directly to the v2 stack:
+The result is an `XStringSet` you can pass directly to other functions:
 
 ```{r, eval = FALSE}
 enrich_motifs2(motifs, target, bkg.sequences = bkg)
@@ -243,7 +243,7 @@ plot_match_bkg(target, bkg)
 This overlays GC-fraction and length density curves for target and
 matched background in a two-panel ggplot.
 
-`match_bkg()` complements `shuffle_sequences()` -- neither replaces
+`match_bkg()` complements `shuffle_sequences()`; neither replaces
 the other. Use a shuffle when you want a per-sequence k-let-preserving
 null; use a matched background when you want to control for
 composition bias relative to a genomic universe.

@@ -1,6 +1,6 @@
 #' Sample composition-matched background sequences from a universe.
 #'
-#' For each sequence in `sequences`, `match_bkg()` draws one or more
+#' For each sequence in `sequences`, [match_bkg()] draws one or more
 #' background sequences from `universe` that share its GC fraction and
 #' length. This is the HOMER-style binned matching used by motif
 #' enrichment tools to control for sequence-composition biases (GC,
@@ -21,7 +21,7 @@
 #' or [motif_finder()] for a composition-controlled null.
 #' [shuffle_sequences()] is a complementary alternative that
 #' randomises each input in place (preserves k-let composition);
-#' `match_bkg()` instead samples real sequences from a larger pool.
+#' [match_bkg()] instead samples real sequences from a larger pool.
 #'
 #' @param sequences `XStringSet`. Target (positive) sequences. DNA or
 #'   RNA only -- GC matching is undefined for other alphabets.
@@ -61,11 +61,6 @@
 #' elements required for macrophage and B cell identities."
 #' *Molecular Cell*, **38**(4):576-589.
 #' \doi{10.1016/j.molcel.2010.05.004}.
-#'
-#' Schep AN, Wu B, Buenrostro JD, Greenleaf WJ (2017). "chromVAR:
-#' inferring transcription-factor-associated accessibility from
-#' single-cell epigenomic data." *Nature Methods*, **14**:975-978.
-#' (Algorithmic neighbour using kNN matching; not ported.)
 #'
 #' @examples
 #' \dontrun{
@@ -313,28 +308,47 @@ compute_gc <- function(seqs) {
 
 ## Ring-expanding candidate finder. Returns picked indices + the ring
 ## level used (0 = home cell, 1 = first ring, ...).
+##
+## Try the home cell first, then expand outward by at most
+## `MAX_LOCAL_RING` Manhattan-distance rings. If we still don't have
+## enough candidates after that (typical when `unique = TRUE` and the
+## target distribution is narrow), fall back to with-replacement
+## sampling from the cumulative *local* pool. This keeps the
+## composition match tight at the cost of letting a few universe
+## sequences repeat, rather than expanding to far-distant
+## (compositionally unmatched) cells.
+MAX_LOCAL_RING <- 2L
 find_candidates <- function(gc.b, len.b, cells, n.gc.bins, n.len.bins,
                             used_global, n.needed, unique) {
   ring <- 0L
-  picked <- integer(0)
+  picked     <- integer(0)
+  local_pool <- integer(0)
   while (length(picked) < n.needed) {
     cand <- ring_candidates(gc.b, len.b, ring, cells, n.gc.bins, n.len.bins)
+    local_pool <- c(local_pool, cand)
     if (unique && length(used_global) > 0L)
       cand <- setdiff(cand, used_global)
     cand <- setdiff(cand, picked)
     if (length(cand) > 0L) {
       take <- min(length(cand), n.needed - length(picked))
-      picked <- c(picked, sample(cand, take, replace = FALSE))
+      ## Use cand[sample.int(...)] instead of sample(cand, ...) to
+      ## sidestep R's `sample()` length-1 gotcha (sample(N, 1) is
+      ## sample.int(N, 1) when N is a single number, not "return N").
+      picked <- c(picked, cand[sample.int(length(cand), take,
+                                          replace = FALSE)])
     }
     ring <- ring + 1L
-    max_ring <- max(n.gc.bins, n.len.bins)
-    if (ring > max_ring) {
-      ## Hit the global ceiling: fall back to with-replacement sampling
-      ## from the entire universe to fill the remainder.
+    if (ring > MAX_LOCAL_RING) {
+      ## Cap reached. Sample with replacement from the accumulated
+      ## local pool (preserves composition match). If that's somehow
+      ## empty too, fall back to global random as a last resort.
       need <- n.needed - length(picked)
       if (need > 0L) {
-        all_u <- unlist(cells, use.names = FALSE)
-        picked <- c(picked, sample(all_u, need, replace = TRUE))
+        pool <- unique(local_pool)
+        if (length(pool) == 0L)
+          pool <- unlist(cells, use.names = FALSE)
+        picked <- c(picked, pool[sample.int(length(pool), need,
+                                            replace = TRUE)])
       }
       break
     }
