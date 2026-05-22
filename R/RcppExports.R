@@ -93,8 +93,8 @@ count_klets_alph_cpp <- function(sequences, alph, k, nthreads) {
     .Call('_universalmotif_count_klets_alph_cpp', PACKAGE = 'universalmotif', sequences, alph, k, nthreads)
 }
 
-calc_seq_probs_cpp <- function(seqs, bkg, alph, nthreads) {
-    .Call('_universalmotif_calc_seq_probs_cpp', PACKAGE = 'universalmotif', seqs, bkg, alph, nthreads)
+motif_finder_cpp <- function(pos_seqs, neg_seqs, min_w, max_w, nmotifs, hit_pvalue, stop_pvalue, dedup_overlap, RC, bkg_in, pseudocount, nthreads) {
+    .Call('_universalmotif_motif_finder_cpp', PACKAGE = 'universalmotif', pos_seqs, neg_seqs, min_w, max_w, nmotifs, hit_pvalue, stop_pvalue, dedup_overlap, RC, bkg_in, pseudocount, nthreads)
 }
 
 peakfinder_cpp <- function(x, m = 3L) {

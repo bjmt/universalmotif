@@ -366,16 +366,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_seq_probs_cpp
-std::vector<double> calc_seq_probs_cpp(const std::vector<std::string>& seqs, const std::vector<double>& bkg, const std::string& alph, const int& nthreads);
-RcppExport SEXP _universalmotif_calc_seq_probs_cpp(SEXP seqsSEXP, SEXP bkgSEXP, SEXP alphSEXP, SEXP nthreadsSEXP) {
+// motif_finder_cpp
+Rcpp::List motif_finder_cpp(const std::vector<std::string>& pos_seqs, const std::vector<std::string>& neg_seqs, int min_w, int max_w, int nmotifs, double hit_pvalue, double stop_pvalue, double dedup_overlap, bool RC, Rcpp::NumericVector bkg_in, int pseudocount, int nthreads);
+RcppExport SEXP _universalmotif_motif_finder_cpp(SEXP pos_seqsSEXP, SEXP neg_seqsSEXP, SEXP min_wSEXP, SEXP max_wSEXP, SEXP nmotifsSEXP, SEXP hit_pvalueSEXP, SEXP stop_pvalueSEXP, SEXP dedup_overlapSEXP, SEXP RCSEXP, SEXP bkg_inSEXP, SEXP pseudocountSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type seqs(seqsSEXP);
-    Rcpp::traits::input_parameter< const std::vector<double>& >::type bkg(bkgSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_seq_probs_cpp(seqs, bkg, alph, nthreads));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type pos_seqs(pos_seqsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type neg_seqs(neg_seqsSEXP);
+    Rcpp::traits::input_parameter< int >::type min_w(min_wSEXP);
+    Rcpp::traits::input_parameter< int >::type max_w(max_wSEXP);
+    Rcpp::traits::input_parameter< int >::type nmotifs(nmotifsSEXP);
+    Rcpp::traits::input_parameter< double >::type hit_pvalue(hit_pvalueSEXP);
+    Rcpp::traits::input_parameter< double >::type stop_pvalue(stop_pvalueSEXP);
+    Rcpp::traits::input_parameter< double >::type dedup_overlap(dedup_overlapSEXP);
+    Rcpp::traits::input_parameter< bool >::type RC(RCSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type bkg_in(bkg_inSEXP);
+    Rcpp::traits::input_parameter< int >::type pseudocount(pseudocountSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(motif_finder_cpp(pos_seqs, neg_seqs, min_w, max_w, nmotifs, hit_pvalue, stop_pvalue, dedup_overlap, RC, bkg_in, pseudocount, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1105,7 +1113,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_compare_motifs2_consensus_cpp", (DL_FUNC) &_universalmotif_compare_motifs2_consensus_cpp, 4},
     {"_universalmotif_dedup_hits_cpp", (DL_FUNC) &_universalmotif_dedup_hits_cpp, 8},
     {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
-    {"_universalmotif_calc_seq_probs_cpp", (DL_FUNC) &_universalmotif_calc_seq_probs_cpp, 4},
+    {"_universalmotif_motif_finder_cpp", (DL_FUNC) &_universalmotif_motif_finder_cpp, 12},
     {"_universalmotif_peakfinder_cpp", (DL_FUNC) &_universalmotif_peakfinder_cpp, 2},
     {"_universalmotif_linbin_cpp", (DL_FUNC) &_universalmotif_linbin_cpp, 2},
     {"_universalmotif_motif_pvalue_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_cpp, 6},
