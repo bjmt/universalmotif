@@ -3,6 +3,22 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added implant_motifs(): plant sampled motif instances into existing
+    sequences at known positions, producing benchmark-grade ground-truth
+    positive sequences for testing scan_sequences(), motif_finder(),
+    enrich_motifs2(), motif_peaks(), or any other discovery / scanning
+    pipeline against a known answer key. Three insertion modes:
+    fixed count per sequence (n.per.seq), per-bp Poisson rate (rate),
+    or explicit positions (positions). Optional knobs: centre.bias
+    (Irwin-Hall N, 1 = uniform, larger = cluster near sequence centre,
+    pairs naturally with motif_peaks() / plot_motif_peaks() for ChIP-
+    seq-style simulations), min.spacing (minimum gap between adjacent
+    implants), strand ("both" or "+"), and max.retries on placement
+    collision. By default returns the modified XStringSet; with
+    return.indices = TRUE returns a data.frame of (sequence.i,
+    motif.i, start, width, strand, planted) ground-truth metadata.
+    Inspired by the `yamtk seed` command-line tool. See ?implant_motifs.
+
   o Added match_bkg() and plot_match_bkg(): composition-matched
     background sampling for DNA/RNA motif enrichment and de novo
     discovery analyses. Given a target XStringSet and a larger

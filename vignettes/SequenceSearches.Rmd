@@ -248,6 +248,41 @@ the other. Use a shuffle when you want a per-sequence k-let-preserving
 null; use a matched background when you want to control for
 composition bias relative to a genomic universe.
 
+## Generating ground-truth positive sequences with `implant_motifs()`
+
+When benchmarking a motif discovery, scanning, or enrichment pipeline,
+you need positive sequences with **known motif instances at known
+positions** so you can score recall and precision against an answer
+key. `implant_motifs()` produces these: it takes a set of motifs and
+host sequences, samples one instance per implant column-by-column from
+the motif's PPM, and overwrites the host bases at the chosen position.
+Three insertion modes are supported: a fixed `n.per.seq` count,
+a Poisson `rate` per base pair, or an explicit list of `positions`.
+Optional knobs (`centre.bias`, `min.spacing`, `strand`) let you mimic
+ChIP-seq-style central enrichment or enforce non-overlapping placement.
+
+```{r, eval = FALSE}
+library(universalmotif)
+data(ArabidopsisMotif)
+hosts <- create_sequences("DNA", seqnum = 100, seqlen = 500)
+## Plant one instance per sequence; recover ground-truth positions
+out   <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1, rng.seed = 1)
+truth <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1,
+                        return.indices = TRUE, rng.seed = 1)
+head(truth)
+## Quantify recovery
+hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
+                       threshold.type = "logodds")
+## Visualise positional density
+peaks <- motif_peaks(out, motif = ArabidopsisMotif)
+plot_motif_peaks(peaks)
+```
+
+By default the function returns the modified sequences. Re-call with
+`return.indices = TRUE` and the same `rng.seed` to recover the
+ground-truth `data.frame` (`sequence.i`, `motif.i`, `start`, `width`,
+`strand`, `planted`).
+
 # Sequence scanning and enrichment
 
 There are many motif-programs available with sequence scanning capabilities, such as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the [MEME suite](http://meme-suite.org/). The `universalmotif` package does not aim to supplant these, but rather provide convenience functions for quickly scanning a few sequences without needing to leave the `R` environment. Furthermore, these functions allow for taking advantage of the higher-order (`multifreq`) motif format described here.
