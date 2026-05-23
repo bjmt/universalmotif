@@ -5,25 +5,25 @@
 #' contingency table of per-sequence presence/absence. The result is
 #' the long-format pair table, BH-corrected across all tested pairs.
 #' Optionally, when `max.distance` is non-`NULL`, the function also
-#' reports two **descriptive** spatial columns -- `both.clustered`
+#' reports two descriptive spatial columns, `both.clustered`
 #' (number of co-occurring sequences with a within-`max.distance`
 #' (A, B) hit pair) and `median.distance` (the median nearest-pair
-#' spacing) -- so users can flag heterodimer-like arrangements. The
+#' spacing), so users can flag heterodimer-like arrangements. The
 #' Fisher p-value itself is always computed on the unfiltered 2x2
 #' (the spatial filter is informational, not a test).
 #'
 #' Two input paths are supported:
 #'
-#'   1. **Internal scan** (default): pass `motifs` + `sequences` and
+#'   1. Internal scan (default): pass `motifs` + `sequences` and
 #'      `motif_coocc()` will call [scan_sequences2()] with the given
 #'      `pvalue` and `RC` arguments to build the hit table. DNA/RNA
 #'      only (the restriction comes from `scan_sequences2()`).
-#'   2. **Precomputed hits**: pass `motifs` + `hits` + `n.sequences`.
+#'   2. Precomputed hits: pass `motifs` + `hits` + `n.sequences`.
 #'      `hits` is a `data.frame` or `GRanges` with `motif.i` and
 #'      `sequence.i` columns (the native return shape of
 #'      [scan_sequences()] / [scan_sequences2()]), optionally `start`
-#'      when `max.distance` is set. This path **accepts any motif
-#'      alphabet** -- once a hit table exists, co-occurrence is pure
+#'      when `max.distance` is set. This path accepts any motif
+#'      alphabet; once a hit table exists, co-occurrence is pure
 #'      set arithmetic on integer indices and no sequence bytes are
 #'      read.
 #'
@@ -44,10 +44,10 @@
 #' @param RC `logical(1)`. Scan the reverse complement too? Default
 #'   `TRUE`. Ignored on the hit-table path.
 #' @param max.distance `integer(1)` or `NULL`. If non-`NULL`, two
-#'   extra **descriptive** columns are added to the output:
+#'   extra descriptive columns are added to the output:
 #'   `both.clustered` (subset of co-occurring sequences with a within-
 #'   `max.distance` (A, B) hit pair) and `median.distance` (median of
-#'   those nearest-pair distances). The Fisher p-value is unchanged --
+#'   those nearest-pair distances). The Fisher p-value is unchanged;
 #'   it always tests "do A and B occur in the same sequences more
 #'   often than chance?" on the unfiltered 2x2. Requires a `start`
 #'   column on the hit table.
@@ -66,16 +66,16 @@
 #'   threaded R code regardless.
 #'
 #' @return `data.frame` with columns:
-#'   * `motif_a`, `motif_b` -- motif names (1-based indexing into the
+#'   * `motif_a`, `motif_b`: motif names (1-based indexing into the
 #'     supplied `motifs` list; deduplicated names if duplicates exist).
-#'   * `a_only`, `b_only`, `both`, `neither` -- 2x2 contingency cells.
-#'   * `odds_ratio` -- conditional MLE odds ratio from `fisher.test`.
-#'   * `pvalue` -- one-sided Fisher's exact p-value
+#'   * `a_only`, `b_only`, `both`, `neither`: 2x2 contingency cells.
+#'   * `odds_ratio`: conditional MLE odds ratio from `fisher.test`.
+#'   * `pvalue`: one-sided Fisher's exact p-value
 #'     (alternative = "greater"). NA when `both < min.coocc`.
-#'   * `qvalue` -- BH-corrected q-value across all tested pairs.
-#'   * `both.clustered` (spatial mode only) -- subset of `both`
+#'   * `qvalue`: BH-corrected q-value across all tested pairs.
+#'   * `both.clustered` (spatial mode only): subset of `both`
 #'     where a within-`max.distance` (A, B) hit pair exists.
-#'   * `median.distance` (spatial mode only) -- median of those
+#'   * `median.distance` (spatial mode only): median of those
 #'     nearest-pair distances; `NA` if no clustered pair.
 #'   Rows are sorted by q-value ascending; NA-pvalue rows go last.
 #'
@@ -91,11 +91,9 @@
 #' co <- motif_coocc(list(ArabidopsisMotif, ArabidopsisMotif),
 #'                   imp$sequences, pvalue = 1e-3)
 #' co
-#' plot_motif_coocc(co)
 #' }
 #'
-#' @seealso [scan_sequences2()], [enrich_motifs2()], [motif_peaks()],
-#'   [plot_motif_coocc()]
+#' @seealso [scan_sequences2()], [enrich_motifs2()], [motif_peaks()]
 #' @references
 #'
 #' Heinz S, Benner C, Spann N, et al. (2010). "Simple combinations of
@@ -309,111 +307,6 @@ motif_coocc <- function(motifs, sequences = NULL,
   out <- out[ord, , drop = FALSE]
   rownames(out) <- NULL
   out
-}
-
-#' Heatmap of motif-pair co-occurrence q-values or odds ratios.
-#'
-#' Companion plot helper for [motif_coocc()]. Builds a square
-#' motif x motif tile heatmap from the long-format pair table,
-#' optionally clustering motifs to bring similar pairs together.
-#'
-#' @param coocc `data.frame`. Output of [motif_coocc()].
-#' @param fill One of `"neglog10q"` (default) or `"odds_ratio"`. Which
-#'   column to use for the tile fill.
-#' @param q.cap `numeric(1)`. Cap on `-log10(qvalue)` to keep one
-#'   extreme pair from dominating the colour scale. Default `50`.
-#' @param cluster `logical(1)`. If `TRUE` (default) and the motif set
-#'   contains > 2 motifs, both axes are ordered by hierarchical
-#'   clustering on `(max - value)` distances. Falls back to input
-#'   order otherwise.
-#'
-#' @return A `ggplot` object.
-#'
-#' @examples
-#' \dontrun{
-#' co <- motif_coocc(motifs, seqs)
-#' plot_motif_coocc(co)
-#' plot_motif_coocc(co, fill = "odds_ratio", cluster = FALSE)
-#' }
-#'
-#' @seealso [motif_coocc()]
-#' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
-#' @export
-plot_motif_coocc <- function(coocc,
-                             fill    = c("neglog10q", "odds_ratio"),
-                             q.cap   = 50,
-                             cluster = TRUE) {
-  if (!is.data.frame(coocc) ||
-      !all(c("motif_a", "motif_b", "pvalue", "qvalue", "odds_ratio") %in%
-           names(coocc)))
-    stop("`coocc` must be a data.frame produced by motif_coocc()",
-         call. = FALSE)
-  fill <- match.arg(fill)
-  if (!is.numeric(q.cap) || length(q.cap) != 1L || q.cap <= 0)
-    stop("`q.cap` must be a positive numeric", call. = FALSE)
-  if (!isTRUEorFALSE(cluster))
-    stop("`cluster` must be a single logical", call. = FALSE)
-
-  mots <- unique(c(coocc$motif_a, coocc$motif_b))
-  n    <- length(mots)
-
-  ## Build a symmetric (motif x motif) matrix of fill values.
-  mat <- matrix(NA_real_, n, n, dimnames = list(mots, mots))
-  vals <- if (fill == "neglog10q") {
-    v <- -log10(coocc$qvalue)
-    v[is.infinite(v)] <- q.cap
-    pmin(v, q.cap)
-  } else {
-    coocc$odds_ratio
-  }
-  for (k in seq_len(nrow(coocc))) {
-    a <- coocc$motif_a[k]; b <- coocc$motif_b[k]
-    mat[a, b] <- vals[k]
-    mat[b, a] <- vals[k]
-  }
-
-  ## Optional clustering
-  if (cluster && n > 2L) {
-    d <- mat
-    d[is.na(d)] <- 0
-    mx <- if (any(is.finite(d))) max(d) else 1
-    dd <- mx - d
-    diag(dd) <- 0
-    hc <- try(stats::hclust(stats::as.dist(dd)), silent = TRUE)
-    if (!inherits(hc, "try-error")) {
-      ord <- hc$order
-      mat <- mat[ord, ord]
-      mots <- rownames(mat)
-    }
-  }
-
-  ## Long format
-  df <- data.frame(
-    motif_a = factor(rep(mots, each  = n), levels = mots),
-    motif_b = factor(rep(mots, times = n), levels = rev(mots)),
-    value   = as.numeric(mat),
-    stringsAsFactors = FALSE
-  )
-
-  ggplot2::ggplot(df, ggplot2::aes(x = .data$motif_a,
-                                   y = .data$motif_b,
-                                   fill = .data$value)) +
-    ggplot2::geom_tile(colour = "white", linewidth = 0.2) +
-    ggplot2::scale_fill_viridis_c(
-      name     = if (fill == "neglog10q") "-log10(q)" else "odds ratio",
-      na.value = "grey90"
-    ) +
-    ggplot2::coord_equal() +
-    ggplot2::labs(x = NULL, y = NULL) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(
-      panel.grid     = ggplot2::element_blank(),
-      panel.border   = ggplot2::element_blank(),
-      axis.line      = ggplot2::element_blank(),
-      axis.ticks     = ggplot2::element_blank(),
-      axis.text.x    = ggplot2::element_text(angle = 45, hjust = 1),
-      legend.position = "right"
-    )
 }
 
 ## ---- internal helpers ---------------------------------------------------

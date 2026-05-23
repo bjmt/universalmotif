@@ -54,7 +54,6 @@ Collate:
     'merge_motifs2.R'
     'merge_similar.R'
     'merge_similar2.R'
-    'motif_clusters.R'
     'motif_coocc.R'
     'motif_finder.R'
     'motif_peaks.R'

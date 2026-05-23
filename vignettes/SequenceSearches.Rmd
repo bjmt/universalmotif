@@ -295,8 +295,8 @@ elements: `sequences` (the modified `XStringSet`) and `indices` (a
 `enrich_motifs()` / `enrich_motifs2()` test whether each motif is
 enriched on its own. But transcription factors often bind as
 heterodimers or cooperate at composite cis-regulatory modules, so the
-next-most-useful question is: *do any motif pairs co-occur in the
-same sequences more often than chance?* `motif_coocc()` answers that.
+next-most-useful question is: do any motif pairs co-occur in the
+same sequences more often than chance? `motif_coocc()` answers that.
 For every pair of input motifs it builds the 2x2 contingency table of
 per-sequence presence/absence and runs a one-sided Fisher's exact
 test, then BH-corrects across all tested pairs.
@@ -320,22 +320,18 @@ hits <- scan_sequences2(motifs, seqs, pvalue = 1e-3)
 co   <- motif_coocc(motifs, hits = hits, n.sequences = length(seqs))
 ```
 
-The hit-table path **accepts any alphabet** (AA, custom) -- once a
+The hit-table path accepts any alphabet (AA, custom); once a
 hit table exists, co-occurrence is pure set arithmetic on
 `(motif.i, sequence.i)` integers.
 
-Set `max.distance = N` to tighten "both present" to "both within
-`N` bp in the same sequence", a SpaMo-style spatial constraint for
-heterodimer / composite-site discovery. The pair table then carries
-an extra `median.distance` column reporting the median nearest-pair
-spacing across co-occurring sequences.
-
-`plot_motif_coocc()` renders the result as a clustered tile heatmap
-of `-log10(qvalue)` (or `odds_ratio`) for quick visual triage:
-
-```{r, eval = FALSE}
-plot_motif_coocc(co)
-```
+Set `max.distance = N` to additionally report two descriptive
+columns: `both.clustered` (the subset of co-occurring sequences with
+an `(A, B)` hit pair within `N` bp) and `median.distance` (the
+median nearest-pair spacing in those sequences). The Fisher p-value
+is unchanged; it always tests "do A and B occur in the same
+sequences more often than chance?" on the unfiltered 2x2; so the
+spatial columns are interpretive aids for flagging heterodimer-like
+arrangements rather than a separate statistical test.
 
 # Sequence scanning and enrichment
 

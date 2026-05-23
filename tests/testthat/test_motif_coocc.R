@@ -1,4 +1,4 @@
-context("motif_coocc() / plot_motif_coocc()")
+context("motif_coocc()")
 
 ## Helpers ----------------------------------------------------------------
 
@@ -232,23 +232,3 @@ test_that("hits as GRanges round-trips correctly", {
                co_gr[, c("both","a_only","b_only","neither")])
 })
 
-test_that("plot_motif_coocc() returns a ggplot with a tile layer", {
-  motifs <- list(make_fixed("AAAAAAAAAAAA", "M1"),
-                 make_fixed("CCCCCCCCCCCC", "M2"),
-                 make_fixed("GGGGGGGGGGGG", "M3"))
-  hits <- fake_hits(list(1:20, 5:25, 15:35))
-  co <- motif_coocc(motifs, hits = hits, n.sequences = 40L)
-  g <- plot_motif_coocc(co)
-  expect_s3_class(g, "ggplot")
-  layer_classes <- vapply(g$layers, function(l) class(l$geom)[1], character(1))
-  expect_true(any(grepl("GeomTile", layer_classes)))
-})
-
-test_that("plot_motif_coocc(fill = 'odds_ratio') runs", {
-  motifs <- list(make_fixed("AAAAAAAAAAAA", "M1"),
-                 make_fixed("CCCCCCCCCCCC", "M2"))
-  hits <- fake_hits(list(1:15, 1:20))
-  co <- motif_coocc(motifs, hits = hits, n.sequences = 30L)
-  g <- plot_motif_coocc(co, fill = "odds_ratio", cluster = FALSE)
-  expect_s3_class(g, "ggplot")
-})

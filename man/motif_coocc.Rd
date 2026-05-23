@@ -32,10 +32,10 @@ internal scan. Default \code{1e-4}. Ignored on the hit-table path.}
 \code{TRUE}. Ignored on the hit-table path.}
 
 \item{max.distance}{\code{integer(1)} or \code{NULL}. If non-\code{NULL}, two
-extra \strong{descriptive} columns are added to the output:
+extra descriptive columns are added to the output:
 \code{both.clustered} (subset of co-occurring sequences with a within-
 \code{max.distance} (A, B) hit pair) and \code{median.distance} (median of
-those nearest-pair distances). The Fisher p-value is unchanged --
+those nearest-pair distances). The Fisher p-value is unchanged;
 it always tests "do A and B occur in the same sequences more
 often than chance?" on the unfiltered 2x2. Requires a \code{start}
 column on the hit table.}
@@ -60,16 +60,16 @@ threaded R code regardless.}
 \value{
 \code{data.frame} with columns:
 \itemize{
-\item \code{motif_a}, \code{motif_b} -- motif names (1-based indexing into the
+\item \code{motif_a}, \code{motif_b}: motif names (1-based indexing into the
 supplied \code{motifs} list; deduplicated names if duplicates exist).
-\item \code{a_only}, \code{b_only}, \code{both}, \code{neither} -- 2x2 contingency cells.
-\item \code{odds_ratio} -- conditional MLE odds ratio from \code{fisher.test}.
-\item \code{pvalue} -- one-sided Fisher's exact p-value
+\item \code{a_only}, \code{b_only}, \code{both}, \code{neither}: 2x2 contingency cells.
+\item \code{odds_ratio}: conditional MLE odds ratio from \code{fisher.test}.
+\item \code{pvalue}: one-sided Fisher's exact p-value
 (alternative = "greater"). NA when \code{both < min.coocc}.
-\item \code{qvalue} -- BH-corrected q-value across all tested pairs.
-\item \code{both.clustered} (spatial mode only) -- subset of \code{both}
+\item \code{qvalue}: BH-corrected q-value across all tested pairs.
+\item \code{both.clustered} (spatial mode only): subset of \code{both}
 where a within-\code{max.distance} (A, B) hit pair exists.
-\item \code{median.distance} (spatial mode only) -- median of those
+\item \code{median.distance} (spatial mode only): median of those
 nearest-pair distances; \code{NA} if no clustered pair.
 Rows are sorted by q-value ascending; NA-pvalue rows go last.
 }
@@ -80,26 +80,26 @@ a set of sequences using a one-sided Fisher's exact test on the 2x2
 contingency table of per-sequence presence/absence. The result is
 the long-format pair table, BH-corrected across all tested pairs.
 Optionally, when \code{max.distance} is non-\code{NULL}, the function also
-reports two \strong{descriptive} spatial columns -- \code{both.clustered}
+reports two descriptive spatial columns, \code{both.clustered}
 (number of co-occurring sequences with a within-\code{max.distance}
 (A, B) hit pair) and \code{median.distance} (the median nearest-pair
-spacing) -- so users can flag heterodimer-like arrangements. The
+spacing), so users can flag heterodimer-like arrangements. The
 Fisher p-value itself is always computed on the unfiltered 2x2
 (the spatial filter is informational, not a test).
 }
 \details{
 Two input paths are supported:
 \enumerate{
-\item \strong{Internal scan} (default): pass \code{motifs} + \code{sequences} and
+\item Internal scan (default): pass \code{motifs} + \code{sequences} and
 \code{motif_coocc()} will call \code{\link[=scan_sequences2]{scan_sequences2()}} with the given
 \code{pvalue} and \code{RC} arguments to build the hit table. DNA/RNA
 only (the restriction comes from \code{scan_sequences2()}).
-\item \strong{Precomputed hits}: pass \code{motifs} + \code{hits} + \code{n.sequences}.
+\item Precomputed hits: pass \code{motifs} + \code{hits} + \code{n.sequences}.
 \code{hits} is a \code{data.frame} or \code{GRanges} with \code{motif.i} and
 \code{sequence.i} columns (the native return shape of
 \code{\link[=scan_sequences]{scan_sequences()}} / \code{\link[=scan_sequences2]{scan_sequences2()}}), optionally \code{start}
-when \code{max.distance} is set. This path \strong{accepts any motif
-alphabet} -- once a hit table exists, co-occurrence is pure
+when \code{max.distance} is set. This path accepts any motif
+alphabet; once a hit table exists, co-occurrence is pure
 set arithmetic on integer indices and no sequence bytes are
 read.
 }
@@ -116,7 +116,6 @@ imp <- implant_motifs(list(ArabidopsisMotif, ArabidopsisMotif),
 co <- motif_coocc(list(ArabidopsisMotif, ArabidopsisMotif),
                   imp$sequences, pvalue = 1e-3)
 co
-plot_motif_coocc(co)
 }
 
 }
@@ -133,8 +132,7 @@ Research}, \strong{39}(15):e98. \doi{10.1093/nar/gkr341}. (SpaMo, the
 spatial-distance motif-pair analysis.)
 }
 \seealso{
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}, \code{\link[=motif_peaks]{motif_peaks()}},
-\code{\link[=plot_motif_coocc]{plot_motif_coocc()}}
+\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}, \code{\link[=motif_peaks]{motif_peaks()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}
