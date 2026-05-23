@@ -407,12 +407,12 @@ plot_motif_coocc <- function(coocc,
     ggplot2::labs(x = NULL, y = NULL) +
     ggplot2::theme_bw() +
     ggplot2::theme(
-      panel.grid        = ggplot2::element_blank(),
-      panel.border      = ggplot2::element_blank(),
-      axis.line.x.bottom = ggplot2::element_line(colour = "black"),
-      axis.line.y.left   = ggplot2::element_line(colour = "black"),
-      axis.text.x        = ggplot2::element_text(angle = 45, hjust = 1),
-      legend.position    = "right"
+      panel.grid     = ggplot2::element_blank(),
+      panel.border   = ggplot2::element_blank(),
+      axis.line      = ggplot2::element_blank(),
+      axis.ticks     = ggplot2::element_blank(),
+      axis.text.x    = ggplot2::element_text(angle = 45, hjust = 1),
+      legend.position = "right"
     )
 }
 
