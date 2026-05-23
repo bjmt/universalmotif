@@ -253,11 +253,11 @@ call `set.seed()` before `match_bkg()`.
 ## Generating ground-truth positive sequences with `implant_motifs()`
 
 When benchmarking a motif discovery, scanning, or enrichment pipeline,
-you need positive sequences with **known motif instances at known
-positions** so you can score recall and precision against an answer
+you need positive sequences with known motif instances at known
+positions so you can score recall and precision against an answer
 key. `implant_motifs()` produces these: it takes a set of motifs and
 host sequences, samples one instance per implant column-by-column from
-the motif's PPM, and overwrites the host bases at the chosen position.
+the motif's PPM, and overwrites the bases at the chosen position.
 Three insertion modes are supported: a fixed `n.per.seq` count,
 a Poisson `rate` per base pair, or an explicit list of `positions`.
 Optional knobs (`centre.bias`, `min.spacing`, `strand`) let you mimic
