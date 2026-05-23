@@ -6,12 +6,11 @@
 \usage{
 implant_motifs(motifs, sequences, n.per.seq = 1L, rate = NULL,
   positions = NULL, strand = c("both", "+"), centre.bias = 1L,
-  min.spacing = 0L, max.retries = 100L, rng.seed = sample.int(1e+06, 1),
-  return.indices = FALSE)
+  min.spacing = 0L, max.retries = 100L, return.indices = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats.
-DNA or RNA only -- amino-acid and custom alphabet motifs are
+DNA or RNA only, amino-acid and custom alphabet motifs are
 rejected. A single motif or a list of motifs.}
 
 \item{sequences}{\code{XStringSet}. Host sequences to plant into. Must
@@ -43,8 +42,6 @@ implants. Ignored in \code{positions} mode.}
 attempts before giving up (with a warning at the end if any
 targets fell short). Default \code{100L}.}
 
-\item{rng.seed}{\code{numeric(1)}. RNG seed for reproducible sampling.}
-
 \item{return.indices}{\code{logical(1)}. If \code{FALSE} (default), return
 the modified \code{XStringSet}. If \code{TRUE}, return a \code{data.frame} of
 per-implant ground-truth metadata instead.}
@@ -60,26 +57,26 @@ at the implant positions. Names are preserved. If
 complemented when \code{strand == "-"}).
 }
 \description{
-\code{implant_motifs()} overwrites bases in an existing \code{XStringSet} with
+\code{\link[=implant_motifs]{implant_motifs()}} overwrites bases in an existing \code{XStringSet} with
 samples drawn column-by-column from one or more motif PPMs at chosen
 positions, returning the modified sequences together (optionally)
 with a ground-truth data.frame of where each implant was placed.
 This produces benchmark-grade positive sequences for testing
-\code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=motif_finder]{motif_finder()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}},
+\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=motif_finder]{motif_finder()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}},
 \code{\link[=motif_peaks]{motif_peaks()}}, or any other discovery / scanning pipeline against
-a known answer key.
+a known answer.
 }
 \details{
-Three insertion modes (mutually exclusive — later non-\code{NULL} argument
+Three insertion modes (mutually exclusive; later non-\code{NULL} argument
 wins):
 \enumerate{
-\item \strong{Fixed count} (\code{n.per.seq}): plant exactly \code{n.per.seq}
+\item Fixed count (\code{n.per.seq}): plant exactly \code{n.per.seq}
 instances in every sequence. Matches HOMER-style ground-truth
 simulations.
-\item \strong{Poisson rate} (\code{rate}): per-sequence count drawn from
+\item Poisson rate (\code{rate}): per-sequence count drawn from
 \code{rpois(1, rate * width(seq))}. Density scales naturally with
 sequence length.
-\item \strong{Explicit positions} (\code{positions}): a \code{list} of length
+\item Explicit positions (\code{positions}): a \code{list} of length
 \code{length(sequences)}; element \code{i} is a 1-based integer vector of
 start positions for that sequence. Bypasses \code{centre.bias},
 \code{min.spacing}, and \code{max.retries}.
@@ -99,9 +96,11 @@ target sequence.
 library(universalmotif)
 data(ArabidopsisMotif)
 seqs  <- create_sequences("DNA", seqnum = 100, seqlen = 500)
+set.seed(1)
 out   <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1)
+set.seed(1)
 truth <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1,
-                        return.indices = TRUE, rng.seed = 1)
+                        return.indices = TRUE)
 ## Recover-rate check
 hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
                        threshold.type = "logodds")
@@ -111,11 +110,8 @@ plot_motif_peaks(peaks)
 }
 
 }
-\references{
-Inspired by the \verb{yamtk seed} command-line tool by the same author.
-}
 \seealso{
-\code{\link[=sample_sites]{sample_sites()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences]{scan_sequences()}},
+\code{\link[=sample_sites]{sample_sites()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences2]{scan_sequences2()}},
 \code{\link[=motif_finder]{motif_finder()}}, \code{\link[=motif_peaks]{motif_peaks()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}
 }
 \author{

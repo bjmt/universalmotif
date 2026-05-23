@@ -5,8 +5,7 @@
 \title{Sample composition-matched background sequences from a universe.}
 \usage{
 match_bkg(sequences, universe, n.per.target = 1L, n.bins.gc = 20L,
-  n.bins.length = 10L, unique = TRUE, rng.seed = sample.int(1e+06, 1),
-  return.indices = FALSE)
+  n.bins.length = 10L, unique = TRUE, return.indices = FALSE)
 }
 \arguments{
 \item{sequences}{\code{XStringSet}. Target (positive) sequences. DNA or
@@ -32,8 +31,6 @@ bins. Default \code{10L}.}
 sequence is drawn at most once. Falls back to with-replacement
 sampling (with a warning) if the universe is too small to honour
 uniqueness.}
-
-\item{rng.seed}{\code{integer(1)}. RNG seed for reproducible sampling.}
 
 \item{return.indices}{\code{logical(1)}. If \code{TRUE}, return a
 \code{data.frame} of per-pair match indices and composition values

@@ -1,24 +1,24 @@
 #' Implant sampled motif instances into sequences at known positions.
 #'
-#' `implant_motifs()` overwrites bases in an existing `XStringSet` with
+#' [implant_motifs()] overwrites bases in an existing `XStringSet` with
 #' samples drawn column-by-column from one or more motif PPMs at chosen
 #' positions, returning the modified sequences together (optionally)
 #' with a ground-truth data.frame of where each implant was placed.
 #' This produces benchmark-grade positive sequences for testing
-#' [scan_sequences()], [motif_finder()], [enrich_motifs2()],
+#' [scan_sequences2()], [motif_finder()], [enrich_motifs2()],
 #' [motif_peaks()], or any other discovery / scanning pipeline against
-#' a known answer key.
+#' a known answer.
 #'
-#' Three insertion modes (mutually exclusive — later non-`NULL` argument
+#' Three insertion modes (mutually exclusive; later non-`NULL` argument
 #' wins):
 #'
-#'   1. **Fixed count** (`n.per.seq`): plant exactly `n.per.seq`
+#'   1. Fixed count (`n.per.seq`): plant exactly `n.per.seq`
 #'      instances in every sequence. Matches HOMER-style ground-truth
 #'      simulations.
-#'   2. **Poisson rate** (`rate`): per-sequence count drawn from
+#'   2. Poisson rate (`rate`): per-sequence count drawn from
 #'      `rpois(1, rate * width(seq))`. Density scales naturally with
 #'      sequence length.
-#'   3. **Explicit positions** (`positions`): a `list` of length
+#'   3. Explicit positions (`positions`): a `list` of length
 #'      `length(sequences)`; element `i` is a 1-based integer vector of
 #'      start positions for that sequence. Bypasses `centre.bias`,
 #'      `min.spacing`, and `max.retries`.
@@ -33,7 +33,7 @@
 #' target sequence.
 #'
 #' @param motifs See [convert_motifs()] for accepted motif formats.
-#'   DNA or RNA only -- amino-acid and custom alphabet motifs are
+#'   DNA or RNA only, amino-acid and custom alphabet motifs are
 #'   rejected. A single motif or a list of motifs.
 #' @param sequences `XStringSet`. Host sequences to plant into. Must
 #'   share the motif alphabet.
@@ -56,7 +56,6 @@
 #' @param max.retries `integer(1)`. Per-implant cap on placement
 #'   attempts before giving up (with a warning at the end if any
 #'   targets fell short). Default `100L`.
-#' @param rng.seed `numeric(1)`. RNG seed for reproducible sampling.
 #' @param return.indices `logical(1)`. If `FALSE` (default), return
 #'   the modified `XStringSet`. If `TRUE`, return a `data.frame` of
 #'   per-implant ground-truth metadata instead.
@@ -75,9 +74,11 @@
 #' library(universalmotif)
 #' data(ArabidopsisMotif)
 #' seqs  <- create_sequences("DNA", seqnum = 100, seqlen = 500)
+#' set.seed(1)
 #' out   <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1)
+#' set.seed(1)
 #' truth <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1,
-#'                         return.indices = TRUE, rng.seed = 1)
+#'                         return.indices = TRUE)
 #' ## Recover-rate check
 #' hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
 #'                        threshold.type = "logodds")
@@ -86,13 +87,9 @@
 #' plot_motif_peaks(peaks)
 #' }
 #'
-#' @seealso [sample_sites()], [create_sequences()], [scan_sequences()],
+#' @seealso [sample_sites()], [create_sequences()], [scan_sequences2()],
 #'   [motif_finder()], [motif_peaks()], [enrich_motifs2()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
-#' @references
-#'
-#' Inspired by the `yamtk seed` command-line tool by the same author.
-#'
 #' @export
 implant_motifs <- function(motifs, sequences,
                            n.per.seq      = 1L,
@@ -102,7 +99,6 @@ implant_motifs <- function(motifs, sequences,
                            centre.bias    = 1L,
                            min.spacing    = 0L,
                            max.retries    = 100L,
-                           rng.seed       = sample.int(1e6, 1),
                            return.indices = FALSE) {
 
   ## --- arg validation --------------------------------------------------
@@ -110,8 +106,6 @@ implant_motifs <- function(motifs, sequences,
     stop("`motifs` and `sequences` are both required", call. = FALSE)
   if (!is(sequences, "XStringSet"))
     stop("`sequences` must be an XStringSet object", call. = FALSE)
-  if (!is.numeric(rng.seed) || length(rng.seed) != 1L || is.na(rng.seed))
-    stop("`rng.seed` must be a single numeric", call. = FALSE)
   if (!isTRUEorFALSE(return.indices))
     stop("`return.indices` must be a single logical", call. = FALSE)
   strand <- match.arg(strand)
@@ -176,8 +170,8 @@ implant_motifs <- function(motifs, sequences,
             "no implants will be placed in them", call. = FALSE)
 
   ## --- main loop -------------------------------------------------------
-  set.seed(as.integer(rng.seed))
-
+  ## RNG comes from the caller's global state (set.seed() before the
+  ## call for reproducibility).
   seq.chars  <- as.character(sequences)   # mutable buffer (R strings copy-on-mod)
   meta.list  <- vector("list", n.seq)
   short_capacity <- FALSE

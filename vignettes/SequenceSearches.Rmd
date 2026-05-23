@@ -223,7 +223,8 @@ data(ArabidopsisPromoters)
 target   <- ArabidopsisPromoters[1:10]
 universe <- ArabidopsisPromoters[11:50]
 
-bkg <- match_bkg(target, universe, n.per.target = 2, rng.seed = 1)
+set.seed(1)
+bkg <- match_bkg(target, universe, n.per.target = 2)
 length(bkg)   # 20 = 10 targets x 2 matches each
 ```
 
@@ -246,7 +247,8 @@ matched background in a two-panel ggplot.
 `match_bkg()` complements `shuffle_sequences()`; neither replaces
 the other. Use a shuffle when you want a per-sequence k-let-preserving
 null; use a matched background when you want to control for
-composition bias relative to a genomic universe.
+composition bias relative to a genomic universe. For reproducibility,
+call `set.seed()` before `match_bkg()`.
 
 ## Generating ground-truth positive sequences with `implant_motifs()`
 
@@ -265,10 +267,13 @@ ChIP-seq-style central enrichment or enforce non-overlapping placement.
 library(universalmotif)
 data(ArabidopsisMotif)
 hosts <- create_sequences("DNA", seqnum = 100, seqlen = 500)
-## Plant one instance per sequence; recover ground-truth positions
-out   <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1, rng.seed = 1)
+## Plant one instance per sequence; recover ground-truth positions.
+## Call set.seed() before each invocation for reproducible sampling.
+set.seed(1)
+out   <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1)
+set.seed(1)
 truth <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1,
-                        return.indices = TRUE, rng.seed = 1)
+                        return.indices = TRUE)
 head(truth)
 ## Quantify recovery
 hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
@@ -279,7 +284,7 @@ plot_motif_peaks(peaks)
 ```
 
 By default the function returns the modified sequences. Re-call with
-`return.indices = TRUE` and the same `rng.seed` to recover the
+`return.indices = TRUE` after the same `set.seed()` to recover the
 ground-truth `data.frame` (`sequence.i`, `motif.i`, `start`, `width`,
 `strand`, `planted`).
 

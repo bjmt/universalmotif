@@ -41,7 +41,6 @@
 #'   sequence is drawn at most once. Falls back to with-replacement
 #'   sampling (with a warning) if the universe is too small to honour
 #'   uniqueness.
-#' @param rng.seed `integer(1)`. RNG seed for reproducible sampling.
 #' @param return.indices `logical(1)`. If `TRUE`, return a
 #'   `data.frame` of per-pair match indices and composition values
 #'   instead of the matched `XStringSet`. Default `FALSE`.
@@ -84,7 +83,6 @@ match_bkg <- function(sequences, universe,
                      n.bins.gc      = 20L,
                      n.bins.length  = 10L,
                      unique         = TRUE,
-                     rng.seed       = sample.int(1e6, 1),
                      return.indices = FALSE) {
 
   ## --- arg validation --------------------------------------------------
@@ -105,8 +103,6 @@ match_bkg <- function(sequences, universe,
     stop("`unique` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(return.indices))
     stop("`return.indices` must be a single logical", call. = FALSE)
-  if (!is.numeric(rng.seed) || length(rng.seed) != 1L || is.na(rng.seed))
-    stop("`rng.seed` must be a single numeric", call. = FALSE)
 
   ## --- alphabet checks --------------------------------------------------
   alph.t <- seqtype(sequences)
@@ -174,7 +170,8 @@ match_bkg <- function(sequences, universe,
   n.len.bins <- length(len.breaks) - 1L
 
   ## --- per-target matching ---------------------------------------------
-  set.seed(as.integer(rng.seed))
+  ## RNG comes from the caller's global state (set.seed() before the
+  ## call for reproducibility).
   n.targets <- length(sequences)
   matched_u <- integer(n.targets * n.per.target)
   used_global <- if (unique) integer(0) else NULL

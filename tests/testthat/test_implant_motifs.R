@@ -36,7 +36,8 @@ make_seqs <- function(n, len, gc = 0.4, seed = 1, alph = "DNA") {
 test_that("output shape and class preserved", {
   m <- make_random_motif(8)
   s <- make_seqs(10, 200, seed = 1)
-  out <- implant_motifs(m, s, n.per.seq = 2L, rng.seed = 1)
+  set.seed(1)
+  out <- implant_motifs(m, s, n.per.seq = 2L)
   expect_s4_class(out, "DNAStringSet")
   expect_equal(length(out), length(s))
   expect_equal(as.integer(width(out)), as.integer(width(s)))
@@ -46,8 +47,8 @@ test_that("output shape and class preserved", {
 test_that("return.indices = TRUE produces the documented columns", {
   m <- make_random_motif(8)
   s <- make_seqs(5, 200, seed = 2)
-  df <- implant_motifs(m, s, n.per.seq = 3L, return.indices = TRUE,
-                       rng.seed = 1)
+  set.seed(1)
+  df <- implant_motifs(m, s, n.per.seq = 3L, return.indices = TRUE)
   expect_s3_class(df, "data.frame")
   expect_equal(names(df),
                c("sequence.i", "motif.i", "start", "width", "strand", "planted"))
@@ -60,9 +61,11 @@ test_that("return.indices = TRUE produces the documented columns", {
 test_that("fixed-motif round trip: scan recovers every implant (+ strand)", {
   m <- make_fixed_motif("CACGTG")
   s <- make_seqs(20, 200, gc = 0.4, seed = 3)
-  out <- implant_motifs(m, s, n.per.seq = 1L, strand = "+", rng.seed = 1)
+  set.seed(1)
+  out <- implant_motifs(m, s, n.per.seq = 1L, strand = "+")
+  set.seed(1)
   df  <- implant_motifs(m, s, n.per.seq = 1L, strand = "+",
-                        return.indices = TRUE, rng.seed = 1)
+                        return.indices = TRUE)
   ## Every planted instance should literally appear as "CACGTG" at df$start.
   for (k in seq_len(nrow(df))) {
     seq_i <- df$sequence.i[k]
@@ -75,8 +78,8 @@ test_that("fixed-motif round trip: scan recovers every implant (+ strand)", {
 test_that("n.per.seq mode produces N * n.per.seq rows", {
   m <- make_random_motif(8)
   s <- make_seqs(10, 200, seed = 4)
-  df <- implant_motifs(m, s, n.per.seq = 3L, return.indices = TRUE,
-                       rng.seed = 1)
+  set.seed(1)
+  df <- implant_motifs(m, s, n.per.seq = 3L, return.indices = TRUE)
   expect_equal(nrow(df), 30L)
   expect_setequal(sort(unique(df$sequence.i)), seq_len(10))
   expect_equal(sort(table(df$sequence.i)), as.table(rep(3L, 10),
@@ -86,8 +89,8 @@ test_that("n.per.seq mode produces N * n.per.seq rows", {
 test_that("rate mode yields roughly Poisson(rate * width) implants total", {
   m <- make_random_motif(8)
   s <- make_seqs(500, 200, seed = 5)
-  df <- implant_motifs(m, s, rate = 5e-3,
-                       return.indices = TRUE, rng.seed = 1)
+  set.seed(1)
+  df <- implant_motifs(m, s, rate = 5e-3, return.indices = TRUE)
   expected <- 5e-3 * 200 * 500
   expect_gt(nrow(df), 0.5 * expected)
   expect_lt(nrow(df), 1.5 * expected)
@@ -97,8 +100,8 @@ test_that("positions mode honours user starts exactly", {
   m <- make_random_motif(8)
   s <- make_seqs(4, 200, seed = 6)
   pos <- list(c(10L, 50L), c(20L), c(100L, 150L, 180L), c(1L))
-  df  <- implant_motifs(m, s, positions = pos, return.indices = TRUE,
-                        rng.seed = 1)
+  set.seed(1)
+  df  <- implant_motifs(m, s, positions = pos, return.indices = TRUE)
   expect_equal(df$start[df$sequence.i == 1L], pos[[1]])
   expect_equal(df$start[df$sequence.i == 2L], pos[[2]])
   expect_equal(df$start[df$sequence.i == 3L], pos[[3]])
@@ -108,8 +111,9 @@ test_that("positions mode honours user starts exactly", {
 test_that("strand = 'both' produces both + and -", {
   m <- make_random_motif(8)
   s <- make_seqs(50, 200, seed = 7)
+  set.seed(1)
   df <- implant_motifs(m, s, n.per.seq = 2L, strand = "both",
-                       return.indices = TRUE, rng.seed = 1)
+                       return.indices = TRUE)
   expect_true(any(df$strand == "+"))
   expect_true(any(df$strand == "-"))
 })
@@ -117,18 +121,21 @@ test_that("strand = 'both' produces both + and -", {
 test_that("strand = '+' produces only + strand", {
   m <- make_random_motif(8)
   s <- make_seqs(50, 200, seed = 8)
+  set.seed(1)
   df <- implant_motifs(m, s, n.per.seq = 2L, strand = "+",
-                       return.indices = TRUE, rng.seed = 1)
+                       return.indices = TRUE)
   expect_true(all(df$strand == "+"))
 })
 
 test_that("centre.bias clusters implants near sequence centres", {
   m <- make_random_motif(8)
   s <- make_seqs(500, 1000, seed = 9)
+  set.seed(1)
   df.unif <- implant_motifs(m, s, n.per.seq = 1L, centre.bias = 1L,
-                            return.indices = TRUE, rng.seed = 1)
+                            return.indices = TRUE)
+  set.seed(1)
   df.cb   <- implant_motifs(m, s, n.per.seq = 1L, centre.bias = 8L,
-                            return.indices = TRUE, rng.seed = 1)
+                            return.indices = TRUE)
   ## Distance from sequence midpoint should be smaller for centre-biased.
   midpt <- 500
   d.unif <- abs(df.unif$start - midpt)
@@ -140,8 +147,9 @@ test_that("min.spacing prevents overlaps and respects the gap", {
   m <- make_random_motif(8)
   ## One long sequence + many implants
   s <- make_seqs(1, 5000, seed = 10)
+  set.seed(1)
   df <- implant_motifs(m, s, n.per.seq = 20L, min.spacing = 50L,
-                       return.indices = TRUE, rng.seed = 1)
+                       return.indices = TRUE)
   starts <- sort(df$start)
   ends   <- starts + df$width[order(df$start)] - 1L
   if (length(starts) > 1L) {
@@ -150,18 +158,20 @@ test_that("min.spacing prevents overlaps and respects the gap", {
   }
 })
 
-test_that("determinism: same rng.seed -> identical output and indices", {
+test_that("determinism: caller's set.seed -> identical output and indices", {
   m <- make_random_motif(8)
   s <- make_seqs(10, 200, seed = 11)
-  o1 <- implant_motifs(m, s, n.per.seq = 2L, rng.seed = 42L)
-  o2 <- implant_motifs(m, s, n.per.seq = 2L, rng.seed = 42L)
+  set.seed(42)
+  o1 <- implant_motifs(m, s, n.per.seq = 2L)
+  set.seed(42)
+  o2 <- implant_motifs(m, s, n.per.seq = 2L)
   ## sanity: the implant should actually change the sequences
   expect_false(identical(as.character(o1), as.character(s)))
   expect_equal(as.character(o1), as.character(o2))
-  d1 <- implant_motifs(m, s, n.per.seq = 2L, return.indices = TRUE,
-                       rng.seed = 42L)
-  d2 <- implant_motifs(m, s, n.per.seq = 2L, return.indices = TRUE,
-                       rng.seed = 42L)
+  set.seed(42)
+  d1 <- implant_motifs(m, s, n.per.seq = 2L, return.indices = TRUE)
+  set.seed(42)
+  d2 <- implant_motifs(m, s, n.per.seq = 2L, return.indices = TRUE)
   expect_equal(d1, d2)
 })
 
@@ -181,9 +191,10 @@ test_that("capacity overflow emits a warning", {
   m <- make_random_motif(8)
   ## Very short sequence, demand many non-overlapping wide-spaced implants
   s <- make_seqs(1, 50, seed = 14)
+  set.seed(1)
   expect_warning(
     implant_motifs(m, s, n.per.seq = 20L, min.spacing = 30L,
-                   max.retries = 5L, rng.seed = 1),
+                   max.retries = 5L),
     regexp = "could not be placed"
   )
 })
@@ -193,8 +204,8 @@ test_that("multiple motifs: motif.i covers all input motifs", {
                  make_random_motif(10, seed = 2),
                  make_random_motif(6, seed = 3))
   s <- make_seqs(100, 200, seed = 15)
-  df <- implant_motifs(motifs, s, n.per.seq = 1L, return.indices = TRUE,
-                       rng.seed = 1)
+  set.seed(1)
+  df <- implant_motifs(motifs, s, n.per.seq = 1L, return.indices = TRUE)
   expect_setequal(sort(unique(df$motif.i)), 1:3)
   ## width column should reflect the actual motif chosen
   widths_by_id <- c(8L, 10L, 6L)
