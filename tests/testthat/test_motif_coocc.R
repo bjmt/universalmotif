@@ -106,27 +106,42 @@ test_that("hit-table path agrees with internal-scan path", {
                check.attributes = FALSE)
 })
 
-test_that("spatial mode honours max.distance (synthetic hit table)", {
+test_that("spatial mode adds descriptive columns without changing Fisher", {
   ## 40 sequences. In all 40, M1 has a hit at start=100 and M2 has a hit
-  ## at start=120 (dist=20). In the first 20, M2 ALSO has a far hit at
-  ## start=500 -- but spatial mode looks for the MIN distance, so all 40
-  ## still have a within-50 pair.
+  ## at start=120 (dist=20).
   hits <- rbind(
     data.frame(motif.i = 1L, sequence.i = 1:40,  start = 100L),
     data.frame(motif.i = 2L, sequence.i = 1:40,  start = 120L)
   )
   motifs <- list(make_fixed("AAAAAAAAAAAA", "M1"),
                  make_fixed("CCCCCCCCCCCC", "M2"))
-  co_all <- motif_coocc(motifs, hits = hits, n.sequences = 40L)
-  expect_equal(co_all$both, 40L)
+  co_all   <- motif_coocc(motifs, hits = hits, n.sequences = 40L)
   co_close <- motif_coocc(motifs, hits = hits, n.sequences = 40L,
                           max.distance = 50L)
+  co_tight <- motif_coocc(motifs, hits = hits, n.sequences = 40L,
+                          max.distance = 10L)
+
+  ## `both` is the same across all three -- the Fisher test doesn't
+  ## see the spatial filter.
+  expect_equal(co_all$both,   40L)
   expect_equal(co_close$both, 40L)
+  expect_equal(co_tight$both, 40L)
+  ## p-value is identical across all three.
+  expect_equal(co_all$pvalue, co_close$pvalue)
+  expect_equal(co_all$pvalue, co_tight$pvalue)
+
+  ## Spatial mode adds the two descriptive columns.
+  expect_true(all(c("both.clustered", "median.distance") %in% names(co_close)))
+  expect_false("both.clustered" %in% names(co_all))
+
+  ## With max.distance = 50 (>= 20), all 40 sequences qualify.
+  expect_equal(co_close$both.clustered, 40L)
   expect_equal(co_close$median.distance, 20)
-  ## Tighten further to 10 bp -- now none qualify.
-  co_too_tight <- motif_coocc(motifs, hits = hits, n.sequences = 40L,
-                              max.distance = 10L)
-  expect_equal(co_too_tight$both, 0L)
+
+  ## With max.distance = 10, none qualify -- both.clustered = 0,
+  ## median.distance = NA.
+  expect_equal(co_tight$both.clustered, 0L)
+  expect_true(is.na(co_tight$median.distance))
 })
 
 test_that("min.coocc filter yields NA pvalue/qvalue (synthetic)", {

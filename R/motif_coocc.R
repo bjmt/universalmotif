@@ -4,11 +4,13 @@
 #' a set of sequences using a one-sided Fisher's exact test on the 2x2
 #' contingency table of per-sequence presence/absence. The result is
 #' the long-format pair table, BH-corrected across all tested pairs.
-#' Optionally, when `max.distance` is non-`NULL`, the "both motifs
-#' present" cell is tightened to "at least one hit of A and one hit of
-#' B occur within `max.distance` bp in the same sequence" -- a
-#' SpaMo-lite spatial constraint useful for finding composite cis-
-#' regulatory modules and heterodimer-like spacings.
+#' Optionally, when `max.distance` is non-`NULL`, the function also
+#' reports two **descriptive** spatial columns -- `both.clustered`
+#' (number of co-occurring sequences with a within-`max.distance`
+#' (A, B) hit pair) and `median.distance` (the median nearest-pair
+#' spacing) -- so users can flag heterodimer-like arrangements. The
+#' Fisher p-value itself is always computed on the unfiltered 2x2
+#' (the spatial filter is informational, not a test).
 #'
 #' Two input paths are supported:
 #'
@@ -41,12 +43,14 @@
 #'   internal scan. Default `1e-4`. Ignored on the hit-table path.
 #' @param RC `logical(1)`. Scan the reverse complement too? Default
 #'   `TRUE`. Ignored on the hit-table path.
-#' @param max.distance `integer(1)` or `NULL`. If `NULL` (default),
-#'   the set test is used: a sequence "has both" when it contains at
-#'   least one hit of A and at least one hit of B anywhere. If a
-#'   positive integer, only sequences with a pair of (A, B) hits whose
-#'   start positions differ by at most `max.distance` bp count. The
-#'   hit table must have a `start` column in this mode.
+#' @param max.distance `integer(1)` or `NULL`. If non-`NULL`, two
+#'   extra **descriptive** columns are added to the output:
+#'   `both.clustered` (subset of co-occurring sequences with a within-
+#'   `max.distance` (A, B) hit pair) and `median.distance` (median of
+#'   those nearest-pair distances). The Fisher p-value is unchanged --
+#'   it always tests "do A and B occur in the same sequences more
+#'   often than chance?" on the unfiltered 2x2. Requires a `start`
+#'   column on the hit table.
 #' @param min.coocc `integer(1)`. Pairs with fewer than `min.coocc`
 #'   co-occurring sequences are tagged with NA p- and q-values
 #'   (not tested). Default `1L` (only test pairs that co-occur at
@@ -69,8 +73,10 @@
 #'   * `pvalue` -- one-sided Fisher's exact p-value
 #'     (alternative = "greater"). NA when `both < min.coocc`.
 #'   * `qvalue` -- BH-corrected q-value across all tested pairs.
-#'   * `median.distance` (spatial mode only) -- median nearest-pair
-#'     `|start_a - start_b|` across the co-occurring sequences.
+#'   * `both.clustered` (spatial mode only) -- subset of `both`
+#'     where a within-`max.distance` (A, B) hit pair exists.
+#'   * `median.distance` (spatial mode only) -- median of those
+#'     nearest-pair distances; `NA` if no clustered pair.
 #'   Rows are sorted by q-value ascending; NA-pvalue rows go last.
 #'
 #' @examples
@@ -217,9 +223,25 @@ motif_coocc <- function(motifs, sequences = NULL,
     qvalue     = NA_real_,
     stringsAsFactors = FALSE
   )
-  if (!is.null(max.distance)) out$median.distance <- NA_real_
+  if (!is.null(max.distance)) {
+    out$both.clustered  <- integer(rows)
+    out$median.distance <- NA_real_
+  }
 
   ## --- pairwise loop ---------------------------------------------------
+  ## The Fisher test always answers the SET question: do A and B co-occur
+  ## in the same sequences more often than chance? The 2x2 partition
+  ## (a_only, b_only, both, neither) is therefore computed without the
+  ## spatial filter -- otherwise the partition stops summing to
+  ## n.sequences and the test result becomes meaningless.
+  ##
+  ## When `max.distance` is supplied, we additionally report:
+  ##   - both.clustered:  subset of `both` where at least one
+  ##                      (A, B) hit pair lies within `max.distance` bp.
+  ##   - median.distance: median of those nearest-pair distances.
+  ## These are descriptive of HOW co-occurring motifs are arranged;
+  ## a proper spatial significance test (e.g. SpaMo's permutation of
+  ## distance distributions) is out of scope here.
   pc <- as.numeric(pseudocount)
   for (k in seq_len(rows)) {
     i <- pair_idx[k, 1L]
@@ -227,32 +249,6 @@ motif_coocc <- function(motifs, sequences = NULL,
     Si <- presence[[i]]
     Sj <- presence[[j]]
     coocc_seqs <- if (i == j) Si else intersect(Si, Sj)
-
-    ## Spatial filter
-    med_d <- NA_real_
-    if (!is.null(max.distance) && length(coocc_seqs) > 0L) {
-      kept <- logical(length(coocc_seqs))
-      min_dists <- rep(NA_real_, length(coocc_seqs))
-      for (ks in seq_along(coocc_seqs)) {
-        seqkey <- as.character(coocc_seqs[ks])
-        sa <- hit_pos[[i]][[seqkey]]
-        sb <- hit_pos[[j]][[seqkey]]
-        if (length(sa) == 0L || length(sb) == 0L) next
-        if (i == j && length(sa) < 2L) next  # need at least 2 hits for self
-        ds <- if (i == j)
-                outer(sa, sa, function(x, y) abs(x - y))[upper.tri(diag(length(sa)))]
-              else
-                as.numeric(outer(sa, sb, function(x, y) abs(x - y)))
-        d_min <- min(ds)
-        if (d_min <= max.distance) {
-          kept[ks] <- TRUE
-          min_dists[ks] <- d_min
-        }
-      }
-      coocc_seqs <- coocc_seqs[kept]
-      if (length(coocc_seqs) > 0L)
-        med_d <- stats::median(min_dists[kept])
-    }
 
     both    <- length(coocc_seqs)
     a_only  <- length(Si) - both
@@ -281,7 +277,25 @@ motif_coocc <- function(motifs, sequences = NULL,
       out$odds_ratio[k] <- NA_real_
     }
 
-    if (!is.null(max.distance)) out$median.distance[k] <- med_d
+    ## Descriptive spatial columns (do NOT feed the Fisher test).
+    if (!is.null(max.distance) && both > 0L) {
+      kept_dists <- numeric(0)
+      for (seqkey in as.character(coocc_seqs)) {
+        sa <- hit_pos[[i]][[seqkey]]
+        sb <- hit_pos[[j]][[seqkey]]
+        if (length(sa) == 0L || length(sb) == 0L) next
+        if (i == j && length(sa) < 2L) next  # self-pair: need >= 2 hits
+        ds <- if (i == j)
+                outer(sa, sa, function(x, y) abs(x - y))[upper.tri(diag(length(sa)))]
+              else
+                as.numeric(outer(sa, sb, function(x, y) abs(x - y)))
+        d_min <- min(ds)
+        if (d_min <= max.distance) kept_dists <- c(kept_dists, d_min)
+      }
+      out$both.clustered[k] <- length(kept_dists)
+      if (length(kept_dists) > 0L)
+        out$median.distance[k] <- stats::median(kept_dists)
+    }
   }
 
   ## --- BH q-values across tested pairs only ----------------------------

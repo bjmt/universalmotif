@@ -31,12 +31,14 @@ internal scan. Default \code{1e-4}. Ignored on the hit-table path.}
 \item{RC}{\code{logical(1)}. Scan the reverse complement too? Default
 \code{TRUE}. Ignored on the hit-table path.}
 
-\item{max.distance}{\code{integer(1)} or \code{NULL}. If \code{NULL} (default),
-the set test is used: a sequence "has both" when it contains at
-least one hit of A and at least one hit of B anywhere. If a
-positive integer, only sequences with a pair of (A, B) hits whose
-start positions differ by at most \code{max.distance} bp count. The
-hit table must have a \code{start} column in this mode.}
+\item{max.distance}{\code{integer(1)} or \code{NULL}. If non-\code{NULL}, two
+extra \strong{descriptive} columns are added to the output:
+\code{both.clustered} (subset of co-occurring sequences with a within-
+\code{max.distance} (A, B) hit pair) and \code{median.distance} (median of
+those nearest-pair distances). The Fisher p-value is unchanged --
+it always tests "do A and B occur in the same sequences more
+often than chance?" on the unfiltered 2x2. Requires a \code{start}
+column on the hit table.}
 
 \item{min.coocc}{\code{integer(1)}. Pairs with fewer than \code{min.coocc}
 co-occurring sequences are tagged with NA p- and q-values
@@ -65,8 +67,10 @@ supplied \code{motifs} list; deduplicated names if duplicates exist).
 \item \code{pvalue} -- one-sided Fisher's exact p-value
 (alternative = "greater"). NA when \code{both < min.coocc}.
 \item \code{qvalue} -- BH-corrected q-value across all tested pairs.
-\item \code{median.distance} (spatial mode only) -- median nearest-pair
-\verb{|start_a - start_b|} across the co-occurring sequences.
+\item \code{both.clustered} (spatial mode only) -- subset of \code{both}
+where a within-\code{max.distance} (A, B) hit pair exists.
+\item \code{median.distance} (spatial mode only) -- median of those
+nearest-pair distances; \code{NA} if no clustered pair.
 Rows are sorted by q-value ascending; NA-pvalue rows go last.
 }
 }
@@ -75,11 +79,13 @@ Rows are sorted by q-value ascending; NA-pvalue rows go last.
 a set of sequences using a one-sided Fisher's exact test on the 2x2
 contingency table of per-sequence presence/absence. The result is
 the long-format pair table, BH-corrected across all tested pairs.
-Optionally, when \code{max.distance} is non-\code{NULL}, the "both motifs
-present" cell is tightened to "at least one hit of A and one hit of
-B occur within \code{max.distance} bp in the same sequence" -- a
-SpaMo-lite spatial constraint useful for finding composite cis-
-regulatory modules and heterodimer-like spacings.
+Optionally, when \code{max.distance} is non-\code{NULL}, the function also
+reports two \strong{descriptive} spatial columns -- \code{both.clustered}
+(number of co-occurring sequences with a within-\code{max.distance}
+(A, B) hit pair) and \code{median.distance} (the median nearest-pair
+spacing) -- so users can flag heterodimer-like arrangements. The
+Fisher p-value itself is always computed on the unfiltered 2x2
+(the spatial filter is informational, not a test).
 }
 \details{
 Two input paths are supported:
