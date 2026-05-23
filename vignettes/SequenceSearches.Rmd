@@ -328,8 +328,8 @@ Set `max.distance = N` to additionally report two descriptive
 columns: `both.clustered` (the subset of co-occurring sequences with
 an `(A, B)` hit pair within `N` bp) and `median.distance` (the
 median nearest-pair spacing in those sequences). The Fisher p-value
-is unchanged; it always tests "do A and B occur in the same
-sequences more often than chance?" on the unfiltered 2x2; so the
+is unchanged, it always tests "do A and B occur in the same
+sequences more often than chance?" on the unfiltered 2x2. The
 spatial columns are interpretive aids for flagging heterodimer-like
 arrangements rather than a separate statistical test.
 
