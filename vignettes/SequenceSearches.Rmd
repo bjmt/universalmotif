@@ -267,13 +267,14 @@ ChIP-seq-style central enrichment or enforce non-overlapping placement.
 library(universalmotif)
 data(ArabidopsisMotif)
 hosts <- create_sequences("DNA", seqnum = 100, seqlen = 500)
-## Plant one instance per sequence; recover ground-truth positions.
-## Call set.seed() before each invocation for reproducible sampling.
+## Plant one instance per sequence and get both the sequences and the
+## ground-truth positions in a single call. Use set.seed() for
+## reproducibility.
 set.seed(1)
-out   <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1)
-set.seed(1)
-truth <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1,
+res   <- implant_motifs(ArabidopsisMotif, hosts, n.per.seq = 1,
                         return.indices = TRUE)
+out   <- res$sequences
+truth <- res$indices
 head(truth)
 ## Quantify recovery
 hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
@@ -283,9 +284,10 @@ peaks <- motif_peaks(out, motif = ArabidopsisMotif)
 plot_motif_peaks(peaks)
 ```
 
-By default the function returns the modified sequences. Re-call with
-`return.indices = TRUE` after the same `set.seed()` to recover the
-ground-truth `data.frame` (`sequence.i`, `motif.i`, `start`, `width`,
+`return.indices = FALSE` (default) returns only the modified
+`XStringSet`. `return.indices = TRUE` returns a list with two
+elements: `sequences` (the modified `XStringSet`) and `indices` (a
+`data.frame` with columns `sequence.i`, `motif.i`, `start`, `width`,
 `strand`, `planted`).
 
 # Sequence scanning and enrichment

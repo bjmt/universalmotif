@@ -57,17 +57,20 @@
 #'   attempts before giving up (with a warning at the end if any
 #'   targets fell short). Default `100L`.
 #' @param return.indices `logical(1)`. If `FALSE` (default), return
-#'   the modified `XStringSet`. If `TRUE`, return a `data.frame` of
-#'   per-implant ground-truth metadata instead.
+#'   only the modified `XStringSet`. If `TRUE`, return a `list` with
+#'   the modified sequences plus a `data.frame` of per-implant
+#'   ground-truth metadata.
 #'
 #' @return If `return.indices = FALSE`: an `XStringSet` of the same
 #'   length, width, and class as `sequences`, with bases overwritten
 #'   at the implant positions. Names are preserved. If
-#'   `return.indices = TRUE`: a `data.frame` with columns
-#'   `sequence.i` (1-based), `motif.i` (1-based index into `motifs`),
-#'   `start` (1-based), `width`, `strand` (`"+"` / `"-"`), and
-#'   `planted` (the actual implanted string, already reverse-
-#'   complemented when `strand == "-"`).
+#'   `return.indices = TRUE`: a `list` with two elements --
+#'   `sequences` (the modified `XStringSet`, as above) and `indices`
+#'   (a `data.frame` with columns `sequence.i` (1-based),
+#'   `motif.i` (1-based index into `motifs`), `start` (1-based),
+#'   `width`, `strand` (`"+"` / `"-"`), and `planted` (the actual
+#'   implanted string, already reverse-complemented when
+#'   `strand == "-"`)).
 #'
 #' @examples
 #' \dontrun{
@@ -75,10 +78,10 @@
 #' data(ArabidopsisMotif)
 #' seqs  <- create_sequences("DNA", seqnum = 100, seqlen = 500)
 #' set.seed(1)
-#' out   <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1)
-#' set.seed(1)
-#' truth <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1,
+#' res   <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1,
 #'                         return.indices = TRUE)
+#' out   <- res$sequences
+#' truth <- res$indices
 #' ## Recover-rate check
 #' hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
 #'                        threshold.type = "logodds")
@@ -272,6 +275,12 @@ implant_motifs <- function(motifs, sequences,
             "attempts; consider increasing sequence length, lowering ",
             "`n.per.seq`/`rate`, or reducing `min.spacing`", call. = FALSE)
 
+  ## rebuild XStringSet, preserving names and subclass
+  out <- switch(mot.alph,
+                DNA = Biostrings::DNAStringSet(seq.chars),
+                RNA = Biostrings::RNAStringSet(seq.chars))
+  names(out) <- names(sequences)
+
   if (return.indices) {
     meta <- do.call(rbind, meta.list)
     if (is.null(meta))
@@ -280,14 +289,9 @@ implant_motifs <- function(motifs, sequences,
                          strand = character(0), planted = character(0),
                          stringsAsFactors = FALSE)
     rownames(meta) <- NULL
-    return(meta)
+    return(list(sequences = out, indices = meta))
   }
 
-  ## rebuild XStringSet, preserving names and subclass
-  out <- switch(mot.alph,
-                DNA = Biostrings::DNAStringSet(seq.chars),
-                RNA = Biostrings::RNAStringSet(seq.chars))
-  names(out) <- names(sequences)
   out
 }
 

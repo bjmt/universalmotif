@@ -15,8 +15,9 @@ NEW FEATURES
     seq-style simulations), min.spacing (minimum gap between adjacent
     implants), strand ("both" or "+"), and max.retries on placement
     collision. By default returns the modified XStringSet; with
-    return.indices = TRUE returns a data.frame of (sequence.i,
-    motif.i, start, width, strand, planted) ground-truth metadata.
+    return.indices = TRUE returns a list with the modified sequences
+    plus a data.frame of (sequence.i, motif.i, start, width, strand,
+    planted) ground-truth metadata.
     Inspired by the `yamtk seed` command-line tool. See ?implant_motifs.
 
   o Added match_bkg() and plot_match_bkg(): composition-matched

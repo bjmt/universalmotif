@@ -43,18 +43,21 @@ attempts before giving up (with a warning at the end if any
 targets fell short). Default \code{100L}.}
 
 \item{return.indices}{\code{logical(1)}. If \code{FALSE} (default), return
-the modified \code{XStringSet}. If \code{TRUE}, return a \code{data.frame} of
-per-implant ground-truth metadata instead.}
+only the modified \code{XStringSet}. If \code{TRUE}, return a \code{list} with
+the modified sequences plus a \code{data.frame} of per-implant
+ground-truth metadata.}
 }
 \value{
 If \code{return.indices = FALSE}: an \code{XStringSet} of the same
 length, width, and class as \code{sequences}, with bases overwritten
 at the implant positions. Names are preserved. If
-\code{return.indices = TRUE}: a \code{data.frame} with columns
-\code{sequence.i} (1-based), \code{motif.i} (1-based index into \code{motifs}),
-\code{start} (1-based), \code{width}, \code{strand} (\code{"+"} / \code{"-"}), and
-\code{planted} (the actual implanted string, already reverse-
-complemented when \code{strand == "-"}).
+\code{return.indices = TRUE}: a \code{list} with two elements --
+\code{sequences} (the modified \code{XStringSet}, as above) and \code{indices}
+(a \code{data.frame} with columns \code{sequence.i} (1-based),
+\code{motif.i} (1-based index into \code{motifs}), \code{start} (1-based),
+\code{width}, \code{strand} (\code{"+"} / \code{"-"}), and \code{planted} (the actual
+implanted string, already reverse-complemented when
+\code{strand == "-"})).
 }
 \description{
 \code{\link[=implant_motifs]{implant_motifs()}} overwrites bases in an existing \code{XStringSet} with
@@ -97,10 +100,10 @@ library(universalmotif)
 data(ArabidopsisMotif)
 seqs  <- create_sequences("DNA", seqnum = 100, seqlen = 500)
 set.seed(1)
-out   <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1)
-set.seed(1)
-truth <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1,
+res   <- implant_motifs(ArabidopsisMotif, seqs, n.per.seq = 1,
                         return.indices = TRUE)
+out   <- res$sequences
+truth <- res$indices
 ## Recover-rate check
 hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
                        threshold.type = "logodds")
