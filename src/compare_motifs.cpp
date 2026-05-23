@@ -1489,6 +1489,7 @@ std::vector<std::vector<double>> compare_motifs_all_cpp(const Rcpp::List &mots,
       (std::size_t i) {
         answers[i].reserve(vmots.size() - i);
         for (std::size_t j = i; j < vmots.size(); ++j) {
+          // TODO: O(N^2) all-vs-all -- candidate site for RcppThread::isInterrupted() early-return (throttle, e.g. every 32 j).
           answers[i].push_back(compare_motif_pair(vmots[i], vmots[j], method,
               minoverlap, RC, icscores[i], icscores[j], minic, norm, posic,
               bkg[i], bkg[j], nsites[i], nsites[j], strat));

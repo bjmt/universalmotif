@@ -533,6 +533,7 @@ Rcpp::NumericVector compare_motifs2_pvalue_cpp(
 
   RcppThread::parallelFor(0, n_q,
     [&](std::size_t q_idx) {
+      // TODO: per-query cache build is O(wq^2) -- candidate site for RcppThread::isInterrupted() early-return at the natural boundaries.
       const auto &pairs = pairs_by_query[q_idx];
       if (pairs.empty()) return;
 

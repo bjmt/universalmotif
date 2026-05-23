@@ -589,6 +589,7 @@ std::vector<long double> motif_pvalue_cpp(const Rcpp::List &motifs,
   std::vector<long double> pvalues(scores.size());
   RcppThread::parallelFor(0, pvalues.size(),
       [&vmotifs, &pvalues, &scores, &k, &vbkg, &allow_nonfinite, &dbl_max_sentinel] (std::size_t i) {
+        // TODO: branch-and-bound enumeration can be slow for wide motifs -- candidate site for RcppThread::isInterrupted() early-return.
         if (allow_nonfinite && scores[i] <= dbl_max_sentinel) {
           pvalues[i] = 1.0;
         } else {
@@ -624,6 +625,7 @@ std::vector<double> motif_score_cpp(const Rcpp::List &motifs,
   vec_num_t scores(pvals.size());
   RcppThread::parallelFor(0, scores.size(),
       [&vmots, &scores, &useed, &k, &randtries, &pvals] (std::size_t i) {
+      // TODO: per-motif score search can be slow for wide motifs -- candidate site for RcppThread::isInterrupted() early-return.
       std::mt19937 gen(useed * (int(i) + 1));
         scores[i] = motif_score_single(vmots[i], k, randtries, gen, pvals[i]);
       }, nthreads);
@@ -1005,6 +1007,7 @@ Rcpp::List motif_pvalue_dynamic_batch_cpp(const Rcpp::List &motifs,
   // --- parallel over motifs ------------------------------------------------
   RcppThread::parallelFor(0, (std::size_t) M,
     [&v_motifs, &v_bkgs, &v_scores, &out] (std::size_t m) {
+      // TODO: per-motif CDF build via DP over scores -- candidate site for RcppThread::isInterrupted() early-return.
       double mot_min_scaled = 0.0;
       std::size_t motif_max = 0;
       vec_num_t cdf = motif_cdf_internal(v_motifs[m], v_bkgs[m],
@@ -1068,6 +1071,7 @@ Rcpp::List motif_score_dynamic_batch_cpp(const Rcpp::List &motifs,
   RcppThread::parallelFor(0, (std::size_t) M,
     [&v_motifs, &v_bkgs, &v_pvalues, &out,
      &score_min, &score_max, &dyn_min] (std::size_t m) {
+      // TODO: per-motif CDF build via DP over scores -- candidate site for RcppThread::isInterrupted() early-return.
       double mot_min_scaled = 0.0;   // unused here -- score_from_cdf uses dyn_min
       std::size_t motif_max = 0;
       vec_num_t cdf = motif_cdf_internal(v_motifs[m], v_bkgs[m],

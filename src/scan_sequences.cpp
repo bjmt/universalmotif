@@ -182,6 +182,7 @@ list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
          &min_scores2] (std::size_t i) {
           int min_score_i = min_scores2[i];
           for (std::size_t j = 0; j < seq_vecs.size(); ++j) {
+            // TODO: long-running scan -- candidate site for RcppThread::isInterrupted() early-return.
             if (na_index[j])
               scan_single_seq_str_NA(score_mats[i], seq_vecs[j], lookup,
                   min_score_i, int(i) + 1, int(j) + 1, hit_bufs[i]);
@@ -214,6 +215,7 @@ list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
           [&hit_bufs, &score_mats, &seq_ints, &min_scores2, &k] (std::size_t i) {
             int min_score_i = min_scores2[i];
             for (std::size_t j = 0; j < seq_ints.size(); ++j) {
+              // TODO: long-running scan -- candidate site for RcppThread::isInterrupted() early-return.
               scan_single_seq_NA(score_mats[i], seq_ints[j], k, min_score_i,
                                  int(i) + 1, int(j) + 1, hit_bufs[i]);
             }
@@ -225,6 +227,7 @@ list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
           [&hit_bufs, &score_mats, &seq_ints, &min_scores2, &k] (std::size_t i) {
             int min_score_i = min_scores2[i];
             for (std::size_t j = 0; j < seq_ints.size(); ++j) {
+              // TODO: long-running scan -- candidate site for RcppThread::isInterrupted() early-return.
               scan_single_seq(score_mats[i], seq_ints[j], k, min_score_i,
                               int(i) + 1, int(j) + 1, hit_bufs[i]);
             }
