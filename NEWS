@@ -3,6 +3,22 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added motif_coocc() and plot_motif_coocc(): pairwise motif co-
+    occurrence testing. Given a list of motifs and a set of host
+    sequences, motif_coocc() scans (via scan_sequences2) and tests
+    every motif pair for over-co-occurrence using a one-sided
+    Fisher's exact test on the per-sequence 2x2 contingency table,
+    BH-correcting across all tested pairs. Two input paths: the
+    default scans internally and is DNA/RNA only; alternatively pass
+    a precomputed hit table via `hits = ...` plus `n.sequences = ...`
+    and any alphabet is accepted (AA, custom). Optional
+    `max.distance` argument tightens "both present" to "a pair of
+    hits within N bp in the same sequence" -- a SpaMo-lite spatial
+    constraint useful for finding composite cis-regulatory modules
+    and heterodimer spacings. Companion plot_motif_coocc() renders
+    the result as a clustered tile heatmap of -log10(qvalue) or
+    odds_ratio. See ?motif_coocc.
+
   o Added implant_motifs(): plant sampled motif instances into existing
     sequences at known positions, producing benchmark-grade ground-truth
     positive sequences for testing scan_sequences(), motif_finder(),
