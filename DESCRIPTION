@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.31.17
+Version: 1.31.18
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "benjamin.tremblay@uwaterloo.ca",
@@ -10,12 +10,16 @@ Authors@R: c(
     )
 URL: https://bioconductor.org/packages/universalmotif/
 BugReports: https://github.com/bjmt/universalmotif/issues
-Description: Allows for importing most common motif types into R for use by
-    functions provided by other Bioconductor motif-related packages. Motifs can
-    be exported into most major motif formats from various classes as defined
-    by other Bioconductor packages. A suite of motif and sequence manipulation
-    and analysis functions are included, including enrichment, comparison,
-    P-value calculation, shuffling, trimming, higher-order motifs, and others.
+Description: A comprehensive toolkit for working with sequence motifs in R.
+    Imports and exports most common motif formats (JASPAR, MEME, HOMER,
+    TRANSFAC, CIS-BP, UNIPROBE) and interoperates with the other Bioconductor
+    motif packages. Analysis functions cover de novo motif discovery,
+    motif-vs-motif comparison and clustering, P-value calculation, sequence
+    scanning, enrichment against shuffled or composition-matched backgrounds,
+    positional bias testing, and pairwise motif co-occurrence. Also
+    includes utilities for sequence shuffling, motif trimming, higher-order
+    representations, ground-truth simulation by motif implantation, and
+    logo-plotting functionality.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
