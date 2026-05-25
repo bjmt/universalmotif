@@ -24,10 +24,13 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 output:
   bookdown::pdf_document2
+header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.pos = "H")
 suppressPackageStartupMessages({
   library(universalmotif)
   library(Biostrings)
@@ -199,7 +202,7 @@ discovered <- to_list(discovered.df, extrainfo = FALSE)
 For viewing, we will create a copy which has the discovery
 p-value added to the name:
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=6, fig.width=7}
 discovered.labelled <- discovered
 for (i in seq_along(discovered.labelled)) {
   discovered.labelled[[i]]["name"] <- sprintf(
@@ -227,8 +230,10 @@ or `sort.by = "none"` to keep `motif_finder()`'s p-value ranking.
 # Deduplicating the discovered set
 
 A real motif-discovery run almost always returns several rotated or
-extended copies of the same underlying signal. `merge_similar2()`
-collapses them into a single representative per cluster by
+extended copies of the same underlying signal. Although these variations
+can be biologically meaningful, for simplicity we will not focus on these.
+Instead, we will merge these with `merge_similar2()`, which collapses
+them into a single representative per cluster by
 hierarchical clustering on q-values from a Pearson-based comparison.
 It's often wise to also trim the resulting merged motifs, since
 merging often collapses mismatching flanks into low IC positions.
@@ -268,7 +273,7 @@ for (i in seq_along(discovered.merged)) {
 new.names
 ```
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=4, fig.width=7}
 view_motifs(discovered.merged, sort.by = "similarity",
             show.positions = FALSE, names.pos = "right")
 ```
@@ -562,11 +567,6 @@ summary.tbl <- data.frame(
 )
 rownames(summary.tbl) <- NULL
 print(summary.tbl, row.names = FALSE)
-```
-
-```{r, fig.height=7, fig.width=7}
-view_motifs(discovered.merged, sort.by = "similarity",
-            show.positions = FALSE, names.pos = "right")
 ```
 
 Looking at the combined evidence, our analysis has clearly
