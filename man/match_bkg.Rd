@@ -4,19 +4,45 @@
 \alias{match_bkg}
 \title{Sample composition-matched background sequences from a universe.}
 \usage{
-match_bkg(sequences, universe, n.per.target = 1L, n.bins.gc = 20L,
-  n.bins.length = 10L, unique = TRUE, return.indices = FALSE)
+match_bkg(sequences, universe = NULL, genome = NULL, exclude = NULL,
+  n.candidates = NULL, chromosomes = NULL, n.per.target = 1L,
+  n.bins.gc = 20L, n.bins.length = 10L, unique = TRUE,
+  return.indices = FALSE)
 }
 \arguments{
 \item{sequences}{\code{XStringSet}. Target (positive) sequences. DNA or
 RNA only -- GC matching is undefined for other alphabets.}
 
-\item{universe}{\code{XStringSet}. Pool of candidate background
-sequences, typically extracted from a \code{BSgenome} over a larger
-set of genomic regions (e.g. peak-flanking regions, random
-genomic tiles, all promoters). Must share \code{sequences}'s alphabet
-and be at least \code{n.per.target * length(sequences)} long when
-\code{unique = TRUE}.}
+\item{universe}{\code{XStringSet} or \code{NULL}. Pool of candidate
+background sequences. Must share \code{sequences}'s alphabet and be
+at least \code{n.per.target * length(sequences)} long when
+\code{unique = TRUE}. Mutually exclusive with \code{genome}: supply
+exactly one of the two.}
+
+\item{genome}{A \code{BSgenome} object, or \code{NULL}. When supplied, the
+universe is built internally by sampling \code{n.candidates} random
+genomic windows whose widths match the target width distribution,
+optionally excluding any window that overlaps \code{exclude}. This is
+the typical shortcut for ChIP-seq style backgrounds, where the
+universe would otherwise be a manual \code{sample()} +
+\code{subsetByOverlaps()} + \code{getSeq()} boilerplate. Requires the
+\code{BSgenome}, \code{GenomicRanges}, and \code{IRanges} packages.}
+
+\item{exclude}{\code{GRanges} or \code{NULL}. Only honoured when \code{genome} is
+non-\code{NULL}. Random windows that overlap any range in \code{exclude}
+are dropped before sampling. Typical use: pass the target peak
+set so the background doesn't sample from peak regions.}
+
+\item{n.candidates}{\code{integer(1)} or \code{NULL}. Only honoured when
+\code{genome} is non-\code{NULL}. Number of random windows to sample
+before any \code{exclude} filtering. Default \code{NULL} picks
+\code{max(10000, length(sequences) * 10)}.}
+
+\item{chromosomes}{\code{character} or \code{NULL}. Only honoured when
+\code{genome} is non-\code{NULL}. Names of seqlevels to sample from.
+Default \code{NULL} uses \code{GenomeInfoDb::standardChromosomes(genome)}
+when available (typically the autosomes plus the sex
+chromosomes), falling back to all seqlevels of the genome.}
 
 \item{n.per.target}{\code{integer(1)}. Number of background sequences
 to draw per target. Default \code{1L}.}

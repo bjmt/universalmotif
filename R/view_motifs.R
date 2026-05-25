@@ -17,6 +17,21 @@
 #' @param show.positions.once `logical(1)` When plotting multiple motifs,
 #'    show x-axis position tick labels only once. If `FALSE`, then
 #'    x-axis tick labels are specific to each motif.
+#' @param sort.by `character(1)`. Display order for multi-motif plots.
+#'    One of `"none"` (default), `"ic"`, or `"similarity"`. Regardless
+#'    of this setting, alignment is always performed with the
+#'    highest-IC motif as the anchor;
+#'    `sort.by` controls only the order in which the
+#'    aligned motifs are displayed.
+#'    - `"none"`: the input order is preserved for display, while
+#'      alignment still uses the highest-IC motif as the anchor.
+#'    - `"ic"`: motifs are shown in descending information content, so
+#'      the highest-IC motif (the alignment anchor) appears first.
+#'    - `"similarity"`: after alignment, motifs are reordered by
+#'      hierarchical clustering on Pearson correlation between aligned
+#'      columns, so visually similar motifs are adjacent. Useful when
+#'      plotting a large heterogeneous set.
+#'    Ignored when only one motif is provided.
 #' @param show.names `logical(1)` Add motif names when plotting multiple
 #'    motifs.
 #' @param names.pos `character(1)` Motif name locations. Either above (`top`)
@@ -111,7 +126,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   tryRC = TRUE, min.overlap = 6, min.mean.ic = 0.25, relative_entropy = FALSE,
   normalise.scores = FALSE, min.position.ic = 0, score.strat = "sum",
   return.raw = FALSE, dedup.names = TRUE, show.positions = TRUE,
-  show.positions.once = TRUE, show.names = TRUE, names.pos = c("top", "right"),
+  show.positions.once = TRUE, sort.by = c("none", "ic", "similarity"),
+  show.names = TRUE, names.pos = c("top", "right"),
   use.freq = 1, colour.scheme = NULL, fontDF = NULL, min.height = 0.01,
   x.spacer = if (use.freq == 1) 0.04 else 0.1,
   y.spacer = 0.01, sort.positions = !use.type %in% c("PCM", "PPM"),
@@ -182,6 +198,19 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
+
+  ## Sort by IC for alignment: the highest-IC motif becomes the anchor
+  ## that every other motif is aligned to, matching merge_motifs2()'s
+  ## behaviour. `sort.by` controls only the *display* order, applied
+  ## after alignment further below.
+  sort.by <- match.arg(sort.by)
+  if (length(motifs) > 1L) {
+    ic.scores <- vapply(motifs, function(x) x@icscore, numeric(1))
+    ic.order  <- order(ic.scores, decreasing = TRUE)
+    motifs    <- motifs[ic.order]
+  } else {
+    ic.order  <- 1L
+  }
 
   if (use.type == "PWM" && length(motifs) > 1 && method == "KL") {
     stop("cannot use method 'KL' with 'PWM' matrices")
@@ -379,6 +408,33 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       if (which.rc[i]) mot.names[i + 1] <- paste0(mot.names[i + 1], RC.text)
     }
     names(mots) <- mot.names
+
+    ## Apply display permutation. Alignment is done; `sort.by` decides
+    ## the order in which the aligned motifs are shown.
+    disp.perm <- switch(sort.by,
+      "ic"         = seq_along(mots),
+      "none"       = order(ic.order),
+      "similarity" = {
+        n <- length(mots)
+        sim_mat <- matrix(1, n, n)
+        for (i in seq_len(n - 1L)) {
+          vi <- as.vector(mots[[i]])
+          for (j in seq.int(i + 1L, n)) {
+            r <- suppressWarnings(cor(vi, as.vector(mots[[j]])))
+            if (!is.finite(r)) r <- 0
+            sim_mat[i, j] <- r
+            sim_mat[j, i] <- r
+          }
+        }
+        hclust(as.dist(1 - sim_mat))$order
+      }
+    )
+    if (!identical(as.integer(disp.perm), seq_along(mots))) {
+      mots        <- mots[disp.perm]
+      mot.names   <- mot.names[disp.perm]
+      mot.mats    <- mot.mats[disp.perm]
+      res$offsets <- res$offsets[disp.perm]
+    }
 
     if (return.raw) return(mots)
 

@@ -25,12 +25,32 @@
 #'
 #' @param sequences `XStringSet`. Target (positive) sequences. DNA or
 #'   RNA only -- GC matching is undefined for other alphabets.
-#' @param universe `XStringSet`. Pool of candidate background
-#'   sequences, typically extracted from a `BSgenome` over a larger
-#'   set of genomic regions (e.g. peak-flanking regions, random
-#'   genomic tiles, all promoters). Must share `sequences`'s alphabet
-#'   and be at least `n.per.target * length(sequences)` long when
-#'   `unique = TRUE`.
+#' @param universe `XStringSet` or `NULL`. Pool of candidate
+#'   background sequences. Must share `sequences`'s alphabet and be
+#'   at least `n.per.target * length(sequences)` long when
+#'   `unique = TRUE`. Mutually exclusive with `genome`: supply
+#'   exactly one of the two.
+#' @param genome A `BSgenome` object, or `NULL`. When supplied, the
+#'   universe is built internally by sampling `n.candidates` random
+#'   genomic windows whose widths match the target width distribution,
+#'   optionally excluding any window that overlaps `exclude`. This is
+#'   the typical shortcut for ChIP-seq style backgrounds, where the
+#'   universe would otherwise be a manual `sample()` +
+#'   `subsetByOverlaps()` + `getSeq()` boilerplate. Requires the
+#'   `BSgenome`, `GenomicRanges`, and `IRanges` packages.
+#' @param exclude `GRanges` or `NULL`. Only honoured when `genome` is
+#'   non-`NULL`. Random windows that overlap any range in `exclude`
+#'   are dropped before sampling. Typical use: pass the target peak
+#'   set so the background doesn't sample from peak regions.
+#' @param n.candidates `integer(1)` or `NULL`. Only honoured when
+#'   `genome` is non-`NULL`. Number of random windows to sample
+#'   before any `exclude` filtering. Default `NULL` picks
+#'   `max(10000, length(sequences) * 10)`.
+#' @param chromosomes `character` or `NULL`. Only honoured when
+#'   `genome` is non-`NULL`. Names of seqlevels to sample from.
+#'   Default `NULL` uses `GenomeInfoDb::standardChromosomes(genome)`
+#'   when available (typically the autosomes plus the sex
+#'   chromosomes), falling back to all seqlevels of the genome.
 #' @param n.per.target `integer(1)`. Number of background sequences
 #'   to draw per target. Default `1L`.
 #' @param n.bins.gc `integer(1)`. Number of equal-width GC bins.
@@ -78,7 +98,11 @@
 #'   [plot_match_bkg()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
-match_bkg <- function(sequences, universe,
+match_bkg <- function(sequences, universe = NULL,
+                     genome         = NULL,
+                     exclude        = NULL,
+                     n.candidates   = NULL,
+                     chromosomes    = NULL,
                      n.per.target   = 1L,
                      n.bins.gc      = 20L,
                      n.bins.length  = 10L,
@@ -86,11 +110,26 @@ match_bkg <- function(sequences, universe,
                      return.indices = FALSE) {
 
   ## --- arg validation --------------------------------------------------
-  if (missing(sequences) || missing(universe))
-    stop("`sequences` and `universe` are both required", call. = FALSE)
-  if (!is(sequences, "XStringSet") || !is(universe, "XStringSet"))
-    stop("`sequences` and `universe` must both be XStringSet objects",
+  if (missing(sequences))
+    stop("`sequences` is required", call. = FALSE)
+  if (is.null(universe) && is.null(genome))
+    stop("supply exactly one of `universe` or `genome`", call. = FALSE)
+  if (!is.null(universe) && !is.null(genome))
+    stop("`universe` and `genome` are mutually exclusive; supply only one",
          call. = FALSE)
+  if (!is(sequences, "XStringSet"))
+    stop("`sequences` must be an XStringSet object", call. = FALSE)
+
+  ## --- BSgenome shortcut: build the universe internally ---------------
+  if (!is.null(genome)) {
+    universe <- sample_genomic_universe(genome, sequences,
+                                         n.candidates = n.candidates,
+                                         chromosomes  = chromosomes,
+                                         exclude      = exclude)
+  }
+
+  if (!is(universe, "XStringSet"))
+    stop("`universe` must be an XStringSet object", call. = FALSE)
   if (!is.numeric(n.per.target) || length(n.per.target) != 1L ||
       n.per.target < 1L)
     stop("`n.per.target` must be a positive integer", call. = FALSE)
@@ -351,6 +390,85 @@ find_candidates <- function(gc.b, len.b, cells, n.gc.bins, n.len.bins,
     }
   }
   list(picked = picked, rings = ring)
+}
+
+## Sample a candidate-universe XStringSet from a BSgenome by drawing
+## `n.candidates` random windows whose widths match the target sequence
+## width distribution, optionally excluding any window that overlaps
+## `exclude`. Returns an XStringSet ready to be passed to the standard
+## bin-and-match path below.
+sample_genomic_universe <- function(genome, sequences,
+                                     n.candidates = NULL,
+                                     chromosomes  = NULL,
+                                     exclude      = NULL) {
+  for (pkg in c("BSgenome", "GenomicRanges", "IRanges", "GenomeInfoDb"))
+    if (!requireNamespace(pkg, quietly = TRUE))
+      stop("package `", pkg, "` is required when `genome` is supplied",
+           call. = FALSE)
+  if (!is(genome, "BSgenome"))
+    stop("`genome` must be a BSgenome object", call. = FALSE)
+  if (!is.null(exclude) && !is(exclude, "GRanges"))
+    stop("`exclude` must be a GRanges object or NULL", call. = FALSE)
+
+  if (is.null(chromosomes)) {
+    chromosomes <- tryCatch(
+      GenomeInfoDb::standardChromosomes(genome),
+      error = function(e) GenomeInfoDb::seqnames(genome)
+    )
+  }
+  if (!length(chromosomes))
+    stop("no chromosomes available in `genome`", call. = FALSE)
+
+  chr.lens <- GenomeInfoDb::seqlengths(genome)[chromosomes]
+  chr.lens <- chr.lens[!is.na(chr.lens) & chr.lens > 0L]
+  if (!length(chr.lens))
+    stop("no usable chromosomes (all NA / zero length)", call. = FALSE)
+
+  target.widths <- as.integer(width(sequences))
+  if (any(target.widths < 1L))
+    stop("`sequences` contains zero-width entries", call. = FALSE)
+
+  if (is.null(n.candidates))
+    n.candidates <- as.integer(max(10000L, length(sequences) * 10L))
+  n.candidates <- as.integer(n.candidates)
+  if (n.candidates < length(sequences))
+    stop("`n.candidates` (", n.candidates, ") must be at least ",
+         "length(sequences) (", length(sequences), ")", call. = FALSE)
+
+  ## Oversample to absorb exclude losses.
+  oversample <- if (is.null(exclude)) 1.0 else 2.0
+  n.try <- as.integer(ceiling(n.candidates * oversample))
+
+  chr.sample    <- sample(names(chr.lens), n.try, replace = TRUE,
+                          prob = as.numeric(chr.lens) / sum(chr.lens))
+  width.sample  <- sample(target.widths, n.try, replace = TRUE)
+  max.start     <- as.numeric(chr.lens[chr.sample]) - width.sample + 1
+  fits          <- max.start >= 1
+  chr.sample    <- chr.sample[fits]
+  width.sample  <- width.sample[fits]
+  max.start     <- max.start[fits]
+  start.sample  <- as.integer(floor(stats::runif(length(max.start)) *
+                                      max.start)) + 1L
+
+  gr <- GenomicRanges::GRanges(
+    seqnames = chr.sample,
+    ranges   = IRanges::IRanges(start = start.sample, width = width.sample)
+  )
+
+  if (!is.null(exclude))
+    gr <- IRanges::subsetByOverlaps(gr, exclude, invert = TRUE)
+
+  if (length(gr) < n.candidates) {
+    if (length(gr) < length(sequences))
+      stop("could not sample enough non-excluded windows ",
+           "(got ", length(gr), ", need at least ", length(sequences),
+           "); try a larger `n.candidates` or a smaller `exclude`.",
+           call. = FALSE)
+  } else {
+    gr <- gr[seq_len(n.candidates)]
+  }
+
+  Biostrings::getSeq(genome, gr)
 }
 
 ## Universe-index candidates at Manhattan distance `ring` from (gc.b, len.b).

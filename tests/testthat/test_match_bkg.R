@@ -155,3 +155,60 @@ test_that("plot_match_bkg(by = 'gc') panels only the GC axis", {
   g <- plot_match_bkg(target, bkg, by = "gc")
   expect_s3_class(g, "ggplot")
 })
+
+## --- genome / exclude arg validation -----------------------------------------
+
+test_that("supplying both `universe` and `genome` errors", {
+  target   <- make_seqs(5, 100, 0.5, seed = 1)
+  universe <- make_seqs(50, 100, 0.5, seed = 2)
+  expect_error(
+    match_bkg(target, universe = universe, genome = "fake"),
+    regexp = "mutually exclusive"
+  )
+})
+
+test_that("supplying neither `universe` nor `genome` errors", {
+  target <- make_seqs(5, 100, 0.5, seed = 1)
+  expect_error(match_bkg(target), regexp = "exactly one")
+})
+
+test_that("non-BSgenome `genome` argument errors", {
+  target <- make_seqs(5, 100, 0.5, seed = 1)
+  expect_error(match_bkg(target, genome = list(foo = 1)),
+               regexp = "BSgenome")
+})
+
+test_that("genome shortcut works when BSgenome is available", {
+  skip_if_not_installed("BSgenome.Athaliana.TAIR.TAIR9")
+  suppressPackageStartupMessages({
+    requireNamespace("BSgenome.Athaliana.TAIR.TAIR9")
+    requireNamespace("GenomicRanges")
+    requireNamespace("Biostrings")
+  })
+  ath <- BSgenome.Athaliana.TAIR.TAIR9::Athaliana
+  ## 20 random 200-bp Arabidopsis windows as the "target"
+  set.seed(2026)
+  chr.lens <- GenomeInfoDb::seqlengths(ath)[paste0("Chr", 1:5)]
+  chrs   <- sample(names(chr.lens), 20, replace = TRUE,
+                   prob = chr.lens / sum(chr.lens))
+  starts <- vapply(chrs,
+                   function(ch) sample.int(chr.lens[ch] - 200, 1),
+                   integer(1))
+  target.gr <- GenomicRanges::GRanges(
+    seqnames = chrs,
+    ranges   = IRanges::IRanges(start = starts, width = 200)
+  )
+  target.seqs <- Biostrings::getSeq(ath, target.gr)
+
+  set.seed(2026)
+  bkg <- match_bkg(target.seqs, genome = ath, exclude = target.gr,
+                   n.candidates = 5000L)
+  expect_s4_class(bkg, "DNAStringSet")
+  expect_equal(length(bkg), length(target.seqs))
+  ## All widths should equal a target width (matched on length).
+  expect_true(all(width(bkg) %in% width(target.seqs)))
+  ## GC distributions should be close (within 0.1 abs mean diff).
+  gc.t <- mean(Biostrings::letterFrequency(target.seqs, "GC", as.prob = TRUE))
+  gc.b <- mean(Biostrings::letterFrequency(bkg,         "GC", as.prob = TRUE))
+  expect_lt(abs(gc.t - gc.b), 0.1)
+})

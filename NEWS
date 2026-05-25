@@ -3,6 +3,48 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o match_bkg() now accepts a `BSgenome` object directly via a new
+    `genome` argument (mutually exclusive with `universe`). When
+    supplied, the function samples random non-overlapping genomic
+    windows internally, matching the target sequence width
+    distribution, and uses them as the candidate background pool.
+    Companion arguments: `exclude` (a GRanges of regions to avoid,
+    typically the target peaks themselves), `n.candidates` (number
+    of random windows to sample; default scales with input size),
+    and `chromosomes` (default uses standardChromosomes(genome)).
+    Removes the universe-construction boilerplate (sample chromosomes,
+    sample starts, GRanges + subsetByOverlaps + getSeq) that was
+    otherwise duplicated in every ChIP-seq style workflow.
+
+  o view_motifs() gains a `sort.by` argument controlling the display
+    order when plotting multiple motifs. Regardless of this setting,
+    alignment is always performed with the highest-IC motif as the
+    anchor (matching merge_motifs2()'s behaviour); `sort.by` controls
+    only the order in which the aligned motifs are shown. Options:
+    `"none"` (default; input order preserved for display while
+    alignment still uses the highest-IC anchor), `"ic"` (descending
+    information content), or `"similarity"` (hierarchical clustering
+    on Pearson correlation between aligned columns, so visually
+    similar motifs are adjacent).
+
+DOCUMENTATION
+
+  o New vignette "ChIPseqWorkflow.Rmd": an end-to-end ChIP-seq motif
+    analysis on real data, starting from a peak BED file bundled in
+    inst/extdata (VAL1-GFP peaks in Arabidopsis from Yuan et al.
+    2021, NAR 49:98-113). The vignette imports peaks via
+    rtracklayer, extracts sequences via BSgenome.Athaliana.TAIR.TAIR9,
+    discovers motifs de novo with motif_finder(), deduplicates with
+    merge_similar2(), compares to JASPAR2022 plant motifs via
+    MotifDb and compare_motifs2(), validates enrichment with
+    enrich_motifs2(), scans peaks with scan_sequences2(), tests
+    central positional bias with motif_peaks(), finds co-occurring
+    motif pairs with motif_coocc(), and closes with a summary table
+    that links each discovered motif to its evidence. New Suggests
+    dependencies: rtracklayer, BSgenome.Athaliana.TAIR.TAIR9.
+
+NEW FEATURES
+
   o Added motif_coocc(): pairwise motif co-occurrence testing. Given
     a list of motifs and a set of host sequences, motif_coocc() scans
     (via scan_sequences2) and tests every motif pair for over-co-

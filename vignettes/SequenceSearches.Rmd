@@ -28,7 +28,7 @@ options(Biostrings.coloring = FALSE)
 
 # Introduction
 
-This vignette goes through generating your own sequences from a specified background model, shuffling sequences whilst maintaining a certain `k`-let size, and the scanning of sequences and scoring of motifs. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For a discussion on motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette.
+This vignette goes through generating your own sequences from a specified background model, shuffling sequences whilst maintaining a certain `k`-let size, and the scanning of sequences and scoring of motifs. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For a basic overview of available motif-related functions, see the [motif manipulation](MotifManipulation.pdf) vignette. For a discussion on motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette. For a worked example that strings these scanning, discovery, and enrichment pieces together on a real ChIP-seq dataset, see the [ChIP-seq workflow](ChIPseqWorkflow.pdf) vignette.
 
 # Basic sequence handling
 
@@ -210,7 +210,7 @@ input sequences have a systematic composition bias relative to the
 genome (GC-rich ChIP-seq peaks, AT-rich promoters, ...), shuffling
 alone won't control for it. `match_bkg()` instead samples real
 sequences from a larger universe that match the input on GC
-fraction and length, the HOMER-style binned approach:
+fraction and length, the HOMER-style binned approach.
 
 ```{r}
 library(universalmotif)
