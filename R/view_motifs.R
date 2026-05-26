@@ -1,7 +1,8 @@
 #' Plot motif logos.
 #'
 #' Show sequence logo. If given a list of more than one motif, then the motifs
-#' are aligned with the first in the list.
+#' are aligned with the first in the list. For a leaner alternative
+#' in line with [compare_motifs2()], see [view_motifs2()].
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param use.type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.

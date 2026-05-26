@@ -154,7 +154,8 @@ A \code{ggplot} object. If \code{return.raw = TRUE}, a list of matrices.
 }
 \description{
 Show sequence logo. If given a list of more than one motif, then the motifs
-are aligned with the first in the list.
+are aligned with the first in the list. For a leaner alternative
+in line with \code{\link[=compare_motifs2]{compare_motifs2()}}, see \code{\link[=view_motifs2]{view_motifs2()}}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.

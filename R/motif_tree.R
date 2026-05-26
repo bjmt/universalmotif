@@ -8,7 +8,8 @@
 #' into one. For more control over tree creation, it is recommend to do these
 #' steps separately. See the "Motif comparisons and P-values" vignette for such
 #' a workthrough. This function requires the \pkg{ape} and \pkg{ggtree} packages
-#' to be installed separately.
+#' to be installed separately. For a leaner alternative using [compare_motifs2()],
+#' see [motif_tree2()].
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. Alternatively, the resulting comparison matrix from
