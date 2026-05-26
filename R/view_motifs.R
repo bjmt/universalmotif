@@ -622,10 +622,19 @@ prep_single_motif_plot_data <- function(mat, use.type, fontDF, min.height = 0.03
 
   } else if (use.type == "CWM") {
 
-    ## CWMs are signed scoring matrices like PWMs but unbounded; use
-    ## the actual matrix max for the height scale instead of capping
-    ## at log2(alph).
-    maxheight <- max(abs(mat))
+    ## CWMs are signed scoring matrices like PWMs but unbounded; pick
+    ## the height scale from the actual data, using the sum of
+    ## per-column positive contributions plus the sum of per-column
+    ## negative contributions (same shape as PWM, but bounded by the
+    ## CWM values themselves instead of log2(alph)). This keeps the
+    ## y.spacer between stacked letters in proportion to the rendered
+    ## logo height, which otherwise compresses the negative stack to
+    ## the point where letters bleed into each other.
+    pos_part <- mat; pos_part[pos_part < 0] <- 0
+    neg_part <- mat; neg_part[neg_part > 0] <- 0
+    pos_max  <- max(colSums(pos_part))
+    neg_max  <- abs(min(colSums(neg_part)))
+    maxheight <- pos_max + neg_max
     if (maxheight == 0) maxheight <- 1
     make_matrix_polygon_data(mat, fontDF, min.height * maxheight,
       x.spacer, y.spacer * maxheight, sort.positions,
