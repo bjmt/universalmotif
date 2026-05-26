@@ -33,11 +33,11 @@ This vignette covers motif comparisons (including metrics, parameters and cluste
 
 # Motif comparisons
 
-There are a couple of functions available in other Bioconductor packages which allow for motif comparison, such as `PWMSimilarity()` (`TFBSTools`) and `motifSimilarity()` (`PWMEnrich`). Unfortunately these functions are not designed for comparing large numbers of motifs. Furthermore they are restrictive in their option range. The `universalmotif` package aims to fix this by providing the `compare_motifs()` function. Several other functions also make use of the core `compare_motifs()` functionality, including `merge_motifs()` and `view_motifs()`.
+There are a couple of functions available in other Bioconductor packages which allow for motif comparison, such as `PWMSimilarity()` (`TFBSTools`) and `motifSimilarity()` (`PWMEnrich`). Unfortunately these functions are not designed for comparing large numbers of motifs. Furthermore they are restrictive in their option range. The `universalmotif` package aims to fix this by providing the `compare_motifs()` / `compare_motifs2()` function. Several other functions also make use of the core `compare_motifs()` / `compare_motifs2()` functionality, including `merge_motifs()` / `merge_motifs2()` and `view_motifs()` / `view_motifs2()`. (The `2` versions of these functions are newer, faster, simplified versions.) The following introduction of motif comparison is specifically concerning the original fully-featured `compare_motifs()`
 
 ## An overview of available comparison metrics
 
-This function has been written to allow comparisons using any of the following metrics:
+The `compare_motifs()` function has been written to allow comparisons using any of the following metrics:
 
 * Euclidean distance (`EUCL`)
 * Weighted Euclidean distance (`WEUCL`)
@@ -300,8 +300,8 @@ across queries. It uses Pearson correlation per column as the only
 similarity metric, computes p-values from a TOMTOM-style empirical or
 parametric null PMF (with Bonferroni + Benjamini-Hochberg adjustment),
 and returns either a square matrix or a long-format `data.frame`. The
-default surface is aligned with the command-line tool `yamtk cmp`
-([yamtk](https://github.com/bjmt/yamtk)).
+default surface is aligned with the command-line tool
+[yamtk](https://github.com/bjmt/yamtk).
 
 The function has eight formals (`motifs`, `compare.to`, `qvalue`,
 `min.overlap`, `RC`, `null`, `bkg`, `matrix.out`, `nthreads`); see
@@ -367,7 +367,7 @@ The `compare_motifs2()` algorithm is a port of yamtk's.
 
 ² Score-only matrix mode skips the per-pair p-value lookup, which
 otherwise dominates runtime on dense fixtures. This is safe because
-the best alignment is selected by score, not p-value -- p-values are
+the best alignment is selected by score, not p-value; p-values are
 computed only as a post-hoc significance check on the already-chosen
 alignment.
 
@@ -376,8 +376,8 @@ To summarise:
 - `yamtk cmp` is the fastest of the three at every scale; the
   `compare_motifs2()` port stays within ~2× at 4 threads for score-only
   output and within ~12× for full p-value output.
-- `compare_motifs2()` is **5-40× faster than `compare_motifs()`** at
-  4 threads on the same fixture, with the larger speedups in score-only
+- `compare_motifs2()` is 5-40× faster than `compare_motifs()` at
+  4 threads on the same set, with the larger speedups in score-only
   mode. `compare_motifs()`'s p-value path uses pre-computed JASPAR
   score-distribution tables (`JASPAR2018_CORE_DBSCORES`) and a different
   null model, so the numbers are not directly comparable as
@@ -386,13 +386,12 @@ To summarise:
 - Threading scales 3-3.5× at 4 threads in all three universalmotif
   modes.
 - For new code that does not need any of `compare_motifs()`'s
-  advanced features, prefer `compare_motifs2()`.
+  advanced features, try `compare_motifs2()`.
 
 # Merging motifs
 
 The `universalmotif` package offers two ways to collapse similar motifs
-into consensus motifs: `merge_motifs()` / `merge_similar()` (older score-
-threshold clustering via hierarchical clustering on a distance matrix)
+into consensus motifs: `merge_motifs()` / `merge_similar()`
 and `merge_motifs2()` / `merge_similar2()` (new, built on
 `compare_motifs2()`, with significance-based clustering).
 
@@ -402,11 +401,10 @@ For simple DNA/RNA motif merging tasks:
 
 - `merge_motifs2(motifs)` aligns every motif against the highest-IC
   anchor via `compare_motifs2()` and column-averages them in a single
-  shared frame. This is anchor-based rather than v1's iterative
-  pairwise scheme, so the result is independent of input order.
+  shared frame.
 
-- `merge_similar2(motifs, qvalue)` clusters motifs by **statistical
-  significance**: two motifs are linked iff their pairwise q-value
+- `merge_similar2(motifs, qvalue)` clusters motifs by statistical
+  significance: two motifs are linked if their pairwise q-value
   meets the user's `qvalue` cutoff. Clustering is by connected
   components on the resulting graph (deterministic, no linkage-method
   to choose). Each component is collapsed via `merge_motifs2()`.
@@ -439,7 +437,7 @@ leaner function. Silence with
 
 ## Using `motif_tree()`
 
-Additionally, this package introduces the `motif_tree()` function for generating basic tree-like diagrams for comparing motifs. This allows for a visual result from `compare_motifs()`. All options from `compare_motifs()` are available in `motif_tree()`. This function uses the `ggtree` package and outputs a `ggplot` object (from the `ggplot2` package), so altering the look of the trees can be done easily after `motif_tree()` has already been run.
+Additionally, this package introduces the `motif_tree()` function for generating basic tree-like diagrams for comparing motifs. This allows for a visual result from `compare_motifs()`. All options from `compare_motifs()` are available in `motif_tree()`. This function uses the `ggtree` package and outputs a `ggplot` object (from the `ggplot2` package), so altering the look of the trees can be done easily after `motif_tree()` has already been run. There is also a new `motif_tree2()`, which is based on `compare_motifs2()`.
 
 ```{r}
 library(universalmotif)

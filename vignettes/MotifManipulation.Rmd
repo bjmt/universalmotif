@@ -194,7 +194,7 @@ convert_type(examplemotif, "ICM", relative_entropy = TRUE)
 
 ## Merging motifs
 
-The `universalmotif` package includes the `merge_motifs()` function to combine motifs. Motifs are first aligned, and the best match found before the motif matrices are averaged. The implementation for this is identical to that used by `compare_motifs()` (see the [motif comparisons vignette](MotifComparisonAndPvalues.pdf) for more information).
+The `universalmotif` package includes the `merge_motifs()` / `merge_motifs2()` functions to combine motifs (the latter is a newer, leaner version). Motifs are first aligned, and the best match found before the motif matrices are averaged. The implementation for this is identical to that used by `compare_motifs()` / `compare_motifs2()` (see the [motif comparisons vignette](MotifComparisonAndPvalues.pdf) for more information).
 
 ```{r, fig.height=4, fig.width=5}
 library(universalmotif)
@@ -210,7 +210,7 @@ view_motifs(c(m1, m2, m3),
 view_motifs(merge_motifs(c(m1, m2, m3), method = "PCC"))
 ```
 
-This functionality can also be automated to reduce the number of overly similar motifs in larger datasets via the `merge_similar()` function.
+This functionality can also be automated to reduce the number of overly similar motifs in larger datasets via the `merge_similar()` / `merge_similar2()` functions.
 
 ```{r}
 library(universalmotif)
@@ -223,7 +223,7 @@ motifs <- merge_similar(motifs)
 length(motifs)
 ```
 
-Comparison and merging parameters can be fine-tuned as users wish. See the `compare_motifs()` and `merge_motifs()` documentation for more details, as well as the "Motif comparisons and P-values" vignette.
+Comparison and merging parameters can be fine-tuned as users wish. See the `compare_motifs()` / `compare_motifs2()` and `merge_motifs()` / `merge_motifs2()` documentation for more details, as well as the "Motif comparisons and P-values" vignette.
 
 ## Motif reverse complement
 
@@ -351,7 +351,7 @@ create_motif(alphabet = "QWERTY")
 
 ## Motif logos
 
-There are several packages which offer motif visualisation capabilities, such as `seqLogo`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation via the function `view_motifs()`, which renders motifs using the `ggplot2` package (similar to `ggseqlogo`). Here I will briefly show how to use these to visualise `universalmotif` class motifs.
+There are several packages which offer motif visualisation capabilities, such as `seqLogo`, `motifStack`, and `ggseqlogo`. The `universalmotif` package has its own implementation via the function `view_motifs()` / `view_motifs2()`, which renders motifs using the `ggplot2` package (similar to `ggseqlogo`). Here I will briefly show how to use these to visualise `universalmotif` class motifs.
 
 ```{r, fig.height=2, fig.width=5}
 library(universalmotif)
@@ -361,7 +361,7 @@ data(examplemotif)
 view_motifs(examplemotif)
 ```
 
-The `view_motifs()` function generates `ggplot` objects; feel free to manipulate them as such. For example, flipping the position numbers for larger motifs (where the text spacing can become tight):
+The `view_motifs()` / `view_motifs2()` functions generates `ggplot` objects; feel free to manipulate them as such. For example, flipping the position numbers for larger motifs (where the text spacing can become tight):
 
 ```{r, fig.height=2.5, fig.width=5}
 view_motifs(create_motif(15)) +
@@ -370,7 +370,7 @@ view_motifs(create_motif(15)) +
   )
 ```
 
-A large number of options are available for tuning the way motifs are plotted in `view_motifs()`. Visit the documentation for more information.
+A large number of options are available for tuning the way motifs are plotted in `view_motifs()` / `view_motifs2()`. Visit the documentation for more information.
 
 Using the other Bioconductor packages to view `universalmotif` motifs is fairly easy as well:
 
@@ -393,7 +393,7 @@ ggseqlogo::ggseqlogo(motif)
 
 ## Stacked motif logos
 
-The `motifStack` package allows for a number of different motif stacking visualisations. The `universalmotif` package, while not capable of emulating most of these, still offers basic stacking via `view_motifs()`. The motifs are aligned using `compare_motifs()`.
+The `motifStack` package allows for a number of different motif stacking visualisations. The `universalmotif` package, while not capable of emulating most of these, still offers basic stacking via `view_motifs()` / `view_motifs2()`. The motifs are aligned using `compare_motifs()` / `compare_motifs2()`.
 
 ```{r, fig.height=5, fig.width=5}
 library(universalmotif)
@@ -405,7 +405,7 @@ view_motifs(motifs, show.positions.once = FALSE, names.pos = "right")
 
 ## Plot arbitrary text logos
 
-The logo plotting capabilities of `view_motifs()` can be used for any kind of arbitrary text logo. All you need is a numeric matrix (the heights of the characters), with the desired characters as row names. The following example is taken from the `view_logo()` documentation.
+The logo plotting capabilities of `view_motifs()` / `view_motifs2()` can be used for any kind of arbitrary text logo. All you need is a numeric matrix (the heights of the characters), with the desired characters as row names. The following example is taken from the `view_logo()` documentation.
 
 ```{r, fig.height=2.5, fig.width=5}
 library(universalmotif)
