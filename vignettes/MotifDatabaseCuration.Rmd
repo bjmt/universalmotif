@@ -81,7 +81,7 @@ The recipe proceeds in eight steps:
    `compare_motifs2()`.
 4. Deduplicate via graph-based clustering with
    `merge_similar2()`.
-5. Visualise the cluster structure with `motif_tree()`.
+5. Visualise the cluster structure with `motif_tree2()`.
 6. Trim uninformative flanks with `trim_motifs()`.
 7. Annotate the survivors with metadata via `to_df()` /
    `update_motifs()`.
@@ -110,10 +110,10 @@ sapply(per.source, length)
 We annotate each motif's `family` slot with the originating source.
 Doing this here, before the lists are concatenated, means the
 source survives every subsequent operation (clustering,
-trimming, MEME export) and gives `motif_tree()` a per-motif
+trimming, MEME export) and gives `motif_tree2()` a per-motif
 colouring column to use later. `family` is the natural slot for
 this because `MotifDb` rarely populates it, and because
-`motif_tree(linecol = "family")` is the function's default.
+`motif_tree2(linecol = "family")` is the function's default.
 
 ```{r}
 for (s in sources) {
@@ -248,7 +248,7 @@ big.cluster.motifs <- all.motifs[
 if (length(big.cluster.motifs) > 10)
   big.cluster.motifs <- big.cluster.motifs[1:10]
 
-view_motifs(big.cluster.motifs,
+view_motifs2(big.cluster.motifs,
   names.pos = "right", show.positions = FALSE)
 ```
 
@@ -333,7 +333,7 @@ that this whole workflow exists to collapse.
 
 # Visualising the cluster structure
 
-`motif_tree()` builds a hierarchical tree from the pairwise
+`motif_tree2()` builds a hierarchical tree from the pairwise
 comparison and renders it via `ggtree`. On all
 `r format(length(all.motifs), big.mark = ",")` motifs the
 labels would be too crowded to read, so we plot a random
@@ -349,8 +349,8 @@ clean.names <- make.unique(gsub("[^A-Za-z0-9_]", "_",
                                 vapply(sub, function(m) m["name"],
                                        character(1))))
 for (i in seq_along(sub)) sub[[i]]["name"] <- clean.names[i]
-motif_tree(sub, linecol = "family", labels = "none",
-           layout = "circular", progress = FALSE) +
+motif_tree2(sub, linecol = "family", labels = "none",
+            layout = "circular", progress = FALSE) +
   ggplot2::scale_color_discrete(breaks = sources) +
   ggplot2::theme(legend.position = "bottom",
                  legend.title    = ggplot2::element_blank())
@@ -380,7 +380,7 @@ trim.before <- merged[[trim.candidate.idx]]
 trim.before["name"] <- paste0(trim.before["name"], "  (untrimmed)")
 trim.after  <- trim_motifs(merged[[trim.candidate.idx]])
 trim.after["name"] <- paste0(trim.after["name"], "  (trimmed)")
-view_motifs(list(trim.before, trim.after), names.pos = "right")
+view_motifs2(list(trim.before, trim.after), names.pos = "right")
 ```
 
 Apply trim to every merged motif before exporting:

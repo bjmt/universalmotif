@@ -211,8 +211,8 @@ for (i in seq_along(discovered.labelled)) {
     discovered.df$pval[i]
   )
 }
-view_motifs(discovered.labelled, sort.by = "similarity",
-            show.positions = FALSE, names.pos = "right")
+view_motifs2(discovered.labelled, sort.by = "similarity",
+             show.positions = FALSE, names.pos = "right")
 ```
 
 With `sort.by = "similarity"`, `view_motifs()` reorders the panels
@@ -274,8 +274,8 @@ new.names
 ```
 
 ```{r, fig.height=4, fig.width=7}
-view_motifs(discovered.merged, sort.by = "similarity",
-            show.positions = FALSE, names.pos = "right")
+view_motifs2(discovered.merged, sort.by = "similarity",
+             show.positions = FALSE, names.pos = "right")
 ```
 
 # Comparing against JASPAR via MotifDb
@@ -334,8 +334,8 @@ ry.best <- ry.cmp[order(ry.cmp$qvalue), ][1, ]
 
 top.disc <- discovered.merged[[match("RY", new.names)]]
 top.ref  <- ath.motifs[[match(ry.best$target, ref.names)]]
-view_motifs(c(top.disc, top.ref), show.positions.once = FALSE,
-            names.pos = "right")
+view_motifs2(c(top.disc, top.ref), show.positions.once = FALSE,
+             names.pos = "right")
 ```
 
 # Validating enrichment against a composition-matched background
