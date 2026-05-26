@@ -9,6 +9,7 @@ if (is.null(getOption("universalmotif.suggest.compare_motifs2")))  options(unive
 if (is.null(getOption("universalmotif.suggest.enrich_motifs2")))   options(universalmotif.suggest.enrich_motifs2   = TRUE)
 if (is.null(getOption("universalmotif.suggest.merge_motifs2")))    options(universalmotif.suggest.merge_motifs2    = TRUE)
 if (is.null(getOption("universalmotif.suggest.merge_similar2")))   options(universalmotif.suggest.merge_similar2   = TRUE)
+if (is.null(getOption("universalmotif.suggest.motif_tree2")))      options(universalmotif.suggest.motif_tree2      = TRUE)
 
 .onUnload <- function(libpath) {
   library.dynam.unload("universalmotif", libpath)

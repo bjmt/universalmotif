@@ -286,6 +286,41 @@ suggest_merge_similar2 <- function(method, use.type, threshold.type,
   invisible()
 }
 
+# Emit a one-time-per-call hint if a motif_tree() invocation could be
+# served by motif_tree2() without losing any functionality. motif_tree2()
+# builds its distance matrix from compare_motifs2() (Pearson correlation
+# mapped to (1 - score)/2) and then runs the same hclust / ape::as.phylo /
+# ggtree::ggtree pipeline that motif_tree() does. The hint fires only when
+# the v1 caller is using motif_tree()'s defaults for every argument that
+# motif_tree2() does not expose (method, use.type, min.mean.ic,
+# min.position.ic, relative_entropy, score.strat, db.scores), so that
+# anyone who has actively customised a v1-only knob is left alone.
+#
+# Opt out: options(universalmotif.suggest.motif_tree2 = FALSE).
+suggest_motif_tree2 <- function(method, use.type, min.mean.ic,
+                                min.position.ic, relative_entropy,
+                                score.strat, has.db.scores, alphabet) {
+  if (!isTRUE(getOption("universalmotif.suggest.motif_tree2")))
+    return(invisible())
+  if (method != "EUCL")                                return(invisible())
+  if (use.type != "PPM")                               return(invisible())
+  if (!isTRUE(all.equal(min.mean.ic, 0)))              return(invisible())
+  if (!isTRUE(all.equal(min.position.ic, 0)))          return(invisible())
+  if (isTRUE(relative_entropy))                        return(invisible())
+  if (!score.strat %in% c("sum", "a.mean"))            return(invisible())
+  if (isTRUE(has.db.scores))                           return(invisible())
+  if (!alphabet %in% c("DNA", "RNA"))                  return(invisible())
+
+  message(wmsg(
+    "Tip: this motif_tree() call uses only arguments supported by ",
+    "motif_tree2(), a leaner counterpart that builds its distance matrix ",
+    "via compare_motifs2() (Pearson correlation, multi-threaded). ",
+    "See ?motif_tree2. ",
+    "Silence with `options(universalmotif.suggest.motif_tree2 = FALSE)`."
+  ))
+  invisible()
+}
+
 warn_pseudo <- function(v = 1) {
   # Let's calm down on the warnings maybe...
   if (isTRUE(getOption("pseudocount.warning"))) {

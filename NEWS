@@ -241,6 +241,11 @@ MINOR CHANGES
     the leaner function. Silence with
     options(universalmotif.suggest.scan_sequences2 = FALSE).
 
+  o motif_tree() now emits a one-line hint pointing at motif_tree2()
+    when the user's argument set maps cleanly onto the leaner
+    function. Silence with
+    options(universalmotif.suggest.motif_tree2 = FALSE).
+
   o Various textual improvements to the vignettes.
 
 BUG FIXES

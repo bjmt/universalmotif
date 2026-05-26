@@ -167,6 +167,15 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
     }
   } else if (is.list(motifs)) {
     motifs <- convert_motifs(motifs)
+    mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
+    suggest_motif_tree2(method = method, use.type = use.type,
+                        min.mean.ic = min.mean.ic,
+                        min.position.ic = min.position.ic,
+                        relative_entropy = relative_entropy,
+                        score.strat = score.strat,
+                        has.db.scores = !missing(db.scores),
+                        alphabet = if (length(unique(mot.alphs)) == 1L)
+                                     unique(mot.alphs) else NA_character_)
     if (progress)
       message("Comparing motifs...")
     tree <- compare_motifs(motifs,
