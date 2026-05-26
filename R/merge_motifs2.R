@@ -248,7 +248,16 @@ merge_motifs2 <- function(motifs, min.overlap = 5L, RC = TRUE,
 ## ---------------------------------------------------------------------------
 rev_comp_mat <- function(mat) {
   ## Row 1 = A, 2 = C, 3 = G, 4 = T/U.
-  ## Reverse columns, then swap (A,T) and (C,G).
+  ## Reverse columns, then swap (A,T) and (C,G) by permuting rows. The
+  ## `m[c(4,3,2,1), ]` step also carries the input row *names* over in
+  ## the new order (T,G,C,A), so for callers that read the result by
+  ## row name (e.g. the view_motifs() logo renderer) we restore the
+  ## alphabetical A,C,G,T order. Callers that read positionally (e.g.
+  ## merge_motifs2()'s per-position accumulator) are unaffected because
+  ## the underlying data placement is unchanged.
+  rn <- rownames(mat)
   m <- mat[, rev(seq_len(ncol(mat))), drop = FALSE]
-  m[c(4L, 3L, 2L, 1L), , drop = FALSE]
+  m <- m[c(4L, 3L, 2L, 1L), , drop = FALSE]
+  rownames(m) <- rn
+  m
 }
