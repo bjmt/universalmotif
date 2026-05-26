@@ -147,10 +147,10 @@ convert_type <- function(motifs, type, pseudocount, nsize_correction = FALSE,
   # param check --------------------------------------------
   args <- as.list(environment())
   all_checks <- character(0)
-  if (missing(type) || !type %in% c("PCM", "PPM", "PWM", "ICM")) {
+  if (missing(type) || !type %in% c("PCM", "PPM", "PWM", "ICM", "CWM")) {
     if (missing(type)) type <- ""
-    type_check <- paste0(" * Incorrect 'type': expected `PCM`, `PPM`, `PWM` ",
-                         "or `ICM`; got `", type, "`")
+    type_check <- paste0(" * Incorrect 'type': expected `PCM`, `PPM`, `PWM`, ",
+                         "`ICM`, or `CWM`; got `", type, "`")
     all_checks <- c(all_checks, type_check)
   }
   char_check <- check_fun_params(list(type = args$type), 1, FALSE, TYPE_CHAR)
@@ -220,6 +220,18 @@ convert_type_single <- function(motif, type, pseudocount,
 
   if (in_type == type) return(motif)
 
+  ## CWM is a one-way street: it can be the source of a conversion (we know
+  ## how to go CWM -> PPM via |cwm|/sum, and from PPM onward), but the
+  ## reverse direction (probabilistic type -> CWM) has no meaningful
+  ## semantics, since contribution scores cannot be recovered from
+  ## probabilities. Refuse cleanly.
+  if (type == "CWM" && in_type != "CWM") {
+    stop("CWM cannot be derived from probabilistic motif types ",
+         "(`", in_type, "`); a CWM must originate from a ",
+         "contribution-attribution method (e.g. TF-MoDISco, DeepLIFT).",
+         call. = FALSE)
+  }
+
   if (is.null(pseudocount)) {
     pseudocount <- motif@pseudocount
   } else {
@@ -242,7 +254,9 @@ convert_type_single <- function(motif, type, pseudocount,
                                            nsize_correction, relative_entropy),
                   "PWM" = convert_from_pwm(motif, type, pseudocount, bkg, nsites,
                                            nsize_correction, relative_entropy),
-                  "ICM" = convert_from_icm(motif, type, pseudocount, bkg, nsites))
+                  "ICM" = convert_from_icm(motif, type, pseudocount, bkg, nsites),
+                  "CWM" = convert_from_cwm(motif, type, pseudocount, bkg, nsites,
+                                           nsize_correction, relative_entropy))
 
   validObject_universalmotif(motif)
   motif
@@ -289,6 +303,25 @@ MATRIX_ppm_to_pcm <- function(mat, nsites = 100) {
     nsites <- 100
 
   apply(mat, 2, ppm_to_pcmC, nsites = nsites)
+
+}
+
+## CWM -> PPM via column-normalised absolute values, the TF-MoDISco
+## convention: ppm[i,j] = |cwm[i,j]| / sum_i |cwm[i,j]|. Columns where
+## the absolute column sum is zero collapse to a uniform distribution
+## (1 / alph_len) rather than NaN.
+MATRIX_cwm_to_ppm <- function(mat) {
+
+  abs_mat <- abs(mat)
+  col_abs_sums <- colSums(abs_mat)
+  zero_cols <- col_abs_sums == 0
+
+  if (any(zero_cols)) {
+    abs_mat[, zero_cols] <- 1 / nrow(mat)
+    col_abs_sums[zero_cols] <- 1
+  }
+
+  sweep(abs_mat, 2L, col_abs_sums, FUN = "/")
 
 }
 
@@ -474,6 +507,69 @@ convert_from_icm <- function(motif, type, pseudocount, bkg, nsites) {
                            pseudocount = pseudocount,
                            nsites = nsites)
       motif@type <- "PWM"
+
+    })
+
+  rownames(motif@motif) <- alph
+  motif@motif[is.na(motif@motif)] <- 0
+
+  motif
+
+}
+
+## Conversion FROM a CWM. Every outbound conversion routes through PPM
+## first (CWM -> PPM via |cwm|/sum, the TF-MoDISco convention), then
+## reuses the existing PPM -> * helpers. CWM is not a log-odds matrix,
+## so CWM -> PWM cannot be a relabel: it has to go through PPM, and
+## then PPM -> PWM applies the standard log2(ppm / bkg) transform with
+## the motif's @bkg slot.
+convert_from_cwm <- function(motif, type, pseudocount, bkg, nsites,
+                             nsize_correction = FALSE, relative_entropy = FALSE) {
+
+  alph <- rownames(motif@motif)
+
+  motif@motif <- MATRIX_cwm_to_ppm(motif@motif)
+
+  switch(type,
+
+    "PPM" = {
+
+      motif@type <- "PPM"
+
+    },
+
+    "PCM" = {
+
+      motif@motif <- apply(motif@motif, 2, ppm_to_pcmC,
+                           nsites = nsites)
+      motif@type <- "PCM"
+
+    },
+
+    "PWM" = {
+
+      motif@motif <- apply(motif@motif, 2, ppm_to_pwmC,
+                           bkg = bkg,
+                           pseudocount = pseudocount,
+                           nsites = nsites)
+      motif@type <- "PWM"
+
+    },
+
+    "ICM" = {
+
+      if (nsize_correction) {
+        motif@motif <- apply(motif@motif, 2, ppm_to_icm,
+                             bkg = bkg,
+                             nsites = nsites,
+                             schneider_correction = nsize_correction,
+                             relative_entropy = relative_entropy)
+      } else {
+        motif@motif <- apply(motif@motif, 2, ppm_to_icmC,
+                             bkg = bkg,
+                             relative_entropy = relative_entropy)
+      }
+      motif@type <- "ICM"
 
     })
 

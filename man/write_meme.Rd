@@ -5,7 +5,7 @@
 \title{Export motifs in MEME format.}
 \usage{
 write_meme(motifs, file, version = 5, bkg, strand, overwrite = FALSE,
-  append = FALSE)
+  append = FALSE, CWM = FALSE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}

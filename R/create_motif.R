@@ -668,8 +668,15 @@ setMethod("create_motif", signature(input = "matrix"),
 
   motif <- matrix
 
-  motif <- do.call(universalmotif_cpp, c(list(motif = motif), margs,
-                                         list(alphabet = alphabet)))
+  ## When the user asked for CWM, pass that type straight through to
+  ## the C++ constructor (which would otherwise auto-detect a signed
+  ## matrix as PWM). With type already set to CWM, the downstream
+  ## convert_type_internal() call below becomes a no-op (CWM -> CWM)
+  ## rather than the forbidden PWM -> CWM.
+  cpp_args <- c(list(motif = motif), margs, list(alphabet = alphabet))
+  if (!missing(type) && identical(type, "CWM"))
+    cpp_args <- c(cpp_args, list(type = "CWM"))
+  motif <- do.call(universalmotif_cpp, cpp_args)
 
   if (missing(nsites)) {
     nsites <- sum(input[, 1])
@@ -931,9 +938,9 @@ parse_args <- function(args, names) {
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
 
-  if (is.character(args$type) && !args$type %in% c("PCM", "PPM", "PWM", "ICM")) {
+  if (is.character(args$type) && !args$type %in% c("PCM", "PPM", "PWM", "ICM", "CWM")) {
     stop("* Incorrect `type` argument (must be one of ",
-      "\"PCM\", \"PPM\", \"PWM\", \"ICM\")")
+      "\"PCM\", \"PPM\", \"PWM\", \"ICM\", \"CWM\")")
   }
   if (is.character(args$strand) && !args$strand %in% c("+", "-", "+-", "-+", "*")) {
     stop("* Incorrect `strand` argument (must be one of ",

@@ -5,7 +5,7 @@
 \title{Import MEME motifs.}
 \usage{
 read_meme(file, skip = 0, readsites = FALSE, readsites.meta = FALSE,
-  readsites.meta.tidy = FALSE)
+  readsites.meta.tidy = FALSE, CWM = FALSE)
 }
 \arguments{
 \item{file}{\code{character(1)} File name.}

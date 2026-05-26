@@ -102,8 +102,8 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
   flip.neg = FALSE) {
 
   ## --- arg validation ---------------------------------------------------
-  if (!use.type %in% c("PPM", "ICM", "PWM", "PCM"))
-    stop("`use.type` must be one of `PCM`, `PPM`, `PWM`, or `ICM`",
+  if (!use.type %in% c("PPM", "ICM", "PWM", "PCM", "CWM"))
+    stop("`use.type` must be one of `PCM`, `PPM`, `PWM`, `ICM`, or `CWM`",
          call. = FALSE)
   if (!isTRUEorFALSE(tryRC))
     stop("`tryRC` must be a single logical", call. = FALSE)
@@ -125,8 +125,22 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
   sort.by   <- match.arg(sort.by)
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
+
+  ## When the user asks for CWM display, capture the original CWM
+  ## matrices *before* convert_type_internal coerces them to PPM, so
+  ## we can splice them back at display time. CWM display requires
+  ## every input motif to actually be a CWM.
+  cwm.mats <- NULL
+  if (use.type == "CWM") {
+    in_types <- vapply(motifs, function(x) x@type, character(1))
+    if (any(in_types != "CWM"))
+      stop("`use.type = \"CWM\"` requires every input motif to have ",
+           "type = \"CWM\"", call. = FALSE)
+    cwm.mats <- lapply(motifs, function(x) x@motif)
+  }
+
+  motifs <- convert_type_internal(motifs, "PPM")
 
   ## DNA / RNA only (matches merge_motifs2 / compare_motifs2_align_cpp).
   alphs <- vapply(motifs, function(x) x@alphabet, character(1))
@@ -145,6 +159,7 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
     ic.scores <- vapply(motifs, function(x) x@icscore, numeric(1))
     ic.order  <- order(ic.scores, decreasing = TRUE)
     motifs    <- motifs[ic.order]
+    if (!is.null(cwm.mats)) cwm.mats <- cwm.mats[ic.order]
   } else {
     ic.order  <- 1L
   }
@@ -162,8 +177,14 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
     mot.bkgs <- get_bkgs(motifs)
     mot.mats <- vector("list", length(mot.mats.ppm))
     for (i in seq_along(mot.mats)) {
-      mot.mats[[i]] <- convert_mat_type_from_ppm(mot.mats.ppm[[i]], use.type,
-        mot.nsites[[i]], mot.bkgs[[i]], mot.pseudo[[i]], relative_entropy)
+      if (use.type == "CWM") {
+        ## Splice the original CWM matrix back in instead of deriving
+        ## a display matrix from the PPM-converted version.
+        mot.mats[[i]] <- cwm.mats[[i]]
+      } else {
+        mot.mats[[i]] <- convert_mat_type_from_ppm(mot.mats.ppm[[i]], use.type,
+          mot.nsites[[i]], mot.bkgs[[i]], mot.pseudo[[i]], relative_entropy)
+      }
     }
   } else if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))
@@ -234,7 +255,10 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
     "PCM" = {
       yname <- "counts"
     },
-    stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM'")
+    "CWM" = {
+      yname <- "contribution"
+    },
+    stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM', 'CWM'")
   )
 
   if (is.null(fontDF)) fontDF <- fontDFroboto
@@ -278,17 +302,16 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
       breaks <- c(0, round(max(colSums(mot.mats[[1]])) / 2), max(colSums(mot.mats[[1]])))
       ylim2 <- breaks[-2]
       breaks <- unique(breaks)
-    } else if (use.type == "PWM") {
-      breaks <- c(round(min(colSums(mot.mats[[1]]))) - 1, round(min(colSums(mot.mats[[1]])) / 2), 0,
-        round(log2(nrow(mot.mats[[1]])) / 2), log2(nrow(mot.mats[[1]])))
+    } else if (use.type %in% c("PWM", "CWM")) {
       mot.mats.tmp <- mot.mats[[1]]
       mot.mats.tmp[mot.mats.tmp > 0] <- 0
       minval <- min(colSums(mot.mats.tmp))
       mot.mats.tmp <- mot.mats[[1]]
       mot.mats.tmp[mot.mats.tmp < 0] <- 0
       maxval <- max(colSums(mot.mats.tmp))
-      breaks <- round(c(minval, minval / 2, 0, maxval / 2, maxval))
-      breaks[1] <- breaks[1] - max(c(1, breaks[1] * 0.1))
+      breaks <- c(minval, minval / 2, 0, maxval / 2, maxval)
+      if (use.type == "PWM") breaks <- round(breaks)
+      breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
       ylim2 <- c(breaks[1], maxval)
       breaks <- unique(breaks)
     }
@@ -314,7 +337,7 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
     if (!is.null(colour.scheme)) plotobj <- plotobj +
       scale_fill_manual(values = colour.scheme[alph], limits = alph)
 
-    if (use.type == "PWM")
+    if (use.type %in% c("PWM", "CWM"))
       plotobj <- plotobj + geom_hline(yintercept = 0, linewidth = 0.25, colour = "grey75")
 
   } else {
@@ -385,9 +408,7 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
       breaks <- c(0, round(max(mot_colsums) / 2), max(mot_colsums))
       ylim2 <- breaks[-2]
       breaks <- unique(breaks)
-    } else if (use.type == "PWM") {
-      breaks <- c(round(min(mot_colsums)) - 1, round(min(mot_colsums) / 2), 0,
-        round(log2(nrow(mots[[1]])) / 2), log2(nrow(mots[[1]])))
+    } else if (use.type %in% c("PWM", "CWM")) {
       mots.tmp <- mots
       minvals <- numeric(length(mots))
       for (i in seq_along(mots.tmp)) {
@@ -400,8 +421,9 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
         mots.tmp[[i]][mots.tmp[[i]] < 0] <- 0
         maxvals[i] <- max(colSums(mots.tmp[[i]]))
       }
-      breaks <- round(c(min(minvals), min(minvals) / 2, 0, max(maxvals) / 2, max(maxvals)))
-      breaks[1] <- breaks[1] - max(c(1, breaks[1] * 0.1))
+      breaks <- c(min(minvals), min(minvals) / 2, 0, max(maxvals) / 2, max(maxvals))
+      if (use.type == "PWM") breaks <- round(breaks)
+      breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
       ylim2 <- c(breaks[1], max(maxvals))
       breaks <- unique(breaks)
     }
@@ -458,7 +480,7 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
     if (!is.null(colour.scheme)) plotobj <- plotobj +
       scale_fill_manual(values = colour.scheme[alph], limits = alph)
 
-    if (use.type == "PWM")
+    if (use.type %in% c("PWM", "CWM"))
       plotobj <- plotobj + geom_hline(yintercept = 0, size = 0.25, colour = "grey75")
 
     if (!show.names) plotobj <- plotobj + theme(strip.text = element_blank())

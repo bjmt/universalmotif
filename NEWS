@@ -3,6 +3,43 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o Added support for CWM (Contribution Weight Matrix) motifs.
+    Contribution Weight Matrices come from TF-MoDISco / DeepLIFT
+    -style attribution methods and hold signed, unnormalised
+    per-position per-letter contribution scores. CWM is now a
+    first-class fifth motif type alongside PCM / PPM / PWM / ICM:
+    `create_motif(matrix, type = "CWM")` accepts signed matrices
+    with no column-sum constraint, `convert_type(cwm, "PPM")`
+    converts via the TF-MoDISco-lite convention
+    `ppm[i,j] = |cwm[i,j]| / sum_i |cwm[i,j]|` (and further
+    routing through PPM lets CWM motifs reach PWM / ICM / PCM);
+    `convert_type(non_cwm, "CWM")` errors with a clear message
+    because contribution scores cannot be recovered from
+    probabilities. `read_meme()` and `write_meme()` gain a
+    `CWM = FALSE` argument: with `CWM = TRUE`, MEME files are
+    parsed as CWMs (raw signed matrices, type tag = "CWM") or
+    written verbatim from a CWM motif list. `view_motifs()` and
+    `view_motifs2()` accept `use.type = "CWM"` and render the
+    raw signed values with a "contribution" y-axis label. CWM
+    motifs flow through every v1 and v2 analysis function that
+    routes its input through `convert_type_internal()`
+    (`compare_motifs[2]()`, `scan_sequences[2]()`,
+    `merge_motifs[2]()`, `merge_similar[2]()`, `motif_pvalue()`,
+    `motif_tree[2]()`, `motif_rc()`, `trim_motifs()`). Out of
+    scope (continue to require probabilistic types):
+    `motif_finder()`, `add_multifreq()`, `create_sequences()`,
+    `shuffle_sequences()`, `get_bkg()`, `match_bkg()`,
+    `sequence_complexity()`.
+
+  o Added trim_cwm(), a CWM-aware trimmer that drops edge
+    columns by absolute column sum. Defaults to the
+    TF-MoDISco-lite fraction-of-peak rule (`trim.threshold =
+    0.3`); an optional `abs.threshold` argument switches to an
+    absolute-value cutoff. Walks inward from the chosen edges
+    only (`trim.from = c("both", "left", "right")`),
+    mirroring `trim_motifs()`'s edge-only semantics. Returns a
+    trimmed CWM with the type tag preserved.
+
   o Added view_motifs2() and motif_tree2(): drop-in display-time
     siblings of view_motifs() and motif_tree() that use the v2
     Pearson-correlation backend (compare_motifs2_align_cpp() and

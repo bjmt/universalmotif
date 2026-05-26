@@ -359,10 +359,19 @@ consensus_to_ppmAA <- function(letter) {
 get_consensus <- function(position, alphabet = "DNA", type = "PPM",
                           pseudocount = 1) {
 
-  if (!type %in% c("PCM", "PPM", "PWM", "ICM"))
-    stop("type must be one of ICM, PCM, PPM, PWM")
+  if (!type %in% c("PCM", "PPM", "PWM", "ICM", "CWM"))
+    stop("type must be one of ICM, PCM, PPM, PWM, CWM")
   if (!alphabet %in% c("DNA", "RNA"))
     stop("alphabet must be one of DNA, RNA")
+
+  if (type == "CWM") {
+    ## Normalise |cwm| -> PPM for the single-column consensus logic.
+    abs_pos <- abs(position)
+    s <- sum(abs_pos)
+    position <- if (s == 0) rep(1 / length(position), length(position))
+                else abs_pos / s
+    type <- "PPM"
+  }
 
   get_consensusC(position, alphabet, type, pseudocount)
 
@@ -372,8 +381,16 @@ get_consensus <- function(position, alphabet = "DNA", type = "PPM",
 #' @export
 get_consensusAA <- function(position, type = "PPM", pseudocount = 0) {
 
-  if (!type %in% c("PCM", "PPM", "PWM", "ICM"))
-    stop("type must be one of ICM, PCM, PPM, PWM")
+  if (!type %in% c("PCM", "PPM", "PWM", "ICM", "CWM"))
+    stop("type must be one of ICM, PCM, PPM, PWM, CWM")
+
+  if (type == "CWM") {
+    abs_pos <- abs(position)
+    s <- sum(abs_pos)
+    position <- if (s == 0) rep(1 / length(position), length(position))
+                else abs_pos / s
+    type <- "PPM"
+  }
 
   get_consensusAAC(position, type, pseudocount)
 

@@ -24,7 +24,8 @@ std::unordered_map<Rcpp::String, int> TYPES2_e = {
   {"PCM", 1},
   {"PPM", 2},
   {"PWM", 3},
-  {"ICM", 4}
+  {"ICM", 4},
+  {"CWM", 5}
 };
 
 enum MATRIX_TYPES {
@@ -32,7 +33,8 @@ enum MATRIX_TYPES {
   PCMe = 1,
   PPMe = 2,
   PWMe = 3,
-  ICMe = 4
+  ICMe = 4,
+  CWMe = 5
 
 };
 
@@ -392,8 +394,9 @@ Rcpp::StringVector check_char_slots(const Rcpp::StringVector &m_type,
   if (m_type[0] != "PCM" &&
       m_type[0] != "PPM" &&
       m_type[0] != "PWM" &&
-      m_type[0] != "ICM")
-    msg.push_back("* type must be one of PCM, PPM, PWM, ICM");
+      m_type[0] != "ICM" &&
+      m_type[0] != "CWM")
+    msg.push_back("* type must be one of PCM, PPM, PWM, ICM, CWM");
 
   if (m_strand[0] != "+"  &&
       m_strand[0] != "-"  &&

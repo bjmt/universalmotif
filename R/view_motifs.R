@@ -149,9 +149,9 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     method_check <- " * Incorrect 'method'"
     all_checks <- c(all_checks, method_check)
   }
-  if (!use.type %in% c("PPM", "ICM", "PWM", "PCM")) {
+  if (!use.type %in% c("PPM", "ICM", "PWM", "PCM", "CWM")) {
     use.type_check <- paste0(" * Incorrect 'use.type': expected `PPM`, `PCM`, ",
-                             "`PWM` or `ICM`; got `",
+                             "`PWM`, `ICM`, or `CWM`; got `",
                              use.type, "`")
     use.type_check <- wmsg2(use.type_check, 4, 2)
     all_checks <- c(all_checks, use.type_check)
@@ -197,8 +197,22 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         "negative values: ALLR, ALLR_LL, PCC"))
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
+
+  ## When the user asks for CWM display, capture the original CWM
+  ## matrices *before* convert_type_internal coerces them to PPM, so
+  ## we can splice them back at display time. CWM display requires
+  ## every input motif to actually be a CWM.
+  cwm.mats <- NULL
+  if (use.type == "CWM") {
+    in_types <- vapply(motifs, function(x) x@type, character(1))
+    if (any(in_types != "CWM"))
+      stop("`use.type = \"CWM\"` requires every input motif to have ",
+           "type = \"CWM\"", call. = FALSE)
+    cwm.mats <- lapply(motifs, function(x) x@motif)
+  }
+
+  motifs <- convert_type_internal(motifs, "PPM")
 
   ## Sort by IC for alignment: the highest-IC motif becomes the anchor
   ## that every other motif is aligned to, matching merge_motifs2()'s
@@ -209,6 +223,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     ic.scores <- vapply(motifs, function(x) x@icscore, numeric(1))
     ic.order  <- order(ic.scores, decreasing = TRUE)
     motifs    <- motifs[ic.order]
+    if (!is.null(cwm.mats)) cwm.mats <- cwm.mats[ic.order]
   } else {
     ic.order  <- 1L
   }
@@ -227,8 +242,14 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     mot.mats <- lapply(motifs, function(x) x@motif)
     mot.bkgs <- get_bkgs(motifs)
     for (i in seq_along(mot.mats)) {
-      mot.mats[[i]] <- convert_mat_type_from_ppm(mot.mats[[i]], use.type,
-        mot.nsites[[i]], mot.bkgs[[i]], mot.pseudo[[i]], relative_entropy)
+      if (use.type == "CWM") {
+        ## Splice the original CWM matrix back in instead of deriving
+        ## a display matrix from the PPM-converted version.
+        mot.mats[[i]] <- cwm.mats[[i]]
+      } else {
+        mot.mats[[i]] <- convert_mat_type_from_ppm(mot.mats[[i]], use.type,
+          mot.nsites[[i]], mot.bkgs[[i]], mot.pseudo[[i]], relative_entropy)
+      }
     }
   } else if (use.freq > 1) {
     if (any(vapply(motifs, function(x) length(x@multifreq) == 0, logical(1))))
@@ -301,7 +322,10 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     "PCM" = {
       yname <- "counts"
     },
-    stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM'")
+    "CWM" = {
+      yname <- "contribution"
+    },
+    stop("'use.type' must be one of 'PCM', 'PPM', 'PWM', 'ICM', 'CWM'")
   )
 
   if (is.null(fontDF)) fontDF <- fontDFroboto
@@ -345,17 +369,16 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       breaks <- c(0, round(max(colSums(mot.mats[[1]])) / 2), max(colSums(mot.mats[[1]])))
       ylim2 <- breaks[-2]
       breaks <- unique(breaks)
-    } else if (use.type == "PWM") {
-      breaks <- c(round(min(colSums(mot.mats[[1]]))) - 1, round(min(colSums(mot.mats[[1]])) / 2), 0,
-        round(log2(nrow(mot.mats[[1]])) / 2), log2(nrow(mot.mats[[1]])))
+    } else if (use.type %in% c("PWM", "CWM")) {
       mot.mats.tmp <- mot.mats[[1]]
       mot.mats.tmp[mot.mats.tmp > 0] <- 0
       minval <- min(colSums(mot.mats.tmp))
       mot.mats.tmp <- mot.mats[[1]]
       mot.mats.tmp[mot.mats.tmp < 0] <- 0
       maxval <- max(colSums(mot.mats.tmp))
-      breaks <- round(c(minval, minval / 2, 0, maxval / 2, maxval))
-      breaks[1] <- breaks[1] - max(c(1, breaks[1] * 0.1))
+      breaks <- c(minval, minval / 2, 0, maxval / 2, maxval)
+      if (use.type == "PWM") breaks <- round(breaks)
+      breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
       ylim2 <- c(breaks[1], maxval)
       breaks <- unique(breaks)
     }
@@ -382,7 +405,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     if (!is.null(colour.scheme)) plotobj <- plotobj +
       scale_fill_manual(values = colour.scheme[alph], limits = alph)
 
-    if (use.type == "PWM")
+    if (use.type %in% c("PWM", "CWM"))
       plotobj <- plotobj + geom_hline(yintercept = 0, linewidth = 0.25, colour = "grey75")
 
   } else {
@@ -593,6 +616,17 @@ prep_single_motif_plot_data <- function(mat, use.type, fontDF, min.height = 0.03
 
     maxheight <- log2(nrow(mat))
     mat[mat > maxheight] <- maxheight
+    make_matrix_polygon_data(mat, fontDF, min.height * maxheight,
+      x.spacer, y.spacer * maxheight, sort.positions,
+      sort.positions.decreasing, NULL, fit.to.width, flip.neg = flip.neg)
+
+  } else if (use.type == "CWM") {
+
+    ## CWMs are signed scoring matrices like PWMs but unbounded; use
+    ## the actual matrix max for the height scale instead of capping
+    ## at log2(alph).
+    maxheight <- max(abs(mat))
+    if (maxheight == 0) maxheight <- 1
     make_matrix_polygon_data(mat, fontDF, min.height * maxheight,
       x.spacer, y.spacer * maxheight, sort.positions,
       sort.positions.decreasing, NULL, fit.to.width, flip.neg = flip.neg)

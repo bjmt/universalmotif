@@ -10,7 +10,8 @@ std::unordered_map<std::string, int> TYPES_e = {
   {"PCM", 1},
   {"PPM", 2},
   {"PWM", 3},
-  {"ICM", 4}
+  {"ICM", 4},
+  {"CWM", 5}
 };
 
 std::unordered_map<std::string, int> RDNA_e = {
@@ -520,6 +521,19 @@ double position_icscoreC(std::vector<double> pos,
     case 3: pos = pwm_to_ppmC(pos, bkg);
             break;
     case 4: return std::accumulate(pos.begin(), pos.end(), 0.0);
+    case 5: {
+            // CWM: column-normalise absolute values to get a PPM-like
+            // column, then fall through to the ppm_to_icmC step below.
+            // Matches the TF-MoDISco |cwm|/sum convention.
+            double abs_sum = 0;
+            for (double v : pos) abs_sum += std::abs(v);
+            if (abs_sum == 0) {
+              for (double &v : pos) v = 1.0 / pos.size();
+            } else {
+              for (double &v : pos) v = std::abs(v) / abs_sum;
+            }
+            break;
+            }
     default: Rcpp::stop("incorrect type");
   }
 
@@ -550,6 +564,18 @@ std::string get_consensusC(std::vector<double> pos,
     case 1: pos = pcm_to_ppmC(pos, pseudocount); break;
     case 3: pos = pwm_to_ppmC(pos, vec_num_t()); break;
     case 4: pos = icm_to_ppmC(pos); break;
+    case 5: {
+            // CWM: column-normalise absolute values to get a PPM-like
+            // column. Matches the TF-MoDISco |cwm|/sum convention.
+            double abs_sum = 0;
+            for (double v : pos) abs_sum += std::abs(v);
+            if (abs_sum == 0) {
+              for (double &v : pos) v = 1.0 / pos.size();
+            } else {
+              for (double &v : pos) v = std::abs(v) / abs_sum;
+            }
+            break;
+            }
   }
 
   // single letter consensus
@@ -649,6 +675,16 @@ std::string get_consensusAAC(std::vector<double> pos,
     case 1: pos = pcm_to_ppmC(pos, pseudocount); break;
     case 3: pos = pwm_to_ppmC(pos, vec_num_t()); break;
     case 4: pos = icm_to_ppmC(pos); break;
+    case 5: {
+            double abs_sum = 0;
+            for (double v : pos) abs_sum += std::abs(v);
+            if (abs_sum == 0) {
+              for (double &v : pos) v = 1.0 / pos.size();
+            } else {
+              for (double &v : pos) v = std::abs(v) / abs_sum;
+            }
+            break;
+            }
   }
 
   if      (pos[2] >= 0.4 && pos[11] >= 0.4) return "B";

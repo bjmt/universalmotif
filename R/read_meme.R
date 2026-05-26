@@ -48,7 +48,8 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 read_meme <- function(file, skip = 0, readsites = FALSE,
-                      readsites.meta = FALSE, readsites.meta.tidy = FALSE) {
+                      readsites.meta = FALSE, readsites.meta.tidy = FALSE,
+                      CWM = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -57,7 +58,8 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
   num_check <- check_fun_params(list(skip = args$skip), 1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(readsites = args$readsites,
                                       readsites.meta.tidy = args$readsites.meta.tidy,
-                                      readsites.meta = args$readsites.meta),
+                                      readsites.meta = args$readsites.meta,
+                                      CWM = args$CWM),
                                  numeric(), logical(), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
@@ -143,9 +145,15 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                            as.numeric(z)
                          }, motif_starts, motif_stops, SIMPLIFY = FALSE)
 
+  ## When CWM = TRUE, treat each parsed matrix as a Contribution
+  ## Weight Matrix (signed real values, no column-sum constraint)
+  ## rather than the standard PPM the MEME format implies. The type
+  ## tag is the only difference; the parsed values pass through as-is.
+  parsed_type <- if (isTRUE(CWM)) "CWM" else "PPM"
+
   motif_list <- mapply(function(x, y, z, x2) {
                           mot <- universalmotif_cpp(name = x,
-                                           type = "PPM",
+                                           type = parsed_type,
                                            altname = x2,
                                            nsites = as.numeric(y[1]),
                                            eval = as.numeric(y[2]),

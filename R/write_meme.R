@@ -34,7 +34,7 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 write_meme <- function(motifs, file, version = 5, bkg, strand,
-                       overwrite = FALSE, append = FALSE) {
+                       overwrite = FALSE, append = FALSE, CWM = FALSE) {
 
   # param check --------------------------------------------
   args <- as.list(environment())
@@ -42,8 +42,9 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
                                  numeric(), c(FALSE, TRUE), TYPE_CHAR)
   num_check <- check_fun_params(list(version = args$version), 1, FALSE, TYPE_NUM)
   logi_check <- check_fun_params(list(overwrite = args$overwrite,
-                                      append = args$append),
-                                 c(1, 1), c(FALSE, FALSE), TYPE_LOGI)
+                                      append = args$append,
+                                      CWM = args$CWM),
+                                 c(1, 1, 1), c(FALSE, FALSE, FALSE), TYPE_LOGI)
   all_checks <- c(char_check, num_check, logi_check)
   if (length(all_checks) > 0) stop(all_checks_collapse(all_checks))
   #---------------------------------------------------------
@@ -52,8 +53,23 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
     stop(wmsg("Existing file found, set `overwrite = TRUE` to continue."))
 
   motifs <- convert_motifs(motifs)
-  motifs <- convert_type_internal(motifs, "PPM")
   if (!is.list(motifs)) motifs <- list(motifs)
+
+  ## When CWM = TRUE, write CWM motifs verbatim into the
+  ## letter-probability matrix block (signed values, no
+  ## normalisation), matching what TF-MoDISco-lite emits. When
+  ## CWM = FALSE (default), CWM motifs are first converted to PPM
+  ## so the output stays MEME-spec-compliant for FIMO / AME / etc.
+  if (isTRUE(CWM)) {
+    in_types <- vapply(motifs, function(x) x@type, character(1))
+    if (any(in_types != "CWM"))
+      stop("`CWM = TRUE` requires every motif to be of type CWM",
+           call. = FALSE)
+    ## Skip the convert_type_internal -> PPM step; downstream code
+    ## reads x@motif as-is.
+  } else {
+    motifs <- convert_type_internal(motifs, "PPM")
+  }
 
   if (missing(strand)) {
     strand <- unique(vapply(motifs, function(x) x@strand, character(1)))
