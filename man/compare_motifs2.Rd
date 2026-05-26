@@ -2,7 +2,7 @@
 % Please edit documentation in R/compare_motifs2.R
 \name{compare_motifs2}
 \alias{compare_motifs2}
-\title{Minimalist motif-vs-motif comparison aligned with \verb{yamtk cmp}.}
+\title{Faster minimalist motif comparison.}
 \usage{
 compare_motifs2(motifs, compare.to = NULL, qvalue = 0.1,
   min.overlap = 5L, RC = TRUE, null = c("empirical", "parametric"),
@@ -59,7 +59,7 @@ column where target column 1 aligns.
 \description{
 \code{compare_motifs2()} is a deliberately stripped-down counterpart to
 \code{\link[=compare_motifs]{compare_motifs()}} whose defaults and algorithm mirror the command-line
-tool \verb{yamtk cmp} (see \href{https://github.com/bjmt/yamtk}{yamtk}). It uses
+tool \href{https://github.com/bjmt/yamtk}{yamtk}. It uses
 Pearson correlation per column as the similarity metric, computes
 significance from a TOMTOM-style null PMF (either empirical from the
 target database or parametric via Dirichlet-Multinomial over a K=5
@@ -113,7 +113,7 @@ Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
 \url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=scan_sequences2]{scan_sequences2()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=view_motifs2]{view_motifs2()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

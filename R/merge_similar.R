@@ -36,7 +36,7 @@
 #' length(motifs)
 #' }
 #'
-#' @seealso [compare_motifs()], [merge_motifs()]
+#' @seealso [compare_motifs()], [merge_motifs()], [merge_similar2()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export

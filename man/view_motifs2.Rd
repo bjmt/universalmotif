@@ -103,8 +103,8 @@ The rendering (logo polygons, \code{facet_wrap()} layout, \code{sort.by} permuta
 DNA and RNA only. For amino-acid or custom-alphabet motifs use
 \code{\link[=view_motifs]{view_motifs()}}.
 
-The alignment step uses \code{compare_motifs2_align_cpp()} (the same
-backend as \code{\link[=merge_motifs2]{merge_motifs2()}} and \code{\link[=merge_similar2]{merge_similar2()}}). The
+The alignment step uses the same
+backend as \code{\link[=merge_motifs2]{merge_motifs2()}} and \code{\link[=merge_similar2]{merge_similar2()}}. The
 highest-information-content input motif is chosen as the anchor,
 every other motif is aligned against it once, motifs whose best
 alignment lands on the reverse complement strand are

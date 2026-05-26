@@ -20,6 +20,17 @@ read site positions and P-values.}
 
 \item{readsites.meta.tidy}{\code{logical(1)} If \code{readsites.meta = TRUE}, merge the
 position site information for all motifs into a single tidy \code{data.frame}.}
+
+\item{CWM}{\code{logical(1)} Treat each \verb{letter-probability matrix:}
+block as a Contribution Weight Matrix (CWM) rather than a
+PPM. With \code{CWM = TRUE}, the parsed values pass through verbatim
+(signed real values, no column-sum or non-negativity check) and
+each resulting motif is tagged \code{type = "CWM"}. This is the
+intended path for MEME files produced by TF-MoDISco or
+similar contribution-attribution pipelines, where the file
+format is MEME-shaped but the values are not probabilities.
+Defaults to \code{FALSE} (standard MEME-spec PPM parsing). See
+\code{\link[=convert_type]{convert_type()}} for what a CWM is and how it converts onward.}
 }
 \value{
 \code{list} \linkS4class{universalmotif} objects. If \code{readsites = TRUE}, a list
@@ -51,6 +62,12 @@ meme.full <- read_meme(system.file("extdata", "meme_full.txt",
                                    package = "universalmotif"))
 ## Get numeric p-value:
 log_string_pval(meme.minimal[[1]]["extrainfo"]["eval.string"])
+
+## Read a TF-MoDISco-style MEME file as CWMs (no normalisation,
+## values may be negative, type tag = "CWM"):
+\dontrun{
+modisco <- read_meme("modisco_cwms.meme", CWM = TRUE)
+}
 
 }
 \references{

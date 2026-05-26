@@ -27,7 +27,8 @@ sites <- sample_sites(motif)
 
 }
 \seealso{
-\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=create_motif]{create_motif()}}, \code{\link[=add_multifreq]{add_multifreq()}}
+\code{\link[=create_sequences]{create_sequences()}}, \code{\link[=create_motif]{create_motif()}}, \code{\link[=add_multifreq]{add_multifreq()}},
+\code{\link[=implant_motifs]{implant_motifs()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrich_motifs2.R
 \name{enrich_motifs2}
 \alias{enrich_motifs2}
-\title{Minimalist motif enrichment aligned with \verb{yamtk enr} defaults.}
+\title{Fast minimalist motif enrichment.}
 \usage{
 enrich_motifs2(motifs, sequences, bkg.sequences = NULL, pvalue = 1e-04,
   qvalue = 0.1, test = c("seqs", "sites"), RC = TRUE, shuffle.k = 2L,
@@ -10,7 +10,7 @@ enrich_motifs2(motifs, sequences, bkg.sequences = NULL, pvalue = 1e-04,
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or
-RNA only -- amino-acid and custom alphabet motifs are rejected.}
+RNA only; amino-acid and custom alphabet motifs are rejected.}
 
 \item{sequences}{\code{XStringSet}. Target sequences.}
 
@@ -28,9 +28,9 @@ BH-adjusted enrichment p-value exceeds this are filtered out. Default
 
 \item{test}{\code{character(1)}. One of \code{"seqs"} (default) or \code{"sites"}.
 \code{"seqs"} runs Fisher's exact on per-sequence hit presence (does this
-sequence contain >=1 hit?) -- equivalent to \code{\link[=enrich_motifs]{enrich_motifs()}}'s
+sequence contain >=1 hit?), equivalent to \code{\link[=enrich_motifs]{enrich_motifs()}}'s
 \code{mode = "seq.hits"}. \code{"sites"} runs Fisher's exact on per-position
-rates (how many hits per scannable position?) -- equivalent to
+rates (how many hits per scannable position?), equivalent to
 \code{mode = "total.hits"}.}
 
 \item{RC}{\code{logical(1)}. If \code{TRUE} (default), scan both strands.}
@@ -73,7 +73,7 @@ denominator to avoid division by zero), per yamtk's formula
 \description{
 \code{enrich_motifs2()} is a deliberately stripped-down counterpart to
 \code{\link[=enrich_motifs]{enrich_motifs()}} whose default surface mirrors the command-line tool
-\verb{yamtk enr} (see \href{https://github.com/bjmt/yamtk}{yamtk}). It exposes a
+\href{https://github.com/bjmt/yamtk}{yamtk}. It exposes a
 single p-value cutoff for hits, a single q-value cutoff for results, two
 test modes (\code{"seqs"} and \code{"sites"}, both Fisher's exact), and uses
 \code{\link[=scan_sequences2]{scan_sequences2()}} under the hood to scan target and background
@@ -129,7 +129,8 @@ McLeay R, Bailey TL (2010). "Motif Enrichment Analysis: A unified
 framework and method evaluation." \emph{BMC Bioinformatics}, \strong{11}.
 }
 \seealso{
-\code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}}
+\code{\link[=enrich_motifs]{enrich_motifs()}}, \code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
+\code{\link[=match_bkg]{match_bkg()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

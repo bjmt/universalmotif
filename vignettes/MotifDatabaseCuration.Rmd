@@ -275,7 +275,7 @@ stays visible without overflowing the table or the MEME header.
 Singletons keep their original name:
 
 ```{r}
-contrib.names <- tapply(clusters$motif, clusters$cluster,
+contrib.names <- tapply(clusters$name, clusters$cluster,
                         function(n) as.character(n))
 for (i in seq_along(merged)) {
   nms <- contrib.names[[i]]
@@ -285,7 +285,11 @@ for (i in seq_along(merged)) {
     merged[[i]]["name"] <- sprintf("%s+%s+%dmore",
                                    nms[1], nms[2], length(nms) - 2L)
 }
-head(clusters, 8)
+## `clusters` is a universalmotif_df: one row per input motif, with
+## the motif objects in the `motif` column plus the `motif.i` and
+## `cluster` bookkeeping columns. Show just the assignment columns:
+print(head(as.data.frame(clusters)[, c("name", "motif.i", "cluster")], 8),
+      row.names = FALSE)
 ```
 
 The reduction is substantial: roughly a third of the input

@@ -15,6 +15,17 @@
 #' @param append `logical(1)` Add to an existing file. Motifs will be written
 #'    in minimal format, so it is recommended to only use this if the existing
 #'    file is also a minimal MEME format file.
+#' @param CWM `logical(1)` If `TRUE`, write Contribution Weight Matrix
+#'    (CWM) motifs verbatim into the `letter-probability matrix:`
+#'    block: signed real values, no normalisation
+#'    (matching what TF-MoDISco-lite emits). All input motifs must
+#'    be of `type = "CWM"`. If `FALSE` (default), CWM motifs are
+#'    first converted to PPM via the `|cwm| / sum` route so the
+#'    output stays strictly MEME-spec-compliant for downstream
+#'    consumers (FIMO, AME, CentriMo). Read the file back with
+#'    [read_meme(CWM = TRUE)][read_meme()] to recover the original
+#'    CWM matrix bit-identical. See [convert_type()] for the full
+#'    CWM semantics.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -22,6 +33,20 @@
 #' transfac <- read_transfac(system.file("extdata", "transfac.txt",
 #'                                     package = "universalmotif"))
 #' write_meme(transfac, tempfile())
+#'
+#' ## CWM round-trip: write a CWM with its raw signed values, then
+#' ## recover it with read_meme(..., CWM = TRUE).
+#' cwm.mat <- matrix(c( 0.1, -0.2,  0.8, -0.1,
+#'                     -0.3,  0.9, -0.2,  0.1,
+#'                      0.7, -0.1, -0.1, -0.4,
+#'                     -0.2, -0.1, -0.1,  0.9),
+#'                   nrow = 4, byrow = FALSE,
+#'                   dimnames = list(c("A","C","G","T"), NULL))
+#' cwm <- create_motif(cwm.mat, type = "CWM", name = "modisco_demo")
+#' f <- tempfile(fileext = ".meme")
+#' write_meme(cwm, f, CWM = TRUE, overwrite = TRUE)
+#' re <- read_meme(f, CWM = TRUE)
+#' re["type"]
 #'
 #' @references
 #'

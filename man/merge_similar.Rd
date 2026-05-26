@@ -96,7 +96,7 @@ length(motifs)
 
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs]{merge_motifs()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs]{merge_motifs()}}, \code{\link[=merge_similar2]{merge_similar2()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

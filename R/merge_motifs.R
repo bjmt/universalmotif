@@ -35,7 +35,8 @@
 #' m3 <- create_motif("AACCCCGG", name = "3")
 #' view_motifs(merge_motifs(c(m1, m2, m3)))
 #'
-#' @seealso [compare_motifs()]
+#' @seealso [compare_motifs()], [merge_motifs2()], [merge_similar()],
+#'     [trim_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export

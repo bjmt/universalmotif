@@ -1,8 +1,9 @@
 #' Convert \linkS4class{universalmotif} type.
 #'
 #' Switch between position count matrix (PCM), position probability matrix
-#' (PPM), position weight matrix (PWM), and information count matrix (ICM)
-#' types. See the "Introduction to sequence motifs" vignette for details. Please
+#' (PPM), position weight matrix (PWM), information count matrix (ICM), and
+#' contribution weight matrix (CWM) types.
+#' See the "Introduction to sequence motifs" vignette for details. Please
 #' also note that type conversion occurs implicitly throughout the
 #' `universalmotif` package, so there is generally no need to perform this
 #' manual conversion. Also please be aware that the message concerning
@@ -11,6 +12,10 @@
 #'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
+#'   `'CWM'` is only valid as the source type of a
+#'   conversion; `convert_type(other, "CWM")` errors because
+#'   contribution scores cannot be recovered from a probabilistic
+#'   matrix.
 #' @param pseudocount `numeric(1)` Correction to be applied to prevent `-Inf`
 #'   from appearing in PWM matrices. If missing, the pseudocount stored in the
 #'   \linkS4class{universalmotif} 'pseudocount' slot will be
@@ -94,6 +99,31 @@
 #'    Please note that conversion from ICM assumes the information content
 #'    was _not_ calculated as relative entropy.
 #'
+#'    ## CWM
+#'    Contribution weight matrix (CWM), as produced by attribution
+#'    methods such as TF-MoDISco (Shrikumar et al. 2018) and
+#'    DeepLIFT (Shrikumar, Greenside, and Kundaje 2017). Each cell
+#'    holds a signed real-valued contribution score: how much the
+#'    given letter at the given position drives a model's prediction.
+#'    Unlike the four probabilistic types above, CWMs are not
+#'    normalised (columns do not sum to 1 or to `nsites`), values
+#'    may be negative (the model penalises that letter at that
+#'    position), and there is no canonical maximum height. CWM is
+#'    therefore only ever a source type for `convert_type()`:
+#'    `convert_type(cwm, "PPM")` column-normalises absolute values
+#'    via the TF-MoDISco-lite convention
+#'    `ppm[i,j] = |cwm[i,j]| / sum_i |cwm[i,j]|` (columns whose
+#'    absolute column sum is zero collapse to a uniform distribution).
+#'    `convert_type(cwm, "PWM" | "ICM" | "PCM")` routes through
+#'    `CWM -> PPM` first and then applies the standard
+#'    `PPM -> *` step, so `CWM -> PWM` produces a real log-odds
+#'    matrix (`log2(ppm / bkg)`), not a re-labelled CWM. The reverse
+#'    direction (`PPM`, `PWM`, `ICM`, or `PCM` -> `CWM`) errors with
+#'    a clear message: contribution scores cannot be inferred from
+#'    a probability distribution, so a CWM must originate from an
+#'    attribution method (read via [read_meme()] with `CWM = TRUE`,
+#'    or built with `create_motif(matrix, type = "CWM")`).
+#'
 #' @examples
 #' jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                       package = "universalmotif"))
@@ -105,6 +135,16 @@
 #' ## Setting pseudocount to 0 will prevent any correction from being
 #' ## applied to PPM/PWM matrices, overriding the motifs own pseudocounts
 #' jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
+#'
+#' ## CWM -> PPM via |cwm| / sum (the TF-MoDISco convention):
+#' cwm.mat <- matrix(c( 0.10, -0.20,  0.80, -0.10,
+#'                     -0.30,  0.90, -0.20,  0.10,
+#'                      0.70, -0.10, -0.10, -0.40,
+#'                     -0.20, -0.10, -0.10,  0.90),
+#'                   nrow = 4, byrow = FALSE,
+#'                   dimnames = list(c("A","C","G","T"), NULL))
+#' cwm <- create_motif(cwm.mat, type = "CWM", name = "modisco_example")
+#' convert_type(cwm, "PPM")
 #'
 #' @references
 #'
@@ -129,6 +169,15 @@
 #'
 #' Shannon CE (1948). “A Mathematical Theory of Communication.” *Bell
 #' System Technical Journal*, **27**, 379-423.
+#'
+#' Shrikumar A, Greenside P, Kundaje A (2017). “Learning important
+#' features through propagating activation differences.”
+#' *Proceedings of the 34th International Conference on Machine
+#' Learning*, **70**, 3145-3153.
+#'
+#' Shrikumar A, Tian K, Avsec Ž, Shcherbina A, Banerjee A,
+#' Sharmin M, Nair S, Kundaje A (2018). “TF-MoDISco v0.4.4.2-alpha:
+#' Technical Note.” arXiv:1811.00416.
 #'
 #' Stormo GD, Schneider TD, Gold L, Ehrenfeucht A (1982). “Use of the
 #' Perceptron algorithm to distinguish translational initiation sites

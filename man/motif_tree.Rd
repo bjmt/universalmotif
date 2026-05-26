@@ -146,7 +146,7 @@ Evolution}, \strong{8}, 28-36. doi: 10.1111/2041-210X.12628.
 }
 \seealso{
 \code{\link[motifStack:motifStack]{motifStack::motifStack()}}, \code{\link[=compare_motifs]{compare_motifs()}},
-\code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}
+\code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}, \code{\link[=motif_tree2]{motif_tree2()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

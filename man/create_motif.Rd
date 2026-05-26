@@ -56,7 +56,8 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
 or a combined string representing the letters. If no alphabet is
 provided then it will try and guess the alphabet from the input.}
 
-\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM', 'CWM')}. \code{'CWM'} is intended for matrix input only. See
+\code{\link[=convert_type]{convert_type()}} for the CWM details and the available conversions.}
 
 \item{name}{\code{character(1)} Motif name.}
 
@@ -113,6 +114,13 @@ See examples for potential use cases.
 
 Note: when generating random motifs, the \code{nsites} slot is also given a
 random value.
+
+Note: \code{type = "CWM"} is only supported when \code{input} is a matrix.
+CWMs originate from contribution-attribution methods (TF-MoDISco,
+DeepLIFT) and cannot be derived from sequences, consensus strings,
+or random generation. The input matrix is stored as-is (signed
+real values, no column-sum constraint); no auto-normalisation
+is applied. See \code{\link[=convert_type]{convert_type()}} for the full CWM semantics.
 
 See the \code{examples} section for more info on motif creation.
 }
@@ -227,6 +235,18 @@ mat.ppm <- matrix(c(0.1, 0.1, 0.1, 0.1,
                     nrow = 4, byrow = TRUE)
 
 DNA.motif <- create_motif(mat.ppm, alphabet = "DNA", type = "PPM")
+
+# Contribution weight matrices (signed, no column-sum constraint).
+# Typically these come from TF-MoDISco / DeepLIFT pipelines and are
+# imported via `read_meme(..., CWM = TRUE)`, but can be built from
+# a matrix directly:
+cwm.mat <- matrix(c( 0.10, -0.20,  0.80, -0.10,
+                    -0.30,  0.90, -0.20,  0.10,
+                     0.70, -0.10, -0.10, -0.40,
+                    -0.20, -0.10, -0.10,  0.90),
+                  nrow = 4, byrow = FALSE,
+                  dimnames = list(c("A","C","G","T"), NULL))
+CWM.motif <- create_motif(cwm.mat, type = "CWM", name = "modisco_example")
 
 ##### Create random motifs
 

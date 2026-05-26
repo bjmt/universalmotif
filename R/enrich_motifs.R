@@ -85,7 +85,8 @@
 #'
 #' @author Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [scan_sequences()], [shuffle_sequences()],
-#'    [add_multifreq()], [motif_pvalue()]
+#'    [add_multifreq()], [motif_pvalue()], [enrich_motifs2()],
+#'    [scan_sequences2()], [match_bkg()]
 #' @inheritParams scan_sequences
 #' @export
 enrich_motifs <- function(motifs, sequences, bkg.sequences,

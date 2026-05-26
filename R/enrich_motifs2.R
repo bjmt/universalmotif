@@ -1,8 +1,8 @@
-#' Minimalist motif enrichment aligned with `yamtk enr` defaults.
+#' Fast minimalist motif enrichment.
 #'
 #' `enrich_motifs2()` is a deliberately stripped-down counterpart to
 #' [enrich_motifs()] whose default surface mirrors the command-line tool
-#' `yamtk enr` (see [yamtk](https://github.com/bjmt/yamtk)). It exposes a
+#' [yamtk](https://github.com/bjmt/yamtk). It exposes a
 #' single p-value cutoff for hits, a single q-value cutoff for results, two
 #' test modes (`"seqs"` and `"sites"`, both Fisher's exact), and uses
 #' [scan_sequences2()] under the hood to scan target and background
@@ -14,7 +14,7 @@
 #' machinery; or amino-acid motifs.
 #'
 #' @param motifs See [convert_motifs()] for accepted motif formats. DNA or
-#'   RNA only -- amino-acid and custom alphabet motifs are rejected.
+#'   RNA only; amino-acid and custom alphabet motifs are rejected.
 #' @param sequences `XStringSet`. Target sequences.
 #' @param bkg.sequences `XStringSet` or `NULL`. Background sequences. If
 #'   `NULL` (default), target sequences are shuffled k-let-conserving via
@@ -27,9 +27,9 @@
 #'   `0.1`.
 #' @param test `character(1)`. One of `"seqs"` (default) or `"sites"`.
 #'   `"seqs"` runs Fisher's exact on per-sequence hit presence (does this
-#'   sequence contain >=1 hit?) -- equivalent to [enrich_motifs()]'s
+#'   sequence contain >=1 hit?), equivalent to [enrich_motifs()]'s
 #'   `mode = "seq.hits"`. `"sites"` runs Fisher's exact on per-position
-#'   rates (how many hits per scannable position?) -- equivalent to
+#'   rates (how many hits per scannable position?), equivalent to
 #'   `mode = "total.hits"`.
 #' @param RC `logical(1)`. If `TRUE` (default), scan both strands.
 #' @param shuffle.k `integer(1)`. K-let size for the background shuffle
@@ -107,7 +107,8 @@
 #'                  pvalue = 1e-3, qvalue = 0.5, rng.seed = 1)
 #' }
 #'
-#' @seealso [enrich_motifs()], [scan_sequences2()], [shuffle_sequences()]
+#' @seealso [enrich_motifs()], [scan_sequences2()], [shuffle_sequences()],
+#'     [match_bkg()], [motif_pvalue()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 enrich_motifs2 <- function(motifs, sequences, bkg.sequences = NULL,

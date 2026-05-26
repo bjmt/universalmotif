@@ -15,7 +15,7 @@ abstract: >
   composition-matched background with `match_bkg()` and
   `enrich_motifs2()`, scan all peaks with `scan_sequences2()`,
   test for central positional bias with `motif_peaks()`, and look
-  for tight motif self-clustering with `motif_coocc()`. The
+  for motif clustering with `motif_coocc()`. The
   closing section assembles a summary table that combines all of
   the per-motif evidence into one ranked list.
 vignette: >

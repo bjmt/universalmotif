@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_motifs2.R
 \name{merge_motifs2}
 \alias{merge_motifs2}
-\title{Merge a list of motifs into a single consensus motif (v2).}
+\title{Merge a list of motifs into a single consensus motif.}
 \usage{
 merge_motifs2(motifs, min.overlap = 5L, RC = TRUE, new.name = NULL,
   weighted = FALSE, nthreads = 1)
@@ -25,10 +25,7 @@ If \code{NULL} (default), set to \code{paste0("merged_", paste(names, collapse =
 
 \item{weighted}{\code{logical(1)}. If \code{TRUE}, weight each input motif's
 column contribution by its \verb{@nsites} slot. Default \code{FALSE} (simple
-unweighted mean) -- \verb{@nsites} is often missing, set to a sentinel
-like 100, or inconsistent across motifs from different sources, so
-weighting can do more harm than good unless the user has actively
-curated nsites. Motifs whose \verb{@nsites} is missing or zero fall back
+unweighted mean). Motifs whose \verb{@nsites} is missing or zero fall back
 to weight 1 in either mode.}
 
 \item{nthreads}{\code{numeric(1)}. Number of threads passed to
@@ -38,19 +35,11 @@ to weight 1 in either mode.}
 A single \code{universalmotif} S4 object of type \code{"PPM"}.
 }
 \description{
-\code{merge_motifs2()} is a minimalist counterpart to \code{\link[=merge_motifs]{merge_motifs()}} that
+\code{merge_motifs2()} is a faster minimalist counterpart to \code{\link[=merge_motifs]{merge_motifs()}} that
 aligns motifs using \code{compare_motifs2()}'s alignment finder and averages
 their position-probability columns in a single shared coordinate frame.
-All alignment / similarity decisions go through \code{compare_motifs2()}
-(Pearson correlation, optionally reverse-complement aware).
 }
 \details{
-Unlike \code{\link[=merge_motifs]{merge_motifs()}}, the algorithm is anchor-based, not
-iterative-pairwise: the highest-IC input motif is chosen as the
-anchor, every other motif is aligned against it once, and all motifs
-are then averaged together in a single shared column frame. This
-removes the input-order dependence of \code{\link[=merge_motifs]{merge_motifs()}}.
-
 For each non-anchor motif, \code{\link[=compare_motifs2]{compare_motifs2()}} gives the best
 alignment offset, strand, and overlap against the anchor. Each
 aligned motif (reverse-complemented if its best alignment is \code{-}

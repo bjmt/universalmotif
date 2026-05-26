@@ -42,7 +42,7 @@
 #' @param pvalue `numeric(1)`. Per-hit p-value threshold for the
 #'   internal scan. Default `1e-4`. Ignored on the hit-table path.
 #' @param RC `logical(1)`. Scan the reverse complement too? Default
-#'   `TRUE`. Ignored on the hit-table path.
+#'   `TRUE`. Ignored when a hits table is provided.
 #' @param max.distance `integer(1)` or `NULL`. If non-`NULL`, two
 #'   extra descriptive columns are added to the output:
 #'   `both.clustered` (subset of co-occurring sequences with a within-

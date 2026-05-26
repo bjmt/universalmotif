@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif_tree2.R
 \name{motif_tree2}
 \alias{motif_tree2}
-\title{Generate ggtree-based motif trees using \code{compare_motifs2()} (v2).}
+\title{Generate ggtree-based motif trees using \code{compare_motifs2()}.}
 \usage{
 motif_tree2(motifs, layout = "circular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
@@ -54,8 +54,7 @@ A \code{ggplot} (\code{ggtree}) object.
 \code{motif_tree2()} is the leaner counterpart of \code{\link[=motif_tree]{motif_tree()}}: it builds the
 distance matrix via \code{\link[=compare_motifs2]{compare_motifs2()}} (mean Pearson correlation,
 with built-in p-value / q-value machinery) instead of
-\code{\link[=compare_motifs]{compare_motifs()}} (older similarity / distance metrics such as
-\code{EUCL} / \code{WEUCL}). The distance for \code{hclust()} is derived from the
+\code{\link[=compare_motifs]{compare_motifs()}}. The distance for \code{hclust()} is derived from the
 mean Pearson correlation matrix as \code{(1 - score) / 2}, mapping
 similarity in \verb{[-1, 1]} to a symmetric distance in \verb{[0, 1]}. The
 tree-construction and rendering steps (\code{hclust()} followed by

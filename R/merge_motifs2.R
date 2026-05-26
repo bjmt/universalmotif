@@ -1,16 +1,8 @@
-#' Merge a list of motifs into a single consensus motif (v2).
+#' Merge a list of motifs into a single consensus motif.
 #'
-#' `merge_motifs2()` is a minimalist counterpart to [merge_motifs()] that
+#' `merge_motifs2()` is a faster minimalist counterpart to [merge_motifs()] that
 #' aligns motifs using `compare_motifs2()`'s alignment finder and averages
 #' their position-probability columns in a single shared coordinate frame.
-#' All alignment / similarity decisions go through `compare_motifs2()`
-#' (Pearson correlation, optionally reverse-complement aware).
-#'
-#' Unlike [merge_motifs()], the algorithm is anchor-based, not
-#' iterative-pairwise: the highest-IC input motif is chosen as the
-#' anchor, every other motif is aligned against it once, and all motifs
-#' are then averaged together in a single shared column frame. This
-#' removes the input-order dependence of [merge_motifs()].
 #'
 #' @param motifs `list` of motifs. See [convert_motifs()] for accepted
 #'   formats. DNA or RNA only.
@@ -25,10 +17,7 @@
 #'   If `NULL` (default), set to `paste0("merged_", paste(names, collapse = "+"))`.
 #' @param weighted `logical(1)`. If `TRUE`, weight each input motif's
 #'   column contribution by its `@nsites` slot. Default `FALSE` (simple
-#'   unweighted mean) -- `@nsites` is often missing, set to a sentinel
-#'   like 100, or inconsistent across motifs from different sources, so
-#'   weighting can do more harm than good unless the user has actively
-#'   curated nsites. Motifs whose `@nsites` is missing or zero fall back
+#'   unweighted mean). Motifs whose `@nsites` is missing or zero fall back
 #'   to weight 1 in either mode.
 #' @param nthreads `numeric(1)`. Number of threads passed to
 #'   [compare_motifs2()]. `nthreads = 0` uses all available threads.

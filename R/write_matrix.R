@@ -7,8 +7,15 @@
 #' @param positions `character(1)` One of `c('columns', 'rows')`. Partial
 #'   matching allowed.
 #' @param rownames `logical(1)` Include alphabet letters as rownames.
-#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`. If missing
-#'   will use whatever type the motif is currently stored as.
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM',
+#'   'CWM')`. If missing, the motif is written with whatever type it
+#'   is currently stored as, so a CWM motif (signed real values, no
+#'   shared column sums ) round-trips through
+#'   `write_matrix()` / `read_matrix(type = "CWM")` verbatim. Note
+#'   that `type = "CWM"` here only works with
+#'   CWM motifs; you cannot ask `write_matrix()` to convert a
+#'   PPM (or any other type) into a CWM (the underlying
+#'   [convert_type()] step refuses any `*` -> `CWM` direction).
 #' @param sep `character(1)` Indicates how to separate individual motifs. Set as
 #'    `NULL` to have no seperating lines between motifs (the default is to
 #'    use a blank line).
@@ -22,6 +29,20 @@
 #' @examples
 #' motif <- create_motif()
 #' write_matrix(motif, tempfile(), headers = ">")
+#'
+#' ## CWM round-trip: write a CWM with its raw signed values, then
+#' ## read it back with type = "CWM" preserved.
+#' cwm.mat <- matrix(c( 0.1, -0.2,  0.8, -0.1,
+#'                     -0.3,  0.9, -0.2,  0.1,
+#'                      0.7, -0.1, -0.1, -0.4,
+#'                     -0.2, -0.1, -0.1,  0.9),
+#'                   nrow = 4, byrow = FALSE,
+#'                   dimnames = list(c("A","C","G","T"), NULL))
+#' cwm <- create_motif(cwm.mat, type = "CWM", name = "modisco_demo")
+#' f <- tempfile()
+#' write_matrix(cwm, f, headers = ">", rownames = TRUE)
+#' re <- read_matrix(f, headers = ">", rownames = TRUE, type = "CWM")
+#' re["type"]
 #'
 #' @family write_motifs
 #' @seealso [read_matrix()]

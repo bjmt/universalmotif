@@ -14,7 +14,8 @@
 #' motif <- create_motif()
 #' sites <- sample_sites(motif)
 #'
-#' @seealso [create_sequences()], [create_motif()], [add_multifreq()]
+#' @seealso [create_sequences()], [create_motif()], [add_multifreq()],
+#'     [implant_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 sample_sites <- function(motif, n = 100, use.freq = 1) {

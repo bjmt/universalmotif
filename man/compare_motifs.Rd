@@ -225,7 +225,7 @@ co-regulated genes to identify motifs.” \emph{Bioinformatics}, \strong{19},
 }
 \seealso{
 \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}},
-\code{\link[=make_DBscores]{make_DBscores()}}
+\code{\link[=make_DBscores]{make_DBscores()}}, \code{\link[=compare_motifs2]{compare_motifs2()}}, \code{\link[=view_motifs2]{view_motifs2()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

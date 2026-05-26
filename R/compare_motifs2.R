@@ -1,8 +1,8 @@
-#' Minimalist motif-vs-motif comparison aligned with `yamtk cmp`.
+#' Faster minimalist motif comparison.
 #'
 #' `compare_motifs2()` is a deliberately stripped-down counterpart to
 #' [compare_motifs()] whose defaults and algorithm mirror the command-line
-#' tool `yamtk cmp` (see [yamtk](https://github.com/bjmt/yamtk)). It uses
+#' tool [yamtk](https://github.com/bjmt/yamtk). It uses
 #' Pearson correlation per column as the similarity metric, computes
 #' significance from a TOMTOM-style null PMF (either empirical from the
 #' target database or parametric via Dirichlet-Multinomial over a K=5
@@ -91,7 +91,7 @@
 #' ## Long-format hits at q <= 0.5 with motif 1 as the query
 #' compare_motifs2(motifs, compare.to = 1, qvalue = 0.5)
 #'
-#' @seealso [compare_motifs()], [scan_sequences2()]
+#' @seealso [compare_motifs()], [scan_sequences2()], [view_motifs2()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 compare_motifs2 <- function(motifs,

@@ -45,21 +45,24 @@ test_that("single-motif input passes through unchanged", {
 test_that("empty input is handled cleanly", {
   expect_equal(length(merge_similar2(list())), 0L)
   df <- merge_similar2(list(), return.clusters = TRUE)
-  expect_s3_class(df, "data.frame")
+  expect_s3_class(df, "universalmotif_df")
   expect_equal(nrow(df), 0L)
-  expect_equal(names(df), c("motif", "motif.i", "cluster"))
+  expect_true(all(c("motif", "name", "motif.i", "cluster") %in% names(df)))
 })
 
-test_that("return.clusters = TRUE yields the right shape", {
+test_that("return.clusters = TRUE yields a universalmotif_df", {
   m1 <- create_motif("TTGACATA", name = "a")
   m2 <- create_motif("CTTGACAT", name = "b")
   m3 <- create_motif("TGACATAT", name = "c")
   m4 <- create_motif("GGGCCCCC", name = "unrelated")
   df <- merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05,
                        return.clusters = TRUE)
-  expect_s3_class(df, "data.frame")
-  expect_equal(names(df), c("motif", "motif.i", "cluster"))
+  expect_s3_class(df, "universalmotif_df")
+  expect_true(all(c("motif", "name", "motif.i", "cluster") %in% names(df)))
   expect_equal(nrow(df), 4L)
+  expect_equal(df$motif.i, 1:4)
+  expect_equal(df$name, c("a", "b", "c", "unrelated"))
+  expect_true(is(df$motif[[1]], "universalmotif"))
   expect_setequal(df$cluster, c(1L, 2L))
 })
 

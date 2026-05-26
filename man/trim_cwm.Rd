@@ -34,7 +34,7 @@ column sum (\verb{sum_i |cwm[i,j]|}) falls below a threshold.
 }
 \details{
 Two threshold modes are supported. By default, \code{trim_cwm()}
-uses the TF-MoDISco-lite \emph{fraction-of-peak} rule: drop edge
+uses the TF-MoDISco-lite fraction-of-peak rule: drop edge
 columns whose absolute column sum is below
 \verb{trim.threshold * max_j(sum_i |cwm[i,j]|)}, with
 \code{trim.threshold = 0.3} matching TF-MoDISco-lite's

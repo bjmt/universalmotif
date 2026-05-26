@@ -3,6 +3,15 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o merge_similar2(return.clusters = TRUE) now returns a
+    universalmotif_df (the to_df() representation of the input
+    motifs, with the motif objects in the `motif` column and their
+    names in `name`) augmented with `motif.i` (1-based input index)
+    and `cluster` (1-based cluster id) columns, instead of the
+    previous bare three-column data.frame. Code that referenced the
+    old `motif` column (which held name strings) should switch to
+    `name`; `motif.i` and `cluster` are unchanged.
+
   o Added support for CWM (Contribution Weight Matrix) motifs.
     Contribution Weight Matrices come from TF-MoDISco / DeepLIFT
     -style attribution methods and hold signed, unnormalised

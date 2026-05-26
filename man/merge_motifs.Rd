@@ -96,7 +96,8 @@ view_motifs(merge_motifs(c(m1, m2, m3)))
 
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs2]{merge_motifs2()}}, \code{\link[=merge_similar]{merge_similar()}},
+\code{\link[=trim_motifs]{trim_motifs()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

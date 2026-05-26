@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_similar2.R
 \name{merge_similar2}
 \alias{merge_similar2}
-\title{Cluster similar motifs by significance and merge each cluster (v2).}
+\title{Cluster similar motifs by significance and merge each cluster.}
 \usage{
 merge_similar2(motifs, qvalue = 0.01, null = c("empirical", "parametric"),
   min.overlap = 5L, RC = TRUE, bkg = NULL, weighted = FALSE,
@@ -29,8 +29,9 @@ to \code{\link[=compare_motifs2]{compare_motifs2()}}. \code{NULL} uses uniform.}
 \item{weighted}{\code{logical(1)}. Forwarded to \code{\link[=merge_motifs2]{merge_motifs2()}}. Default
 \code{FALSE}.}
 
-\item{return.clusters}{\code{logical(1)}. If \code{TRUE}, return a \code{data.frame}
-of cluster assignments instead of merged motifs. Default \code{FALSE}.}
+\item{return.clusters}{\code{logical(1)}. If \code{TRUE}, return a
+\code{universalmotif_df} of cluster assignments instead of merged
+motifs. Default \code{FALSE}.}
 
 \item{nthreads}{\code{numeric(1)}. Threads forwarded to \code{\link[=compare_motifs2]{compare_motifs2()}}
 and \code{\link[=merge_motifs2]{merge_motifs2()}}. \code{nthreads = 0} uses all available threads.}
@@ -41,12 +42,15 @@ If \code{return.clusters = FALSE} (default): a \code{list} of
 list is shorter than the input whenever any merging occurred).
 Singletons pass through unchanged.
 
-If \code{return.clusters = TRUE}: a \code{data.frame} with columns \code{motif}
-(input name), \code{motif.i} (input index), \code{cluster} (1-based cluster
+If \code{return.clusters = TRUE}: a \code{universalmotif_df} (as produced
+by \code{\link[=to_df]{to_df()}}) describing the input motifs -- one row per input
+motif, with the \code{motif} column holding the motif objects and
+\code{name} their names -- augmented with two extra columns:
+\code{motif.i} (1-based input index) and \code{cluster} (1-based cluster
 id; motifs in the same cluster share an id).
 }
 \description{
-\code{merge_similar2()} is a minimalist counterpart to \code{\link[=merge_similar]{merge_similar()}}
+\code{merge_similar2()} is a faster minimalist counterpart to \code{\link[=merge_similar]{merge_similar()}}
 that builds a pairwise similarity-significance graph using
 \code{\link[=compare_motifs2]{compare_motifs2()}}'s empirical or parametric null q-values, finds
 connected components on that graph, and collapses each component

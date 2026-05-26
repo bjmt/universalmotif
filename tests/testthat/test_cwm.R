@@ -81,6 +81,18 @@ test_that("motif_rc preserves CWM type", {
   expect_equal(ncol(rc@motif), ncol(cwm@motif))
 })
 
+test_that("write_matrix / read_matrix round-trip preserves CWM", {
+  cwm <- create_motif(cwm_matrix(), type = "CWM", name = "rt_matrix")
+  f <- tempfile()
+  on.exit(unlink(f), add = TRUE)
+  write_matrix(cwm, f, headers = ">", rownames = TRUE)
+  re <- read_matrix(f, headers = ">", rownames = TRUE, type = "CWM")
+  re_one <- if (is.list(re)) re[[1]] else re
+  expect_equal(re_one@type, "CWM")
+  expect_true(any(re_one@motif < 0))
+  expect_equal(unname(re_one@motif), unname(cwm@motif), tolerance = 1e-5)
+})
+
 test_that("trim_motifs works on CWM input", {
   m <- cbind(matrix(0.01, nrow = 4, ncol = 2,
                     dimnames = list(c("A","C","G","T"), NULL)),

@@ -43,15 +43,14 @@ The input \code{hits}, subsetted to the kept rows in the original
 order.
 }
 \description{
-Given a set of motif hits -- typically the output of
-\code{\link[=scan_sequences2]{scan_sequences2()}} or \code{\link[=scan_sequences]{scan_sequences()}}, or a \code{GRanges} /
-\code{data.frame} from any other source -- drop overlapping hits within
-each \verb{(sequence, motif, strand)} group using
-\href{https://github.com/bjmt/yamtk}{yamtk}'s greedy
+Given a set of motif hits, typically the output of
+\code{\link[=scan_sequences]{scan_sequences()}} or \code{\link[=scan_sequences2]{scan_sequences2()}}, or a \code{GRanges} /
+\code{data.frame} from any other source, drop overlapping hits within
+each \verb{(sequence, motif, strand)} group using a greedy
 algorithm: cluster overlapping hits, then within each cluster keep
 the hit with the best priority and, after that, any other hit that
 does not overlap an already-kept hit. This is the same algorithm
-implemented by \verb{yamtk dedup}.
+implemented by \href{https://github.com/bjmt/yamtk}{yamtk}.
 }
 \details{
 Note that this differs from \code{\link[=scan_sequences]{scan_sequences()}}'s built-in

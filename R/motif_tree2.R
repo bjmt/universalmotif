@@ -1,10 +1,9 @@
-#' Generate ggtree-based motif trees using `compare_motifs2()` (v2).
+#' Generate ggtree-based motif trees using `compare_motifs2()`.
 #'
 #' `motif_tree2()` is the leaner counterpart of [motif_tree()]: it builds the
 #' distance matrix via [compare_motifs2()] (mean Pearson correlation,
 #' with built-in p-value / q-value machinery) instead of
-#' [compare_motifs()] (older similarity / distance metrics such as
-#' `EUCL` / `WEUCL`). The distance for `hclust()` is derived from the
+#' [compare_motifs()]. The distance for `hclust()` is derived from the
 #' mean Pearson correlation matrix as `(1 - score) / 2`, mapping
 #' similarity in `[-1, 1]` to a symmetric distance in `[0, 1]`. The
 #' tree-construction and rendering steps (`hclust()` followed by

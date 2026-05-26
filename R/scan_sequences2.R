@@ -2,7 +2,7 @@
 #'
 #' `scan_sequences2()` is a deliberately stripped-down counterpart to
 #' [scan_sequences()] whose default surface mirrors the command-line tool
-#' `yamtk scan` (see [yamtk](https://github.com/bjmt/yamtk)).
+#' [yamtk](https://github.com/bjmt/yamtk).
 #' It exposes a single threshold (a P-value),
 #' always scans both strands by default, always computes per-hit P-values,
 #' and returns either a `GRanges` (preferred when GenomicRanges is
@@ -56,7 +56,7 @@
 #'
 #' Coordinates are always 1-based, inclusive, with `start <= end` regardless of
 #' strand. For hits on the `-` strand the `match` column is the reverse
-#' complement of the sequence substring -- i.e. the sequence as matched against
+#' complement of the sequence substring; i.e. the sequence as matched against
 #' the motif. 
 #'
 #' @references

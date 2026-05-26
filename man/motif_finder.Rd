@@ -80,8 +80,8 @@ Use \code{\link[=to_list]{to_list()}} on the returned object to recover a plain 
 }
 \description{
 \code{motif_finder()} is a minimalist \emph{de novo} motif discovery
-function. Its defaults mirror the command-line tool \verb{yamtk me} (see
-\href{https://github.com/bjmt/yamtk}{yamtk}). The pipeline iterates over a
+function. Its defaults mirror the command-line tool
+\href{https://github.com/bjmt/yamtk}{yamtk}. The pipeline iterates over a
 user-controlled range of motif widths; at each width it enumerates
 over-represented k-mer seeds (Fisher's exact test on per-sequence
 presence vs. a background set), aligns Hamming-1 neighbours of the best
@@ -93,18 +93,13 @@ overlap, BH-adjusted, IC-trimmed at the flanks, and returned in
 p-value order.
 }
 \details{
-Algorithm and defaults are a faithful port of \verb{yamtk me}
-(https://github.com/bjmt/yamtk), whose own design is in turn based
+Algorithm and defaults are a faithful port of
+\href{https://github.com/bjmt/yamtk}{yamtk}, whose own design is in turn based
 on the STREME algorithm (Bailey 2021): seed enumeration via word
 counting with per-sequence Fisher's exact ranking, iterative PPM
 refinement on positive sequences, per-motif Fisher's exact
 significance against a shuffled or user-supplied background, and
 position masking between discoveries.
-
-The C++ inner loops (seed enumeration, PPM refinement, per-motif
-Fisher's evaluation, cross-width dedup) live in
-\code{src/motif_finder.cpp} and are parallelised across motif widths via
-\code{RcppThread::parallelFor}.
 
 Motifs with \code{qvalue > qvalue} are dropped from the result. To see
 all discovered motifs regardless of significance, set

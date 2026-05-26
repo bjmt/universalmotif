@@ -60,13 +60,13 @@ Coordinate fields:
 
 Coordinates are always 1-based, inclusive, with \code{start <= end} regardless of
 strand. For hits on the \code{-} strand the \code{match} column is the reverse
-complement of the sequence substring -- i.e. the sequence as matched against
+complement of the sequence substring; i.e. the sequence as matched against
 the motif.
 }
 \description{
 \code{scan_sequences2()} is a deliberately stripped-down counterpart to
 \code{\link[=scan_sequences]{scan_sequences()}} whose default surface mirrors the command-line tool
-\verb{yamtk scan} (see \href{https://github.com/bjmt/yamtk}{yamtk}).
+\href{https://github.com/bjmt/yamtk}{yamtk}.
 It exposes a single threshold (a P-value),
 always scans both strands by default, always computes per-hit P-values,
 and returns either a \code{GRanges} (preferred when GenomicRanges is

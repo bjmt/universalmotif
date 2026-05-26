@@ -190,7 +190,7 @@
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()], [motif_tree()], [view_motifs()],
-#'    [make_DBscores()]
+#'    [make_DBscores()], [compare_motifs2()], [view_motifs2()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "PCC", tryRC = TRUE,

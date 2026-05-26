@@ -29,7 +29,7 @@ using the precomputed-hits path).}
 internal scan. Default \code{1e-4}. Ignored on the hit-table path.}
 
 \item{RC}{\code{logical(1)}. Scan the reverse complement too? Default
-\code{TRUE}. Ignored on the hit-table path.}
+\code{TRUE}. Ignored when a hits table is provided.}
 
 \item{max.distance}{\code{integer(1)} or \code{NULL}. If non-\code{NULL}, two
 extra descriptive columns are added to the output:

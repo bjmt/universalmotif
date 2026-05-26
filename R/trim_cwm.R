@@ -8,7 +8,7 @@
 #' column sum (`sum_i |cwm[i,j]|`) falls below a threshold.
 #'
 #' Two threshold modes are supported. By default, `trim_cwm()`
-#' uses the TF-MoDISco-lite *fraction-of-peak* rule: drop edge
+#' uses the TF-MoDISco-lite fraction-of-peak rule: drop edge
 #' columns whose absolute column sum is below
 #' `trim.threshold * max_j(sum_i |cwm[i,j]|)`, with
 #' `trim.threshold = 0.3` matching TF-MoDISco-lite's

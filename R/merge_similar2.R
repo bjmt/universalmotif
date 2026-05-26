@@ -1,6 +1,6 @@
-#' Cluster similar motifs by significance and merge each cluster (v2).
+#' Cluster similar motifs by significance and merge each cluster.
 #'
-#' `merge_similar2()` is a minimalist counterpart to [merge_similar()]
+#' `merge_similar2()` is a faster minimalist counterpart to [merge_similar()]
 #' that builds a pairwise similarity-significance graph using
 #' [compare_motifs2()]'s empirical or parametric null q-values, finds
 #' connected components on that graph, and collapses each component
@@ -29,8 +29,9 @@
 #'   to [compare_motifs2()]. `NULL` uses uniform.
 #' @param weighted `logical(1)`. Forwarded to [merge_motifs2()]. Default
 #'   `FALSE`.
-#' @param return.clusters `logical(1)`. If `TRUE`, return a `data.frame`
-#'   of cluster assignments instead of merged motifs. Default `FALSE`.
+#' @param return.clusters `logical(1)`. If `TRUE`, return a
+#'   `universalmotif_df` of cluster assignments instead of merged
+#'   motifs. Default `FALSE`.
 #' @param nthreads `numeric(1)`. Threads forwarded to [compare_motifs2()]
 #'   and [merge_motifs2()]. `nthreads = 0` uses all available threads.
 #'
@@ -39,8 +40,11 @@
 #'   list is shorter than the input whenever any merging occurred).
 #'   Singletons pass through unchanged.
 #'
-#'   If `return.clusters = TRUE`: a `data.frame` with columns `motif`
-#'   (input name), `motif.i` (input index), `cluster` (1-based cluster
+#'   If `return.clusters = TRUE`: a `universalmotif_df` (as produced
+#'   by [to_df()]) describing the input motifs -- one row per input
+#'   motif, with the `motif` column holding the motif objects and
+#'   `name` their names -- augmented with two extra columns:
+#'   `motif.i` (1-based input index) and `cluster` (1-based cluster
 #'   id; motifs in the same cluster share an id).
 #'
 #' @details
@@ -97,8 +101,10 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
   ## --- early empty-input handling (before convert_motifs, which would error) ---
   if (is.list(motifs) && length(motifs) == 0L) {
     if (return.clusters) {
-      return(data.frame(motif = character(0), motif.i = integer(0),
-                        cluster = integer(0)))
+      empty <- to_df(list(create_motif()))[0, , drop = FALSE]
+      empty$motif.i <- integer(0)
+      empty$cluster <- integer(0)
+      return(empty)
     }
     return(list())
   }
@@ -122,8 +128,7 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
   ## --- single-motif fast path ------------------------------------------
   if (n_mot == 1L) {
     if (return.clusters) {
-      return(data.frame(motif = mot.names, motif.i = 1L, cluster = 1L,
-                        stringsAsFactors = FALSE))
+      return(clusters_to_df(motifs, 1L))
     }
     return(motifs)
   }
@@ -179,10 +184,7 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
   }
 
   if (return.clusters) {
-    return(data.frame(motif = mot.names,
-                      motif.i = seq_len(n_mot),
-                      cluster = cluster_id,
-                      stringsAsFactors = FALSE))
+    return(clusters_to_df(motifs, cluster_id))
   }
 
   ## --- merge each multi-motif cluster ----------------------------------
@@ -200,4 +202,15 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
     }
   }
   out
+}
+
+## Build the return.clusters output: a universalmotif_df (via to_df())
+## of the input motifs, augmented with `motif.i` (1-based input index)
+## and `cluster` (1-based cluster id) columns. The `motif` column holds
+## the input motif objects, `name` their names, etc.
+clusters_to_df <- function(motifs, cluster_id) {
+  df <- to_df(motifs)
+  df$motif.i <- seq_len(nrow(df))
+  df$cluster <- as.integer(cluster_id)
+  df
 }

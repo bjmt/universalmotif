@@ -14,8 +14,11 @@ read_matrix(file, skip = 0, type, positions = "columns",
 \item{skip}{\code{numeric(1)} If not zero, will skip however many desired lines in the
 file before starting to read.}
 
-\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
-If missing will try and guess which one.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM', 'CWM')}. If missing, will try and guess which one (note that
+\code{'CWM'} is never auto-detected; a signed matrix without
+explicit \code{type = "CWM"} is read as \code{'PWM'}, since the two
+have identical matrix shapes and CWM semantics need to be
+opted into explicitly).}
 
 \item{positions}{\code{character(1)} One of \code{c('columns', 'rows')}. Partial matching
 allowed. Indicate whether each
@@ -44,6 +47,13 @@ Import simply formatted motifs.
 \examples{
    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
    hocomoco <- read_matrix(hocomoco, headers = ">", positions = "rows")
+
+   ## Reading a TF-MoDISco-style CWM dump: signed real values, no
+   ## column-sum constraint. Opt in via type = "CWM".
+   \dontrun{
+   cwms <- read_matrix("modisco_cwms.txt", headers = ">",
+                       positions = "rows", type = "CWM")
+   }
 
 }
 \seealso{

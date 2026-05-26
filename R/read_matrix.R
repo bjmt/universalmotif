@@ -10,8 +10,12 @@
 #'    position within a motif is represented as a row or a column in the file.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
 #'    or a string of letters.
-#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
-#'    If missing will try and guess which one.
+#' @param type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM',
+#'    'CWM')`. If missing, will try and guess which one (note that
+#'    `'CWM'` is never auto-detected; a signed matrix without
+#'    explicit `type = "CWM"` is read as `'PWM'`, since the two
+#'    have identical matrix shapes and CWM semantics need to be
+#'    opted into explicitly).
 #' @param sep `character(1)` Indicates how individual motifs are separated. Set as
 #'    `NULL` if there are no seperating lines between motifs (the default is to
 #'    assume a blank line).
@@ -25,6 +29,13 @@
 #' @examples
 #'    hocomoco <- system.file("extdata", "hocomoco.txt", package = "universalmotif")
 #'    hocomoco <- read_matrix(hocomoco, headers = ">", positions = "rows")
+#'
+#'    ## Reading a TF-MoDISco-style CWM dump: signed real values, no
+#'    ## column-sum constraint. Opt in via type = "CWM".
+#'    \dontrun{
+#'    cwms <- read_matrix("modisco_cwms.txt", headers = ">",
+#'                        positions = "rows", type = "CWM")
+#'    }
 #'
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

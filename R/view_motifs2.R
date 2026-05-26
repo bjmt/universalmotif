@@ -61,8 +61,8 @@
 #'   matrices.
 #'
 #' @details
-#' The alignment step uses `compare_motifs2_align_cpp()` (the same
-#' backend as [merge_motifs2()] and [merge_similar2()]). The
+#' The alignment step uses the same
+#' backend as [merge_motifs2()] and [merge_similar2()]. The
 #' highest-information-content input motif is chosen as the anchor,
 #' every other motif is aligned against it once, motifs whose best
 #' alignment lands on the reverse complement strand are

@@ -167,7 +167,8 @@ framework and method evaluation.” \emph{BMC Bioinformatics}, \strong{11}.
 }
 \seealso{
 \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
-\code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}
+\code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}},
+\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=match_bkg]{match_bkg()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@uwaterloo.ca}

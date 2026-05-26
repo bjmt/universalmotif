@@ -89,7 +89,7 @@
 #' Evolution*, **8**, 28-36. doi: 10.1111/2041-210X.12628.
 #'
 #' @seealso [motifStack::motifStack()], [compare_motifs()],
-#'    [ggtree::ggtree()], [ggplot2::ggplot()]
+#'    [ggtree::ggtree()], [ggplot2::ggplot()], [motif_tree2()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export

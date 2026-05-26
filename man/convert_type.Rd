@@ -10,7 +10,11 @@ convert_type(motifs, type, pseudocount, nsize_correction = FALSE,
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable formats.}
 
-\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.}
+\item{type}{\code{character(1)} One of \code{c('PCM', 'PPM', 'PWM', 'ICM')}.
+\code{'CWM'} is only valid as the source type of a
+conversion; \code{convert_type(other, "CWM")} errors because
+contribution scores cannot be recovered from a probabilistic
+matrix.}
 
 \item{pseudocount}{\code{numeric(1)} Correction to be applied to prevent \code{-Inf}
 from appearing in PWM matrices. If missing, the pseudocount stored in the
@@ -29,8 +33,9 @@ See \code{\link[=convert_motifs]{convert_motifs()}} for possible output motif ob
 }
 \description{
 Switch between position count matrix (PCM), position probability matrix
-(PPM), position weight matrix (PWM), and information count matrix (ICM)
-types. See the "Introduction to sequence motifs" vignette for details. Please
+(PPM), position weight matrix (PWM), information count matrix (ICM), and
+contribution weight matrix (CWM) types.
+See the "Introduction to sequence motifs" vignette for details. Please
 also note that type conversion occurs implicitly throughout the
 \code{universalmotif} package, so there is generally no need to perform this
 manual conversion. Also please be aware that the message concerning
@@ -115,6 +120,33 @@ not hold for information content calculated as relative entropy.
 Please note that conversion from ICM assumes the information content
 was \emph{not} calculated as relative entropy.
 }
+
+\subsection{CWM}{
+
+Contribution weight matrix (CWM), as produced by attribution
+methods such as TF-MoDISco (Shrikumar et al. 2018) and
+DeepLIFT (Shrikumar, Greenside, and Kundaje 2017). Each cell
+holds a signed real-valued contribution score: how much the
+given letter at the given position drives a model's prediction.
+Unlike the four probabilistic types above, CWMs are not
+normalised (columns do not sum to 1 or to \code{nsites}), values
+may be negative (the model penalises that letter at that
+position), and there is no canonical maximum height. CWM is
+therefore only ever a source type for \code{convert_type()}:
+\code{convert_type(cwm, "PPM")} column-normalises absolute values
+via the TF-MoDISco-lite convention
+\verb{ppm[i,j] = |cwm[i,j]| / sum_i |cwm[i,j]|} (columns whose
+absolute column sum is zero collapse to a uniform distribution).
+\code{convert_type(cwm, "PWM" | "ICM" | "PCM")} routes through
+\code{CWM -> PPM} first and then applies the standard
+\verb{PPM -> *} step, so \code{CWM -> PWM} produces a real log-odds
+matrix (\code{log2(ppm / bkg)}), not a re-labelled CWM. The reverse
+direction (\code{PPM}, \code{PWM}, \code{ICM}, or \code{PCM} -> \code{CWM}) errors with
+a clear message: contribution scores cannot be inferred from
+a probability distribution, so a CWM must originate from an
+attribution method (read via \code{\link[=read_meme]{read_meme()}} with \code{CWM = TRUE},
+or built with \code{create_motif(matrix, type = "CWM")}).
+}
 }
 \examples{
 jaspar.pcm <- read_jaspar(system.file("extdata", "jaspar.txt",
@@ -127,6 +159,16 @@ jaspar.pwm <- convert_type(jaspar.pcm, type = "PPM")
 ## Setting pseudocount to 0 will prevent any correction from being
 ## applied to PPM/PWM matrices, overriding the motifs own pseudocounts
 jaspar.pwm <- convert_type(jaspar.pcm, type = "PWM", pseudocount = 0)
+
+## CWM -> PPM via |cwm| / sum (the TF-MoDISco convention):
+cwm.mat <- matrix(c( 0.10, -0.20,  0.80, -0.10,
+                    -0.30,  0.90, -0.20,  0.10,
+                     0.70, -0.10, -0.10, -0.40,
+                    -0.20, -0.10, -0.10,  0.90),
+                  nrow = 4, byrow = FALSE,
+                  dimnames = list(c("A","C","G","T"), NULL))
+cwm <- create_motif(cwm.mat, type = "CWM", name = "modisco_example")
+convert_type(cwm, "PPM")
 
 }
 \references{
@@ -151,6 +193,15 @@ Biology}, \strong{148}, 125-137.
 
 Shannon CE (1948). “A Mathematical Theory of Communication.” \emph{Bell
 System Technical Journal}, \strong{27}, 379-423.
+
+Shrikumar A, Greenside P, Kundaje A (2017). “Learning important
+features through propagating activation differences.”
+\emph{Proceedings of the 34th International Conference on Machine
+Learning}, \strong{70}, 3145-3153.
+
+Shrikumar A, Tian K, Avsec Ž, Shcherbina A, Banerjee A,
+Sharmin M, Nair S, Kundaje A (2018). “TF-MoDISco v0.4.4.2-alpha:
+Technical Note.” arXiv:1811.00416.
 
 Stormo GD, Schneider TD, Gold L, Ehrenfeucht A (1982). “Use of the
 Perceptron algorithm to distinguish translational initiation sites
