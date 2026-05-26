@@ -3,6 +3,21 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
+  o New vignette "MotifDatabaseCuration.Rmd": end-to-end recipe for
+    consolidating motif sets from several public sources into a
+    single deduplicated, trimmed, metadata-decorated MEME file. Pulls
+    Homo sapiens motifs from three MotifDb sub-collections
+    (JASPAR2022, HOCOMOCOv11-core, CIS-BP), stamps source provenance
+    onto each motif's family slot, inspects the pairwise q-value
+    distribution from compare_motifs2() to pick a deduplication
+    threshold, runs merge_similar2() with a q-value chosen to avoid
+    graph-transitivity giant components, visualises the cluster
+    structure with motif_tree(), trims uninformative flanks with
+    trim_motifs(), decorates the survivors with provenance and date
+    metadata via to_df()/update_motifs(), and exports the whole
+    library with write_meme() before round-trip-reading it back with
+    read_meme() to verify the export.
+
   o New vignette "ChIPseqWorkflow.Rmd": an end-to-end ChIP-seq motif
     analysis on real data, starting from a peak BED file bundled in
     inst/extdata (VAL1-GFP peaks in Arabidopsis from Yuan et al.

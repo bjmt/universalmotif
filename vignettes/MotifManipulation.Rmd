@@ -26,7 +26,7 @@ data(MA0003.2)
 
 # Introduction
 
-This vignette will introduce the `universalmotif` class and its structure, the import and export of motifs in R, basic motif manipulation, creation, and visualisation. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette. For motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette.
+This vignette will introduce the `universalmotif` class and its structure, the import and export of motifs in R, basic motif manipulation, creation, and visualisation. For an introduction to sequence motifs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette. For sequence-related utilities, see the [sequences](SequenceSearches.pdf) vignette. For motif comparisons and P-values, see the [motif comparisons and P-values](MotifComparisonAndPvalues.pdf) vignette. For the multi-source curation step that picks up where the import functions leave off, building a single deduplicated and metadata-decorated motif library out of several public DBs, see the [curated motif database](MotifDatabaseCuration.pdf) vignette.
 
 # The universalmotif class and conversion utilities
 
