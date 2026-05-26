@@ -3,15 +3,6 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
-  o merge_similar2(return.clusters = TRUE) now returns a
-    universalmotif_df (the to_df() representation of the input
-    motifs, with the motif objects in the `motif` column and their
-    names in `name`) augmented with `motif.i` (1-based input index)
-    and `cluster` (1-based cluster id) columns, instead of the
-    previous bare three-column data.frame. Code that referenced the
-    old `motif` column (which held name strings) should switch to
-    `name`; `motif.i` and `cluster` are unchanged.
-
   o Added support for CWM (Contribution Weight Matrix) motifs.
     Contribution Weight Matrices come from TF-MoDISco / DeepLIFT
     -style attribution methods and hold signed, unnormalised
@@ -184,7 +175,11 @@ NEW FEATURES
     merge_motifs2(). This matches the STAMP / TOMTOM-clustering
     semantics ("group all motifs that are pairwise significantly
     similar") and removes v1's linkage-method choice and abstract
-    distance-unit cutoff. See ?merge_motifs2 and ?merge_similar2.
+    distance-unit cutoff. merge_similar2(return.clusters = TRUE)
+    returns a universalmotif_df of the input motifs (motif objects in
+    the `motif` column, names in `name`) with added `motif.i` and
+    `cluster` columns describing the cluster assignment, instead of
+    the merged motifs. See ?merge_motifs2 and ?merge_similar2.
 
   o Added motif_finder(), a DNA/RNA _de novo_ motif discovery function
     aligned with the command-line tool yamtk me
@@ -300,25 +295,14 @@ MINOR CHANGES
 
 BUG FIXES
 
-  o Fixed view_motifs() / view_motifs2() rendering of negative-height
-    letter stacks of three or more letters (e.g. a PWM position with
-    three negative log-odds letters, or a CWM column with three
-    negative-contribution letters). The internal stacking helper
-    (flip_neg_letters()) offset each letter by only the
-    immediately-preceding letter's height rather than the cumulative
-    height of all letters above it, so letters past the first piled on
-    top of one another below the baseline. Switched to a cumulative
-    offset. One- and two-letter negative stacks are unaffected.
-
-  o Fixed view_motifs2() displaying reverse-complemented motifs as
-    the column-reverse of the motif rather than its true reverse
-    complement. The internal rev_comp_mat() helper reversed columns
-    and permuted rows but carried the row names over in the permuted
-    (T,G,C,A) order; because the logo renderer reads each column by
-    row name, the letter complement (A<->T, C<->G) was effectively
-    dropped. Restoring the alphabetical row names fixes the display.
-    merge_motifs2() / merge_similar2() were unaffected (they index the
-    helper's output positionally, not by name).
+  o Fixed view_motifs() rendering of negative-height letter stacks of
+    three or more letters (a PWM position with three or more negative
+    log-odds letters). The internal stacking helper offset each letter
+    by only the immediately-preceding letter's height rather than the
+    cumulative height of all letters above it, so letters past the
+    first piled on top of one another below the baseline. Switched to
+    a cumulative offset. One- and two-letter negative stacks are
+    unaffected.
 
   o Fixed create_motif() matrix dispatch silently dropping an
     explicitly supplied alphabet = "DNA"/"RNA"/"AA" when the input
