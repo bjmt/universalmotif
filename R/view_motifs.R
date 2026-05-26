@@ -679,8 +679,14 @@ flip_neg_letters <- function(d, s, spd, flip) {
     lets <- lets[order(letMins, decreasing = spd)]
     letMins <- letMins[order(letMins, decreasing = spd)]
   }
-  # letMins <- c(0, cumsum(letMins))
-  letMins <- c(0, letMins)
+  ## Stack letters by the *cumulative* height of everything above
+  ## them. Using `letMins` directly here (the previous behaviour)
+  ## shifted each letter by only the immediately-preceding letter's
+  ## height, so any negative stack of 3 or more letters had letters
+  ## 2..N piling on top of each other. Cumulative offset is the
+  ## correct formula and is what the original commented-out line
+  ## above always intended.
+  letMins <- c(0, cumsum(letMins))
   for (i in seq_along(lets)) {
     lets_i <- lets[i]
     j_i <- j == lets_i
