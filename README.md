@@ -7,11 +7,15 @@ exported into most major motif formats from various classes as defined by other
 Bioconductor packages. Furthermore, this package allows for easy manipulation
 of motifs, such as creation, trimming, shuffling, P-value calculations,
 filtering, type conversion, reverse complementation, alphabet switching, random
-motif site generation, and comparison. Alongside are also included functions
-for interacting with sequences, such as motif scanning and enrichment, as well
-as sequence creation and shuffling functions. Finally, this package implements
-higher-order motifs, allowing for more accurate sequence scanning and motif
-enrichment.
+motif site generation, and comparison. Contribution weight matrices (CWMs) from
+deep learning methods are supported as a motif type alongside the probabilistic
+representations. Alongside are also included
+functions for interacting with sequences, such as motif scanning and enrichment,
+_de novo_ motif discovery, and motif co-occurrence testing, as well as sequence
+creation and shuffling functions. For DNA and RNA motifs, faster
+Pearson-correlation implementations of motif comparison and sequence scanning
+are also available. Finally, this package implements higher-order motifs,
+allowing for more accurate sequence scanning and motif enrichment.
 
 ## Installation
 
@@ -51,6 +55,8 @@ All of the functions within the `universalmotif` package are fairly well documen
 - [Motif import, export, and manipulation](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifManipulation.pdf)
 - [Sequence manipulation and scanning](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/SequenceSearches.pdf)
 - [Motif comparisons and P-values](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifComparisonAndPvalues.pdf)
+- [An end-to-end ChIP-seq workflow](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/ChIPseqWorkflow.pdf)
+- [Building a curated motif database](https://bioconductor.org/packages/release/bioc/vignettes/universalmotif/inst/doc/MotifDatabaseCuration.pdf)
 
 You can also look through the slides of my [Bioc2021 presentation](https://f1000research.com/slides/10-715), which goes over some basics of motif representations, scanning, and motif comparison.
 
@@ -106,6 +112,30 @@ create_motif()
 ```
 
 See `?universalmotif` for a list of available metadata slots. Most slots can be accessed using square brackets, e.g. `MotifObject["motif"]` accesses the raw numeric matrix. You can also dump the contents of all user-facing motif slots at once into a list, e.g. `MotifObject[]`.
+
+The `universalmotif` class supports five motif types: the four probabilistic representations `PCM`, `PPM`, `PWM` and `ICM`, plus `CWM` (contribution weight matrix). A CWM holds signed, unnormalised per-position, per-letter contribution scores of the kind produced by deep learning methods, and so it carries no column-sum constraint. CWMs can be created directly, read from and written to MEME and generic-matrix files, converted to a PPM, and trimmed by contribution:
+
+```r
+library(universalmotif)
+
+m <- matrix(c(
+   0.16, -0.05, -0.04,  0.00,  0.71, -0.09, -0.08, -0.14, -0.09,  0.57, -0.01,  0.18, -0.01,  # A
+  -0.05, -0.05,  0.02,  0.54, -0.10,  0.91, -0.11, -0.12, -0.10, -0.10,  0.32, -0.04,  0.02,  # C
+  -0.03,  0.00,  0.35, -0.01, -0.09, -0.07,  0.97, -0.14,  0.72, -0.07, -0.05,  0.02, -0.02,  # G
+  -0.02,  0.19,  0.04, -0.05, -0.06, -0.15, -0.10,  0.91, -0.11, -0.06, -0.08, -0.01,  0.10), # T
+  nrow = 4, byrow = TRUE,
+  dimnames = list(c("A", "C", "G", "T"), NULL))
+
+cwm <- create_motif(m, type = "CWM", name = "attribution_motif")
+
+convert_type(cwm, "PPM")  # |cwm| / colSums(|cwm|), per column
+
+view_motifs(cwm, use.type = "CWM", flip.neg = TRUE)  # contribution logo, negatives flipped
+```
+
+<img src="inst/figures/cwm.png" width="100%" />
+
+`read_meme()` and `write_meme()` take a `CWM = TRUE` flag to read or write CWM matrices, `read_matrix()` and `write_matrix()` round-trip them via `type = "CWM"`, and `trim_cwm()` trims low-contribution flanking columns by absolute column sum.
 
 ### Sequence creation, shuffling and background calculation
 
@@ -177,6 +207,8 @@ get_bkg(ArabidopsisPromoters, window = TRUE)
 #> 840       901      1000         TTT       271   0.0553061
 ```
 
+Several further sequence utilities are provided: `match_bkg()` and `plot_match_bkg()` sample composition-matched background sequences from a larger universe, `mask_ranges()` and `mask_seqs()` mask regions of sequences (for example low-complexity or repeat regions) before scanning, and `implant_motifs()` plants known motif instances at known positions, useful for building a labelled answer key to test discovery and scanning pipelines.
+
 ### Sequence scanning and higher order motifs
 
 The `universalmotif` package provides the `scan_sequences()` function to quickly scan a set of input sequences for motif hits. Additionally, the `add_multifreq()` function can be used to generate higher order motifs. These can also be used to scan sequences with higher accuracy. By default `scan_sequences()` calculates a threshold cutoff from a P-value, though this can be changed to a manual logodds threshold.
@@ -245,9 +277,11 @@ scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-6)
 
 Note the differences between the matching sequences of regular scanning versus higher order scanning.
 
+For DNA and RNA, `scan_sequences2()` offers a faster scanner that reuses the same C++ core as `scan_sequences()` while matching the defaults of the [yamtk](https://github.com/bjmt/yamtk) command-line tool. Beyond scanning known motifs, `motif_finder()` discovers motifs _de novo_ directly from a set of sequences, and `motif_coocc()` tests for significantly co-occurring motif pairs.
+
 ### Motif comparison, merging and viewing
 
-A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`. In addition to motif visualization, `view_motifs()` can also be used to examine the top-scoring alignment chosen by `compare_motifs()` and `merge_motifs()`.
+A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`, and `view_motifs()` can be used to examine the top-scoring alignment chosen by either. For DNA and RNA motifs, `compare_motifs2()`, `merge_motifs2()` and `view_motifs2()` provide faster alternatives built on a Pearson-correlation backend, while `motif_tree2()` turns a `compare_motifs2()` score matrix into a distance tree. The example below uses these faster functions; the originals behave equivalently and also handle amino-acid and custom alphabets.
 
 ```r
 library(universalmotif)
@@ -259,14 +293,13 @@ old.motif <- create_motif("TATATTTTTT", name = "Old motif")
 Using very strict alignment parameters, such as no overhangs:
 
 ```r
-compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 10)[2]
+compare_motifs2(c(new.motif, old.motif), min.overlap = 10)[1, 2]
 #> [1] 0.2
 
-merged.motif <- merge_motifs(c(new.motif, old.motif), method = "PCC",
+merged.motif <- merge_motifs2(c(new.motif, old.motif),
     new.name = "Merged motif", min.overlap = 10)
 
-view_motifs(c(new.motif, old.motif, merged.motif), method = "PCC",
-    min.overlap = 10)
+view_motifs2(c(new.motif, old.motif, merged.motif), min.overlap = 10)
 ```
 
 <img src="inst/figures/example2.png" width="75%" />
@@ -274,16 +307,15 @@ view_motifs(c(new.motif, old.motif, merged.motif), method = "PCC",
 After relaxing the alignment parameters:
 
 ```r
-compare_motifs(c(new.motif, old.motif), method = "PCC", min.overlap = 5)[2]
+compare_motifs2(c(new.motif, old.motif), min.overlap = 5)[1, 2]
 #> [1] 1
 
-merged.motif <- merge_motifs(c(new.motif, old.motif), method = "PCC",
+merged.motif <- merge_motifs2(c(new.motif, old.motif),
     new.name = "Merged motif", min.overlap = 5)
 
-view_motifs(c(new.motif, old.motif, merged.motif), method = "PCC",
-    min.overlap = 5)
+view_motifs2(c(new.motif, old.motif, merged.motif), min.overlap = 5)
 ```
 
 <img src="inst/figures/example1.png" width="100%" />
 
-By default `compare_motifs()` returns a numeric matrix, meaning the output from comparisons between large numbers of motifs can be easily used to generate heatmaps or dendrograms.
+Like `compare_motifs()`, `compare_motifs2()` returns a numeric matrix by default, meaning the output from comparisons between large numbers of motifs can be easily used to generate heatmaps or dendrograms.
