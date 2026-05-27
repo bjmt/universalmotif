@@ -35,6 +35,7 @@ suppressPackageStartupMessages({
   library(universalmotif)
   library(Biostrings)
   library(GenomicRanges)
+  library(GenomeInfoDb)
 })
 options(Biostrings.coloring = FALSE)
 
