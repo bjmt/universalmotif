@@ -193,14 +193,25 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PWM")
 
+  if (!is.list(motifs)) motifs <- list(motifs)
+  motcount <- length(motifs)
+
+  ## Validate that every input sequence is wide enough for the widest motif
+  ## before doing anything expensive (including the shuffle call below, whose
+  ## own k <= seqlen check would otherwise fire first with a less informative
+  ## message for the enrich_motifs caller).
+  min_seqlen <- min(width(sequences))
+  max_motif_width <- max(vapply(motifs, function(m) ncol(m@motif), integer(1)))
+  if (min_seqlen < max_motif_width)
+    stop(wmsg("All sequences must be at least as wide as the widest motif (",
+              max_motif_width, " bp); shortest input sequence is ",
+              min_seqlen, " bp."), call. = FALSE)
+
   if (missing(bkg.sequences)) {
     if (verbose > 0) message(" > Shuffling input sequences")
     bkg.sequences <- shuffle_sequences(sequences, shuffle.k, shuffle.method,
                                        nthreads = nthreads, rng.seed = rng.seed)
   }
-
-  if (!is.list(motifs)) motifs <- list(motifs)
-  motcount <- length(motifs)
 
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   mot.hasgap <- vapply(motifs, function(x) x@gapinfo@isgapped, logical(1))
@@ -215,13 +226,6 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                          mode                = mode,
                          alphabet            = unique(mot.alphs)[1L],
                          mot.hasgap          = mot.hasgap)
-
-  min_seqlen <- min(width(sequences))
-  max_motif_width <- max(vapply(motifs, function(m) ncol(m@motif), integer(1)))
-  if (min_seqlen < max_motif_width)
-    stop(wmsg("All sequences must be at least as wide as the widest motif (",
-              max_motif_width, " bp); shortest input sequence is ",
-              min_seqlen, " bp."), call. = FALSE)
 
   if (threshold.type == "pvalue") {
     if (verbose > 0)

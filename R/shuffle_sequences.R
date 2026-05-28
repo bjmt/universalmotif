@@ -147,6 +147,17 @@ shuffle_sequences <- function(sequences, k = 1, method = "euler",
   if (k < 1) stop("'k' must be greater than 0")
   k <- as.integer(k)
 
+  if (!window) {
+    ## The C++ shuffle backends index unguarded into the sequence: if k is
+    ## larger than the sequence length, the underlying loop reads past the
+    ## end and crashes R. Catch that here with a clear error.
+    too_short <- nchar(sequences) < k
+    if (any(too_short)) {
+      stop("'k' (", k, ") must be <= the shortest sequence length (",
+           min(nchar(sequences)), ")", call. = FALSE)
+    }
+  }
+
   if (window) {
 
     if (window.size <= 0)

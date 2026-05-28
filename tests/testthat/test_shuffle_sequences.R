@@ -38,9 +38,15 @@ test_that("k = 1 routes to the dedicated 1-let path for every method", {
   }
 })
 
-## Note: shuffle_sequences(..., method = "euler", k > nchar(seq)) currently
-## crashes R rather than erroring cleanly (the C++ side does not validate k
-## against sequence length). Test omitted until the R-side guard is added.
+test_that("k larger than sequence length is rejected", {
+  seqs <- Biostrings::DNAStringSet("ACGT")
+  expect_error(shuffle_sequences(seqs, method = "euler", k = 10),
+               regexp = "shortest sequence length")
+  expect_error(shuffle_sequences(seqs, method = "markov", k = 10),
+               regexp = "shortest sequence length")
+  expect_error(shuffle_sequences(seqs, method = "linear", k = 10),
+               regexp = "shortest sequence length")
+})
 
 test_that("seeded shuffle is reproducible at nthreads = 2", {
   set.seed(1)

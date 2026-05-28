@@ -1852,8 +1852,10 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
           ++n1;
           ++n2;
           if (!ok && (n1 > int(subject[n]) || n2 > int(target[n]))) {
-            /* indicate failure to find right row */
+            /* failure to find right row; bail out so the while loop terminates
+             * instead of spinning forever incrementing n1/n2 past the table. */
             row = -1;
+            ok = true;
           }
         }
 
