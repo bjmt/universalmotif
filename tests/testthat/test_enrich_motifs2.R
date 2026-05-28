@@ -159,3 +159,46 @@ test_that("pseudocount shifts p-value toward 1 (regularisation)", {
   expect_equal(nrow(r_high), 1L)
   expect_gt(r_high$pvalue, r_low$pvalue)
 })
+
+test_that("enrich_motifs2 runs on RNA motifs and sequences", {
+  suppressMessages({
+    ## Use a fixture where the motif is implanted in every primary sequence
+    ## so the enrichment call has data to compare against the shuffled background.
+    set.seed(1)
+    bg <- vapply(seq_len(20), function(i) {
+      paste0(sample(c("A","C","G","U"), 80, replace = TRUE), collapse = "")
+    }, character(1))
+    primary <- vapply(bg, function(s) {
+      pos <- 30
+      paste0(substr(s, 1, pos - 1), "ACGU",
+             substr(s, pos + 4, nchar(s)))
+    }, character(1))
+    seqs <- Biostrings::RNAStringSet(primary)
+    bkg  <- Biostrings::RNAStringSet(bg)
+    m <- create_motif("ACGU", alphabet = "RNA", nsites = 10)
+    res <- enrich_motifs2(list(m), seqs, bkg, pvalue = 0.5)
+    expect_s3_class(res, "data.frame")
+    expect_true(all(c("motif", "fg", "bg", "pvalue") %in% colnames(res)) ||
+                ncol(res) > 0L)
+  })
+})
+
+test_that("enrich_motifs and enrich_motifs2 both run on shared fixtures (v1/v2 parity smoke)", {
+  suppressMessages(suppressWarnings({
+    set.seed(1)
+    bg <- vapply(seq_len(20), function(i) {
+      paste(sample(c("A","C","G","T"), 100, replace = TRUE), collapse = "")
+    }, character(1))
+    primary <- vapply(bg, function(s) {
+      paste0(substr(s, 1, 30), "ACGTAC", substr(s, 37, nchar(s)))
+    }, character(1))
+    seqs <- Biostrings::DNAStringSet(primary)
+    bkg <- Biostrings::DNAStringSet(bg)
+    m <- create_motif("ACGTAC", nsites = 100)
+    r1 <- enrich_motifs(m, seqs, bkg.sequences = bkg, verbose = 0,
+                        threshold = 1e-2, threshold.type = "pvalue")
+    r2 <- enrich_motifs2(list(m), seqs, bkg, pvalue = 1e-2)
+    expect_true(nrow(r1) >= 0L)
+    expect_true(nrow(r2) >= 0L)
+  }))
+})

@@ -63,3 +63,70 @@ test_that("read_motifs() version dispatch uses numeric_version not lexicographic
   expect_true("1.1.100" < "1.1.67")
 
 })
+
+## Parser error-path tests: malformed files should fail with a clear message
+## rather than silently parsing to an empty list or propagating -Inf / NA.
+
+write_tmp <- function(text) {
+  f <- tempfile()
+  writeLines(text, f)
+  f
+}
+
+test_that("read_jaspar errors on a file with no '>' headers", {
+  f <- write_tmp(c("A 1 2 3", "C 1 2 3"))
+  on.exit(file.remove(f), add = TRUE)
+  expect_error(read_jaspar(f), regexp = "no motifs found")
+})
+
+test_that("read_jaspar errors on a header followed by an empty matrix", {
+  f <- write_tmp(c(">empty",
+                   "A [  ]",
+                   "C [  ]",
+                   "G [  ]",
+                   "T [  ]"))
+  on.exit(file.remove(f), add = TRUE)
+  expect_error(read_jaspar(f), regexp = "empty motif")
+})
+
+test_that("read_meme errors on a file with no MOTIF blocks", {
+  f <- write_tmp(c("MEME version 4", "ALPHABET= ACGT",
+                   "strands: + -",
+                   "Background letter frequencies",
+                   "A 0.25 C 0.25 G 0.25 T 0.25"))
+  on.exit(file.remove(f), add = TRUE)
+  expect_error(read_meme(f), regexp = "no motifs found")
+})
+
+test_that("read_transfac errors on a file with no '//' separators", {
+  f <- write_tmp(c("ID test", "P0 A C G T", "01 1 2 3 4"))
+  on.exit(file.remove(f), add = TRUE)
+  expect_error(read_transfac(f), regexp = "no motifs found")
+})
+
+test_that("read_cisbp errors on a file with no 'Pos' header", {
+  f <- write_tmp(c("not a motif", "no header here"))
+  on.exit(file.remove(f), add = TRUE)
+  expect_error(read_cisbp(f), regexp = "no motifs found")
+})
+
+test_that("read_homer leaves nsites empty when the count fields are missing", {
+  ## Regression coverage for R1: ifelse(is.na, numeric(0), x) used to return
+  ## NA_real_ rather than an empty slot. With the fix, a malformed/missing
+  ## count field stays as numeric(0) and the validity check passes.
+  homer_text <- c(
+    ">ACGTAC\tnamed-motif\t8.0\tNA\tNA,NA,NA",
+    "0.97\t0.01\t0.01\t0.01",
+    "0.01\t0.97\t0.01\t0.01",
+    "0.01\t0.01\t0.97\t0.01",
+    "0.01\t0.01\t0.01\t0.97",
+    "0.97\t0.01\t0.01\t0.01",
+    "0.01\t0.97\t0.01\t0.01"
+  )
+  f <- write_tmp(homer_text)
+  on.exit(file.remove(f), add = TRUE)
+  m <- read_homer(f)
+  expect_s4_class(m, "universalmotif")
+  expect_equal(length(m@nsites), 0L)
+  expect_equal(length(m@bkgsites), 0L)
+})

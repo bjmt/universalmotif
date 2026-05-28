@@ -86,3 +86,11 @@ test_that("motif_pvalue() dynamic batched path agrees with per-motif loop on a r
                                               method = "dynamic"))
   expect_equal(one_shot, loop)
 })
+
+test_that("motif_pvalue gives the same p-value at nthreads = 1 and 2", {
+  m <- create_motif("ACGTACGT", nsites = 100)
+  scores <- c(0, 1, 5)
+  a <- motif_pvalue(m, scores, nthreads = 1)
+  b <- motif_pvalue(m, scores, nthreads = 2)
+  expect_equal(a, b)
+})

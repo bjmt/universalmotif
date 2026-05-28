@@ -195,3 +195,35 @@ test_that("compare.to as character resolves by motif name", {
 })
 
 })  # end suppressMessages
+
+test_that("compare_motifs2 runs on RNA motifs", {
+  m1 <- create_motif("ACGU", alphabet = "RNA", name = "rna1")
+  m2 <- create_motif("ACGU", alphabet = "RNA", name = "rna2")
+  res <- compare_motifs2(list(m1, m2))
+  expect_true(isSymmetric(res))
+  expect_equal(unname(diag(res)), c(1, 1), tolerance = 1e-6)
+})
+
+test_that("compare_motifs and compare_motifs2 both run on a shared DNA fixture (v1/v2 parity smoke)", {
+  ## v1 and v2 use different scoring stacks, so numerical parity is not
+  ## expected; this is a smoke check that both produce a symmetric square
+  ## matrix of the right size for the same input.
+  motifs <- list(create_motif("TTGACATA", name = "a"),
+                 create_motif("CTTGACAT", name = "b"),
+                 create_motif("GGGCCCCC", name = "c"))
+  m1 <- compare_motifs(motifs)
+  m2 <- compare_motifs2(motifs)
+  expect_equal(dim(m1), c(3L, 3L))
+  expect_equal(dim(m2), c(3L, 3L))
+  expect_true(isSymmetric(m1))
+  expect_true(isSymmetric(m2))
+})
+
+test_that("compare_motifs2 gives the same similarity matrix at nthreads = 1 and 2", {
+  motifs <- list(create_motif("TTGACATA", name = "a"),
+                 create_motif("CTTGACAT", name = "b"),
+                 create_motif("GGGCCCCC", name = "c"))
+  a <- compare_motifs2(motifs, nthreads = 1)
+  b <- compare_motifs2(motifs, nthreads = 2)
+  expect_equal(a, b)
+})

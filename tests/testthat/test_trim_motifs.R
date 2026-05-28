@@ -21,3 +21,33 @@ test_that("trim_motifs() preserves successfully-trimmed motifs when one is fully
   expect_equal(out_list[[1]]@name, m1@name)
 
 })
+
+test_that("min.ic = 0 keeps every column", {
+  m <- create_motif("NNCCCNN", nsites = 100)
+  trimmed <- trim_motifs(m, min.ic = 0)
+  expect_equal(ncol(trimmed), ncol(m))
+})
+
+test_that("min.ic above all column ICs errors with a clear message", {
+  ## With min.ic well above the maximum possible IC (2 for DNA), every column
+  ## should be trimmed away; the documented behaviour is to error rather than
+  ## return a zero-column motif.
+  m <- create_motif("NNCCCNN", nsites = 100)
+  expect_error(suppressMessages(trim_motifs(m, min.ic = 5)),
+                regexp = "completely trimmed")
+})
+
+test_that("trim_motifs() trims only from the left when trim.from = 'left'", {
+  m <- create_motif("NNCCCNN", nsites = 100)
+  trimmed <- trim_motifs(m, min.ic = 0.5, trim.from = "left")
+  expect_lte(ncol(trimmed), ncol(m))
+  ## Right-edge low-IC columns are kept when only trimming from the left.
+  expect_gt(ncol(trimmed), 3)
+})
+
+test_that("trim_motifs() trims only from the right when trim.from = 'right'", {
+  m <- create_motif("NNCCCNN", nsites = 100)
+  trimmed <- trim_motifs(m, min.ic = 0.5, trim.from = "right")
+  expect_lte(ncol(trimmed), ncol(m))
+  expect_gt(ncol(trimmed), 3)
+})

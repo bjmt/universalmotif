@@ -181,3 +181,48 @@ test_that("empty result returns the documented shape", {
 })
 
 })  ## end suppressMessages
+
+test_that("scan_sequences2 runs on RNA motifs and sequences", {
+  suppressMessages({
+    m <- create_motif("ACGU", alphabet = "RNA", nsites = 10)
+    seqs <- Biostrings::RNAStringSet(c("GGGACGUAAA", "UUUACGUUUU"))
+    res <- scan_sequences2(list(m), seqs, pvalue = 0.5, return.granges = FALSE)
+    expect_s3_class(res, "data.frame")
+    expect_true(nrow(res) >= 1L)
+  })
+})
+
+test_that("scan_sequences and scan_sequences2 both find an implanted motif (v1/v2 parity smoke)", {
+  ## Different scoring stacks; this verifies both find at least one hit for an
+  ## obvious implanted match. Strict numerical parity is intentionally not
+  ## asserted.
+  suppressMessages({
+    m <- create_motif("CACGTG", name = "test", nsites = 100)
+    seq <- Biostrings::DNAStringSet(paste0(paste(rep("A", 50), collapse = ""),
+                                            "CACGTG",
+                                            paste(rep("A", 50), collapse = "")))
+    h1 <- scan_sequences(m, seq, RC = FALSE, verbose = 0,
+                         threshold = 0.9, threshold.type = "logodds")
+    h2 <- scan_sequences2(list(m), seq, pvalue = 1e-2, return.granges = FALSE)
+    expect_gte(nrow(h1), 1L)
+    expect_gte(nrow(h2), 1L)
+    ## Both should find a hit overlapping position 51.
+    expect_true(any(h1$start <= 51 & h1$stop >= 51))
+    expect_true(any(h2$start <= 51 & h2$end >= 51))
+  })
+})
+
+test_that("scan_sequences2 gives the same hits at nthreads = 1 and 2", {
+  suppressMessages({
+    set.seed(1)
+    m <- create_motif("CACGTG", nsites = 100)
+    seqs <- Biostrings::DNAStringSet(vapply(seq_len(8), function(i) {
+      paste(sample(c("A","C","G","T"), 200, replace = TRUE), collapse = "")
+    }, character(1)))
+    a <- scan_sequences2(list(m), seqs, pvalue = 1e-2, nthreads = 1,
+                         return.granges = FALSE)
+    b <- scan_sequences2(list(m), seqs, pvalue = 1e-2, nthreads = 2,
+                         return.granges = FALSE)
+    expect_equal(a, b)
+  })
+})

@@ -164,3 +164,39 @@ test_that("scan_sequences() suggests scan_sequences2() when arguments are compat
   expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
 
 })
+
+test_that("scan_sequences runs on RNA motifs and sequences", {
+  m <- create_motif("ACGU", alphabet = "RNA", nsites = 10)
+  seqs <- Biostrings::RNAStringSet(c("GGGACGUAAA", "UUUACGUUUU"))
+  res <- scan_sequences(m, seqs, RC = FALSE, verbose = 0,
+                        threshold = 0.5, threshold.type = "logodds.abs")
+  expect_true(nrow(res) >= 2L)
+  expect_true(all(c("start", "stop", "match") %in% colnames(res)))
+})
+
+test_that("scan_sequences runs on AA motifs and sequences", {
+  m <- create_motif("YYAA", alphabet = "AA", nsites = 10)
+  seqs <- Biostrings::AAStringSet(c("GGGYYAAGGG", "AAAYYAAAAA"))
+  res <- scan_sequences(m, seqs, RC = FALSE, verbose = 0,
+                        threshold = 0.5, threshold.type = "logodds.abs",
+                        calc.pvals = FALSE)
+  expect_true(nrow(res) >= 1L)
+  expect_true(all(c("start", "stop", "match") %in% colnames(res)))
+})
+
+test_that("scan_sequences gives the same hits at nthreads = 1 and 2", {
+  suppressMessages({
+    set.seed(1)
+    m <- create_motif("CACGTG", nsites = 100)
+    seqs <- Biostrings::DNAStringSet(vapply(seq_len(8), function(i) {
+      paste(sample(c("A","C","G","T"), 200, replace = TRUE), collapse = "")
+    }, character(1)))
+    a <- scan_sequences(m, seqs, nthreads = 1, verbose = 0,
+                        threshold = 0.6, threshold.type = "logodds",
+                        calc.pvals = FALSE)
+    b <- scan_sequences(m, seqs, nthreads = 2, verbose = 0,
+                        threshold = 0.6, threshold.type = "logodds",
+                        calc.pvals = FALSE)
+    expect_equal(as.data.frame(a), as.data.frame(b))
+  })
+})

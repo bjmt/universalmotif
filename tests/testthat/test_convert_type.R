@@ -29,3 +29,41 @@ test_that("type conversion works", {
   expect_equal(m.pwm2@motif[2, 2], -Inf)
 
 })
+
+test_that("PPM -> ICM at nsites = 0 falls back to default and stays finite", {
+  m <- create_motif("ACGTACGT", nsites = 100)
+  m@nsites <- numeric(0)
+  icm <- convert_type(m, "ICM")
+  expect_true(all(is.finite(icm@motif)))
+  expect_equal(icm@type, "ICM")
+})
+
+test_that("PPM -> ICM with nsize_correction at nsites = 1 produces finite values", {
+  m <- create_motif("ACGT", nsites = 1)
+  icm <- convert_type(m, "ICM", nsize_correction = TRUE)
+  expect_true(all(is.finite(icm@motif)))
+})
+
+test_that("high pseudocount smears PCM -> PPM toward uniform", {
+  m <- create_motif("ACGTACGT", nsites = 10)
+  m_pcm <- convert_type(m, "PCM")
+  m_pcm@pseudocount <- 1000
+  m_ppm <- convert_type(m_pcm, "PPM")
+  ## With pseudocount >> nsites, columns should be near-uniform (0.25 each).
+  expect_true(all(abs(m_ppm@motif - 0.25) < 0.05))
+})
+
+test_that("PPM -> PCM -> PPM round-trips at non-default nsites", {
+  m <- create_motif("TWWWWWWW", nsites = 50)
+  m_pcm <- convert_type(m, "PCM")
+  m_back <- convert_type(m_pcm, "PPM")
+  expect_equal(m@motif, m_back@motif, tolerance = 1e-3)
+})
+
+test_that("PWM -> PPM round-trips when bkg is uniform", {
+  m <- create_motif("AAAATTTC", nsites = 100,
+                    bkg = c(A = 0.25, C = 0.25, G = 0.25, T = 0.25))
+  m_pwm <- convert_type(m, "PWM")
+  m_back <- convert_type(m_pwm, "PPM")
+  expect_equal(m@motif, m_back@motif, tolerance = 1e-3)
+})

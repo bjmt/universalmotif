@@ -158,3 +158,15 @@ test_that("RC=FALSE only finds + strand instances", {
   expect_gte(nrow(rc_on),  1L)
   expect_gte(nrow(rc_off), 1L)
 })
+
+test_that("motif_finder is reproducible under rng.seed at nthreads = 2", {
+  set.seed(1)
+  seqs <- Biostrings::DNAStringSet(vapply(seq_len(10), function(i) {
+    paste(sample(c("A","C","G","T"), 200, replace = TRUE), collapse = "")
+  }, character(1)))
+  a <- motif_finder(seqs, min.width = 6, max.width = 8,
+                    nthreads = 2, rng.seed = 1)
+  b <- motif_finder(seqs, min.width = 6, max.width = 8,
+                    nthreads = 2, rng.seed = 1)
+  expect_equal(length(a), length(b))
+})

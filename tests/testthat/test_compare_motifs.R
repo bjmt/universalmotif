@@ -69,3 +69,28 @@ test_that("custom db scores are handled correctly", {
   expect_true(res$Pval[1] < 1)
 
 })
+
+test_that("compare_motifs runs on RNA motifs", {
+  m1 <- create_motif("ACGU", alphabet = "RNA", name = "rna1")
+  m2 <- create_motif("ACGU", alphabet = "RNA", name = "rna2")
+  res <- compare_motifs(list(m1, m2))
+  expect_true(isSymmetric(res))
+  expect_equal(unname(diag(res)), c(1, 1), tolerance = 1e-6)
+})
+
+test_that("compare_motifs runs on AA motifs", {
+  m1 <- create_motif("YYAA", alphabet = "AA", name = "aa1")
+  m2 <- create_motif("YYAA", alphabet = "AA", name = "aa2")
+  res <- compare_motifs(list(m1, m2))
+  expect_true(isSymmetric(res))
+  expect_equal(unname(diag(res)), c(1, 1), tolerance = 1e-6)
+})
+
+test_that("compare_motifs gives the same similarity matrix at nthreads = 1 and 2 (regression catcher for C2)", {
+  motifs <- list(create_motif("TTGACATA", name = "a"),
+                 create_motif("CTTGACAT", name = "b"),
+                 create_motif("GGGCCCCC", name = "c"))
+  a <- compare_motifs(motifs, nthreads = 1)
+  b <- compare_motifs(motifs, nthreads = 2)
+  expect_equal(a, b)
+})

@@ -97,3 +97,12 @@ test_that("new.name overrides the default", {
   r <- merge_motifs2(list(m1, m2), new.name = "my_merged")
   expect_equal(r@name, "my_merged")
 })
+
+test_that("merge_motifs and merge_motifs2 both return a universalmotif (v1/v2 parity smoke)", {
+  m1 <- create_motif("ACGTAC", name = "a")
+  m2 <- create_motif("ACGTAC", name = "b")
+  r1 <- merge_motifs(list(m1, m2))
+  r2 <- merge_motifs2(list(m1, m2))
+  expect_s4_class(r1, "universalmotif")
+  expect_s4_class(r2, "universalmotif")
+})

@@ -51,3 +51,17 @@ test_that("motif_tree2 rejects illegal layout", {
   motifs <- list(create_motif("ACGT"), create_motif("TGCA"))
   expect_error(motif_tree2(motifs, layout = "not-a-layout"), "layout")
 })
+
+test_that("motif_tree and motif_tree2 both run on the same DNA fixture (v1/v2 parity smoke)", {
+  skip_if_not_installed("ape")
+  skip_if_not_installed("ggtree")
+  motifs <- list(create_motif("ACGTAC", name = "a"),
+                 create_motif("ACGTAC", name = "b"),
+                 create_motif("GGGCCC", name = "c"))
+  ## Both should produce a non-null result; exact shape (ggplot vs. tree
+  ## object) differs by version, so only existence is checked.
+  t1 <- tryCatch(motif_tree(motifs), error = function(e) NULL)
+  t2 <- tryCatch(motif_tree2(motifs), error = function(e) NULL)
+  expect_false(is.null(t1))
+  expect_false(is.null(t2))
+})

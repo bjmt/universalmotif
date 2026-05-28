@@ -32,3 +32,17 @@ test_that("enrich_motifs() gives a clear error for sequences shorter than motif 
   expect_error(enrich_motifs(m, too_short, verbose = 0), regexp = "widest motif")
 
 })
+
+test_that("enrich_motifs runs on RNA motifs and sequences", {
+  suppressMessages(suppressWarnings({
+    m <- create_motif("ACGU", alphabet = "RNA", nsites = 10)
+    set.seed(1)
+    seqs <- Biostrings::RNAStringSet(vapply(seq_len(20), function(i) {
+      paste0(sample(c("A","C","G","U"), 80, replace = TRUE), collapse = "")
+    }, character(1)))
+    bkg <- shuffle_sequences(seqs, k = 1)
+    res <- enrich_motifs(m, seqs, bkg.sequences = bkg, verbose = 0,
+                         threshold = 0.5, threshold.type = "logodds.abs")
+    expect_true(is.data.frame(res) || isS4(res))
+  }))
+})
