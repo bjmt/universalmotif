@@ -309,9 +309,58 @@ BUG FIXES
     'class'" instead of returning the corresponding TFBSTools list
     object. These output classes were already listed in the help page
     but had no implementation; the list method now converts each motif
-    to the singular matrix type and wraps the result via the matching
-    TFBSTools list constructor. Previously users had to do the two-step
-    conversion themselves.
+    to the singular motif and dispatched the right TFBSTools list
+    constructor.
+
+  o Fixed compare_motifs() pairwise similarity calls passing the first
+    motif's background frequencies for both members of the pair when
+    nthreads > 1, instead of motif-1's and motif-2's backgrounds.
+    Comparisons whose two motifs declared different bkg vectors (e.g.
+    DNA at uniform 0.25 vs. a GC-skewed empirical background) were
+    scored against the wrong null.
+
+  o Fixed compare_motifs() p-value mode calling R's pnorm / plogis /
+    pweibull from inside an RcppThread::parallelFor body, where the R
+    API is not thread-safe and could corrupt internal state under load
+    (most visible on macOS). The row-search half stays parallel, and
+    the actual p-value evaluation now runs serially.
+
+  o Fixed compare_motifs() row-not-found path in the db.scores lookup
+    infinite-looping when n1 / n2 ran past the table without finding a
+    matching row.
+
+  o Fixed shuffle_sequences() crashing R when k was larger than the
+    shortest input sequence. The C++ backends now refuse the call with
+    a clear "'k' must be <= the shortest sequence length" error.
+
+  o Fixed read_homer() storing NA in the nsites and bkgsites slots when
+    those header fields were missing. ifelse(is.na(...), numeric(0), x)
+    cannot return numeric(0); replaced with explicit if/else so missing
+    fields parse to an empty vector as documented.
+
+  o Fixed read_jaspar(), read_cisbp(), read_meme(), and read_transfac()
+    silently returning an empty list when the input file had no
+    motif headers / separators. All four now error with
+    "no motifs found in '<file>'".
+
+  o Fixed read_jaspar() producing an nsites slot of -Inf when a header
+    was followed by an empty matrix. The reader now errors with a
+    clear "empty motif matrix" message before the downstream
+    max(colSums(motif)) on numeric(0).
+
+  o Fixed convert_motifs() for motifStack 'pcm' inputs silently
+    picking unique(colSums(...))[1] as nsites when the column sums
+    disagreed. Now checks the column sums within tolerance and errors
+    with the observed range if they don't agree.
+
+  o The S4 validity method for PCM motifs now also checks that the
+    motif matrix's column sums are all equal (within the same 1%
+    tolerance the PPM validity check uses).
+
+  o Test coverage extended from 708 to 878 cases: I/O round-trips
+    and parser error paths per format, RNA / AA coverage across
+    scan / compare / enrich (v1 and v2), v1/v2 smoke parity, and
+    nthreads=1 vs nthreads=2 parity on every parallel function.
 
 CHANGES IN VERSION 1.30.1
 -------------------------
