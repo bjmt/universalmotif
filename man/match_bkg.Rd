@@ -85,7 +85,7 @@ Algorithm (HOMER-style):
 \item Compute per-sequence GC fraction and length for \code{sequences}
 and \code{universe}.
 \item Bin the universe into a 2-D grid: GC bins equal-width over
-\link{0, 1}, length bins quantile-based on the universe widths.
+[0, 1], length bins quantile-based on the universe widths.
 \item For each target, locate its (GC, length) bin and sample
 \code{n.per.target} universe sequences from that bin (without
 replacement when \code{unique = TRUE}). If the bin is empty or

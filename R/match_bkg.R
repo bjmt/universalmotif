@@ -11,7 +11,7 @@
 #'   1. Compute per-sequence GC fraction and length for `sequences`
 #'      and `universe`.
 #'   2. Bin the universe into a 2-D grid: GC bins equal-width over
-#'      [0, 1], length bins quantile-based on the universe widths.
+#'      \[0, 1\], length bins quantile-based on the universe widths.
 #'   3. For each target, locate its (GC, length) bin and sample
 #'      `n.per.target` universe sequences from that bin (without
 #'      replacement when `unique = TRUE`). If the bin is empty or
