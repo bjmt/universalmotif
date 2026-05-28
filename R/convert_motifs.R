@@ -143,6 +143,18 @@ setMethod("convert_motifs", signature(motifs = "list"),
   if (class == "MotifDb-MotifList") {
     motifs <- lapply(motifs, function(x) convert_motifs(x))
     motifs <- convert_to_motifdb_motiflist(motifs)
+  } else if (class %in% c("TFBSTools-PFMatrixList", "TFBSTools-PWMatrixList",
+                          "TFBSTools-ICMatrixList")) {
+    if (!requireNamespace("TFBSTools", quietly = TRUE))
+      stop("package 'TFBSTools' is not installed")
+    singular <- sub("List$", "", strsplit(class, "-", fixed = TRUE)[[1]][2])
+    motifs <- lapply(motifs, function(x)
+                     convert_motifs(x, class = paste0("TFBSTools-", singular)))
+    listCtor <- switch(singular,
+                       "PFMatrix" = TFBSTools::PFMatrixList,
+                       "PWMatrix" = TFBSTools::PWMatrixList,
+                       "ICMatrix" = TFBSTools::ICMatrixList)
+    motifs <- do.call(listCtor, motifs)
   } else {
     motifs <- lapply(motifs, function(x) convert_motifs(x, class = class))
   }

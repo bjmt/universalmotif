@@ -304,6 +304,15 @@ BUG FIXES
     enrich_motifs(), make_DBscores(), sequence_complexity(), and
     window_string().
 
+  o Fixed convert_motifs(motifs, class = "TFBSTools-PFMatrixList") (and
+    the PWMatrixList / ICMatrixList variants) erroring with "unknown
+    'class'" instead of returning the corresponding TFBSTools list
+    object. These output classes were already listed in the help page
+    but had no implementation; the list method now converts each motif
+    to the singular matrix type and wraps the result via the matching
+    TFBSTools list constructor. Previously users had to do the two-step
+    conversion themselves.
+
 CHANGES IN VERSION 1.30.1
 -------------------------
 
