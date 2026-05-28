@@ -40,10 +40,11 @@ read_jaspar <- function(file, skip = 0) {
   raw_lines <- raw_lines[raw_lines != ""]
 
   motif_names <- which(grepl("^>", raw_lines))
-  motif_starts <- motif_names + 1
-  if (length(motif_starts) == 0) motif_stops <- length(raw_lines) else {
-    motif_stops <- c(motif_names[-1] - 1, length(raw_lines))
+  if (length(motif_names) == 0) {
+    stop("no motifs found in '", file, "'")
   }
+  motif_starts <- motif_names + 1
+  motif_stops <- c(motif_names[-1] - 1, length(raw_lines))
 
   if (length(unique(c(length(motif_names), length(motif_starts),
                       length(motif_stops)))) != 1) {
@@ -87,13 +88,16 @@ read_jaspar <- function(file, skip = 0) {
   motifs <- lapply(motifs, get_matrix)
 
   jaspar2umot <- function(motif, name) {
+    if (is.list(motif) || ncol(motif) == 0 || nrow(motif) == 0) {
+      stop("empty motif matrix in '", file, "' for motif '", name[1], "'")
+    }
     alphabet <- rownames(motif)
     if (all(c("A", "C", "D", "E", "F", "G", "H", "I", "K",
               "L", "M", "N", "P", "Q", "R", "S", "T", "V",
               "W", "Y") %in% alphabet)) {
-      alphabet <- "AA" 
+      alphabet <- "AA"
     } else if (all(c("A", "C", "G", "U") %in% alphabet)) {
-      alphabet <- "RNA" 
+      alphabet <- "RNA"
     } else if (all(c("A", "C", "G", "T") %in% alphabet)) {
       alphabet <- "DNA"
     } else alphabet <- "DNA"

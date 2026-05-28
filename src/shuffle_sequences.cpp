@@ -232,7 +232,7 @@ std::string shuffle_euler_one(const std::string &single_seq, const int &k,
   }
 
   vec_int_t klet_counts = klet_counter(seq_ints, k, nlets, alphlen);
-  vec_int_t firslet = get_firstlet(seq_ints, k);
+  vec_int_t firstlet = get_firstlet(seq_ints, k);
   int lastlet = get_lastlet(seq_ints, k, alphlen);
   list_int_t edgecounts = get_edgecounts(klet_counts, mlets, alphlen);
   vec_bool_t emptyvertices = get_emptyvertices(mlets, alphlen, edgecounts);
@@ -247,7 +247,7 @@ std::string shuffle_euler_one(const std::string &single_seq, const int &k,
       lastlet, gen, emptyvertices);
 
   vec_int_t shuffled_seq_ints = eulerian_walk(edgelist, single_seq.size(),
-      firslet, mlets, alphlen);
+      firstlet, mlets, alphlen);
 
   std::string out = make_new_seq(shuffled_seq_ints, alph);
   return out;

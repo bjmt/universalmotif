@@ -49,6 +49,9 @@ read_cisbp <- function(file, skip = 0) {
   raw_lines <- raw_lines[raw_lines != ""]
 
   motif_starts <- which(grepl("^Pos", raw_lines))
+  if (length(motif_starts) == 0) {
+    stop("no motifs found in '", file, "'")
+  }
 
   meta_starts <- which(grepl("^TF", raw_lines))
   meta_list <- NULL

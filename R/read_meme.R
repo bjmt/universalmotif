@@ -131,6 +131,9 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
 
   motif_meta <- grep("^letter-probability matrix:", raw_lines)
   motif_names_i <- grep("^MOTIF ", raw_lines)
+  if (length(motif_names_i) == 0) {
+    stop("no motifs found in '", file, "'")
+  }
   motif_names <- lapply(raw_lines[motif_names_i], function(x) {
                             x <- strsplit(x, "\\s+")[[1]]
                             if (x[1] == "") x[3] else x[2]

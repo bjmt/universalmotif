@@ -419,10 +419,24 @@ Rcpp::StringVector check_motif_and_type(const Rcpp::NumericMatrix &m_motif,
 
   switch (::TYPES2_e[m_type[0]]) {
     case PCMe: {
-              if (m_nsites.size() > 0) {
-                Rcpp::NumericVector colsums_unique = Rcpp::unique(m_nsites);
-                if (colsums_unique.size() > 1)
-                  msg.push_back("* for type PCM motif colSums must equal nsites");
+              /* All PCM column sums must agree with each other. Tolerance mirrors
+               * the PPM check (column sums within 1%): when a PPM is converted
+               * to PCM by multiplying by nsites, the PPM's 1% looseness carries
+               * through, so the PCM check has to be no stricter than its PPM
+               * counterpart. The nsites slot is intentionally not cross-checked
+               * here because convert_type() may internally override nsites when
+               * the input value is unusable, and the resulting motif's slot can
+               * legitimately disagree with the realised column sums.
+               */
+              if (motif_colsums.size() > 0) {
+                double first_sum = motif_colsums[0];
+                double tol = std::max(0.01, std::abs(first_sum) * 0.01);
+                for (int i = 1; i < motif_colsums.size(); ++i) {
+                  if (std::abs(motif_colsums[i] - first_sum) > tol) {
+                    msg.push_back("* for type PCM all column sums must be equal");
+                    break;
+                  }
+                }
               }
               Rcpp::LogicalVector int_check = (m_motif < 1.0) & (m_motif > 0.0);
               if (Rcpp::is_true(any(int_check)))

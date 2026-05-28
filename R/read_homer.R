@@ -82,11 +82,11 @@ read_homer <- function(file, skip = 0) {
   motif_meta <- lapply(raw_lines[headers], parse_meta)
 
   homer2umot <- function(x, y) {
+    nsites_val <- as.numeric(x[2])
+    bkgsites_val <- as.numeric(x[3])
     mot <- universalmotif_cpp(name = x[1],
-                   nsites = ifelse(is.na(as.numeric(x[2])), numeric(0),
-                                   as.numeric(x[2])),
-                   bkgsites = ifelse(is.na(as.numeric(x[3])), numeric(0),
-                                     as.numeric(x[3])),
+                   nsites = if (is.na(nsites_val)) numeric(0) else nsites_val,
+                   bkgsites = if (is.na(bkgsites_val)) numeric(0) else bkgsites_val,
                    motif = t(y),
                    alphabet = "DNA",
                    type = "PPM",

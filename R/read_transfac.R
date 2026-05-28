@@ -76,10 +76,16 @@ read_transfac <- function(file, skip = 0) {
   raw_lines <- raw_lines[raw_lines != ""]
 
   motif_stops <- grep("^//", raw_lines)
+  if (length(motif_stops) == 0) {
+    stop("no motifs found in '", file, "' (no '//' separators)")
+  }
 
   if (1 == motif_stops[1]) {
     motif_stops <- motif_stops[-1]
     raw_lines <- raw_lines[-1]
+  }
+  if (length(motif_stops) == 0) {
+    stop("no motifs found in '", file, "'")
   }
   motif_starts <- c(1, motif_stops[-length(motif_stops)] + 1)
   motif_stops <- motif_stops - 1

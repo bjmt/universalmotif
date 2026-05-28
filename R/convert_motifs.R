@@ -635,8 +635,15 @@ setMethod("convert_motifs", signature(motifs = "pwm"),
 #' @export
 setMethod("convert_motifs", signature(motifs = "pcm"),
           definition = function(motifs, class) {
+  colsums <- colSums(motifs@mat)
+  if (!isTRUE(all.equal(min(colsums), max(colsums)))) {
+    stop("motifStack pcm '", motifs@name,
+         "' has unequal column sums (range ",
+         signif(min(colsums), 6), "-", signif(max(colsums), 6),
+         "); cannot derive nsites unambiguously")
+  }
   motifs <- universalmotif_cpp(name = motifs@name, motif = motifs@mat,
-                           nsites = unique(colSums(motifs@mat))[1],
+                           nsites = mean(colsums),
                            alphabet = motifs@alphabet,
                            bkg = motifs@background,
                            type = "PCM")

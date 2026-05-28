@@ -1432,7 +1432,7 @@ std::vector<double> compare_motifs_cpp(const Rcpp::List &mots,
       (std::size_t i) {
         answers[i] = compare_motif_pair(vmots[index1[i]], vmots[index2[i]],
             method, minoverlap, RC, icscores[index1[i]], icscores[index2[i]],
-            minic, norm, posic, bkg[index1[i]], bkg[index1[i]], nsites[index1[i]],
+            minic, norm, posic, bkg[index1[i]], bkg[index2[i]], nsites[index1[i]],
             nsites[index2[i]], strat);
       }, nthreads);
 
@@ -1800,79 +1800,77 @@ std::vector<double> pval_extractor(const std::vector<int> &ncols,
   }
 
   vec_num_t pvals(scores.size(), 0.0);
+  vec_int_t rows(scores.size(), -1);
 
   std::size_t n = target.size() - 1;
 
+  /* Phase 1: find the matching db.scores row for each entry. This is the
+   * expensive part and is safe to parallelise.
+   *
+   * Some notes:
+   * - If the ncol (subject/target) combination is missing in db.scores,
+   *   then +1 is added to each ncol in hopes to find the next possible
+   *   combination. If it fails, then the P-value calculation is skipped
+   *   and the final logPvalue is 0.
+   */
+
   RcppThread::parallelFor(0, scores.size(),
-      [&scores, &n, &pvals, &ncols, &indices1, &indices2, &subject, &target,
-      &paramA, &paramB, &distribution, ltail]
+      [&scores, &n, &rows, &ncols, &indices1, &indices2, &subject, &target]
       (std::size_t i) {
 
-        int m1, m2, n1, n2;
-        int row = -1;
-        bool ok = false;
-
-        /* Some notes:
-         * - If the ncol (subject/target) combination is missing in db.scores,
-         *   then +1 is added to each ncol in hopes to find the next possible
-         *   combination. If it fails, then the P-value calculation is skipped
-         *   and the final logPvalue is 0.
-         */
-
-        if (std::abs(scores[i]) != std::numeric_limits<double>::max()) {
-
-          ok = false;
-
-          m1 = ncols[indices1[i]];
-          m2 = ncols[indices2[i]];
-
-          n1 = std::min(m1, m2);
-          n2 = std::max(m1, m2);
-
-          if (n1 < subject[0])
-            n1 = subject[0];
-          else if (n1 > subject[n])
-            n1 = subject[n];
-
-          if (n2 < target[0])
-            n2 = target[0];
-          else if (n2 > target[n])
-            n2 = target[n];
-
-          // RcppThread::Rcout << n1 << ' ' << n2 << '\n';
-          while (!ok) {
-            for (std::size_t j = 0; j < subject.size(); ++j) {
-          // RcppThread::Rcout << subject[j] << ' ' << target[j] << '\n';
-              if (n1 == subject[j] && n2 == target[j]) {
-                row = int(j);
-                ok = true;
-                break;
-              }
-            }
-            ++n1;
-            ++n2;
-            if (!ok && (n1 > int(subject[n]) || n2 > int(target[n]))) {
-              /* indicate failure to find right row */
-              row = -1;
-            }
-          }
-          // RcppThread::Rcout << row << '\n';
-
-          if (row != -1) {
-            /* only calculate pval if row was found */
-            pvals[i] = pval_calculator(scores[i], paramA[row], paramB[row], ltail,
-                distribution[row]);
-          }
-
-        } else {
-
-          /* what to do when score is NA (represented as max double) */
-
-          pvals[i] = 0.0;
-
+        if (std::abs(scores[i]) == std::numeric_limits<double>::max()) {
+          /* NA score; row stays -1, phase 2 will skip and leave pvals[i] = 0. */
+          return;
         }
 
+        int m1 = ncols[indices1[i]];
+        int m2 = ncols[indices2[i]];
+
+        int n1 = std::min(m1, m2);
+        int n2 = std::max(m1, m2);
+
+        if (n1 < subject[0])
+          n1 = subject[0];
+        else if (n1 > subject[n])
+          n1 = subject[n];
+
+        if (n2 < target[0])
+          n2 = target[0];
+        else if (n2 > target[n])
+          n2 = target[n];
+
+        int row = -1;
+        bool ok = false;
+        while (!ok) {
+          for (std::size_t j = 0; j < subject.size(); ++j) {
+            if (n1 == subject[j] && n2 == target[j]) {
+              row = int(j);
+              ok = true;
+              break;
+            }
+          }
+          ++n1;
+          ++n2;
+          if (!ok && (n1 > int(subject[n]) || n2 > int(target[n]))) {
+            /* indicate failure to find right row */
+            row = -1;
+          }
+        }
+
+        rows[i] = row;
+
       }, nthreads);
+
+  /* Phase 2: compute p-values serially. R::p* (pnorm/plogis/pweibull) inside
+   * pval_calculator() touches R's internal state and is not thread-safe, so
+   * this loop must stay single-threaded.
+   */
+  for (std::size_t i = 0; i < scores.size(); ++i) {
+    if (rows[i] != -1) {
+      pvals[i] = pval_calculator(scores[i], paramA[rows[i]], paramB[rows[i]],
+          ltail, distribution[rows[i]]);
+    }
+  }
 
   return pvals;
 
