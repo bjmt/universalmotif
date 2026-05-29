@@ -19,10 +19,16 @@ vec_int_t klet_counter(const vec_int_t &single_seq, const int &k,
   vec_int_t klet_counts(nlets, 0);
   int l, counter;
 
+  // Precompute alphlen^j for j = 0..k-1 once instead of calling pow() at every
+  // sequence position.
+  vec_int_t pow_table(k);
+  pow_table[0] = 1;
+  for (int j = 1; j < k; ++j) pow_table[j] = pow_table[j - 1] * int(alphlen);
+
   for (std::size_t i = 0; i < single_seq.size() - k + 1; ++i) {
     l = 0; counter = 0;
     for (int j = k - 1; j >= 0; --j) {
-      l += pow(alphlen, j) * single_seq[i + counter];
+      l += pow_table[j] * single_seq[i + counter];
       ++counter;
     }
     ++klet_counts[l];
@@ -36,8 +42,13 @@ int get_lastlet(const vec_int_t &single_seq, const int &k,
     const std::size_t &alphlen) {
 
   int lastlet = 0;
+  // Precompute alphlen^i for i = 0..k-2.
+  vec_int_t pow_table(k > 1 ? k - 1 : 1);
+  pow_table[0] = 1;
+  for (int i = 1; i < k - 1; ++i) pow_table[i] = pow_table[i - 1] * int(alphlen);
+
   for (int i = k - 2; i >= 0; --i) {
-    lastlet += pow(alphlen, i) * single_seq[single_seq.size() - 1 - i];
+    lastlet += pow_table[i] * single_seq[single_seq.size() - 1 - i];
   }
 
   return lastlet;
@@ -177,6 +188,12 @@ vec_int_t eulerian_walk(const list_int_t &edgelist, const std::size_t &seqlen,
   vec_int_t edge_index(mlets, 0);
   int which_vertex;
 
+  // Precompute alphlen^j for j = 0..firstlet.size()-1.
+  std::size_t flen = firstlet.size();
+  vec_int_t pow_table(flen == 0 ? 1 : flen);
+  pow_table[0] = 1;
+  for (std::size_t j = 1; j < flen; ++j) pow_table[j] = pow_table[j - 1] * int(alphlen);
+
   for (std::size_t i = 0; i < firstlet.size(); ++i) {
     shuffled_seq_ints.push_back(firstlet[i]);
   }
@@ -184,7 +201,7 @@ vec_int_t eulerian_walk(const list_int_t &edgelist, const std::size_t &seqlen,
   for (std::size_t i = firstlet.size() - 1; i < seqlen - 1; ++i) {
     which_vertex = 0;
     for (int j = int(firstlet.size()) - 1; j >= 0; --j) {
-      which_vertex += pow(alphlen, j) * (shuffled_seq_ints[i - j] % alphlen);
+      which_vertex += pow_table[j] * (shuffled_seq_ints[i - j] % alphlen);
     }
     shuffled_seq_ints.push_back(edgelist[which_vertex][edge_index[which_vertex]]);
     ++edge_index[which_vertex];
@@ -315,11 +332,16 @@ vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_cou
     out.push_back(nlet_lists[firstletters][i]);
   }
 
+  // Precompute alphlen^(j-1) for j = 1..k-1, i.e. alphlen^p for p = 0..k-2.
+  vec_int_t pow_table(k > 1 ? k - 1 : 1);
+  pow_table[0] = 1;
+  for (int p = 1; p < k - 1; ++p) pow_table[p] = pow_table[p - 1] * int(alphlen);
+
   int previous_mlet;
   for (std::size_t i = k - 1; i < seqsize - 1; ++i) {
     previous_mlet = 0;
     for (int j = k - 1; j >= 1; --j) {
-      previous_mlet += out[i - j] * pow(alphlen, j - 1);
+      previous_mlet += out[i - j] * pow_table[j - 1];
     }
     std::discrete_distribution<int> next_gen(transitions[previous_mlet].begin(),
         transitions[previous_mlet].end());
@@ -660,8 +682,13 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
 
   } else if (k > 1) {
 
+    // Precompute alphlen^(b-1) for b = 1..k-1, i.e. alphlen^p for p = 0..k-2.
+    vec_int_t pow_table(k > 1 ? k - 1 : 1);
+    pow_table[0] = 1;
+    for (int p = 1; p < k - 1; ++p) pow_table[p] = pow_table[p - 1] * int(alphlen);
+
     RcppThread::parallelFor(0, out.size(),
-        [&seqlen, &alph, &useed, &out, &freqs, &trans, &nlet_lists, &k, &alphlen]
+        [&seqlen, &alph, &useed, &out, &freqs, &trans, &nlet_lists, &k, &pow_table]
         (std::size_t i) {
 
           vec_int_t out_i;
@@ -679,7 +706,7 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
           for (int j = k - 1; j < seqlen; ++j) {
             prevmlet = 0;
             for (int b = k - 1; b >= 1; --b) {
-              prevmlet += out_i[j - b] * pow(alphlen, b - 1);
+              prevmlet += out_i[j - b] * pow_table[b - 1];
             }
             std::discrete_distribution<int> nextlet(trans[prevmlet].begin(),
                 trans[prevmlet].end());

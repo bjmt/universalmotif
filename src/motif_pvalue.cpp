@@ -4,6 +4,7 @@
 #include <numeric>
 #include <random>
 #include <cmath>
+#include <limits>
 #include "types.h"
 #include "utils-internal.h"
 
@@ -275,12 +276,13 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 
     for (std::size_t i = 0; i < mot_split.size() - 2; ++i) {
 
-      for (std::size_t j = 0; j < all_probs[i + 1].size(); ++j) {
+      // tscore depends only on i, so compute it once outside the j loop.
+      int tscore = 0;
+      for (std::size_t b = 0; b <= i; ++b) {
+        tscore += split_maxes[b];
+      }
 
-        int tscore = 0;
-        for (std::size_t b = 0; b <= i; ++b) {
-          tscore += split_maxes[b];
-        }
+      for (std::size_t j = 0; j < all_probs[i + 1].size(); ++j) {
 
         vec_bool_t gscores(all_scores[i + 2].size(), false);
         for (std::size_t b = 0; b < all_scores[i + 2].size(); ++b) {
@@ -334,6 +336,15 @@ long double motif_pvalue_single(list_int_t mot, const double score,
 list_int_t expand_scores_cpp(const list_int_t &mot) {
 
   std::size_t nrow = mot[0].size();
+  // Guard against integer overflow: npaths = nrow^width must fit in int. The
+  // R-side caller (motif_pvalue.R) caps nrow^k well below this, but check here
+  // too so the C++ entry is safe on its own.
+  double npaths_d = std::pow(double(nrow), double(mot.size()));
+  if (npaths_d > double(std::numeric_limits<int>::max())) {
+    Rcpp::stop("motif too wide for exhaustive score enumeration "
+        "(nrow^width exceeds the integer limit); lower 'k' or use "
+        "method=\"dynamic\"");
+  }
   int npaths = pow(nrow, mot.size());
 
   list_int_t expanded(mot.size(), vec_int_t(npaths));

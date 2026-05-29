@@ -273,6 +273,21 @@ MINOR CHANGES
     function. Silence with
     options(universalmotif.suggest.motif_tree2 = FALSE).
 
+  o Performance: several C++ hot loops now precompute integer
+    alphabet-power tables instead of calling pow() at every sequence
+    position. This affects the k-let counters behind shuffle_sequences()
+    and get_bkg() (Euler / Markov shuffling and higher-order background
+    models) and the Markov sequence generator behind create_sequences().
+    The per-column motif-comparison metrics in compare_motifs() now use
+    plain multiplication in place of pow(x, 2.0). All numerically
+    identical; modest, consistent speed-ups (roughly 10-20% on the
+    affected paths in informal benchmarks).
+
+  o motif_pvalue(method = "exhaustive") now stops with a clear error
+    when a motif is too wide for exhaustive score enumeration (the
+    nrow^width path would overflow a 32-bit integer), rather than
+    relying solely on the R-side guard.
+
   o Various textual improvements to the vignettes.
 
 BUG FIXES

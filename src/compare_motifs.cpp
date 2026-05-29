@@ -281,7 +281,8 @@ double compare_hell(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += pow(sqrt(mot1[i][j]) - sqrt(mot2[i][j]), 2.0);
+        double d = sqrt(mot1[i][j]) - sqrt(mot2[i][j]);
+        ans[i] += d * d;
       }
       ans[i] = sqrt(ans[i]) / sqrt(2.0);
     }
@@ -336,7 +337,8 @@ double compare_seucl(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0);
+        double d = mot1[i][j] - mot2[i][j];
+        ans[i] += d * d;
       }
     }
   }
@@ -417,7 +419,8 @@ double compare_eucl(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0);
+        double d = mot1[i][j] - mot2[i][j];
+        ans[i] += d * d;
       }
       ans[i] = sqrt(ans[i]);
     }
@@ -456,8 +459,8 @@ double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        pmat1[i][j] = pow(mot1[i][j], 2.0);
-        pmat2[i][j] = pow(mot2[i][j], 2.0);
+        pmat1[i][j] = mot1[i][j] * mot1[i][j];
+        pmat2[i][j] = mot2[i][j] * mot2[i][j];
       }
     }
   }
@@ -474,10 +477,12 @@ double compare_pcc(const list_num_t &mot1, const list_num_t &mot2,
   vec_num_t bot(ncol);
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
+      double sum1 = std::accumulate(mot1[i].begin(), mot1[i].end(), 0.0);
+      double sum2 = std::accumulate(mot2[i].begin(), mot2[i].end(), 0.0);
       bot[i] = double(nrow) * std::accumulate(pmat1[i].begin(), pmat1[i].end(), 0.0)
-               - pow(std::accumulate(mot1[i].begin(), mot1[i].end(), 0.0), 2.0);
+               - sum1 * sum1;
       bot[i] *= double(nrow) * std::accumulate(pmat2[i].begin(), pmat2[i].end(), 0.0)
-                - pow(std::accumulate(mot2[i].begin(), mot2[i].end(), 0.0), 2.0);
+                - sum2 * sum2;
       bot[i] = sqrt(bot[i]);
     }
   }
@@ -534,8 +539,10 @@ double compare_wpcc(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        wvar1[i] += weights[j] * pow(mot1[i][j] - wmean1[i], 2.0);
-        wvar2[i] += weights[j] * pow(mot2[i][j] - wmean2[i], 2.0);
+        double d1 = mot1[i][j] - wmean1[i];
+        double d2 = mot2[i][j] - wmean2[i];
+        wvar1[i] += weights[j] * d1 * d1;
+        wvar2[i] += weights[j] * d2 * d2;
       }
     }
   }
@@ -615,7 +622,8 @@ double compare_weucl(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0) * (bkg1[j] + bkg2[j]);
+        double d = mot1[i][j] - mot2[i][j];
+        ans[i] += d * d * (bkg1[j] + bkg2[j]);
       }
       ans[i] = sqrt(ans[i]);
     }
@@ -719,7 +727,8 @@ double compare_sw(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += pow(mot1[i][j] - mot2[i][j], 2.0);
+        double d = mot1[i][j] - mot2[i][j];
+        ans[i] += d * d;
       }
       ans[i] = 2.0 - ans[i];
     }

@@ -372,12 +372,17 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
   list_mat_t score2_mats(score_mats.size());
   for (R_xlen_t i = 0; i < score_mats.size(); ++i) {
     Rcpp::NumericMatrix tmp = score_mats[i];
-    score2_mats[i].reserve(tmp.ncol());
-    motif_sizes[i] = tmp.ncol();
-    for (R_xlen_t j = 0; j < tmp.ncol(); ++j) {
-      Rcpp::NumericVector tmp2 = tmp(Rcpp::_, j);
-      tmp2 = tmp2 * 1000;
-      score2_mats[i].push_back(vec_int_t(tmp2.begin(), tmp2.end()));
+    R_xlen_t nr = tmp.nrow(), nc = tmp.ncol();
+    score2_mats[i].reserve(nc);
+    motif_sizes[i] = nc;
+    for (R_xlen_t j = 0; j < nc; ++j) {
+      // Quantise column j (* 1000, truncate toward zero) directly into an int
+      // column, avoiding a NumericVector copy and a temporary product per column.
+      vec_int_t col(nr);
+      for (R_xlen_t r = 0; r < nr; ++r) {
+        col[r] = static_cast<int>(tmp(r, j) * 1000.0);
+      }
+      score2_mats[i].push_back(std::move(col));
     }
   }
 

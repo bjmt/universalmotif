@@ -9,10 +9,16 @@ vec_int_t klet_counter_NA(const vec_int_t &single_seq, const int &k,
   vec_int_t klet_counts(nlets, 0);
   int l, counter;
 
+  // Precompute alphlen^j for j = 0..k-1 once instead of calling pow() at every
+  // sequence position.
+  vec_int_t pow_table(k);
+  pow_table[0] = 1;
+  for (int j = 1; j < k; ++j) pow_table[j] = pow_table[j - 1] * int(alphlen);
+
   for (std::size_t i = 0; i < single_seq.size() - k + 1; ++i) {
     l = 0; counter = 0;
     for (int j = k - 1; j >= 0; --j) {
-      l += pow(alphlen, j) * single_seq[i + counter];
+      l += pow_table[j] * single_seq[i + counter];
       ++counter;
     }
 
