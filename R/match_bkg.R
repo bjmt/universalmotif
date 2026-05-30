@@ -232,15 +232,34 @@ match_bkg <- function(sequences, universe = NULL,
                              n.bins.covariates, bin.type.covariates)
 
   ## --- matching axes ----------------------------------------------------
-  ## Axis 1 = GC (equal-width over [0, 1]); axis 2 = length (quantile);
-  ## axes 3..N = covariates. Each axis carries the per-target and
-  ## per-universe bin assignments plus its bin count.
-  axes <- list(
-    make_match_axis(gc.t,  gc.u,  n.bins.gc,     "equalwidth", "gc",
-                    range = c(0, 1)),
-    make_match_axis(len.t, len.u, n.bins.length, "quantile",   "length")
-  )
-  if (!is.null(cov)) {
+  ## Axis 1 = GC (equal-width over [0, 1]), axis 2 = length (quantile),
+  ## built the same way whether or not covariates are added.
+  ax.gc  <- make_match_axis(gc.t,  gc.u,  n.bins.gc,     "equalwidth", "gc",
+                            range = c(0, 1))
+  ax.len <- make_match_axis(len.t, len.u, n.bins.length, "quantile",   "length")
+
+  n.targets <- length(sequences)
+
+  ## Build the cell map plus a per-target ring-candidate gatherer
+  ## (`ring_fun`) and matrix of target home coordinates (`homes`). With
+  ## no covariates this is the fast two-axis (GC x length) path: the
+  ## joint bin index is computed inline and the rings are the plain 2-D
+  ## Manhattan rings, identical to the original algorithm. Covariates
+  ## switch to the general N-axis path (mixed-radix index, N-dimensional
+  ## rings), which carries a small constant-factor overhead but is only
+  ## reached when covariates are actually supplied. Both feed the same
+  ## per-target loop below.
+  if (is.null(cov)) {
+    n.gc.bins  <- ax.gc$n.bins
+    n.len.bins <- ax.len$n.bins
+    bin_idx_u  <- (ax.gc$bin.u - 1L) * n.len.bins + ax.len$bin.u
+    cells      <- split(seq_along(ax.gc$bin.u), bin_idx_u)
+    homes      <- cbind(ax.gc$bin.t, ax.len$bin.t)
+    max.ring   <- MAX_LOCAL_RING
+    ring_fun   <- function(home, ring)
+      ring_candidates(home[1L], home[2L], ring, cells, n.gc.bins, n.len.bins)
+  } else {
+    axes <- list(ax.gc, ax.len)
     for (j in seq_along(cov$names)) {
       nm <- cov$names[j]
       ax <- make_match_axis(cov$cov.t[[nm]], cov$cov.u[[nm]],
@@ -249,33 +268,28 @@ match_bkg <- function(sequences, universe = NULL,
         message("covariate `", nm, "` is constant; not used for matching")
       axes[[length(axes) + 1L]] <- ax
     }
+    n.axes     <- length(axes)
+    n.bins.vec <- vapply(axes, function(a) a$n.bins, integer(1))
+    homes      <- do.call(cbind, lapply(axes, function(a) a$bin.t))
+    bins.u     <- do.call(cbind, lapply(axes, function(a) a$bin.u))
+    bin_idx_u  <- encode_bins(bins.u, n.bins.vec)
+    cells      <- split(seq_len(length(universe)), bin_idx_u)
+    ## A fixed radius covers far less ground per axis as dimensions grow,
+    ## so raise the ring cap with the number of axes (floor of two keeps
+    ## the two-axis default unchanged).
+    max.ring   <- max(MAX_LOCAL_RING, n.axes)
+    ring_fun   <- function(home, ring) ring_cells(home, ring, cells, n.bins.vec)
   }
 
-  n.axes     <- length(axes)
-  n.bins.vec <- vapply(axes, function(a) a$n.bins, integer(1))
-  bins.t     <- do.call(cbind, lapply(axes, function(a) a$bin.t))
-  bins.u     <- do.call(cbind, lapply(axes, function(a) a$bin.u))
-
-  ## Joint linear bin index -> vector-of-universe-indices map. For the
-  ## two base axes this reduces exactly to
-  ## (gc.bin - 1) * n.len.bins + len.bin, preserving the original
-  ## two-axis behaviour.
-  bin_idx_u <- encode_bins(bins.u, n.bins.vec)
-  cells <- split(seq_len(length(universe)), bin_idx_u)
-
-  ## --- per-target matching ---------------------------------------------
-  ## RNG comes from the caller's global state (set.seed() before the
-  ## call for reproducibility). MAX_LOCAL_RING is a floor; with more
-  ## than two axes a fixed radius covers far less ground per axis, so
-  ## the ring cap grows with the number of axes.
-  max.ring    <- max(MAX_LOCAL_RING, n.axes)
-  n.targets   <- length(sequences)
-  matched_u   <- integer(n.targets * n.per.target)
-  used_global <- if (unique) integer(0) else NULL
+  ## --- per-target matching (shared) ------------------------------------
+  ## RNG comes from the caller's global state (set.seed() before the call
+  ## for reproducibility).
+  matched_u     <- integer(n.targets * n.per.target)
+  used_global   <- if (unique) integer(0) else NULL
   fallback_used <- 0L
 
   for (ti in seq_len(n.targets)) {
-    cand <- find_candidates(bins.t[ti, ], cells, n.bins.vec,
+    cand <- find_candidates(homes[ti, ], ring_fun, cells,
                             used_global, n.per.target, unique, max.ring)
     if (cand$fellback) fallback_used <- fallback_used + 1L
     drawn <- cand$picked
@@ -285,9 +299,8 @@ match_bkg <- function(sequences, universe = NULL,
 
   if (fallback_used > 0L)
     warning(fallback_used, " target(s) required ring-expansion fallback ",
-            "(empty or undersized joint bin). Consider widening the ",
-            "n.bins.* arguments or providing a bigger universe.",
-            call. = FALSE)
+            "(empty or undersized bin). Consider widening the n.bins.* ",
+            "arguments or providing a bigger universe.", call. = FALSE)
 
   ## --- assemble output --------------------------------------------------
   if (return.indices) {
@@ -458,7 +471,10 @@ compute_gc <- function(seqs) {
 
 ## Ring-expanding candidate finder. Returns picked indices + a logical
 ## `fellback` flag (TRUE only when the with-replacement fallback below
-## was actually used).
+## was actually used). `ring_fun(home, ring)` returns the universe
+## indices at Manhattan distance `ring` from the target's home cell;
+## the caller supplies the two-axis or N-axis gatherer, so the
+## fallback logic here is shared between both paths.
 ##
 ## Try the home cell first, then expand outward by at most `max.ring`
 ## Manhattan-distance rings. If we still don't have enough candidates
@@ -472,14 +488,14 @@ compute_gc <- function(seqs) {
 ## caller (which raises the cap to the number of axes for higher
 ## dimensions).
 MAX_LOCAL_RING <- 2L
-find_candidates <- function(home, cells, n.bins.vec, used_global,
+find_candidates <- function(home, ring_fun, cells, used_global,
                             n.needed, unique, max.ring) {
   ring <- 0L
   picked     <- integer(0)
   local_pool <- integer(0)
   fellback   <- FALSE
   repeat {
-    cand <- ring_cells(home, ring, cells, n.bins.vec)
+    cand <- ring_fun(home, ring)
     local_pool <- c(local_pool, cand)
     if (unique && length(used_global) > 0L)
       cand <- setdiff(cand, used_global)
@@ -635,14 +651,14 @@ make_match_axis <- function(values.t, values.u, n.bins, type, name,
        n.bins = length(breaks) - 1L)
 }
 
-## Mixed-radix linear bin index, axis 1 slowest-varying. `bins` is an
-## n x n.axes matrix (or a single length-n.axes coordinate vector) of
-## 1-based per-axis bin numbers. For two axes this is exactly
-## (bins[, 1] - 1) * n.bins.vec[2] + bins[, 2], matching the original
-## two-axis index, so existing (GC, length) behaviour is preserved.
+## Mixed-radix linear bin index for the N-axis path, axis 1
+## slowest-varying. `bins` is an n x n.axes matrix of 1-based per-axis
+## bin numbers (a length-n.axes vector is accepted as a single row).
+## For two axes this is exactly (bins[, 1] - 1) * n.bins.vec[2] +
+## bins[, 2], the same index the two-axis path computes inline.
 encode_bins <- function(bins, n.bins.vec) {
   n.ax <- length(n.bins.vec)
-  bins <- matrix(as.integer(bins), ncol = n.ax)
+  if (!is.matrix(bins)) bins <- matrix(as.integer(bins), ncol = n.ax)
   key <- bins[, 1L] - 1L
   if (n.ax >= 2L)
     for (a in 2:n.ax) key <- key * n.bins.vec[a] + (bins[, a] - 1L)
@@ -680,17 +696,48 @@ ring_offsets <- function(ring, n.axes) {
   out
 }
 
-## Universe-index candidates in all cells at Manhattan distance `ring`
-## from the target's home bin coordinate `home` (a length-n.axes
-## integer vector). `ring == 0` returns the home cell.
+## N-axis ring gatherer: universe-index candidates in all cells at
+## Manhattan distance `ring` from the target's home bin coordinate
+## `home` (a length-n.axes integer vector). `ring == 0` returns the
+## home cell. The cell key is computed inline (same mixed-radix formula
+## as encode_bins()) to avoid allocating a matrix per offset.
 ring_cells <- function(home, ring, cells, n.bins.vec) {
   offs <- ring_offsets(ring, length(home))
+  n.ax <- length(n.bins.vec)
   out <- integer(0)
   for (d in offs) {
     coord <- home + d
     if (any(coord < 1L) || any(coord > n.bins.vec)) next
-    cell <- cells[[as.character(encode_bins(coord, n.bins.vec))]]
+    key <- coord[1L] - 1L
+    for (a in 2:n.ax) key <- key * n.bins.vec[a] + (coord[a] - 1L)
+    cell <- cells[[as.character(key + 1L)]]
     if (!is.null(cell)) out <- c(out, cell)
+  }
+  unique(out)
+}
+
+## Two-axis ring gatherer: universe-index candidates at Manhattan
+## distance `ring` from (gc.b, len.b). `ring == 0` returns the home
+## cell. Keys are computed inline; this is the original fast path used
+## when no covariates are supplied.
+ring_candidates <- function(gc.b, len.b, ring, cells, n.gc.bins, n.len.bins) {
+  if (ring == 0L) {
+    key <- (gc.b - 1L) * n.len.bins + len.b
+    return(cells[[as.character(key)]] %||% integer(0))
+  }
+  out <- integer(0)
+  for (dg in -ring:ring) {
+    dl <- ring - abs(dg)
+    for (dlen in c(dl, -dl)) {
+      g2 <- gc.b  + dg
+      l2 <- len.b + dlen
+      if (g2 < 1L || g2 > n.gc.bins) next
+      if (l2 < 1L || l2 > n.len.bins) next
+      key <- (g2 - 1L) * n.len.bins + l2
+      cell <- cells[[as.character(key)]]
+      if (!is.null(cell)) out <- c(out, cell)
+      if (dlen == 0L) break  # avoid double-counting the (g2, len.b) cell
+    }
   }
   unique(out)
 }
