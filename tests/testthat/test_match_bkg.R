@@ -16,6 +16,13 @@ make_seqs <- function(n, len, gc, seed = 1) {
   Biostrings::DNAStringSet(out)
 }
 
+## Helper: a per-sequence covariate vector, normally distributed around
+## `mean`. Seeded so tests are deterministic.
+make_cov <- function(n, mean, sd = 0.02, seed = 1) {
+  set.seed(seed)
+  stats::rnorm(n, mean, sd)
+}
+
 test_that("output shape, class, and length are correct", {
   set.seed(1)
   target   <- make_seqs(20, 200, 0.5, seed = 1)
@@ -211,4 +218,204 @@ test_that("genome shortcut works when BSgenome is available", {
   gc.t <- mean(Biostrings::letterFrequency(target.seqs, "GC", as.prob = TRUE))
   gc.b <- mean(Biostrings::letterFrequency(bkg,         "GC", as.prob = TRUE))
   expect_lt(abs(gc.t - gc.b), 0.1)
+})
+
+## --- covariate matching ------------------------------------------------------
+
+test_that("covariates = NULL matches the no-covariate path exactly", {
+  target   <- make_seqs(15, 200, 0.5, seed = 201)
+  universe <- make_seqs(150, 200, 0.5, seed = 202)
+  set.seed(7)
+  a <- match_bkg(target, universe)
+  set.seed(7)
+  b <- match_bkg(target, universe, covariates = NULL,
+                 universe.covariates = NULL)
+  expect_identical(as.character(a), as.character(b))
+})
+
+test_that("single covariate: matched-bkg covariate ~ target covariate", {
+  target   <- make_seqs(50,   200, 0.5, seed = 211)
+  universe <- make_seqs(1000, 200, 0.5, seed = 212)
+  sig.t <- make_cov(50, 0.7, sd = 0.02, seed = 213)
+  set.seed(214); sig.u <- runif(1000)
+  set.seed(215)
+  df <- match_bkg(target, universe,
+                  covariates          = data.frame(signal = sig.t),
+                  universe.covariates = data.frame(signal = sig.u),
+                  return.indices      = TRUE)
+  expect_lt(abs(mean(df$target.signal) - mean(df$universe.signal)), 0.06)
+})
+
+test_that("two covariates: both axes matched within tolerance", {
+  target   <- make_seqs(40,   200, 0.5, seed = 221)
+  universe <- make_seqs(2000, 200, 0.5, seed = 222)
+  a.t <- make_cov(40, 0.3, sd = 0.02, seed = 2231)
+  b.t <- make_cov(40, 0.8, sd = 0.02, seed = 2232)
+  set.seed(224); a.u <- runif(2000); b.u <- runif(2000)
+  set.seed(225)
+  df <- suppressWarnings(
+    match_bkg(target, universe,
+              covariates          = data.frame(aa = a.t, bb = b.t),
+              universe.covariates = data.frame(aa = a.u, bb = b.u),
+              n.bins.covariates   = 5L,
+              return.indices      = TRUE)
+  )
+  expect_lt(abs(mean(df$target.aa) - mean(df$universe.aa)), 0.1)
+  expect_lt(abs(mean(df$target.bb) - mean(df$universe.bb)), 0.1)
+  expect_equal(nrow(df), 40L)
+})
+
+test_that("encode_bins reduces to the original two-axis index", {
+  g <- c(1L, 3L, 5L, 2L); l <- c(2L, 1L, 4L, 4L)
+  ng <- 5L; nl <- 4L
+  expect_equal(universalmotif:::encode_bins(cbind(g, l), c(ng, nl)),
+               (g - 1L) * nl + l)
+  ## A single coordinate vector encodes to a length-1 key.
+  expect_equal(universalmotif:::encode_bins(c(3L, 4L), c(ng, nl)),
+               (3L - 1L) * nl + 4L)
+})
+
+test_that("ring_offsets: magnitudes sum to ring; 2-D matches Manhattan ring", {
+  for (r in 0:3) {
+    offs <- universalmotif:::ring_offsets(r, 2L)
+    sums <- vapply(offs, function(d) sum(abs(d)), integer(1))
+    expect_true(all(sums == r))
+    expect_equal(length(offs), if (r == 0L) 1L else 4L * r)
+    keys <- vapply(offs, paste, character(1), collapse = ",")
+    expect_equal(anyDuplicated(keys), 0L)            # no duplicate offsets
+  }
+  ## 3-D ring sizes are 4r^2 + 2 for r >= 1 (1, 6, 18 for r = 0, 1, 2).
+  expect_equal(length(universalmotif:::ring_offsets(0L, 3L)), 1L)
+  expect_equal(length(universalmotif:::ring_offsets(1L, 3L)), 6L)
+  expect_equal(length(universalmotif:::ring_offsets(2L, 3L)), 18L)
+})
+
+test_that("return.indices gains target.<cov>/universe.<cov> columns", {
+  target   <- make_seqs(5,  200, 0.5, seed = 231)
+  universe <- make_seqs(60, 200, 0.5, seed = 232)
+  set.seed(233); s.t <- runif(5); s.u <- runif(60)
+  df <- match_bkg(target, universe, n.per.target = 2L,
+                  covariates          = data.frame(signal = s.t),
+                  universe.covariates = data.frame(signal = s.u),
+                  return.indices      = TRUE)
+  expect_equal(names(df), c("target.i", "target.gc", "target.length",
+                            "universe.i", "universe.gc", "universe.length",
+                            "target.signal", "universe.signal"))
+  expect_equal(nrow(df), 5L * 2L)
+  expect_true(all(df$target.signal    %in% s.t))
+  expect_true(all(df$universe.signal  %in% s.u))
+})
+
+test_that("covariate validation errors", {
+  target   <- make_seqs(5,  200, 0.5, seed = 241)
+  universe <- make_seqs(40, 200, 0.5, seed = 242)
+  set.seed(243)
+  ct <- data.frame(signal = runif(5))
+  cu <- data.frame(signal = runif(40))
+
+  expect_error(match_bkg(target, genome = "x", covariates = ct),
+               regexp = "cannot be combined with `genome`")
+  expect_error(match_bkg(target, universe, universe.covariates = cu),
+               regexp = "without `covariates`")
+  expect_error(match_bkg(target, universe, covariates = ct),
+               regexp = "requires a matching")
+  expect_error(match_bkg(target, universe,
+                         covariates          = data.frame(signal = runif(4)),
+                         universe.covariates = cu),
+               regexp = "row")
+  expect_error(match_bkg(target, universe, covariates = ct,
+                         universe.covariates = data.frame(signal = runif(39))),
+               regexp = "row")
+  expect_error(match_bkg(target, universe, covariates = ct,
+                         universe.covariates = data.frame(other = runif(40))),
+               regexp = "identical column")
+  expect_error(match_bkg(target, universe,
+                         covariates          = data.frame(signal = letters[1:5]),
+                         universe.covariates = cu),
+               regexp = "must be numeric")
+  ct.na <- ct; ct.na$signal[1] <- NA
+  expect_error(match_bkg(target, universe, covariates = ct.na,
+                         universe.covariates = cu),
+               regexp = "NA/NaN/Inf")
+  expect_error(match_bkg(target, universe,
+                         covariates          = data.frame(gc = runif(5)),
+                         universe.covariates = data.frame(gc = runif(40))),
+               regexp = "reserved")
+  expect_error(match_bkg(target, universe, covariates = ct,
+                         universe.covariates = cu, n.bins.covariates = 1L),
+               regexp = ">= 2")
+})
+
+test_that("constant covariate emits a message and still returns", {
+  target   <- make_seqs(10,  200, 0.5, seed = 251)
+  universe <- make_seqs(100, 200, 0.5, seed = 252)
+  ct <- data.frame(signal = rep(0.5, 10))
+  cu <- data.frame(signal = rep(0.5, 100))
+  expect_message(
+    bkg <- match_bkg(target, universe, covariates = ct,
+                     universe.covariates = cu),
+    regexp = "constant"
+  )
+  expect_equal(length(bkg), 10L)
+})
+
+test_that("bin.type.covariates equalwidth differs from quantile on skewed data", {
+  target   <- make_seqs(20,  200, 0.5, seed = 261)
+  universe <- make_seqs(400, 200, 0.5, seed = 262)
+  set.seed(263); s.t <- rexp(20); s.u <- rexp(400)
+  ct <- data.frame(signal = s.t); cu <- data.frame(signal = s.u)
+  set.seed(264)
+  q <- suppressWarnings(
+    match_bkg(target, universe, covariates = ct, universe.covariates = cu,
+              bin.type.covariates = "quantile", return.indices = TRUE))
+  set.seed(264)
+  e <- suppressWarnings(
+    match_bkg(target, universe, covariates = ct, universe.covariates = cu,
+              bin.type.covariates = "equalwidth", return.indices = TRUE))
+  expect_false(identical(q$universe.i, e$universe.i))
+})
+
+test_that("determinism with covariates: same seed -> identical output", {
+  target   <- make_seqs(12,  200, 0.5, seed = 271)
+  universe <- make_seqs(120, 200, 0.5, seed = 272)
+  set.seed(273); s.t <- runif(12); s.u <- runif(120)
+  ct <- data.frame(signal = s.t); cu <- data.frame(signal = s.u)
+  set.seed(9)
+  b1 <- suppressWarnings(
+    match_bkg(target, universe, covariates = ct, universe.covariates = cu))
+  set.seed(9)
+  b2 <- suppressWarnings(
+    match_bkg(target, universe, covariates = ct, universe.covariates = cu))
+  expect_equal(as.character(b1), as.character(b2))
+})
+
+test_that("3 covariates: sparse universe triggers ring-expansion fallback", {
+  target   <- make_seqs(8,  200, 0.5, seed = 281)
+  universe <- make_seqs(40, 200, 0.5, seed = 282)
+  set.seed(283)
+  ct <- data.frame(a = runif(8),  b = runif(8),  c = runif(8))
+  cu <- data.frame(a = runif(40), b = runif(40), c = runif(40))
+  expect_warning(
+    bkg <- match_bkg(target, universe, covariates = ct,
+                     universe.covariates = cu, n.bins.covariates = 15L),
+    regexp = "ring-expansion"
+  )
+  expect_equal(length(bkg), 8L)
+})
+
+test_that("plot_match_bkg(indices=) facets gc, length and covariates", {
+  target   <- make_seqs(20,  200, 0.5, seed = 291)
+  universe <- make_seqs(200, 200, 0.5, seed = 292)
+  set.seed(293); s.t <- runif(20); s.u <- runif(200)
+  df <- match_bkg(target, universe,
+                  covariates          = data.frame(signal = s.t),
+                  universe.covariates = data.frame(signal = s.u),
+                  return.indices      = TRUE)
+  g <- plot_match_bkg(indices = df)
+  expect_s3_class(g, "ggplot")
+  expect_setequal(levels(g$data$axis),
+                  c("GC fraction", "Sequence length", "signal"))
+  ## `by` can subset to a single covariate panel.
+  g2 <- plot_match_bkg(indices = df, by = "signal")
+  expect_setequal(levels(g2$data$axis), "signal")
 })

@@ -5,14 +5,19 @@
 #' length. This is the HOMER-style binned matching used by motif
 #' enrichment tools to control for sequence-composition biases (GC,
 #' length) that would otherwise inflate enrichment estimates relative
-#' to shuffle-only nulls.
+#' to shuffle-only nulls. Matching can be extended to additional
+#' external per-sequence covariates (e.g. ChIP signal strength,
+#' conservation, mappability) via `covariates`, which simply add more
+#' binned axes to the grid.
 #'
 #' Algorithm (HOMER-style):
 #'   1. Compute per-sequence GC fraction and length for `sequences`
-#'      and `universe`.
-#'   2. Bin the universe into a 2-D grid: GC bins equal-width over
-#'      \[0, 1\], length bins quantile-based on the universe widths.
-#'   3. For each target, locate its (GC, length) bin and sample
+#'      and `universe` (plus any supplied `covariates`).
+#'   2. Bin the universe into a grid: GC bins equal-width over
+#'      \[0, 1\], length bins quantile-based on the universe widths,
+#'      and one extra axis per covariate (quantile- or equal-width
+#'      binned, see `bin.type.covariates`).
+#'   3. For each target, locate its joint bin and sample
 #'      `n.per.target` universe sequences from that bin (without
 #'      replacement when `unique = TRUE`). If the bin is empty or
 #'      undersized, expand outward in Manhattan-distance rings.
@@ -57,6 +62,33 @@
 #'   Default `20L`.
 #' @param n.bins.length `integer(1)`. Number of quantile-based length
 #'   bins. Default `10L`.
+#' @param covariates `NULL`, or a `data.frame` / `matrix` / numeric
+#'   vector of external per-sequence covariates to additionally match
+#'   on, with one row per sequence in `sequences` and one numeric
+#'   column per covariate. A bare numeric vector is treated as a single
+#'   covariate named `"covariate1"`. Each covariate becomes an extra
+#'   binned matching axis. Column names must not be `"i"`, `"gc"` or
+#'   `"length"` (these collide with the `return.indices` columns).
+#'   Covariate values must be finite (no `NA`/`NaN`/`Inf`). Mutually
+#'   exclusive with `genome`: internally-sampled genomic windows have
+#'   no covariate values, so covariate matching requires an explicit
+#'   `universe` paired with `universe.covariates`. Default `NULL`.
+#' @param universe.covariates `NULL`, or the covariate table for the
+#'   `universe` sequences. Required (and only used) when `covariates`
+#'   is supplied. Must have one row per `universe` sequence and the
+#'   same column names, in the same order, as `covariates`. Default
+#'   `NULL`.
+#' @param n.bins.covariates `integer(1)` applied to every covariate, or
+#'   an integer vector named by covariate column (naming every
+#'   covariate). Number of bins per covariate axis; each must be `>= 2`.
+#'   Default `10L`.
+#' @param bin.type.covariates `character`. How to bin each covariate
+#'   axis: `"quantile"` (default, breaks from the universe-covariate
+#'   quantiles, like length) or `"equalwidth"` (equal-width breaks over
+#'   the combined target/universe range, like GC). A single value
+#'   applies to every covariate, or supply a character vector named by
+#'   covariate column. Quantile binning is rank-based, hence scale- and
+#'   shift-invariant; no covariate normalisation is needed.
 #' @param unique `logical(1)`. If `TRUE` (default), each universe
 #'   sequence is drawn at most once. Falls back to with-replacement
 #'   sampling (with a warning) if the universe is too small to honour
@@ -71,7 +103,9 @@
 #'   entries correspond to `sequences[[1]]`, the next to
 #'   `sequences[[2]]`, etc. If `return.indices = TRUE`: a
 #'   `data.frame` with columns `target.i`, `target.gc`,
-#'   `target.length`, `universe.i`, `universe.gc`, `universe.length`.
+#'   `target.length`, `universe.i`, `universe.gc`, `universe.length`,
+#'   followed (when `covariates` is supplied) by a
+#'   `target.<name>` / `universe.<name>` pair for each covariate.
 #'
 #' @references
 #'
@@ -92,6 +126,17 @@
 #' # enrich_motifs2(motifs, target, bkg.sequences = bkg)
 #' # motif_finder(target, bkg.sequences = bkg)
 #' plot_match_bkg(target, bkg)
+#'
+#' ## Additionally match on an external covariate (e.g. a ChIP signal
+#' ## score aligned to each sequence). Covariate matching needs an
+#' ## explicit universe + universe.covariates.
+#' sig.t <- runif(length(target))
+#' sig.u <- runif(length(universe))
+#' idx <- match_bkg(target, universe,
+#'                  covariates          = data.frame(signal = sig.t),
+#'                  universe.covariates = data.frame(signal = sig.u),
+#'                  return.indices      = TRUE)
+#' plot_match_bkg(indices = idx)   # GC, length and signal panels
 #' }
 #'
 #' @seealso [shuffle_sequences()], [enrich_motifs2()], [motif_finder()],
@@ -99,15 +144,19 @@
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 match_bkg <- function(sequences, universe = NULL,
-                     genome         = NULL,
-                     exclude        = NULL,
-                     n.candidates   = NULL,
-                     chromosomes    = NULL,
-                     n.per.target   = 1L,
-                     n.bins.gc      = 20L,
-                     n.bins.length  = 10L,
-                     unique         = TRUE,
-                     return.indices = FALSE) {
+                     genome              = NULL,
+                     exclude             = NULL,
+                     n.candidates        = NULL,
+                     chromosomes         = NULL,
+                     n.per.target        = 1L,
+                     n.bins.gc           = 20L,
+                     n.bins.length       = 10L,
+                     covariates          = NULL,
+                     universe.covariates = NULL,
+                     n.bins.covariates   = 10L,
+                     bin.type.covariates = "quantile",
+                     unique              = TRUE,
+                     return.indices      = FALSE) {
 
   ## --- arg validation --------------------------------------------------
   if (missing(sequences))
@@ -119,6 +168,12 @@ match_bkg <- function(sequences, universe = NULL,
          call. = FALSE)
   if (!is(sequences, "XStringSet"))
     stop("`sequences` must be an XStringSet object", call. = FALSE)
+  if (!is.null(covariates) && !is.null(genome))
+    stop("`covariates` cannot be combined with `genome`: internally-",
+         "sampled genomic windows have no covariate values. Build the ",
+         "universe yourself (sample windows, compute covariates per ",
+         "window) and pass an explicit `universe` + `universe.covariates`.",
+         call. = FALSE)
 
   ## --- BSgenome shortcut: build the universe internally ---------------
   if (!is.null(genome)) {
@@ -171,56 +226,58 @@ match_bkg <- function(sequences, universe = NULL,
   len.t <- as.integer(width(sequences))
   len.u <- as.integer(width(universe))
 
-  ## --- bin breaks -------------------------------------------------------
-  gc.breaks <- seq(0, 1, length.out = as.integer(n.bins.gc) + 1L)
-  ## Quantile-based length breaks; clamp uniques to avoid degenerate
-  ## breaks when many lengths tie. If the universe is constant-length,
-  ## collapse to a single length bin (no length matching to do).
-  len.breaks <- unique(stats::quantile(len.u,
-                                       probs = seq(0, 1,
-                                                   length.out =
-                                                     as.integer(n.bins.length) + 1L),
-                                       names = FALSE))
-  lo <- min(len.t, len.u)
-  hi <- max(len.t, len.u)
-  if (length(len.breaks) < 2L) {
-    len.breaks <- c(lo - 1L, hi + 1L)
-  } else {
-    len.breaks[1]                  <- min(len.breaks[1], lo) - 1L
-    len.breaks[length(len.breaks)] <- max(len.breaks[length(len.breaks)],
-                                          hi) + 1L
+  ## --- covariate validation / coercion ---------------------------------
+  cov <- validate_covariates(covariates, universe.covariates,
+                             length(sequences), length(universe),
+                             n.bins.covariates, bin.type.covariates)
+
+  ## --- matching axes ----------------------------------------------------
+  ## Axis 1 = GC (equal-width over [0, 1]); axis 2 = length (quantile);
+  ## axes 3..N = covariates. Each axis carries the per-target and
+  ## per-universe bin assignments plus its bin count.
+  axes <- list(
+    make_match_axis(gc.t,  gc.u,  n.bins.gc,     "equalwidth", "gc",
+                    range = c(0, 1)),
+    make_match_axis(len.t, len.u, n.bins.length, "quantile",   "length")
+  )
+  if (!is.null(cov)) {
+    for (j in seq_along(cov$names)) {
+      nm <- cov$names[j]
+      ax <- make_match_axis(cov$cov.t[[nm]], cov$cov.u[[nm]],
+                            cov$n.bins[j], cov$bin.type[j], nm)
+      if (ax$n.bins < 2L)
+        message("covariate `", nm, "` is constant; not used for matching")
+      axes[[length(axes) + 1L]] <- ax
+    }
   }
 
-  ## --- bin assignments --------------------------------------------------
-  gc.bin.u  <- pmin(pmax(findInterval(gc.u,  gc.breaks,  rightmost.closed = TRUE),
-                         1L), length(gc.breaks)  - 1L)
-  gc.bin.t  <- pmin(pmax(findInterval(gc.t,  gc.breaks,  rightmost.closed = TRUE),
-                         1L), length(gc.breaks)  - 1L)
-  len.bin.u <- pmin(pmax(findInterval(len.u, len.breaks, rightmost.closed = TRUE),
-                         1L), length(len.breaks) - 1L)
-  len.bin.t <- pmin(pmax(findInterval(len.t, len.breaks, rightmost.closed = TRUE),
-                         1L), length(len.breaks) - 1L)
+  n.axes     <- length(axes)
+  n.bins.vec <- vapply(axes, function(a) a$n.bins, integer(1))
+  bins.t     <- do.call(cbind, lapply(axes, function(a) a$bin.t))
+  bins.u     <- do.call(cbind, lapply(axes, function(a) a$bin.u))
 
-  ## Build the (GC_bin, length_bin) -> vector-of-universe-indices map.
-  bin_idx_u <- (gc.bin.u - 1L) * (length(len.breaks) - 1L) + len.bin.u
-  cells <- split(seq_along(gc.u), bin_idx_u)
-
-  n.gc.bins  <- length(gc.breaks)  - 1L
-  n.len.bins <- length(len.breaks) - 1L
+  ## Joint linear bin index -> vector-of-universe-indices map. For the
+  ## two base axes this reduces exactly to
+  ## (gc.bin - 1) * n.len.bins + len.bin, preserving the original
+  ## two-axis behaviour.
+  bin_idx_u <- encode_bins(bins.u, n.bins.vec)
+  cells <- split(seq_len(length(universe)), bin_idx_u)
 
   ## --- per-target matching ---------------------------------------------
   ## RNG comes from the caller's global state (set.seed() before the
-  ## call for reproducibility).
-  n.targets <- length(sequences)
-  matched_u <- integer(n.targets * n.per.target)
+  ## call for reproducibility). MAX_LOCAL_RING is a floor; with more
+  ## than two axes a fixed radius covers far less ground per axis, so
+  ## the ring cap grows with the number of axes.
+  max.ring    <- max(MAX_LOCAL_RING, n.axes)
+  n.targets   <- length(sequences)
+  matched_u   <- integer(n.targets * n.per.target)
   used_global <- if (unique) integer(0) else NULL
   fallback_used <- 0L
 
   for (ti in seq_len(n.targets)) {
-    cand <- find_candidates(gc.bin.t[ti], len.bin.t[ti],
-                            cells, n.gc.bins, n.len.bins,
-                            used_global, n.per.target, unique)
-    if (cand$rings > 1L) fallback_used <- fallback_used + 1L
+    cand <- find_candidates(bins.t[ti, ], cells, n.bins.vec,
+                            used_global, n.per.target, unique, max.ring)
+    if (cand$fellback) fallback_used <- fallback_used + 1L
     drawn <- cand$picked
     matched_u[((ti - 1L) * n.per.target + 1L):(ti * n.per.target)] <- drawn
     if (unique) used_global <- c(used_global, drawn)
@@ -228,14 +285,14 @@ match_bkg <- function(sequences, universe = NULL,
 
   if (fallback_used > 0L)
     warning(fallback_used, " target(s) required ring-expansion fallback ",
-            "(empty or undersized (GC, length) bin). Consider widening ",
-            "n.bins.gc / n.bins.length or providing a bigger universe.",
+            "(empty or undersized joint bin). Consider widening the ",
+            "n.bins.* arguments or providing a bigger universe.",
             call. = FALSE)
 
   ## --- assemble output --------------------------------------------------
   if (return.indices) {
     target.i <- rep(seq_len(n.targets), each = n.per.target)
-    return(data.frame(
+    df <- data.frame(
       target.i        = target.i,
       target.gc       = gc.t[target.i],
       target.length   = len.t[target.i],
@@ -243,7 +300,17 @@ match_bkg <- function(sequences, universe = NULL,
       universe.gc     = gc.u[matched_u],
       universe.length = len.u[matched_u],
       stringsAsFactors = FALSE
-    ))
+    )
+    if (!is.null(cov)) {
+      cov.cols <- list()
+      for (nm in cov$names) {
+        cov.cols[[paste0("target.", nm)]]   <- cov$cov.t[[nm]][target.i]
+        cov.cols[[paste0("universe.", nm)]] <- cov$cov.u[[nm]][matched_u]
+      }
+      df <- cbind(df, data.frame(cov.cols, stringsAsFactors = FALSE,
+                                 check.names = FALSE))
+    }
+    return(df)
   }
 
   out <- universe[matched_u]
@@ -257,61 +324,108 @@ match_bkg <- function(sequences, universe = NULL,
 
 #' Visualise composition match between target and background sequences.
 #'
-#' Companion to [match_bkg()]. Overlays GC-fraction and sequence-length
-#' density curves for the target and matched-background sets in a
-#' two-panel `ggplot`, useful for visually verifying that the binned
-#' matching landed where it was supposed to.
+#' Companion to [match_bkg()]. Overlays density curves for the target
+#' and matched-background sets in a faceted `ggplot`, useful for
+#' visually verifying that the binned matching landed where it was
+#' supposed to. Called with two `XStringSet`s it plots GC fraction and
+#' sequence length; called with the `indices` data.frame from
+#' `match_bkg(..., return.indices = TRUE)` it plots every matched axis,
+#' including any covariates.
 #'
-#' @param sequences `XStringSet`. The target sequences passed to
-#'   [match_bkg()].
-#' @param bkg `XStringSet`. The matched background sequences returned
-#'   by [match_bkg()].
-#' @param by `character`. Composition axes to plot. Subset of
-#'   `c("gc", "length")`. Default both.
+#' @param sequences `XStringSet` or `NULL`. The target sequences passed
+#'   to [match_bkg()]. Ignored when `indices` is supplied.
+#' @param bkg `XStringSet` or `NULL`. The matched background sequences
+#'   returned by [match_bkg()]. Ignored when `indices` is supplied.
+#' @param by `character` or `NULL`. Axes to plot. For the
+#'   `sequences`/`bkg` form, a subset of `c("gc", "length")` (default
+#'   both). For the `indices` form, a subset of the available axis names
+#'   (`"gc"`, `"length"`, and each covariate name); `NULL` (default)
+#'   plots them all.
 #' @param bins `integer(1)`. Ignored when geom = "density"; kept for
 #'   API parity with other v2 plotting helpers. Default `30L`.
+#' @param indices `data.frame` or `NULL`. The output of
+#'   `match_bkg(..., return.indices = TRUE)`. When supplied, every
+#'   `target.<axis>` / `universe.<axis>` column pair (apart from the
+#'   index column) becomes a density panel, so covariate matches can be
+#'   inspected alongside GC and length. Default `NULL`.
 #'
 #' @return A `ggplot` object.
 #'
 #' @seealso [match_bkg()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
-plot_match_bkg <- function(sequences, bkg,
-                           by = c("gc", "length"),
-                           bins = 30L) {
-  if (!is(sequences, "XStringSet") || !is(bkg, "XStringSet"))
-    stop("both `sequences` and `bkg` must be XStringSet objects",
-         call. = FALSE)
-  by <- match.arg(by, c("gc", "length"), several.ok = TRUE)
+plot_match_bkg <- function(sequences = NULL, bkg = NULL,
+                           by = NULL, bins = 30L, indices = NULL) {
+  label_for <- function(a)
+    switch(a, gc = "GC fraction", length = "Sequence length", a)
 
-  long <- rbind(
-    data.frame(set = "target", gc = compute_gc(sequences),
-               length = as.numeric(width(sequences)),
-               stringsAsFactors = FALSE),
-    data.frame(set = "matched", gc = compute_gc(bkg),
-               length = as.numeric(width(bkg)),
-               stringsAsFactors = FALSE)
-  )
+  if (!is.null(indices)) {
+    if (!is.data.frame(indices))
+      stop("`indices` must be the data.frame returned by ",
+           "match_bkg(..., return.indices = TRUE)", call. = FALSE)
+    axes <- setdiff(sub("^target\\.", "",
+                        grep("^target\\.", names(indices), value = TRUE)),
+                    "i")
+    if (!is.null(by)) axes <- intersect(axes, by)
+    axes <- axes[vapply(axes, function(a)
+      all(c(paste0("target.", a), paste0("universe.", a)) %in% names(indices)),
+      logical(1))]
+    if (!length(axes))
+      stop("no plottable target.*/universe.* column pairs found in `indices`",
+           call. = FALSE)
+    pieces <- lapply(axes, function(a) {
+      lab <- label_for(a)
+      rbind(
+        data.frame(set = "target",  axis = lab,
+                   value = indices[[paste0("target.", a)]],
+                   stringsAsFactors = FALSE),
+        data.frame(set = "matched", axis = lab,
+                   value = indices[[paste0("universe.", a)]],
+                   stringsAsFactors = FALSE)
+      )
+    })
+    long2 <- do.call(rbind, pieces)
+    long2$axis <- factor(long2$axis,
+                         levels = vapply(axes, label_for, character(1)))
+    n.panels <- length(axes)
+  } else {
+    if (!is(sequences, "XStringSet") || !is(bkg, "XStringSet"))
+      stop("both `sequences` and `bkg` must be XStringSet objects (or ",
+           "supply `indices`)", call. = FALSE)
+    if (is.null(by)) by <- c("gc", "length")
+    by <- match.arg(by, c("gc", "length"), several.ok = TRUE)
 
-  ## Pivot to a long form keyed by panel ("gc" or "length").
-  pieces <- list()
-  if ("gc" %in% by) {
-    pieces[["gc"]] <- data.frame(set = long$set, axis = "GC fraction",
-                                 value = long$gc,
-                                 stringsAsFactors = FALSE)
+    long <- rbind(
+      data.frame(set = "target", gc = compute_gc(sequences),
+                 length = as.numeric(width(sequences)),
+                 stringsAsFactors = FALSE),
+      data.frame(set = "matched", gc = compute_gc(bkg),
+                 length = as.numeric(width(bkg)),
+                 stringsAsFactors = FALSE)
+    )
+
+    ## Pivot to a long form keyed by panel ("gc" or "length").
+    pieces <- list()
+    if ("gc" %in% by) {
+      pieces[["gc"]] <- data.frame(set = long$set, axis = "GC fraction",
+                                   value = long$gc,
+                                   stringsAsFactors = FALSE)
+    }
+    if ("length" %in% by) {
+      pieces[["length"]] <- data.frame(set = long$set, axis = "Sequence length",
+                                       value = long$length,
+                                       stringsAsFactors = FALSE)
+    }
+    long2 <- do.call(rbind, pieces)
+    n.panels <- length(by)
   }
-  if ("length" %in% by) {
-    pieces[["length"]] <- data.frame(set = long$set, axis = "Sequence length",
-                                     value = long$length,
-                                     stringsAsFactors = FALSE)
-  }
-  long2 <- do.call(rbind, pieces)
+
   long2$set <- factor(long2$set, levels = c("target", "matched"))
 
   ggplot2::ggplot(long2, ggplot2::aes(x = .data$value, colour = .data$set,
                                        fill = .data$set)) +
     ggplot2::geom_density(alpha = 0.25, linewidth = 0.6) +
-    ggplot2::facet_wrap(~ axis, scales = "free", ncol = length(by)) +
+    ggplot2::facet_wrap(~ axis, scales = "free", ncol = n.panels) +
     ggplot2::scale_colour_manual(values = c(target = "#1f77b4",
                                             matched = "#ff7f0e")) +
     ggplot2::scale_fill_manual(values   = c(target = "#1f77b4",
@@ -342,25 +456,30 @@ compute_gc <- function(seqs) {
   out
 }
 
-## Ring-expanding candidate finder. Returns picked indices + the ring
-## level used (0 = home cell, 1 = first ring, ...).
+## Ring-expanding candidate finder. Returns picked indices + a logical
+## `fellback` flag (TRUE only when the with-replacement fallback below
+## was actually used).
 ##
-## Try the home cell first, then expand outward by at most
-## `MAX_LOCAL_RING` Manhattan-distance rings. If we still don't have
-## enough candidates after that (typical when `unique = TRUE` and the
-## target distribution is narrow), fall back to with-replacement
-## sampling from the cumulative *local* pool. This keeps the
-## composition match tight at the cost of letting a few universe
-## sequences repeat, rather than expanding to far-distant
-## (compositionally unmatched) cells.
+## Try the home cell first, then expand outward by at most `max.ring`
+## Manhattan-distance rings. If we still don't have enough candidates
+## after that (typical when `unique = TRUE` and the target distribution
+## is narrow), fall back to with-replacement sampling from the
+## cumulative *local* pool. This keeps the composition match tight at
+## the cost of letting a few universe sequences repeat, rather than
+## expanding to far-distant (compositionally unmatched) cells.
+##
+## MAX_LOCAL_RING is the two-axis default and the floor used by the
+## caller (which raises the cap to the number of axes for higher
+## dimensions).
 MAX_LOCAL_RING <- 2L
-find_candidates <- function(gc.b, len.b, cells, n.gc.bins, n.len.bins,
-                            used_global, n.needed, unique) {
+find_candidates <- function(home, cells, n.bins.vec, used_global,
+                            n.needed, unique, max.ring) {
   ring <- 0L
   picked     <- integer(0)
   local_pool <- integer(0)
-  while (length(picked) < n.needed) {
-    cand <- ring_candidates(gc.b, len.b, ring, cells, n.gc.bins, n.len.bins)
+  fellback   <- FALSE
+  repeat {
+    cand <- ring_cells(home, ring, cells, n.bins.vec)
     local_pool <- c(local_pool, cand)
     if (unique && length(used_global) > 0L)
       cand <- setdiff(cand, used_global)
@@ -373,13 +492,15 @@ find_candidates <- function(gc.b, len.b, cells, n.gc.bins, n.len.bins,
       picked <- c(picked, cand[sample.int(length(cand), take,
                                           replace = FALSE)])
     }
+    if (length(picked) >= n.needed) break
     ring <- ring + 1L
-    if (ring > MAX_LOCAL_RING) {
+    if (ring > max.ring) {
       ## Cap reached. Sample with replacement from the accumulated
       ## local pool (preserves composition match). If that's somehow
       ## empty too, fall back to global random as a last resort.
       need <- n.needed - length(picked)
       if (need > 0L) {
+        fellback <- TRUE
         pool <- unique(local_pool)
         if (length(pool) == 0L)
           pool <- unlist(cells, use.names = FALSE)
@@ -389,7 +510,7 @@ find_candidates <- function(gc.b, len.b, cells, n.gc.bins, n.len.bins,
       break
     }
   }
-  list(picked = picked, rings = ring)
+  list(picked = picked, fellback = fellback)
 }
 
 ## Sample a candidate-universe XStringSet from a BSgenome by drawing
@@ -471,26 +592,205 @@ sample_genomic_universe <- function(genome, sequences,
   Biostrings::getSeq(genome, gr)
 }
 
-## Universe-index candidates at Manhattan distance `ring` from (gc.b, len.b).
-## ring == 0 returns the home cell.
-ring_candidates <- function(gc.b, len.b, ring, cells, n.gc.bins, n.len.bins) {
-  if (ring == 0L) {
-    key <- (gc.b - 1L) * n.len.bins + len.b
-    return(cells[[as.character(key)]] %||% integer(0))
-  }
-  out <- integer(0)
-  for (dg in -ring:ring) {
-    dl <- ring - abs(dg)
-    for (dlen in c(dl, -dl)) {
-      g2 <- gc.b  + dg
-      l2 <- len.b + dlen
-      if (g2 < 1L || g2 > n.gc.bins) next
-      if (l2 < 1L || l2 > n.len.bins) next
-      key <- (g2 - 1L) * n.len.bins + l2
-      cell <- cells[[as.character(key)]]
-      if (!is.null(cell)) out <- c(out, cell)
-      if (dlen == 0L) break  # avoid double-counting the (g2, len.b) cell
+## Build one matching axis. `type` is "equalwidth" (equal-width breaks;
+## pass an explicit `range` to pin them, as GC does over [0, 1]) or
+## "quantile" (breaks from the universe values' quantiles, like
+## length). Mirrors the original per-axis GC and length binning,
+## including the constant-axis collapse to a single bin. Returns a list
+## with per-target/per-universe 1-based bin indices and the bin count.
+make_match_axis <- function(values.t, values.u, n.bins, type, name,
+                            range = NULL) {
+  n.bins <- as.integer(n.bins)
+  if (type == "equalwidth") {
+    if (is.null(range)) range <- range(c(values.t, values.u))
+    breaks <- seq(range[1L], range[2L], length.out = n.bins + 1L)
+    ## Degenerate (constant) range: collapse to a single bin.
+    if (length(unique(breaks)) < 2L) {
+      lo <- min(c(values.t, values.u))
+      hi <- max(c(values.t, values.u))
+      breaks <- c(lo - 1, hi + 1)
+    }
+  } else {
+    ## Quantile-based breaks; clamp uniques to avoid degenerate breaks
+    ## when many values tie. If the universe is constant on this axis,
+    ## collapse to a single bin (nothing to match on).
+    breaks <- unique(stats::quantile(values.u,
+                                     probs = seq(0, 1,
+                                                 length.out = n.bins + 1L),
+                                     names = FALSE))
+    lo <- min(values.t, values.u)
+    hi <- max(values.t, values.u)
+    if (length(breaks) < 2L) {
+      breaks <- c(lo - 1, hi + 1)
+    } else {
+      breaks[1]              <- min(breaks[1], lo) - 1
+      breaks[length(breaks)] <- max(breaks[length(breaks)], hi) + 1
     }
   }
+  bin.t <- pmin(pmax(findInterval(values.t, breaks, rightmost.closed = TRUE),
+                     1L), length(breaks) - 1L)
+  bin.u <- pmin(pmax(findInterval(values.u, breaks, rightmost.closed = TRUE),
+                     1L), length(breaks) - 1L)
+  list(name = name, bin.t = as.integer(bin.t), bin.u = as.integer(bin.u),
+       n.bins = length(breaks) - 1L)
+}
+
+## Mixed-radix linear bin index, axis 1 slowest-varying. `bins` is an
+## n x n.axes matrix (or a single length-n.axes coordinate vector) of
+## 1-based per-axis bin numbers. For two axes this is exactly
+## (bins[, 1] - 1) * n.bins.vec[2] + bins[, 2], matching the original
+## two-axis index, so existing (GC, length) behaviour is preserved.
+encode_bins <- function(bins, n.bins.vec) {
+  n.ax <- length(n.bins.vec)
+  bins <- matrix(as.integer(bins), ncol = n.ax)
+  key <- bins[, 1L] - 1L
+  if (n.ax >= 2L)
+    for (a in 2:n.ax) key <- key * n.bins.vec[a] + (bins[, a] - 1L)
+  as.integer(key + 1L)
+}
+
+## All integer offset vectors of length `n.axes` whose absolute values
+## sum to `ring`: the n-dimensional generalisation of a Manhattan-
+## distance ring. `ring == 0` is the single zero vector (home cell).
+## A nonzero allocation to an axis is emitted as both +/- (a single 0
+## otherwise), so no offset vector is generated twice.
+ring_offsets <- function(ring, n.axes) {
+  if (ring == 0L) return(list(rep(0L, n.axes)))
+  out <- list()
+  recurse <- function(axis, remaining, acc) {
+    if (axis == n.axes) {
+      if (remaining == 0L) {
+        out[[length(out) + 1L]] <<- c(acc, 0L)
+      } else {
+        out[[length(out) + 1L]] <<- c(acc,  remaining)
+        out[[length(out) + 1L]] <<- c(acc, -remaining)
+      }
+      return(invisible(NULL))
+    }
+    for (m in 0:remaining) {
+      if (m == 0L) {
+        recurse(axis + 1L, remaining, c(acc, 0L))
+      } else {
+        recurse(axis + 1L, remaining - m, c(acc,  m))
+        recurse(axis + 1L, remaining - m, c(acc, -m))
+      }
+    }
+  }
+  recurse(1L, ring, integer(0))
+  out
+}
+
+## Universe-index candidates in all cells at Manhattan distance `ring`
+## from the target's home bin coordinate `home` (a length-n.axes
+## integer vector). `ring == 0` returns the home cell.
+ring_cells <- function(home, ring, cells, n.bins.vec) {
+  offs <- ring_offsets(ring, length(home))
+  out <- integer(0)
+  for (d in offs) {
+    coord <- home + d
+    if (any(coord < 1L) || any(coord > n.bins.vec)) next
+    cell <- cells[[as.character(encode_bins(coord, n.bins.vec))]]
+    if (!is.null(cell)) out <- c(out, cell)
+  }
   unique(out)
+}
+
+## Coerce a covariate argument (data.frame / matrix / numeric vector)
+## to a data.frame with named numeric columns.
+coerce_covariates <- function(x, argname) {
+  if (is.data.frame(x)) {
+    out <- x
+  } else if (is.matrix(x)) {
+    out <- as.data.frame(x, stringsAsFactors = FALSE)
+    if (is.null(colnames(x)))
+      names(out) <- paste0("covariate", seq_len(ncol(x)))
+  } else if (is.numeric(x) && is.null(dim(x))) {
+    out <- data.frame(covariate1 = x, stringsAsFactors = FALSE)
+  } else {
+    stop("`", argname, "` must be a data.frame, matrix, or numeric vector",
+         call. = FALSE)
+  }
+  out
+}
+
+## Resolve a per-covariate argument: a single value applied to every
+## covariate, or a vector named by covariate column (naming all of
+## them).
+resolve_per_cov <- function(x, nm, argname, char = FALSE) {
+  conv <- function(v) if (char) as.character(v) else as.integer(v)
+  if (!is.null(names(x)) && any(nzchar(names(x)))) {
+    if (!setequal(names(x), nm))
+      stop("named `", argname, "` must name every covariate exactly; got {",
+           paste(names(x), collapse = ", "), "} for covariates {",
+           paste(nm, collapse = ", "), "}", call. = FALSE)
+    out <- conv(x[nm])
+  } else if (length(x) == 1L) {
+    out <- rep(conv(x), length(nm))
+  } else {
+    stop("`", argname, "` must be a single value or a vector named by ",
+         "covariate", call. = FALSE)
+  }
+  names(out) <- nm
+  out
+}
+
+## Validate and coerce the covariate tables. Returns NULL when no
+## covariates are supplied, else a list with the coerced target/universe
+## tables, per-covariate bin counts and bin types, and column names.
+validate_covariates <- function(covariates, universe.covariates,
+                                n.targets, n.universe,
+                                n.bins.covariates, bin.type.covariates) {
+  if (is.null(covariates) && is.null(universe.covariates))
+    return(NULL)
+  if (is.null(covariates))
+    stop("`universe.covariates` supplied without `covariates`", call. = FALSE)
+  if (is.null(universe.covariates))
+    stop("`covariates` requires a matching `universe.covariates`",
+         call. = FALSE)
+
+  cov.t <- coerce_covariates(covariates, "covariates")
+  cov.u <- coerce_covariates(universe.covariates, "universe.covariates")
+
+  if (nrow(cov.t) != n.targets)
+    stop("`covariates` has ", nrow(cov.t), " row(s) but `sequences` has ",
+         n.targets, call. = FALSE)
+  if (nrow(cov.u) != n.universe)
+    stop("`universe.covariates` has ", nrow(cov.u), " row(s) but `universe` ",
+         "has ", n.universe, call. = FALSE)
+  if (ncol(cov.t) < 1L)
+    stop("`covariates` must have at least one column", call. = FALSE)
+  if (ncol(cov.t) != ncol(cov.u))
+    stop("`covariates` and `universe.covariates` must have the same number ",
+         "of columns", call. = FALSE)
+  if (!identical(names(cov.t), names(cov.u)))
+    stop("`covariates` and `universe.covariates` must have identical column ",
+         "names in the same order; got (",
+         paste(names(cov.t), collapse = ", "), ") vs (",
+         paste(names(cov.u), collapse = ", "), ")", call. = FALSE)
+
+  reserved <- c("i", "gc", "length")
+  bad <- intersect(names(cov.t), reserved)
+  if (length(bad))
+    stop("covariate column name(s) {", paste(bad, collapse = ", "),
+         "} are reserved (collide with the return.indices columns); ",
+         "rename them", call. = FALSE)
+
+  for (nm in names(cov.t)) {
+    if (!is.numeric(cov.t[[nm]]) || !is.numeric(cov.u[[nm]]))
+      stop("covariate column `", nm, "` must be numeric", call. = FALSE)
+    if (any(!is.finite(cov.t[[nm]])) || any(!is.finite(cov.u[[nm]])))
+      stop("covariate column `", nm, "` contains NA/NaN/Inf; impute or drop ",
+           "before calling match_bkg()", call. = FALSE)
+  }
+
+  nm <- names(cov.t)
+  nb <- resolve_per_cov(n.bins.covariates, nm, "n.bins.covariates")
+  if (any(nb < 2L))
+    stop("`n.bins.covariates` must be >= 2 for every covariate", call. = FALSE)
+  bt <- resolve_per_cov(bin.type.covariates, nm, "bin.type.covariates",
+                        char = TRUE)
+  bt <- vapply(bt, function(x) match.arg(x, c("quantile", "equalwidth")),
+               character(1))
+
+  list(cov.t = cov.t, cov.u = cov.u, n.bins = nb, bin.type = bt, names = nm)
 }

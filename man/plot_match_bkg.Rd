@@ -4,29 +4,42 @@
 \alias{plot_match_bkg}
 \title{Visualise composition match between target and background sequences.}
 \usage{
-plot_match_bkg(sequences, bkg, by = c("gc", "length"), bins = 30L)
+plot_match_bkg(sequences = NULL, bkg = NULL, by = NULL, bins = 30L,
+  indices = NULL)
 }
 \arguments{
-\item{sequences}{\code{XStringSet}. The target sequences passed to
-\code{\link[=match_bkg]{match_bkg()}}.}
+\item{sequences}{\code{XStringSet} or \code{NULL}. The target sequences passed
+to \code{\link[=match_bkg]{match_bkg()}}. Ignored when \code{indices} is supplied.}
 
-\item{bkg}{\code{XStringSet}. The matched background sequences returned
-by \code{\link[=match_bkg]{match_bkg()}}.}
+\item{bkg}{\code{XStringSet} or \code{NULL}. The matched background sequences
+returned by \code{\link[=match_bkg]{match_bkg()}}. Ignored when \code{indices} is supplied.}
 
-\item{by}{\code{character}. Composition axes to plot. Subset of
-\code{c("gc", "length")}. Default both.}
+\item{by}{\code{character} or \code{NULL}. Axes to plot. For the
+\code{sequences}/\code{bkg} form, a subset of \code{c("gc", "length")} (default
+both). For the \code{indices} form, a subset of the available axis names
+(\code{"gc"}, \code{"length"}, and each covariate name); \code{NULL} (default)
+plots them all.}
 
 \item{bins}{\code{integer(1)}. Ignored when geom = "density"; kept for
 API parity with other v2 plotting helpers. Default \code{30L}.}
+
+\item{indices}{\code{data.frame} or \code{NULL}. The output of
+\code{match_bkg(..., return.indices = TRUE)}. When supplied, every
+\verb{target.<axis>} / \verb{universe.<axis>} column pair (apart from the
+index column) becomes a density panel, so covariate matches can be
+inspected alongside GC and length. Default \code{NULL}.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-Companion to \code{\link[=match_bkg]{match_bkg()}}. Overlays GC-fraction and sequence-length
-density curves for the target and matched-background sets in a
-two-panel \code{ggplot}, useful for visually verifying that the binned
-matching landed where it was supposed to.
+Companion to \code{\link[=match_bkg]{match_bkg()}}. Overlays density curves for the target
+and matched-background sets in a faceted \code{ggplot}, useful for
+visually verifying that the binned matching landed where it was
+supposed to. Called with two \code{XStringSet}s it plots GC fraction and
+sequence length; called with the \code{indices} data.frame from
+\code{match_bkg(..., return.indices = TRUE)} it plots every matched axis,
+including any covariates.
 }
 \seealso{
 \code{\link[=match_bkg]{match_bkg()}}

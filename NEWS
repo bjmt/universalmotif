@@ -157,7 +157,7 @@ NEW FEATURES
     background sampling for DNA/RNA motif enrichment and de novo
     discovery analyses. Given a target XStringSet and a larger
     universe XStringSet (typically extracted from a BSgenome) or
-    a BSgenome object direclty, match_bkg() samples background
+    a BSgenome object directly, match_bkg() samples background
     sequences from the universe that match the target on GC fraction
     and length, the HOMER-style binned approach. This complements
     shuffle_sequences(), which preserves each input's own k-let
@@ -166,7 +166,19 @@ NEW FEATURES
     is an XStringSet usable directly as `bkg.sequences` in
     enrich_motifs2() / motif_finder(). plot_match_bkg() returns a
     ggplot of overlaid target vs matched-background GC and length
-    densities for visual match-quality QC. See ?match_bkg.
+    densities for visual match-quality QC. Beyond GC and length,
+    match_bkg() can also match on arbitrary external per-sequence
+    covariates (a ChIP signal score, conservation, mappability and so
+    on), supplied through the `covariates` and `universe.covariates`
+    arguments, with `n.bins.covariates` and `bin.type.covariates`
+    controlling how each extra axis is binned. Covariate matching needs
+    an explicit `universe` paired with `universe.covariates` and cannot
+    be combined with `genome`, because internally-sampled genomic
+    windows carry no covariate values. With return.indices = TRUE the
+    result then carries a target.<name> / universe.<name> column for
+    each covariate, and plot_match_bkg() will facet a density panel for
+    every matched axis when handed that data.frame through its new
+    `indices` argument. See ?match_bkg.
 
   o Rewrote motif_peaks() as an analytical CentriMo-style positional
     enrichment function (Bailey & Machanick 2012). It takes a hit

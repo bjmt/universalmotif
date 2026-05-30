@@ -6,7 +6,9 @@
 \usage{
 match_bkg(sequences, universe = NULL, genome = NULL, exclude = NULL,
   n.candidates = NULL, chromosomes = NULL, n.per.target = 1L,
-  n.bins.gc = 20L, n.bins.length = 10L, unique = TRUE,
+  n.bins.gc = 20L, n.bins.length = 10L, covariates = NULL,
+  universe.covariates = NULL, n.bins.covariates = 10L,
+  bin.type.covariates = "quantile", unique = TRUE,
   return.indices = FALSE)
 }
 \arguments{
@@ -53,6 +55,37 @@ Default \code{20L}.}
 \item{n.bins.length}{\code{integer(1)}. Number of quantile-based length
 bins. Default \code{10L}.}
 
+\item{covariates}{\code{NULL}, or a \code{data.frame} / \code{matrix} / numeric
+vector of external per-sequence covariates to additionally match
+on, with one row per sequence in \code{sequences} and one numeric
+column per covariate. A bare numeric vector is treated as a single
+covariate named \code{"covariate1"}. Each covariate becomes an extra
+binned matching axis. Column names must not be \code{"i"}, \code{"gc"} or
+\code{"length"} (these collide with the \code{return.indices} columns).
+Covariate values must be finite (no \code{NA}/\code{NaN}/\code{Inf}). Mutually
+exclusive with \code{genome}: internally-sampled genomic windows have
+no covariate values, so covariate matching requires an explicit
+\code{universe} paired with \code{universe.covariates}. Default \code{NULL}.}
+
+\item{universe.covariates}{\code{NULL}, or the covariate table for the
+\code{universe} sequences. Required (and only used) when \code{covariates}
+is supplied. Must have one row per \code{universe} sequence and the
+same column names, in the same order, as \code{covariates}. Default
+\code{NULL}.}
+
+\item{n.bins.covariates}{\code{integer(1)} applied to every covariate, or
+an integer vector named by covariate column (naming every
+covariate). Number of bins per covariate axis; each must be \verb{>= 2}.
+Default \code{10L}.}
+
+\item{bin.type.covariates}{\code{character}. How to bin each covariate
+axis: \code{"quantile"} (default, breaks from the universe-covariate
+quantiles, like length) or \code{"equalwidth"} (equal-width breaks over
+the combined target/universe range, like GC). A single value
+applies to every covariate, or supply a character vector named by
+covariate column. Quantile binning is rank-based, hence scale- and
+shift-invariant; no covariate normalisation is needed.}
+
 \item{unique}{\code{logical(1)}. If \code{TRUE} (default), each universe
 sequence is drawn at most once. Falls back to with-replacement
 sampling (with a warning) if the universe is too small to honour
@@ -69,7 +102,9 @@ If \code{return.indices = FALSE} (default): an \code{XStringSet}
 entries correspond to \code{sequences[[1]]}, the next to
 \code{sequences[[2]]}, etc. If \code{return.indices = TRUE}: a
 \code{data.frame} with columns \code{target.i}, \code{target.gc},
-\code{target.length}, \code{universe.i}, \code{universe.gc}, \code{universe.length}.
+\code{target.length}, \code{universe.i}, \code{universe.gc}, \code{universe.length},
+followed (when \code{covariates} is supplied) by a
+\verb{target.<name>} / \verb{universe.<name>} pair for each covariate.
 }
 \description{
 For each sequence in \code{sequences}, \code{\link[=match_bkg]{match_bkg()}} draws one or more
@@ -77,16 +112,21 @@ background sequences from \code{universe} that share its GC fraction and
 length. This is the HOMER-style binned matching used by motif
 enrichment tools to control for sequence-composition biases (GC,
 length) that would otherwise inflate enrichment estimates relative
-to shuffle-only nulls.
+to shuffle-only nulls. Matching can be extended to additional
+external per-sequence covariates (e.g. ChIP signal strength,
+conservation, mappability) via \code{covariates}, which simply add more
+binned axes to the grid.
 }
 \details{
 Algorithm (HOMER-style):
 \enumerate{
 \item Compute per-sequence GC fraction and length for \code{sequences}
-and \code{universe}.
-\item Bin the universe into a 2-D grid: GC bins equal-width over
-[0, 1], length bins quantile-based on the universe widths.
-\item For each target, locate its (GC, length) bin and sample
+and \code{universe} (plus any supplied \code{covariates}).
+\item Bin the universe into a grid: GC bins equal-width over
+[0, 1], length bins quantile-based on the universe widths,
+and one extra axis per covariate (quantile- or equal-width
+binned, see \code{bin.type.covariates}).
+\item For each target, locate its joint bin and sample
 \code{n.per.target} universe sequences from that bin (without
 replacement when \code{unique = TRUE}). If the bin is empty or
 undersized, expand outward in Manhattan-distance rings.
@@ -109,6 +149,17 @@ bkg <- match_bkg(target, universe, n.per.target = 2)
 # enrich_motifs2(motifs, target, bkg.sequences = bkg)
 # motif_finder(target, bkg.sequences = bkg)
 plot_match_bkg(target, bkg)
+
+## Additionally match on an external covariate (e.g. a ChIP signal
+## score aligned to each sequence). Covariate matching needs an
+## explicit universe + universe.covariates.
+sig.t <- runif(length(target))
+sig.u <- runif(length(universe))
+idx <- match_bkg(target, universe,
+                 covariates          = data.frame(signal = sig.t),
+                 universe.covariates = data.frame(signal = sig.u),
+                 return.indices      = TRUE)
+plot_match_bkg(indices = idx)   # GC, length and signal panels
 }
 
 }
