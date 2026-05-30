@@ -71,13 +71,13 @@ denominator to avoid division by zero), per yamtk's formula
 }
 }
 \description{
-\code{enrich_motifs2()} is a deliberately stripped-down counterpart to
-\code{\link[=enrich_motifs]{enrich_motifs()}} whose default surface mirrors the command-line tool
-\href{https://github.com/bjmt/yamtk}{yamtk}. It exposes a
-single p-value cutoff for hits, a single q-value cutoff for results, two
-test modes (\code{"seqs"} and \code{"sites"}, both Fisher's exact), and uses
-\code{\link[=scan_sequences2]{scan_sequences2()}} under the hood to scan target and background
-sequences. P-value adjustment is hard-coded to Benjamini-Hochberg.
+\code{enrich_motifs2()} is a deliberately pared-down counterpart to
+\code{\link[=enrich_motifs]{enrich_motifs()}}, with a default surface that mirrors the command-line
+tool \href{https://github.com/bjmt/yamtk}{yamtk}. It exposes a single p-value
+cutoff for the hits, a single q-value cutoff for the results, and two
+test modes (\code{"seqs"} and \code{"sites"}, both Fisher's exact), and it leans on
+\code{\link[=scan_sequences2]{scan_sequences2()}} under the hood to scan the target and background
+sequences. The p-value adjustment is hard-coded to Benjamini-Hochberg.
 }
 \details{
 Use \code{\link[=enrich_motifs]{enrich_motifs()}} when you need any of: q-value adjustment methods

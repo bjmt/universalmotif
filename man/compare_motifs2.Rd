@@ -57,15 +57,15 @@ column where target column 1 aligns.
 }
 }
 \description{
-\code{compare_motifs2()} is a deliberately stripped-down counterpart to
-\code{\link[=compare_motifs]{compare_motifs()}} whose defaults and algorithm mirror the command-line
-tool \href{https://github.com/bjmt/yamtk}{yamtk}. It uses
-Pearson correlation per column as the similarity metric, computes
-significance from a TOMTOM-style null PMF (either empirical from the
-target database or parametric via Dirichlet-Multinomial over a K=5
-simplex grid), applies Bonferroni + Benjamini-Hochberg adjustment, and
-returns either a long-format \code{data.frame} of significant pairs or a
-square score / p-value / q-value matrix.
+\code{compare_motifs2()} is a deliberately pared-down counterpart to
+\code{\link[=compare_motifs]{compare_motifs()}}, with defaults and an algorithm that mirror those of
+the command-line tool \href{https://github.com/bjmt/yamtk}{yamtk}. It uses the
+per-column Pearson correlation as its similarity metric, computes
+significance from a TOMTOM-style null PMF (either empirical, from the
+target database, or parametric, via a Dirichlet-Multinomial over a K=5
+simplex grid), applies both Bonferroni and Benjamini-Hochberg adjustment,
+and returns either a long-format \code{data.frame} of the significant pairs or
+a square score / p-value / q-value matrix.
 }
 \details{
 Use \code{\link[=compare_motifs]{compare_motifs()}} when you need any of the broader features:

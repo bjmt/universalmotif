@@ -64,20 +64,20 @@ complement of the sequence substring; i.e. the sequence as matched against
 the motif.
 }
 \description{
-\code{scan_sequences2()} is a deliberately stripped-down counterpart to
-\code{\link[=scan_sequences]{scan_sequences()}} whose default surface mirrors the command-line tool
-\href{https://github.com/bjmt/yamtk}{yamtk}.
-It exposes a single threshold (a P-value),
-always scans both strands by default, always computes per-hit P-values,
-and returns either a \code{GRanges} (preferred when GenomicRanges is
-installed) or a \code{data.frame}. Use \code{\link[=scan_sequences]{scan_sequences()}} when you need any of
-multifreq scoring, gapped motifs, q-values, exhaustive P-values, \code{respect.strand},
-\code{allow.nonfinite}, or \code{threshold.type}s other than P-value.
+\code{scan_sequences2()} is a deliberately pared-down counterpart to
+\code{\link[=scan_sequences]{scan_sequences()}}, with a default surface that mirrors the command-line
+tool \href{https://github.com/bjmt/yamtk}{yamtk}. It exposes a single threshold
+(a P-value), always scans both strands by default, always computes a
+per-hit P-value, and returns either a \code{GRanges} (preferred, when
+GenomicRanges is installed) or a \code{data.frame}. Use \code{\link[=scan_sequences]{scan_sequences()}} when
+you need any of multifreq scoring, gapped motifs, q-values, exhaustive
+P-values, \code{respect.strand}, \code{allow.nonfinite}, or \code{threshold.type}s other
+than a P-value.
 }
 \details{
-The scanner re-uses the same C++ core as
-\code{\link[=scan_sequences]{scan_sequences()}}; the speed advantage comes from skipping the R-side
-bookkeeping for features this function does not support.
+The scanner re-uses the very same C++ core as \code{\link[=scan_sequences]{scan_sequences()}}; the
+speed advantage simply comes from skipping the R-side bookkeeping for the
+features this function does not support.
 
 P-values are computed via the dynamic-programming algorithm of
 \code{\link[=motif_pvalue]{motif_pvalue()}} (FIMO-style; Grant et al. 2011), which is also what
