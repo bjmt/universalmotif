@@ -113,7 +113,7 @@ create_motif()
 
 See `?universalmotif` for a list of available metadata slots. Most slots can be accessed using square brackets, e.g. `MotifObject["motif"]` accesses the raw numeric matrix. You can also dump the contents of all user-facing motif slots at once into a list, e.g. `MotifObject[]`.
 
-The `universalmotif` class supports five motif types: the four probabilistic representations `PCM`, `PPM`, `PWM` and `ICM`, plus `CWM` (contribution weight matrix). A CWM holds signed, unnormalised per-position, per-letter contribution scores of the kind produced by deep learning methods, and so it carries no column-sum constraint. CWMs can be created directly, read from and written to MEME and generic-matrix files, converted to a PPM, and trimmed by contribution:
+The `universalmotif` class supports five motif types: the four probabilistic representations `PCM`, `PPM`, `PWM` and `ICM`, plus `CWM` (contribution weight matrix). A CWM holds signed, unnormalised per-position, per-letter contribution scores of the kind produced by deep learning methods, and so (unlike the probabilistic types) it carries no column-sum constraint. CWMs can be created directly, read from and written to MEME and generic-matrix files, converted to a PPM, and trimmed by contribution:
 
 ```r
 library(universalmotif)
@@ -207,7 +207,7 @@ get_bkg(ArabidopsisPromoters, window = TRUE)
 #> 840       901      1000         TTT       271   0.0553061
 ```
 
-Several further sequence utilities are provided: `match_bkg()` and `plot_match_bkg()` sample composition-matched background sequences from a larger universe, `mask_ranges()` and `mask_seqs()` mask regions of sequences (for example low-complexity or repeat regions) before scanning, and `implant_motifs()` plants known motif instances at known positions, useful for building a labelled answer key to test discovery and scanning pipelines.
+A few further sequence utilities are provided as well: `match_bkg()` and `plot_match_bkg()` sample composition-matched background sequences from a larger universe, `mask_ranges()` and `mask_seqs()` mask regions of sequences (for example low-complexity or repeat regions) before scanning, and `implant_motifs()` plants known motif instances at known positions (useful for building a labelled answer key against which to test discovery and scanning pipelines).
 
 ### Sequence scanning and higher order motifs
 

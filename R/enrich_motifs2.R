@@ -1,12 +1,12 @@
 #' Fast minimalist motif enrichment.
 #'
-#' `enrich_motifs2()` is a deliberately stripped-down counterpart to
-#' [enrich_motifs()] whose default surface mirrors the command-line tool
-#' [yamtk](https://github.com/bjmt/yamtk). It exposes a
-#' single p-value cutoff for hits, a single q-value cutoff for results, two
-#' test modes (`"seqs"` and `"sites"`, both Fisher's exact), and uses
-#' [scan_sequences2()] under the hood to scan target and background
-#' sequences. P-value adjustment is hard-coded to Benjamini-Hochberg.
+#' `enrich_motifs2()` is a deliberately pared-down counterpart to
+#' [enrich_motifs()], with a default surface that mirrors the command-line
+#' tool [yamtk](https://github.com/bjmt/yamtk). It exposes a single p-value
+#' cutoff for the hits, a single q-value cutoff for the results, and two
+#' test modes (`"seqs"` and `"sites"`, both Fisher's exact), and it leans on
+#' [scan_sequences2()] under the hood to scan the target and background
+#' sequences. The p-value adjustment is hard-coded to Benjamini-Hochberg.
 #'
 #' Use [enrich_motifs()] when you need any of: q-value adjustment methods
 #' other than BH; multifreq / gapped motifs; multiple-testing E-values;

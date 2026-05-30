@@ -1,17 +1,17 @@
 #' Discover _de novo_ motifs in a set of sequences.
 #'
-#' `motif_finder()` is a minimalist _de novo_ motif discovery
-#' function. Its defaults mirror the command-line tool
-#' [yamtk](https://github.com/bjmt/yamtk). The pipeline iterates over a
-#' user-controlled range of motif widths; at each width it enumerates
-#' over-represented k-mer seeds (Fisher's exact test on per-sequence
-#' presence vs. a background set), aligns Hamming-1 neighbours of the best
-#' seed to form a PPM, refines the PPM via two re-scan passes, accepts the
-#' motif if its Fisher's exact p-value passes `stop.pvalue`, masks the
-#' covered positions and repeats up to `nmotifs` times per width. After
-#' all widths complete, motifs are cross-width-deduplicated by coverage
-#' overlap, BH-adjusted, IC-trimmed at the flanks, and returned in
-#' p-value order.
+#' `motif_finder()` is a minimalist _de novo_ motif discovery function,
+#' whose defaults mirror the command-line tool
+#' [yamtk](https://github.com/bjmt/yamtk). The pipeline works through a
+#' user-controlled range of motif widths; at each width it enumerates the
+#' over-represented k-mer seeds (using a Fisher's exact test on per-sequence
+#' presence against a background set), aligns the Hamming-1 neighbours of
+#' the best seed to form a PPM, refines that PPM over two re-scan passes,
+#' accepts the motif if its Fisher's exact p-value passes `stop.pvalue`, and
+#' then masks the covered positions and repeats, up to `nmotifs` times per
+#' width. Once every width is done, the motifs are deduplicated across
+#' widths by coverage overlap, BH-adjusted, IC-trimmed at the flanks, and
+#' returned in p-value order.
 #'
 #' @param sequences `XStringSet`. DNA or RNA target sequences.
 #' @param bkg.sequences `XStringSet` or `NULL`. Background sequences.

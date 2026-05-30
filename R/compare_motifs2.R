@@ -1,14 +1,14 @@
 #' Faster minimalist motif comparison.
 #'
-#' `compare_motifs2()` is a deliberately stripped-down counterpart to
-#' [compare_motifs()] whose defaults and algorithm mirror the command-line
-#' tool [yamtk](https://github.com/bjmt/yamtk). It uses
-#' Pearson correlation per column as the similarity metric, computes
-#' significance from a TOMTOM-style null PMF (either empirical from the
-#' target database or parametric via Dirichlet-Multinomial over a K=5
-#' simplex grid), applies Bonferroni + Benjamini-Hochberg adjustment, and
-#' returns either a long-format `data.frame` of significant pairs or a
-#' square score / p-value / q-value matrix.
+#' `compare_motifs2()` is a deliberately pared-down counterpart to
+#' [compare_motifs()], with defaults and an algorithm that mirror those of
+#' the command-line tool [yamtk](https://github.com/bjmt/yamtk). It uses the
+#' per-column Pearson correlation as its similarity metric, computes
+#' significance from a TOMTOM-style null PMF (either empirical, from the
+#' target database, or parametric, via a Dirichlet-Multinomial over a K=5
+#' simplex grid), applies both Bonferroni and Benjamini-Hochberg adjustment,
+#' and returns either a long-format `data.frame` of the significant pairs or
+#' a square score / p-value / q-value matrix.
 #'
 #' Use [compare_motifs()] when you need any of the broader features:
 #' alternative similarity metrics (EUCL, ALLR, KL, …), score-aggregation

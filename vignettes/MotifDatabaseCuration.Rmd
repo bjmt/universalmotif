@@ -6,8 +6,9 @@ author:
 - Benjamin Jean-Marie Tremblay^[benjamin.tremblay@uwaterloo.ca]
 bibliography: universalmotif.bib
 abstract: >
-  A practical motif scan never relies on a single public database.
-  This vignette walks through curating one consolidated motif set
+  In practice, a motif scan rarely relies on a single public
+  database. This vignette walks through curating one consolidated
+  motif set
   from several public sources, using *Homo sapiens* motifs pulled
   out of three `MotifDb` sub-collections (JASPAR2022,
   HOCOMOCOv11-core, CIS-BP) as the working example. We import,
@@ -54,12 +55,12 @@ in every organism, and no single source is perfectly consistent: each
 ships its own naming conventions, its own matrix-type conventions
 (PCM, PPM, or PWM), and its own intra-source redundancies (several
 matrices for the same factor, often with slight quality
-differences). Anyone doing applied motif scanning ends up pulling
-from several sources and reconciling them by hand. This vignette
-ties together the building blocks `universalmotif` provides for
-that reconciliation into a single end-to-end recipe, demonstrated
-on a few hundred *Homo sapiens* motifs drawn from three
-`MotifDb` sub-collections.
+differences). Anyone doing applied motif scanning sooner or later
+ends up pulling from several sources and reconciling them more or
+less by hand. This vignette gathers the building blocks that
+`universalmotif` provides for that reconciliation into a single
+end-to-end recipe, demonstrated here on a few hundred *Homo sapiens*
+motifs drawn from three `MotifDb` sub-collections.
 
 The previous vignettes cover the underlying processes in
 isolation: for single-motif import and export, see the
@@ -124,7 +125,7 @@ all.motifs <- do.call(c, per.source)
 length(all.motifs)
 ```
 
-For a quick visual sanity check, plot the per-source counts:
+As a quick visual sanity check, we can plot the per-source counts:
 
 ```{r, fig.height=2.5, fig.width=6}
 src.df <- data.frame(source = sources,
@@ -144,10 +145,9 @@ ggplot(src.df, aes(x = .data$source, y = .data$count)) +
 ## Sidebar: importing raw files directly
 
 The rest of this vignette assumes the motifs were sourced through
-`MotifDb`. If instead you have raw downloaded files on disk, the
-import step is just a one-liner per format and the rest of the
-workflow is identical. The chunk below is for demonstration
-purposes.
+`MotifDb`. If instead you have raw downloaded files sitting on disk,
+the import step is just a one-liner per format, and the rest of the
+workflow is identical. The chunk below is purely for illustration.
 
 ```{r, eval=FALSE}
 jaspar.motifs   <- read_jaspar("JASPAR2024_CORE_vertebrates.txt")
@@ -201,18 +201,17 @@ ggplot(data.frame(log10q = log10q), aes(x = .data$log10q)) +
         axis.line.y.left   = element_line(colour = "black"))
 ```
 
-The dashed line marks q = 1e-6, the threshold we will use for
-deduplication in the next section. Picking the threshold is a
-judgement call. Too loose, and graph transitivity collapses
-unrelated motifs into giant components: with this dataset a
-threshold of q = 1e-3 produces a single large cluster with
-hundreds of motifs that
-swallows much of the zinc-finger and homeodomain families
-because their pairwise scores share enough small q-values to
-form a connected component. Too tight, and few motifs are
-merged. For our purposes, q = 1e-6 produces manageable
-enough clusters which
-collapse substantial redundancy without bridging unrelated
+The dashed line marks q = 1e-6, the threshold we will use for the
+deduplication in the next section. Picking that threshold is
+something of a judgement call. Set it too loose and graph
+transitivity starts collapsing unrelated motifs into giant
+components (with this dataset, a threshold of q = 1e-3 produces a
+single large cluster of hundreds of motifs, swallowing much of the
+zinc-finger and homeodomain families, because their pairwise scores
+share just enough small q-values to form one connected component).
+Set it too tight and very few motifs are merged at all. For our
+purposes here, q = 1e-6 seems to strike a reasonable balance,
+collapsing a good deal of redundancy without bridging unrelated
 families.
 
 ```{r}
@@ -224,11 +223,10 @@ sum(qvals < 1e-6)
 
 `merge_similar2()` builds a graph whose edges link any two motifs
 that pass the q-value threshold, finds the connected components,
-and returns one representative motif per cluster. We use it
-twice: once with
-`return.clusters = TRUE` to get the per-motif cluster
-assignments and visually confirm the cluster assignments,
-and once without to get the final merged set of motifs.
+and returns one representative motif per cluster. We use it twice:
+once with `return.clusters = TRUE` to get the per-motif cluster
+assignments (so we can confirm them visually), and once without, to
+get the final merged set of motifs.
 
 ```{r}
 clusters <- merge_similar2(all.motifs,
@@ -237,8 +235,8 @@ clusters <- merge_similar2(all.motifs,
                            nthreads        = 2)
 ```
 
-To check whether the q-value should be tightened further, we
-can visually examine the largest cluster:
+To judge whether the q-value ought to be tightened further, we can
+take a look at the largest cluster:
 
 ```{r, fig.height=6, fig.width=7}
 big.cluster <- names(sort(table(clusters$cluster),
@@ -252,11 +250,11 @@ view_motifs2(big.cluster.motifs,
   names.pos = "right", show.positions = FALSE)
 ```
 
-It is worth the time to carefully go back and forth between 
-visually examining the clusters and adjusting the q-value
-threshold, as the final merge will be the most significant
-decision in curating a motif database. In this case we will
-continue with this threshold.
+It is well worth taking the time to go carefully back and forth
+between examining the clusters and adjusting the q-value threshold,
+since the final merge is really the most consequential decision in
+curating a motif database. In our case we will carry on with this
+threshold.
 
 ```{r}
 merged <- merge_similar2(all.motifs,
@@ -266,13 +264,13 @@ length(all.motifs)
 length(merged)
 ```
 
-`merge_similar2()` autogenerates compound names for merged
-motifs by joining every contributing name with `+`, which gets
-unwieldy when several motifs collapse into one cluster. A
-compact alternative keeps the first one or two contributing
-names and rolls up the rest into a count suffix, so the lineage
-stays visible without overflowing the table or the MEME header.
-Singletons keep their original name:
+`merge_similar2()` autogenerates compound names for the merged
+motifs by joining every contributing name with `+`, which again
+becomes unwieldy once several motifs collapse into a single cluster.
+A more compact alternative is to keep the first one or two
+contributing names and roll the rest up into a count suffix, so that
+the lineage stays visible without overflowing either the table or
+the MEME header. Singletons simply keep their original name:
 
 ```{r}
 contrib.names <- tapply(clusters$name, clusters$cluster,
@@ -292,12 +290,12 @@ print(head(as.data.frame(clusters)[, c("name", "motif.i", "cluster")], 8),
       row.names = FALSE)
 ```
 
-The reduction is substantial: roughly a third of the input
-motifs collapsed into shared clusters.
-The distribution of cluster sizes shows the heavy tail of
-singletons (motifs unique enough to stay on their own) plus a
-moderate body of clusters of size 2 and 3 (the common
-within-TF or cross-source redundancies):
+The reduction is substantial, with roughly a third of the input
+motifs collapsing into shared clusters. The distribution of cluster
+sizes shows the long tail of singletons (motifs unique enough to
+stay on their own), together with a moderate body of size-2 and
+size-3 clusters (the common within-TF and cross-source
+redundancies):
 
 ```{r, fig.height=3, fig.width=6}
 cluster.sizes <- table(clusters$cluster)
@@ -318,10 +316,10 @@ ggplot(size.dist, aes(x = factor(.data$cluster.size),
         axis.line.y.left   = element_line(colour = "black"))
 ```
 
-A cluster that draws from two or three different sources is direct
-evidence of cross-database redundancy; that is precisely the kind
-of duplication a single-source library would miss. Tally
-sources-per-cluster:
+A cluster drawing on two or three different sources is direct
+evidence of cross-database redundancy, which is precisely the kind
+of duplication that a single-source library would quietly miss. We
+can tally the sources per cluster:
 
 ```{r}
 clusters$source <- vapply(all.motifs[clusters$motif.i],
@@ -341,9 +339,9 @@ that this whole workflow exists to collapse.
 comparison and renders it via `ggtree`. On all
 `r format(length(all.motifs), big.mark = ",")` motifs the
 labels would be too crowded to read, so we plot a random
-200-motif subsample, coloured by source. We see that clades
-typically mix the three sources, which mirrors the multi-source
-cluster finding above.
+200-motif subsample instead, coloured by source. The clades
+typically mix all three sources, which mirrors the multi-source
+cluster finding from above.
 
 ```{r, fig.height=6, fig.width=6, warning=FALSE, message=FALSE}
 set.seed(2026)
@@ -368,12 +366,13 @@ flanks, which dilute scores and inflate match counts.
 below `min.ic` (default 0.25 bits) from the edges. The default
 "both" mode trims from both ends.
 
-For a clean demonstration, pick the merged motif that loses the
-most columns to trimming. Computing the trim delta directly
-(width before minus width after) is more reliable than guessing
-from flank IC, because `trim_motifs()` walks inward from the
-edges and stops at the first column above `min.ic`, which is
-not always the same column the eye picks out as "low IC".
+For a clean demonstration we pick the merged motif that loses the
+most columns to trimming. Computing the trim delta directly (the
+width before, minus the width after) is rather more reliable than
+trying to guess from the flank IC, because `trim_motifs()` walks
+inward from the edges and stops at the first column above `min.ic`,
+which is not always the column the eye would have picked out as
+"low IC".
 
 ```{r, fig.height=2.5, fig.width=7}
 trim.delta <- vapply(merged, function(m)
@@ -387,7 +386,7 @@ trim.after["name"] <- paste0(trim.after["name"], "  (trimmed)")
 view_motifs2(list(trim.before, trim.after), names.pos = "right")
 ```
 
-Apply trim to every merged motif before exporting:
+We then apply the trim to every merged motif before exporting:
 
 ```{r}
 curated <- trim_motifs(merged)
@@ -395,18 +394,18 @@ range(sapply(merged,  function(m) ncol(m["motif"])))
 range(sapply(curated, function(m) ncol(m["motif"])))
 ```
 
-The width range shrinks as expected: the merge step often pads
-clusters with low-confidence flanking columns where the input
+The width range shrinks, as expected: the merge step often pads
+clusters out with low-confidence flanking columns wherever the input
 motifs disagreed, and `trim_motifs()` is the natural way to clean
-those up.
+those back up.
 
 # Adding the metadata back
 
-For a useful curated library users wants to know, for each
-final motif, which sources contributed to it. The
-`universalmotif_df` interface (`to_df()` returns a data frame
-view; `update_motifs()` writes columns back into the motif list)
-is the natural way to add per-motif annotations in tidy fashion.
+For a curated library to be genuinely useful, users will want to
+know, for each final motif, which sources contributed to it. The
+`universalmotif_df` interface (`to_df()` returns a data-frame view,
+and `update_motifs()` writes columns back into the motif list) is
+the natural way to add per-motif annotations in a tidy fashion.
 
 We compute the contributing-source list per cluster, then attach
 it to the curated motifs together with a curation date:
@@ -433,28 +432,29 @@ print(as.data.frame(head(curated.df[, c("name", "db.sources",
       row.names = FALSE)
 ```
 
-Round-trip back into motif objects with `update_motifs()`. The
-new columns land in the `extrainfo` slot of each motif and are
-preserved everywhere `universalmotif` reads or writes its native
-representation.
+We round-trip back into motif objects with `update_motifs()`. The
+new columns land in the `extrainfo` slot of each motif, and are then
+preserved everywhere that `universalmotif` reads or writes its
+native representation.
 
 ```{r}
 curated <- to_list(update_motifs(curated.df), extrainfo = TRUE)
 curated[[1]]["extrainfo"]
 ```
 
-The MEME format does not have a slot for arbitrary key-value
-metadata, so preserving the `extrainfo` is limited by what the
-output format can carry. For analyses where the metadata is
-critical, write the curated library out as a `universalmotif_df`
-RDS file (which preserves everything) and use the MEME export
-only as the format consumers like FIMO and MEME-suite need.
+The MEME format has no slot for arbitrary key-value metadata, so how
+much of the `extrainfo` survives is really limited by what the
+output format itself can carry. For analyses where that metadata is
+critical, my suggestion would be to write the curated library out as
+a `universalmotif_df` RDS file (which preserves everything) and treat
+the MEME export only as the format that consumers like FIMO and the
+MEME suite happen to need.
 
 # Export as a single MEME file
 
-`write_meme()` writes the whole motif list to one file. The MEME
-header carries `name`, `altname`, `nsites`, and `eval` per motif,
-plus a global background. 
+`write_meme()` writes the whole motif list out to a single file. The
+MEME header carries the `name`, `altname`, `nsites`, and `eval` of
+each motif, plus a global background.
 
 ```{r}
 out.file <- tempfile(fileext = ".meme")
@@ -469,8 +469,8 @@ and the start of the first motif block:
 cat(head(readLines(out.file), 25), sep = "\n")
 ```
 
-Load with `read_meme()` to confirm the file parses
-cleanly and the length matches:
+We load it back with `read_meme()` to confirm that the file parses
+cleanly and that the length matches:
 
 ```{r}
 re.in <- read_meme(out.file)

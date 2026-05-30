@@ -144,11 +144,12 @@ peak.seqs
 
 Plant promoter sequences are strongly AT-skewed, so any background
 analysis on these peaks needs to control for composition. We build
-that control once, here, and reuse it for both *de novo* discovery
-in §4 and the enrichment validation in §7. `match_bkg()` accepts a
-`BSgenome` directly: pass `genome = Athaliana` and `exclude =
-peaks.500`, and the function samples random non-peak genomic
-windows internally and matches each peak on GC content and length.
+that control once, here, and then reuse it for both the *de novo*
+discovery in §4 and the enrichment validation in §7. `match_bkg()`
+accepts a `BSgenome` directly, so we can pass `genome = Athaliana`
+together with `exclude = peaks.500`, and it then samples random
+non-peak genomic windows internally, matching each peak on GC
+content and length.
 
 ```{r}
 set.seed(2026)
@@ -156,8 +157,9 @@ bkg.seqs <- match_bkg(peak.seqs, genome = Athaliana, exclude = peaks.500)
 length(bkg.seqs)
 ```
 
-Sanity-check that the peak set and the matched background have
-indistinguishable GC distributions:
+It is worth a quick sanity check that the peak set and the matched
+background really do have more or less indistinguishable GC
+distributions:
 
 ```{r}
 summary(letterFrequency(peak.seqs, "GC", as.prob = TRUE))
@@ -166,18 +168,19 @@ summary(letterFrequency(bkg.seqs,  "GC", as.prob = TRUE))
 
 # De novo motif discovery
 
-`motif_finder()` is a self-contained k-mer enumeration discoverer
-that does not require an external MEME install. By default it
-generates its own negative pool by shuffling the input at
-`shuffle.k = 2`; passing `bkg.sequences = bkg.seqs` (our
-composition-matched genomic pool from §3) is meaningfully better
-on plant promoter ChIP-seq, because shuffling each peak preserves
-the peak's own AT-skew and so AT-rich k-mers can't enrich, which
-hides everything past the most-extreme signal. With a real
-genomic background, lower-abundance motifs (G-box, E-box)
-come out alongside the dominant RY element. On this
-dataset (5,318 peaks of 500 bp each, two threads) the call returns
-in roughly 15 seconds, so there is no need to sub-sample.
+`motif_finder()` is a self-contained k-mer enumeration discoverer,
+and (handily) it does not require an external MEME installation. By
+default it builds its own negative pool by shuffling the input at
+`shuffle.k = 2`, but passing `bkg.sequences = bkg.seqs` (our
+composition-matched genomic pool from §3) tends to work meaningfully
+better on plant-promoter ChIP-seq. The reason is that shuffling each
+peak preserves that peak's own AT-skew, so AT-rich k-mers cannot
+enrich against it, and everything past the most extreme signal ends
+up effectively hidden. Against a real genomic background instead, the
+lower-abundance motifs (G-box, E-box) come through alongside the
+dominant RY element. On this dataset (5,318 peaks of 500 bp each, two
+threads) the call returns in roughly 15 seconds, so there is no need
+to sub-sample.
 
 ```{r motif-finder, cache=FALSE}
 discovered.df <- motif_finder(peak.seqs,
@@ -220,24 +223,25 @@ With `sort.by = "similarity"`, `view_motifs2()` reorders the panels
 by hierarchical clustering on Pearson correlation between aligned
 columns, so visually related logos are adjacent. The RY-element
 variants (consensuses containing `CATGCA`) cluster together; so do
-the G-box (`CACGTG`) variants, 
+the G-box (`CACGTG`) variants,
 GAGA repeats, and low-complexity AT-rich runs. The next two sections
-(enrichment against a composition-matched background, and
-positional bias) confirm which of these clusters carry real
-binding signal versus background composition. Pass
+(enrichment against a composition-matched background, and positional
+bias) are what tell us which of these clusters carry a real binding
+signal and which only reflect background composition. Pass
 `sort.by = "ic"` (the default) for descending information content,
 or `sort.by = "none"` to keep `motif_finder()`'s p-value ranking.
 
 # Deduplicating the discovered set
 
 A real motif-discovery run almost always returns several rotated or
-extended copies of the same underlying signal. Although these variations
-can be biologically meaningful, for simplicity we will not focus on these.
-Instead, we will merge these with `merge_similar2()`, which collapses
-them into a single representative per cluster by
-hierarchical clustering on q-values from a Pearson-based comparison.
-It's often wise to also trim the resulting merged motifs, since
-merging often collapses mismatching flanks into low IC positions.
+extended copies of the same underlying signal. These variations can
+be biologically meaningful, but for simplicity we will not dwell on
+them here. Instead we merge them with `merge_similar2()`, which
+collapses each cluster down to a single representative by
+hierarchical clustering on the q-values from a Pearson-based
+comparison. It is often wise to trim the merged motifs afterwards as
+well, since merging tends to fold mismatching flanks into low-IC
+positions.
 
 ```{r}
 discovered.merged <- merge_similar2(discovered, qvalue = 0.01)
@@ -247,12 +251,12 @@ length(discovered)
 length(discovered.merged)
 ```
 
-`merge_similar2()` names merged motifs by joining the names of the
-contributing motifs with `+`, which gets unwieldy fast when several
-distinct binding signals each produce their own cluster (the RY
-element, the bZIP G-box, and so on). Relabel each merged cluster
-by inspecting its consensus, so the rest of the vignette can refer
-to motifs by what they *are*:
+`merge_similar2()` names each merged motif by joining the names of
+its contributing motifs with `+`, which becomes unwieldy quite
+quickly when several distinct binding signals each produce their own
+cluster (the RY element, the bZIP G-box, and so on). So we relabel
+each merged cluster by inspecting its consensus, so that the rest of
+the vignette can refer to motifs by what they *are*:
 
 ```{r}
 label_merged <- function(consensus) {
@@ -314,19 +318,18 @@ print(head(cmp[, c("subject", "target", "score", "qvalue",
       row.names = FALSE)
 ```
 
-Most of the strong matches will be for AT-rich or GA-rich
+Most of the strong matches will be for the AT-rich or GA-rich
 low-complexity discovered motifs (DOF, BPC, and so on) rather than
-for the RY element itself; the *Arabidopsis* genome is AT-skewed
-and `motif_finder()` reports every strong k-mer signal, not only
-the one that drove the immunoprecipitation. The next two sections
-(enrichment against a composition-matched background, and
-positional bias) are what separate the binding signal from
-incidental low-complexity hits.
+for the RY element itself; the *Arabidopsis* genome is AT-skewed, and
+`motif_finder()` reports every strong k-mer signal, not only the one
+that drove the immunoprecipitation. It is the enrichment and
+positional-bias tests in the next two sections that separate the
+genuine binding signal from these incidental low-complexity hits.
 
-For the visual, pick the RY motif and pair it with its best JASPAR
+For the figure we pick the RY motif and pair it with its best JASPAR
 match in the B3-domain family. ABI3, FUS3, and LEC2 are the three
-B3-domain TFs in JASPAR2022 for *Arabidopsis*, and any of them is a
-biologically sensible neighbour for VAL1.
+B3-domain TFs that JASPAR2022 has for *Arabidopsis*, and any of them
+is a biologically sensible neighbour for VAL1.
 
 ```{r, fig.height=2.5, fig.width=7}
 ref.names <- vapply(ath.motifs, function(m) m["name"], character(1))
@@ -341,14 +344,14 @@ view_motifs2(c(top.disc, top.ref), show.positions.once = FALSE,
 
 # Validating enrichment against a composition-matched background
 
-We can now use `enrich_motifs2()` to validate our new set of merged motifs.
-`enrich_motifs2()` accepts an explicit `bkg.sequences` argument so
-we can supply a background that controls for the AT-skew of plant
-promoters. We already built that pool in §3 (`bkg.seqs`, from
-`match_bkg()` against a universe of random non-peak genomic
-windows), so the enrichment step just reuses it.
+We can now use `enrich_motifs2()` to validate our new set of merged
+motifs. It accepts an explicit `bkg.sequences` argument, so we can
+hand it a background that controls for the AT-skew of plant
+promoters. We already built exactly that pool back in §3 (`bkg.seqs`,
+from `match_bkg()` against a universe of random non-peak genomic
+windows), and so the enrichment step simply reuses it.
 
-Feed the matched background into `enrich_motifs2()`:
+So we feed the matched background straight into `enrich_motifs2()`:
 
 ```{r}
 enr <- enrich_motifs2(motifs        = discovered.merged,
@@ -361,12 +364,13 @@ print(enr[, c("motif", "consensus", "enrichment", "qvalue")],
       row.names = FALSE)
 ```
 
-With a GC-matched background, the AT-rich low-complexity motifs
-drop to barely-above-1 fold enrichment (because they are common in
-every AT-skewed plant promoter window), while other motifs stands
-out at several fold over background. That contrast is invisible if
-you compare against a uniform shuffled null, which is exactly why
-this kind of matched background matters for plant ChIP-seq.
+With a GC-matched background, the AT-rich low-complexity motifs drop
+to barely above 1-fold enrichment (since they are common in
+essentially every AT-skewed plant-promoter window), while the genuine
+binding motifs stand out at several fold over background. That
+contrast all but disappears if you compare against a uniform shuffled
+null instead, which is really why a matched background of this kind
+matters so much for plant ChIP-seq.
 
 For the alternative dinucleotide-shuffle null (`shuffle.k = 2`), or
 for a single-shuffle background, see the `match_bkg()` and
@@ -375,9 +379,10 @@ shuffling sections of the
 
 # Scanning all peaks and testing positional bias
 
-To map hits at single-base resolution across every peak, use
-`scan_sequences2()` with the discovered motifs. The 500 bp fixed
-window means motif positions are directly comparable across rows.
+To map hits at single-base resolution across every peak we run
+`scan_sequences2()` with the discovered motifs. Because every window
+is a fixed 500 bp, the motif positions are directly comparable from
+one row to the next.
 
 ```{r}
 hits <- scan_sequences2(discovered.merged,
@@ -389,11 +394,11 @@ nrow(hits)
 table(motif = hits$motif)
 ```
 
-`motif_peaks()` then asks, per motif, whether the hits are clustered
-near the peak centre. It is a non-parametric CentriMo-style test:
-for each window size, the function compares the observed hit count
-inside the window to the count expected under a uniform-position
-null.
+`motif_peaks()` then asks, for each motif in turn, whether its hits
+cluster near the centre of the peak. It is a non-parametric,
+CentriMo-style test: at each window size it compares the observed
+number of hits inside the window against the number we would expect
+under a uniform-position null.
 
 ```{r}
 pk <- motif_peaks(hits, seq.length = 500, mode = "central")
@@ -449,10 +454,10 @@ obligate cofactor), and the strongest cross-pairs are between the
 low-complexity motifs themselves, reflecting plant promoter
 composition rather than specific cobinding.
 
-`motif_coocc()` reports the summary statistic, but it is worth
-plotting the actual distribution: for every peak that carries two
-or more RY hits, compute every pairwise distance between RY hit
-starts and histogram them.
+`motif_coocc()` reports the summary statistic, but it is well worth
+plotting the actual distribution too. For every peak carrying two or
+more RY hits, we compute all of the pairwise distances between the RY
+hit starts, and histogram them.
 
 ```{r, fig.height=3, fig.width=7}
 ry.hits  <- hits[hits$motif == "RY", ]
@@ -479,11 +484,11 @@ direct signature of cooperative B3-domain binding to tandem RY
 elements.
 
 The cross-motif case repeats the same calculation, this time
-measuring the distance from each RY hit to every hit of every
-other motif in the same peak. A pile-up at short distance would
-indicate a TF whose binding co-localises with RY; a flat
-distribution indicates incidental co-occurrence driven only by
-both motifs being common in the peak set.
+measuring the distance from each RY hit to every hit of every other
+motif in the same peak. A pile-up at short distances would point to a
+TF whose binding co-localises with RY, whereas a flat distribution
+would indicate only incidental co-occurrence, driven by nothing more
+than both motifs being common across the peak set.
 
 ```{r, fig.height=5, fig.width=7}
 ry.by.seq <- split(ry.hits$start, ry.hits$sequence.i)
@@ -513,24 +518,25 @@ ggplot2::ggplot(cross.dists, ggplot2::aes(x = .data$distance)) +
 ```
 
 None of the cross-motif panels shows the dramatic lone 0-5 bp spike
-that the (RY, RY) self-pair did. The AT-rich and GA-repeat panels
-show slight increased abundance in the 50 bp window (indicating a possible
-relationship between RY motifs and structural elements), but also many hits
-outside of the window. The G_box and
-bZIP panels do show a concentration of overall hits at short distance in
-comparison, hinting at real colocalisation between RY and bZIP-family
-motifs, which is biologically plausible for seed-maturation
-regulatory regions where RY and G-box elements are known to
-co-occur. The take-home is that RY's strongest self-pair signal is
-its own self-clustering, with a secondary, much milder bZIP / G-box
-neighbourship.
+that the (RY, RY) self-pair did. The AT-rich and GA-repeat panels do
+show a slightly raised abundance within the 50 bp window (which might
+hint at some relationship between the RY motifs and structural
+elements), though they also carry plenty of hits well outside it. The
+G_box and bZIP panels, by comparison, do show a concentration of hits
+at short distances, which hints at genuine colocalisation between RY
+and the bZIP-family motifs; this is biologically quite plausible for
+seed-maturation regulatory regions, where RY and G-box elements are
+known to co-occur. The overall impression, then, is that RY's
+strongest signal is its own self-clustering, with only a secondary
+and much milder bZIP / G-box neighbourship alongside it.
 
 # Summary table
 
-The final step is a compact ranked summary that pulls one row per
-discovered motif from each of the per-motif analyses (best JASPAR
-match, enrichment q, positional q) and adds a "best partner" (not self)
-column from the co-occurrence table.
+The final step is to pull everything together into one compact ranked
+summary, with a single row per discovered motif that gathers up the
+per-motif results (its best JASPAR match, its enrichment q, its
+positional q) and adds a "best partner" (excluding self) column drawn
+from the co-occurrence table.
 
 ```{r}
 disc.names <- new.names
@@ -570,12 +576,13 @@ rownames(summary.tbl) <- NULL
 print(summary.tbl, row.names = FALSE)
 ```
 
-Looking at the combined evidence, our analysis has clearly
-recovered the dominant VAL1 RY motif, with a couple of secondary
-motifs which may be binding sites of co-regulating TFs. The remaining
-repetitive motifs, while significantly enriched, fail the
-positional test and are likely incidental structural features of the
-types of sequences VAL1 binds.
+Taking the combined evidence together, the analysis has clearly
+recovered the dominant VAL1 RY motif, along with a couple of
+secondary motifs that may well be binding sites for co-regulating
+TFs. The remaining repetitive motifs, although they are significantly
+enriched, fail the positional test, and are most likely incidental
+structural features of the kinds of sequences that VAL1 tends to
+bind.
 
 # Session info
 

@@ -1,18 +1,18 @@
 #' Minimalist motif scanner aligned with `yamtk scan` defaults.
 #'
-#' `scan_sequences2()` is a deliberately stripped-down counterpart to
-#' [scan_sequences()] whose default surface mirrors the command-line tool
-#' [yamtk](https://github.com/bjmt/yamtk).
-#' It exposes a single threshold (a P-value),
-#' always scans both strands by default, always computes per-hit P-values,
-#' and returns either a `GRanges` (preferred when GenomicRanges is
-#' installed) or a `data.frame`. Use [scan_sequences()] when you need any of
-#' multifreq scoring, gapped motifs, q-values, exhaustive P-values, `respect.strand`,
-#' `allow.nonfinite`, or `threshold.type`s other than P-value.
+#' `scan_sequences2()` is a deliberately pared-down counterpart to
+#' [scan_sequences()], with a default surface that mirrors the command-line
+#' tool [yamtk](https://github.com/bjmt/yamtk). It exposes a single threshold
+#' (a P-value), always scans both strands by default, always computes a
+#' per-hit P-value, and returns either a `GRanges` (preferred, when
+#' GenomicRanges is installed) or a `data.frame`. Use [scan_sequences()] when
+#' you need any of multifreq scoring, gapped motifs, q-values, exhaustive
+#' P-values, `respect.strand`, `allow.nonfinite`, or `threshold.type`s other
+#' than a P-value.
 #'
-#' The scanner re-uses the same C++ core as
-#' [scan_sequences()]; the speed advantage comes from skipping the R-side
-#' bookkeeping for features this function does not support.
+#' The scanner re-uses the very same C++ core as [scan_sequences()]; the
+#' speed advantage simply comes from skipping the R-side bookkeeping for the
+#' features this function does not support.
 #'
 #' P-values are computed via the dynamic-programming algorithm of
 #' [motif_pvalue()] (FIMO-style; Grant et al. 2011), which is also what

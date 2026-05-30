@@ -291,21 +291,22 @@ P-values are made possible by estimating distribution (usually the best fitting 
 
 ## A faster alternative: `compare_motifs2()`
 
-For DNA/RNA motif comparison that does not need alternative similarity
-metrics (EUCL, KL, ALLR, …), score-aggregation strategies, IC-based
-filters, multifreq scoring, or the JASPAR-derived `db.scores`
-lookup-table P-value path, the lighter `compare_motifs2()` function is
-generally much faster than `compare_motifs()` and parallelises better
-across queries. It uses Pearson correlation per column as the only
-similarity metric, computes p-values from a TOMTOM-style empirical or
-parametric null PMF (with Bonferroni + Benjamini-Hochberg adjustment),
-and returns either a square matrix or a long-format `data.frame`. The
-default surface is aligned with the command-line tool
+For DNA or RNA motif comparison that does not need the alternative
+similarity metrics (EUCL, KL, ALLR, and so on), the score-aggregation
+strategies, the IC-based filters, multifreq scoring, or the
+JASPAR-derived `db.scores` lookup-table P-value path, the lighter
+`compare_motifs2()` is generally much faster than `compare_motifs()`,
+and it parallelises rather better across queries. It uses the
+per-column Pearson correlation as its only similarity metric, computes
+p-values from a TOMTOM-style empirical or parametric null PMF (with
+both Bonferroni and Benjamini-Hochberg adjustment), and returns either
+a square matrix or a long-format `data.frame`. Its default surface is
+aligned with the command-line tool
 [yamtk](https://github.com/bjmt/yamtk).
 
 The function has eight formals (`motifs`, `compare.to`, `qvalue`,
 `min.overlap`, `RC`, `null`, `bkg`, `matrix.out`, `nthreads`); see
-`?compare_motifs2` for details. Two null-PMF modes are supported:
+`?compare_motifs2` for the details. There are two null-PMF modes:
 
 - **`null = "empirical"`** (default): per-query column, score against
   every target-database column, histogram into 51 PCC bins, convolve
@@ -333,26 +334,27 @@ hits <- compare_motifs2(motifs, compare.to = 1, qvalue = 0.05)
 ```
 
 When `compare_motifs()` is called with arguments that map cleanly onto
-`compare_motifs2()`'s feature set (PCC + sum strategy, default IC
-filters, no multifreq, no HTML report, no `db.scores`, DNA/RNA
-alphabet), it emits a one-line hint pointing at the faster function.
-Silence with
-`options(universalmotif.suggest.compare_motifs2 = FALSE)`.
+`compare_motifs2()`'s feature set (PCC + sum strategy, the default IC
+filters, no multifreq, no HTML report, no `db.scores`, and a DNA/RNA
+alphabet), it emits a one-line hint pointing you at the faster
+function. (Silence it with
+`options(universalmotif.suggest.compare_motifs2 = FALSE)`.)
 
 ### Speed comparison vs `compare_motifs()` and `yamtk cmp` {.unnumbered}
 
-The table below records wall-clock time for the three functions on the
-same fixture: the first 50 (or 200) motifs of HOCOMOCOv11 compared
-against themselves, RC = TRUE, min.overlap = 5, uniform background,
-empirical null PMF. `compare_motifs2()` numbers are shown for both
-`matrix.out = "score"` (which skips the p-value path entirely, since
-the best alignment is chosen by score not by p-value) and
-`matrix.out = "pvalue"` (full significance computation, equivalent
-work to `yamtk cmp`). Each cell shows `nthreads = 1 / nthreads = 4`.
-The benchmark script lives at
-`benchmarks/compare_motifs2_vignette.log` in the package repository;
-values are baked in here rather than recomputed at vignette build
-time. These benchmarks were run using a MBP M5 running R 4.4.1.
+The table below records the wall-clock time for the three functions
+on a single shared fixture: the first 50 (or 200) motifs of
+HOCOMOCOv11, compared against themselves, with RC = TRUE,
+min.overlap = 5, a uniform background, and the empirical null PMF. The
+`compare_motifs2()` numbers are shown for both `matrix.out = "score"`
+(which skips the p-value path entirely, since the best alignment is
+chosen by score rather than by p-value) and `matrix.out = "pvalue"`
+(the full significance computation, which is equivalent work to
+`yamtk cmp`). Each cell shows `nthreads = 1 / nthreads = 4`. The
+benchmark script lives at `benchmarks/compare_motifs2_vignette.log` in
+the package repository, and the values are baked in here rather than
+recomputed at vignette build time. These benchmarks were run on an
+MBP M5 under R 4.4.1.
 
 | Workload | yamtk¹ | `compare_motifs()` | `cm2()` score² | `cm2()` pvalue |
 |---|---:|---:|---:|---:|
@@ -390,10 +392,11 @@ To summarise:
 
 # Merging motifs
 
-The `universalmotif` package offers two ways to collapse similar motifs
-into consensus motifs: `merge_motifs()` / `merge_similar()`
-and `merge_motifs2()` / `merge_similar2()` (new, built on
-`compare_motifs2()`, with significance-based clustering).
+The `universalmotif` package offers two ways to collapse similar
+motifs into consensus motifs: `merge_motifs()` / `merge_similar()`,
+and `merge_motifs2()` / `merge_similar2()` (the latter pair are
+newer, built on `compare_motifs2()`, and use significance-based
+clustering).
 
 ## A faster alternative: `merge_motifs2()` / `merge_similar2()`
 
@@ -426,12 +429,11 @@ merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05)
 merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE)
 ```
 
-When a `merge_motifs()` / `merge_similar()` call uses only features
-available to `merge_motifs2()` / `merge_similar2()`,
-a one-line hint is emitted pointing at the
-leaner function. Silence with
-`options(universalmotif.suggest.merge_motifs2 = FALSE)` and
-`options(universalmotif.suggest.merge_similar2 = FALSE)`.
+When a `merge_motifs()` or `merge_similar()` call uses only features
+that are also available to `merge_motifs2()` / `merge_similar2()`, a
+one-line hint is emitted pointing you at the leaner function. (Silence
+it with `options(universalmotif.suggest.merge_motifs2 = FALSE)` and
+`options(universalmotif.suggest.merge_similar2 = FALSE)`.)
 
 # Motif trees with ggtree
 

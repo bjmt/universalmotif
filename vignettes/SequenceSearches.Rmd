@@ -204,13 +204,14 @@ ggplot(myseq_all, aes(x = start, y = probability, colour = klet)) +
 ## Composition-matched backgrounds with `match_bkg()`
 
 `shuffle_sequences()` randomises each input sequence in place,
-preserving its own k-let composition. That's appropriate when the
-input set is roughly homogeneous, but it leaves a confounder: if the
-input sequences have a systematic composition bias relative to the
-genome (GC-rich ChIP-seq peaks, AT-rich promoters, ...), shuffling
-alone won't control for it. `match_bkg()` instead samples real
-sequences from a larger universe that match the input on GC
-fraction and length, the HOMER-style binned approach.
+preserving that sequence's own k-let composition. This is
+appropriate enough when the input set is roughly homogeneous, but it
+does leave a confounder behind: if the input sequences carry a
+systematic composition bias relative to the genome (GC-rich ChIP-seq
+peaks, AT-rich promoters, and so on), then shuffling alone will not
+control for it. `match_bkg()` takes a different tack, sampling real
+sequences from a larger universe so that they match the input on GC
+fraction and length (the binned approach that HOMER uses).
 
 ```{r}
 library(universalmotif)
@@ -241,27 +242,31 @@ Use `plot_match_bkg()` to visually verify the match landed:
 plot_match_bkg(target, bkg)
 ```
 
-This overlays GC-fraction and length density curves for target and
-matched background in a two-panel ggplot.
+This simply overlays the GC-fraction and length density curves for
+the target and the matched background, in a two-panel ggplot.
 
-`match_bkg()` complements `shuffle_sequences()`; neither replaces
-the other. Use a shuffle when you want a per-sequence k-let-preserving
-null; use a matched background when you want to control for
-composition bias relative to a genomic universe. For reproducibility,
-call `set.seed()` before `match_bkg()`.
+`match_bkg()` complements `shuffle_sequences()` rather than replacing
+it (and the same is true the other way around). A shuffle is what you
+want when you are after a per-sequence, k-let-preserving null,
+whereas a matched background is the better choice when you need to
+control for composition bias relative to some genomic universe. For
+reproducibility, do remember to call `set.seed()` before
+`match_bkg()`.
 
 ## Generating ground-truth positive sequences with `implant_motifs()`
 
-When benchmarking a motif discovery, scanning, or enrichment pipeline,
-you need positive sequences with known motif instances at known
-positions so you can score recall and precision against an answer
-key. `implant_motifs()` produces these: it takes a set of motifs and
-host sequences, samples one instance per implant column-by-column from
-the motif's PPM, and overwrites the bases at the chosen position.
-Three insertion modes are supported: a fixed `n.per.seq` count,
-a Poisson `rate` per base pair, or an explicit list of `positions`.
-Optional knobs (`centre.bias`, `min.spacing`, `strand`) let you mimic
-ChIP-seq-style central enrichment or enforce non-overlapping placement.
+When you are benchmarking a discovery, scanning, or enrichment
+pipeline, you need positive sequences that carry known motif
+instances at known positions, so that recall and precision can be
+scored against an answer key. `implant_motifs()` is there to produce
+exactly those: it takes a set of motifs together with some host
+sequences, samples each instance column-by-column from the motif's
+PPM, and then overwrites the bases at the chosen position. Three
+insertion modes are available (a fixed `n.per.seq` count, a Poisson
+`rate` per base pair, or an explicit list of `positions`), and a few
+optional knobs (`centre.bias`, `min.spacing`, `strand`) let you mimic
+ChIP-seq-style central enrichment or enforce non-overlapping
+placement.
 
 ```{r, eval = FALSE}
 library(universalmotif)
@@ -284,22 +289,23 @@ peaks <- motif_peaks(out, motif = ArabidopsisMotif)
 plot_motif_peaks(peaks)
 ```
 
-`return.indices = FALSE` (default) returns only the modified
-`XStringSet`. `return.indices = TRUE` returns a list with two
-elements: `sequences` (the modified `XStringSet`) and `indices` (a
-`data.frame` with columns `sequence.i`, `motif.i`, `start`, `width`,
-`strand`, `planted`).
+With `return.indices = FALSE` (the default) you get back only the
+modified `XStringSet`. With `return.indices = TRUE` you instead get a
+list of two elements: `sequences` (the modified `XStringSet`) and
+`indices` (a `data.frame` with columns `sequence.i`, `motif.i`,
+`start`, `width`, `strand`, and `planted`).
 
 ## Motif pair co-occurrence with `motif_coocc()`
 
-`enrich_motifs()` / `enrich_motifs2()` test whether each motif is
-enriched on its own. But transcription factors often bind as
-heterodimers or cooperate at composite cis-regulatory modules, so the
-next-most-useful question is: do any motif pairs co-occur in the
-same sequences more often than chance? `motif_coocc()` answers that.
-For every pair of input motifs it builds the 2x2 contingency table of
-per-sequence presence/absence and runs a one-sided Fisher's exact
-test, then BH-corrects across all tested pairs.
+`enrich_motifs()` and `enrich_motifs2()` test whether each motif is
+enriched on its own. Transcription factors, though, often bind as
+heterodimers, or cooperate at composite cis-regulatory modules, so a
+natural next question is whether any pair of motifs co-occurs in the
+same sequences more often than chance would predict. This is what
+`motif_coocc()` is for. For every pair of input motifs it builds the
+2x2 contingency table of per-sequence presence and absence, runs a
+one-sided Fisher's exact test, and then applies a BH correction
+across all of the tested pairs.
 
 ```{r, eval = FALSE}
 library(universalmotif)
@@ -311,27 +317,29 @@ co <- motif_coocc(list(ArabidopsisMotif, m_other), seqs, pvalue = 1e-3)
 co
 ```
 
-Two input paths are supported. The default (above) scans internally
-via `scan_sequences2()` and is DNA/RNA only. Alternatively you can
-hand the function a precomputed hit table:
+There are two input paths. The default one (shown above) scans
+internally via `scan_sequences2()`, and so is DNA/RNA only.
+Alternatively, you can hand the function a precomputed hit table:
 
 ```{r, eval = FALSE}
 hits <- scan_sequences2(motifs, seqs, pvalue = 1e-3)
 co   <- motif_coocc(motifs, hits = hits, n.sequences = length(seqs))
 ```
 
-The hit-table path accepts any alphabet (AA, custom); once a
-hit table exists, co-occurrence is pure set arithmetic on
-`(motif.i, sequence.i)` integers.
+The hit-table path accepts any alphabet (amino acid, or custom),
+since once a hit table exists the co-occurrence is really just set
+arithmetic on the `(motif.i, sequence.i)` integers.
 
-Set `max.distance = N` to additionally report two descriptive
-columns: `both.clustered` (the subset of co-occurring sequences with
-an `(A, B)` hit pair within `N` bp) and `median.distance` (the
-median nearest-pair spacing in those sequences). The Fisher p-value
-is unchanged, it always tests "do A and B occur in the same
-sequences more often than chance?" on the unfiltered 2x2. The
-spatial columns are interpretive aids for flagging heterodimer-like
-arrangements rather than a separate statistical test.
+Setting `max.distance = N` additionally reports two descriptive
+columns: `both.clustered` (the subset of co-occurring sequences that
+have an `(A, B)` hit pair within `N` bp of each other) and
+`median.distance` (the median nearest-pair spacing across those
+sequences). The Fisher p-value itself is unchanged by this, since it
+always tests the same thing ("do A and B occur in the same sequences
+more often than chance?") on the unfiltered 2x2 table. The two
+spatial columns are best thought of as interpretive aids for flagging
+heterodimer-like arrangements, rather than as a separate statistical
+test in their own right.
 
 # Sequence scanning and enrichment
 
@@ -501,26 +509,26 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
 
 ## A faster alternative: `scan_sequences2()`
 
-For DNA/RNA scans that don't need multifreq scoring, gapped motifs,
-q-values, exhaustive P-values, or any
-threshold type other than P-value, the lighter `scan_sequences2()`
-function is generally faster and parallelises better across motifs.
-It uses the same C++ scanner internally, computes per-hit P-values
-via the same FIMO-style dynamic programming algorithm, and returns
-the same hit set, but skips extra work
-that `scan_sequences()` does to support its broader feature set.
+For DNA or RNA scans that do not need multifreq scoring, gapped
+motifs, q-values, exhaustive P-values, or any threshold type other
+than a P-value, the lighter `scan_sequences2()` is generally faster,
+and it parallelises rather better across motifs. Internally it uses
+the same C++ scanner, computes its per-hit P-values via the same
+FIMO-style dynamic-programming algorithm, and returns the same set of
+hits; it simply skips the extra work that `scan_sequences()` has to
+do in order to support its broader feature set.
 
-The default surface of `scan_sequences2()` is intentionally minimal
-(six formals: `motifs`, `sequences`, `pvalue = 1e-4`, `RC = TRUE`,
-`nthreads = 1`, `return.granges = NULL`). When `GenomicRanges` is
-installed, the default output is a `GRanges`; otherwise it falls back
-to a `data.frame`. Coordinates always satisfy `start <= end`
-regardless of strand (matching BED / GFF / `GRanges` convention), and
-the `match` column on `-`-strand hits is the reverse complement of
-the sequence substring, i.e. the matched orientation. Hit-level
-deduplication using a greedy algorithm is
-available via `no.overlaps = TRUE`, and is also exposed as the
-standalone `dedup_hits()` function for post-processing.
+The default surface of `scan_sequences2()` is deliberately minimal
+(just six formals: `motifs`, `sequences`, `pvalue = 1e-4`,
+`RC = TRUE`, `nthreads = 1`, and `return.granges = NULL`). When
+`GenomicRanges` is installed the default output is a `GRanges`, and
+otherwise it falls back to a `data.frame`. The coordinates always
+satisfy `start <= end` regardless of strand (following the BED / GFF
+/ `GRanges` convention), and on `-`-strand hits the `match` column
+holds the reverse complement of the sequence substring, that is, the
+matched orientation. Greedy hit-level deduplication is available via
+`no.overlaps = TRUE`, and is also exposed as a standalone
+`dedup_hits()` function for post-processing.
 
 ```{r, eval = FALSE}
 ## scan_sequences2() with all defaults
@@ -531,28 +539,30 @@ hits <- scan_sequences2(ArabidopsisMotif, ArabidopsisPromoters,
                         no.overlaps = TRUE)
 ```
 
-When `scan_sequences()` is called with arguments that map cleanly onto
-`scan_sequences2()`'s feature set, it emits a one-line hint pointing at
-the faster function. This can be silenced with
-`options(universalmotif.suggest.scan_sequences2 = FALSE)`.
+When `scan_sequences()` is called with arguments that happen to map
+cleanly onto `scan_sequences2()`'s feature set, it emits a one-line
+hint pointing you at the faster function. (This can be silenced with
+`options(universalmotif.suggest.scan_sequences2 = FALSE)`.)
 
 ### Speed comparison vs `motifmatchr` and `yamtk` {.unnumbered}
 
-To put the trade-offs in perspective, the table below records
-end-to-end wall-clock time for the four scanners on the same fixture:
-the first 50 motifs of HOCOMOCOv11 against random DNA at five sizes,
-P-value cutoff $5 \times 10^{-5}$, both strands, uniform background.
-`motifmatchr::matchMotifs()` is included in two output modes -- its
-default `out = "matches"` (per `(motif, sequence)`, strictly less
-work than the other three tools) and `out = "positions"` (per
-position, directly comparable to the others). Hit sets across
-the cli tool [`yamtk`](https://github.com/bjmt/yamtk),
-`scan_sequences()`, `scan_sequences2()`, and `motifmatchr` in
-`positions` mode agree to within ~5% (due to a drift between
-`yamtk`'s continuous-PPM PWM construction and `universalmotif`'s
-PCM-rounding). Reported times are in seconds; each cell
-shows `nthreads = 1 / nthreads = 4` where threading applies.
-These benchmarks were run using a MBP M5 running R 4.4.1.
+To put these trade-offs in some perspective, the table below records
+the end-to-end wall-clock time for the four scanners on a single
+shared fixture: the first 50 motifs of HOCOMOCOv11, scanned against
+random DNA at five different sizes, with a P-value cutoff of
+$5 \times 10^{-5}$, both strands, and a uniform background.
+`motifmatchr::matchMotifs()` appears in two output modes, its default
+`out = "matches"` (one result per `(motif, sequence)`, which is
+strictly less work than the other three tools do) and
+`out = "positions"` (per position, and so directly comparable to the
+others). The hit sets from the CLI tool
+[`yamtk`](https://github.com/bjmt/yamtk), `scan_sequences()`,
+`scan_sequences2()`, and `motifmatchr` in `positions` mode all agree
+to within about 5% (the small drift comes from `yamtk` building its
+PWM from a continuous PPM, whereas `universalmotif` rounds the PCM).
+Times are reported in seconds, and each cell shows
+`nthreads = 1 / nthreads = 4` wherever threading applies. These
+benchmarks were run on an MBP M5 under R 4.4.1.
 
 | Workload | yamtk | mm matches¹ | mm positions² | scan_sequences2 | scan_sequences³ |
 |---|---:|---:|---:|---:|---:|
@@ -579,7 +589,7 @@ in `scan_sequences()` parallelises poorly for short-sequence
 workloads; this is the main cost that
 `scan_sequences2()` eliminates.
 
-Practical takeaways:
+A few practical takeaways:
 
 - [`yamtk`](https://github.com/bjmt/yamtk) (a dedicated CLI tool
   written in C) is the fastest scanner at every scale. The
@@ -597,7 +607,7 @@ Practical takeaways:
   reporting entirely. Choose that mode when "did this motif match
   this sequence at all?" is the question you are actually asking.
 - For new code that does not need any of `scan_sequences()`'s
-  advanced features, prefer `scan_sequences2()`.
+  advanced features, I would generally reach for `scan_sequences2()`.
 
 ## Visualizing motif hits across sequences
 
@@ -709,12 +719,13 @@ One final point: always keep in mind the `threshold` parameter, as this will ult
 
 ## A faster alternative: `enrich_motifs2()`
 
-For users who only need the common case (DNA/RNA motifs, P-value
-hit threshold, Fisher's exact test, Benjamini-Hochberg q-values),
+For the common case (DNA/RNA motifs, a P-value hit threshold,
+Fisher's exact test, and Benjamini-Hochberg q-values),
 `enrich_motifs2()` offers a stripped-down counterpart to
-`enrich_motifs()` whose defaults mirror the command-line tool
-[`yamtk`](https://github.com/bjmt/yamtk). It is built on
-`scan_sequences2()` and inherits its speed advantages.
+`enrich_motifs()`, with defaults that mirror those of the
+command-line tool [`yamtk`](https://github.com/bjmt/yamtk). It is
+built on top of `scan_sequences2()`, and so inherits its speed
+advantages.
 
 ```{r}
 library(universalmotif)
@@ -725,8 +736,8 @@ enrich_motifs2(ArabidopsisMotif, ArabidopsisPromoters,
                pvalue = 1e-3, qvalue = 0.1, rng.seed = 1)
 ```
 
-The output is a plain `data.frame` whose 13 columns mirror `yamtk enr`'s
-TSV one-for-one: `motif`, `motif.i`, `consensus`,
+The output is a plain `data.frame` whose 13 columns mirror the TSV
+from `yamtk enr` one-for-one: `motif`, `motif.i`, `consensus`,
 `target.seq.n`, `target.seq.hits`, `target.site.hits`,
 `bkg.seq.n`, `bkg.seq.hits`, `bkg.site.hits`,
 `enrichment`, `log2.enrichment`, `pvalue`, `qvalue`.
@@ -738,24 +749,25 @@ Two test modes are supported:
 - `test = "sites"`: Fisher's exact on per-position rates,
   equivalent to `enrich_motifs(mode = "total.hits")`.
 
-When a `enrich_motifs()` call uses only features that map
-cleanly onto `enrich_motifs2()`, a one-line hint is emitted
-pointing at the leaner function. Silence with
-`options(universalmotif.suggest.enrich_motifs2 = FALSE)`.
+When an `enrich_motifs()` call uses only features that map cleanly
+onto `enrich_motifs2()`, a one-line hint is again emitted pointing
+you at the leaner function. (Silence it with
+`options(universalmotif.suggest.enrich_motifs2 = FALSE)`.)
 
 ## _De novo_ motif discovery
 
-`motif_finder()` is a _de novo_ motif discovery function.
-Its defaults mirror the command-line tool
+`motif_finder()` is a _de novo_ motif discovery function whose
+defaults, again, mirror those of the command-line tool
 [`yamtk`](https://github.com/bjmt/yamtk). For each motif width in a
-user-controlled range it enumerates over-represented k-mer seeds
-(Fisher's exact test on per-sequence presence vs. a background set),
-aligns Hamming-distance-1 neighbours of the best seed to form a PPM,
-refines the PPM via two re-scan passes, accepts the motif if its
-Fisher's exact p-value passes `stop.pvalue`, masks the covered
-positions and repeats up to `nmotifs` times per width. After all widths
-complete, motifs are cross-width deduplicated, BH-adjusted, and
-IC-trimmed at the flanks.
+user-controlled range, it enumerates the over-represented k-mer seeds
+(using a Fisher's exact test on per-sequence presence against a
+background set), aligns the Hamming-distance-1 neighbours of the best
+seed to form a PPM, refines that PPM over two re-scan passes, accepts
+the motif if its Fisher's exact p-value passes `stop.pvalue`, and then
+masks the covered positions and repeats, up to `nmotifs` times per
+width. Once every width has been processed, the motifs are
+deduplicated across widths, BH-adjusted, and IC-trimmed at the
+flanks.
 
 ```{r, eval = FALSE}
 library(universalmotif)
@@ -774,30 +786,33 @@ motifs <- motif_finder(seqs, rng.seed = 1, min.width = 6, max.width = 10)
 motifs[, c("name", "consensus", "width", "seqs_pos", "seqs_neg", "pvalue", "qvalue")]
 ```
 
-The return shape is a `universalmotif_df`: one row per discovered motif,
-the motif S4 objects in the `motif` list-column, and the standard
-`to_df()` slot columns (`name`, `consensus`, `alphabet`, etc.) joined
-to the yamtk-specific stats (`rank`, `width`, `seqs_pos`, `seqs_neg`,
-`sites_pos`, `sites_neg`, `n_pos`, `n_neg`, `pvalue`, `qvalue`). Use
-`to_list()` to recover a plain list of `universalmotif` S4 objects,
-which plug directly into `view_motifs2()`, `compare_motifs2()`,
-`write_meme()`, and the rest of the package.
+The return shape is a `universalmotif_df`: one row per discovered
+motif, with the motif S4 objects sitting in the `motif` list-column,
+and the standard `to_df()` slot columns (`name`, `consensus`,
+`alphabet`, and so on) joined to the yamtk-specific stats (`rank`,
+`width`, `seqs_pos`, `seqs_neg`, `sites_pos`, `sites_neg`, `n_pos`,
+`n_neg`, `pvalue`, `qvalue`). A call to `to_list()` recovers a plain
+list of `universalmotif` S4 objects, which then plug directly into
+`view_motifs2()`, `compare_motifs2()`, `write_meme()`, and the rest of
+the package.
 
-Discovery widths default to 6-15; the per-width motif cap defaults to
-10; the result-level q-value filter defaults to 1e-3. Set
-`qvalue = 1` to return all discovered motifs regardless of
-significance. Background sequences are auto-generated by k=2 shuffling
-of the input unless supplied via `bkg.sequences`.
+The discovery widths default to 6 through 15, the per-width motif cap
+to 10, and the result-level q-value filter to 1e-3; set `qvalue = 1`
+if you would rather have all of the discovered motifs returned
+regardless of significance. Unless they are supplied explicitly
+through `bkg.sequences`, the background sequences are auto-generated
+by k=2 shuffling of the input.
 
 ## Positional enrichment with `motif_peaks()`
 
-`motif_peaks()` tests whether motif hits cluster non-uniformly along the
-input sequences. It implements an analytical
+`motif_peaks()` tests whether motif hits cluster non-uniformly along
+the input sequences. It implements an analytical,
 [CentriMo](https://doi.org/10.1093/nar/gks433)-style test: under the
-null that hit positions are uniform over `[1, seq.length]`, the count
-of hits in a candidate window follows a binomial distribution. The
-function reports the most-enriched window per motif, Bonferroni-
-corrected across the windows tested, then BH-adjusted across motifs.
+null hypothesis that hit positions are uniform over `[1, seq.length]`,
+the number of hits falling in a candidate window follows a binomial
+distribution. The function reports the most-enriched window for each
+motif, Bonferroni-corrected across the windows tested and then
+BH-adjusted across the motifs.
 
 Two modes are supported:
 
@@ -831,16 +846,18 @@ peaks[, c("motif", "best.window", "best.center", "hits.in", "nhits",
 plot_motif_peaks(peaks)
 ```
 
-The returned `data.frame` carries one row per significant motif plus a
-list-column `centers` of best-hit centre positions per sequence;
-`plot_motif_peaks()` consumes that column directly, so users don't
-need to thread their original scan results through again.
+The returned `data.frame` carries one row per significant motif,
+together with a list-column `centers` holding the best-hit centre
+positions per sequence. `plot_motif_peaks()` consumes that column
+directly, so there is no need to thread your original scan results
+back through it.
 
-Input is polymorphic: `motif_peaks()` accepts either a `data.frame`
-or a `GRanges` from `scan_sequences()` or `scan_sequences2()`. When
-the input is a `GRanges` with `seqlengths()` set (which
-`scan_sequences2()` does automatically), `seq.length` is inferred;
-otherwise pass it explicitly.
+The input is polymorphic: `motif_peaks()` will accept either a
+`data.frame` or a `GRanges` coming out of `scan_sequences()` or
+`scan_sequences2()`. When the input is a `GRanges` that has its
+`seqlengths()` set (which `scan_sequences2()` does for you
+automatically), `seq.length` is inferred; otherwise you will need to
+pass it explicitly.
 
 ## Fixed and variable-length gapped motifs
 
