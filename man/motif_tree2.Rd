@@ -4,10 +4,11 @@
 \alias{motif_tree2}
 \title{Generate ggtree-based motif trees using \code{compare_motifs2()}.}
 \usage{
-motif_tree2(motifs, layout = "circular", linecol = "family",
+motif_tree2(motifs, layout = "rectangular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
   branch.length = "none", min.overlap = 6, tryRC = TRUE, nthreads = 1,
-  progress = FALSE, ...)
+  progress = FALSE, tiplogo = TRUE, tiplogo.align = TRUE,
+  tiplogo.width = 1, tiplogo.height = 0.9, tiplogo.offset = NULL, ...)
 }
 \arguments{
 \item{motifs}{\code{list} or \code{dist}. See \code{\link[=convert_motifs]{convert_motifs()}} for accepted
@@ -16,13 +17,20 @@ result of \code{as.dist((1 - compare_motifs2(...)) / 2)}) skips the
 comparison step entirely and goes straight to tree construction.}
 
 \item{layout}{\code{character(1)}. One of \code{c('rectangular', 'slanted', 'fan', 'circular', 'radial', 'equal_angle', 'daylight')}. Passed
-through to \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+through to \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. Defaults to \code{"rectangular"} so that the
+tip logos (see \code{tiplogo}) are visible; tip logos are only drawn on the
+\code{"rectangular"} and \code{"slanted"} layouts.}
 
 \item{linecol}{\code{character(1)}. Motif slot used to colour the
 branches (e.g. \code{"family"}). Not used when \code{motifs} is a \code{dist}.}
 
 \item{labels}{\code{character(1)}. Motif slot used to label the tips
-(e.g. \code{"name"}). For \code{dist} input, only \code{"name"} is meaningful.}
+(e.g. \code{"name"}). For \code{dist} input, only \code{"name"} is meaningful. Note:
+drawing tip labels uses \code{ggtree::geom_tiplab(align = TRUE)}, which fails
+to render under \pkg{ggplot2} >= 4.0 with \pkg{ggtree} <= 3.12 (ggtree's
+internal \code{empty()} calls the removed \code{ggplot2:::is.waive()}); update
+\pkg{ggtree} if you need tip labels. The tip logos (\code{tiplogo}) are
+unaffected.}
 
 \item{tipsize}{\code{character(1)}. Motif slot used to size the tips
 (e.g. \code{"icscore"}). Not used when \code{motifs} is a \code{dist}.}
@@ -43,6 +51,26 @@ Forwarded to \code{\link[=compare_motifs2]{compare_motifs2()}}. Default \code{TR
 \code{nthreads = 0} uses all available threads.}
 
 \item{progress}{\code{logical(1)}. Print progress messages.}
+
+\item{tiplogo}{\code{logical(1)}. Draw a sequence logo at each tip using
+\code{\link[=geom_logo]{geom_logo()}}. On by default. Only drawn on the \code{"rectangular"} and
+\code{"slanted"} layouts (other layouts warn and skip), and not available
+for \code{dist} input. Default \code{TRUE}.}
+
+\item{tiplogo.align}{\code{logical(1)}. Align the tip logos to a common,
+zero-padded column frame (via \code{\link[=view_motifs2]{view_motifs2()}}) so that homologous
+positions line up across tips. DNA/RNA only; falls back to unaligned
+per-tip logos otherwise. Default \code{TRUE}.}
+
+\item{tiplogo.width}{\code{numeric(1)}. Width of one motif position, in tree
+x-axis units, for the tip logos. Default \code{1}.}
+
+\item{tiplogo.height}{\code{numeric(1)}. Total height of a tip logo, in tree
+y-axis units, centred on each tip. Default \code{0.9}.}
+
+\item{tiplogo.offset}{\code{numeric(1)} or \code{NULL}. Gap between the tips and the
+start of the logos, in tree x-axis units. If \code{NULL}, a small fraction of
+the tree width is used. Default \code{NULL}.}
 
 \item{...}{Additional arguments passed through to
 \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
@@ -97,7 +125,7 @@ if (requireNamespace("ggtree", quietly = TRUE)) {
 }
 \seealso{
 \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=compare_motifs2]{compare_motifs2()}}, \code{\link[=merge_similar2]{merge_similar2()}},
-\code{\link[ggtree:ggtree]{ggtree::ggtree()}}
+\code{\link[=geom_logo]{geom_logo()}}, \code{\link[=view_motifs2]{view_motifs2()}}, \code{\link[ggtree:ggtree]{ggtree::ggtree()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

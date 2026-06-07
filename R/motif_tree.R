@@ -22,7 +22,11 @@
 #'    for how to add it manually). See [ggtree::ggtree()].
 #' @param labels `character(1)` [universalmotif-class] slot to use to label
 #'    tips (e.g. 'name'). For `dist` input, only 'name' is available.
-#'    See [ggtree::ggtree()].
+#'    See [ggtree::ggtree()]. Note: drawing tip labels uses
+#'    `ggtree::geom_tiplab(align = TRUE)`, which fails to render under
+#'    \pkg{ggplot2} >= 4.0 with \pkg{ggtree} <= 3.12 (ggtree's internal
+#'    `empty()` calls the removed `ggplot2:::is.waive()`); update \pkg{ggtree}
+#'    if you need tip labels.
 #' @param tipsize `character(1)` [universalmotif-class] slot to use to
 #'    control tip size (e.g. 'icscore'). Not available for `dist` input (see
 #'    examples for how to add it manually). See [ggtree::ggtree()].

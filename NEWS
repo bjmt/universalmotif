@@ -84,6 +84,31 @@ NEW FEATURES
     min.overlap, nthreads. DNA / RNA only; for amino-acid or
     custom-alphabet motifs continue to use the original functions.
 
+  o Added geom_motif(), annotate_motif(), geom_logo(), and
+    annotate_logo(): ggplot2 layers that embed sequence logos into
+    arbitrary ggplot constructions, reusing the view_motifs() logo
+    renderer. The annotate_*() helpers place one logo at fixed
+    coordinates, while the geom_*() layers take their position from
+    aesthetics, either a bounding box (xmin/xmax/ymin/ymax) or an
+    anchor (x/y with width/height) and can draw a different motif per
+    group via a named-list argument together with a `motif` selector
+    aesthetic. The *_motif variants take universalmotif objects
+    (honouring use.type); the *_logo variants take bare row-named
+    numeric matrices. Letter colours are resolved internally, so the
+    layers never compete for the plot's fill scale and add no legend.
+    Built on the shared ggproto objects GeomMotif / StatMotif /
+    StatLogo.
+
+  o motif_tree2() now draws a sequence logo at each tip by default
+    (tiplogo = TRUE), so the motifs act as the tip labels. The logos
+    are aligned to a shared, zero-padded column frame (via
+    view_motifs2()) so homologous positions line up across tips. The
+    default layout changed from "circular" to "rectangular" so the tip
+    logos are visible out of the box; tip logos are drawn only on the
+    "rectangular" and "slanted" layouts (others warn and skip them),
+    and are not available for `dist` input. New arguments: tiplogo,
+    tiplogo.align, tiplogo.width, tiplogo.height, tiplogo.offset.
+
   o New vignette "MotifDatabaseCuration.Rmd": end-to-end recipe for
     consolidating motif sets from several public sources into a
     single deduplicated, trimmed, and annotated MEME file. Pulls
@@ -312,6 +337,15 @@ BUG FIXES
     first piled on top of one another below the baseline. Switched to
     a cumulative offset. One- and two-letter negative stacks are
     unaffected.
+
+  o Fixed view_motifs() / view_logo() rendering letters with a
+    negative height when a small `min.height` kept letters shorter
+    than their per-letter `y.spacer` allotment. The glyph was scaled
+    by a negative height and flipped below the baseline, appearing as
+    an inverted sliver. The spacer is now capped at half the letter
+    height, keeping such letters upright and proportional. Normal
+    logos are unaffected. (Also reached via geom_motif() / geom_logo(),
+    which share the renderer.)
 
   o Fixed create_motif() matrix dispatch silently dropping an
     explicitly supplied alphabet = "DNA"/"RNA"/"AA" when the input

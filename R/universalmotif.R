@@ -14,7 +14,9 @@
 #' @importFrom ggplot2 margin scale_x_continuous scale_y_continuous
 #' @importFrom ggplot2 element_line element_text waiver geom_polygon
 #' @importFrom ggplot2 theme_minimal scale_fill_manual theme_void
-#' @importFrom grid unit
+#' @importFrom ggplot2 ggproto Stat GeomPolygon layer draw_key_blank
+#' @importFrom grid unit polygonGrob gpar
+#' @importFrom grDevices hcl.colors
 #' @importFrom rlang .data
 #' @importFrom stats as.dist hclust runif rnorm chisq.test fisher.test sd fft
 #' @importFrom stats p.adjust shapiro.test t.test wilcox.test pnorm quantile

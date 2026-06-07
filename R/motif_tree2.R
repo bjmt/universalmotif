@@ -18,11 +18,18 @@
 #'   comparison step entirely and goes straight to tree construction.
 #' @param layout `character(1)`. One of `c('rectangular', 'slanted',
 #'   'fan', 'circular', 'radial', 'equal_angle', 'daylight')`. Passed
-#'   through to [ggtree::ggtree()].
+#'   through to [ggtree::ggtree()]. Defaults to `"rectangular"` so that the
+#'   tip logos (see `tiplogo`) are visible; tip logos are only drawn on the
+#'   `"rectangular"` and `"slanted"` layouts.
 #' @param linecol `character(1)`. Motif slot used to colour the
 #'   branches (e.g. `"family"`). Not used when `motifs` is a `dist`.
 #' @param labels `character(1)`. Motif slot used to label the tips
-#'   (e.g. `"name"`). For `dist` input, only `"name"` is meaningful.
+#'   (e.g. `"name"`). For `dist` input, only `"name"` is meaningful. Note:
+#'   drawing tip labels uses `ggtree::geom_tiplab(align = TRUE)`, which fails
+#'   to render under \pkg{ggplot2} >= 4.0 with \pkg{ggtree} <= 3.12 (ggtree's
+#'   internal `empty()` calls the removed `ggplot2:::is.waive()`); update
+#'   \pkg{ggtree} if you need tip labels. The tip logos (`tiplogo`) are
+#'   unaffected.
 #' @param tipsize `character(1)`. Motif slot used to size the tips
 #'   (e.g. `"icscore"`). Not used when `motifs` is a `dist`.
 #' @param legend `logical(1)`. Show legend for line colour and tip size.
@@ -36,6 +43,21 @@
 #' @param nthreads `numeric(1)`. Threads passed to [compare_motifs2()].
 #'   `nthreads = 0` uses all available threads.
 #' @param progress `logical(1)`. Print progress messages.
+#' @param tiplogo `logical(1)`. Draw a sequence logo at each tip using
+#'   [geom_logo()]. On by default. Only drawn on the `"rectangular"` and
+#'   `"slanted"` layouts (other layouts warn and skip), and not available
+#'   for `dist` input. Default `TRUE`.
+#' @param tiplogo.align `logical(1)`. Align the tip logos to a common,
+#'   zero-padded column frame (via [view_motifs2()]) so that homologous
+#'   positions line up across tips. DNA/RNA only; falls back to unaligned
+#'   per-tip logos otherwise. Default `TRUE`.
+#' @param tiplogo.width `numeric(1)`. Width of one motif position, in tree
+#'   x-axis units, for the tip logos. Default `1`.
+#' @param tiplogo.height `numeric(1)`. Total height of a tip logo, in tree
+#'   y-axis units, centred on each tip. Default `0.9`.
+#' @param tiplogo.offset `numeric(1)` or `NULL`. Gap between the tips and the
+#'   start of the logos, in tree x-axis units. If `NULL`, a small fraction of
+#'   the tree width is used. Default `NULL`.
 #' @param ... Additional arguments passed through to
 #'   [ggtree::ggtree()].
 #'
@@ -73,13 +95,16 @@
 #' }
 #'
 #' @seealso [motif_tree()], [compare_motifs2()], [merge_similar2()],
-#'   [ggtree::ggtree()]
+#'   [geom_logo()], [view_motifs2()], [ggtree::ggtree()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
-motif_tree2 <- function(motifs, layout = "circular", linecol = "family",
+motif_tree2 <- function(motifs, layout = "rectangular", linecol = "family",
                         labels = "none", tipsize = "none", legend = TRUE,
                         branch.length = "none", min.overlap = 6,
-                        tryRC = TRUE, nthreads = 1, progress = FALSE, ...) {
+                        tryRC = TRUE, nthreads = 1, progress = FALSE,
+                        tiplogo = TRUE, tiplogo.align = TRUE,
+                        tiplogo.width = 1, tiplogo.height = 0.9,
+                        tiplogo.offset = NULL, ...) {
 
   ## --- arg validation ---------------------------------------------------
   if (!layout %in% c("rectangular", "slanted", "fan", "circular", "radial",
@@ -103,6 +128,10 @@ motif_tree2 <- function(motifs, layout = "circular", linecol = "family",
     stop("`tryRC` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(progress))
     stop("`progress` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(tiplogo))
+    stop("`tiplogo` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(tiplogo.align))
+    stop("`tiplogo.align` must be a single logical", call. = FALSE)
 
   nthreads <- resolve_nthreads(nthreads)
 
@@ -149,6 +178,12 @@ motif_tree2 <- function(motifs, layout = "circular", linecol = "family",
   }
 
   if (progress) message("Building tree...")
+
+  ## Add tip logos (when enabled and the layout supports them) just before
+  ## returning, regardless of which branch built the plot.
+  finish <- function(p) add_tip_logos(p, motifs, mot_names, layout, tiplogo,
+    tiplogo.align, tiplogo.width, tiplogo.height, tiplogo.offset, tryRC,
+    min.overlap, nthreads)
 
   ## --- linecol-coloured branches ---------------------------------------
   if (linecol != "none" && !is(motifs, "dist")) {
@@ -199,8 +234,9 @@ motif_tree2 <- function(motifs, layout = "circular", linecol = "family",
     }
 
     if (legend) {
-      return(p + theme(legend.position = "right", legend.title = element_blank()))
-    } else return(p)
+      return(finish(p) +
+        theme(legend.position = "right", legend.title = element_blank()))
+    } else return(finish(p))
 
   }
 
@@ -231,7 +267,7 @@ motif_tree2 <- function(motifs, layout = "circular", linecol = "family",
           ggtree::geom_tippoint(aes(size = .data$icscore))
       })
     }
-    return(p)
+    return(finish(p))
 
   } else {
 
@@ -250,8 +286,66 @@ motif_tree2 <- function(motifs, layout = "circular", linecol = "family",
           ggtree::geom_tippoint(aes(size = .data$icscore))
       })
     }
-    return(p)
+    return(finish(p))
 
   }
+
+}
+
+#-----------------------------------------------------------------------------
+# Add per-tip sequence logos to a ggtree plot built by motif_tree2(). Returns
+# `p` unchanged when tip logos are off, the layout cannot show them, or the
+# input was a `dist` object (no matrices to draw).
+
+add_tip_logos <- function(p, motifs, mot_names, layout, tiplogo, tiplogo.align,
+  tiplogo.width, tiplogo.height, tiplogo.offset, tryRC, min.overlap,
+  nthreads) {
+
+  if (!tiplogo) return(p)
+
+  if (is(motifs, "dist")) {
+    warning("tip logos are not available for `dist` input; skipped",
+      call. = FALSE)
+    return(p)
+  }
+  if (!layout %in% c("rectangular", "slanted")) {
+    warning("tip logos require a `rectangular` or `slanted` layout; skipped",
+      call. = FALSE)
+    return(p)
+  }
+
+  td <- p$data
+  td <- td[td$isTip, c("label", "x", "y"), drop = FALSE]
+  if (!nrow(td)) return(p)
+
+  alphabet <- motifs[[1]]@alphabet
+  cs <- switch(alphabet, "DNA" = DNA_COLOURS, "RNA" = RNA_COLOURS,
+    "AA" = AA_COLOURS, NULL)
+
+  if (tiplogo.align && !alphabet %in% c("DNA", "RNA")) {
+    warning("tip logo alignment requires DNA/RNA motifs; drawing unaligned ",
+      "logos", call. = FALSE)
+    tiplogo.align <- FALSE
+  }
+
+  if (tiplogo.align) {
+    ## dedup = TRUE: the logo names are overwritten with the tip labels just
+    ## below, so disambiguating any duplicate motif names here is harmless.
+    logos <- align_motif_mats(motifs, use.type = "ICM", tryRC = tryRC,
+      min.overlap = min.overlap, nthreads = nthreads, dedup = TRUE)
+  } else {
+    logos <- lapply(motifs, function(m) convert_type(m, "ICM")@motif)
+  }
+  names(logos) <- mot_names
+
+  if (is.null(tiplogo.offset)) {
+    rng <- max(td$x) - min(td$x)
+    tiplogo.offset <- if (rng > 0) rng * 0.05 else 0.5
+  }
+  td$x0 <- max(td$x) + tiplogo.offset
+
+  p + geom_logo(aes(x = .data$x0, y = .data$y, motif = .data$label),
+    data = td, logo = logos, inherit.aes = FALSE, width = tiplogo.width,
+    height = tiplogo.height, colour.scheme = cs)
 
 }

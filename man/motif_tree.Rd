@@ -25,7 +25,11 @@ for how to add it manually). See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
 \item{labels}{\code{character(1)} \linkS4class{universalmotif} slot to use to label
 tips (e.g. 'name'). For \code{dist} input, only 'name' is available.
-See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
+See \code{\link[ggtree:ggtree]{ggtree::ggtree()}}. Note: drawing tip labels uses
+\code{ggtree::geom_tiplab(align = TRUE)}, which fails to render under
+\pkg{ggplot2} >= 4.0 with \pkg{ggtree} <= 3.12 (ggtree's internal
+\code{empty()} calls the removed \code{ggplot2:::is.waive()}); update \pkg{ggtree}
+if you need tip labels.}
 
 \item{tipsize}{\code{character(1)} \linkS4class{universalmotif} slot to use to
 control tip size (e.g. 'icscore'). Not available for \code{dist} input (see

@@ -11,6 +11,35 @@ test_that("motif_tree2 returns a ggtree on a motif list", {
   expect_s3_class(tr, "ggtree")
 })
 
+test_that("motif_tree2 draws tip logos by default on a rectangular tree", {
+  skip_if_not_installed("ape")
+  skip_if_not_installed("ggtree")
+  motifs <- lapply(c("CACGTG", "TGACGT", "AAATTT", "GCGCGC", "TTGACATA",
+                     "CTTGACAT"),
+                   function(s) create_motif(s, name = s))
+  with_logo <- suppressWarnings(motif_tree2(motifs, linecol = "none"))
+  no_logo <- suppressWarnings(motif_tree2(motifs, linecol = "none",
+                                          tiplogo = FALSE))
+  expect_s3_class(with_logo, "ggtree")
+  ## The tip-logo layer is the one extra layer.
+  expect_equal(length(with_logo$layers), length(no_logo$layers) + 1L)
+  d <- suppressWarnings(
+    ggplot2::layer_data(with_logo, length(with_logo$layers)))
+  expect_gt(nrow(d), 0L)
+})
+
+test_that("motif_tree2 warns and skips tip logos on non-linear layouts", {
+  skip_if_not_installed("ape")
+  skip_if_not_installed("ggtree")
+  motifs <- lapply(c("CACGTG", "TGACGT", "AAATTT", "GCGCGC"),
+                   function(s) create_motif(s, name = s))
+  expect_warning(
+    p <- motif_tree2(motifs, linecol = "none", layout = "circular"),
+    "rectangular"
+  )
+  expect_s3_class(p, "ggtree")
+})
+
 test_that("motif_tree2 short-circuits on dist input", {
   skip_if_not_installed("ape")
   skip_if_not_installed("ggtree")

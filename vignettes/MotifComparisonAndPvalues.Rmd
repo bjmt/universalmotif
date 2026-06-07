@@ -529,39 +529,19 @@ tree <- tree %<+% tipsize + geom_tippoint(aes(size = icscore))
 
 ## Plotting motifs alongside trees
 
-Unfortunately, the `universalmotif` package does not provide any function to easily plot motifs as part of trees (as is possible via the `motifStack` package). However, it can be done (somewhat roughly) by plotting a tree and a set of motifs side by side. In the following example, the `cowplot` package is used to glue the two plots together, though other packages which perform this function are available.
+`motif_tree2()` draws a sequence logo at every tip by default (`tiplogo = TRUE`), so the motifs themselves serve as the tip labels. The logos are aligned to a shared column frame (via `view_motifs2()`) so that homologous positions line up across tips.
 
 ```{r}
 library(universalmotif)
 library(MotifDb)
-library(cowplot)
 
-## Get our starting set of motifs:
 motifs <- convert_motifs(MotifDb[1:10])
 
-## Get the tree: make sure it's a horizontal type layout
-tree <- motif_tree(motifs, layout = "rectangular", linecol = "none")
-
-## Now, make sure we order our list of motifs to match the order of tips:
-mot.names <- sapply(motifs, function(x) x["name"])
-names(motifs) <- mot.names
-new.order <- tree$data$label[tree$data$isTip]
-new.order <- rev(new.order[order(tree$data$y[tree$data$isTip])])
-motifs <- motifs[new.order]
-
-## Plot the two together (finessing of margins and positions may be required):
-plot_grid(nrow = 1, rel_widths = c(1, -0.15, 1),
-  tree + xlab(""), NULL,
-  view_motifs(motifs, names.pos = "right") +
-    ylab(element_blank()) +
-    theme(
-      axis.line.y = element_blank(),
-      axis.ticks.y = element_blank(),
-      axis.text.y = element_blank(),
-      axis.text = element_text(colour = "white")
-    )
-)
+## Tip logos are on by default; the default layout is now "rectangular".
+motif_tree2(motifs, linecol = "none")
 ```
+
+Use `tiplogo = FALSE` to turn the logos off, or `tiplogo.align = FALSE` to draw each tip logo independently instead of aligned to a common frame. Tip logos are only drawn on the `"rectangular"` and `"slanted"` layouts. The machinery is also exposed directly as the `geom_motif()` and `geom_logo()` \pkg{ggplot2} layers (and the `annotate_motif()` / `annotate_logo()` annotation helpers), so logos can be embedded in any `ggplot` construction.
 
 # Motif P-values
 

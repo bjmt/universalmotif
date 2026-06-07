@@ -754,6 +754,13 @@ make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
     if ((i == 1 || i == length(vec)) && length(vec) > 1) {
       tmpyspacer <- tmpyspacer - y.spacer2 / 2
     }
+    ## Cap the spacer at half the letter's height. With a small `min.height`,
+    ## letters shorter than their y.spacer allotment would otherwise get a
+    ## negative `vec[i] - tmpyspacer`, and make_letter_polygon_data() would
+    ## scale the glyph by that negative height, flipping it below the baseline.
+    ## Capping keeps the rendered height positive and proportional so tiny
+    ## letters still look like (small) letters rather than inverted slivers.
+    tmpyspacer <- min(tmpyspacer, unname(vec[i]) / 2)
     tmpletheight <- unname(vec[i]) - tmpyspacer
     tmpletid <- paste0(position.id, ".", tmplet)
 

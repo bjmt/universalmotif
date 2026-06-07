@@ -352,7 +352,7 @@ clean.names <- make.unique(gsub("[^A-Za-z0-9_]", "_",
                                        character(1))))
 for (i in seq_along(sub)) sub[[i]]["name"] <- clean.names[i]
 motif_tree2(sub, linecol = "family", labels = "none",
-            layout = "circular", progress = FALSE) +
+            layout = "circular", tiplogo = FALSE, progress = FALSE) +
   ggplot2::scale_color_discrete(breaks = sources) +
   ggplot2::theme(legend.position = "bottom",
                  legend.title    = ggplot2::element_blank())
