@@ -733,8 +733,20 @@ data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
 
 enrich_motifs2(ArabidopsisMotif, ArabidopsisPromoters,
-               pvalue = 1e-3, qvalue = 0.1, rng.seed = 1)
+               pvalue = 1e-3, qvalue = 0.1, rng.seed = 1, test = "sites")
 ```
+
+Note the `test = "sites"` here. The two functions default to
+different tests: `enrich_motifs()` defaults to `mode = "total.hits"`
+(a per-site comparison), while `enrich_motifs2()` defaults to
+`test = "seqs"` (a per-sequence comparison, matching the `yamtk enr`
+default). Setting `test = "sites"` makes `enrich_motifs2()` mirror the
+`enrich_motifs()` call above. The per-sequence test would be a poor
+fit for this particular example anyway: the promoters are long
+(1000 bp) and the motif is a low-complexity poly-pyrimidine that
+appears in nearly every sequence of both the target and the shuffled
+background, so per-sequence presence barely differs between them and
+the enrichment is only marginally significant.
 
 The output is a plain `data.frame` whose 13 columns mirror the TSV
 from `yamtk enr` one-for-one: `motif`, `motif.i`, `consensus`,
