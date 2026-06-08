@@ -75,13 +75,16 @@ mean. "g.mean": take the geometric mean. "median": take the median.
 Z-transform. Weights are the
 total information content shared between aligned columns.}
 
-\item{output.report}{\code{character(1)} Provide a filename for \code{\link[=compare_motifs]{compare_motifs()}}
-to write an html ouput report to. The top matches are shown alongside
-figures of the match alignments. This requires the \code{knitr} and \code{rmarkdown}
-packages. (Note: still in development.)}
+\item{output.report}{\code{character(1)} Path (ending in \code{.html}) for a
+self-contained HTML report of the comparison. The report has a summary
+header (the call and key settings), a sortable results table (query,
+target, alignment offset, strand, score, and P/E-values), and a
+query-vs-target sequence-logo alignment for each top match. Requires
+\code{compare.to} to be set (for all-vs-all output see \code{\link[=motif_tree]{motif_tree()}}) and the
+\code{knitr} and \code{rmarkdown} packages (plus pandoc).}
 
 \item{output.report.max.print}{\code{numeric(1)} Maximum number of top matches to
-print.}
+show in the report (table and figures).}
 }
 \value{
 \code{matrix} if \code{compare.to} is missing; \code{DataFrame} otherwise. For the

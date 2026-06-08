@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: Import, Modify, and Export Motifs with R
-Version: 1.31.35
+Version: 1.31.36
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "benjamin.tremblay@uwaterloo.ca",
@@ -41,6 +41,7 @@ Collate:
     'add_multifreq.R'
     'compare_motifs.R'
     'compare_motifs2.R'
+    'compare_report.R'
     'universalmotif-class.R'
     'convert_motifs.R'
     'convert_type.R'

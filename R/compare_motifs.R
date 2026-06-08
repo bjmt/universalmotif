@@ -53,12 +53,15 @@
 #'    "wa.mean", "wg.mean": weighted arithmetic/geometric mean. "fzt": Fisher
 #'    Z-transform. Weights are the
 #'    total information content shared between aligned columns.
-#' @param output.report `character(1)` Provide a filename for [compare_motifs()]
-#'    to write an html ouput report to. The top matches are shown alongside
-#'    figures of the match alignments. This requires the `knitr` and `rmarkdown`
-#'    packages. (Note: still in development.)
+#' @param output.report `character(1)` Path (ending in `.html`) for a
+#'    self-contained HTML report of the comparison. The report has a summary
+#'    header (the call and key settings), a sortable results table (query,
+#'    target, alignment offset, strand, score, and P/E-values), and a
+#'    query-vs-target sequence-logo alignment for each top match. Requires
+#'    `compare.to` to be set (for all-vs-all output see [motif_tree()]) and the
+#'    `knitr` and `rmarkdown` packages (plus pandoc).
 #' @param output.report.max.print `numeric(1)` Maximum number of top matches to
-#'    print.
+#'    show in the report (table and figures).
 #'
 #' @return `matrix` if `compare.to` is missing; `DataFrame` otherwise. For the
 #'    latter, function args are stored in the `metadata` slot.
@@ -226,6 +229,18 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   # param check --------------------------------------------
   method <- match.arg(method, COMPARE_METRICS)
   args <- as.list(environment())
+
+  ## Fail fast on output.report misuse, before any comparison work.
+  if (!missing(output.report)) {
+    .cr_check_output(output.report)
+    if (missing(compare.to))
+      stop("`output.report` requires `compare.to` to be set; for all-vs-all ",
+           "output see motif_tree().", call. = FALSE)
+    for (pkg in c("knitr", "rmarkdown"))
+      if (!requireNamespace(pkg, quietly = TRUE))
+        stop("`output.report` requires the '", pkg, "' package.",
+             call. = FALSE)
+  }
   all_checks <- character(0)
   char_check <- check_fun_params(list(use.type = args$use.type,
                                       method = args$method,
@@ -413,12 +428,16 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
     comparisons@metadata <- args[-1]
 
     if (!missing(output.report)) {
-      passed <- tryCatch(compare_motifs_reporter(fun.call, comparisons,
-                                                 output.report,
-                                                 output.report.max.print, args),
-                         error = function(e) FALSE)
-      if (isFALSE(passed))
-        warning("! Failed to generate output report", immediate. = TRUE)
+      passed <- tryCatch(
+        compare_report_from_v1(fun.call, comparisons, motifs, mot.names,
+                               mot.mats, mot.bkgs, mot.nsites, alph, args,
+                               sort(unique(as.integer(comps[[1]]))),
+                               output.report, output.report.max.print),
+        error = function(e) {
+          warning("Failed to generate output report: ", conditionMessage(e),
+                  immediate. = TRUE, call. = FALSE)
+          FALSE
+        })
     }
 
   }
@@ -489,97 +508,5 @@ compare_motifs_all <- function(mot.mats, method, min.overlap, RC, min.mean.ic,
   n <- length(mot.mats)
   comp <- comb2_cpp(n)
   get_comparison_matrix(unlist(ans), comp[[1]], comp[[2]], method, mot.names)
-
-}
-
-compare_motifs_reporter <- function(fun.call, res, output, max.print, args) {
-
-  motifs <- args$motifs
-
-  if (max.print > nrow(res)) max.print <- nrow(res)
-
-  which.m <- c(as.vector(res[seq_len(max.print), 2]),
-               as.vector(res[seq_len(max.print), 4]))
-  motifs <- motifs[which.m]
-
-  f <- tempfile(fileext = ".Rmd")
-  on.exit(unlink(f), add = TRUE)
-
-  m <- tempfile(fileext = ".RDS")
-  on.exit(unlink(m), add = TRUE)
-
-  saveRDS(motifs, m)
-
-  out <- c("---",
-           "title: universalmotif::compare_motifs() results",
-           paste0("date: ", Sys.time()),
-           "output: html_document",
-           "---",
-           "",
-           "```{r, echo=FALSE}",
-           "library(universalmotif)",
-           paste0("motifs <- readRDS('", m, "')"),
-           "```",
-           "",
-           "### Function call",
-           "",
-           paste0("`", deparse(fun.call), "`"),
-           "",
-           "```{r, eval=FALSE}",
-           strsplit(as.yaml(args[-(1:4)]), "\n", fixed = TRUE)[[1]],
-           "```",
-           "")
-
-  passed <- TRUE
-
-  if (requireNamespace("knitr", quietly = TRUE)) {
-
-    for (i in seq_len(max.print)) {
-      if (motifs[[i]]@name == motifs[[i + max.print]]@name)
-        motifs[[i + max.print]]@name <- paste(motifs[[i + max.print]]@name, "(duplicated)")
-      out <- c(out,
-               "---",
-               "",
-               paste0("## ", i, ": ", motifs[[i]]@name, " [", as.vector(res[i, 2]),
-                      "]", " -- ", motifs[[i + max.print]]@name, " [",
-                      as.vector(res[i, 4]), "]"),
-               "",
-               paste0("**Score:** ", as.vector(res[i, 5])),
-               "",
-               paste0("**logP-value:** ", as.vector(res[i, 6])),
-               "",
-               paste0("**P-value:** ", as.vector(res[i, 7])),
-               "",
-               paste0("**E-value:** ", as.vector(res[i, 8])),
-               "",
-               "```{r, echo=FALSE, out.height=2}",
-               paste0("view_motifs(motifs[c(", i, ",", i + max.print, ")],",
-                      "method='", args$method, "',", "tryRC=", args$tryRC, ",",
-                      "min.overlap=", args$min.overlap, ",", "min.mean.ic=",
-                      args$min.mean.ic, ",relative_entropy=", args$relative_entropy,
-                      ",normalise.scores=", args$normalise.scores, ",min.position.ic=",
-                      args$min.position.ic, ",score.strat='", args$score.strat, "')"),
-               "```",
-               "")
-    }
-
-  } else {
-    warning("knitr is required to generate results report", immediate. = TRUE)
-    passed <- FALSE
-  }
-
-  writeLines(out, f)
-
-  if (passed) {
-    if (requireNamespace("rmarkdown", quietly = TRUE)) {
-      rmarkdown::render(f, output_file = basename(output),
-                        output_dir = dirname(output), quiet = TRUE)
-    } else {
-      warning("rmarkdown is required to generate results report", immediate. = TRUE)
-      passed <- FALSE
-    }
-  }
-
-  passed
 
 }

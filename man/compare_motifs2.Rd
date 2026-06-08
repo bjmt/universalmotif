@@ -6,7 +6,8 @@
 \usage{
 compare_motifs2(motifs, compare.to = NULL, qvalue = 0.1,
   min.overlap = 5L, RC = TRUE, null = c("empirical", "parametric"),
-  bkg = NULL, matrix.out = c("score", "pvalue", "qvalue"), nthreads = 1)
+  bkg = NULL, matrix.out = c("score", "pvalue", "qvalue"), nthreads = 1,
+  output.report, output.report.max.print = 10)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or
@@ -42,6 +43,16 @@ Ignored in long-format mode.}
 
 \item{nthreads}{\code{numeric(1)}. Number of threads. \code{nthreads = 0} uses
 all available threads.}
+
+\item{output.report}{\code{character(1)}. Path (ending in \code{.html}) for a
+self-contained HTML report of the matches: a summary header, a sortable
+results table (query, target, offset, strand, overlap, score, P/q-value),
+and a query-vs-target sequence-logo alignment per top match. Requires
+\code{compare.to} to be set and the \code{knitr} and \code{rmarkdown} packages (plus
+pandoc). Only meaningful in long-format mode.}
+
+\item{output.report.max.print}{\code{numeric(1)}. Maximum number of top matches
+to show in the report (table and figures). Default \code{10}.}
 }
 \value{
 \itemize{

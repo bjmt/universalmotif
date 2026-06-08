@@ -59,6 +59,14 @@
 #'   Ignored in long-format mode.
 #' @param nthreads `numeric(1)`. Number of threads. `nthreads = 0` uses
 #'   all available threads.
+#' @param output.report `character(1)`. Path (ending in `.html`) for a
+#'   self-contained HTML report of the matches: a summary header, a sortable
+#'   results table (query, target, offset, strand, overlap, score, P/q-value),
+#'   and a query-vs-target sequence-logo alignment per top match. Requires
+#'   `compare.to` to be set and the `knitr` and `rmarkdown` packages (plus
+#'   pandoc). Only meaningful in long-format mode.
+#' @param output.report.max.print `numeric(1)`. Maximum number of top matches
+#'   to show in the report (table and figures). Default `10`.
 #'
 #' @return
 #' - **Matrix mode** (`compare.to = NULL`): a square numeric matrix
@@ -102,12 +110,28 @@ compare_motifs2 <- function(motifs,
                             null          = c("empirical", "parametric"),
                             bkg           = NULL,
                             matrix.out    = c("score", "pvalue", "qvalue"),
-                            nthreads      = 1) {
+                            nthreads      = 1,
+                            output.report,
+                            output.report.max.print = 10) {
+
+  fun.call <- match.call()
 
   ## --- arg validation -------------------------------------------------
   if (missing(motifs)) stop("`motifs` is required", call. = FALSE)
   null       <- match.arg(null)
   matrix.out <- match.arg(matrix.out)
+
+  ## Fail fast on output.report misuse, before any comparison work.
+  if (!missing(output.report)) {
+    .cr_check_output(output.report)
+    if (is.null(compare.to))
+      stop("`output.report` requires `compare.to` to be set; for all-vs-all ",
+           "output see motif_tree().", call. = FALSE)
+    for (pkg in c("knitr", "rmarkdown"))
+      if (!requireNamespace(pkg, quietly = TRUE))
+        stop("`output.report` requires the '", pkg, "' package.",
+             call. = FALSE)
+  }
 
   if (!is.numeric(qvalue) || length(qvalue) != 1L || is.na(qvalue) ||
       qvalue <= 0 || qvalue > 1)
@@ -299,5 +323,17 @@ compare_motifs2 <- function(motifs,
                    "offset", "strand", "overlap",
                    "score", "subject.consensus", "target.consensus",
                    "pvalue", "qvalue")]
+
+  if (!missing(output.report)) {
+    tryCatch(
+      compare_report_from_v2(fun.call, long, motifs, mot.names,
+                             list(RC = RC, null = null, qvalue = qvalue,
+                                  min.overlap = min.overlap),
+                             qix, output.report, output.report.max.print),
+      error = function(e)
+        warning("Failed to generate output report: ", conditionMessage(e),
+                immediate. = TRUE, call. = FALSE))
+  }
+
   long
 }
