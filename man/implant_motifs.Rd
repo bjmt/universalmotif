@@ -107,8 +107,9 @@ truth <- res$indices
 ## Recover-rate check
 hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
                        threshold.type = "logodds")
-## Density check
-peaks <- motif_peaks(out, motif = ArabidopsisMotif)
+## Positional density of the recovered hits (qvalue = 1 keeps the
+## motif even when, as here, the implants are placed uniformly)
+peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
 plot_motif_peaks(peaks)
 }
 

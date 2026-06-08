@@ -5,8 +5,8 @@
 \title{CentriMo-style positional enrichment of motif hits.}
 \usage{
 motif_peaks(hits, seq.length = NULL, mode = c("central", "local"),
-  qvalue = 0.1, min.window = 10L, max.window = NULL, window.step = 10L,
-  position.step = 5L, nthreads = 1)
+  seq.strand = NULL, qvalue = 0.1, min.window = 10L, max.window = NULL,
+  window.step = 10L, position.step = 5L, nthreads = 1)
 }
 \arguments{
 \item{hits}{Motif hit table from \code{\link[=scan_sequences]{scan_sequences()}} or
@@ -25,6 +25,18 @@ sequences (in bases). Required for \code{data.frame} input. For
 \item{mode}{\code{character(1)}. \code{"central"} (default) tests only
 centre-of-sequence windows; \code{"local"} also varies the window
 centre across the sequence.}
+
+\item{seq.strand}{\code{NULL} or a named \code{character} vector mapping each
+sequence id (the \code{sequence} / \code{seqnames()} values in \code{hits}) to
+\code{"+"} or \code{"-"}. When supplied, hit positions on \code{"-"} sequences are
+reflected into the feature 5'->3' frame (\code{seq.length + 1 - center}),
+so that off-centre signals at the same feature-relative position
+reinforce across strands instead of splitting into mirror-image
+peaks. This only changes \code{mode = "local"} results; \code{mode = "central"} is symmetric about the centre and so is unaffected (the
+reflection is still applied, so the reported positions read in
+feature frame). Unnecessary when sequences were extracted with
+\code{\link[Biostrings:getSeq]{Biostrings::getSeq()}} from stranded ranges, since those are already
+oriented. Default \code{NULL} (strand-agnostic, the original behaviour).}
 
 \item{qvalue}{\code{numeric(1)}. BH-adjusted q-value cutoff for the
 final reported motifs. Default \code{0.1}. Set to \code{1} to return every
@@ -78,6 +90,7 @@ not enforce centring on a biological reference, but its results are
 only meaningful if such centring is in place upstream.
 }
 \examples{
+## Pre-centred sequences (e.g. ChIP-seq peaks centred on their summit):
 \dontrun{
 library(universalmotif)
 library(Biostrings)
@@ -91,6 +104,41 @@ for (i in seq_len(150)) {
 m <- create_motif("TTGACATA", name = "test")
 hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 motif_peaks(hits)
+}
+
+## Enrichment near a set of genomic coordinates. Given point
+## coordinates in a genome (peak summits, TSSs, SNPs, and so on),
+## expand each to a fixed-width window centred on the coordinate and
+## scan those windows. "Enriched near the anchor" is then exactly the
+## central hypothesis motif_peaks() already tests, so nothing beyond
+## extracting the windows is required.
+\dontrun{
+library(universalmotif)
+library(GenomicRanges)
+library(BSgenome.Athaliana.TAIR.TAIR9)
+
+## A set of anchor coordinates (here, arbitrary points on Chr1).
+anchors <- GRanges("Chr1",
+                   IRanges(start = seq(1e5, 5e5, by = 1e4), width = 1))
+
+## Expand to fixed 500 bp windows centred on each anchor. The
+## equal-width filter matters because motif_peaks() compares positions
+## across sequences, so a window clipped at a chromosome end would
+## misplace its centre. For stranded anchors (e.g. TSSs), give
+## `anchors` a strand and getSeq() will orient each window
+## consistently up- or downstream of the anchor.
+windows <- resize(anchors, width = 500, fix = "center")
+windows <- trim(windows)
+windows <- windows[width(windows) == 500]
+
+seqs <- getSeq(Athaliana, windows)
+names(seqs) <- paste0("anchor_", seq_along(seqs))
+
+m    <- create_motif("TTGACATA", name = "example")
+hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+## seq.length is inferred from seqlengths() here, but pass it
+## explicitly when the hit table doesn't carry equal seqlengths.
+motif_peaks(hits, seq.length = 500)
 }
 
 }

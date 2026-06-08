@@ -35,6 +35,18 @@
 #' @param mode `character(1)`. `"central"` (default) tests only
 #'   centre-of-sequence windows; `"local"` also varies the window
 #'   centre across the sequence.
+#' @param seq.strand `NULL` or a named `character` vector mapping each
+#'   sequence id (the `sequence` / `seqnames()` values in `hits`) to
+#'   `"+"` or `"-"`. When supplied, hit positions on `"-"` sequences are
+#'   reflected into the feature 5'->3' frame (`seq.length + 1 - center`),
+#'   so that off-centre signals at the same feature-relative position
+#'   reinforce across strands instead of splitting into mirror-image
+#'   peaks. This only changes `mode = "local"` results; `mode =
+#'   "central"` is symmetric about the centre and so is unaffected (the
+#'   reflection is still applied, so the reported positions read in
+#'   feature frame). Unnecessary when sequences were extracted with
+#'   [Biostrings::getSeq()] from stranded ranges, since those are already
+#'   oriented. Default `NULL` (strand-agnostic, the original behaviour).
 #' @param qvalue `numeric(1)`. BH-adjusted q-value cutoff for the
 #'   final reported motifs. Default `0.1`. Set to `1` to return every
 #'   motif.
@@ -65,6 +77,7 @@
 #' \doi{10.1093/nar/gks433}.
 #'
 #' @examples
+#' ## Pre-centred sequences (e.g. ChIP-seq peaks centred on their summit):
 #' \dontrun{
 #' library(universalmotif)
 #' library(Biostrings)
@@ -80,11 +93,47 @@
 #' motif_peaks(hits)
 #' }
 #'
+#' ## Enrichment near a set of genomic coordinates. Given point
+#' ## coordinates in a genome (peak summits, TSSs, SNPs, and so on),
+#' ## expand each to a fixed-width window centred on the coordinate and
+#' ## scan those windows. "Enriched near the anchor" is then exactly the
+#' ## central hypothesis motif_peaks() already tests, so nothing beyond
+#' ## extracting the windows is required.
+#' \dontrun{
+#' library(universalmotif)
+#' library(GenomicRanges)
+#' library(BSgenome.Athaliana.TAIR.TAIR9)
+#'
+#' ## A set of anchor coordinates (here, arbitrary points on Chr1).
+#' anchors <- GRanges("Chr1",
+#'                    IRanges(start = seq(1e5, 5e5, by = 1e4), width = 1))
+#'
+#' ## Expand to fixed 500 bp windows centred on each anchor. The
+#' ## equal-width filter matters because motif_peaks() compares positions
+#' ## across sequences, so a window clipped at a chromosome end would
+#' ## misplace its centre. For stranded anchors (e.g. TSSs), give
+#' ## `anchors` a strand and getSeq() will orient each window
+#' ## consistently up- or downstream of the anchor.
+#' windows <- resize(anchors, width = 500, fix = "center")
+#' windows <- trim(windows)
+#' windows <- windows[width(windows) == 500]
+#'
+#' seqs <- getSeq(Athaliana, windows)
+#' names(seqs) <- paste0("anchor_", seq_along(seqs))
+#'
+#' m    <- create_motif("TTGACATA", name = "example")
+#' hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+#' ## seq.length is inferred from seqlengths() here, but pass it
+#' ## explicitly when the hit table doesn't carry equal seqlengths.
+#' motif_peaks(hits, seq.length = 500)
+#' }
+#'
 #' @seealso [scan_sequences2()], [plot_motif_peaks()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 motif_peaks <- function(hits, seq.length = NULL,
                         mode = c("central", "local"),
+                        seq.strand = NULL,
                         qvalue = 0.1,
                         min.window = 10L, max.window = NULL,
                         window.step = 10L, position.step = 5L,
@@ -112,6 +161,14 @@ motif_peaks <- function(hits, seq.length = NULL,
   norm <- normalize_motif_peaks_input(hits, seq.length)
   hits.df    <- norm$hits         # cols: motif, sequence, center, score
   seq.length <- norm$seq.length
+
+  ## Orient '-'-strand sequences into the feature 5'->3' frame. Only
+  ## affects mode = "local" (central is symmetric), but applied either way
+  ## so reported positions read in feature frame.
+  if (!is.null(seq.strand))
+    hits.df$center <- reflect_neg_strand_centers(hits.df$sequence,
+                                                 hits.df$center,
+                                                 seq.length, seq.strand)
 
   if (is.null(max.window))
     max.window <- floor(seq.length / 2)
@@ -356,6 +413,29 @@ normalize_motif_peaks_input <- function(hits, seq.length) {
     stop("`seq.length` must be a single integer >= 2", call. = FALSE)
 
   list(hits = df, seq.length = as.integer(seq.length))
+}
+
+## Reflect hit centres on '-'-strand sequences into the feature 5'->3'
+## frame so up/downstream is consistent across strands. `seq.strand` is a
+## named vector (sequence id -> "+"/"-") covering every sequence in `df`.
+reflect_neg_strand_centers <- function(sequence, center, seq.length,
+                                       seq.strand) {
+  if (is.null(names(seq.strand)))
+    stop("`seq.strand` must be a named vector mapping sequence ids to ",
+         "\"+\"/\"-\"", call. = FALSE)
+  sv <- as.character(seq.strand)
+  names(sv) <- names(seq.strand)
+  miss <- setdiff(unique(sequence), names(sv))
+  if (length(miss))
+    stop("`seq.strand` is missing entries for sequence(s): ",
+         paste(utils::head(miss, 5L), collapse = ", "),
+         if (length(miss) > 5L) ", ..." else "", call. = FALSE)
+  s <- sv[sequence]
+  if (!all(s %in% c("+", "-")))
+    stop("`seq.strand` values must be \"+\" or \"-\"", call. = FALSE)
+  neg <- s == "-"
+  center[neg] <- seq.length + 1 - center[neg]
+  center
 }
 
 ## Keep only the highest-score hit per (motif, sequence) pair.

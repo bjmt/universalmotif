@@ -194,3 +194,74 @@ test_that("plot_motif_peaks() errors cleanly on a 0-row peaks input", {
   empty <- universalmotif:::empty_peaks_result()
   expect_error(plot_motif_peaks(empty), regexp = "0 rows")
 })
+
+## Plant a motif at a feature-frame-downstream position across mixed-strand
+## features: '+' features get it at center + off, '-' features at the mirror
+## (center - off) so that, after strand orientation, all align at center + off.
+plant_oriented <- function(seqs, motif_str, n, strand_map, center, off,
+                           rng.seed = 3) {
+  set.seed(rng.seed)
+  w  <- nchar(motif_str)
+  ds <- as(motif_str, "DNAString")
+  for (i in seq_len(n)) {
+    pos <- if (strand_map[i] == "+") center + off else center - off
+    pos <- pos + sample(-3:3, 1)
+    pos <- max(1L, min(length(seqs[[i]]) - w + 1L, pos))
+    Biostrings::subseq(seqs[[i]], start = pos, width = w) <- ds
+  }
+  seqs
+}
+
+test_that("seq.strand orients local mode (mirror peaks merge into one)", {
+  set.seed(1)
+  L <- 400L; n <- 200L
+  seqs <- create_sequences(seqnum = n, seqlen = L, rng.seed = 1)
+  smap <- rep(c("+", "-"), length.out = n)
+  seqs <- plant_oriented(seqs, "TTGACATA", n = 150, strand_map = smap,
+                         center = L %/% 2L, off = 60L)
+  m <- create_motif("TTGACATA", name = "x")
+  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+
+  sn <- GenomeInfoDb::seqlevels(hits)
+  ss <- setNames(smap[seq_along(sn)], sn)
+
+  r_no <- motif_peaks(hits, mode = "local", qvalue = 1)
+  r_st <- motif_peaks(hits, mode = "local", seq.strand = ss, qvalue = 1)
+
+  ## With orientation, the planted hits align downstream of centre and the
+  ## peak is both more central-frame correct and far more significant.
+  expect_lt(r_st$pvalue, r_no$pvalue)
+  expect_gt(r_st$hits.in, r_no$hits.in)
+  expect_lt(abs(r_st$best.center - (L %/% 2L + 60L)), 25)
+})
+
+test_that("seq.strand does not change central-mode p-values", {
+  set.seed(1)
+  L <- 400L; n <- 120L
+  seqs <- create_sequences(seqnum = n, seqlen = L, rng.seed = 1)
+  smap <- rep(c("+", "-"), length.out = n)
+  seqs <- plant_oriented(seqs, "TTGACATA", n = 90, strand_map = smap,
+                         center = L %/% 2L, off = 50L)
+  m <- create_motif("TTGACATA", name = "x")
+  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  sn <- GenomeInfoDb::seqlevels(hits)
+  ss <- setNames(smap[seq_along(sn)], sn)
+
+  c0 <- motif_peaks(hits, mode = "central", qvalue = 1)
+  c1 <- motif_peaks(hits, mode = "central", seq.strand = ss, qvalue = 1)
+  expect_equal(c0$pvalue, c1$pvalue)
+})
+
+test_that("seq.strand errors on missing / invalid entries", {
+  set.seed(1)
+  seqs <- create_sequences(seqnum = 20, seqlen = 300, rng.seed = 1)
+  seqs <- plant_centred(seqs, "TTGACATA", n = 15, target_center = 150L)
+  m <- create_motif("TTGACATA", name = "x")
+  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  sn <- GenomeInfoDb::seqlevels(hits)
+  ss <- setNames(rep("+", length(sn)), sn)
+
+  expect_error(motif_peaks(hits, seq.strand = ss[-1]), regexp = "missing")
+  bad <- ss; bad[1] <- "?"
+  expect_error(motif_peaks(hits, seq.strand = bad), regexp = "\\+")
+})

@@ -63,6 +63,7 @@ Collate:
     'motif_coocc.R'
     'motif_finder.R'
     'motif_peaks.R'
+    'motif_proximity.R'
     'motif_pvalue.R'
     'motif_rc.R'
     'motif_tree.R'

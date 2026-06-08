@@ -284,8 +284,9 @@ head(truth)
 ## Quantify recovery
 hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
                        threshold.type = "logodds")
-## Visualise positional density
-peaks <- motif_peaks(out, motif = ArabidopsisMotif)
+## Visualise positional density (qvalue = 1 keeps the motif even when,
+## as here, the implants are placed uniformly)
+peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
 plot_motif_peaks(peaks)
 ```
 
@@ -870,6 +871,110 @@ The input is polymorphic: `motif_peaks()` will accept either a
 `seqlengths()` set (which `scan_sequences2()` does for you
 automatically), `seq.length` is inferred; otherwise you will need to
 pass it explicitly.
+
+## Proximity enrichment with `motif_proximity()`
+
+`motif_peaks()` assumes equal-length sequences centred on a reference
+position. When you instead have motif hits scattered across whole
+chromosomes together with a set of *anchor* coordinates (peak summits,
+TSSs, SNPs, or another factor's binding sites), `motif_proximity()`
+tests whether the hits sit closer to those anchors than chance. It is
+the genome-wide sibling of `motif_peaks()`, sharing the same binomial
+engine but measuring distance to the nearest anchor rather than position
+within a fixed window.
+
+Three null models are available through `method`:
+
+- `"binomial"` (default): for each candidate distance `d`, the fraction
+  of the scanned genome lying within `d` of an anchor is the success
+  probability of a binomial test on the hit count. This is fast, but the
+  uniform-hit null cannot correct for composition bias.
+- `"permutation"`: the anchors (not the hits) are randomised within the
+  scanned genome to build an empirical null. Because the real hits stay
+  fixed, this absorbs composition and mappability bias, and so it is the
+  method to prefer when such bias is plausible. Call `set.seed()`
+  beforehand for reproducible p-values.
+- `"ks"`: a threshold-free Kolmogorov-Smirnov test of the per-hit
+  distance-to-nearest-anchor against its analytical null.
+
+`count = "hits"` (the default) collapses overlapping hits of a motif to
+one representative before counting hits near anchors, whereas
+`count = "anchors"` instead counts the fraction of anchors that have a
+nearby hit.
+
+You can supply a hit table directly, or let `motif_proximity()` scan for
+you by passing `motifs` and `sequences` (an `XStringSet`, or a
+`BSgenome`, in which case only the chromosomes carrying anchors are
+scanned):
+
+```{r, eval = FALSE}
+library(universalmotif)
+library(Biostrings)
+library(GenomicRanges)
+
+## Treat three created sequences as small chromosomes of unequal length.
+set.seed(1)
+chrs <- c(create_sequences(seqnum = 1, seqlen = 6000, rng.seed = 1),
+          create_sequences(seqnum = 1, seqlen = 4000, rng.seed = 2),
+          create_sequences(seqnum = 1, seqlen = 3000, rng.seed = 3))
+names(chrs) <- paste0("chr", 1:3)
+
+## Plant a motif a few bp downstream of a set of anchors on chr1.
+anchor.pos <- seq(500, 5500, by = 250)
+planted <- DNAString("TTGACATA")
+for (p in anchor.pos)
+  subseq(chrs[["chr1"]], start = p + 5L, width = 8) <- planted
+anchors <- GRanges("chr1", IRanges(anchor.pos, width = 1), strand = "+")
+
+m <- create_motif("TTGACATA", name = "anchored")
+
+## Either pass a hit table ...
+hits <- scan_sequences2(m, chrs, pvalue = 1e-3, return.granges = TRUE)
+motif_proximity(hits, anchors)
+
+## ... or let motif_proximity() scan internally (scan.pvalue mirrors the
+## pvalue used above, so the two calls are equivalent).
+motif_proximity(motifs = m, sequences = chrs, anchors = anchors,
+                scan.pvalue = 1e-3)
+```
+
+The universe (the null support) defaults to the whole chromosomes implied
+by `seqlengths(hits)`, and only chromosomes carrying at least one anchor
+are kept. For masked or partial scans, pass the scanned regions
+explicitly through `universe`; otherwise the within-distance fraction is
+overstated and the test becomes anti-conservative.
+
+Anchor width matters as much as their positions. The near zone is each
+anchor widened by the distance on either side, so wide anchors enlarge
+the within-distance fraction, drive the enrichment toward one, and
+collapse a hit's distance to zero whenever it falls inside the region. If
+the question is enrichment near a point (summits, TSSs, SNPs), use 1 bp
+anchors and reduce regions to their reference position first, for example
+`resize(peaks, width = 1, fix = "center")` or the called summit. Feeding
+raw, wide peaks instead can silently gut the test even when the signal is
+strong. Keep regions only when you genuinely mean "within or around these
+intervals", and then choose `dist.thresholds` relative to their width.
+
+Because the anchors are a `GRanges`, their strand can drive a directional
+test. With stranded anchors such as TSSs, `orientation = "upstream"` or
+`"downstream"` builds a strand-aware one-sided zone, so a motif enriched
+downstream of the feature is distinguished from one enriched upstream
+(the motif above was planted downstream of the `+` anchors):
+
+```{r, eval = FALSE}
+motif_proximity(hits, anchors, orientation = "downstream")
+motif_proximity(hits, anchors, orientation = "upstream")
+```
+
+`plot_motif_proximity()` shows the per-hit distances to the nearest
+anchor, faceted by motif, with the most-enriched zone shaded. When the
+anchors are stranded the distances are signed, so upstream and downstream
+fall on opposite sides of zero:
+
+```{r, eval = FALSE}
+res <- motif_proximity(hits, anchors)
+plot_motif_proximity(res)
+```
 
 ## Fixed and variable-length gapped motifs
 
