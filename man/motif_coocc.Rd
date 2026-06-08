@@ -5,8 +5,9 @@
 \title{Find significantly co-occurring motif pairs in a set of sequences.}
 \usage{
 motif_coocc(motifs, sequences = NULL, hits = NULL, n.sequences = NULL,
-  pvalue = 1e-04, RC = TRUE, max.distance = NULL, min.coocc = 1L,
-  pseudocount = 0L, self.pairs = FALSE, nthreads = 1L)
+  pvalue = 1e-04, RC = TRUE, no.overlaps = FALSE,
+  no.overlaps.by = c("pvalue", "score"), max.distance = NULL,
+  min.coocc = 1L, pseudocount = 0L, self.pairs = FALSE, nthreads = 1L)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats.
@@ -30,6 +31,23 @@ internal scan. Default \code{1e-4}. Ignored on the hit-table path.}
 
 \item{RC}{\code{logical(1)}. Scan the reverse complement too? Default
 \code{TRUE}. Ignored when a hits table is provided.}
+
+\item{no.overlaps}{\code{logical(1)}. Passed to \code{\link[=scan_sequences2]{scan_sequences2()}} on the
+internal-scan path: if \code{TRUE}, overlapping hits of the \emph{same} motif
+are collapsed to one (greedy; see \code{\link[=dedup_hits]{dedup_hits()}}) before
+co-occurrence is computed. This does not change the presence-based
+Fisher test (a sequence either contains a motif or not, however many
+overlapping copies it has), so it only affects the descriptive
+spatial columns reported under \code{max.distance}, where it stops
+tandem/overlapping matches of one motif being counted as separate
+instances. Overlaps \emph{between} the two motifs of a pair are always
+kept, so heterodimer footprints are preserved. Ignored (with a
+warning) when a precomputed \code{hits} table is supplied. Default
+\code{FALSE}.}
+
+\item{no.overlaps.by}{\code{character(1)}. Tie-break priority when
+\code{no.overlaps = TRUE}: \code{"pvalue"} (default) keeps the lowest-p hit,
+\code{"score"} the highest-scoring. Passed to \code{\link[=scan_sequences2]{scan_sequences2()}}.}
 
 \item{max.distance}{\code{integer(1)} or \code{NULL}. If non-\code{NULL}, two
 extra descriptive columns are added to the output:

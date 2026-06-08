@@ -43,6 +43,21 @@
 #'   internal scan. Default `1e-4`. Ignored on the hit-table path.
 #' @param RC `logical(1)`. Scan the reverse complement too? Default
 #'   `TRUE`. Ignored when a hits table is provided.
+#' @param no.overlaps `logical(1)`. Passed to [scan_sequences2()] on the
+#'   internal-scan path: if `TRUE`, overlapping hits of the *same* motif
+#'   are collapsed to one (greedy; see [dedup_hits()]) before
+#'   co-occurrence is computed. This does not change the presence-based
+#'   Fisher test (a sequence either contains a motif or not, however many
+#'   overlapping copies it has), so it only affects the descriptive
+#'   spatial columns reported under `max.distance`, where it stops
+#'   tandem/overlapping matches of one motif being counted as separate
+#'   instances. Overlaps *between* the two motifs of a pair are always
+#'   kept, so heterodimer footprints are preserved. Ignored (with a
+#'   warning) when a precomputed `hits` table is supplied. Default
+#'   `FALSE`.
+#' @param no.overlaps.by `character(1)`. Tie-break priority when
+#'   `no.overlaps = TRUE`: `"pvalue"` (default) keeps the lowest-p hit,
+#'   `"score"` the highest-scoring. Passed to [scan_sequences2()].
 #' @param max.distance `integer(1)` or `NULL`. If non-`NULL`, two
 #'   extra descriptive columns are added to the output:
 #'   `both.clustered` (subset of co-occurring sequences with a within-
@@ -114,6 +129,8 @@ motif_coocc <- function(motifs, sequences = NULL,
                         n.sequences  = NULL,
                         pvalue       = 1e-4,
                         RC           = TRUE,
+                        no.overlaps  = FALSE,
+                        no.overlaps.by = c("pvalue", "score"),
                         max.distance = NULL,
                         min.coocc    = 1L,
                         pseudocount  = 0L,
@@ -143,6 +160,12 @@ motif_coocc <- function(motifs, sequences = NULL,
     stop("`self.pairs` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(RC))
     stop("`RC` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(no.overlaps))
+    stop("`no.overlaps` must be a single logical", call. = FALSE)
+  no.overlaps.by <- match.arg(no.overlaps.by)
+  if (no.overlaps && !is.null(hits))
+    warning("`no.overlaps` only applies to the internal scan; it is ignored ",
+            "when a precomputed `hits` table is supplied.", call. = FALSE)
 
   ## --- normalise motifs ------------------------------------------------
   motifs <- convert_motifs(motifs)
@@ -160,6 +183,8 @@ motif_coocc <- function(motifs, sequences = NULL,
     ## Internal-scan path (DNA/RNA only -- enforced by scan_sequences2).
     hits <- scan_sequences2(motifs, sequences,
                             pvalue = pvalue, RC = RC,
+                            no.overlaps = no.overlaps,
+                            no.overlaps.by = no.overlaps.by,
                             nthreads = nthreads, return.granges = FALSE)
     n.sequences <- length(sequences)
     if (inherits(hits, "GRanges"))

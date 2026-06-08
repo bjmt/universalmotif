@@ -232,3 +232,39 @@ test_that("hits as GRanges round-trips correctly", {
                co_gr[, c("both","a_only","b_only","neither")])
 })
 
+
+test_that("no.overlaps leaves the presence-based test unchanged", {
+  ma <- make_fixed("ACGTACGTACGT", "A")
+  mb <- make_fixed("TGCATGCATGCA", "B")
+  s  <- make_seqs(80, 300, seed = 3)
+  s[1:40]  <- xscat(subseq(s[1:40], 1, 150),
+                    DNAStringSet(rep("ACGTACGTACGT", 40)),
+                    subseq(s[1:40], 151, 300 - 12))
+  s[1:40]  <- xscat(s[1:40], DNAStringSet(rep("TGCATGCATGCA", 40)))
+  co_f <- motif_coocc(list(ma, mb), s, pvalue = 1e-3, no.overlaps = FALSE)
+  co_t <- motif_coocc(list(ma, mb), s, pvalue = 1e-3, no.overlaps = TRUE)
+  ## Presence-based 2x2 and p-value are identical regardless of no.overlaps.
+  expect_equal(co_f[, c("both", "a_only", "b_only", "neither", "pvalue")],
+               co_t[, c("both", "a_only", "b_only", "neither", "pvalue")])
+})
+
+test_that("no.overlaps is rejected/warned on the precomputed-hits path", {
+  ma <- make_fixed("ACGTACGTACGT", "A")
+  mb <- make_fixed("TGCATGCATGCA", "B")
+  hits <- fake_hits(list(c(1L, 2L, 3L), c(2L, 3L, 4L)))
+  expect_warning(
+    motif_coocc(list(ma, mb), hits = hits, n.sequences = 5L,
+                no.overlaps = TRUE),
+    "only applies to the internal scan"
+  )
+})
+
+test_that("no.overlaps.by is validated", {
+  ma <- make_fixed("ACGTACGTACGT", "A")
+  mb <- make_fixed("TGCATGCATGCA", "B")
+  s  <- make_seqs(20, 200, seed = 5)
+  expect_error(
+    motif_coocc(list(ma, mb), s, no.overlaps = TRUE, no.overlaps.by = "nope"),
+    "should be one of"
+  )
+})

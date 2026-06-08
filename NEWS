@@ -160,7 +160,12 @@ NEW FEATURES
     accepted (AA, custom). Optional `max.distance` argument adds two
     descriptive columns (both.clustered, median.distance) useful for
     flagging heterodimer-like arrangements; the Fisher p-value is
-    always computed on the unfiltered 2x2. See ?motif_coocc.
+    always computed on the unfiltered 2x2. A `no.overlaps` argument
+    (default FALSE, with `no.overlaps.by`) forwards to scan_sequences2()
+    on the internal-scan path; since the test is presence-based it only
+    affects the spatial columns, deduplicating overlapping matches
+    within each motif while preserving between-motif overlaps. See
+    ?motif_coocc.
 
   o Added implant_motifs(): plant sampled motif instances into existing
     sequences at known positions, producing benchmark-grade ground-truth
