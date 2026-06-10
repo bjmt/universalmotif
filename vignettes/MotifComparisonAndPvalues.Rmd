@@ -541,7 +541,7 @@ motifs <- convert_motifs(MotifDb[1:10])
 motif_tree2(motifs, linecol = "none")
 ```
 
-Use `tiplogo = FALSE` to turn the logos off, or `tiplogo.align = FALSE` to draw each tip logo independently instead of aligned to a common frame. Tip logos are only drawn on the `"rectangular"` and `"slanted"` layouts. The machinery is also exposed directly as the `geom_motif()` and `geom_logo()` \pkg{ggplot2} layers (and the `annotate_motif()` / `annotate_logo()` annotation helpers), so logos can be embedded in any `ggplot` construction.
+Use `tiplogo = FALSE` to turn the logos off, or `tiplogo.align = FALSE` to draw each tip logo independently instead of aligned to a common frame. Tip logos are only drawn on the `"rectangular"` and `"slanted"` layouts. The machinery is also exposed directly as the `geom_motif()` and `geom_logo()` `ggplot2` layers (and the `annotate_motif()` / `annotate_logo()` annotation helpers), so logos can be embedded in any `ggplot` construction.
 
 # Motif P-values
 
