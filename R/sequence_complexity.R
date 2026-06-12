@@ -97,7 +97,7 @@
 #' ## You could also use this in conjuction with mask_ranges() to hide
 #' ## low complexity regions from scanning, de novo motif discovery, etc
 #'
-#' if (requireNamespace("GenomicRanges", quiet = TRUE)) {
+#' if (requireNamespace("GenomicRanges", quietly = TRUE)) {
 #' data(ArabidopsisPromoters)
 #'
 #' # Calculate complexity in 20 bp windows, sliding every 1 bp

@@ -453,7 +453,7 @@ proximity_get_sequences <- function(sequences, anchors) {
     if (!length(chrs))
       stop("none of the anchor seqnames are present in the genome",
            call. = FALSE)
-    seqs <- BSgenome::getSeq(sequences, names = chrs)
+    seqs <- Biostrings::getSeq(sequences, names = chrs)
     names(seqs) <- chrs
     seqs
   } else if (methods::is(sequences, "XStringSet")) {

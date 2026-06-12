@@ -104,7 +104,7 @@
 #' #######################################################################
 #' ## mask_ranges
 #' ## Mask arbitrary ranges
-#' if (requireNamespace("GenomicRanges", quiet = TRUE)) {
+#' if (requireNamespace("GenomicRanges", quietly = TRUE)) {
 #' ranges <- GenomicRanges::GRanges("A", IRanges::IRanges(1, 5))
 #' seq <- Biostrings::DNAStringSet(c(A = "ATGACTGATTACTTATA"))
 #' mask_ranges(seq, ranges, "-")

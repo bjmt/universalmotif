@@ -28,7 +28,7 @@ Imports: methods, stats, utils, parallel, MASS, ggplot2, yaml, IRanges, Rcpp,
 Suggests: spelling, knitr, bookdown, TFBSTools, rmarkdown, MotifDb, testthat,
     BiocParallel, seqLogo, motifStack, dplyr, ape, ggtree, processx,
     ggseqlogo, cowplot, GenomicRanges, GenomeInfoDb, ggbio, rtracklayer,
-    BSgenome.Athaliana.TAIR.TAIR9
+    BSgenome, BSgenome.Athaliana.TAIR.TAIR9
 Enhances: PWMEnrich, rGADEM
 LinkingTo: Rcpp, RcppThread
 VignetteBuilder: knitr
