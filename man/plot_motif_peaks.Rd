@@ -29,6 +29,21 @@ Companion to \code{\link[=motif_peaks]{motif_peaks()}}. Returns a \code{ggplot} 
 showing a histogram of best-hit centre positions and a shaded
 rectangle marking the most-enriched window.
 }
+\examples{
+library(Biostrings)
+set.seed(1)
+seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
+planted <- DNAString("TTGACATA")
+for (i in seq_len(150)) {
+  pos <- 246L + sample.int(8, 1) - 1L
+  subseq(seqs[[i]], start = pos, width = 8) <- planted
+}
+m <- create_motif("TTGACATA", name = "test")
+hits <- scan_sequences(m, seqs, threshold = 1e-3, threshold.type = "pvalue")
+peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
+plot_motif_peaks(peaks)
+
+}
 \seealso{
 \code{\link[=motif_peaks]{motif_peaks()}}
 }

@@ -15,4 +15,8 @@ A simple DNA motif with a non-empty \code{multifreq} slot.
 To recreate to this motif:
 \code{add_multifreq(examplemotif, DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3)))}
 }
+\examples{
+data(examplemotif2)
+examplemotif2
+}
 \keyword{datasets}

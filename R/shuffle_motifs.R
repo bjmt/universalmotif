@@ -16,6 +16,10 @@
 #' @return Motifs. See [convert_motifs()] for available output
 #'    formats.
 #'
+#' @examples
+#' motif <- create_motif("CARGTGNN", nsites = 100)
+#' motif.shuffled <- shuffle_motifs(motif, k = 2)
+#'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [shuffle_sequences()]
 #' @export

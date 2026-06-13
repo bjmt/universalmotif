@@ -86,7 +86,17 @@ See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison 
 \code{\link[=merge_motifs]{merge_motifs()}} for more info on motif merging.
 }
 \examples{
+## A clear cluster of three related motifs plus one unrelated motif:
+m1 <- create_motif("TTGACATA", name = "a")
+m2 <- create_motif("CTTGACAT", name = "b")
+m3 <- create_motif("GGGGCCCC", name = "c")
+motifs <- list(m1, m2, m3)
+length(motifs)
+motifs <- merge_similar(motifs)
+length(motifs)
+
 \dontrun{
+## Collapsing redundancy within a larger database:
 library(MotifDb)
 motifs <- filter_motifs(MotifDb, family = "bHLH")[1:50]
 length(motifs)

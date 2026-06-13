@@ -14,4 +14,8 @@ examplemotif
 A simple DNA motif. To recreate this motif:
 \code{create_motif("TATAWAW", nsites = numeric())}
 }
+\examples{
+data(examplemotif)
+examplemotif
+}
 \keyword{datasets}

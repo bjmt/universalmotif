@@ -75,15 +75,12 @@
 #' Euclidean / similarity metrics and arbitrary alphabets.
 #'
 #' @examples
-#' \dontrun{
-#' library(universalmotif)
 #' m1 <- create_motif("TTGACATA", name = "a")
 #' m2 <- create_motif("CTTGACAT", name = "b")
 #' m3 <- create_motif("TGACATAT", name = "c")
 #' view_motifs2(list(m1, m2, m3))
 #' view_motifs2(list(m1, m2, m3), sort.by = "similarity",
 #'              names.pos = "right")
-#' }
 #'
 #' @seealso [view_motifs()], [view_logo()], [compare_motifs2()],
 #'   [merge_motifs2()], [merge_similar2()]

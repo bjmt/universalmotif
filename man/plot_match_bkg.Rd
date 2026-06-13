@@ -41,6 +41,16 @@ sequence length; called with the \code{indices} data.frame from
 \code{match_bkg(..., return.indices = TRUE)} it plots every matched axis,
 including any covariates.
 }
+\examples{
+data(ArabidopsisPromoters)
+target   <- ArabidopsisPromoters[1:10]
+universe <- ArabidopsisPromoters[11:50]
+bkg <- match_bkg(target, universe, n.per.target = 2)
+
+## GC and length density of the target vs. its matched background:
+plot_match_bkg(target, bkg)
+
+}
 \seealso{
 \code{\link[=match_bkg]{match_bkg()}}
 }

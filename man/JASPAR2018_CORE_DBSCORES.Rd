@@ -23,4 +23,8 @@ randomized motifs of the specified
 universalmotif v1.4.0. The parameters used can be seen via
 \code{S4Vectors::metadata(JASPAR2018_CORE_DBSCORES)}.
 }
+\examples{
+data(JASPAR2018_CORE_DBSCORES)
+head(JASPAR2018_CORE_DBSCORES)
+}
 \keyword{datasets}

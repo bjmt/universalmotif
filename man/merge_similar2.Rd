@@ -80,8 +80,6 @@ becomes a single merged motif via \code{\link[=merge_motifs2]{merge_motifs2()}};
 (size == 1) pass through unchanged.
 }
 \examples{
-\dontrun{
-library(universalmotif)
 ## A clear cluster of 3 related motifs + 1 unrelated motif
 m1 <- create_motif("TTGACATA", name = "a")
 m2 <- create_motif("CTTGACAT", name = "b")
@@ -89,7 +87,6 @@ m3 <- create_motif("TGACATAT", name = "c")
 m4 <- create_motif("GGGCCCCC", name = "unrelated")
 merged <- merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05)
 length(merged)  # 2: one merged + the unrelated singleton
-}
 
 }
 \seealso{

@@ -116,8 +116,6 @@
 #' \doi{10.1016/j.molcel.2010.05.004}.
 #'
 #' @examples
-#' \dontrun{
-#' library(universalmotif)
 #' data(ArabidopsisPromoters)
 #' target   <- ArabidopsisPromoters[1:10]
 #' universe <- ArabidopsisPromoters[11:50]
@@ -137,6 +135,12 @@
 #'                  universe.covariates = data.frame(signal = sig.u),
 #'                  return.indices      = TRUE)
 #' plot_match_bkg(indices = idx)   # GC, length and signal panels
+#'
+#' \dontrun{
+#' ## With a BSgenome, sample the universe from random genomic windows
+#' ## whose widths match the targets:
+#' library(BSgenome.Athaliana.TAIR.TAIR9)
+#' bkg <- match_bkg(target, genome = Athaliana, n.per.target = 2)
 #' }
 #'
 #' @seealso [shuffle_sequences()], [enrich_motifs2()], [motif_finder()],
@@ -363,6 +367,15 @@ match_bkg <- function(sequences, universe = NULL,
 #'   inspected alongside GC and length. Default `NULL`.
 #'
 #' @return A `ggplot` object.
+#'
+#' @examples
+#' data(ArabidopsisPromoters)
+#' target   <- ArabidopsisPromoters[1:10]
+#' universe <- ArabidopsisPromoters[11:50]
+#' bkg <- match_bkg(target, universe, n.per.target = 2)
+#'
+#' ## GC and length density of the target vs. its matched background:
+#' plot_match_bkg(target, bkg)
 #'
 #' @seealso [match_bkg()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

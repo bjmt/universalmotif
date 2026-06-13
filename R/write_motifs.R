@@ -17,6 +17,10 @@
 #'
 #' @return `NULL`, invisibly.
 #'
+#' @examples
+#' motif <- create_motif("CARGTG", name = "MyMotif")
+#' write_motifs(motif, tempfile())
+#'
 #' @family write_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams write_jaspar

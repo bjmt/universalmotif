@@ -4,6 +4,9 @@
 #' `create_motif("TATAWAW", nsites = numeric())`
 #'
 #' @format [universalmotif-class]
+#' @examples
+#' data(examplemotif)
+#' examplemotif
 "examplemotif"
 
 #' Another example motif in `universalmotif` format.
@@ -13,6 +16,9 @@
 #' `add_multifreq(examplemotif, DNAStringSet(rep(c("CAAAACC", "CTTTTCC"), 3)))`
 #'
 #' @format [universalmotif-class]
+#' @examples
+#' data(examplemotif2)
+#' examplemotif2
 "examplemotif2"
 
 #' JASPAR2018 CORE database scores
@@ -30,6 +36,9 @@
 #' `S4Vectors::metadata(JASPAR2018_CORE_DBSCORES)`.
 #'
 #' @format `DataFrame` with function args in the `metadata` slot.
+#' @examples
+#' data(JASPAR2018_CORE_DBSCORES)
+#' head(JASPAR2018_CORE_DBSCORES)
 "JASPAR2018_CORE_DBSCORES"
 
 #' Arabidopsis promoters as a `DNAStringSet`.
@@ -40,6 +49,9 @@
 #' sequences.
 #'
 #' @format \code{\link{DNAStringSet}}
+#' @examples
+#' data(ArabidopsisPromoters)
+#' ArabidopsisPromoters
 "ArabidopsisPromoters"
 
 #' Arabidopsis motif in `universalmotif` format.
@@ -49,6 +61,9 @@
 #' the following command: `meme promoters.fa -revcomp -nmotifs 3  -mod anr -dna`.
 #'
 #' @format [universalmotif-class]
+#' @examples
+#' data(ArabidopsisMotif)
+#' ArabidopsisMotif
 "ArabidopsisMotif"
 
 #' Polygon coordinates for plotting letters.
@@ -58,4 +73,7 @@
 #' `gglogo` package for the font Roboto Medium.
 #'
 #' @format [DataFrame-class]
+#' @examples
+#' data(fontDFroboto)
+#' head(fontDFroboto)
 "fontDFroboto"

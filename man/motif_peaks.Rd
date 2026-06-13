@@ -91,8 +91,6 @@ only meaningful if such centring is in place upstream.
 }
 \examples{
 ## Pre-centred sequences (e.g. ChIP-seq peaks centred on their summit):
-\dontrun{
-library(universalmotif)
 library(Biostrings)
 set.seed(1)
 seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
@@ -102,9 +100,10 @@ for (i in seq_len(150)) {
   subseq(seqs[[i]], start = pos, width = 8) <- planted
 }
 m <- create_motif("TTGACATA", name = "test")
-hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
-motif_peaks(hits)
-}
+## scan_sequences() returns a table that motif_peaks() reads directly;
+## pass seq.length since the data.frame does not carry it.
+hits <- scan_sequences(m, seqs, threshold = 1e-3, threshold.type = "pvalue")
+motif_peaks(as.data.frame(hits), seq.length = 500)
 
 ## Enrichment near a set of genomic coordinates. Given point
 ## coordinates in a genome (peak summits, TSSs, SNPs, and so on),

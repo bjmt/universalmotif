@@ -89,7 +89,6 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
 #' library(ggplot2)
 #' data(examplemotif)
 #'
@@ -105,7 +104,6 @@
 #' tipdf <- data.frame(x = 0, y = c(1, 2), label = c("a", "b"))
 #' ggplot(tipdf, aes(x = x, y = y, motif = label)) +
 #'   geom_motif(motif = list(a = m1, b = m2), height = 0.8)
-#' }
 #'
 #' @seealso [view_motifs()], [view_logo()], [view_motifs2()], [motif_tree2()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

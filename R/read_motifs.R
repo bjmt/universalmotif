@@ -12,6 +12,12 @@
 #'
 #' @return `list` [universalmotif-class] objects.
 #'
+#' @examples
+#' motif <- create_motif("CARGTG", name = "MyMotif")
+#' tmp <- tempfile()
+#' write_motifs(motif, tmp)
+#' motif2 <- read_motifs(tmp)
+#'
 #' @family read_motifs
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams read_cisbp

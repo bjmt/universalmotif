@@ -15,4 +15,8 @@ fontDFroboto
 letters. It was generated using the \code{createPolygons} function from the
 \code{gglogo} package for the font Roboto Medium.
 }
+\examples{
+data(fontDFroboto)
+head(fontDFroboto)
+}
 \keyword{datasets}

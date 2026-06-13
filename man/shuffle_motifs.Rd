@@ -27,6 +27,11 @@ them as motifs of identical lengths as the input motifs.
 To instead shuffle motifs individually, call \code{\link[=shuffle_motifs]{shuffle_motifs()}}
 using \code{lapply()}.
 }
+\examples{
+motif <- create_motif("CARGTGNN", nsites = 100)
+motif.shuffled <- shuffle_motifs(motif, k = 2)
+
+}
 \seealso{
 \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 }

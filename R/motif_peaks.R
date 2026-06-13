@@ -78,8 +78,6 @@
 #'
 #' @examples
 #' ## Pre-centred sequences (e.g. ChIP-seq peaks centred on their summit):
-#' \dontrun{
-#' library(universalmotif)
 #' library(Biostrings)
 #' set.seed(1)
 #' seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
@@ -89,9 +87,10 @@
 #'   subseq(seqs[[i]], start = pos, width = 8) <- planted
 #' }
 #' m <- create_motif("TTGACATA", name = "test")
-#' hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
-#' motif_peaks(hits)
-#' }
+#' ## scan_sequences() returns a table that motif_peaks() reads directly;
+#' ## pass seq.length since the data.frame does not carry it.
+#' hits <- scan_sequences(m, seqs, threshold = 1e-3, threshold.type = "pvalue")
+#' motif_peaks(as.data.frame(hits), seq.length = 500)
 #'
 #' ## Enrichment near a set of genomic coordinates. Given point
 #' ## coordinates in a genome (peak summits, TSSs, SNPs, and so on),
@@ -248,6 +247,20 @@ motif_peaks <- function(hits, seq.length = NULL,
 #'   Default `"#ffe4a3"` (a pale yellow).
 #'
 #' @return A `ggplot` object.
+#'
+#' @examples
+#' library(Biostrings)
+#' set.seed(1)
+#' seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
+#' planted <- DNAString("TTGACATA")
+#' for (i in seq_len(150)) {
+#'   pos <- 246L + sample.int(8, 1) - 1L
+#'   subseq(seqs[[i]], start = pos, width = 8) <- planted
+#' }
+#' m <- create_motif("TTGACATA", name = "test")
+#' hits <- scan_sequences(m, seqs, threshold = 1e-3, threshold.type = "pvalue")
+#' peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
+#' plot_motif_peaks(peaks)
 #'
 #' @seealso [motif_peaks()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

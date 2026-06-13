@@ -27,6 +27,13 @@ Import motifs created from \code{\link[=write_motifs]{write_motifs()}}. For opti
 \code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based, but
 this is subject to change.
 }
+\examples{
+motif <- create_motif("CARGTG", name = "MyMotif")
+tmp <- tempfile()
+write_motifs(motif, tmp)
+motif2 <- read_motifs(tmp)
+
+}
 \seealso{
 Other read_motifs: 
 \code{\link{read_cisbp}()},

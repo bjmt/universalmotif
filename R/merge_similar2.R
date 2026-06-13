@@ -61,8 +61,6 @@
 #' (size == 1) pass through unchanged.
 #'
 #' @examples
-#' \dontrun{
-#' library(universalmotif)
 #' ## A clear cluster of 3 related motifs + 1 unrelated motif
 #' m1 <- create_motif("TTGACATA", name = "a")
 #' m2 <- create_motif("CTTGACAT", name = "b")
@@ -70,7 +68,6 @@
 #' m4 <- create_motif("GGGCCCCC", name = "unrelated")
 #' merged <- merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05)
 #' length(merged)  # 2: one merged + the unrelated singleton
-#' }
 #'
 #' @seealso [merge_similar()], [merge_motifs2()], [compare_motifs2()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}

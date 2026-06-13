@@ -334,6 +334,14 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o Fixed motif_tree2() tip logos not stacking letters by height. The
+    tip logos are drawn with geom_logo(), which takes bare matrices and
+    leaves their rows in the given order by default, so the letters at
+    each position appeared in alphabetical order rather than with the
+    tallest on top (the standard sequence-logo convention). motif_tree2()
+    now passes sort.positions = TRUE so the tallest letter is always on
+    top.
+
   o Fixed view_motifs() rendering of negative-height letter stacks of
     three or more letters (a PWM position with three or more negative
     log-odds letters). The internal stacking helper offset each letter

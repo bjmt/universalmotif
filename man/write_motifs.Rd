@@ -36,6 +36,11 @@ Write motifs as universalmotif objects to file. For optimal storage of
 \code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based, but
 this is subject to change.
 }
+\examples{
+motif <- create_motif("CARGTG", name = "MyMotif")
+write_motifs(motif, tempfile())
+
+}
 \seealso{
 Other write_motifs: 
 \code{\link{write_homer}()},

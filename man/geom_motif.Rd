@@ -132,7 +132,6 @@ ggplot(tipdf, aes(x = 0, y = y, motif = label)) +
 }
 }
 \examples{
-\dontrun{
 library(ggplot2)
 data(examplemotif)
 
@@ -148,7 +147,6 @@ m2 <- create_motif("GGGCGG", name = "b")
 tipdf <- data.frame(x = 0, y = c(1, 2), label = c("a", "b"))
 ggplot(tipdf, aes(x = x, y = y, motif = label)) +
   geom_motif(motif = list(a = m1, b = m2), height = 0.8)
-}
 
 }
 \seealso{

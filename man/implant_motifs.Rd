@@ -95,8 +95,6 @@ reverse-complements if needed, and (e) overwrites that span in the
 target sequence.
 }
 \examples{
-\dontrun{
-library(universalmotif)
 data(ArabidopsisMotif)
 seqs  <- create_sequences("DNA", seqnum = 100, seqlen = 500)
 set.seed(1)
@@ -111,7 +109,6 @@ hits <- scan_sequences(ArabidopsisMotif, out, threshold = 0.85,
 ## motif even when, as here, the implants are placed uniformly)
 peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
 plot_motif_peaks(peaks)
-}
 
 }
 \seealso{

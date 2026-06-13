@@ -16,4 +16,8 @@ ArabidopsisPromoters
 vignette for an example workflow describing extracting promoter
 sequences.
 }
+\examples{
+data(ArabidopsisPromoters)
+ArabidopsisPromoters
+}
 \keyword{datasets}

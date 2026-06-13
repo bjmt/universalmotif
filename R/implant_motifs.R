@@ -73,8 +73,6 @@
 #'   `strand == "-"`)).
 #'
 #' @examples
-#' \dontrun{
-#' library(universalmotif)
 #' data(ArabidopsisMotif)
 #' seqs  <- create_sequences("DNA", seqnum = 100, seqlen = 500)
 #' set.seed(1)
@@ -89,7 +87,6 @@
 #' ## motif even when, as here, the implants are placed uniformly)
 #' peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
 #' plot_motif_peaks(peaks)
-#' }
 #'
 #' @seealso [sample_sites()], [create_sequences()], [scan_sequences2()],
 #'   [motif_finder()], [motif_peaks()], [enrich_motifs2()]

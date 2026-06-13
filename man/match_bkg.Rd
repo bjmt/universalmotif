@@ -139,8 +139,6 @@ randomises each input in place (preserves k-let composition);
 \code{\link[=match_bkg]{match_bkg()}} instead samples real sequences from a larger pool.
 }
 \examples{
-\dontrun{
-library(universalmotif)
 data(ArabidopsisPromoters)
 target   <- ArabidopsisPromoters[1:10]
 universe <- ArabidopsisPromoters[11:50]
@@ -160,6 +158,12 @@ idx <- match_bkg(target, universe,
                  universe.covariates = data.frame(signal = sig.u),
                  return.indices      = TRUE)
 plot_match_bkg(indices = idx)   # GC, length and signal panels
+
+\dontrun{
+## With a BSgenome, sample the universe from random genomic windows
+## whose widths match the targets:
+library(BSgenome.Athaliana.TAIR.TAIR9)
+bkg <- match_bkg(target, genome = Athaliana, n.per.target = 2)
 }
 
 }

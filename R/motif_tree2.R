@@ -344,8 +344,13 @@ add_tip_logos <- function(p, motifs, mot_names, layout, tiplogo, tiplogo.align,
   }
   td$x0 <- max(td$x) + tiplogo.offset
 
+  ## The tip logos are ICM sequence logos, so within each position the
+  ## letters should be stacked tallest-on-top (the standard logo
+  ## convention). geom_logo() takes bare matrices and defaults to leaving
+  ## the rows in their given order, so ask it to sort the letters by height
+  ## here instead.
   p + geom_logo(aes(x = .data$x0, y = .data$y, motif = .data$label),
     data = td, logo = logos, inherit.aes = FALSE, width = tiplogo.width,
-    height = tiplogo.height, colour.scheme = cs)
+    height = tiplogo.height, colour.scheme = cs, sort.positions = TRUE)
 
 }
