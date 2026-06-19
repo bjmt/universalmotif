@@ -209,7 +209,7 @@ compare_motifs_lite <- function(motifs,
   pairs <- expand.grid(qi = qix, ti = tix, KEEP.OUT.ATTRS = FALSE)
 
   ## --- alignment scan --------------------------------------------------
-  al <- compare_motifs2_align_cpp(mot.mats,
+  al <- compare_motifs_lite_align_cpp(mot.mats,
                                   qi          = as.integer(pairs$qi),
                                   ti          = as.integer(pairs$ti),
                                   min_overlap = min.overlap,
@@ -220,14 +220,14 @@ compare_motifs_lite <- function(motifs,
   al$ti <- pairs$ti
 
   ## --- p-value (skip when caller only wants the score matrix) ----------
-  ## The best alignment is chosen by score in compare_motifs2_align_cpp
+  ## The best alignment is chosen by score in compare_motifs_lite_align_cpp
   ## (yamcmp.c:1310-1312); p-values are a post-hoc significance step on
   ## that already-chosen alignment. Matrix-mode `matrix.out = "score"`
   ## never reads `pvals` or `qvals`, so we can skip both calls entirely.
   need_pvals <- !matrix.mode || matrix.out != "score"
   if (need_pvals) {
     null_mode <- if (null == "empirical") 0L else 1L
-    pvals <- compare_motifs2_pvalue_cpp(
+    pvals <- compare_motifs_lite_pvalue_cpp(
       query_mats  = mot.mats,
       target_mats = mot.mats,
       qi          = as.integer(al$qi),
@@ -300,13 +300,13 @@ compare_motifs_lite <- function(motifs,
   )
 
   ## attach consensus strings (start is 0-based for the C++ helper)
-  long$subject.consensus <- compare_motifs2_consensus_cpp(
+  long$subject.consensus <- compare_motifs_lite_consensus_cpp(
     mot.mats,
     mot_i = as.integer(long$subject.i),
     start = as.integer(qstart_orig),
     len   = as.integer(L)
   )
-  long$target.consensus <- compare_motifs2_consensus_cpp(
+  long$target.consensus <- compare_motifs_lite_consensus_cpp(
     mot.mats,
     mot_i = as.integer(long$target.i),
     start = as.integer(t_start),

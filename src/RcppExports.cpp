@@ -288,9 +288,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compare_motifs2_align_cpp
-Rcpp::DataFrame compare_motifs2_align_cpp(const Rcpp::List& mots, const Rcpp::IntegerVector& qi, const Rcpp::IntegerVector& ti, const int min_overlap, const bool RC, const int nthreads);
-RcppExport SEXP _universalmotif_compare_motifs2_align_cpp(SEXP motsSEXP, SEXP qiSEXP, SEXP tiSEXP, SEXP min_overlapSEXP, SEXP RCSEXP, SEXP nthreadsSEXP) {
+// compare_motifs_lite_align_cpp
+Rcpp::DataFrame compare_motifs_lite_align_cpp(const Rcpp::List& mots, const Rcpp::IntegerVector& qi, const Rcpp::IntegerVector& ti, const int min_overlap, const bool RC, const int nthreads);
+RcppExport SEXP _universalmotif_compare_motifs_lite_align_cpp(SEXP motsSEXP, SEXP qiSEXP, SEXP tiSEXP, SEXP min_overlapSEXP, SEXP RCSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
@@ -299,13 +299,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type min_overlap(min_overlapSEXP);
     Rcpp::traits::input_parameter< const bool >::type RC(RCSEXP);
     Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_motifs2_align_cpp(mots, qi, ti, min_overlap, RC, nthreads));
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_lite_align_cpp(mots, qi, ti, min_overlap, RC, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
-// compare_motifs2_pvalue_cpp
-Rcpp::NumericVector compare_motifs2_pvalue_cpp(const Rcpp::List& query_mats, const Rcpp::List& target_mats, const Rcpp::IntegerVector& qi, const Rcpp::IntegerVector& qstart, const Rcpp::IntegerVector& overlap, const Rcpp::IntegerVector& strand, const Rcpp::NumericVector& score, const Rcpp::IntegerVector& n_tested, const Rcpp::NumericVector& bkg, const int null_mode, const int nthreads);
-RcppExport SEXP _universalmotif_compare_motifs2_pvalue_cpp(SEXP query_matsSEXP, SEXP target_matsSEXP, SEXP qiSEXP, SEXP qstartSEXP, SEXP overlapSEXP, SEXP strandSEXP, SEXP scoreSEXP, SEXP n_testedSEXP, SEXP bkgSEXP, SEXP null_modeSEXP, SEXP nthreadsSEXP) {
+// compare_motifs_lite_pvalue_cpp
+Rcpp::NumericVector compare_motifs_lite_pvalue_cpp(const Rcpp::List& query_mats, const Rcpp::List& target_mats, const Rcpp::IntegerVector& qi, const Rcpp::IntegerVector& qstart, const Rcpp::IntegerVector& overlap, const Rcpp::IntegerVector& strand, const Rcpp::NumericVector& score, const Rcpp::IntegerVector& n_tested, const Rcpp::NumericVector& bkg, const int null_mode, const int nthreads);
+RcppExport SEXP _universalmotif_compare_motifs_lite_pvalue_cpp(SEXP query_matsSEXP, SEXP target_matsSEXP, SEXP qiSEXP, SEXP qstartSEXP, SEXP overlapSEXP, SEXP strandSEXP, SEXP scoreSEXP, SEXP n_testedSEXP, SEXP bkgSEXP, SEXP null_modeSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type query_mats(query_matsSEXP);
@@ -319,20 +319,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type bkg(bkgSEXP);
     Rcpp::traits::input_parameter< const int >::type null_mode(null_modeSEXP);
     Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_motifs2_pvalue_cpp(query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads));
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_lite_pvalue_cpp(query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
-// compare_motifs2_consensus_cpp
-Rcpp::CharacterVector compare_motifs2_consensus_cpp(const Rcpp::List& mots, const Rcpp::IntegerVector& mot_i, /* 1-based motif index per row */     const Rcpp::IntegerVector& start, /* 0-based start column */     const Rcpp::IntegerVector& len);
-RcppExport SEXP _universalmotif_compare_motifs2_consensus_cpp(SEXP motsSEXP, SEXP mot_iSEXP, SEXP startSEXP, SEXP lenSEXP) {
+// compare_motifs_lite_consensus_cpp
+Rcpp::CharacterVector compare_motifs_lite_consensus_cpp(const Rcpp::List& mots, const Rcpp::IntegerVector& mot_i, /* 1-based motif index per row */     const Rcpp::IntegerVector& start, /* 0-based start column */     const Rcpp::IntegerVector& len);
+RcppExport SEXP _universalmotif_compare_motifs_lite_consensus_cpp(SEXP motsSEXP, SEXP mot_iSEXP, SEXP startSEXP, SEXP lenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
     Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type mot_i(mot_iSEXP);
     Rcpp::traits::input_parameter< /* 1-based motif index per row */     const Rcpp::IntegerVector& >::type start(startSEXP);
     Rcpp::traits::input_parameter< /* 0-based start column */     const Rcpp::IntegerVector& >::type len(lenSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_motifs2_consensus_cpp(mots, mot_i, start, len));
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_lite_consensus_cpp(mots, mot_i, start, len));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1086,9 +1086,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_merge_motifs_cpp", (DL_FUNC) &_universalmotif_merge_motifs_cpp, 11},
     {"_universalmotif_compare_columns_cpp", (DL_FUNC) &_universalmotif_compare_columns_cpp, 7},
     {"_universalmotif_pval_extractor", (DL_FUNC) &_universalmotif_pval_extractor, 11},
-    {"_universalmotif_compare_motifs2_align_cpp", (DL_FUNC) &_universalmotif_compare_motifs2_align_cpp, 6},
-    {"_universalmotif_compare_motifs2_pvalue_cpp", (DL_FUNC) &_universalmotif_compare_motifs2_pvalue_cpp, 11},
-    {"_universalmotif_compare_motifs2_consensus_cpp", (DL_FUNC) &_universalmotif_compare_motifs2_consensus_cpp, 4},
+    {"_universalmotif_compare_motifs_lite_align_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_align_cpp, 6},
+    {"_universalmotif_compare_motifs_lite_pvalue_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_pvalue_cpp, 11},
+    {"_universalmotif_compare_motifs_lite_consensus_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_consensus_cpp, 4},
     {"_universalmotif_dedup_hits_cpp", (DL_FUNC) &_universalmotif_dedup_hits_cpp, 8},
     {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_motif_finder_cpp", (DL_FUNC) &_universalmotif_motif_finder_cpp, 12},

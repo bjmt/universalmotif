@@ -113,7 +113,7 @@ merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
   ## --- align every motif to the anchor in ONE C++ call -----------------
   qi <- rep.int(anchor, length(motifs.ppm))
   ti <- seq_along(motifs.ppm)
-  al <- compare_motifs2_align_cpp(mot.mats,
+  al <- compare_motifs_lite_align_cpp(mot.mats,
                                   qi          = as.integer(qi),
                                   ti          = as.integer(ti),
                                   min_overlap = as.integer(min.overlap),

@@ -8,7 +8,7 @@
 #include <vector>
 #include "types.h"
 
-/* compare_motifs2.cpp
+/* compare_motifs_lite.cpp
  * --------------------
  * yamtk cmp-aligned motif comparison primitives.
  *
@@ -18,11 +18,11 @@
  * in serial).
  *
  * Two exports:
- *   compare_motifs2_align_cpp:
+ *   compare_motifs_lite_align_cpp:
  *     given a flat list of motif PPMs and per-pair query/target index
  *     vectors, find the best PCC alignment per pair and return
  *     score/offset/strand/overlap/n_tested/q_start_oriented.
- *   compare_motifs2_pvalue_cpp:
+ *   compare_motifs_lite_pvalue_cpp:
  *     given the same motif list plus per-pair alignment metadata, build
  *     the yamtk-style null PMF (empirical or parametric Dirichlet-
  *     Multinomial), convolve per-(start, L) for each unique query, and
@@ -372,7 +372,7 @@ static list_num_t flatten_target_cols(const std::vector<list_num_t> &targets) {
  * ============================================================ */
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::DataFrame compare_motifs2_align_cpp(
+Rcpp::DataFrame compare_motifs_lite_align_cpp(
     const Rcpp::List &mots,
     const Rcpp::IntegerVector &qi,
     const Rcpp::IntegerVector &ti,
@@ -382,7 +382,7 @@ Rcpp::DataFrame compare_motifs2_align_cpp(
 
   R_xlen_t n_pairs = qi.size();
   if (ti.size() != n_pairs)
-    Rcpp::stop("compare_motifs2_align_cpp: qi and ti must have equal length");
+    Rcpp::stop("compare_motifs_lite_align_cpp: qi and ti must have equal length");
 
   /* Serial pre-extract */
   std::vector<list_num_t> motifs = extract_motif_list(mots);
@@ -450,7 +450,7 @@ Rcpp::DataFrame compare_motifs2_align_cpp(
  * ============================================================ */
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::NumericVector compare_motifs2_pvalue_cpp(
+Rcpp::NumericVector compare_motifs_lite_pvalue_cpp(
     const Rcpp::List &query_mats,
     const Rcpp::List &target_mats,
     const Rcpp::IntegerVector &qi,
@@ -469,11 +469,11 @@ Rcpp::NumericVector compare_motifs2_pvalue_cpp(
       strand.size()   != n_pairs ||
       score.size()    != n_pairs ||
       n_tested.size() != n_pairs)
-    Rcpp::stop("compare_motifs2_pvalue_cpp: input vectors must be the same length");
+    Rcpp::stop("compare_motifs_lite_pvalue_cpp: input vectors must be the same length");
   if (bkg.size() != 4)
-    Rcpp::stop("compare_motifs2_pvalue_cpp: bkg must have length 4");
+    Rcpp::stop("compare_motifs_lite_pvalue_cpp: bkg must have length 4");
   if (null_mode != 0 && null_mode != 1)
-    Rcpp::stop("compare_motifs2_pvalue_cpp: null_mode must be 0 (empirical) or 1 (parametric)");
+    Rcpp::stop("compare_motifs_lite_pvalue_cpp: null_mode must be 0 (empirical) or 1 (parametric)");
 
   /* Serial pre-extract */
   std::vector<list_num_t> queries = extract_motif_list(query_mats);
@@ -499,7 +499,7 @@ Rcpp::NumericVector compare_motifs2_pvalue_cpp(
   for (R_xlen_t k = 0; k < n_pairs; ++k) {
     int qix = qi[k] - 1;
     if (qix < 0 || (std::size_t) qix >= n_q)
-      Rcpp::stop("compare_motifs2_pvalue_cpp: qi out of range");
+      Rcpp::stop("compare_motifs_lite_pvalue_cpp: qi out of range");
     pairs_by_query[(std::size_t) qix].push_back((std::size_t) k);
   }
 
@@ -581,7 +581,7 @@ Rcpp::NumericVector compare_motifs2_pvalue_cpp(
  * ============================================================ */
 
 // [[Rcpp::export(rng = false)]]
-Rcpp::CharacterVector compare_motifs2_consensus_cpp(
+Rcpp::CharacterVector compare_motifs_lite_consensus_cpp(
     const Rcpp::List &mots,
     const Rcpp::IntegerVector &mot_i,    /* 1-based motif index per row */
     const Rcpp::IntegerVector &start,    /* 0-based start column */

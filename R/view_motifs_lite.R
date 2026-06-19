@@ -140,7 +140,7 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
 
   motifs <- convert_type_internal(motifs, "PPM")
 
-  ## DNA / RNA only (matches merge_motifs_lite / compare_motifs2_align_cpp).
+  ## DNA / RNA only (matches merge_motifs_lite / compare_motifs_lite_align_cpp).
   alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   mot.alph <- unique(alphs)
   if (length(mot.alph) > 1L)
@@ -340,8 +340,8 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
 
   } else {
 
-    ## ---- v2 alignment: PCC via compare_motifs2_align_cpp -------------
-    res <- view_motifs2_align(mot.mats.ppm, mot.mats, min.overlap, tryRC,
+    ## ---- v2 alignment: PCC via compare_motifs_lite_align_cpp -------------
+    res <- view_motifs_lite_align(mot.mats.ppm, mot.mats, min.overlap, tryRC,
                               nthreads)
     which.rc <- res$motIsRC
     mots <- res$motifs
@@ -491,7 +491,7 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
 
 #-----------------------------------------------------------------------------
 # Private helper: align a list of motifs to a common column frame using
-# compare_motifs2_align_cpp. Returns a list with the same shape as
+# compare_motifs_lite_align_cpp. Returns a list with the same shape as
 # view_motifs_prep() so the rendering pipeline can be reused unchanged.
 #
 # - mot.mats.ppm: PPM matrices for the v2 aligner.
@@ -501,7 +501,7 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
 # - The first motif is taken as the anchor (caller IC-sorts).
 #-----------------------------------------------------------------------------
 
-view_motifs2_align <- function(mot.mats.ppm, mot.mats.disp, min.overlap,
+view_motifs_lite_align <- function(mot.mats.ppm, mot.mats.disp, min.overlap,
                                tryRC, nthreads) {
 
   n <- length(mot.mats.disp)
@@ -512,7 +512,7 @@ view_motifs2_align <- function(mot.mats.ppm, mot.mats.disp, min.overlap,
   anchor <- 1L
   qi <- rep.int(anchor, n)
   ti <- seq_len(n)
-  al <- compare_motifs2_align_cpp(mot.mats.ppm,
+  al <- compare_motifs_lite_align_cpp(mot.mats.ppm,
                                   qi          = as.integer(qi),
                                   ti          = as.integer(ti),
                                   min_overlap = as.integer(min.overlap),
