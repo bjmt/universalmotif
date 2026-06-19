@@ -300,9 +300,7 @@ and it parallelises rather better across queries. It uses the
 per-column Pearson correlation as its only similarity metric, computes
 p-values from a TOMTOM-style empirical or parametric null PMF (with
 both Bonferroni and Benjamini-Hochberg adjustment), and returns either
-a square matrix or a long-format `data.frame`. Its default surface is
-aligned with the command-line tool
-[yamtk](https://github.com/bjmt/yamtk).
+a square matrix or a long-format `data.frame`.
 
 The function has eight formals (`motifs`, `compare.to`, `qvalue`,
 `min.overlap`, `RC`, `null`, `bkg`, `matrix.out`, `nthreads`); see
