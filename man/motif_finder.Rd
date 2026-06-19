@@ -15,8 +15,7 @@ motif_finder(sequences, bkg.sequences = NULL, min.width = 6L,
 
 \item{bkg.sequences}{\code{XStringSet} or \code{NULL}. Background sequences.
 If \code{NULL} (default), target sequences are shuffled k-let-conserving
-via \code{\link[=shuffle_sequences]{shuffle_sequences()}} with \code{k = shuffle.k}, matching \verb{yamtk me}
-default behaviour.}
+via \code{\link[=shuffle_sequences]{shuffle_sequences()}} with \code{k = shuffle.k}.}
 
 \item{min.width}{\code{integer(1)}. Minimum motif width. Default \code{6L}.}
 
@@ -59,7 +58,7 @@ A \code{universalmotif_df} (see \code{\link[=to_df]{to_df()}}) with one row per
 discovered motif, sorted by \code{pvalue} ascending. The standard
 \code{to_df()} columns (\code{name}, \code{altname}, \code{family}, \code{organism},
 \code{consensus}, \code{alphabet}, \code{type}, \code{nsites}, \code{pval}, \code{eval}, \code{motif},
-...) are populated from each discovered motif. The yamtk-specific
+...) are populated from each discovered motif. The discovery-specific
 stats are carried as additional columns:
 
 \itemize{
@@ -79,9 +78,8 @@ Use \code{\link[=to_list]{to_list()}} on the returned object to recover a plain 
 \code{universalmotif} S4 objects.
 }
 \description{
-\code{motif_finder()} is a minimalist \emph{de novo} motif discovery function,
-whose defaults mirror the command-line tool
-\href{https://github.com/bjmt/yamtk}{yamtk}. The pipeline works through a
+\code{motif_finder()} is a minimalist \emph{de novo} motif discovery function.
+The pipeline works through a
 user-controlled range of motif widths; at each width it enumerates the
 over-represented k-mer seeds (using a Fisher's exact test on per-sequence
 presence against a background set), aligns the Hamming-1 neighbours of
@@ -93,9 +91,8 @@ widths by coverage overlap, BH-adjusted, IC-trimmed at the flanks, and
 returned in p-value order.
 }
 \details{
-Algorithm and defaults are a faithful port of
-\href{https://github.com/bjmt/yamtk}{yamtk}, whose own design is in turn based
-on the STREME algorithm (Bailey 2021): seed enumeration via word
+Algorithm and defaults are based on the STREME algorithm
+(Bailey 2021): seed enumeration via word
 counting with per-sequence Fisher's exact ranking, iterative PPM
 refinement on positive sequences, per-motif Fisher's exact
 significance against a shuffled or user-supplied background, and
@@ -126,9 +123,6 @@ to_list(motifs)[[1]]
 Bailey TL (2021). "STREME: accurate and versatile sequence motif
 discovery." \emph{Bioinformatics}, \strong{37}(18), 2834-2840.
 \doi{10.1093/bioinformatics/btab203}.
-
-Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-\url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
 \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},

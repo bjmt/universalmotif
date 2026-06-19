@@ -16,8 +16,8 @@ RNA only; amino-acid and custom alphabet motifs are rejected.}
 
 \item{bkg.sequences}{\code{XStringSet} or \code{NULL}. Background sequences. If
 \code{NULL} (default), target sequences are shuffled k-let-conserving via
-\code{\link[=shuffle_sequences]{shuffle_sequences()}} with \code{k = shuffle.k}, matching both
-\code{enrich_motifs()} and \verb{yamtk enr} default behaviour.}
+\code{\link[=shuffle_sequences]{shuffle_sequences()}} with \code{k = shuffle.k}, matching
+\code{enrich_motifs()} default behaviour.}
 
 \item{pvalue}{\code{numeric(1)}. P-value cutoff passed to \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}
 for reporting individual hits. Default \code{1e-4}.}
@@ -43,7 +43,7 @@ Default \code{sample.int(1e6, 1)}; set explicitly for reproducible runs.}
 
 \item{pseudocount}{\code{integer(1)}. Pseudocount added uniformly to each
 cell of the Fisher 2x2 table; useful when one side has zero counts.
-Default \code{1L} (matches yamtk's \verb{-p 1} default).}
+Default \code{1L}.}
 
 \item{nthreads}{\code{numeric(1)}. Number of threads passed to
 \code{\link[=scan_sequences_lite]{scan_sequences_lite()}} and \code{\link[=shuffle_sequences]{shuffle_sequences()}}. \code{nthreads = 0} uses
@@ -64,7 +64,7 @@ A \code{data.frame} with one row per significant motif, sorted by
 \item \code{bkg.seq.hits}: number of background sequences containing >=1 hit
 \item \code{bkg.site.hits}: total hit count across all background sequences
 \item \code{enrichment}: fold-enrichment (rate ratio; floor of 0.5/n in the
-denominator to avoid division by zero), per yamtk's formula
+denominator to avoid division by zero)
 \item \code{log2.enrichment}: \code{log2(enrichment)}
 \item \code{pvalue}: Fisher's exact one-sided ("greater") p-value
 \item \code{qvalue}: Benjamini-Hochberg adjusted p-value across motifs
@@ -72,8 +72,7 @@ denominator to avoid division by zero), per yamtk's formula
 }
 \description{
 \code{enrich_motifs_lite()} is a deliberately pared-down counterpart to
-\code{\link[=enrich_motifs]{enrich_motifs()}}, with a default surface that mirrors the command-line
-tool \href{https://github.com/bjmt/yamtk}{yamtk}. It exposes a single p-value
+\code{\link[=enrich_motifs]{enrich_motifs()}}. It exposes a single p-value
 cutoff for the hits, a single q-value cutoff for the results, and two
 test modes (\code{"seqs"} and \code{"sites"}, both Fisher's exact), and it leans on
 \code{\link[=scan_sequences_lite]{scan_sequences_lite()}} under the hood to scan the target and background
@@ -122,9 +121,6 @@ if (R.Version()$arch != "i386") {
 
 }
 \references{
-Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-\url{https://github.com/bjmt/yamtk}.
-
 McLeay R, Bailey TL (2010). "Motif Enrichment Analysis: A unified
 framework and method evaluation." \emph{BMC Bioinformatics}, \strong{11}.
 }

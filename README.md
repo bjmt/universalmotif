@@ -277,7 +277,7 @@ scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-6)
 
 Note the differences between the matching sequences of regular scanning versus higher order scanning.
 
-For DNA and RNA, `scan_sequences_lite()` offers a faster scanner that reuses the same C++ core as `scan_sequences()` while matching the defaults of the [yamtk](https://github.com/bjmt/yamtk) command-line tool. Beyond scanning known motifs, `motif_finder()` discovers motifs _de novo_ directly from a set of sequences, and `motif_coocc()` tests for significantly co-occurring motif pairs.
+For DNA and RNA, `scan_sequences_lite()` offers a faster scanner that reuses the same C++ core as `scan_sequences()` with a streamlined set of options. Beyond scanning known motifs, `motif_finder()` discovers motifs _de novo_ directly from a set of sequences, and `motif_coocc()` tests for significantly co-occurring motif pairs.
 
 ### Motif comparison, merging and viewing
 

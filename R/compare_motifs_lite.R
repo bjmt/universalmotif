@@ -1,8 +1,7 @@
 #' Faster minimalist motif comparison.
 #'
 #' `compare_motifs_lite()` is a deliberately pared-down counterpart to
-#' [compare_motifs()], with defaults and an algorithm that mirror those of
-#' the command-line tool [yamtk](https://github.com/bjmt/yamtk). It uses the
+#' [compare_motifs()]. It uses the
 #' per-column Pearson correlation as its similarity metric, computes
 #' significance from a TOMTOM-style null PMF (either empirical, from the
 #' target database, or parametric, via a Dirichlet-Multinomial over a K=5
@@ -16,7 +15,7 @@
 #' relative-entropy mode, or the JASPAR-derived `db.scores` lookup-table
 #' p-value path.
 #'
-#' P-values are computed in two modes mirroring `yamtk cmp`:
+#' P-values are computed in two modes:
 #'
 #' \describe{
 #'   \item{`null = "empirical"` (default)}{Per-query column, score
@@ -43,7 +42,7 @@
 #'   queries and the *entire* input is treated as the target database;
 #'   a long-format `data.frame` of significant matches is returned.
 #' @param qvalue `numeric(1)`. q-value cutoff for the long-format output.
-#'   Default `0.1`, matching `yamtk cmp`. Ignored in matrix mode.
+#'   Default `0.1`. Ignored in matrix mode.
 #' @param min.overlap `integer(1)`. Minimum overlap length (in columns)
 #'   for a candidate alignment. Default `5`.
 #' @param RC `logical(1)`. If `TRUE` (default), also score query motifs
@@ -83,9 +82,6 @@
 #'
 #' Gupta S, Stamatoyannopoulos JA, Bailey TL, Noble WS (2007). "Quantifying
 #' similarity between motifs." *Genome Biology*, **8**(2), R24.
-#'
-#' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-#' \url{https://github.com/bjmt/yamtk}.
 #'
 #' @examples
 #' library(universalmotif)

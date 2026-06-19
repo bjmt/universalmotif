@@ -49,8 +49,7 @@ Given a set of motif hits, typically the output of
 each \verb{(sequence, motif, strand)} group using a greedy
 algorithm: cluster overlapping hits, then within each cluster keep
 the hit with the best priority and, after that, any other hit that
-does not overlap an already-kept hit. This is the same algorithm
-implemented by \href{https://github.com/bjmt/yamtk}{yamtk}.
+does not overlap an already-kept hit.
 }
 \details{
 Note that this differs from \code{\link[=scan_sequences]{scan_sequences()}}'s built-in
@@ -74,10 +73,6 @@ deduped <- dedup_hits(hits)
 nrow(hits)
 nrow(deduped)
 
-}
-\references{
-Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-\url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
 \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=scan_sequences]{scan_sequences()}}

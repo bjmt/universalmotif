@@ -2,7 +2,7 @@
 % Please edit documentation in R/scan_sequences_lite.R
 \name{scan_sequences_lite}
 \alias{scan_sequences_lite}
-\title{Minimalist motif scanner aligned with \verb{yamtk scan} defaults.}
+\title{Faster minimalist motif scanner.}
 \usage{
 scan_sequences_lite(motifs, sequences, pvalue = 1e-04, RC = TRUE,
   nthreads = 1, return.granges = NULL, no.overlaps = FALSE,
@@ -65,8 +65,7 @@ the motif.
 }
 \description{
 \code{scan_sequences_lite()} is a deliberately pared-down counterpart to
-\code{\link[=scan_sequences]{scan_sequences()}}, with a default surface that mirrors the command-line
-tool \href{https://github.com/bjmt/yamtk}{yamtk}. It exposes a single threshold
+\code{\link[=scan_sequences]{scan_sequences()}}. It exposes a single threshold
 (a P-value), always scans both strands by default, always computes a
 per-hit P-value, and returns either a \code{GRanges} (preferred, when
 GenomicRanges is installed) or a \code{data.frame}. Use \code{\link[=scan_sequences]{scan_sequences()}} when
@@ -80,8 +79,7 @@ speed advantage simply comes from skipping the R-side bookkeeping for the
 features this function does not support.
 
 P-values are computed via the dynamic-programming algorithm of
-\code{\link[=motif_pvalue]{motif_pvalue()}} (FIMO-style; Grant et al. 2011), which is also what
-\verb{yamtk scan} uses.
+\code{\link[=motif_pvalue]{motif_pvalue()}} (FIMO-style; Grant et al. 2011).
 }
 \examples{
 library(universalmotif)
@@ -94,9 +92,6 @@ head(hits)
 \references{
 Grant CE, Bailey TL, Noble WS (2011). "FIMO: scanning for occurrences of a
 given motif." \emph{Bioinformatics}, \strong{27}(7), 1017-1018.
-
-Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-\url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
 \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}, \code{\link[=convert_motifs]{convert_motifs()}}

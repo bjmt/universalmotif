@@ -1,8 +1,7 @@
 #' Discover _de novo_ motifs in a set of sequences.
 #'
-#' `motif_finder()` is a minimalist _de novo_ motif discovery function,
-#' whose defaults mirror the command-line tool
-#' [yamtk](https://github.com/bjmt/yamtk). The pipeline works through a
+#' `motif_finder()` is a minimalist _de novo_ motif discovery function.
+#' The pipeline works through a
 #' user-controlled range of motif widths; at each width it enumerates the
 #' over-represented k-mer seeds (using a Fisher's exact test on per-sequence
 #' presence against a background set), aligns the Hamming-1 neighbours of
@@ -16,8 +15,7 @@
 #' @param sequences `XStringSet`. DNA or RNA target sequences.
 #' @param bkg.sequences `XStringSet` or `NULL`. Background sequences.
 #'   If `NULL` (default), target sequences are shuffled k-let-conserving
-#'   via [shuffle_sequences()] with `k = shuffle.k`, matching `yamtk me`
-#'   default behaviour.
+#'   via [shuffle_sequences()] with `k = shuffle.k`.
 #' @param min.width `integer(1)`. Minimum motif width. Default `6L`.
 #' @param max.width `integer(1)`. Maximum motif width. Default `15L`.
 #'   Hard ceiling 30.
@@ -47,7 +45,7 @@
 #'   discovered motif, sorted by `pvalue` ascending. The standard
 #'   `to_df()` columns (`name`, `altname`, `family`, `organism`,
 #'   `consensus`, `alphabet`, `type`, `nsites`, `pval`, `eval`, `motif`,
-#'   ...) are populated from each discovered motif. The yamtk-specific
+#'   ...) are populated from each discovered motif. The discovery-specific
 #'   stats are carried as additional columns:
 #'
 #' \itemize{
@@ -67,9 +65,8 @@
 #' `universalmotif` S4 objects.
 #'
 #' @details
-#' Algorithm and defaults are a faithful port of
-#' [yamtk](https://github.com/bjmt/yamtk), whose own design is in turn based
-#' on the STREME algorithm (Bailey 2021): seed enumeration via word
+#' Algorithm and defaults are based on the STREME algorithm
+#' (Bailey 2021): seed enumeration via word
 #' counting with per-sequence Fisher's exact ranking, iterative PPM
 #' refinement on positive sequences, per-motif Fisher's exact
 #' significance against a shuffled or user-supplied background, and
@@ -84,9 +81,6 @@
 #' Bailey TL (2021). "STREME: accurate and versatile sequence motif
 #' discovery." *Bioinformatics*, **37**(18), 2834-2840.
 #' \doi{10.1093/bioinformatics/btab203}.
-#'
-#' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-#' \url{https://github.com/bjmt/yamtk}.
 #'
 #' @examples
 #' \dontrun{
@@ -177,8 +171,7 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
 
   ## --- background frequencies ------------------------------------------
   ## Compute background from the actual base composition of sequences +
-  ## bkg.sequences combined, matching yamtk me's default (yamme.c
-  ## compute_bkg_from_counts). The order is A, C, G, T/U.
+  ## bkg.sequences combined. The order is A, C, G, T/U.
   combined <- c(sequences, bkg.sequences)
   letter_set <- if (seq.alph == "DNA") c("A", "C", "G", "T")
                 else                   c("A", "C", "G", "U")
@@ -186,7 +179,7 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
                                        OR = 0, as.prob = FALSE)
   totals <- colSums(freqs)
   bkg <- as.numeric(totals / sum(totals))
-  ## Guard against zero / very low values (yamtk applies a 0.001 floor).
+  ## Guard against zero / very low values with a 0.001 floor.
   bkg[bkg < 1e-3] <- 1e-3
   bkg <- bkg / sum(bkg)
   names(bkg) <- letter_set
@@ -236,9 +229,9 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
   mlist <- mlist[keep]
   raw   <- raw[keep]
 
-  ## --- build universalmotif_df + attach yamtk stats -------------------
+  ## --- build universalmotif_df + attach discovery stats ---------------
   ## `to_df()` already pulls the motif's @consensus slot into the
-  ## `consensus` column; we don't add a yamtk-style consensus to avoid
+  ## `consensus` column; we don't add our own consensus column to avoid
   ## clobbering universalmotif's slot-driven value.
   df <- to_df(mlist)
   df$rank      <- seq_along(mlist)
@@ -255,7 +248,7 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
 }
 
 # Empty-result return: a 0-row universalmotif_df-shaped data.frame with the
-# documented yamtk-specific columns appended. We produce it by running to_df()
+# documented discovery-specific columns appended. We produce it by running to_df()
 # on a single placeholder motif and then trimming to zero rows.
 empty_finder_df <- function() {
   placeholder <- list(create_motif("A", name = "placeholder"))

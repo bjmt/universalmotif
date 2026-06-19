@@ -1,8 +1,7 @@
 #' Fast minimalist motif enrichment.
 #'
 #' `enrich_motifs_lite()` is a deliberately pared-down counterpart to
-#' [enrich_motifs()], with a default surface that mirrors the command-line
-#' tool [yamtk](https://github.com/bjmt/yamtk). It exposes a single p-value
+#' [enrich_motifs()]. It exposes a single p-value
 #' cutoff for the hits, a single q-value cutoff for the results, and two
 #' test modes (`"seqs"` and `"sites"`, both Fisher's exact), and it leans on
 #' [scan_sequences_lite()] under the hood to scan the target and background
@@ -18,8 +17,8 @@
 #' @param sequences `XStringSet`. Target sequences.
 #' @param bkg.sequences `XStringSet` or `NULL`. Background sequences. If
 #'   `NULL` (default), target sequences are shuffled k-let-conserving via
-#'   [shuffle_sequences()] with `k = shuffle.k`, matching both
-#'   `enrich_motifs()` and `yamtk enr` default behaviour.
+#'   [shuffle_sequences()] with `k = shuffle.k`, matching
+#'   `enrich_motifs()` default behaviour.
 #' @param pvalue `numeric(1)`. P-value cutoff passed to [scan_sequences_lite()]
 #'   for reporting individual hits. Default `1e-4`.
 #' @param qvalue `numeric(1)`. Result-level q-value cutoff. Motifs whose
@@ -38,7 +37,7 @@
 #'   Default `sample.int(1e6, 1)`; set explicitly for reproducible runs.
 #' @param pseudocount `integer(1)`. Pseudocount added uniformly to each
 #'   cell of the Fisher 2x2 table; useful when one side has zero counts.
-#'   Default `1L` (matches yamtk's `-p 1` default).
+#'   Default `1L`.
 #' @param nthreads `numeric(1)`. Number of threads passed to
 #'   [scan_sequences_lite()] and [shuffle_sequences()]. `nthreads = 0` uses
 #'   all available threads.
@@ -57,7 +56,7 @@
 #'   \item `bkg.seq.hits`: number of background sequences containing >=1 hit
 #'   \item `bkg.site.hits`: total hit count across all background sequences
 #'   \item `enrichment`: fold-enrichment (rate ratio; floor of 0.5/n in the
-#'     denominator to avoid division by zero), per yamtk's formula
+#'     denominator to avoid division by zero)
 #'   \item `log2.enrichment`: `log2(enrichment)`
 #'   \item `pvalue`: Fisher's exact one-sided ("greater") p-value
 #'   \item `qvalue`: Benjamini-Hochberg adjusted p-value across motifs
@@ -91,9 +90,6 @@
 #' that pass the filter), then rows with `qvalue > qvalue` are dropped.
 #'
 #' @references
-#'
-#' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-#' \url{https://github.com/bjmt/yamtk}.
 #'
 #' McLeay R, Bailey TL (2010). "Motif Enrichment Analysis: A unified
 #' framework and method evaluation." *BMC Bioinformatics*, **11**.

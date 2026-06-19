@@ -1,8 +1,7 @@
-#' Minimalist motif scanner aligned with `yamtk scan` defaults.
+#' Faster minimalist motif scanner.
 #'
 #' `scan_sequences_lite()` is a deliberately pared-down counterpart to
-#' [scan_sequences()], with a default surface that mirrors the command-line
-#' tool [yamtk](https://github.com/bjmt/yamtk). It exposes a single threshold
+#' [scan_sequences()]. It exposes a single threshold
 #' (a P-value), always scans both strands by default, always computes a
 #' per-hit P-value, and returns either a `GRanges` (preferred, when
 #' GenomicRanges is installed) or a `data.frame`. Use [scan_sequences()] when
@@ -15,8 +14,7 @@
 #' features this function does not support.
 #'
 #' P-values are computed via the dynamic-programming algorithm of
-#' [motif_pvalue()] (FIMO-style; Grant et al. 2011), which is also what
-#' `yamtk scan` uses.
+#' [motif_pvalue()] (FIMO-style; Grant et al. 2011).
 #'
 #' @param motifs See [convert_motifs()] for accepted motif formats. DNA or RNA
 #'   only -- amino-acid and custom alphabet motifs are rejected.
@@ -63,9 +61,6 @@
 #'
 #' Grant CE, Bailey TL, Noble WS (2011). "FIMO: scanning for occurrences of a
 #' given motif." *Bioinformatics*, **27**(7), 1017-1018.
-#'
-#' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-#' \url{https://github.com/bjmt/yamtk}.
 #'
 #' @examples
 #' library(universalmotif)
@@ -219,7 +214,7 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
                  "start", "end", "strand",
                  "score", "score.pct", "match", "pvalue")]
 
-  ## --- optional yamtk-style dedup --------------------------------------
+  ## --- optional dedup --------------------------------------------------
   if (no.overlaps && nrow(res) > 0L) {
     res <- dedup_hits(res,
                       by            = no.overlaps.by,

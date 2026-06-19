@@ -21,7 +21,7 @@ queries and the \emph{entire} input is treated as the target database;
 a long-format \code{data.frame} of significant matches is returned.}
 
 \item{qvalue}{\code{numeric(1)}. q-value cutoff for the long-format output.
-Default \code{0.1}, matching \verb{yamtk cmp}. Ignored in matrix mode.}
+Default \code{0.1}. Ignored in matrix mode.}
 
 \item{min.overlap}{\code{integer(1)}. Minimum overlap length (in columns)
 for a candidate alignment. Default \code{5}.}
@@ -69,8 +69,7 @@ column where target column 1 aligns.
 }
 \description{
 \code{compare_motifs_lite()} is a deliberately pared-down counterpart to
-\code{\link[=compare_motifs]{compare_motifs()}}, with defaults and an algorithm that mirror those of
-the command-line tool \href{https://github.com/bjmt/yamtk}{yamtk}. It uses the
+\code{\link[=compare_motifs]{compare_motifs()}}. It uses the
 per-column Pearson correlation as its similarity metric, computes
 significance from a TOMTOM-style null PMF (either empirical, from the
 target database, or parametric, via a Dirichlet-Multinomial over a K=5
@@ -85,7 +84,7 @@ strategies, IC-based filters, multifreq scoring, ICM/PPM dispatch,
 relative-entropy mode, or the JASPAR-derived \code{db.scores} lookup-table
 p-value path.
 
-P-values are computed in two modes mirroring \verb{yamtk cmp}:
+P-values are computed in two modes:
 
 \describe{
 \item{\code{null = "empirical"} (default)}{Per-query column, score
@@ -119,9 +118,6 @@ compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5)
 \references{
 Gupta S, Stamatoyannopoulos JA, Bailey TL, Noble WS (2007). "Quantifying
 similarity between motifs." \emph{Genome Biology}, \strong{8}(2), R24.
-
-Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-\url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
 \code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=view_motifs_lite]{view_motifs_lite()}}

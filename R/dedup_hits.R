@@ -6,8 +6,7 @@
 #' each `(sequence, motif, strand)` group using a greedy
 #' algorithm: cluster overlapping hits, then within each cluster keep
 #' the hit with the best priority and, after that, any other hit that
-#' does not overlap an already-kept hit. This is the same algorithm
-#' implemented by [yamtk](https://github.com/bjmt/yamtk).
+#' does not overlap an already-kept hit.
 #'
 #' Note that this differs from [scan_sequences()]'s built-in
 #' `no.overlaps` argument, which collapses every connected-overlap
@@ -43,11 +42,6 @@
 #'
 #' @return The input `hits`, subsetted to the kept rows in the original
 #'   order.
-#'
-#' @references
-#'
-#' Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
-#' \url{https://github.com/bjmt/yamtk}.
 #'
 #' @examples
 #' library(universalmotif)
