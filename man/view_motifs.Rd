@@ -155,7 +155,7 @@ A \code{ggplot} object. If \code{return.raw = TRUE}, a list of matrices.
 \description{
 Show sequence logo. If given a list of more than one motif, then the motifs
 are aligned with the first in the list. For a leaner alternative
-in line with \code{\link[=compare_motifs2]{compare_motifs2()}}, see \code{\link[=view_motifs2]{view_motifs2()}}.
+in line with \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}, see \code{\link[=view_motifs_lite]{view_motifs_lite()}}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
@@ -204,7 +204,8 @@ view_motifs(create_motif("AIG", alphabet = "AA"), fontDF = fontDFtimes)
 
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=view_logo]{view_logo()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=view_logo]{view_logo()}},
+\code{\link[=view_motifs_lite]{view_motifs_lite()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

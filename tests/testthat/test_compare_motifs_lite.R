@@ -1,4 +1,4 @@
-context("compare_motifs2()")
+context("compare_motifs_lite()")
 
 suppressPackageStartupMessages({
   library(Biostrings)
@@ -18,7 +18,7 @@ suppressMessages({  ## quiet "Added a pseudocount" notes inside the loops
 
 test_that("matrix mode is symmetric and has 1.0 on the diagonal", {
   motifs <- make_motifs()
-  m <- compare_motifs2(motifs)
+  m <- compare_motifs_lite(motifs)
   expect_true(isSymmetric(m))
   expect_equal(unname(diag(m)), rep(1, length(motifs)),
                tolerance = 1e-9)
@@ -26,14 +26,14 @@ test_that("matrix mode is symmetric and has 1.0 on the diagonal", {
 
 test_that("matrix-mode score is in [-1, 1]", {
   motifs <- make_motifs()
-  m <- compare_motifs2(motifs)
+  m <- compare_motifs_lite(motifs)
   expect_true(all(m <= 1 + 1e-9))
   expect_true(all(m >= -1 - 1e-9))
 })
 
 test_that("self-comparison long-format hit has overlap == width, strand '+', score 1", {
   motifs <- make_motifs(n = 3)
-  hits <- compare_motifs2(motifs, compare.to = 1, qvalue = 1)
+  hits <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 1)
   self <- hits[hits$subject == hits$target, ]
   expect_equal(nrow(self), 1L)
   expect_equal(self$overlap, ncol(motifs[[1]]@motif))
@@ -44,7 +44,7 @@ test_that("self-comparison long-format hit has overlap == width, strand '+', sco
 
 test_that("long-format columns and order match the documented contract", {
   motifs <- make_motifs()
-  hits <- compare_motifs2(motifs, compare.to = 1, qvalue = 1)
+  hits <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 1)
   expect_identical(
     colnames(hits),
     c("subject", "subject.i", "target", "target.i",
@@ -59,9 +59,9 @@ test_that("long-format columns and order match the documented contract", {
 
 test_that("matrix.out variants return distinct matrices with same shape", {
   motifs <- make_motifs()
-  ms <- compare_motifs2(motifs, matrix.out = "score")
-  mp <- compare_motifs2(motifs, matrix.out = "pvalue")
-  mq <- compare_motifs2(motifs, matrix.out = "qvalue")
+  ms <- compare_motifs_lite(motifs, matrix.out = "score")
+  mp <- compare_motifs_lite(motifs, matrix.out = "pvalue")
+  mq <- compare_motifs_lite(motifs, matrix.out = "qvalue")
   expect_equal(dim(ms), dim(mp))
   expect_equal(dim(mp), dim(mq))
   expect_equal(dimnames(ms), dimnames(mp))
@@ -74,7 +74,7 @@ test_that("matrix.out variants return distinct matrices with same shape", {
 
 test_that("matrix.out = qvalue diagonal is the self-comparison q-value", {
   motifs <- make_motifs()
-  mq <- compare_motifs2(motifs, matrix.out = "qvalue")
+  mq <- compare_motifs_lite(motifs, matrix.out = "qvalue")
   # Self-comparison should be the most significant entry of each row.
   expect_true(all(diag(mq) <= apply(mq, 1, min) + 1e-12))
 })
@@ -83,8 +83,8 @@ test_that("matrix.out = qvalue diagonal is the self-comparison q-value", {
 
 test_that("score/offset/overlap/strand are identical between null modes", {
   motifs <- make_motifs()
-  a_emp <- compare_motifs2(motifs, compare.to = 1, qvalue = 1, null = "empirical")
-  a_par <- compare_motifs2(motifs, compare.to = 1, qvalue = 1, null = "parametric")
+  a_emp <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 1, null = "empirical")
+  a_par <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 1, null = "parametric")
   # The two outputs may differ in row order due to q-value-based sorting,
   # so reorder both by (subject.i, target.i) before comparing.
   k <- function(x) order(x$subject.i, x$target.i)
@@ -98,7 +98,7 @@ test_that("score/offset/overlap/strand are identical between null modes", {
 
 test_that("parametric mode is independent of which motif is the query (symmetric pvalue)", {
   motifs <- make_motifs()
-  mp <- compare_motifs2(motifs, null = "parametric", matrix.out = "pvalue")
+  mp <- compare_motifs_lite(motifs, null = "parametric", matrix.out = "pvalue")
   expect_true(isSymmetric(mp, tol = 1e-9))
 })
 
@@ -107,15 +107,15 @@ test_that("custom bkg changes parametric p-values but not empirical p-values", {
   uniform <- c(.25, .25, .25, .25)
   skewed  <- c(A = .4, C = .1, G = .1, T = .4)
   ## p-values for the same alignment in matrix form
-  mp_uniform <- compare_motifs2(motifs, null = "parametric",
+  mp_uniform <- compare_motifs_lite(motifs, null = "parametric",
                                 bkg = uniform, matrix.out = "pvalue")
-  mp_skewed  <- compare_motifs2(motifs, null = "parametric",
+  mp_skewed  <- compare_motifs_lite(motifs, null = "parametric",
                                 bkg = skewed,  matrix.out = "pvalue")
   expect_false(isTRUE(all.equal(unname(mp_uniform), unname(mp_skewed))))
   ## empirical doesn't use bkg for the null, so should be unchanged
-  me_uniform <- compare_motifs2(motifs, null = "empirical",
+  me_uniform <- compare_motifs_lite(motifs, null = "empirical",
                                 bkg = uniform, matrix.out = "pvalue")
-  me_skewed  <- compare_motifs2(motifs, null = "empirical",
+  me_skewed  <- compare_motifs_lite(motifs, null = "empirical",
                                 bkg = skewed,  matrix.out = "pvalue")
   expect_equal(me_uniform, me_skewed)
 })
@@ -124,8 +124,8 @@ test_that("custom bkg changes parametric p-values but not empirical p-values", {
 
 test_that("increasing min.overlap can only reduce score-magnitude (best alignment is among a subset)", {
   motifs <- make_motifs(n = 4, width = 10)
-  m3 <- compare_motifs2(motifs, min.overlap = 3, matrix.out = "score")
-  m7 <- compare_motifs2(motifs, min.overlap = 7, matrix.out = "score")
+  m3 <- compare_motifs_lite(motifs, min.overlap = 3, matrix.out = "score")
+  m7 <- compare_motifs_lite(motifs, min.overlap = 7, matrix.out = "score")
   # diag is always 1 in both
   expect_true(all(abs(diag(m3) - 1) < 1e-9))
   expect_true(all(abs(diag(m7) - 1) < 1e-9))
@@ -137,8 +137,8 @@ test_that("increasing min.overlap can only reduce score-magnitude (best alignmen
 
 test_that("qvalue = 0.01 is a strict subset of qvalue = 0.5", {
   motifs <- make_motifs(n = 8)
-  loose <- compare_motifs2(motifs, compare.to = 1, qvalue = 0.5)
-  tight <- compare_motifs2(motifs, compare.to = 1, qvalue = 0.01)
+  loose <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5)
+  tight <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.01)
   expect_true(nrow(tight) <= nrow(loose))
   k_loose <- with(loose, paste(subject.i, target.i, sep = "|"))
   k_tight <- with(tight, paste(subject.i, target.i, sep = "|"))
@@ -147,7 +147,7 @@ test_that("qvalue = 0.01 is a strict subset of qvalue = 0.5", {
 
 test_that("very stringent qvalue can return 0 rows with the right shape", {
   motifs <- make_motifs(n = 8)
-  hits <- compare_motifs2(motifs, compare.to = 1, qvalue = 1e-30)
+  hits <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 1e-30)
   expect_s3_class(hits, "data.frame")
   expect_equal(nrow(hits), 0L)
   expect_identical(
@@ -161,12 +161,12 @@ test_that("very stringent qvalue can return 0 rows with the right shape", {
 
 # ---- Determinism ----------------------------------------------------------
 
-test_that("compare_motifs2() is deterministic", {
+test_that("compare_motifs_lite() is deterministic", {
   motifs <- make_motifs()
-  expect_equal(compare_motifs2(motifs), compare_motifs2(motifs))
+  expect_equal(compare_motifs_lite(motifs), compare_motifs_lite(motifs))
   expect_equal(
-    compare_motifs2(motifs, compare.to = 1, qvalue = 0.5),
-    compare_motifs2(motifs, compare.to = 1, qvalue = 0.5)
+    compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5),
+    compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5)
   )
 })
 
@@ -174,37 +174,37 @@ test_that("compare_motifs2() is deterministic", {
 
 test_that("AA motifs are rejected", {
   m <- create_motif("LLNN")
-  expect_error(compare_motifs2(list(m, m)), "DNA/RNA")
+  expect_error(compare_motifs_lite(list(m, m)), "DNA/RNA")
 })
 
 test_that("invalid arguments raise informative errors", {
   motifs <- make_motifs()
-  expect_error(compare_motifs2(motifs, qvalue = 0),     "in \\(0, 1\\]")
-  expect_error(compare_motifs2(motifs, qvalue = 2),     "in \\(0, 1\\]")
-  expect_error(compare_motifs2(motifs, min.overlap = 0),"positive integer")
-  expect_error(compare_motifs2(motifs, RC = "yes"),     "single logical")
-  expect_error(compare_motifs2(motifs, bkg = c(0.5, 0.5)), "length-4")
-  expect_error(compare_motifs2(motifs, bkg = c(.3, .3, .3, .3)), "sum to 1")
+  expect_error(compare_motifs_lite(motifs, qvalue = 0),     "in \\(0, 1\\]")
+  expect_error(compare_motifs_lite(motifs, qvalue = 2),     "in \\(0, 1\\]")
+  expect_error(compare_motifs_lite(motifs, min.overlap = 0),"positive integer")
+  expect_error(compare_motifs_lite(motifs, RC = "yes"),     "single logical")
+  expect_error(compare_motifs_lite(motifs, bkg = c(0.5, 0.5)), "length-4")
+  expect_error(compare_motifs_lite(motifs, bkg = c(.3, .3, .3, .3)), "sum to 1")
 })
 
 test_that("compare.to as character resolves by motif name", {
   motifs <- make_motifs()
-  h1 <- compare_motifs2(motifs, compare.to = "M2", qvalue = 1)
-  h2 <- compare_motifs2(motifs, compare.to = 2,    qvalue = 1)
+  h1 <- compare_motifs_lite(motifs, compare.to = "M2", qvalue = 1)
+  h2 <- compare_motifs_lite(motifs, compare.to = 2,    qvalue = 1)
   expect_equal(h1, h2)
 })
 
 })  # end suppressMessages
 
-test_that("compare_motifs2 runs on RNA motifs", {
+test_that("compare_motifs_lite runs on RNA motifs", {
   m1 <- create_motif("ACGU", alphabet = "RNA", name = "rna1")
   m2 <- create_motif("ACGU", alphabet = "RNA", name = "rna2")
-  res <- compare_motifs2(list(m1, m2))
+  res <- compare_motifs_lite(list(m1, m2))
   expect_true(isSymmetric(res))
   expect_equal(unname(diag(res)), c(1, 1), tolerance = 1e-6)
 })
 
-test_that("compare_motifs and compare_motifs2 both run on a shared DNA fixture (v1/v2 parity smoke)", {
+test_that("compare_motifs and compare_motifs_lite both run on a shared DNA fixture (v1/v2 parity smoke)", {
   ## v1 and v2 use different scoring stacks, so numerical parity is not
   ## expected; this is a smoke check that both produce a symmetric square
   ## matrix of the right size for the same input.
@@ -212,18 +212,18 @@ test_that("compare_motifs and compare_motifs2 both run on a shared DNA fixture (
                  create_motif("CTTGACAT", name = "b"),
                  create_motif("GGGCCCCC", name = "c"))
   m1 <- compare_motifs(motifs)
-  m2 <- compare_motifs2(motifs)
+  m2 <- compare_motifs_lite(motifs)
   expect_equal(dim(m1), c(3L, 3L))
   expect_equal(dim(m2), c(3L, 3L))
   expect_true(isSymmetric(m1))
   expect_true(isSymmetric(m2))
 })
 
-test_that("compare_motifs2 gives the same similarity matrix at nthreads = 1 and 2", {
+test_that("compare_motifs_lite gives the same similarity matrix at nthreads = 1 and 2", {
   motifs <- list(create_motif("TTGACATA", name = "a"),
                  create_motif("CTTGACAT", name = "b"),
                  create_motif("GGGCCCCC", name = "c"))
-  a <- compare_motifs2(motifs, nthreads = 1)
-  b <- compare_motifs2(motifs, nthreads = 2)
+  a <- compare_motifs_lite(motifs, nthreads = 1)
+  b <- compare_motifs_lite(motifs, nthreads = 2)
   expect_equal(a, b)
 })

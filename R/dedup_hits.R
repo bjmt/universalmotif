@@ -1,7 +1,7 @@
 #' Deduplicate overlapping motif hits.
 #'
 #' Given a set of motif hits, typically the output of
-#' [scan_sequences()] or [scan_sequences2()], or a `GRanges` /
+#' [scan_sequences()] or [scan_sequences_lite()], or a `GRanges` /
 #' `data.frame` from any other source, drop overlapping hits within
 #' each `(sequence, motif, strand)` group using a greedy
 #' algorithm: cluster overlapping hits, then within each cluster keep
@@ -54,13 +54,13 @@
 #' motifs <- list(create_motif("TATAAA", name = "M1"),
 #'                create_motif("CACGTG", name = "M2"))
 #' seqs <- create_sequences(seqnum = 5, seqlen = 400, rng.seed = 1)
-#' hits <- scan_sequences2(motifs, seqs, pvalue = 5e-2,
+#' hits <- scan_sequences_lite(motifs, seqs, pvalue = 5e-2,
 #'                         return.granges = FALSE)
 #' deduped <- dedup_hits(hits)
 #' nrow(hits)
 #' nrow(deduped)
 #'
-#' @seealso [scan_sequences2()], [scan_sequences()]
+#' @seealso [scan_sequences_lite()], [scan_sequences()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 dedup_hits <- function(hits,

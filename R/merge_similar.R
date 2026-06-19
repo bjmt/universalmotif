@@ -3,7 +3,7 @@
 #'
 #' Given a list of motifs, [merge_similar()] will identify similar motifs with
 #' [compare_motifs()], and merge similar ones with [merge_motifs()]. For merging
-#' regular DNA/RNA motifs, see the simpler and faster [merge_similar2()].
+#' regular DNA/RNA motifs, see the simpler and faster [merge_similar_lite()].
 #'
 #' @param threshold `numeric(1)` The minimum (for similarity metrics) or maximum (for
 #'   distance metrics) threshold score for merging.
@@ -46,7 +46,7 @@
 #' length(motifs)
 #' }
 #'
-#' @seealso [compare_motifs()], [merge_motifs()], [merge_similar2()]
+#' @seealso [compare_motifs()], [merge_motifs()], [merge_similar_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
@@ -67,7 +67,7 @@ merge_similar <- function(motifs,
   }
 
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
-  suggest_merge_similar2(method = method, use.type = use.type,
+  suggest_merge_similar_lite(method = method, use.type = use.type,
                          threshold.type = threshold.type,
                          min.mean.ic = min.mean.ic,
                          min.position.ic = min.position.ic,

@@ -5,7 +5,7 @@
 #' will be dropped. Only 0-order background probabilities will be kept.
 #' Motifs are merged one at a time, starting with the first entry in the
 #' list. For merging regular DNA/RNA motifs, see the simpler and
-#' faster [merge_motifs2()].
+#' faster [merge_motifs_lite()].
 #'
 #' @param new.name `character(1)`, `NULL` Instead of collapsing existing names (if `NULL`),
 #'    assign a new one manually for the merged motif.
@@ -35,7 +35,7 @@
 #' m3 <- create_motif("AACCCCGG", name = "3")
 #' view_motifs(merge_motifs(c(m1, m2, m3)))
 #'
-#' @seealso [compare_motifs()], [merge_motifs2()], [merge_similar()],
+#' @seealso [compare_motifs()], [merge_motifs_lite()], [merge_similar()],
 #'     [trim_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
@@ -91,7 +91,7 @@ merge_motifs <- function(motifs, method = "ALLR", use.type = "PPM",
   if (!is.list(motifs)) motifs <- list(motifs)
 
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
-  suggest_merge_motifs2(method      = method,
+  suggest_merge_motifs_lite(method      = method,
                         use.type    = use.type,
                         min.mean.ic = min.mean.ic,
                         min.position.ic = min.position.ic,

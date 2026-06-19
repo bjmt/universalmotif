@@ -22,7 +22,7 @@
 #'      replacement when `unique = TRUE`). If the bin is empty or
 #'      undersized, expand outward in Manhattan-distance rings.
 #'
-#' Use the result as a `bkg.sequences` argument to [enrich_motifs2()]
+#' Use the result as a `bkg.sequences` argument to [enrich_motifs_lite()]
 #' or [motif_finder()] for a composition-controlled null.
 #' [shuffle_sequences()] is a complementary alternative that
 #' randomises each input in place (preserves k-let composition);
@@ -121,7 +121,7 @@
 #' universe <- ArabidopsisPromoters[11:50]
 #' bkg <- match_bkg(target, universe, n.per.target = 2)
 #' ## Use as a null background for enrichment / discovery
-#' # enrich_motifs2(motifs, target, bkg.sequences = bkg)
+#' # enrich_motifs_lite(motifs, target, bkg.sequences = bkg)
 #' # motif_finder(target, bkg.sequences = bkg)
 #' plot_match_bkg(target, bkg)
 #'
@@ -143,7 +143,7 @@
 #' bkg <- match_bkg(target, genome = Athaliana, n.per.target = 2)
 #' }
 #'
-#' @seealso [shuffle_sequences()], [enrich_motifs2()], [motif_finder()],
+#' @seealso [shuffle_sequences()], [enrich_motifs_lite()], [motif_finder()],
 #'   [plot_match_bkg()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export

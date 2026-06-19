@@ -10,9 +10,9 @@ motif_peaks(hits, seq.length = NULL, mode = c("central", "local"),
 }
 \arguments{
 \item{hits}{Motif hit table from \code{\link[=scan_sequences]{scan_sequences()}} or
-\code{\link[=scan_sequences2]{scan_sequences2()}}. Accepted as either a \code{data.frame} or a
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}. Accepted as either a \code{data.frame} or a
 \code{GRanges}. Required columns / metadata: \code{motif}, \code{score},
-\code{start}, and either \code{end} (scan_sequences2) or \code{stop}
+\code{start}, and either \code{end} (scan_sequences_lite) or \code{stop}
 (scan_sequences). For \code{data.frame} input, a \code{sequence} /
 \code{sequence.i} column identifies which sequence each hit belongs
 to. For \code{GRanges} input, the sequence is taken from
@@ -134,7 +134,7 @@ seqs <- getSeq(Athaliana, windows)
 names(seqs) <- paste0("anchor_", seq_along(seqs))
 
 m    <- create_motif("TTGACATA", name = "example")
-hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 ## seq.length is inferred from seqlengths() here, but pass it
 ## explicitly when the hit table doesn't carry equal seqlengths.
 motif_peaks(hits, seq.length = 500)
@@ -147,7 +147,7 @@ ChIP-seq." \emph{Nucleic Acids Research}, \strong{40}(17):e128.
 \doi{10.1093/nar/gks433}.
 }
 \seealso{
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=plot_motif_peaks]{plot_motif_peaks()}}
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=plot_motif_peaks]{plot_motif_peaks()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

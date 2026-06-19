@@ -61,16 +61,16 @@ test_that("write_meme with CWM = FALSE on a CWM converts to PPM first", {
   expect_true(all(abs(colSums(re_one@motif) - 1) < 1e-6))
 })
 
-test_that("view_motifs and view_motifs2 accept use.type = 'CWM'", {
+test_that("view_motifs and view_motifs_lite accept use.type = 'CWM'", {
   cwm <- create_motif(cwm_matrix(), type = "CWM", name = "x")
   expect_s3_class(view_motifs(cwm, use.type = "CWM"), "ggplot")
-  expect_s3_class(view_motifs2(cwm, use.type = "CWM"), "ggplot")
+  expect_s3_class(view_motifs_lite(cwm, use.type = "CWM"), "ggplot")
 })
 
 test_that("use.type = 'CWM' rejects non-CWM motifs", {
   cwm <- create_motif(cwm_matrix(), type = "CWM", name = "x")
   ppm <- convert_type(cwm, "PPM")
-  expect_error(view_motifs2(list(cwm, ppm), use.type = "CWM"),
+  expect_error(view_motifs_lite(list(cwm, ppm), use.type = "CWM"),
                "type = \"CWM\"")
 })
 

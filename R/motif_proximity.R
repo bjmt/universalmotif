@@ -46,7 +46,7 @@
 #' `method = "binomial"` falls back to a Poisson occupancy approximation
 #' (anti-conservative when hits cluster).
 #'
-#' @param hits Motif hits from [scan_sequences2()] or [scan_sequences()],
+#' @param hits Motif hits from [scan_sequences_lite()] or [scan_sequences()],
 #'   as a `GRanges` (preferred) or a `data.frame`, carrying genomic
 #'   coordinates plus `motif` and `score`. Supply this *or*
 #'   (`motifs` + `sequences`), not both. `data.frame` input also requires
@@ -62,7 +62,7 @@
 #'   accepted by [convert_motifs()]) and the sequences to scan. `sequences`
 #'   is an `XStringSet` (the scanned chromosomes) or a `BSgenome`; for a
 #'   `BSgenome` only the chromosomes carrying anchors are extracted and
-#'   scanned. Scanning is done internally with [scan_sequences2()].
+#'   scanned. Scanning is done internally with [scan_sequences_lite()].
 #' @param universe `GRanges` or `NULL`. The regions actually scanned (the
 #'   null support). `NULL` (default) derives whole chromosomes from
 #'   `seqlengths(hits)`. **Pass this explicitly for partial or masked
@@ -77,7 +77,7 @@
 #'   modes require stranded anchors and are not available for
 #'   `method = "ks"`.
 #' @param scan.pvalue `numeric(1)`. Hit P-value threshold forwarded to
-#'   [scan_sequences2()] when scanning internally. Default `1e-4`.
+#'   [scan_sequences_lite()] when scanning internally. Default `1e-4`.
 #' @param RC `logical(1)`. Scan both strands when scanning internally.
 #'   Default `TRUE`.
 #' @param dist.thresholds `integer` or `NULL`. Candidate distances `d` to
@@ -170,7 +170,7 @@
 #' m <- create_motif("TTGACATA", name = "example")
 #'
 #' ## Either scan first and pass hits ...
-#' hits <- scan_sequences2(m, chrs, pvalue = 1e-3, return.granges = TRUE)
+#' hits <- scan_sequences_lite(m, chrs, pvalue = 1e-3, return.granges = TRUE)
 #' motif_proximity(hits, anchors)
 #'
 #' ## ... or let motif_proximity() scan internally.
@@ -181,7 +181,7 @@
 #' motif_proximity(hits, anchors, method = "permutation", n.perm = 199)
 #' }
 #'
-#' @seealso [motif_peaks()], [scan_sequences2()], [plot_motif_proximity()]
+#' @seealso [motif_peaks()], [scan_sequences_lite()], [plot_motif_proximity()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 motif_proximity <- function(hits = NULL, anchors,
@@ -432,7 +432,7 @@ resolve_proximity_hits <- function(hits, motifs, sequences, anchors,
     stop("scanning internally needs both `motifs` and `sequences`",
          call. = FALSE)
   sequences <- proximity_get_sequences(sequences, anchors)
-  out <- scan_sequences2(motifs, sequences, pvalue = scan.pvalue, RC = RC,
+  out <- scan_sequences_lite(motifs, sequences, pvalue = scan.pvalue, RC = RC,
                          nthreads = nthreads, return.granges = TRUE)
   if (!inherits(out, "GRanges"))
     stop("internal scan did not return a GRanges; is GenomicRanges installed?",

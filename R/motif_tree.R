@@ -8,8 +8,8 @@
 #' into one. For more control over tree creation, it is recommend to do these
 #' steps separately. See the "Motif comparisons and P-values" vignette for such
 #' a workthrough. This function requires the \pkg{ape} and \pkg{ggtree} packages
-#' to be installed separately. For a leaner alternative using [compare_motifs2()],
-#' see [motif_tree2()].
+#' to be installed separately. For a leaner alternative using [compare_motifs_lite()],
+#' see [motif_tree_lite()].
 #'
 #' @param motifs `list`, `dist` See [convert_motifs()] for
 #'    available formats. Alternatively, the resulting comparison matrix from
@@ -93,7 +93,7 @@
 #' Evolution*, **8**, 28-36. doi: 10.1111/2041-210X.12628.
 #'
 #' @seealso [motifStack::motifStack()], [compare_motifs()],
-#'    [ggtree::ggtree()], [ggplot2::ggplot()], [motif_tree2()]
+#'    [ggtree::ggtree()], [ggplot2::ggplot()], [motif_tree_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
@@ -172,7 +172,7 @@ motif_tree <- function(motifs, layout = "circular", linecol = "family",
   } else if (is.list(motifs)) {
     motifs <- convert_motifs(motifs)
     mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
-    suggest_motif_tree2(method = method, use.type = use.type,
+    suggest_motif_tree_lite(method = method, use.type = use.type,
                         min.mean.ic = min.mean.ic,
                         min.position.ic = min.position.ic,
                         relative_entropy = relative_entropy,

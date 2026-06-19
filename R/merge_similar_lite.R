@@ -1,10 +1,10 @@
 #' Cluster similar motifs by significance and merge each cluster.
 #'
-#' `merge_similar2()` is a faster minimalist counterpart to [merge_similar()]
+#' `merge_similar_lite()` is a faster minimalist counterpart to [merge_similar()]
 #' that builds a pairwise similarity-significance graph using
-#' [compare_motifs2()]'s empirical or parametric null q-values, finds
+#' [compare_motifs_lite()]'s empirical or parametric null q-values, finds
 #' connected components on that graph, and collapses each component
-#' (cluster) into a single merged motif via [merge_motifs2()].
+#' (cluster) into a single merged motif via [merge_motifs_lite()].
 #'
 #' Unlike [merge_similar()] (which builds a distance matrix from raw
 #' similarity scores and applies hierarchical clustering at an absolute
@@ -20,20 +20,20 @@
 #' @param qvalue `numeric(1)`. BH-adjusted q-value cutoff for linking
 #'   two motifs in the significance graph. Default `0.01`.
 #' @param null `character(1)`. `"empirical"` (default) or `"parametric"`,
-#'   forwarded to [compare_motifs2()].
-#' @param min.overlap `integer(1)`. Forwarded to [compare_motifs2()] /
-#'   [merge_motifs2()]. Default `5L`.
+#'   forwarded to [compare_motifs_lite()].
+#' @param min.overlap `integer(1)`. Forwarded to [compare_motifs_lite()] /
+#'   [merge_motifs_lite()]. Default `5L`.
 #' @param RC `logical(1)`. If `TRUE` (default), test reverse-complement
 #'   alignments.
 #' @param bkg `numeric(4)` or `NULL`. Background frequencies, forwarded
-#'   to [compare_motifs2()]. `NULL` uses uniform.
-#' @param weighted `logical(1)`. Forwarded to [merge_motifs2()]. Default
+#'   to [compare_motifs_lite()]. `NULL` uses uniform.
+#' @param weighted `logical(1)`. Forwarded to [merge_motifs_lite()]. Default
 #'   `FALSE`.
 #' @param return.clusters `logical(1)`. If `TRUE`, return a
 #'   `universalmotif_df` of cluster assignments instead of merged
 #'   motifs. Default `FALSE`.
-#' @param nthreads `numeric(1)`. Threads forwarded to [compare_motifs2()]
-#'   and [merge_motifs2()]. `nthreads = 0` uses all available threads.
+#' @param nthreads `numeric(1)`. Threads forwarded to [compare_motifs_lite()]
+#'   and [merge_motifs_lite()]. `nthreads = 0` uses all available threads.
 #'
 #' @return If `return.clusters = FALSE` (default): a `list` of
 #'   `universalmotif` S4 objects with similar motifs collapsed (the
@@ -49,7 +49,7 @@
 #'
 #' @details
 #' The significance graph is built from a symmetrised q-value matrix:
-#' `Qsym[i,j] = pmin(Q[i,j], Q[j,i])`. [compare_motifs2()]'s per-query BH
+#' `Qsym[i,j] = pmin(Q[i,j], Q[j,i])`. [compare_motifs_lite()]'s per-query BH
 #' adjustment makes its native q-value matrix non-symmetric; the min-
 #' symmetrisation defines a pair as linked if either direction meets
 #' the cutoff (more permissive of the two, which is appropriate when
@@ -57,7 +57,7 @@
 #'
 #' Clustering is by connected components on the resulting graph,
 #' implemented with a small union-find. Each component (size >= 2)
-#' becomes a single merged motif via [merge_motifs2()]; singletons
+#' becomes a single merged motif via [merge_motifs_lite()]; singletons
 #' (size == 1) pass through unchanged.
 #'
 #' @examples
@@ -66,13 +66,14 @@
 #' m2 <- create_motif("CTTGACAT", name = "b")
 #' m3 <- create_motif("TGACATAT", name = "c")
 #' m4 <- create_motif("GGGCCCCC", name = "unrelated")
-#' merged <- merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05)
+#' merged <- merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05)
 #' length(merged)  # 2: one merged + the unrelated singleton
 #'
-#' @seealso [merge_similar()], [merge_motifs2()], [compare_motifs2()]
+#' @seealso [merge_similar()], [merge_motifs_lite()], [compare_motifs_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-merge_similar2 <- function(motifs, qvalue = 0.01,
+merge_similar_lite <- function(motifs, qvalue = 0.01,
                            null = c("empirical", "parametric"),
                            min.overlap = 5L, RC = TRUE,
                            bkg = NULL, weighted = FALSE,
@@ -115,7 +116,7 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
     stop("all motifs must share the same alphabet", call. = FALSE)
   mot.alph <- unique(alphs)
   if (!mot.alph %in% c("DNA", "RNA"))
-    stop("`merge_similar2()` only supports DNA/RNA motifs; got `",
+    stop("`merge_similar_lite()` only supports DNA/RNA motifs; got `",
          mot.alph, "`. Use `merge_similar()` for other alphabets.",
          call. = FALSE)
 
@@ -130,8 +131,8 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
     return(motifs)
   }
 
-  ## --- pairwise q-values via compare_motifs2 ---------------------------
-  Q <- suppressWarnings(compare_motifs2(motifs,
+  ## --- pairwise q-values via compare_motifs_lite ---------------------------
+  Q <- suppressWarnings(compare_motifs_lite(motifs,
                                         qvalue      = 1,
                                         min.overlap = min.overlap,
                                         RC          = RC,
@@ -191,7 +192,7 @@ merge_similar2 <- function(motifs, qvalue = 0.01,
     if (length(members) == 1L) {
       out[[cid]] <- motifs[[members]]
     } else {
-      out[[cid]] <- merge_motifs2(motifs[members],
+      out[[cid]] <- merge_motifs_lite(motifs[members],
                                   min.overlap = min.overlap,
                                   RC          = RC,
                                   weighted    = weighted,

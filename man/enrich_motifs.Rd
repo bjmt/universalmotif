@@ -143,7 +143,7 @@ when performing the Fisher test.}
 Given a set of target and background sequences, test if the input motifs
 are significantly enriched in the targets sequences relative to the
 background sequences. See the "Sequence manipulation and scanning" vignette.
-Note: for regular DNA/RNA motif enrichment, see \code{\link[=enrich_motifs2]{enrich_motifs2()}} for a
+Note: for regular DNA/RNA motif enrichment, see \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}} for a
 faster and simpler alternative.
 }
 \details{
@@ -167,8 +167,8 @@ framework and method evaluation.” \emph{BMC Bioinformatics}, \strong{11}.
 }
 \seealso{
 \code{\link[=scan_sequences]{scan_sequences()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
-\code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}},
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=match_bkg]{match_bkg()}}
+\code{\link[=add_multifreq]{add_multifreq()}}, \code{\link[=motif_pvalue]{motif_pvalue()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}},
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=match_bkg]{match_bkg()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay \email{benjamin.tremblay@uwaterloo.ca}

@@ -1,4 +1,4 @@
-context("scan_sequences2()")
+context("scan_sequences_lite()")
 
 suppressPackageStartupMessages({
   library(Biostrings)
@@ -17,18 +17,18 @@ make_fixture <- function(seed = 1) {
 
 suppressMessages({  ## suppress "Added a pseudocount" notes from PWM coercion
 
-test_that("scan_sequences2 is deterministic", {
+test_that("scan_sequences_lite is deterministic", {
   fx <- make_fixture()
-  a <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 1e-2,
+  a <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 1e-2,
                        return.granges = FALSE)
-  b <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 1e-2,
+  b <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 1e-2,
                        return.granges = FALSE)
   expect_equal(a, b)
 })
 
 test_that("coordinates are always sequential", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 5e-2,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 5e-2,
                           return.granges = FALSE)
   expect_true(all(hits$start <= hits$end))
   expect_true(all(hits$start >= 1L))
@@ -36,7 +36,7 @@ test_that("coordinates are always sequential", {
 
 test_that("match on '-' strand reverse-complements back to the sequence", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 5e-2,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 5e-2,
                           return.granges = FALSE)
   neg <- hits[hits$strand == "-", , drop = FALSE]
   skip_if(nrow(neg) == 0L, "no '-' strand hits in fixture")
@@ -47,7 +47,7 @@ test_that("match on '-' strand reverse-complements back to the sequence", {
 
 test_that("match on '+' strand equals the literal substring", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 5e-2,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 5e-2,
                           return.granges = FALSE)
   pos <- hits[hits$strand == "+", , drop = FALSE]
   expected <- as.character(subseq(fx$seqs[pos$sequence.i], pos$start, pos$end))
@@ -56,7 +56,7 @@ test_that("match on '+' strand equals the literal substring", {
 
 test_that("score is in (-Inf, max.score] and matches score.pct", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 5e-2,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 5e-2,
                           return.granges = FALSE)
   ## Mirror the function: normalize any motif whose PWM has -Inf entries
   ## (consensus-derived motifs), then take the sum of column maxes.
@@ -75,7 +75,7 @@ test_that("score is in (-Inf, max.score] and matches score.pct", {
 
 test_that("pvalue is in [0, 1] for every hit", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 5e-2,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 5e-2,
                           return.granges = FALSE)
   ## Underflow to 0 is legitimate at very high scores (CDF tail).
   expect_true(all(hits$pvalue >= 0))
@@ -84,7 +84,7 @@ test_that("pvalue is in [0, 1] for every hit", {
 
 test_that("data.frame output has documented columns in order", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 1e-2,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 1e-2,
                           return.granges = FALSE)
   expect_s3_class(hits, "data.frame")
   expect_identical(
@@ -98,7 +98,7 @@ test_that("data.frame output has documented columns in order", {
 test_that("GRanges output carries seqlengths and mcols", {
   skip_if_not_installed("GenomicRanges")
   fx <- make_fixture()
-  gr <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 1e-2,
+  gr <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 1e-2,
                         return.granges = TRUE)
   expect_s4_class(gr, "GRanges")
   expect_setequal(
@@ -112,7 +112,7 @@ test_that("GRanges output carries seqlengths and mcols", {
 
 test_that("RC = FALSE returns only '+' hits", {
   fx <- make_fixture()
-  hits <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 5e-2, RC = FALSE,
+  hits <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 5e-2, RC = FALSE,
                           return.granges = FALSE)
   expect_true(all(hits$strand == "+"))
 })
@@ -120,7 +120,7 @@ test_that("RC = FALSE returns only '+' hits", {
 test_that("agrees with scan_sequences() on shared hits", {
   ## scan_sequences swaps start/stop on '-' strand; harmonise before joining.
   fx <- make_fixture()
-  a <- scan_sequences2(fx$motifs, fx$seqs, pvalue = 1e-3,
+  a <- scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 1e-3,
                        return.granges = FALSE)
   b <- as.data.frame(scan_sequences(fx$motifs, fx$seqs,
                                     threshold = 1e-3,
@@ -145,22 +145,22 @@ test_that("agrees with scan_sequences() on shared hits", {
 
 test_that("AA motifs are rejected", {
   m <- create_motif("LLNN")
-  expect_error(scan_sequences2(m, AAStringSet("LLNNQQAA")),
+  expect_error(scan_sequences_lite(m, AAStringSet("LLNNQQAA")),
                "DNA/RNA")
 })
 
 test_that("alphabet mismatch between motif and sequence errors", {
   m <- create_motif("ACGT")
-  expect_error(scan_sequences2(m, RNAStringSet("ACGUACGU")),
+  expect_error(scan_sequences_lite(m, RNAStringSet("ACGUACGU")),
                "do not match")
 })
 
 test_that("invalid pvalue values are rejected", {
   fx <- make_fixture()
-  expect_error(scan_sequences2(fx$motifs, fx$seqs, pvalue = 0),  "in \\(0, 1\\)")
-  expect_error(scan_sequences2(fx$motifs, fx$seqs, pvalue = 1),  "in \\(0, 1\\)")
-  expect_error(scan_sequences2(fx$motifs, fx$seqs, pvalue = NA), "in \\(0, 1\\)")
-  expect_error(scan_sequences2(fx$motifs, fx$seqs, pvalue = c(0.1, 0.2)),
+  expect_error(scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 0),  "in \\(0, 1\\)")
+  expect_error(scan_sequences_lite(fx$motifs, fx$seqs, pvalue = 1),  "in \\(0, 1\\)")
+  expect_error(scan_sequences_lite(fx$motifs, fx$seqs, pvalue = NA), "in \\(0, 1\\)")
+  expect_error(scan_sequences_lite(fx$motifs, fx$seqs, pvalue = c(0.1, 0.2)),
                "in \\(0, 1\\)")
 })
 
@@ -169,7 +169,7 @@ test_that("empty result returns the documented shape", {
   ## not contain either motif at any reasonable score.
   m <- list(create_motif("AAAAAA", name = "polyA"))
   seqs <- DNAStringSet(c(only = paste(rep("G", 100), collapse = "")))
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-4, return.granges = FALSE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-4, return.granges = FALSE)
   expect_s3_class(hits, "data.frame")
   expect_equal(nrow(hits), 0L)
   expect_identical(
@@ -182,17 +182,17 @@ test_that("empty result returns the documented shape", {
 
 })  ## end suppressMessages
 
-test_that("scan_sequences2 runs on RNA motifs and sequences", {
+test_that("scan_sequences_lite runs on RNA motifs and sequences", {
   suppressMessages({
     m <- create_motif("ACGU", alphabet = "RNA", nsites = 10)
     seqs <- Biostrings::RNAStringSet(c("GGGACGUAAA", "UUUACGUUUU"))
-    res <- scan_sequences2(list(m), seqs, pvalue = 0.5, return.granges = FALSE)
+    res <- scan_sequences_lite(list(m), seqs, pvalue = 0.5, return.granges = FALSE)
     expect_s3_class(res, "data.frame")
     expect_true(nrow(res) >= 1L)
   })
 })
 
-test_that("scan_sequences and scan_sequences2 both find an implanted motif (v1/v2 parity smoke)", {
+test_that("scan_sequences and scan_sequences_lite both find an implanted motif (v1/v2 parity smoke)", {
   ## Different scoring stacks; this verifies both find at least one hit for an
   ## obvious implanted match. Strict numerical parity is intentionally not
   ## asserted.
@@ -203,7 +203,7 @@ test_that("scan_sequences and scan_sequences2 both find an implanted motif (v1/v
                                             paste(rep("A", 50), collapse = "")))
     h1 <- scan_sequences(m, seq, RC = FALSE, verbose = 0,
                          threshold = 0.9, threshold.type = "logodds")
-    h2 <- scan_sequences2(list(m), seq, pvalue = 1e-2, return.granges = FALSE)
+    h2 <- scan_sequences_lite(list(m), seq, pvalue = 1e-2, return.granges = FALSE)
     expect_gte(nrow(h1), 1L)
     expect_gte(nrow(h2), 1L)
     ## Both should find a hit overlapping position 51.
@@ -212,16 +212,16 @@ test_that("scan_sequences and scan_sequences2 both find an implanted motif (v1/v
   })
 })
 
-test_that("scan_sequences2 gives the same hits at nthreads = 1 and 2", {
+test_that("scan_sequences_lite gives the same hits at nthreads = 1 and 2", {
   suppressMessages({
     set.seed(1)
     m <- create_motif("CACGTG", nsites = 100)
     seqs <- Biostrings::DNAStringSet(vapply(seq_len(8), function(i) {
       paste(sample(c("A","C","G","T"), 200, replace = TRUE), collapse = "")
     }, character(1)))
-    a <- scan_sequences2(list(m), seqs, pvalue = 1e-2, nthreads = 1,
+    a <- scan_sequences_lite(list(m), seqs, pvalue = 1e-2, nthreads = 1,
                          return.granges = FALSE)
-    b <- scan_sequences2(list(m), seqs, pvalue = 1e-2, nthreads = 2,
+    b <- scan_sequences_lite(list(m), seqs, pvalue = 1e-2, nthreads = 2,
                          return.granges = FALSE)
     expect_equal(a, b)
   })

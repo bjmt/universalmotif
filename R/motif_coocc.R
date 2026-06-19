@@ -15,13 +15,13 @@
 #' Two input paths are supported:
 #'
 #'   1. Internal scan (default): pass `motifs` + `sequences` and
-#'      `motif_coocc()` will call [scan_sequences2()] with the given
+#'      `motif_coocc()` will call [scan_sequences_lite()] with the given
 #'      `pvalue` and `RC` arguments to build the hit table. DNA/RNA
-#'      only (the restriction comes from `scan_sequences2()`).
+#'      only (the restriction comes from `scan_sequences_lite()`).
 #'   2. Precomputed hits: pass `motifs` + `hits` + `n.sequences`.
 #'      `hits` is a `data.frame` or `GRanges` with `motif.i` and
 #'      `sequence.i` columns (the native return shape of
-#'      [scan_sequences()] / [scan_sequences2()]), optionally `start`
+#'      [scan_sequences()] / [scan_sequences_lite()]), optionally `start`
 #'      when `max.distance` is set. This path accepts any motif
 #'      alphabet; once a hit table exists, co-occurrence is pure
 #'      set arithmetic on integer indices and no sequence bytes are
@@ -31,7 +31,7 @@
 #'   A single motif or a list of motifs. Required in both paths to
 #'   provide motif names and to dimension the pair table.
 #' @param sequences `XStringSet` or `NULL`. If supplied, the function
-#'   scans internally via [scan_sequences2()]; DNA/RNA only.
+#'   scans internally via [scan_sequences_lite()]; DNA/RNA only.
 #' @param hits `data.frame`, `GRanges`, or `NULL`. Precomputed hit
 #'   table with `motif.i` and `sequence.i` columns. If supplied,
 #'   `sequences` is ignored and `n.sequences` must be provided. Any
@@ -43,7 +43,7 @@
 #'   internal scan. Default `1e-4`. Ignored on the hit-table path.
 #' @param RC `logical(1)`. Scan the reverse complement too? Default
 #'   `TRUE`. Ignored when a hits table is provided.
-#' @param no.overlaps `logical(1)`. Passed to [scan_sequences2()] on the
+#' @param no.overlaps `logical(1)`. Passed to [scan_sequences_lite()] on the
 #'   internal-scan path: if `TRUE`, overlapping hits of the *same* motif
 #'   are collapsed to one (greedy; see [dedup_hits()]) before
 #'   co-occurrence is computed. This does not change the presence-based
@@ -57,7 +57,7 @@
 #'   `FALSE`.
 #' @param no.overlaps.by `character(1)`. Tie-break priority when
 #'   `no.overlaps = TRUE`: `"pvalue"` (default) keeps the lowest-p hit,
-#'   `"score"` the highest-scoring. Passed to [scan_sequences2()].
+#'   `"score"` the highest-scoring. Passed to [scan_sequences_lite()].
 #' @param max.distance `integer(1)` or `NULL`. If non-`NULL`, two
 #'   extra descriptive columns are added to the output:
 #'   `both.clustered` (subset of co-occurring sequences with a within-
@@ -72,7 +72,7 @@
 #'   least once).
 #' @param pseudocount `numeric(1)`. Added to every cell of the 2x2
 #'   contingency before the Fisher test (matches the convention from
-#'   [enrich_motifs2()]). Default `0L`.
+#'   [enrich_motifs_lite()]). Default `0L`.
 #' @param self.pairs `logical(1)`. If `TRUE`, include `(i, i)` rows
 #'   (testing whether motif `i` co-occurs with itself). Usually only
 #'   meaningful for motifs that bind as homodimers. Default `FALSE`.
@@ -108,7 +108,7 @@
 #' co
 #' }
 #'
-#' @seealso [scan_sequences2()], [enrich_motifs2()], [motif_peaks()]
+#' @seealso [scan_sequences_lite()], [enrich_motifs_lite()], [motif_peaks()]
 #' @references
 #'
 #' Heinz S, Benner C, Spann N, et al. (2010). "Simple combinations of
@@ -180,8 +180,8 @@ motif_coocc <- function(motifs, sequences = NULL,
 
   ## --- choose input path -----------------------------------------------
   if (is.null(hits)) {
-    ## Internal-scan path (DNA/RNA only -- enforced by scan_sequences2).
-    hits <- scan_sequences2(motifs, sequences,
+    ## Internal-scan path (DNA/RNA only -- enforced by scan_sequences_lite).
+    hits <- scan_sequences_lite(motifs, sequences,
                             pvalue = pvalue, RC = RC,
                             no.overlaps = no.overlaps,
                             no.overlaps.by = no.overlaps.by,

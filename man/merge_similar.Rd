@@ -79,7 +79,7 @@ See \code{\link[=convert_motifs]{convert_motifs()}} for available output formats
 \description{
 Given a list of motifs, \code{\link[=merge_similar]{merge_similar()}} will identify similar motifs with
 \code{\link[=compare_motifs]{compare_motifs()}}, and merge similar ones with \code{\link[=merge_motifs]{merge_motifs()}}. For merging
-regular DNA/RNA motifs, see the simpler and faster \code{\link[=merge_similar2]{merge_similar2()}}.
+regular DNA/RNA motifs, see the simpler and faster \code{\link[=merge_similar_lite]{merge_similar_lite()}}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters, and
@@ -106,7 +106,7 @@ length(motifs)
 
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs]{merge_motifs()}}, \code{\link[=merge_similar2]{merge_similar2()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs]{merge_motifs()}}, \code{\link[=merge_similar_lite]{merge_similar_lite()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

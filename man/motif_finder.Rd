@@ -131,7 +131,7 @@ Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
 \url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}, \code{\link[=shuffle_sequences]{shuffle_sequences()}},
 \code{\link[=create_motif]{create_motif()}}, \code{\link[=to_df]{to_df()}}, \code{\link[=to_list]{to_list()}}
 }
 \author{

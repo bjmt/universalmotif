@@ -1,6 +1,6 @@
 #' Faster minimalist motif comparison.
 #'
-#' `compare_motifs2()` is a deliberately pared-down counterpart to
+#' `compare_motifs_lite()` is a deliberately pared-down counterpart to
 #' [compare_motifs()], with defaults and an algorithm that mirror those of
 #' the command-line tool [yamtk](https://github.com/bjmt/yamtk). It uses the
 #' per-column Pearson correlation as its similarity metric, computes
@@ -94,15 +94,16 @@
 #'   create_motif(paste(sample(c("A","C","G","T"), 8, replace = TRUE),
 #'                      collapse = ""), name = paste0("M", i)))
 #' ## Matrix of mean PCC scores
-#' m <- compare_motifs2(motifs)
+#' m <- compare_motifs_lite(motifs)
 #' round(m, 2)
 #' ## Long-format hits at q <= 0.5 with motif 1 as the query
-#' compare_motifs2(motifs, compare.to = 1, qvalue = 0.5)
+#' compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5)
 #'
-#' @seealso [compare_motifs()], [scan_sequences2()], [view_motifs2()]
+#' @seealso [compare_motifs()], [scan_sequences_lite()], [view_motifs_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-compare_motifs2 <- function(motifs,
+compare_motifs_lite <- function(motifs,
                             compare.to    = NULL,
                             qvalue        = 0.1,
                             min.overlap   = 5L,
@@ -166,7 +167,7 @@ compare_motifs2 <- function(motifs,
     stop("all motifs must share the same alphabet", call. = FALSE)
   mot.alph <- unique(mot.alphs)
   if (!mot.alph %in% c("DNA", "RNA"))
-    stop("`compare_motifs2()` only supports DNA/RNA motifs; got `",
+    stop("`compare_motifs_lite()` only supports DNA/RNA motifs; got `",
          mot.alph, "`. Use `compare_motifs()` for other alphabets.",
          call. = FALSE)
 
@@ -326,7 +327,7 @@ compare_motifs2 <- function(motifs,
 
   if (!missing(output.report)) {
     tryCatch(
-      compare_report_from_v2(fun.call, long, motifs, mot.names,
+      compare_report_from_lite(fun.call, long, motifs, mot.names,
                              list(RC = RC, null = null, qvalue = qvalue,
                                   min.overlap = min.overlap),
                              qix, output.report, output.report.max.print),

@@ -70,7 +70,7 @@ motif PPMs. Currently the \code{multifreq} slot, if filled in any of the motifs,
 will be dropped. Only 0-order background probabilities will be kept.
 Motifs are merged one at a time, starting with the first entry in the
 list. For merging regular DNA/RNA motifs, see the simpler and
-faster \code{\link[=merge_motifs2]{merge_motifs2()}}.
+faster \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
@@ -96,7 +96,7 @@ view_motifs(merge_motifs(c(m1, m2, m3)))
 
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs2]{merge_motifs2()}}, \code{\link[=merge_similar]{merge_similar()}},
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}, \code{\link[=merge_similar]{merge_similar()}},
 \code{\link[=trim_motifs]{trim_motifs()}}
 }
 \author{

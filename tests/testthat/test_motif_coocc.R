@@ -95,7 +95,7 @@ test_that("hit-table path agrees with internal-scan path", {
                  make_fixed("AAATTTAAATTT", "M2"),
                  make_fixed("GGGCCCGGGCCC", "M3"))
   s <- make_seqs(60, 300, seed = 4)
-  hits <- scan_sequences2(motifs, s, pvalue = 1e-3, return.granges = FALSE)
+  hits <- scan_sequences_lite(motifs, s, pvalue = 1e-3, return.granges = FALSE)
   co.internal <- motif_coocc(motifs, s, pvalue = 1e-3)
   co.hits     <- motif_coocc(motifs, hits = hits, n.sequences = length(s))
   ord <- function(x) x[order(x$motif_a, x$motif_b), ]
@@ -224,8 +224,8 @@ test_that("hits as GRanges round-trips correctly", {
   motifs <- list(make_fixed("CACGTGCACGTG", "M1"),
                  make_fixed("AAATTTAAATTT", "M2"))
   s <- make_seqs(40, 300, seed = 41)
-  hits_df <- scan_sequences2(motifs, s, pvalue = 1e-3, return.granges = FALSE)
-  hits_gr <- scan_sequences2(motifs, s, pvalue = 1e-3, return.granges = TRUE)
+  hits_df <- scan_sequences_lite(motifs, s, pvalue = 1e-3, return.granges = FALSE)
+  hits_gr <- scan_sequences_lite(motifs, s, pvalue = 1e-3, return.granges = TRUE)
   co_df <- motif_coocc(motifs, hits = hits_df, n.sequences = length(s))
   co_gr <- motif_coocc(motifs, hits = hits_gr, n.sequences = length(s))
   expect_equal(co_df[, c("both","a_only","b_only","neither")],

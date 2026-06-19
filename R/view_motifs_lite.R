@@ -1,8 +1,8 @@
-#' Plot motif logos using `compare_motifs2()` alignment (v2).
+#' Plot motif logos using `compare_motifs_lite()` alignment (v2).
 #'
-#' `view_motifs2()` is the leaner counterpart of [view_motifs()]: it aligns
+#' `view_motifs_lite()` is the leaner counterpart of [view_motifs()]: it aligns
 #' the input motifs using the same Pearson-correlation backend used by
-#' [compare_motifs2()] and [merge_motifs2()].
+#' [compare_motifs_lite()] and [merge_motifs_lite()].
 #' The rendering (logo polygons, `facet_wrap()` layout, `sort.by` permutation,
 #' `names.pos` placement) is identical to [view_motifs()].
 #'
@@ -62,7 +62,7 @@
 #'
 #' @details
 #' The alignment step uses the same
-#' backend as [merge_motifs2()] and [merge_similar2()]. The
+#' backend as [merge_motifs_lite()] and [merge_similar_lite()]. The
 #' highest-information-content input motif is chosen as the anchor,
 #' every other motif is aligned against it once, motifs whose best
 #' alignment lands on the reverse complement strand are
@@ -78,15 +78,16 @@
 #' m1 <- create_motif("TTGACATA", name = "a")
 #' m2 <- create_motif("CTTGACAT", name = "b")
 #' m3 <- create_motif("TGACATAT", name = "c")
-#' view_motifs2(list(m1, m2, m3))
-#' view_motifs2(list(m1, m2, m3), sort.by = "similarity",
+#' view_motifs_lite(list(m1, m2, m3))
+#' view_motifs_lite(list(m1, m2, m3), sort.by = "similarity",
 #'              names.pos = "right")
 #'
-#' @seealso [view_motifs()], [view_logo()], [compare_motifs2()],
-#'   [merge_motifs2()], [merge_similar2()]
+#' @seealso [view_motifs()], [view_logo()], [compare_motifs_lite()],
+#'   [merge_motifs_lite()], [merge_similar_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
+view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
   min.overlap = 6, relative_entropy = FALSE, nthreads = 1,
   return.raw = FALSE, dedup.names = TRUE, show.positions = TRUE,
   show.positions.once = TRUE, sort.by = c("none", "ic", "similarity"),
@@ -139,13 +140,13 @@ view_motifs2 <- function(motifs, use.type = "ICM", tryRC = TRUE,
 
   motifs <- convert_type_internal(motifs, "PPM")
 
-  ## DNA / RNA only (matches merge_motifs2 / compare_motifs2_align_cpp).
+  ## DNA / RNA only (matches merge_motifs_lite / compare_motifs2_align_cpp).
   alphs <- vapply(motifs, function(x) x@alphabet, character(1))
   mot.alph <- unique(alphs)
   if (length(mot.alph) > 1L)
     stop("all motifs must share the same alphabet", call. = FALSE)
   if (!mot.alph %in% c("DNA", "RNA"))
-    stop("`view_motifs2()` supports DNA/RNA motifs only; got `",
+    stop("`view_motifs_lite()` supports DNA/RNA motifs only; got `",
          mot.alph, "`. Use `view_motifs()` for other alphabets.",
          call. = FALSE)
 

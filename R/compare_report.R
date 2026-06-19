@@ -1,5 +1,5 @@
 ## ---------------------------------------------------------------------------
-## Shared HTML report generator for compare_motifs() and compare_motifs2().
+## Shared HTML report generator for compare_motifs() and compare_motifs_lite().
 ##
 ## Both functions normalise their results into a common `matches` data.frame
 ## (query / query.i / target / target.i / offset / strand + statistic columns)
@@ -10,7 +10,7 @@
 ## ---------------------------------------------------------------------------
 
 ## Orchestrator. `view.fun` is the name of the logo function emitted in the
-## figure chunks ("view_motifs" or "view_motifs2"); `view.args` is a named
+## figure chunks ("view_motifs" or "view_motifs_lite"); `view.args` is a named
 ## list of scalar arguments splatted into that call; `summary` is a named
 ## list of label -> value bullets for the header.
 compare_report <- function(call, matches, motifs, view.fun, view.args,
@@ -259,9 +259,9 @@ compare_report_from_v1 <- function(fun.call, comparisons, motifs, mot.names,
     output = output, max.print = max.print)
 }
 
-## Adapter: build the matches table from compare_motifs2() (v2) output and
+## Adapter: build the matches table from compare_motifs_lite() (v2) output and
 ## render. v2 already carries offset/strand from the scored alignment.
-compare_report_from_v2 <- function(fun.call, long, motifs, mot.names,
+compare_report_from_lite <- function(fun.call, long, motifs, mot.names,
                                     args, query.i, output, max.print) {
   np  <- min(as.integer(max.print), nrow(long))
   top <- long[seq_len(np), , drop = FALSE]
@@ -274,7 +274,7 @@ compare_report_from_v2 <- function(fun.call, long, motifs, mot.names,
     stringsAsFactors = FALSE)
   motifs <- Map(function(m, nm) { m@name <- nm; m }, motifs, mot.names)
   compare_report(
-    fun.call, matches, motifs, "view_motifs2",
+    fun.call, matches, motifs, "view_motifs_lite",
     view.args = list(use.type = "ICM", tryRC = args$RC,
                      min.overlap = args$min.overlap),
     summary = c(.cr_motif_stats(motifs, query.i),

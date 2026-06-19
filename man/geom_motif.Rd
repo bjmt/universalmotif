@@ -121,11 +121,11 @@ placing logos at tree tips.
 
 To draw several motifs aligned to a common column frame (for example a
 stack of aligned logos, or aligned tip logos on a tree), align them first
-with \code{\link[=view_motifs2]{view_motifs2()}} (or \code{\link[=view_motifs]{view_motifs()}}) and pass the result to
+with \code{\link[=view_motifs_lite]{view_motifs_lite()}} (or \code{\link[=view_motifs]{view_motifs()}}) and pass the result to
 \code{geom_logo()}:
 
 \preformatted{
-aligned <- view_motifs2(motifs, return.raw = TRUE, use.type = "ICM",
+aligned <- view_motifs_lite(motifs, return.raw = TRUE, use.type = "ICM",
                         sort.by = "none")
 ggplot(tipdf, aes(x = 0, y = y, motif = label)) +
   geom_logo(logo = aligned, colour.scheme = DNA_COLOURS)
@@ -150,7 +150,7 @@ ggplot(tipdf, aes(x = x, y = y, motif = label)) +
 
 }
 \seealso{
-\code{\link[=view_motifs]{view_motifs()}}, \code{\link[=view_logo]{view_logo()}}, \code{\link[=view_motifs2]{view_motifs2()}}, \code{\link[=motif_tree2]{motif_tree2()}}
+\code{\link[=view_motifs]{view_motifs()}}, \code{\link[=view_logo]{view_logo()}}, \code{\link[=view_motifs_lite]{view_motifs_lite()}}, \code{\link[=motif_tree_lite]{motif_tree_lite()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

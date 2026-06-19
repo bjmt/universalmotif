@@ -1,6 +1,6 @@
 #' Minimalist motif scanner aligned with `yamtk scan` defaults.
 #'
-#' `scan_sequences2()` is a deliberately pared-down counterpart to
+#' `scan_sequences_lite()` is a deliberately pared-down counterpart to
 #' [scan_sequences()], with a default surface that mirrors the command-line
 #' tool [yamtk](https://github.com/bjmt/yamtk). It exposes a single threshold
 #' (a P-value), always scans both strands by default, always computes a
@@ -71,13 +71,14 @@
 #' library(universalmotif)
 #' motifs <- create_motif(c("TATAAA", "CACGTG"))
 #' seqs <- create_sequences(seqnum = 5, seqlen = 200, rng.seed = 1)
-#' hits <- scan_sequences2(motifs, seqs, pvalue = 1e-3, return.granges = FALSE)
+#' hits <- scan_sequences_lite(motifs, seqs, pvalue = 1e-3, return.granges = FALSE)
 #' head(hits)
 #'
 #' @seealso [scan_sequences()], [motif_pvalue()], [convert_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-scan_sequences2 <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
+scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
                             nthreads = 1, return.granges = NULL,
                             no.overlaps = FALSE,
                             no.overlaps.by = c("pvalue", "score"),
@@ -112,7 +113,7 @@ scan_sequences2 <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
     stop("all motifs must share the same alphabet", call. = FALSE)
   mot.alph <- unique(mot.alphs)
   if (!mot.alph %in% c("DNA", "RNA"))
-    stop("`scan_sequences2()` only supports DNA/RNA motifs; got `",
+    stop("`scan_sequences_lite()` only supports DNA/RNA motifs; got `",
          mot.alph, "`. Use `scan_sequences()` for other alphabets.",
          call. = FALSE)
 

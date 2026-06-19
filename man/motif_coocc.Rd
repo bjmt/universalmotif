@@ -15,7 +15,7 @@ A single motif or a list of motifs. Required in both paths to
 provide motif names and to dimension the pair table.}
 
 \item{sequences}{\code{XStringSet} or \code{NULL}. If supplied, the function
-scans internally via \code{\link[=scan_sequences2]{scan_sequences2()}}; DNA/RNA only.}
+scans internally via \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}; DNA/RNA only.}
 
 \item{hits}{\code{data.frame}, \code{GRanges}, or \code{NULL}. Precomputed hit
 table with \code{motif.i} and \code{sequence.i} columns. If supplied,
@@ -32,7 +32,7 @@ internal scan. Default \code{1e-4}. Ignored on the hit-table path.}
 \item{RC}{\code{logical(1)}. Scan the reverse complement too? Default
 \code{TRUE}. Ignored when a hits table is provided.}
 
-\item{no.overlaps}{\code{logical(1)}. Passed to \code{\link[=scan_sequences2]{scan_sequences2()}} on the
+\item{no.overlaps}{\code{logical(1)}. Passed to \code{\link[=scan_sequences_lite]{scan_sequences_lite()}} on the
 internal-scan path: if \code{TRUE}, overlapping hits of the \emph{same} motif
 are collapsed to one (greedy; see \code{\link[=dedup_hits]{dedup_hits()}}) before
 co-occurrence is computed. This does not change the presence-based
@@ -47,7 +47,7 @@ warning) when a precomputed \code{hits} table is supplied. Default
 
 \item{no.overlaps.by}{\code{character(1)}. Tie-break priority when
 \code{no.overlaps = TRUE}: \code{"pvalue"} (default) keeps the lowest-p hit,
-\code{"score"} the highest-scoring. Passed to \code{\link[=scan_sequences2]{scan_sequences2()}}.}
+\code{"score"} the highest-scoring. Passed to \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}.}
 
 \item{max.distance}{\code{integer(1)} or \code{NULL}. If non-\code{NULL}, two
 extra descriptive columns are added to the output:
@@ -65,7 +65,7 @@ least once).}
 
 \item{pseudocount}{\code{numeric(1)}. Added to every cell of the 2x2
 contingency before the Fisher test (matches the convention from
-\code{\link[=enrich_motifs2]{enrich_motifs2()}}). Default \code{0L}.}
+\code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}). Default \code{0L}.}
 
 \item{self.pairs}{\code{logical(1)}. If \code{TRUE}, include \verb{(i, i)} rows
 (testing whether motif \code{i} co-occurs with itself). Usually only
@@ -109,13 +109,13 @@ Fisher p-value itself is always computed on the unfiltered 2x2
 Two input paths are supported:
 \enumerate{
 \item Internal scan (default): pass \code{motifs} + \code{sequences} and
-\code{motif_coocc()} will call \code{\link[=scan_sequences2]{scan_sequences2()}} with the given
+\code{motif_coocc()} will call \code{\link[=scan_sequences_lite]{scan_sequences_lite()}} with the given
 \code{pvalue} and \code{RC} arguments to build the hit table. DNA/RNA
-only (the restriction comes from \code{scan_sequences2()}).
+only (the restriction comes from \code{scan_sequences_lite()}).
 \item Precomputed hits: pass \code{motifs} + \code{hits} + \code{n.sequences}.
 \code{hits} is a \code{data.frame} or \code{GRanges} with \code{motif.i} and
 \code{sequence.i} columns (the native return shape of
-\code{\link[=scan_sequences]{scan_sequences()}} / \code{\link[=scan_sequences2]{scan_sequences2()}}), optionally \code{start}
+\code{\link[=scan_sequences]{scan_sequences()}} / \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}), optionally \code{start}
 when \code{max.distance} is set. This path accepts any motif
 alphabet; once a hit table exists, co-occurrence is pure
 set arithmetic on integer indices and no sequence bytes are
@@ -150,7 +150,7 @@ Research}, \strong{39}(15):e98. \doi{10.1093/nar/gkr341}. (SpaMo, the
 spatial-distance motif-pair analysis.)
 }
 \seealso{
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}, \code{\link[=motif_peaks]{motif_peaks()}}
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}, \code{\link[=motif_peaks]{motif_peaks()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

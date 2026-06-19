@@ -33,7 +33,7 @@ This vignette covers motif comparisons (including metrics, parameters and cluste
 
 # Motif comparisons
 
-There are a couple of functions available in other Bioconductor packages which allow for motif comparison, such as `PWMSimilarity()` (`TFBSTools`) and `motifSimilarity()` (`PWMEnrich`). Unfortunately these functions are not designed for comparing large numbers of motifs. Furthermore they are restrictive in their option range. The `universalmotif` package aims to fix this by providing the `compare_motifs()` / `compare_motifs2()` function. Several other functions also make use of the core `compare_motifs()` / `compare_motifs2()` functionality, including `merge_motifs()` / `merge_motifs2()` and `view_motifs()` / `view_motifs2()`. (The `2` versions of these functions are newer, faster, simplified versions.) The following introduction of motif comparison is specifically concerning the original fully-featured `compare_motifs()`
+There are a couple of functions available in other Bioconductor packages which allow for motif comparison, such as `PWMSimilarity()` (`TFBSTools`) and `motifSimilarity()` (`PWMEnrich`). Unfortunately these functions are not designed for comparing large numbers of motifs. Furthermore they are restrictive in their option range. The `universalmotif` package aims to fix this by providing the `compare_motifs()` / `compare_motifs_lite()` function. Several other functions also make use of the core `compare_motifs()` / `compare_motifs_lite()` functionality, including `merge_motifs()` / `merge_motifs_lite()` and `view_motifs()` / `view_motifs_lite()`. (The `2` versions of these functions are newer, faster, simplified versions.) The following introduction of motif comparison is specifically concerning the original fully-featured `compare_motifs()`
 
 ## An overview of available comparison metrics
 
@@ -289,13 +289,13 @@ head(compare_motifs(motifs, 1))
 
 P-values are made possible by estimating distribution (usually the best fitting distribution for motif comparisons) parameters from randomised motif scores, then using the appropriate `stats::p*()` distribution function to return P-values. These estimated parameters are pre-computed with `make_DBscores()` and stored as `JASPAR2018_CORE_DBSCORES` and `JASPAR2018_CORE_DBSCORES_NORM`. Since changing any of the settings and motif sizes will affect the estimated distribution parameters, estimated parameters have been pre-computed for a variety of these. See `?make_DBscores` if you would like to generate your own set of pre-computed scores using your own parameters and motifs.
 
-## A faster alternative: `compare_motifs2()`
+## A faster alternative: `compare_motifs_lite()`
 
 For DNA or RNA motif comparison that does not need the alternative
 similarity metrics (EUCL, KL, ALLR, and so on), the score-aggregation
 strategies, the IC-based filters, multifreq scoring, or the
 JASPAR-derived `db.scores` lookup-table P-value path, the lighter
-`compare_motifs2()` is generally much faster than `compare_motifs()`,
+`compare_motifs_lite()` is generally much faster than `compare_motifs()`,
 and it parallelises rather better across queries. It uses the
 per-column Pearson correlation as its only similarity metric, computes
 p-values from a TOMTOM-style empirical or parametric null PMF (with
@@ -306,7 +306,7 @@ aligned with the command-line tool
 
 The function has eight formals (`motifs`, `compare.to`, `qvalue`,
 `min.overlap`, `RC`, `null`, `bkg`, `matrix.out`, `nthreads`); see
-`?compare_motifs2` for the details. There are two null-PMF modes:
+`?compare_motifs_lite` for the details. There are two null-PMF modes:
 
 - **`null = "empirical"`** (default): per-query column, score against
   every target-database column, histogram into 51 PCC bins, convolve
@@ -322,23 +322,23 @@ The function has eight formals (`motifs`, `compare.to`, `qvalue`,
 ```{r, eval = FALSE}
 ## Score matrix (default: matrix.out = "score" returns mean PCC,
 ## always in [-1, 1])
-m <- compare_motifs2(motifs)
+m <- compare_motifs_lite(motifs)
 
 ## Significance matrix (p-values or BH q-values across the
 ## query-vs-database axis)
-mp <- compare_motifs2(motifs, matrix.out = "pvalue")
-mq <- compare_motifs2(motifs, matrix.out = "qvalue")
+mp <- compare_motifs_lite(motifs, matrix.out = "pvalue")
+mq <- compare_motifs_lite(motifs, matrix.out = "qvalue")
 
 ## Long-format: motif 1 against the rest, q-value <= 0.05
-hits <- compare_motifs2(motifs, compare.to = 1, qvalue = 0.05)
+hits <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.05)
 ```
 
 When `compare_motifs()` is called with arguments that map cleanly onto
-`compare_motifs2()`'s feature set (PCC + sum strategy, the default IC
+`compare_motifs_lite()`'s feature set (PCC + sum strategy, the default IC
 filters, no multifreq, no HTML report, no `db.scores`, and a DNA/RNA
 alphabet), it emits a one-line hint pointing you at the faster
 function. (Silence it with
-`options(universalmotif.suggest.compare_motifs2 = FALSE)`.)
+`options(universalmotif.suggest.compare_motifs_lite = FALSE)`.)
 
 ### Speed comparison vs `compare_motifs()` and `yamtk cmp` {.unnumbered}
 
@@ -346,7 +346,7 @@ The table below records the wall-clock time for the three functions
 on a single shared fixture: the first 50 (or 200) motifs of
 HOCOMOCOv11, compared against themselves, with RC = TRUE,
 min.overlap = 5, a uniform background, and the empirical null PMF. The
-`compare_motifs2()` numbers are shown for both `matrix.out = "score"`
+`compare_motifs_lite()` numbers are shown for both `matrix.out = "score"`
 (which skips the p-value path entirely, since the best alignment is
 chosen by score rather than by p-value) and `matrix.out = "pvalue"`
 (the full significance computation, which is equivalent work to
@@ -361,11 +361,11 @@ MBP M5 under R 4.4.1.
 | 50 × 50 (2 500 pairs) | 0.028 / 0.012 | 0.598 / 0.194 | 0.014 / 0.004 | 0.285 / 0.082 |
 | 200 × 200 (40 000 pairs) | 0.114 / 0.038 | 9.537 / 2.590 | 0.224 / 0.064 | 1.673 / 0.470 |
 
-`cm2()` is shorthand for `compare_motifs2()`; the `score` / `pvalue`
+`cm2()` is shorthand for `compare_motifs_lite()`; the `score` / `pvalue`
 labels indicate the value of the `matrix.out` argument.
 
 ¹ `yamtk cmp` is a dedicated C CLI tool; threading is by query motif.
-The `compare_motifs2()` algorithm is a port of yamtk's.
+The `compare_motifs_lite()` algorithm is a port of yamtk's.
 
 ² Score-only matrix mode skips the per-pair p-value lookup, which
 otherwise dominates runtime on dense fixtures. This is safe because
@@ -376,9 +376,9 @@ alignment.
 To summarise:
 
 - `yamtk cmp` is the fastest of the three at every scale; the
-  `compare_motifs2()` port stays within ~2× at 4 threads for score-only
+  `compare_motifs_lite()` port stays within ~2× at 4 threads for score-only
   output and within ~12× for full p-value output.
-- `compare_motifs2()` is 5-40× faster than `compare_motifs()` at
+- `compare_motifs_lite()` is 5-40× faster than `compare_motifs()` at
   4 threads on the same set, with the larger speedups in score-only
   mode. `compare_motifs()`'s p-value path uses pre-computed JASPAR
   score-distribution tables (`JASPAR2018_CORE_DBSCORES`) and a different
@@ -388,29 +388,29 @@ To summarise:
 - Threading scales 3-3.5× at 4 threads in all three universalmotif
   modes.
 - For new code that does not need any of `compare_motifs()`'s
-  advanced features, try `compare_motifs2()`.
+  advanced features, try `compare_motifs_lite()`.
 
 # Merging motifs
 
 The `universalmotif` package offers two ways to collapse similar
 motifs into consensus motifs: `merge_motifs()` / `merge_similar()`,
-and `merge_motifs2()` / `merge_similar2()` (the latter pair are
-newer, built on `compare_motifs2()`, and use significance-based
+and `merge_motifs_lite()` / `merge_similar_lite()` (the latter pair are
+newer, built on `compare_motifs_lite()`, and use significance-based
 clustering).
 
-## A faster alternative: `merge_motifs2()` / `merge_similar2()`
+## A faster alternative: `merge_motifs_lite()` / `merge_similar_lite()`
 
 For simple DNA/RNA motif merging tasks:
 
-- `merge_motifs2(motifs)` aligns every motif against the highest-IC
-  anchor via `compare_motifs2()` and column-averages them in a single
+- `merge_motifs_lite(motifs)` aligns every motif against the highest-IC
+  anchor via `compare_motifs_lite()` and column-averages them in a single
   shared frame.
 
-- `merge_similar2(motifs, qvalue)` clusters motifs by statistical
+- `merge_similar_lite(motifs, qvalue)` clusters motifs by statistical
   significance: two motifs are linked if their pairwise q-value
   meets the user's `qvalue` cutoff. Clustering is by connected
   components on the resulting graph (deterministic, no linkage-method
-  to choose). Each component is collapsed via `merge_motifs2()`.
+  to choose). Each component is collapsed via `merge_motifs_lite()`.
 
 ```{r}
 library(universalmotif)
@@ -420,26 +420,26 @@ m3 <- create_motif("TGACATAT", name = "c")
 m4 <- create_motif("GGGCCCCC", name = "unrelated")
 
 ## Single merged consensus across 3 related motifs:
-merge_motifs2(list(m1, m2, m3))
+merge_motifs_lite(list(m1, m2, m3))
 
 ## Cluster + merge: returns a shorter list, with similar motifs collapsed.
-merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05)
+merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05)
 
 ## Or just the cluster assignments (no merging):
-merge_similar2(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE)
+merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE)
 ```
 
 When a `merge_motifs()` or `merge_similar()` call uses only features
-that are also available to `merge_motifs2()` / `merge_similar2()`, a
+that are also available to `merge_motifs_lite()` / `merge_similar_lite()`, a
 one-line hint is emitted pointing you at the leaner function. (Silence
-it with `options(universalmotif.suggest.merge_motifs2 = FALSE)` and
-`options(universalmotif.suggest.merge_similar2 = FALSE)`.)
+it with `options(universalmotif.suggest.merge_motifs_lite = FALSE)` and
+`options(universalmotif.suggest.merge_similar_lite = FALSE)`.)
 
 # Motif trees with ggtree
 
 ## Using `motif_tree()`
 
-Additionally, this package introduces the `motif_tree()` function for generating basic tree-like diagrams for comparing motifs. This allows for a visual result from `compare_motifs()`. All options from `compare_motifs()` are available in `motif_tree()`. This function uses the `ggtree` package and outputs a `ggplot` object (from the `ggplot2` package), so altering the look of the trees can be done easily after `motif_tree()` has already been run. There is also a new `motif_tree2()`, which is based on `compare_motifs2()`.
+Additionally, this package introduces the `motif_tree()` function for generating basic tree-like diagrams for comparing motifs. This allows for a visual result from `compare_motifs()`. All options from `compare_motifs()` are available in `motif_tree()`. This function uses the `ggtree` package and outputs a `ggplot` object (from the `ggplot2` package), so altering the look of the trees can be done easily after `motif_tree()` has already been run. There is also a new `motif_tree_lite()`, which is based on `compare_motifs_lite()`.
 
 ```{r}
 library(universalmotif)
@@ -529,7 +529,7 @@ tree <- tree %<+% tipsize + geom_tippoint(aes(size = icscore))
 
 ## Plotting motifs alongside trees
 
-`motif_tree2()` draws a sequence logo at every tip by default (`tiplogo = TRUE`), so the motifs themselves serve as the tip labels. The logos are aligned to a shared column frame (via `view_motifs2()`) so that homologous positions line up across tips.
+`motif_tree_lite()` draws a sequence logo at every tip by default (`tiplogo = TRUE`), so the motifs themselves serve as the tip labels. The logos are aligned to a shared column frame (via `view_motifs_lite()`) so that homologous positions line up across tips.
 
 ```{r}
 library(universalmotif)
@@ -538,7 +538,7 @@ library(MotifDb)
 motifs <- convert_motifs(MotifDb[1:10])
 
 ## Tip logos are on by default; the default layout is now "rectangular".
-motif_tree2(motifs, linecol = "none")
+motif_tree_lite(motifs, linecol = "none")
 ```
 
 Use `tiplogo = FALSE` to turn the logos off, or `tiplogo.align = FALSE` to draw each tip logo independently instead of aligned to a common frame. Tip logos are only drawn on the `"rectangular"` and `"slanted"` layouts. The machinery is also exposed directly as the `geom_motif()` and `geom_logo()` `ggplot2` layers (and the `annotate_motif()` / `annotate_logo()` annotation helpers), so logos can be embedded in any `ggplot` construction.

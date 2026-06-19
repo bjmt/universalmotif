@@ -156,7 +156,7 @@ Finally, the information content matrix [@correction; @icm]. This type aims to i
 ```{r logo1,fig.cap="Sequence logo of a Position Probability Matrix",echo=FALSE,fig.height=2.5,fig.width=5}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-view_motifs2(motif, use.type="PPM")
+view_motifs_lite(motif, use.type="PPM")
 ```
 
 In this case, the height of the letters represents their probabilities at each
@@ -166,7 +166,7 @@ as seen in figure \@ref(fig:logo2).
 ```{r logo2,fig.cap="Sequence logo of an Information Content Matrix",echo=FALSE,fig.height=2.5,fig.width=5}
 motif <- create_motif(c("AAGAAT", "ATCATA", "AAGTAA", "AACAAA", "ATTAAA",
                         "AAGAAT"), type = "PPM", pseudocount = 0)
-view_motifs2(motif)
+view_motifs_lite(motif)
 ```
 
 Now, the total height of each position is scaled using the total _information_ at that position. Simply put, the total information of each position is an indication of the level of conservation. In the example motif, the first position is highly conserved, always being the letter A, whereas the third position is less conserved, as the probabilities for any one letter are notably lower.

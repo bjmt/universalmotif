@@ -44,7 +44,7 @@ order.
 }
 \description{
 Given a set of motif hits, typically the output of
-\code{\link[=scan_sequences]{scan_sequences()}} or \code{\link[=scan_sequences2]{scan_sequences2()}}, or a \code{GRanges} /
+\code{\link[=scan_sequences]{scan_sequences()}} or \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, or a \code{GRanges} /
 \code{data.frame} from any other source, drop overlapping hits within
 each \verb{(sequence, motif, strand)} group using a greedy
 algorithm: cluster overlapping hits, then within each cluster keep
@@ -68,7 +68,7 @@ library(universalmotif)
 motifs <- list(create_motif("TATAAA", name = "M1"),
                create_motif("CACGTG", name = "M2"))
 seqs <- create_sequences(seqnum = 5, seqlen = 400, rng.seed = 1)
-hits <- scan_sequences2(motifs, seqs, pvalue = 5e-2,
+hits <- scan_sequences_lite(motifs, seqs, pvalue = 5e-2,
                         return.granges = FALSE)
 deduped <- dedup_hits(hits)
 nrow(hits)
@@ -80,7 +80,7 @@ Tremblay BJM (2026). yamtk: Yet Another Motif ToolKit.
 \url{https://github.com/bjmt/yamtk}.
 }
 \seealso{
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=scan_sequences]{scan_sequences()}}
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=scan_sequences]{scan_sequences()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

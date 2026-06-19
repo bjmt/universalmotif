@@ -12,8 +12,8 @@ abstract: >
   from several public sources, using *Homo sapiens* motifs pulled
   out of three `MotifDb` sub-collections (JASPAR2022,
   HOCOMOCOv11-core, CIS-BP) as the working example. We import,
-  inspect cross-source redundancy with `compare_motifs2()`,
-  deduplicate via graph-based clustering in `merge_similar2()`,
+  inspect cross-source redundancy with `compare_motifs_lite()`,
+  deduplicate via graph-based clustering in `merge_similar_lite()`,
   trim low-information flanks with `trim_motifs()`, annotate the
   survivors with the existing metadata via `to_df()` /
   `update_motifs()`, and export the whole curated library as a
@@ -72,17 +72,17 @@ curated motif library, see the
 [ChIP-seq workflow](ChIPseqWorkflow.pdf) vignette. This vignette
 sits one step upstream of the ChIP-seq one: it produces the kind
 of consolidated MEME file that a real analyst would feed into
-`scan_sequences2()` or `enrich_motifs2()`.
+`scan_sequences_lite()` or `enrich_motifs_lite()`.
 
 The recipe proceeds in eight steps:
 
 1. Pull motifs from three sources via `MotifDb`.
 2. Mark the originating source onto each motif.
 3. Inspect intra- and inter-source redundancy with
-   `compare_motifs2()`.
+   `compare_motifs_lite()`.
 4. Deduplicate via graph-based clustering with
-   `merge_similar2()`.
-5. Visualise the cluster structure with `motif_tree2()`.
+   `merge_similar_lite()`.
+5. Visualise the cluster structure with `motif_tree_lite()`.
 6. Trim uninformative flanks with `trim_motifs()`.
 7. Annotate the survivors with metadata via `to_df()` /
    `update_motifs()`.
@@ -111,10 +111,10 @@ sapply(per.source, length)
 We annotate each motif's `family` slot with the originating source.
 Doing this here, before the lists are concatenated, means the
 source survives every subsequent operation (clustering,
-trimming, MEME export) and gives `motif_tree2()` a per-motif
+trimming, MEME export) and gives `motif_tree_lite()` a per-motif
 colouring column to use later. `family` is the natural slot for
 this because `MotifDb` rarely populates it, and because
-`motif_tree2(linecol = "family")` is the function's default.
+`motif_tree_lite(linecol = "family")` is the function's default.
 
 ```{r}
 for (s in sources) {
@@ -162,7 +162,7 @@ all.motifs      <- c(jaspar.motifs, hocomoco.motifs, cisbp.motifs,
 # Inspecting cross-source redundancy
 
 Before deduplicating, it is worth quantifying how much redundancy
-is actually in the combined set. `compare_motifs2()` in matrix
+is actually in the combined set. `compare_motifs_lite()` in matrix
 mode returns a square q-value matrix (one q-value per ordered
 pair, after multiple-testing correction).
 With several hundred motifs the result is a
@@ -171,7 +171,7 @@ holds every pairwise q-value. Two threads finish the comparison
 in about four seconds on my laptop.
 
 ```{r}
-qmat <- compare_motifs2(all.motifs,
+qmat <- compare_motifs_lite(all.motifs,
                         matrix.out = "qvalue",
                         nthreads   = 2)
 dim(qmat)
@@ -221,7 +221,7 @@ sum(qvals < 1e-6)
 
 # Deduplicating via graph clustering
 
-`merge_similar2()` builds a graph whose edges link any two motifs
+`merge_similar_lite()` builds a graph whose edges link any two motifs
 that pass the q-value threshold, finds the connected components,
 and returns one representative motif per cluster. We use it twice:
 once with `return.clusters = TRUE` to get the per-motif cluster
@@ -229,7 +229,7 @@ assignments (so we can confirm them visually), and once without, to
 get the final merged set of motifs.
 
 ```{r}
-clusters <- merge_similar2(all.motifs,
+clusters <- merge_similar_lite(all.motifs,
                            qvalue          = 1e-6,
                            return.clusters = TRUE,
                            nthreads        = 2)
@@ -246,7 +246,7 @@ big.cluster.motifs <- all.motifs[
 if (length(big.cluster.motifs) > 10)
   big.cluster.motifs <- big.cluster.motifs[1:10]
 
-view_motifs2(big.cluster.motifs,
+view_motifs_lite(big.cluster.motifs,
   names.pos = "right", show.positions = FALSE)
 ```
 
@@ -257,14 +257,14 @@ curating a motif database. In our case we will carry on with this
 threshold.
 
 ```{r}
-merged <- merge_similar2(all.motifs,
+merged <- merge_similar_lite(all.motifs,
                          qvalue   = 1e-6,
                          nthreads = 2)
 length(all.motifs)
 length(merged)
 ```
 
-`merge_similar2()` autogenerates compound names for the merged
+`merge_similar_lite()` autogenerates compound names for the merged
 motifs by joining every contributing name with `+`, which again
 becomes unwieldy once several motifs collapse into a single cluster.
 A more compact alternative is to keep the first one or two
@@ -335,7 +335,7 @@ that this whole workflow exists to collapse.
 
 # Visualising the cluster structure
 
-`motif_tree2()` builds a hierarchical tree from the pairwise
+`motif_tree_lite()` builds a hierarchical tree from the pairwise
 comparison and renders it via `ggtree`. On all
 `r format(length(all.motifs), big.mark = ",")` motifs the
 labels would be too crowded to read, so we plot a random
@@ -351,7 +351,7 @@ clean.names <- make.unique(gsub("[^A-Za-z0-9_]", "_",
                                 vapply(sub, function(m) m["name"],
                                        character(1))))
 for (i in seq_along(sub)) sub[[i]]["name"] <- clean.names[i]
-motif_tree2(sub, linecol = "family", labels = "none",
+motif_tree_lite(sub, linecol = "family", labels = "none",
             layout = "circular", tiplogo = FALSE, progress = FALSE) +
   ggplot2::scale_color_discrete(breaks = sources) +
   ggplot2::theme(legend.position = "bottom",
@@ -383,7 +383,7 @@ trim.before <- merged[[trim.candidate.idx]]
 trim.before["name"] <- paste0(trim.before["name"], "  (untrimmed)")
 trim.after  <- trim_motifs(merged[[trim.candidate.idx]])
 trim.after["name"] <- paste0(trim.after["name"], "  (trimmed)")
-view_motifs2(list(trim.before, trim.after), names.pos = "right")
+view_motifs_lite(list(trim.before, trim.after), names.pos = "right")
 ```
 
 We then apply the trim to every merged motif before exporting:

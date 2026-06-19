@@ -1,7 +1,7 @@
-#' Generate ggtree-based motif trees using `compare_motifs2()`.
+#' Generate ggtree-based motif trees using `compare_motifs_lite()`.
 #'
-#' `motif_tree2()` is the leaner counterpart of [motif_tree()]: it builds the
-#' distance matrix via [compare_motifs2()] (mean Pearson correlation,
+#' `motif_tree_lite()` is the leaner counterpart of [motif_tree()]: it builds the
+#' distance matrix via [compare_motifs_lite()] (mean Pearson correlation,
 #' with built-in p-value / q-value machinery) instead of
 #' [compare_motifs()]. The distance for `hclust()` is derived from the
 #' mean Pearson correlation matrix as `(1 - score) / 2`, mapping
@@ -14,7 +14,7 @@
 #'
 #' @param motifs `list` or `dist`. See [convert_motifs()] for accepted
 #'   motif formats. Alternatively, a pre-built `dist` object (e.g. the
-#'   result of `as.dist((1 - compare_motifs2(...)) / 2)`) skips the
+#'   result of `as.dist((1 - compare_motifs_lite(...)) / 2)`) skips the
 #'   comparison step entirely and goes straight to tree construction.
 #' @param layout `character(1)`. One of `c('rectangular', 'slanted',
 #'   'fan', 'circular', 'radial', 'equal_angle', 'daylight')`. Passed
@@ -36,11 +36,11 @@
 #' @param branch.length `character(1)`. If `"none"`, draw a cladogram.
 #'   Passed through to [ggtree::ggtree()].
 #' @param min.overlap `integer(1)`. Minimum overlap in columns for the
-#'   pairwise alignment to count. Forwarded to [compare_motifs2()].
+#'   pairwise alignment to count. Forwarded to [compare_motifs_lite()].
 #'   Default `6`.
 #' @param tryRC `logical(1)`. Also test reverse-complement alignments.
-#'   Forwarded to [compare_motifs2()]. Default `TRUE`.
-#' @param nthreads `numeric(1)`. Threads passed to [compare_motifs2()].
+#'   Forwarded to [compare_motifs_lite()]. Default `TRUE`.
+#' @param nthreads `numeric(1)`. Threads passed to [compare_motifs_lite()].
 #'   `nthreads = 0` uses all available threads.
 #' @param progress `logical(1)`. Print progress messages.
 #' @param tiplogo `logical(1)`. Draw a sequence logo at each tip using
@@ -48,7 +48,7 @@
 #'   `"slanted"` layouts (other layouts warn and skip), and not available
 #'   for `dist` input. Default `TRUE`.
 #' @param tiplogo.align `logical(1)`. Align the tip logos to a common,
-#'   zero-padded column frame (via [view_motifs2()]) so that homologous
+#'   zero-padded column frame (via [view_motifs_lite()]) so that homologous
 #'   positions line up across tips. DNA/RNA only; falls back to unaligned
 #'   per-tip logos otherwise. Default `TRUE`.
 #' @param tiplogo.width `numeric(1)`. Width of one motif position, in tree
@@ -65,14 +65,14 @@
 #'
 #' @details
 #' The PCC-to-distance conversion `d = (1 - score) / 2` is symmetric
-#' (the comparison matrix from [compare_motifs2()] is symmetric in
+#' (the comparison matrix from [compare_motifs_lite()] is symmetric in
 #' matrix mode), so `as.dist()` and `hclust()` accept it directly.
 #' Anti-correlated motif pairs land at the maximum distance of `1`;
 #' identical motifs land at `0`.
 #'
-#' For more control over tree construction, run [compare_motifs2()]
+#' For more control over tree construction, run [compare_motifs_lite()]
 #' directly with `matrix.out = "score"`, convert to a `dist` object
-#' yourself, and pass that `dist` to `motif_tree2()`. The function
+#' yourself, and pass that `dist` to `motif_tree_lite()`. The function
 #' detects the `dist` input and skips the comparison step.
 #'
 #' @examples
@@ -81,24 +81,25 @@
 #' jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
 #'                                   package = "universalmotif"))
 #' if (requireNamespace("ggtree", quietly = TRUE)) {
-#'   motif_tree2(jaspar, linecol = "none", labels = "name",
+#'   motif_tree_lite(jaspar, linecol = "none", labels = "name",
 #'               layout = "rectangular")
 #' }
 #'
 #' ## Equivalent two-step form, useful when you want to inspect the
 #' ## distance matrix before drawing the tree:
 #' if (requireNamespace("ggtree", quietly = TRUE)) {
-#'   score.mat <- compare_motifs2(jaspar, matrix.out = "score")
+#'   score.mat <- compare_motifs_lite(jaspar, matrix.out = "score")
 #'   d <- as.dist((1 - score.mat) / 2)
-#'   motif_tree2(d, labels = "name")
+#'   motif_tree_lite(d, labels = "name")
 #' }
 #' }
 #'
-#' @seealso [motif_tree()], [compare_motifs2()], [merge_similar2()],
-#'   [geom_logo()], [view_motifs2()], [ggtree::ggtree()]
+#' @seealso [motif_tree()], [compare_motifs_lite()], [merge_similar_lite()],
+#'   [geom_logo()], [view_motifs_lite()], [ggtree::ggtree()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-motif_tree2 <- function(motifs, layout = "rectangular", linecol = "family",
+motif_tree_lite <- function(motifs, layout = "rectangular", linecol = "family",
                         labels = "none", tipsize = "none", legend = TRUE,
                         branch.length = "none", min.overlap = 6,
                         tryRC = TRUE, nthreads = 1, progress = FALSE,
@@ -150,7 +151,7 @@ motif_tree2 <- function(motifs, layout = "rectangular", linecol = "family",
 
     motifs <- convert_motifs(motifs)
     if (progress) message("Comparing motifs...")
-    score.mat <- compare_motifs2(motifs,
+    score.mat <- compare_motifs_lite(motifs,
                                  matrix.out  = "score",
                                  RC          = tryRC,
                                  min.overlap = min.overlap,
@@ -293,7 +294,7 @@ motif_tree2 <- function(motifs, layout = "rectangular", linecol = "family",
 }
 
 #-----------------------------------------------------------------------------
-# Add per-tip sequence logos to a ggtree plot built by motif_tree2(). Returns
+# Add per-tip sequence logos to a ggtree plot built by motif_tree_lite(). Returns
 # `p` unchanged when tip logos are off, the layout cannot show them, or the
 # input was a `dist` object (no matrices to draw).
 

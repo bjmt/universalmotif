@@ -104,7 +104,7 @@
 #' to_list(motifs)[[1]]
 #' }
 #'
-#' @seealso [scan_sequences2()], [enrich_motifs2()], [shuffle_sequences()],
+#' @seealso [scan_sequences_lite()], [enrich_motifs_lite()], [shuffle_sequences()],
 #'   [create_motif()], [to_df()], [to_list()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export

@@ -22,9 +22,9 @@
 #' only meaningful if such centring is in place upstream.
 #'
 #' @param hits Motif hit table from [scan_sequences()] or
-#'   [scan_sequences2()]. Accepted as either a `data.frame` or a
+#'   [scan_sequences_lite()]. Accepted as either a `data.frame` or a
 #'   `GRanges`. Required columns / metadata: `motif`, `score`,
-#'   `start`, and either `end` (scan_sequences2) or `stop`
+#'   `start`, and either `end` (scan_sequences_lite) or `stop`
 #'   (scan_sequences). For `data.frame` input, a `sequence` /
 #'   `sequence.i` column identifies which sequence each hit belongs
 #'   to. For `GRanges` input, the sequence is taken from
@@ -121,13 +121,13 @@
 #' names(seqs) <- paste0("anchor_", seq_along(seqs))
 #'
 #' m    <- create_motif("TTGACATA", name = "example")
-#' hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+#' hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 #' ## seq.length is inferred from seqlengths() here, but pass it
 #' ## explicitly when the hit table doesn't carry equal seqlengths.
 #' motif_peaks(hits, seq.length = 500)
 #' }
 #'
-#' @seealso [scan_sequences2()], [plot_motif_peaks()]
+#' @seealso [scan_sequences_lite()], [plot_motif_peaks()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 motif_peaks <- function(hits, seq.length = NULL,
@@ -354,7 +354,7 @@ empty_peaks_result <- function() {
   )
 }
 
-## Normalise either a data.frame (scan_sequences / scan_sequences2) or a
+## Normalise either a data.frame (scan_sequences / scan_sequences_lite) or a
 ## GRanges into a flat data.frame with cols (motif, sequence, center,
 ## score). Also resolves seq.length from input when not supplied.
 normalize_motif_peaks_input <- function(hits, seq.length) {
@@ -402,7 +402,7 @@ normalize_motif_peaks_input <- function(hits, seq.length) {
       stop("data.frame `hits` must have a `score` column", call. = FALSE)
     if (!"start" %in% names(hits))
       stop("data.frame `hits` must have a `start` column", call. = FALSE)
-    end_col <- if ("end" %in% names(hits)) hits$end          # scan_sequences2
+    end_col <- if ("end" %in% names(hits)) hits$end          # scan_sequences_lite
                else if ("stop" %in% names(hits)) hits$stop    # scan_sequences
                else stop("data.frame `hits` must have an `end` or `stop` column",
                          call. = FALSE)

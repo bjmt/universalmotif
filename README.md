@@ -277,11 +277,11 @@ scan_sequences(motif.k2, ArabidopsisPromoters, use.freq = 2, threshold = 1e-6)
 
 Note the differences between the matching sequences of regular scanning versus higher order scanning.
 
-For DNA and RNA, `scan_sequences2()` offers a faster scanner that reuses the same C++ core as `scan_sequences()` while matching the defaults of the [yamtk](https://github.com/bjmt/yamtk) command-line tool. Beyond scanning known motifs, `motif_finder()` discovers motifs _de novo_ directly from a set of sequences, and `motif_coocc()` tests for significantly co-occurring motif pairs.
+For DNA and RNA, `scan_sequences_lite()` offers a faster scanner that reuses the same C++ core as `scan_sequences()` while matching the defaults of the [yamtk](https://github.com/bjmt/yamtk) command-line tool. Beyond scanning known motifs, `motif_finder()` discovers motifs _de novo_ directly from a set of sequences, and `motif_coocc()` tests for significantly co-occurring motif pairs.
 
 ### Motif comparison, merging and viewing
 
-A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`, and `view_motifs()` can be used to examine the top-scoring alignment chosen by either. For DNA and RNA motifs, `compare_motifs2()`, `merge_motifs2()` and `view_motifs2()` provide faster alternatives built on a Pearson-correlation backend, while `motif_tree2()` turns a `compare_motifs2()` score matrix into a distance tree. The example below uses these faster functions; the originals behave equivalently and also handle amino-acid and custom alphabets.
+A commonly performed task after _de novo_ motif discovery is to check how closely it might resemble known motifs. This can be performed using the highly customizable `compare_motifs()` with one of several available metrics. Different motifs can also be merged with `merge_motifs()`, and `view_motifs()` can be used to examine the top-scoring alignment chosen by either. For DNA and RNA motifs, `compare_motifs_lite()`, `merge_motifs_lite()` and `view_motifs_lite()` provide faster alternatives built on a Pearson-correlation backend, while `motif_tree_lite()` turns a `compare_motifs_lite()` score matrix into a distance tree. The example below uses these faster functions; the originals behave equivalently and also handle amino-acid and custom alphabets.
 
 ```r
 library(universalmotif)
@@ -293,13 +293,13 @@ old.motif <- create_motif("TATATTTTTT", name = "Old motif")
 Using very strict alignment parameters, such as no overhangs:
 
 ```r
-compare_motifs2(c(new.motif, old.motif), min.overlap = 10)[1, 2]
+compare_motifs_lite(c(new.motif, old.motif), min.overlap = 10)[1, 2]
 #> [1] 0.2
 
-merged.motif <- merge_motifs2(c(new.motif, old.motif),
+merged.motif <- merge_motifs_lite(c(new.motif, old.motif),
     new.name = "Merged motif", min.overlap = 10)
 
-view_motifs2(c(new.motif, old.motif, merged.motif), min.overlap = 10)
+view_motifs_lite(c(new.motif, old.motif, merged.motif), min.overlap = 10)
 ```
 
 <img src="inst/figures/example2.png" width="75%" />
@@ -307,15 +307,15 @@ view_motifs2(c(new.motif, old.motif, merged.motif), min.overlap = 10)
 After relaxing the alignment parameters:
 
 ```r
-compare_motifs2(c(new.motif, old.motif), min.overlap = 5)[1, 2]
+compare_motifs_lite(c(new.motif, old.motif), min.overlap = 5)[1, 2]
 #> [1] 1
 
-merged.motif <- merge_motifs2(c(new.motif, old.motif),
+merged.motif <- merge_motifs_lite(c(new.motif, old.motif),
     new.name = "Merged motif", min.overlap = 5)
 
-view_motifs2(c(new.motif, old.motif, merged.motif), min.overlap = 5)
+view_motifs_lite(c(new.motif, old.motif, merged.motif), min.overlap = 5)
 ```
 
 <img src="inst/figures/example1.png" width="100%" />
 
-Like `compare_motifs()`, `compare_motifs2()` returns a numeric matrix by default, meaning the output from comparisons between large numbers of motifs can be easily used to generate heatmaps or dendrograms.
+Like `compare_motifs()`, `compare_motifs_lite()` returns a numeric matrix by default, meaning the output from comparisons between large numbers of motifs can be easily used to generate heatmaps or dendrograms.

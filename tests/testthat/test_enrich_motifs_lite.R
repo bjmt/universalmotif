@@ -1,4 +1,4 @@
-context("enrich_motifs2()")
+context("enrich_motifs_lite()")
 
 OUT_COLS <- c("motif", "motif.i", "consensus",
               "target.seq.n", "target.seq.hits", "target.site.hits",
@@ -11,7 +11,7 @@ test_that("output shape and columns are stable", {
   tgt <- Biostrings::DNAStringSet(rep("TTTAAA", 50))
   bkg <- Biostrings::DNAStringSet(rep("GGGCCC", 50))
 
-  r <- enrich_motifs2(m, tgt, bkg, pvalue = 0.01, qvalue = 1, rng.seed = 1)
+  r <- enrich_motifs_lite(m, tgt, bkg, pvalue = 0.01, qvalue = 1, rng.seed = 1)
 
   expect_true(is.data.frame(r))
   expect_equal(names(r), OUT_COLS)
@@ -28,8 +28,8 @@ test_that("determinism with fixed rng.seed (shuffled bkg path)", {
   tgt <- Biostrings::DNAStringSet(c(rep("TTTAAACCCGGGAAA", 30),
                                     rep("GGGCCCGGGCCCGGG", 30)))
 
-  r1 <- enrich_motifs2(m, tgt, pvalue = 0.01, qvalue = 1, rng.seed = 42L)
-  r2 <- enrich_motifs2(m, tgt, pvalue = 0.01, qvalue = 1, rng.seed = 42L)
+  r1 <- enrich_motifs_lite(m, tgt, pvalue = 0.01, qvalue = 1, rng.seed = 42L)
+  r2 <- enrich_motifs_lite(m, tgt, pvalue = 0.01, qvalue = 1, rng.seed = 42L)
 
   expect_identical(r1, r2)
 })
@@ -40,7 +40,7 @@ test_that("self-enrichment: target = motif, bkg = unrelated", {
   tgt <- Biostrings::DNAStringSet(rep("TTTAAA", 100))
   bkg <- Biostrings::DNAStringSet(rep("GGGCCC", 100))
 
-  r <- enrich_motifs2(m, tgt, bkg, pvalue = 0.01, qvalue = 0.1, rng.seed = 1)
+  r <- enrich_motifs_lite(m, tgt, bkg, pvalue = 0.01, qvalue = 0.1, rng.seed = 1)
 
   expect_equal(nrow(r), 1L)
   expect_lt(r$pvalue, 1e-10)
@@ -55,7 +55,7 @@ test_that("AA motifs are rejected", {
   tgt <- Biostrings::AAStringSet(rep("AAYYAA", 5))
 
   expect_error(
-    enrich_motifs2(m, tgt, qvalue = 1),
+    enrich_motifs_lite(m, tgt, qvalue = 1),
     regexp = "DNA/RNA"
   )
 })
@@ -69,9 +69,9 @@ test_that("seqs vs sites can differ on the same fixture", {
   bkg <- Biostrings::DNAStringSet(
     rep("GGGCCCGGGCCCGGGCCCGGGCCC", 30))
 
-  r_seqs  <- enrich_motifs2(m, tgt, bkg, test = "seqs",
+  r_seqs  <- enrich_motifs_lite(m, tgt, bkg, test = "seqs",
                             pvalue = 0.01, qvalue = 1, rng.seed = 1)
-  r_sites <- enrich_motifs2(m, tgt, bkg, test = "sites",
+  r_sites <- enrich_motifs_lite(m, tgt, bkg, test = "sites",
                             pvalue = 0.01, qvalue = 1, rng.seed = 1)
 
   expect_equal(nrow(r_seqs),  1L)
@@ -89,9 +89,9 @@ test_that("qvalue filter is a subset operation", {
     c(rep("TTTAAACCCGGG", 50), rep("CACGTGCACGTG", 50)))
   bkg <- Biostrings::DNAStringSet(rep("GGGCCCGGGCCC", 100))
 
-  r_loose <- enrich_motifs2(list(m1, m2), tgt, bkg,
+  r_loose <- enrich_motifs_lite(list(m1, m2), tgt, bkg,
                             pvalue = 0.01, qvalue = 0.5, rng.seed = 1)
-  r_tight <- enrich_motifs2(list(m1, m2), tgt, bkg,
+  r_tight <- enrich_motifs_lite(list(m1, m2), tgt, bkg,
                             pvalue = 0.01, qvalue = 0.01, rng.seed = 1)
 
   expect_true(all(r_tight$motif %in% r_loose$motif))
@@ -108,9 +108,9 @@ test_that("RC = FALSE changes hit counts on a palindromic-asymmetric fixture", {
   tgt <- Biostrings::DNAStringSet(rep("TTGACAAAATTGACA", 30))
   bkg <- Biostrings::DNAStringSet(rep("GGGCCCGGGCCCGGG", 30))
 
-  r_rc  <- enrich_motifs2(m2, tgt, bkg, RC = TRUE,
+  r_rc  <- enrich_motifs_lite(m2, tgt, bkg, RC = TRUE,
                           pvalue = 0.01, qvalue = 1, rng.seed = 1)
-  r_one <- enrich_motifs2(m2, tgt, bkg, RC = FALSE,
+  r_one <- enrich_motifs_lite(m2, tgt, bkg, RC = FALSE,
                           pvalue = 0.01, qvalue = 1, rng.seed = 1)
 
   ## Both ran without error; the site-hit counts on the target side should
@@ -126,7 +126,7 @@ test_that("empty result returns 0 rows with correct columns", {
   tgt <- Biostrings::DNAStringSet(rep("GGGCCCGGGCCC", 30))
   bkg <- Biostrings::DNAStringSet(rep("AAAATTTTAAAA", 30))
 
-  r <- enrich_motifs2(m, tgt, bkg, pvalue = 0.01, qvalue = 1e-30,
+  r <- enrich_motifs_lite(m, tgt, bkg, pvalue = 0.01, qvalue = 1e-30,
                       rng.seed = 1)
   expect_equal(nrow(r), 0L)
   expect_equal(names(r), OUT_COLS)
@@ -138,8 +138,8 @@ test_that("user-supplied background does not depend on rng.seed", {
   tgt <- Biostrings::DNAStringSet(rep("TTTAAACCCGGG", 30))
   bkg <- Biostrings::DNAStringSet(rep("CACGTGCACGTG", 30))
 
-  r1 <- enrich_motifs2(m, tgt, bkg, pvalue = 0.01, qvalue = 1, rng.seed = 1)
-  r2 <- enrich_motifs2(m, tgt, bkg, pvalue = 0.01, qvalue = 1, rng.seed = 999)
+  r1 <- enrich_motifs_lite(m, tgt, bkg, pvalue = 0.01, qvalue = 1, rng.seed = 1)
+  r2 <- enrich_motifs_lite(m, tgt, bkg, pvalue = 0.01, qvalue = 1, rng.seed = 999)
 
   expect_identical(r1, r2)
 })
@@ -150,9 +150,9 @@ test_that("pseudocount shifts p-value toward 1 (regularisation)", {
   tgt <- Biostrings::DNAStringSet(c(rep("TTTAAA", 5), rep("GGGCCC", 5)))
   bkg <- Biostrings::DNAStringSet(rep("GGGCCC", 10))
 
-  r_low  <- enrich_motifs2(m, tgt, bkg, pseudocount = 1L,
+  r_low  <- enrich_motifs_lite(m, tgt, bkg, pseudocount = 1L,
                            pvalue = 0.01, qvalue = 1, rng.seed = 1)
-  r_high <- enrich_motifs2(m, tgt, bkg, pseudocount = 100L,
+  r_high <- enrich_motifs_lite(m, tgt, bkg, pseudocount = 100L,
                            pvalue = 0.01, qvalue = 1, rng.seed = 1)
 
   expect_equal(nrow(r_low), 1L)
@@ -160,7 +160,7 @@ test_that("pseudocount shifts p-value toward 1 (regularisation)", {
   expect_gt(r_high$pvalue, r_low$pvalue)
 })
 
-test_that("enrich_motifs2 runs on RNA motifs and sequences", {
+test_that("enrich_motifs_lite runs on RNA motifs and sequences", {
   suppressMessages({
     ## Use a fixture where the motif is implanted in every primary sequence
     ## so the enrichment call has data to compare against the shuffled background.
@@ -176,14 +176,14 @@ test_that("enrich_motifs2 runs on RNA motifs and sequences", {
     seqs <- Biostrings::RNAStringSet(primary)
     bkg  <- Biostrings::RNAStringSet(bg)
     m <- create_motif("ACGU", alphabet = "RNA", nsites = 10)
-    res <- enrich_motifs2(list(m), seqs, bkg, pvalue = 0.5)
+    res <- enrich_motifs_lite(list(m), seqs, bkg, pvalue = 0.5)
     expect_s3_class(res, "data.frame")
     expect_true(all(c("motif", "fg", "bg", "pvalue") %in% colnames(res)) ||
                 ncol(res) > 0L)
   })
 })
 
-test_that("enrich_motifs and enrich_motifs2 both run on shared fixtures (v1/v2 parity smoke)", {
+test_that("enrich_motifs and enrich_motifs_lite both run on shared fixtures (v1/v2 parity smoke)", {
   suppressMessages(suppressWarnings({
     set.seed(1)
     bg <- vapply(seq_len(20), function(i) {
@@ -197,7 +197,7 @@ test_that("enrich_motifs and enrich_motifs2 both run on shared fixtures (v1/v2 p
     m <- create_motif("ACGTAC", nsites = 100)
     r1 <- enrich_motifs(m, seqs, bkg.sequences = bkg, verbose = 0,
                         threshold = 1e-2, threshold.type = "pvalue")
-    r2 <- enrich_motifs2(list(m), seqs, bkg, pvalue = 1e-2)
+    r2 <- enrich_motifs_lite(list(m), seqs, bkg, pvalue = 1e-2)
     expect_true(nrow(r1) >= 0L)
     expect_true(nrow(r2) >= 0L)
   }))

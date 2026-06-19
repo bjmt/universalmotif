@@ -5,7 +5,7 @@
 #' positions, returning the modified sequences together (optionally)
 #' with a ground-truth data.frame of where each implant was placed.
 #' This produces benchmark-grade positive sequences for testing
-#' [scan_sequences2()], [motif_finder()], [enrich_motifs2()],
+#' [scan_sequences_lite()], [motif_finder()], [enrich_motifs_lite()],
 #' [motif_peaks()], or any other discovery / scanning pipeline against
 #' a known answer.
 #'
@@ -88,8 +88,8 @@
 #' peaks <- motif_peaks(as.data.frame(hits), seq.length = 500, qvalue = 1)
 #' plot_motif_peaks(peaks)
 #'
-#' @seealso [sample_sites()], [create_sequences()], [scan_sequences2()],
-#'   [motif_finder()], [motif_peaks()], [enrich_motifs2()]
+#' @seealso [sample_sites()], [create_sequences()], [scan_sequences_lite()],
+#'   [motif_finder()], [motif_peaks()], [enrich_motifs_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @export
 implant_motifs <- function(motifs, sequences,

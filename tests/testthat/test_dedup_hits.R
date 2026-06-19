@@ -175,17 +175,17 @@ test_that("GRanges input yields GRanges output", {
   expect_equal(length(out), 2L)
 })
 
-# --- Round-trip through scan_sequences2 -------------------------------------
+# --- Round-trip through scan_sequences_lite -------------------------------------
 
-test_that("scan_sequences2(no.overlaps = TRUE) yields a subset of un-deduped output", {
+test_that("scan_sequences_lite(no.overlaps = TRUE) yields a subset of un-deduped output", {
   set.seed(1)
   motifs <- list(create_motif("TATAAA", name = "M1"),
                  create_motif("CACGTG", name = "M2"))
   seqs <- create_sequences(seqnum = 5, seqlen = 400, rng.seed = 1)
   suppressMessages({
-    raw <- scan_sequences2(motifs, seqs, pvalue = 5e-2,
+    raw <- scan_sequences_lite(motifs, seqs, pvalue = 5e-2,
                            return.granges = FALSE)
-    dedup <- scan_sequences2(motifs, seqs, pvalue = 5e-2,
+    dedup <- scan_sequences_lite(motifs, seqs, pvalue = 5e-2,
                              return.granges = FALSE,
                              no.overlaps = TRUE)
   })
@@ -201,10 +201,10 @@ test_that("no.overlaps.by = 'score' picks highest-scoring hit per cluster", {
   motifs <- list(create_motif("TATAAA", name = "M1"))
   seqs <- create_sequences(seqnum = 3, seqlen = 200, rng.seed = 2)
   suppressMessages({
-    by_p <- scan_sequences2(motifs, seqs, pvalue = 5e-2, no.overlaps = TRUE,
+    by_p <- scan_sequences_lite(motifs, seqs, pvalue = 5e-2, no.overlaps = TRUE,
                             no.overlaps.by = "pvalue",
                             return.granges = FALSE)
-    by_s <- scan_sequences2(motifs, seqs, pvalue = 5e-2, no.overlaps = TRUE,
+    by_s <- scan_sequences_lite(motifs, seqs, pvalue = 5e-2, no.overlaps = TRUE,
                             no.overlaps.by = "score",
                             return.granges = FALSE)
   })

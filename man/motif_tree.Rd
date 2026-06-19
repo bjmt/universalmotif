@@ -98,8 +98,8 @@ is simply to combine the \code{\link[=compare_motifs]{compare_motifs()}} and \co
 into one. For more control over tree creation, it is recommend to do these
 steps separately. See the "Motif comparisons and P-values" vignette for such
 a workthrough. This function requires the \pkg{ape} and \pkg{ggtree} packages
-to be installed separately. For a leaner alternative using \code{\link[=compare_motifs2]{compare_motifs2()}},
-see \code{\link[=motif_tree2]{motif_tree2()}}.
+to be installed separately. For a leaner alternative using \code{\link[=compare_motifs_lite]{compare_motifs_lite()}},
+see \code{\link[=motif_tree_lite]{motif_tree_lite()}}.
 }
 \details{
 See \code{\link[=compare_motifs]{compare_motifs()}} for more info on comparison parameters.
@@ -150,7 +150,7 @@ Evolution}, \strong{8}, 28-36. doi: 10.1111/2041-210X.12628.
 }
 \seealso{
 \code{\link[motifStack:motifStack]{motifStack::motifStack()}}, \code{\link[=compare_motifs]{compare_motifs()}},
-\code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}, \code{\link[=motif_tree2]{motif_tree2()}}
+\code{\link[ggtree:ggtree]{ggtree::ggtree()}}, \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}, \code{\link[=motif_tree_lite]{motif_tree_lite()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

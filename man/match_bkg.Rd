@@ -132,7 +132,7 @@ replacement when \code{unique = TRUE}). If the bin is empty or
 undersized, expand outward in Manhattan-distance rings.
 }
 
-Use the result as a \code{bkg.sequences} argument to \code{\link[=enrich_motifs2]{enrich_motifs2()}}
+Use the result as a \code{bkg.sequences} argument to \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}
 or \code{\link[=motif_finder]{motif_finder()}} for a composition-controlled null.
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is a complementary alternative that
 randomises each input in place (preserves k-let composition);
@@ -144,7 +144,7 @@ target   <- ArabidopsisPromoters[1:10]
 universe <- ArabidopsisPromoters[11:50]
 bkg <- match_bkg(target, universe, n.per.target = 2)
 ## Use as a null background for enrichment / discovery
-# enrich_motifs2(motifs, target, bkg.sequences = bkg)
+# enrich_motifs_lite(motifs, target, bkg.sequences = bkg)
 # motif_finder(target, bkg.sequences = bkg)
 plot_match_bkg(target, bkg)
 
@@ -175,7 +175,7 @@ elements required for macrophage and B cell identities."
 \doi{10.1016/j.molcel.2010.05.004}.
 }
 \seealso{
-\code{\link[=shuffle_sequences]{shuffle_sequences()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}, \code{\link[=motif_finder]{motif_finder()}},
+\code{\link[=shuffle_sequences]{shuffle_sequences()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}, \code{\link[=motif_finder]{motif_finder()}},
 \code{\link[=plot_match_bkg]{plot_match_bkg()}}
 }
 \author{

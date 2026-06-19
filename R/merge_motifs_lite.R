@@ -1,14 +1,14 @@
 #' Merge a list of motifs into a single consensus motif.
 #'
-#' `merge_motifs2()` is a faster minimalist counterpart to [merge_motifs()] that
-#' aligns motifs using `compare_motifs2()`'s alignment finder and averages
+#' `merge_motifs_lite()` is a faster minimalist counterpart to [merge_motifs()] that
+#' aligns motifs using `compare_motifs_lite()`'s alignment finder and averages
 #' their position-probability columns in a single shared coordinate frame.
 #'
 #' @param motifs `list` of motifs. See [convert_motifs()] for accepted
 #'   formats. DNA or RNA only.
 #' @param min.overlap `integer(1)`. Minimum overlap (in columns) for an
 #'   alignment to be considered. Default `5L`. Forwarded to
-#'   [compare_motifs2()].
+#'   [compare_motifs_lite()].
 #' @param RC `logical(1)`. If `TRUE` (default), also test reverse-complement
 #'   alignments. Motifs whose best alignment hits the `-` strand of the
 #'   anchor are reverse-complemented before averaging, so the merged
@@ -20,12 +20,12 @@
 #'   unweighted mean). Motifs whose `@nsites` is missing or zero fall back
 #'   to weight 1 in either mode.
 #' @param nthreads `numeric(1)`. Number of threads passed to
-#'   [compare_motifs2()]. `nthreads = 0` uses all available threads.
+#'   [compare_motifs_lite()]. `nthreads = 0` uses all available threads.
 #'
 #' @return A single `universalmotif` S4 object of type `"PPM"`.
 #'
 #' @details
-#' For each non-anchor motif, [compare_motifs2()] gives the best
+#' For each non-anchor motif, [compare_motifs_lite()] gives the best
 #' alignment offset, strand, and overlap against the anchor. Each
 #' aligned motif (reverse-complemented if its best alignment is `-`
 #' strand) is then placed in a unified column coordinate frame whose
@@ -45,14 +45,15 @@
 #' m1 <- create_motif("TTGACATA", name = "a")
 #' m2 <- create_motif("CTTGACAT", name = "b")
 #' m3 <- create_motif("TGACATAT", name = "c")
-#' merged <- merge_motifs2(list(m1, m2, m3))
+#' merged <- merge_motifs_lite(list(m1, m2, m3))
 #' merged
 #'
-#' @seealso [merge_motifs()], [merge_similar2()], [compare_motifs2()],
+#' @seealso [merge_motifs()], [merge_similar_lite()], [compare_motifs_lite()],
 #'   [trim_motifs()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-merge_motifs2 <- function(motifs, min.overlap = 5L, RC = TRUE,
+merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
                           new.name = NULL, weighted = FALSE,
                           nthreads = 1) {
 
@@ -83,7 +84,7 @@ merge_motifs2 <- function(motifs, min.overlap = 5L, RC = TRUE,
     stop("all motifs must share the same alphabet", call. = FALSE)
   mot.alph <- unique(alphs)
   if (!mot.alph %in% c("DNA", "RNA"))
-    stop("`merge_motifs2()` only supports DNA/RNA motifs; got `",
+    stop("`merge_motifs_lite()` only supports DNA/RNA motifs; got `",
          mot.alph, "`. Use `merge_motifs()` for other alphabets.",
          call. = FALSE)
 
@@ -242,7 +243,7 @@ rev_comp_mat <- function(mat) {
   ## the new order (T,G,C,A), so for callers that read the result by
   ## row name (e.g. the view_motifs() logo renderer) we restore the
   ## alphabetical A,C,G,T order. Callers that read positionally (e.g.
-  ## merge_motifs2()'s per-position accumulator) are unaffected because
+  ## merge_motifs_lite()'s per-position accumulator) are unaffected because
   ## the underlying data placement is unchanged.
   rn <- rownames(mat)
   m <- mat[, rev(seq_len(ncol(mat))), drop = FALSE]

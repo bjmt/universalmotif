@@ -102,22 +102,22 @@ test_that("scan_sequences() with multifreq motif on a short sequence gives a fri
 
 })
 
-test_that("scan_sequences() suggests scan_sequences2() when arguments are compatible", {
+test_that("scan_sequences() suggests scan_sequences_lite() when arguments are compatible", {
 
   m <- create_motif("ACGTAC")
   seqs <- create_sequences(seqnum = 3, seqlen = 100, rng.seed = 1)
 
-  old_opt <- getOption("universalmotif.suggest.scan_sequences2")
-  on.exit(options(universalmotif.suggest.scan_sequences2 = old_opt), add = TRUE)
+  old_opt <- getOption("universalmotif.suggest.scan_sequences_lite")
+  on.exit(options(universalmotif.suggest.scan_sequences_lite = old_opt), add = TRUE)
 
   # Default call -- should fire.
-  options(universalmotif.suggest.scan_sequences2 = TRUE)
+  options(universalmotif.suggest.scan_sequences_lite = TRUE)
   expect_message(
     suppressWarnings(scan_sequences(m, seqs, threshold = 1e-2,
                                     threshold.type = "pvalue", RC = TRUE,
                                     calc.pvals = FALSE, calc.qvals = FALSE,
                                     verbose = 0)),
-    "scan_sequences2()", fixed = TRUE
+    "scan_sequences_lite()", fixed = TRUE
   )
 
   # Each disqualifying argument should suppress the hint.
@@ -128,7 +128,7 @@ test_that("scan_sequences() suggests scan_sequences2() when arguments are compat
                                       calc.pvals = FALSE, calc.qvals = FALSE,
                                       verbose = 0, ...))
     )
-    expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+    expect_false(any(grepl("scan_sequences_lite", msgs, fixed = TRUE)))
   }
   hint_silent(no.overlaps         = TRUE)
   hint_silent(respect.strand      = TRUE)
@@ -142,7 +142,7 @@ test_that("scan_sequences() suggests scan_sequences2() when arguments are compat
                                     calc.pvals = FALSE, calc.qvals = FALSE,
                                     verbose = 0))
   )
-  expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+  expect_false(any(grepl("scan_sequences_lite", msgs, fixed = TRUE)))
 
   # threshold.type other than pvalue: also suppress.
   msgs <- capture_messages(
@@ -151,17 +151,17 @@ test_that("scan_sequences() suggests scan_sequences2() when arguments are compat
                                     calc.pvals = FALSE, calc.qvals = FALSE,
                                     verbose = 0))
   )
-  expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+  expect_false(any(grepl("scan_sequences_lite", msgs, fixed = TRUE)))
 
   # The option silences the hint even when conditions are met.
-  options(universalmotif.suggest.scan_sequences2 = FALSE)
+  options(universalmotif.suggest.scan_sequences_lite = FALSE)
   msgs <- capture_messages(
     suppressWarnings(scan_sequences(m, seqs, threshold = 1e-2,
                                     threshold.type = "pvalue", RC = TRUE,
                                     calc.pvals = FALSE, calc.qvals = FALSE,
                                     verbose = 0))
   )
-  expect_false(any(grepl("scan_sequences2", msgs, fixed = TRUE)))
+  expect_false(any(grepl("scan_sequences_lite", msgs, fixed = TRUE)))
 
 })
 

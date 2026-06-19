@@ -2,7 +2,7 @@
 #'
 #' Show sequence logo. If given a list of more than one motif, then the motifs
 #' are aligned with the first in the list. For a leaner alternative
-#' in line with [compare_motifs2()], see [view_motifs2()].
+#' in line with [compare_motifs_lite()], see [view_motifs_lite()].
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param use.type `character(1)` One of `c('PCM', 'PPM', 'PWM', 'ICM')`.
@@ -119,7 +119,8 @@
 #'
 #' }
 #'
-#' @seealso [compare_motifs()], [add_multifreq()], [view_logo()]
+#' @seealso [compare_motifs()], [add_multifreq()], [view_logo()],
+#'    [view_motifs_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @inheritParams compare_motifs
 #' @export
@@ -215,7 +216,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
   motifs <- convert_type_internal(motifs, "PPM")
 
   ## Sort by IC for alignment: the highest-IC motif becomes the anchor
-  ## that every other motif is aligned to, matching merge_motifs2()'s
+  ## that every other motif is aligned to, matching merge_motifs_lite()'s
   ## behaviour. `sort.by` controls only the *display* order, applied
   ## after alignment further below.
   sort.by <- match.arg(sort.by)

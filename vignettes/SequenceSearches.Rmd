@@ -232,7 +232,7 @@ length(bkg)   # 20 = 10 targets x 2 matches each
 The result is an `XStringSet` you can pass directly to other functions:
 
 ```{r, eval = FALSE}
-enrich_motifs2(motifs, target, bkg.sequences = bkg)
+enrich_motifs_lite(motifs, target, bkg.sequences = bkg)
 motif_finder(target, bkg.sequences = bkg)
 ```
 
@@ -298,7 +298,7 @@ list of two elements: `sequences` (the modified `XStringSet`) and
 
 ## Motif pair co-occurrence with `motif_coocc()`
 
-`enrich_motifs()` and `enrich_motifs2()` test whether each motif is
+`enrich_motifs()` and `enrich_motifs_lite()` test whether each motif is
 enriched on its own. Transcription factors, though, often bind as
 heterodimers, or cooperate at composite cis-regulatory modules, so a
 natural next question is whether any pair of motifs co-occurs in the
@@ -319,11 +319,11 @@ co
 ```
 
 There are two input paths. The default one (shown above) scans
-internally via `scan_sequences2()`, and so is DNA/RNA only.
+internally via `scan_sequences_lite()`, and so is DNA/RNA only.
 Alternatively, you can hand the function a precomputed hit table:
 
 ```{r, eval = FALSE}
-hits <- scan_sequences2(motifs, seqs, pvalue = 1e-3)
+hits <- scan_sequences_lite(motifs, seqs, pvalue = 1e-3)
 co   <- motif_coocc(motifs, hits = hits, n.sequences = length(seqs))
 ```
 
@@ -346,7 +346,7 @@ test in their own right.
 
 There are many motif-programs available with sequence scanning capabilities, such as [HOMER](http://homer.ucsd.edu/homer/index.html) and tools from the [MEME suite](http://meme-suite.org/). The `universalmotif` package does not aim to supplant these, but rather provide convenience functions for quickly scanning a few sequences without needing to leave the `R` environment. Furthermore, these functions allow for taking advantage of the higher-order (`multifreq`) motif format described here.
 
-Two scanning-related functions are provided: `scan_sequences()` / `scan_sequences2()` and `enrich_motifs()` / `enrich_motifs2()`. The latter simply runs `scan_sequences()` / `scan_sequences2()` twice on a set of target and background sequences. Given a motif of length `n`, `scan_sequences()` / `scan_sequences2()` considers every possible `n`-length subsequence in a sequence and scores it using the PWM format. If the match surpasses the minimum threshold, it is reported. This is the case regardless of whether one is scanning with a regular motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix is converted to a PWM) with the older `scan_sequences()`.
+Two scanning-related functions are provided: `scan_sequences()` / `scan_sequences_lite()` and `enrich_motifs()` / `enrich_motifs_lite()`. The latter simply runs `scan_sequences()` / `scan_sequences_lite()` twice on a set of target and background sequences. Given a motif of length `n`, `scan_sequences()` / `scan_sequences_lite()` considers every possible `n`-length subsequence in a sequence and scores it using the PWM format. If the match surpasses the minimum threshold, it is reported. This is the case regardless of whether one is scanning with a regular motif, or using the higher-order (`multifreq`) motif format (the `multifreq` matrix is converted to a PWM) with the older `scan_sequences()`.
 
 ## Choosing a logodds threshold
 
@@ -508,18 +508,18 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
                return.granges = TRUE)
 ```
 
-## A faster alternative: `scan_sequences2()`
+## A faster alternative: `scan_sequences_lite()`
 
 For DNA or RNA scans that do not need multifreq scoring, gapped
 motifs, q-values, exhaustive P-values, or any threshold type other
-than a P-value, the lighter `scan_sequences2()` is generally faster,
+than a P-value, the lighter `scan_sequences_lite()` is generally faster,
 and it parallelises rather better across motifs. Internally it uses
 the same C++ scanner, computes its per-hit P-values via the same
 FIMO-style dynamic-programming algorithm, and returns the same set of
 hits; it simply skips the extra work that `scan_sequences()` has to
 do in order to support its broader feature set.
 
-The default surface of `scan_sequences2()` is deliberately minimal
+The default surface of `scan_sequences_lite()` is deliberately minimal
 (just six formals: `motifs`, `sequences`, `pvalue = 1e-4`,
 `RC = TRUE`, `nthreads = 1`, and `return.granges = NULL`). When
 `GenomicRanges` is installed the default output is a `GRanges`, and
@@ -532,18 +532,18 @@ matched orientation. Greedy hit-level deduplication is available via
 `dedup_hits()` function for post-processing.
 
 ```{r, eval = FALSE}
-## scan_sequences2() with all defaults
-hits <- scan_sequences2(ArabidopsisMotif, ArabidopsisPromoters)
+## scan_sequences_lite() with all defaults
+hits <- scan_sequences_lite(ArabidopsisMotif, ArabidopsisPromoters)
 
 ## Optional deduplication of overlapping hits
-hits <- scan_sequences2(ArabidopsisMotif, ArabidopsisPromoters,
+hits <- scan_sequences_lite(ArabidopsisMotif, ArabidopsisPromoters,
                         no.overlaps = TRUE)
 ```
 
 When `scan_sequences()` is called with arguments that happen to map
-cleanly onto `scan_sequences2()`'s feature set, it emits a one-line
+cleanly onto `scan_sequences_lite()`'s feature set, it emits a one-line
 hint pointing you at the faster function. (This can be silenced with
-`options(universalmotif.suggest.scan_sequences2 = FALSE)`.)
+`options(universalmotif.suggest.scan_sequences_lite = FALSE)`.)
 
 ### Speed comparison vs `motifmatchr` and `yamtk` {.unnumbered}
 
@@ -558,14 +558,14 @@ strictly less work than the other three tools do) and
 `out = "positions"` (per position, and so directly comparable to the
 others). The hit sets from the CLI tool
 [`yamtk`](https://github.com/bjmt/yamtk), `scan_sequences()`,
-`scan_sequences2()`, and `motifmatchr` in `positions` mode all agree
+`scan_sequences_lite()`, and `motifmatchr` in `positions` mode all agree
 to within about 5% (the small drift comes from `yamtk` building its
 PWM from a continuous PPM, whereas `universalmotif` rounds the PCM).
 Times are reported in seconds, and each cell shows
 `nthreads = 1 / nthreads = 4` wherever threading applies. These
 benchmarks were run on an MBP M5 under R 4.4.1.
 
-| Workload | yamtk | mm matches¹ | mm positions² | scan_sequences2 | scan_sequences³ |
+| Workload | yamtk | mm matches¹ | mm positions² | scan_sequences_lite | scan_sequences³ |
 |---|---:|---:|---:|---:|---:|
 | 10 mot × 500 seq × 500 bp | 0.03 / 0.01 | 0.05 | 5.67 | 0.30 / 0.13 | 0.39 / 0.39 |
 | 50 mot × 500 seq × 500 bp | 0.12 / 0.03 | 0.17 | 28.19 | 1.48 / 0.44 | 1.62 / 1.56 |
@@ -581,14 +581,14 @@ only need to know whether each motif matched each sequence at all.
 ² `motifmatchr::matchMotifs(..., out = "positions")`: returns the
 full set of per-position hits as a list of `IRangesList`. This is the
 fair comparison against `yamtk`, `scan_sequences()`, and
-`scan_sequences2()`. `motifmatchr` is single-threaded from the R API
+`scan_sequences_lite()`. `motifmatchr` is single-threaded from the R API
 in both modes.
 
 ³ `scan_sequences(..., calc.pvals = TRUE)`, which performs the same
-work per hit as `scan_sequences2()`. The older `mapply`-based dispatch
+work per hit as `scan_sequences_lite()`. The older `mapply`-based dispatch
 in `scan_sequences()` parallelises poorly for short-sequence
 workloads; this is the main cost that
-`scan_sequences2()` eliminates.
+`scan_sequences_lite()` eliminates.
 
 A few practical takeaways:
 
@@ -596,11 +596,11 @@ A few practical takeaways:
   written in C) is the fastest scanner at every scale. The
   `universalmotif` package does not aim to match it; the goal is to
   stay within a small multiple while keeping everything inside `R`.
-- `scan_sequences2()` reaches within ~3× of `yamtk scan` at 4 threads
+- `scan_sequences_lite()` reaches within ~3× of `yamtk scan` at 4 threads
   on long-sequence workloads, and is 2-3× faster than
   `scan_sequences(calc.pvals = TRUE)` at 4 threads across every
   configuration tested.
-- For equivalent-work (per-position) scanning, `scan_sequences2()` is
+- For equivalent-work (per-position) scanning, `scan_sequences_lite()` is
   also substantially faster than `motifmatchr::matchMotifs(out =
   "positions")` at every scale: 5-100× depending on the input.
 - `motifmatchr` is faster than the per-position scanners only in
@@ -608,7 +608,7 @@ A few practical takeaways:
   reporting entirely. Choose that mode when "did this motif match
   this sequence at all?" is the question you are actually asking.
 - For new code that does not need any of `scan_sequences()`'s
-  advanced features, I would generally reach for `scan_sequences2()`.
+  advanced features, I would generally reach for `scan_sequences_lite()`.
 
 ## Visualizing motif hits across sequences
 
@@ -701,7 +701,7 @@ ggplot(res, aes(position, score, colour = score)) +
 
 ## Enrichment analyses
 
-The `universalmotif` package offers the ability to search for enriched motif sites in a set of sequences via `enrich_motifs()` / `enrich_motifs2()`. There is little complexity to this, as it simply runs `scan_sequences()` twice: once on a set of target sequences, and once on a set of background sequences. After which the results between the two sequences are collated and run through enrichment tests. The background sequences can be given explicitly, or else `enrich_motifs()` / `enrich_motifs2()` will create background sequences on its own by using `shuffle_sequences()` on the target sequences.
+The `universalmotif` package offers the ability to search for enriched motif sites in a set of sequences via `enrich_motifs()` / `enrich_motifs_lite()`. There is little complexity to this, as it simply runs `scan_sequences()` twice: once on a set of target sequences, and once on a set of background sequences. After which the results between the two sequences are collated and run through enrichment tests. The background sequences can be given explicitly, or else `enrich_motifs()` / `enrich_motifs_lite()` will create background sequences on its own by using `shuffle_sequences()` on the target sequences.
 
 Let us consider the following basic example:
 
@@ -718,14 +718,14 @@ Here we can see that the motif is significantly enriched in the target sequences
 
 One final point: always keep in mind the `threshold` parameter, as this will ultimately decide the number of hits found. (A bad threshold can lead to a false negative.)
 
-## A faster alternative: `enrich_motifs2()`
+## A faster alternative: `enrich_motifs_lite()`
 
 For the common case (DNA/RNA motifs, a P-value hit threshold,
 Fisher's exact test, and Benjamini-Hochberg q-values),
-`enrich_motifs2()` offers a stripped-down counterpart to
+`enrich_motifs_lite()` offers a stripped-down counterpart to
 `enrich_motifs()`, with defaults that mirror those of the
 command-line tool [`yamtk`](https://github.com/bjmt/yamtk). It is
-built on top of `scan_sequences2()`, and so inherits its speed
+built on top of `scan_sequences_lite()`, and so inherits its speed
 advantages.
 
 ```{r}
@@ -733,15 +733,15 @@ library(universalmotif)
 data(ArabidopsisMotif)
 data(ArabidopsisPromoters)
 
-enrich_motifs2(ArabidopsisMotif, ArabidopsisPromoters,
+enrich_motifs_lite(ArabidopsisMotif, ArabidopsisPromoters,
                pvalue = 1e-3, qvalue = 0.1, rng.seed = 1, test = "sites")
 ```
 
 Note the `test = "sites"` here. The two functions default to
 different tests: `enrich_motifs()` defaults to `mode = "total.hits"`
-(a per-site comparison), while `enrich_motifs2()` defaults to
+(a per-site comparison), while `enrich_motifs_lite()` defaults to
 `test = "seqs"` (a per-sequence comparison, matching the `yamtk enr`
-default). Setting `test = "sites"` makes `enrich_motifs2()` mirror the
+default). Setting `test = "sites"` makes `enrich_motifs_lite()` mirror the
 `enrich_motifs()` call above. The per-sequence test would be a poor
 fit for this particular example anyway: the promoters are long
 (1000 bp) and the motif is a low-complexity poly-pyrimidine that
@@ -763,9 +763,9 @@ Two test modes are supported:
   equivalent to `enrich_motifs(mode = "total.hits")`.
 
 When an `enrich_motifs()` call uses only features that map cleanly
-onto `enrich_motifs2()`, a one-line hint is again emitted pointing
+onto `enrich_motifs_lite()`, a one-line hint is again emitted pointing
 you at the leaner function. (Silence it with
-`options(universalmotif.suggest.enrich_motifs2 = FALSE)`.)
+`options(universalmotif.suggest.enrich_motifs_lite = FALSE)`.)
 
 ## _De novo_ motif discovery
 
@@ -806,7 +806,7 @@ and the standard `to_df()` slot columns (`name`, `consensus`,
 `width`, `seqs_pos`, `seqs_neg`, `sites_pos`, `sites_neg`, `n_pos`,
 `n_neg`, `pvalue`, `qvalue`). A call to `to_list()` recovers a plain
 list of `universalmotif` S4 objects, which then plug directly into
-`view_motifs2()`, `compare_motifs2()`, `write_meme()`, and the rest of
+`view_motifs_lite()`, `compare_motifs_lite()`, `write_meme()`, and the rest of
 the package.
 
 The discovery widths default to 6 through 15, the per-width motif cap
@@ -850,7 +850,7 @@ for (i in seq_len(150)) {
 m <- create_motif("TTGACATA", name = "test")
 
 ## Scan sequences, then test for central enrichment.
-hits  <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+hits  <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 peaks <- motif_peaks(hits)
 peaks[, c("motif", "best.window", "best.center", "hits.in", "nhits",
           "enrichment", "pvalue", "qvalue")]
@@ -867,8 +867,8 @@ back through it.
 
 The input is polymorphic: `motif_peaks()` will accept either a
 `data.frame` or a `GRanges` coming out of `scan_sequences()` or
-`scan_sequences2()`. When the input is a `GRanges` that has its
-`seqlengths()` set (which `scan_sequences2()` does for you
+`scan_sequences_lite()`. When the input is a `GRanges` that has its
+`seqlengths()` set (which `scan_sequences_lite()` does for you
 automatically), `seq.length` is inferred; otherwise you will need to
 pass it explicitly.
 
@@ -929,7 +929,7 @@ anchors <- GRanges("chr1", IRanges(anchor.pos, width = 1), strand = "+")
 m <- create_motif("TTGACATA", name = "anchored")
 
 ## Either pass a hit table ...
-hits <- scan_sequences2(m, chrs, pvalue = 1e-3, return.granges = TRUE)
+hits <- scan_sequences_lite(m, chrs, pvalue = 1e-3, return.granges = TRUE)
 motif_proximity(hits, anchors)
 
 ## ... or let motif_proximity() scan internally (scan.pvalue mirrors the

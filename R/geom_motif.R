@@ -78,11 +78,11 @@
 #'
 #' To draw several motifs aligned to a common column frame (for example a
 #' stack of aligned logos, or aligned tip logos on a tree), align them first
-#' with [view_motifs2()] (or [view_motifs()]) and pass the result to
+#' with [view_motifs_lite()] (or [view_motifs()]) and pass the result to
 #' `geom_logo()`:
 #'
 #' \preformatted{
-#' aligned <- view_motifs2(motifs, return.raw = TRUE, use.type = "ICM",
+#' aligned <- view_motifs_lite(motifs, return.raw = TRUE, use.type = "ICM",
 #'                         sort.by = "none")
 #' ggplot(tipdf, aes(x = 0, y = y, motif = label)) +
 #'   geom_logo(logo = aligned, colour.scheme = DNA_COLOURS)
@@ -105,7 +105,7 @@
 #' ggplot(tipdf, aes(x = x, y = y, motif = label)) +
 #'   geom_motif(motif = list(a = m1, b = m2), height = 0.8)
 #'
-#' @seealso [view_motifs()], [view_logo()], [view_motifs2()], [motif_tree2()]
+#' @seealso [view_motifs()], [view_logo()], [view_motifs_lite()], [motif_tree_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name geom_motif
 #' @export
@@ -281,7 +281,7 @@ GeomMotif <- ggproto("GeomMotif", GeomPolygon,
 # Internal helpers
 
 ## Align a list of motifs to a common, zero-padded column frame and return the
-## display matrices, reusing the view_motifs2() PCC aligner. `sort.by = "none"`
+## display matrices, reusing the view_motifs_lite() PCC aligner. `sort.by = "none"`
 ## keeps input order; the [RC] name suffix is dropped and names are restored
 ## from the caller's motif names by position. DNA/RNA only.
 ##
@@ -303,7 +303,7 @@ align_motif_mats <- function(motifs, use.type = "ICM", tryRC = TRUE,
         "); set `dedup = TRUE` to disambiguate them."), call. = FALSE)
   }
 
-  mats <- view_motifs2(motifs, return.raw = TRUE, use.type = use.type,
+  mats <- view_motifs_lite(motifs, return.raw = TRUE, use.type = use.type,
     sort.by = "none", tryRC = tryRC, min.overlap = min.overlap,
     nthreads = nthreads)
 

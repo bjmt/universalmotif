@@ -1,4 +1,4 @@
-context("compare_motifs()/compare_motifs2() HTML report")
+context("compare_motifs()/compare_motifs_lite() HTML report")
 
 ## ---- pure helpers (no rmarkdown needed) -----------------------------------
 
@@ -36,25 +36,25 @@ test_that(".cr_build_rmd produces the expected structure", {
                   query.i.local = 1L, target.i.local = 2L,
                   stringsAsFactors = FALSE)
   rmd <- universalmotif:::.cr_build_rmd(
-    quote(compare_motifs2(x, compare.to = 1)),
-    list(Method = "PCC", "Total matches" = 1), m, "view_motifs2",
+    quote(compare_motifs_lite(x, compare.to = 1)),
+    list(Method = "PCC", "Total matches" = 1), m, "view_motifs_lite",
     list(use.type = "ICM", tryRC = TRUE, min.overlap = 6L), "/tmp/x.rds")
   txt <- paste(rmd, collapse = "\n")
   expect_true(grepl("df_print: paged", txt, fixed = TRUE))
-  expect_true(grepl("view_motifs2(.report$motifs[c(1, 2)]", txt, fixed = TRUE))
+  expect_true(grepl("view_motifs_lite(.report$motifs[c(1, 2)]", txt, fixed = TRUE))
   expect_true(grepl(paste0("t", "\\", "_1"), txt, fixed = TRUE))   # escaped name
   expect_equal(sum(startsWith(rmd, "```{r logo-")), 1L)
 })
 
 test_that(".cr_build_rmd collapses a long wrapped call without gaps", {
-  long_call <- quote(compare_motifs2(motifs = m, compare.to = 1, qvalue = 1,
+  long_call <- quote(compare_motifs_lite(motifs = m, compare.to = 1, qvalue = 1,
                                      output.report = "r.html",
                                      output.report.max.print = 7))
   m <- data.frame(query = "q", query.i = 1L, target = "t", target.i = 2L,
                   offset = 0L, strand = "+", score = 1,
                   query.i.local = 1L, target.i.local = 2L,
                   stringsAsFactors = FALSE)
-  rmd <- universalmotif:::.cr_build_rmd(long_call, list(), m, "view_motifs2",
+  rmd <- universalmotif:::.cr_build_rmd(long_call, list(), m, "view_motifs_lite",
                                         list(), "/tmp/x.rds")
   call_line <- grep("Call:", rmd, value = TRUE)
   expect_length(call_line, 1L)
@@ -111,7 +111,7 @@ test_that("compare_motifs() writes a self-contained HTML report", {
   expect_match(html, "compare_motifs(", fixed = TRUE)
 })
 
-test_that("compare_motifs2() writes a report with native offset/strand", {
+test_that("compare_motifs_lite() writes a report with native offset/strand", {
   skip_on_cran()
   skip_if_not_installed("knitr")
   skip_if_not_installed("rmarkdown")
@@ -119,7 +119,7 @@ test_that("compare_motifs2() writes a report with native offset/strand", {
   out <- tempfile(fileext = ".html")
   on.exit(unlink(out))
   suppressWarnings(suppressMessages(
-    compare_motifs2(report_motifs(), compare.to = 1, qvalue = 1,
+    compare_motifs_lite(report_motifs(), compare.to = 1, qvalue = 1,
                     output.report = out, output.report.max.print = 3)))
   expect_true(file.exists(out))
   expect_gt(file.info(out)$size, 0)
@@ -128,7 +128,7 @@ test_that("compare_motifs2() writes a report with native offset/strand", {
   expect_true(grepl("strand", html))
   expect_match(html, 'src="data:image', fixed = TRUE)
   expect_false(grepl('_files/figure', html, fixed = TRUE))
-  expect_match(html, "compare_motifs2(", fixed = TRUE)
+  expect_match(html, "compare_motifs_lite(", fixed = TRUE)
 })
 
 ## ---- guards ----------------------------------------------------------------
@@ -139,7 +139,7 @@ test_that("output.report requires compare.to (both functions)", {
     suppressWarnings(compare_motifs(m, output.report = tempfile(fileext = ".html"))),
     regexp = "compare\\.to")
   expect_error(
-    compare_motifs2(m, output.report = tempfile(fileext = ".html")),
+    compare_motifs_lite(m, output.report = tempfile(fileext = ".html")),
     regexp = "compare\\.to")
 })
 

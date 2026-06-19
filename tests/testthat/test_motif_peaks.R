@@ -24,7 +24,7 @@ test_that("output shape and column types are stable", {
   seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 70, target_center = 150L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 
   r <- motif_peaks(hits, qvalue = 1)
   expect_true(is.data.frame(r))
@@ -41,7 +41,7 @@ test_that("central mode finds a centrally-planted motif", {
   seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 150, target_center = 250L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 
   r <- motif_peaks(hits, qvalue = 1)
   expect_equal(nrow(r), 1L)
@@ -56,7 +56,7 @@ test_that("local mode finds an off-centre planted motif that central misses", {
   ## Plant off-centre at position 100
   seqs <- plant_centred(seqs, "TTGACATA", n = 150, target_center = 100L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 
   r_local   <- motif_peaks(hits, mode = "local",   qvalue = 1)
   r_central <- motif_peaks(hits, mode = "central", qvalue = 1)
@@ -73,30 +73,30 @@ test_that("null fixture: random hits yield no enriched motifs", {
   set.seed(7)
   seqs <- create_sequences(seqnum = 50, seqlen = 300, rng.seed = 7)
   m <- create_motif("ACGT", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-2, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-2, return.granges = TRUE)
   ## Very strict qvalue should drop everything
   r <- motif_peaks(hits, qvalue = 1e-30)
   expect_equal(nrow(r), 0L)
   expect_equal(names(r), PEAK_COLS)
 })
 
-test_that("scan_sequences2 data.frame input is accepted (with explicit seq.length)", {
+test_that("scan_sequences_lite data.frame input is accepted (with explicit seq.length)", {
   set.seed(1)
   seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 70, target_center = 150L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = FALSE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = FALSE)
 
   r <- motif_peaks(hits, seq.length = 300L, qvalue = 1)
   expect_equal(nrow(r), 1L)
 })
 
-test_that("scan_sequences2 GRanges path picks up seq.length automatically", {
+test_that("scan_sequences_lite GRanges path picks up seq.length automatically", {
   set.seed(1)
   seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 70, target_center = 150L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 
   r <- motif_peaks(hits, qvalue = 1)
   expect_equal(r$seq.length, 300L)
@@ -135,7 +135,7 @@ test_that("data.frame input without seq.length errors informatively", {
   set.seed(1)
   seqs <- create_sequences(seqnum = 30, seqlen = 200, rng.seed = 1)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-2, return.granges = FALSE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-2, return.granges = FALSE)
   expect_error(motif_peaks(hits), regexp = "seq\\.length")
 })
 
@@ -148,7 +148,7 @@ test_that("best-hit-per-sequence dedup: multiple hits per sequence count once", 
   seqs <- plant_centred(seqs, "TTGACATA", n = 50, target_center = 260L,
                         rng.seed = 2)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
   r <- motif_peaks(hits, qvalue = 1)
   ## nhits must be <= number of input sequences (50), not number of raw hits.
   expect_lte(r$nhits, 50L)
@@ -159,7 +159,7 @@ test_that("Bonferroni: wider window-search range yields larger p-value", {
   seqs <- create_sequences(seqnum = 200, seqlen = 500, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 150, target_center = 250L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
   r_narrow <- motif_peaks(hits, qvalue = 1, window.step = 50L)
   r_wide   <- motif_peaks(hits, qvalue = 1, window.step = 5L)
   expect_gte(r_wide$pvalue, r_narrow$pvalue)
@@ -170,7 +170,7 @@ test_that("deterministic: same input twice -> identical output", {
   seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 60, target_center = 150L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
   r1 <- motif_peaks(hits, qvalue = 1)
   r2 <- motif_peaks(hits, qvalue = 1)
   expect_equal(r1, r2)
@@ -181,7 +181,7 @@ test_that("plot_motif_peaks() returns a ggplot with the expected geoms", {
   seqs <- create_sequences(seqnum = 100, seqlen = 300, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 70, target_center = 150L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
   r <- motif_peaks(hits, qvalue = 1)
   g <- plot_motif_peaks(r)
   expect_s3_class(g, "ggplot")
@@ -220,7 +220,7 @@ test_that("seq.strand orients local mode (mirror peaks merge into one)", {
   seqs <- plant_oriented(seqs, "TTGACATA", n = 150, strand_map = smap,
                          center = L %/% 2L, off = 60L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
 
   sn <- GenomeInfoDb::seqlevels(hits)
   ss <- setNames(smap[seq_along(sn)], sn)
@@ -243,7 +243,7 @@ test_that("seq.strand does not change central-mode p-values", {
   seqs <- plant_oriented(seqs, "TTGACATA", n = 90, strand_map = smap,
                          center = L %/% 2L, off = 50L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
   sn <- GenomeInfoDb::seqlevels(hits)
   ss <- setNames(smap[seq_along(sn)], sn)
 
@@ -257,7 +257,7 @@ test_that("seq.strand errors on missing / invalid entries", {
   seqs <- create_sequences(seqnum = 20, seqlen = 300, rng.seed = 1)
   seqs <- plant_centred(seqs, "TTGACATA", n = 15, target_center = 150L)
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, seqs, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, seqs, pvalue = 1e-3, return.granges = TRUE)
   sn <- GenomeInfoDb::seqlevels(hits)
   ss <- setNames(rep("+", length(sn)), sn)
 

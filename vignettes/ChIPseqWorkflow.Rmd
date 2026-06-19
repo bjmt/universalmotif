@@ -10,10 +10,10 @@ abstract: >
   real data. Starting from a peak BED file bundled in
   `inst/extdata`, we extract peak sequences from a BSgenome,
   discover motifs de novo with `motif_finder()`, deduplicate them
-  with `merge_similar2()`, compare them against the JASPAR2022
+  with `merge_similar_lite()`, compare them against the JASPAR2022
   plant collection via `MotifDb`, validate enrichment against a
   composition-matched background with `match_bkg()` and
-  `enrich_motifs2()`, scan all peaks with `scan_sequences2()`,
+  `enrich_motifs_lite()`, scan all peaks with `scan_sequences_lite()`,
   test for central positional bias with `motif_peaks()`, and look
   for motif clustering with `motif_coocc()`. The
   closing section assembles a summary table that combines all of
@@ -77,11 +77,11 @@ The workflow proceeds in eight steps:
 1. Import the peak BED.
 2. Extract peak sequences from a BSgenome.
 3. Discover motifs *de novo* with `motif_finder()`.
-4. Deduplicate the discovered set with `merge_similar2()`.
-5. Compare the survivors to JASPAR via `compare_motifs2()`.
+4. Deduplicate the discovered set with `merge_similar_lite()`.
+5. Compare the survivors to JASPAR via `compare_motifs_lite()`.
 6. Validate enrichment against a composition-matched background
-   with `match_bkg()` and `enrich_motifs2()`.
-7. Map hit positions with `scan_sequences2()` and test for central
+   with `match_bkg()` and `enrich_motifs_lite()`.
+7. Map hit positions with `scan_sequences_lite()` and test for central
    bias with `motif_peaks()`.
 8. Look for motif clustering with `motif_coocc()`.
 
@@ -215,11 +215,11 @@ for (i in seq_along(discovered.labelled)) {
     discovered.df$pval[i]
   )
 }
-view_motifs2(discovered.labelled, sort.by = "similarity",
+view_motifs_lite(discovered.labelled, sort.by = "similarity",
              show.positions = FALSE, names.pos = "right")
 ```
 
-With `sort.by = "similarity"`, `view_motifs2()` reorders the panels
+With `sort.by = "similarity"`, `view_motifs_lite()` reorders the panels
 by hierarchical clustering on Pearson correlation between aligned
 columns, so visually related logos are adjacent. The RY-element
 variants (consensuses containing `CATGCA`) cluster together; so do
@@ -236,7 +236,7 @@ or `sort.by = "none"` to keep `motif_finder()`'s p-value ranking.
 A real motif-discovery run almost always returns several rotated or
 extended copies of the same underlying signal. These variations can
 be biologically meaningful, but for simplicity we will not dwell on
-them here. Instead we merge them with `merge_similar2()`, which
+them here. Instead we merge them with `merge_similar_lite()`, which
 collapses each cluster down to a single representative by
 hierarchical clustering on the q-values from a Pearson-based
 comparison. It is often wise to trim the merged motifs afterwards as
@@ -244,14 +244,14 @@ well, since merging tends to fold mismatching flanks into low-IC
 positions.
 
 ```{r}
-discovered.merged <- merge_similar2(discovered, qvalue = 0.01)
+discovered.merged <- merge_similar_lite(discovered, qvalue = 0.01)
 discovered.merged <- trim_motifs(discovered.merged)
 
 length(discovered)
 length(discovered.merged)
 ```
 
-`merge_similar2()` names each merged motif by joining the names of
+`merge_similar_lite()` names each merged motif by joining the names of
 its contributing motifs with `+`, which becomes unwieldy quite
 quickly when several distinct binding signals each produce their own
 cluster (the RY element, the bZIP G-box, and so on). So we relabel
@@ -279,7 +279,7 @@ new.names
 ```
 
 ```{r, fig.height=4, fig.width=7}
-view_motifs2(discovered.merged, sort.by = "similarity",
+view_motifs_lite(discovered.merged, sort.by = "similarity",
              show.positions = FALSE, names.pos = "right")
 ```
 
@@ -298,7 +298,7 @@ length(ath.jaspar)
 ath.motifs <- convert_motifs(ath.jaspar)
 ```
 
-`compare_motifs2()` in long-format mode treats indexed entries of
+`compare_motifs_lite()` in long-format mode treats indexed entries of
 `motifs` as queries and the whole input as the target database, so
 we concatenate the discovered set with the reference and pass the
 query indices via `compare.to`.
@@ -307,7 +307,7 @@ query indices via `compare.to`.
 combined <- c(discovered.merged, ath.motifs)
 n.disc   <- length(discovered.merged)
 
-cmp <- compare_motifs2(combined,
+cmp <- compare_motifs_lite(combined,
                        compare.to = seq_len(n.disc),
                        qvalue     = 0.2,
                        nthreads   = 2)
@@ -338,23 +338,23 @@ ry.best <- ry.cmp[order(ry.cmp$qvalue), ][1, ]
 
 top.disc <- discovered.merged[[match("RY", new.names)]]
 top.ref  <- ath.motifs[[match(ry.best$target, ref.names)]]
-view_motifs2(c(top.disc, top.ref), show.positions.once = FALSE,
+view_motifs_lite(c(top.disc, top.ref), show.positions.once = FALSE,
              names.pos = "right")
 ```
 
 # Validating enrichment against a composition-matched background
 
-We can now use `enrich_motifs2()` to validate our new set of merged
+We can now use `enrich_motifs_lite()` to validate our new set of merged
 motifs. It accepts an explicit `bkg.sequences` argument, so we can
 hand it a background that controls for the AT-skew of plant
 promoters. We already built exactly that pool back in §3 (`bkg.seqs`,
 from `match_bkg()` against a universe of random non-peak genomic
 windows), and so the enrichment step simply reuses it.
 
-So we feed the matched background straight into `enrich_motifs2()`:
+So we feed the matched background straight into `enrich_motifs_lite()`:
 
 ```{r}
-enr <- enrich_motifs2(motifs        = discovered.merged,
+enr <- enrich_motifs_lite(motifs        = discovered.merged,
                       sequences     = peak.seqs,
                       bkg.sequences = bkg.seqs,
                       pvalue        = 1e-4,
@@ -380,12 +380,12 @@ shuffling sections of the
 # Scanning all peaks and testing positional bias
 
 To map hits at single-base resolution across every peak we run
-`scan_sequences2()` with the discovered motifs. Because every window
+`scan_sequences_lite()` with the discovered motifs. Because every window
 is a fixed 500 bp, the motif positions are directly comparable from
 one row to the next.
 
 ```{r}
-hits <- scan_sequences2(discovered.merged,
+hits <- scan_sequences_lite(discovered.merged,
                         peak.seqs,
                         pvalue         = 1e-4,
                         return.granges = FALSE,

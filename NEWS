@@ -23,13 +23,13 @@ NEW FEATURES
     format is unchanged; the CWM type tag is opt-in and never
     auto-detected, so a signed matrix without `type = "CWM"` still
     reads as a PWM). `view_motifs()` and
-    `view_motifs2()` accept `use.type = "CWM"` and render the
+    `view_motifs_lite()` accept `use.type = "CWM"` and render the
     raw signed values with a "contribution" y-axis label. CWM
     motifs flow through every analysis function that
     implicitly converts the type 
-    (`compare_motifs[2]()`, `scan_sequences[2]()`,
-    `merge_motifs[2]()`, `merge_similar[2]()`, `motif_pvalue()`,
-    `motif_tree[2]()`, `motif_rc()`, `trim_motifs()`).
+    (`compare_motifs[_lite]()`, `scan_sequences[_lite]()`,
+    `merge_motifs[_lite]()`, `merge_similar[_lite]()`, `motif_pvalue()`,
+    `motif_tree[_lite]()`, `motif_rc()`, `trim_motifs()`).
 
   o Added trim_cwm(), a CWM-aware trimmer that drops edge
     columns by absolute column sum. Defaults to the
@@ -40,7 +40,7 @@ NEW FEATURES
     mirroring `trim_motifs()`'s edge-only semantics. Returns a
     trimmed CWM with the type tag preserved.
 
-  o Added compare_motifs2(), a minimalist DNA/RNA motif-vs-motif
+  o Added compare_motifs_lite(), a minimalist DNA/RNA motif-vs-motif
     comparison function aligned with the command-line tool yamtk cmp
     (https://github.com/bjmt/yamtk). Uses Pearson correlation per
     column as the only similarity metric and computes per-pair
@@ -55,7 +55,7 @@ NEW FEATURES
     runs ~40x faster than compare_motifs() on a 200x200 set at 4
     threads.
 
-  o Added scan_sequences2(), a minimalist DNA/RNA scanner aligned with
+  o Added scan_sequences_lite(), a minimalist DNA/RNA scanner aligned with
     the defaults of the yamtk scan command-line tool
     (https://github.com/bjmt/yamtk). Reuses the same C++ scanning core
     as scan_sequences() but skips steps for features
@@ -64,19 +64,19 @@ NEW FEATURES
     allow.nonfinite). On a 50-motif HOCOMOCOv11 benchmark, ~2-3x
     faster than scan_sequences(calc.pvals = TRUE) at 4 threads on
     equivalent work, and within ~3x of yamtk scan on long-sequence
-    workloads. See the "A faster alternative: scan_sequences2()"
+    workloads. See the "A faster alternative: scan_sequences_lite()"
     section in the Sequence Searches vignette for the full speed
     comparison.
 
-  o Added view_motifs2() and motif_tree2(): drop-in display-time
+  o Added view_motifs_lite() and motif_tree_lite(): drop-in display-time
     siblings of view_motifs() and motif_tree() that use the new
-    Pearson-correlation backend (compare_motifs2()).
-    view_motifs2() picks the
+    Pearson-correlation backend (compare_motifs_lite()).
+    view_motifs_lite() picks the
     highest-IC motif as the anchor, aligns every other motif
-    against it via the same routine used by merge_motifs2() and
-    merge_similar2(), and runs the result through the same logo
-    renderer as view_motifs(). motif_tree2() takes
-    compare_motifs2(matrix.out = "score") and converts the mean
+    against it via the same routine used by merge_motifs_lite() and
+    merge_similar_lite(), and runs the result through the same logo
+    renderer as view_motifs(). motif_tree_lite() takes
+    compare_motifs_lite(matrix.out = "score") and converts the mean
     Pearson matrix to a symmetric distance as (1 - score) / 2,
     feeding it into the same hclust / ape::as.phylo /
     ggtree::ggtree pipeline that motif_tree() uses. Both original
@@ -99,10 +99,10 @@ NEW FEATURES
     Built on the shared ggproto objects GeomMotif / StatMotif /
     StatLogo.
 
-  o motif_tree2() now draws a sequence logo at each tip by default
+  o motif_tree_lite() now draws a sequence logo at each tip by default
     (tiplogo = TRUE), so the motifs act as the tip labels. The logos
     are aligned to a shared, zero-padded column frame (via
-    view_motifs2()) so homologous positions line up across tips. The
+    view_motifs_lite()) so homologous positions line up across tips. The
     default layout changed from "circular" to "rectangular" so the tip
     logos are visible out of the box; tip logos are drawn only on the
     "rectangular" and "slanted" layouts (others warn and skip them),
@@ -115,8 +115,8 @@ NEW FEATURES
     Homo sapiens motifs from three MotifDb sub-collections
     (JASPAR2022, HOCOMOCOv11-core, CIS-BP), stamps source provenance
     onto each motif's family slot, inspects the pairwise q-value
-    distribution from compare_motifs2() to pick a deduplication
-    threshold, runs merge_similar2() with a q-value chosen to avoid
+    distribution from compare_motifs_lite() to pick a deduplication
+    threshold, runs merge_similar_lite() with a q-value chosen to avoid
     graph-transitivity giant components, visualises the cluster
     structure with motif_tree(), trims uninformative flanks with
     trim_motifs(), decorates the survivors with provenance and date
@@ -130,9 +130,9 @@ NEW FEATURES
     2021, NAR 49:98-113). The vignette imports peaks via
     rtracklayer, extracts sequences via BSgenome.Athaliana.TAIR.TAIR9,
     discovers motifs de novo with motif_finder(), deduplicates with
-    merge_similar2(), compares to JASPAR2022 plant motifs via
-    MotifDb and compare_motifs2(), validates enrichment with
-    enrich_motifs2(), scans peaks with scan_sequences2(), tests
+    merge_similar_lite(), compares to JASPAR2022 plant motifs via
+    MotifDb and compare_motifs_lite(), validates enrichment with
+    enrich_motifs_lite(), scans peaks with scan_sequences_lite(), tests
     central positional bias with motif_peaks(), finds co-occurring
     motif pairs with motif_coocc(), and closes with a summary table
     that links each discovered motif to its evidence. New Suggests
@@ -141,7 +141,7 @@ NEW FEATURES
   o view_motifs() gains a `sort.by` argument controlling the display
     order when plotting multiple motifs. Regardless of this setting,
     alignment is always performed with the highest-IC motif as the
-    anchor (matching merge_motifs2()'s behaviour); `sort.by` controls
+    anchor (matching merge_motifs_lite()'s behaviour); `sort.by` controls
     only the order in which the aligned motifs are shown. Options:
     `"none"` (default; input order preserved for display while
     alignment still uses the highest-IC anchor), `"ic"` (descending
@@ -151,7 +151,7 @@ NEW FEATURES
 
   o Added motif_coocc(): pairwise motif co-occurrence testing. Given
     a list of motifs and a set of host sequences, motif_coocc() scans
-    (via scan_sequences2) and tests every motif pair for over-co-
+    (via scan_sequences_lite) and tests every motif pair for over-co-
     occurrence using a one-sided Fisher's exact test on the per-
     sequence 2x2 contingency table, BH-correcting across all tested
     pairs. Two input paths: the default scans internally and is
@@ -161,7 +161,7 @@ NEW FEATURES
     descriptive columns (both.clustered, median.distance) useful for
     flagging heterodimer-like arrangements; the Fisher p-value is
     always computed on the unfiltered 2x2. A `no.overlaps` argument
-    (default FALSE, with `no.overlaps.by`) forwards to scan_sequences2()
+    (default FALSE, with `no.overlaps.by`) forwards to scan_sequences_lite()
     on the internal-scan path; since the test is presence-based it only
     affects the spatial columns, deduplicating overlapping matches
     within each motif while preserving between-motif overlaps. See
@@ -170,7 +170,7 @@ NEW FEATURES
   o Added implant_motifs(): plant sampled motif instances into existing
     sequences at known positions, producing benchmark-grade ground-truth
     positive sequences for testing scan_sequences(), motif_finder(),
-    enrich_motifs2(), motif_peaks(), or any other discovery / scanning
+    enrich_motifs_lite(), motif_peaks(), or any other discovery / scanning
     pipeline against a known answer key. Three insertion modes:
     fixed count per sequence (n.per.seq), per-bp Poisson rate (rate),
     or explicit positions (positions). Optional controls: centre.bias
@@ -194,7 +194,7 @@ NEW FEATURES
     composition by shuffling in place; match_bkg() instead controls
     for composition bias relative to a genomic universe. The result
     is an XStringSet usable directly as `bkg.sequences` in
-    enrich_motifs2() / motif_finder(). plot_match_bkg() returns a
+    enrich_motifs_lite() / motif_finder(). plot_match_bkg() returns a
     ggplot of overlaid target vs matched-background GC and length
     densities for visual match-quality QC. Beyond GC and length,
     match_bkg() can also match on arbitrary external per-sequence
@@ -212,7 +212,7 @@ NEW FEATURES
 
   o Rewrote motif_peaks() as an analytical CentriMo-style positional
     enrichment function (Bailey & Machanick 2012). It takes a hit
-    table from scan_sequences() or scan_sequences2() (data.frame or
+    table from scan_sequences() or scan_sequences_lite() (data.frame or
     GRanges) and tests whether each motif's hits cluster non-uniformly
     along the input sequences via a one-sided binomial test on
     candidate windows. Two modes: mode = "central" (default) tests
@@ -225,24 +225,24 @@ NEW FEATURES
     best-window shade + per-motif annotation in the strip label).
     See ?motif_peaks.
 
-  o Added merge_motifs2() and merge_similar2(), minimalist DNA/RNA
+  o Added merge_motifs_lite() and merge_similar_lite(), minimalist DNA/RNA
     counterparts to merge_motifs() and merge_similar() built on
-    compare_motifs2(). merge_motifs2() uses anchor-based progressive
+    compare_motifs_lite(). merge_motifs_lite() uses anchor-based progressive
     alignment (highest-IC anchor + single-call alignment of every
     other motif against it) and column-union averaging (optionally
-    @nsites-weighted). merge_similar2() clusters
+    @nsites-weighted). merge_similar_lite() clusters
     motifs by statistical significance: pairs are linked when their
-    compare_motifs2() q-value meets the user's cutoff, and connected
+    compare_motifs_lite() q-value meets the user's cutoff, and connected
     components on the resulting graph (via a small union-find) define
     the clusters. Each multi-motif cluster is then collapsed via
-    merge_motifs2(). This matches the STAMP / TOMTOM-clustering
+    merge_motifs_lite(). This matches the STAMP / TOMTOM-clustering
     semantics ("group all motifs that are pairwise significantly
     similar") and removes v1's linkage-method choice and abstract
-    distance-unit cutoff. merge_similar2(return.clusters = TRUE)
+    distance-unit cutoff. merge_similar_lite(return.clusters = TRUE)
     returns a universalmotif_df of the input motifs (motif objects in
     the `motif` column, names in `name`) with added `motif.i` and
     `cluster` columns describing the cluster assignment, instead of
-    the merged motifs. See ?merge_motifs2 and ?merge_similar2.
+    the merged motifs. See ?merge_motifs_lite and ?merge_similar_lite.
 
   o Added motif_finder(), a DNA/RNA _de novo_ motif discovery function
     aligned with the command-line tool yamtk me
@@ -260,9 +260,9 @@ NEW FEATURES
     a long-standing unexported, untested motif_finder() stub. See
     ?motif_finder.
 
-  o Added enrich_motifs2(), a minimalist DNA/RNA motif-enrichment
+  o Added enrich_motifs_lite(), a minimalist DNA/RNA motif-enrichment
     function aligned with the command-line tool yamtk enr
-    (https://github.com/bjmt/yamtk). Built on scan_sequences2() and
+    (https://github.com/bjmt/yamtk). Built on scan_sequences_lite() and
     exposes a single p-value hit threshold, a single q-value result
     cutoff, two test modes (seqs = Fisher's exact on per-sequence hit
     presence; sites = Fisher's exact on per-position rate), and
@@ -270,12 +270,12 @@ NEW FEATURES
     data.frame with yamtk's TSV columns one-for-one (motif, motif.i,
     consensus, target.seq.n/seq.hits/site.hits, bkg.seq.n/seq.hits/
     site.hits, enrichment, log2.enrichment, pvalue, qvalue). See
-    ?enrich_motifs2.
+    ?enrich_motifs_lite.
 
   o Added dedup_hits(), a fast C++ implementation of yamtk's greedy
     overlap-dedup algorithm. Accepts data.frame or GRanges input;
     auto-detects pvalue-vs-score priority direction. Used internally
-    by scan_sequences2(no.overlaps = TRUE) and available for
+    by scan_sequences_lite(no.overlaps = TRUE) and available for
     post-processing of any hit set. Distinct from scan_sequences()'s
     existing no.overlaps argument, which uses connected-components
     clustering and is left unchanged.
@@ -283,37 +283,37 @@ NEW FEATURES
 MINOR CHANGES
 
   o merge_motifs() and merge_similar() now emit one-line hints
-    pointing at merge_motifs2() / merge_similar2() when the user's
+    pointing at merge_motifs_lite() / merge_similar_lite() when the user's
     argument set maps cleanly onto the leaner functions. Silence with
-    options(universalmotif.suggest.merge_motifs2 = FALSE) and
-    options(universalmotif.suggest.merge_similar2 = FALSE).
+    options(universalmotif.suggest.merge_motifs_lite = FALSE) and
+    options(universalmotif.suggest.merge_similar_lite = FALSE).
 
   o enrich_motifs() now emits a one-line hint pointing at
-    enrich_motifs2() when the user's argument set maps cleanly onto
+    enrich_motifs_lite() when the user's argument set maps cleanly onto
     the leaner function. Silence with
-    options(universalmotif.suggest.enrich_motifs2 = FALSE).
+    options(universalmotif.suggest.enrich_motifs_lite = FALSE).
 
   o compare_motifs() now emits a one-line hint pointing at
-    compare_motifs2() when the user's argument set maps cleanly onto
+    compare_motifs_lite() when the user's argument set maps cleanly onto
     the leaner function. Silence with
-    options(universalmotif.suggest.compare_motifs2 = FALSE).
+    options(universalmotif.suggest.compare_motifs_lite = FALSE).
 
   o motif_pvalue(method = "dynamic") now batches across motifs in a
     single C++ call parallelised with RcppThread, instead of
     dispatching one C++ call per motif via mapply. Identical numerical
     output; 2.3x faster at nthreads = 1 and 7.4x faster at nthreads =
     4 on a 50-motif HOCOMOCO benchmark. scan_sequences(calc.pvals =
-    TRUE) and scan_sequences2() both benefit automatically.
+    TRUE) and scan_sequences_lite() both benefit automatically.
 
   o scan_sequences() now emits a one-line hint pointing at
-    scan_sequences2() when the user's argument set maps cleanly onto
+    scan_sequences_lite() when the user's argument set maps cleanly onto
     the leaner function. Silence with
-    options(universalmotif.suggest.scan_sequences2 = FALSE).
+    options(universalmotif.suggest.scan_sequences_lite = FALSE).
 
-  o motif_tree() now emits a one-line hint pointing at motif_tree2()
+  o motif_tree() now emits a one-line hint pointing at motif_tree_lite()
     when the user's argument set maps cleanly onto the leaner
     function. Silence with
-    options(universalmotif.suggest.motif_tree2 = FALSE).
+    options(universalmotif.suggest.motif_tree_lite = FALSE).
 
   o Performance: several C++ hot loops now precompute integer
     alphabet-power tables instead of calling pow() at every sequence
@@ -334,11 +334,11 @@ MINOR CHANGES
 
 BUG FIXES
 
-  o Fixed motif_tree2() tip logos not stacking letters by height. The
+  o Fixed motif_tree_lite() tip logos not stacking letters by height. The
     tip logos are drawn with geom_logo(), which takes bare matrices and
     leaves their rows in the given order by default, so the letters at
     each position appeared in alphabetical order rather than with the
-    tallest on top (the standard sequence-logo convention). motif_tree2()
+    tallest on top (the standard sequence-logo convention). motif_tree_lite()
     now passes sort.positions = TRUE so the tallest letter is always on
     top.
 

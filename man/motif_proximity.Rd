@@ -12,7 +12,7 @@ motif_proximity(hits = NULL, anchors, motifs = NULL, sequences = NULL,
   qvalue = 0.1, nthreads = 1)
 }
 \arguments{
-\item{hits}{Motif hits from \code{\link[=scan_sequences2]{scan_sequences2()}} or \code{\link[=scan_sequences]{scan_sequences()}},
+\item{hits}{Motif hits from \code{\link[=scan_sequences_lite]{scan_sequences_lite()}} or \code{\link[=scan_sequences]{scan_sequences()}},
 as a \code{GRanges} (preferred) or a \code{data.frame}, carrying genomic
 coordinates plus \code{motif} and \code{score}. Supply this \emph{or}
 (\code{motifs} + \code{sequences}), not both. \code{data.frame} input also requires
@@ -30,7 +30,7 @@ anchors, reducing regions first with e.g.
 accepted by \code{\link[=convert_motifs]{convert_motifs()}}) and the sequences to scan. \code{sequences}
 is an \code{XStringSet} (the scanned chromosomes) or a \code{BSgenome}; for a
 \code{BSgenome} only the chromosomes carrying anchors are extracted and
-scanned. Scanning is done internally with \code{\link[=scan_sequences2]{scan_sequences2()}}.}
+scanned. Scanning is done internally with \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}.}
 
 \item{universe}{\code{GRanges} or \code{NULL}. The regions actually scanned (the
 null support). \code{NULL} (default) derives whole chromosomes from
@@ -50,7 +50,7 @@ modes require stranded anchors and are not available for
 \code{method = "ks"}.}
 
 \item{scan.pvalue}{\code{numeric(1)}. Hit P-value threshold forwarded to
-\code{\link[=scan_sequences2]{scan_sequences2()}} when scanning internally. Default \code{1e-4}.}
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}} when scanning internally. Default \code{1e-4}.}
 
 \item{RC}{\code{logical(1)}. Scan both strands when scanning internally.
 Default \code{TRUE}.}
@@ -195,7 +195,7 @@ anchors <- GRanges("chr1", IRanges(anchor.pos, width = 1))
 m <- create_motif("TTGACATA", name = "example")
 
 ## Either scan first and pass hits ...
-hits <- scan_sequences2(m, chrs, pvalue = 1e-3, return.granges = TRUE)
+hits <- scan_sequences_lite(m, chrs, pvalue = 1e-3, return.granges = TRUE)
 motif_proximity(hits, anchors)
 
 ## ... or let motif_proximity() scan internally.
@@ -213,7 +213,7 @@ ChIP-seq." \emph{Nucleic Acids Research}, \strong{40}(17):e128.
 \doi{10.1093/nar/gks433}.
 }
 \seealso{
-\code{\link[=motif_peaks]{motif_peaks()}}, \code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=plot_motif_proximity]{plot_motif_proximity()}}
+\code{\link[=motif_peaks]{motif_peaks()}}, \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=plot_motif_proximity]{plot_motif_proximity()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

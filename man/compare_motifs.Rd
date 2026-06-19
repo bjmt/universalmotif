@@ -94,7 +94,7 @@ latter, function args are stored in the \code{metadata} slot.
 Compare motifs using one of the several available metrics. See the
 "Motif comparisons and P-values" vignette for detailed information.
 Note: for regular DNA/RNA motif comparison using PCC, see
-\code{\link[=compare_motifs2]{compare_motifs2()}} for a faster and simpler alternative.
+\code{\link[=compare_motifs_lite]{compare_motifs_lite()}} for a faster and simpler alternative.
 }
 \details{
 \subsection{Available metrics}{
@@ -228,7 +228,7 @@ co-regulated genes to identify motifs.” \emph{Bioinformatics}, \strong{19},
 }
 \seealso{
 \code{\link[=convert_motifs]{convert_motifs()}}, \code{\link[=motif_tree]{motif_tree()}}, \code{\link[=view_motifs]{view_motifs()}},
-\code{\link[=make_DBscores]{make_DBscores()}}, \code{\link[=compare_motifs2]{compare_motifs2()}}, \code{\link[=view_motifs2]{view_motifs2()}}
+\code{\link[=make_DBscores]{make_DBscores()}}, \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}, \code{\link[=view_motifs_lite]{view_motifs_lite()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

@@ -65,7 +65,7 @@ samples drawn column-by-column from one or more motif PPMs at chosen
 positions, returning the modified sequences together (optionally)
 with a ground-truth data.frame of where each implant was placed.
 This produces benchmark-grade positive sequences for testing
-\code{\link[=scan_sequences2]{scan_sequences2()}}, \code{\link[=motif_finder]{motif_finder()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}},
+\code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=motif_finder]{motif_finder()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}},
 \code{\link[=motif_peaks]{motif_peaks()}}, or any other discovery / scanning pipeline against
 a known answer.
 }
@@ -112,8 +112,8 @@ plot_motif_peaks(peaks)
 
 }
 \seealso{
-\code{\link[=sample_sites]{sample_sites()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences2]{scan_sequences2()}},
-\code{\link[=motif_finder]{motif_finder()}}, \code{\link[=motif_peaks]{motif_peaks()}}, \code{\link[=enrich_motifs2]{enrich_motifs2()}}
+\code{\link[=sample_sites]{sample_sites()}}, \code{\link[=create_sequences]{create_sequences()}}, \code{\link[=scan_sequences_lite]{scan_sequences_lite()}},
+\code{\link[=motif_finder]{motif_finder()}}, \code{\link[=motif_peaks]{motif_peaks()}}, \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}
 }
 \author{
 Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@uwaterloo.ca}

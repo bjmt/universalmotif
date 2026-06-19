@@ -3,7 +3,7 @@
 #' Compare motifs using one of the several available metrics. See the
 #' "Motif comparisons and P-values" vignette for detailed information.
 #' Note: for regular DNA/RNA motif comparison using PCC, see
-#' [compare_motifs2()] for a faster and simpler alternative.
+#' [compare_motifs_lite()] for a faster and simpler alternative.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
 #' @param compare.to `numeric` If missing, compares all motifs to all other motifs.
@@ -193,7 +193,7 @@
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @seealso [convert_motifs()], [motif_tree()], [view_motifs()],
-#'    [make_DBscores()], [compare_motifs2()], [view_motifs2()]
+#'    [make_DBscores()], [compare_motifs_lite()], [view_motifs_lite()]
 #' @export
 compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
                            use.type = "PPM", method = "PCC", tryRC = TRUE,
@@ -302,7 +302,7 @@ compare_motifs <- function(motifs, compare.to, db.scores, use.freq = 1,
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, use.type, relative_entropy = relative_entropy)
 
-  suggest_compare_motifs2(
+  suggest_compare_motifs_lite(
     method            = method,
     use.freq          = use.freq,
     use.type          = use.type,

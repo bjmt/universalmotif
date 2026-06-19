@@ -112,20 +112,20 @@ resolve_nthreads <- function(nthreads) {
 }
 
 # Emit a one-time-per-call hint if a scan_sequences() invocation could be
-# served by the faster, multi-threaded scan_sequences2() without losing any
+# served by the faster, multi-threaded scan_sequences_lite() without losing any
 # functionality. Only fires when every argument the user passed maps cleanly
-# onto scan_sequences2()'s feature set; advanced features (multifreq,
+# onto scan_sequences_lite()'s feature set; advanced features (multifreq,
 # gapped motifs, q-values, exhaustive p-values, respect.strand,
 # allow.nonfinite, intra-motif overlap removal via the connected-components
 # algorithm, non-pvalue threshold types, amino-acid alphabets) suppress it.
 #
-# Opt out: options(universalmotif.suggest.scan_sequences2 = FALSE).
-suggest_scan_sequences2 <- function(threshold.type, use.freq, use.gaps,
+# Opt out: options(universalmotif.suggest.scan_sequences_lite = FALSE).
+suggest_scan_sequences_lite <- function(threshold.type, use.freq, use.gaps,
                                     allow.nonfinite, no.overlaps,
                                     calc.qvals, respect.strand,
                                     motif_pvalue.method, alphabet,
                                     mot.hasgap) {
-  if (!isTRUE(getOption("universalmotif.suggest.scan_sequences2"))) return(invisible())
+  if (!isTRUE(getOption("universalmotif.suggest.scan_sequences_lite"))) return(invisible())
   if (threshold.type != "pvalue")        return(invisible())
   if (use.freq != 1)                      return(invisible())
   if (any(mot.hasgap) && isTRUE(use.gaps)) return(invisible())
@@ -138,27 +138,27 @@ suggest_scan_sequences2 <- function(threshold.type, use.freq, use.gaps,
 
   message(wmsg(
     "Tip: this scan_sequences() call uses only arguments supported by ",
-    "scan_sequences2(), a leaner counterpart that parallelises better. ",
-    "See ?scan_sequences2. ",
-    "Silence with `options(universalmotif.suggest.scan_sequences2 = FALSE)`."
+    "scan_sequences_lite(), a leaner counterpart that parallelises better. ",
+    "See ?scan_sequences_lite. ",
+    "Silence with `options(universalmotif.suggest.scan_sequences_lite = FALSE)`."
   ))
   invisible()
 }
 
 # Emit a one-time-per-call hint if a compare_motifs() invocation could be
-# served by compare_motifs2() without losing any functionality. Same
-# pattern as suggest_scan_sequences2(). Fires when every argument maps
-# cleanly onto compare_motifs2()'s feature set (PCC + sum, default IC
+# served by compare_motifs_lite() without losing any functionality. Same
+# pattern as suggest_scan_sequences_lite(). Fires when every argument maps
+# cleanly onto compare_motifs_lite()'s feature set (PCC + sum, default IC
 # filters, no multifreq, no report, no normalisation, no db.scores
 # lookup, DNA/RNA alphabet).
 #
-# Opt out: options(universalmotif.suggest.compare_motifs2 = FALSE).
-suggest_compare_motifs2 <- function(method, use.freq, use.type,
+# Opt out: options(universalmotif.suggest.compare_motifs_lite = FALSE).
+suggest_compare_motifs_lite <- function(method, use.freq, use.type,
                                     min.mean.ic, min.position.ic,
                                     relative_entropy, normalise.scores,
                                     score.strat, has.db.scores,
                                     has.output.report, alphabet) {
-  if (!isTRUE(getOption("universalmotif.suggest.compare_motifs2")))
+  if (!isTRUE(getOption("universalmotif.suggest.compare_motifs_lite")))
     return(invisible())
   if (method != "PCC")                                return(invisible())
   if (!score.strat %in% c("sum", "a.mean"))           return(invisible())
@@ -175,28 +175,28 @@ suggest_compare_motifs2 <- function(method, use.freq, use.type,
 
   message(wmsg(
     "Tip: this compare_motifs() call uses only arguments supported by ",
-    "compare_motifs2(), a leaner counterpart that computes empirical-null",
+    "compare_motifs_lite(), a leaner counterpart that computes empirical-null",
     "p-values and parallelises better. ",
-    "See ?compare_motifs2. ",
-    "Silence with `options(universalmotif.suggest.compare_motifs2 = FALSE)`."
+    "See ?compare_motifs_lite. ",
+    "Silence with `options(universalmotif.suggest.compare_motifs_lite = FALSE)`."
   ))
   invisible()
 }
 
 # Emit a one-time-per-call hint if an enrich_motifs() invocation could be
-# served by enrich_motifs2() without losing any functionality. Same pattern
-# as suggest_scan_sequences2() / suggest_compare_motifs2(). Fires when every
-# argument maps cleanly onto enrich_motifs2()'s feature set: pvalue
+# served by enrich_motifs_lite() without losing any functionality. Same pattern
+# as suggest_scan_sequences_lite() / suggest_compare_motifs_lite(). Fires when every
+# argument maps cleanly onto enrich_motifs_lite()'s feature set: pvalue
 # threshold type, BH/fdr q-value adjustment, use.freq = 1, no gapped
 # motifs, default allow.nonfinite/respect.strand/no.overlaps, dynamic
 # motif_pvalue, and DNA/RNA alphabet.
 #
-# Opt out: options(universalmotif.suggest.enrich_motifs2 = FALSE).
-suggest_enrich_motifs2 <- function(threshold.type, qval.method, use.freq,
+# Opt out: options(universalmotif.suggest.enrich_motifs_lite = FALSE).
+suggest_enrich_motifs_lite <- function(threshold.type, qval.method, use.freq,
                                    use.gaps, allow.nonfinite, no.overlaps,
                                    respect.strand, motif_pvalue.method,
                                    mode, alphabet, mot.hasgap) {
-  if (!isTRUE(getOption("universalmotif.suggest.enrich_motifs2")))
+  if (!isTRUE(getOption("universalmotif.suggest.enrich_motifs_lite")))
     return(invisible())
   if (threshold.type != "pvalue")                      return(invisible())
   if (!qval.method %in% c("BH", "fdr"))                return(invisible())
@@ -214,22 +214,22 @@ suggest_enrich_motifs2 <- function(threshold.type, qval.method, use.freq,
 
   message(wmsg(
     "Tip: this enrich_motifs() call uses only arguments supported by ",
-    "enrich_motifs2(), a leaner counterpart that builds on scan_sequences2() ",
+    "enrich_motifs_lite(), a leaner counterpart that builds on scan_sequences_lite() ",
     "and parallelises better. ",
-    "See ?enrich_motifs2. ",
-    "Silence with `options(universalmotif.suggest.enrich_motifs2 = FALSE)`."
+    "See ?enrich_motifs_lite. ",
+    "Silence with `options(universalmotif.suggest.enrich_motifs_lite = FALSE)`."
   ))
   invisible()
 }
 
 # Emit a one-time-per-call hint if a merge_motifs() invocation could be
-# served by merge_motifs2() without losing any functionality.
+# served by merge_motifs_lite() without losing any functionality.
 #
-# Opt out: options(universalmotif.suggest.merge_motifs2 = FALSE).
-suggest_merge_motifs2 <- function(method, use.type, min.mean.ic,
+# Opt out: options(universalmotif.suggest.merge_motifs_lite = FALSE).
+suggest_merge_motifs_lite <- function(method, use.type, min.mean.ic,
                                   min.position.ic, relative_entropy,
                                   normalise.scores, score.strat, alphabet) {
-  if (!isTRUE(getOption("universalmotif.suggest.merge_motifs2")))
+  if (!isTRUE(getOption("universalmotif.suggest.merge_motifs_lite")))
     return(invisible())
   if (method != "PCC")                                return(invisible())
   if (use.type != "PPM")                              return(invisible())
@@ -243,27 +243,27 @@ suggest_merge_motifs2 <- function(method, use.type, min.mean.ic,
 
   message(wmsg(
     "Tip: this merge_motifs() call uses only arguments supported by ",
-    "merge_motifs2(), a leaner counterpart built on compare_motifs2() ",
+    "merge_motifs_lite(), a leaner counterpart built on compare_motifs_lite() ",
     "with an anchor-based (input-order-independent) merge. ",
-    "See ?merge_motifs2. ",
-    "Silence with `options(universalmotif.suggest.merge_motifs2 = FALSE)`."
+    "See ?merge_motifs_lite. ",
+    "Silence with `options(universalmotif.suggest.merge_motifs_lite = FALSE)`."
   ))
   invisible()
 }
 
 # Emit a one-time-per-call hint if a merge_similar() invocation could be
-# served by merge_similar2() without losing any functionality.
+# served by merge_similar_lite() without losing any functionality.
 #
-# Opt out: options(universalmotif.suggest.merge_similar2 = FALSE).
-suggest_merge_similar2 <- function(method, use.type, threshold.type,
+# Opt out: options(universalmotif.suggest.merge_similar_lite = FALSE).
+suggest_merge_similar_lite <- function(method, use.type, threshold.type,
                                    min.mean.ic, min.position.ic,
                                    relative_entropy, normalise.scores,
                                    score.strat.compare, alphabet) {
-  if (!isTRUE(getOption("universalmotif.suggest.merge_similar2")))
+  if (!isTRUE(getOption("universalmotif.suggest.merge_similar_lite")))
     return(invisible())
   if (method != "PCC")                                return(invisible())
   if (use.type != "PPM")                              return(invisible())
-  ## merge_similar() uses score-based thresholds; merge_similar2() uses
+  ## merge_similar() uses score-based thresholds; merge_similar_lite() uses
   ## q-value-based ones. We only suggest when the v1 caller is on the
   ## default score.abs path -- a v1 user already on threshold.type =
   ## "pvalue" / "qvalue" probably wants the v2 q-value cutoff but is
@@ -278,29 +278,29 @@ suggest_merge_similar2 <- function(method, use.type, threshold.type,
 
   message(wmsg(
     "Tip: this merge_similar() call uses only arguments supported by ",
-    "merge_similar2(), a leaner counterpart that clusters motifs by ",
-    "compare_motifs2() significance (q-value) instead of absolute score. ",
-    "See ?merge_similar2. ",
-    "Silence with `options(universalmotif.suggest.merge_similar2 = FALSE)`."
+    "merge_similar_lite(), a leaner counterpart that clusters motifs by ",
+    "compare_motifs_lite() significance (q-value) instead of absolute score. ",
+    "See ?merge_similar_lite. ",
+    "Silence with `options(universalmotif.suggest.merge_similar_lite = FALSE)`."
   ))
   invisible()
 }
 
 # Emit a one-time-per-call hint if a motif_tree() invocation could be
-# served by motif_tree2() without losing any functionality. motif_tree2()
-# builds its distance matrix from compare_motifs2() (Pearson correlation
+# served by motif_tree_lite() without losing any functionality. motif_tree_lite()
+# builds its distance matrix from compare_motifs_lite() (Pearson correlation
 # mapped to (1 - score)/2) and then runs the same hclust / ape::as.phylo /
 # ggtree::ggtree pipeline that motif_tree() does. The hint fires only when
 # the v1 caller is using motif_tree()'s defaults for every argument that
-# motif_tree2() does not expose (method, use.type, min.mean.ic,
+# motif_tree_lite() does not expose (method, use.type, min.mean.ic,
 # min.position.ic, relative_entropy, score.strat, db.scores), so that
 # anyone who has actively customised a v1-only knob is left alone.
 #
-# Opt out: options(universalmotif.suggest.motif_tree2 = FALSE).
-suggest_motif_tree2 <- function(method, use.type, min.mean.ic,
+# Opt out: options(universalmotif.suggest.motif_tree_lite = FALSE).
+suggest_motif_tree_lite <- function(method, use.type, min.mean.ic,
                                 min.position.ic, relative_entropy,
                                 score.strat, has.db.scores, alphabet) {
-  if (!isTRUE(getOption("universalmotif.suggest.motif_tree2")))
+  if (!isTRUE(getOption("universalmotif.suggest.motif_tree_lite")))
     return(invisible())
   if (method != "EUCL")                                return(invisible())
   if (use.type != "PPM")                               return(invisible())
@@ -313,10 +313,10 @@ suggest_motif_tree2 <- function(method, use.type, min.mean.ic,
 
   message(wmsg(
     "Tip: this motif_tree() call uses only arguments supported by ",
-    "motif_tree2(), a leaner counterpart that builds its distance matrix ",
-    "via compare_motifs2() (Pearson correlation, multi-threaded). ",
-    "See ?motif_tree2. ",
-    "Silence with `options(universalmotif.suggest.motif_tree2 = FALSE)`."
+    "motif_tree_lite(), a leaner counterpart that builds its distance matrix ",
+    "via compare_motifs_lite() (Pearson correlation, multi-threaded). ",
+    "See ?motif_tree_lite. ",
+    "Silence with `options(universalmotif.suggest.motif_tree_lite = FALSE)`."
   ))
   invisible()
 }

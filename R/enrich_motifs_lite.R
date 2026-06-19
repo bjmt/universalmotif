@@ -1,11 +1,11 @@
 #' Fast minimalist motif enrichment.
 #'
-#' `enrich_motifs2()` is a deliberately pared-down counterpart to
+#' `enrich_motifs_lite()` is a deliberately pared-down counterpart to
 #' [enrich_motifs()], with a default surface that mirrors the command-line
 #' tool [yamtk](https://github.com/bjmt/yamtk). It exposes a single p-value
 #' cutoff for the hits, a single q-value cutoff for the results, and two
 #' test modes (`"seqs"` and `"sites"`, both Fisher's exact), and it leans on
-#' [scan_sequences2()] under the hood to scan the target and background
+#' [scan_sequences_lite()] under the hood to scan the target and background
 #' sequences. The p-value adjustment is hard-coded to Benjamini-Hochberg.
 #'
 #' Use [enrich_motifs()] when you need any of: q-value adjustment methods
@@ -20,7 +20,7 @@
 #'   `NULL` (default), target sequences are shuffled k-let-conserving via
 #'   [shuffle_sequences()] with `k = shuffle.k`, matching both
 #'   `enrich_motifs()` and `yamtk enr` default behaviour.
-#' @param pvalue `numeric(1)`. P-value cutoff passed to [scan_sequences2()]
+#' @param pvalue `numeric(1)`. P-value cutoff passed to [scan_sequences_lite()]
 #'   for reporting individual hits. Default `1e-4`.
 #' @param qvalue `numeric(1)`. Result-level q-value cutoff. Motifs whose
 #'   BH-adjusted enrichment p-value exceeds this are filtered out. Default
@@ -40,7 +40,7 @@
 #'   cell of the Fisher 2x2 table; useful when one side has zero counts.
 #'   Default `1L` (matches yamtk's `-p 1` default).
 #' @param nthreads `numeric(1)`. Number of threads passed to
-#'   [scan_sequences2()] and [shuffle_sequences()]. `nthreads = 0` uses
+#'   [scan_sequences_lite()] and [shuffle_sequences()]. `nthreads = 0` uses
 #'   all available threads.
 #'
 #' @return A `data.frame` with one row per significant motif, sorted by
@@ -64,7 +64,7 @@
 #' }
 #'
 #' @details
-#' Internally, [scan_sequences2()] is run once on the target set and once on
+#' Internally, [scan_sequences_lite()] is run once on the target set and once on
 #' the background set; the resulting hit tables are aggregated per motif into
 #' a 2x2 contingency table whose entries depend on `test`:
 #'
@@ -103,15 +103,16 @@
 #' data(ArabidopsisPromoters)
 #' data(ArabidopsisMotif)
 #' if (R.Version()$arch != "i386") {
-#'   enrich_motifs2(ArabidopsisMotif, ArabidopsisPromoters,
+#'   enrich_motifs_lite(ArabidopsisMotif, ArabidopsisPromoters,
 #'                  pvalue = 1e-3, qvalue = 0.5, rng.seed = 1)
 #' }
 #'
-#' @seealso [enrich_motifs()], [scan_sequences2()], [shuffle_sequences()],
+#' @seealso [enrich_motifs()], [scan_sequences_lite()], [shuffle_sequences()],
 #'     [match_bkg()], [motif_pvalue()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
+#' @family lite motif functions
 #' @export
-enrich_motifs2 <- function(motifs, sequences, bkg.sequences = NULL,
+enrich_motifs_lite <- function(motifs, sequences, bkg.sequences = NULL,
                            pvalue = 1e-4, qvalue = 0.1,
                            test = c("seqs", "sites"),
                            RC = TRUE, shuffle.k = 2L,
@@ -150,7 +151,7 @@ enrich_motifs2 <- function(motifs, sequences, bkg.sequences = NULL,
     stop("all motifs must share the same alphabet", call. = FALSE)
   mot.alph <- unique(mot.alphs)
   if (!mot.alph %in% c("DNA", "RNA"))
-    stop("`enrich_motifs2()` only supports DNA/RNA motifs; got `",
+    stop("`enrich_motifs_lite()` only supports DNA/RNA motifs; got `",
          mot.alph, "`. Use `enrich_motifs()` for other alphabets.",
          call. = FALSE)
 
@@ -189,9 +190,9 @@ enrich_motifs2 <- function(motifs, sequences, bkg.sequences = NULL,
          seqtype(bkg.sequences), ") do not match", call. = FALSE)
 
   ## --- scan -------------------------------------------------------------
-  hits.tgt <- scan_sequences2(motifs, sequences,  pvalue = pvalue, RC = RC,
+  hits.tgt <- scan_sequences_lite(motifs, sequences,  pvalue = pvalue, RC = RC,
                               nthreads = nthreads, return.granges = FALSE)
-  hits.bkg <- scan_sequences2(motifs, bkg.sequences, pvalue = pvalue, RC = RC,
+  hits.bkg <- scan_sequences_lite(motifs, bkg.sequences, pvalue = pvalue, RC = RC,
                               nthreads = nthreads, return.granges = FALSE)
 
   n.tgt.seq <- length(sequences)

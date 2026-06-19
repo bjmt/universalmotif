@@ -41,7 +41,7 @@ test_that("output shape and column types are stable", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   r <- suppressMessages(motif_proximity(hits, anchors, qvalue = 1))
   expect_true(is.data.frame(r))
@@ -62,7 +62,7 @@ test_that("binomial detects a motif planted near anchors", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   r <- suppressMessages(motif_proximity(hits, anchors, qvalue = 1))
   expect_equal(nrow(r), 1L)
@@ -78,7 +78,7 @@ test_that("ks detects, and ks is rejected for anchors / directional", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   r <- suppressMessages(motif_proximity(hits, anchors, method = "ks",
                                         qvalue = 1))
@@ -101,7 +101,7 @@ test_that("permutation is reproducible after set.seed() (serial)", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   set.seed(1)
   r1 <- suppressMessages(motif_proximity(hits, anchors, method = "permutation",
@@ -121,7 +121,7 @@ test_that("binomial/ks leave the global RNG untouched; permutation uses it", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   ## A non-random method must not advance the stream.
   set.seed(123); before <- runif(1)
@@ -150,7 +150,7 @@ test_that("negative control: random hits are not enriched near anchors", {
                 IRanges::IRanges(seq(300, 5700, by = 300), width = 1),
                 strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   r <- suppressMessages(motif_proximity(hits, anchors, qvalue = 0.1))
   expect_equal(nrow(r), 0L)
@@ -165,7 +165,7 @@ test_that("count = 'anchors' runs and counts anchors", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   set.seed(1)
   r <- suppressMessages(motif_proximity(hits, anchors, count = "anchors",
@@ -184,7 +184,7 @@ test_that("internal scan path equals the precomputed-hits path", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   r1 <- suppressMessages(motif_proximity(hits, anchors, qvalue = 1))
   r2 <- suppressMessages(motif_proximity(motifs = m, sequences = g,
@@ -206,7 +206,7 @@ test_that("data.frame input requires an explicit universe", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  df <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = FALSE)
+  df <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = FALSE)
 
   expect_error(suppressMessages(motif_proximity(df, anchors)),
                regexp = "universe")
@@ -227,7 +227,7 @@ test_that("U* restriction drops hits on anchorless chromosomes", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   expect_message(motif_proximity(hits, anchors, qvalue = 1),
                  regexp = "dropped")
@@ -244,7 +244,7 @@ test_that("mismatched seqnames raise an informative error", {
   anchors <- GenomicRanges::GRanges("Chr1",   # capital C: does not match chr1
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   expect_error(suppressMessages(motif_proximity(hits, anchors)),
                regexp = "seqnames|seqlevels")
@@ -259,7 +259,7 @@ test_that("orientation: downstream-planted motif is found downstream only", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
 
   down <- suppressMessages(motif_proximity(hits, anchors,
                             orientation = "downstream", qvalue = 1))
@@ -284,7 +284,7 @@ test_that("dist.to.nearest is signed when anchors are stranded", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
   r <- suppressMessages(motif_proximity(hits, anchors, qvalue = 1))
   d <- r$dist.to.nearest[[1]]
   ## Motif sits downstream of '+' anchors, so signed distances skew positive.
@@ -317,7 +317,7 @@ test_that("plot_motif_proximity returns a ggplot and guards bad input", {
   anchors <- GenomicRanges::GRanges("chr1",
                 IRanges::IRanges(pos, width = 1), strand = "+")
   m <- create_motif("TTGACATA", name = "x")
-  hits <- scan_sequences2(m, g, pvalue = 1e-3, return.granges = TRUE)
+  hits <- scan_sequences_lite(m, g, pvalue = 1e-3, return.granges = TRUE)
   r <- suppressMessages(motif_proximity(hits, anchors, qvalue = 1))
 
   gg <- plot_motif_proximity(r)
