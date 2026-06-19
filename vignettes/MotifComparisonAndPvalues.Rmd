@@ -351,18 +351,16 @@ min.overlap = 5, a uniform background, and the empirical null PMF. The
 chosen by score rather than by p-value) and `matrix.out = "pvalue"`
 (the full significance computation, which is equivalent work to
 `yamtk cmp`). Each cell shows `nthreads = 1 / nthreads = 4`. The
-benchmark script lives at `benchmarks/compare_motifs2_vignette.log` in
-the package repository, and the values are baked in here rather than
-recomputed at vignette build time. These benchmarks were run on an
-MBP M5 under R 4.4.1.
+values are baked in here rather than recomputed at vignette build
+time. These benchmarks were run on an MBP M5 under R 4.4.1.
 
-| Workload | yamtk¹ | `compare_motifs()` | `cm2()` score² | `cm2()` pvalue |
+| Workload | yamtk¹ | `compare_motifs()` | `compare_motifs_lite()` score² | `compare_motifs_lite()` pvalue |
 |---|---:|---:|---:|---:|
 | 50 × 50 (2 500 pairs) | 0.028 / 0.012 | 0.598 / 0.194 | 0.014 / 0.004 | 0.285 / 0.082 |
 | 200 × 200 (40 000 pairs) | 0.114 / 0.038 | 9.537 / 2.590 | 0.224 / 0.064 | 1.673 / 0.470 |
 
-`cm2()` is shorthand for `compare_motifs_lite()`; the `score` / `pvalue`
-labels indicate the value of the `matrix.out` argument.
+The `score` / `pvalue` labels indicate the value of the `matrix.out`
+argument.
 
 ¹ `yamtk cmp` is a dedicated C CLI tool; threading is by query motif.
 The `compare_motifs_lite()` algorithm is a port of yamtk's.
