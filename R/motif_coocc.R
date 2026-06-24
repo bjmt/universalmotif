@@ -8,7 +8,7 @@
 #' reports two descriptive spatial columns, `both.clustered`
 #' (number of co-occurring sequences with a within-`max.distance`
 #' (A, B) hit pair) and `median.distance` (the median nearest-pair
-#' spacing), so users can flag heterodimer-like arrangements. The
+#' spacing), so heterodimer-like arrangements can be flagged. The
 #' Fisher p-value itself is always computed on the unfiltered 2x2
 #' (the spatial filter is informational, not a test).
 #'

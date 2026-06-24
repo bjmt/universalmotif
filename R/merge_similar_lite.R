@@ -10,11 +10,11 @@
 #' similarity scores and applies hierarchical clustering at an absolute
 #' score cutoff) this function clusters on statistical
 #' significance: two motifs are linked if their pairwise q-value
-#' meets the user's `qvalue` cutoff. This matches the STAMP /
+#' meets the chosen `qvalue` cutoff. This matches the STAMP /
 #' TOMTOM-clustering semantics ("group all motifs that are
 #' significantly similar"), is deterministic, has no linkage-method
-#' choice to expose, and lets the user reason about the cutoff in
-#' q-value units rather than abstract distance.
+#' choice to expose, and expresses the cutoff in q-value units
+#' rather than abstract distance.
 #'
 #' @param motifs `list` of motifs. DNA or RNA only.
 #' @param qvalue `numeric(1)`. BH-adjusted q-value cutoff for linking

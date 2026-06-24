@@ -350,7 +350,7 @@ Two scanning-related functions are provided: `scan_sequences()` / `scan_sequence
 
 ## Choosing a logodds threshold
 
-Before scanning a set of sequences, one must first decide the minimum logodds threshold for retrieving matches. This decision is not always the same between scanning programs out in the wild, nor is it usually told to the user what the cutoff is or how it is decided. As a result, `universalmotif` aims to be as transparent as possible in this regard by allowing for complete control of the threshold. For more details on PWMs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette.
+Before scanning a set of sequences, one must first decide the minimum logodds threshold for retrieving matches. This decision is not always the same between scanning programs out in the wild, nor is it usually made clear what the cutoff is or how it is decided. As a result, `universalmotif` aims to be as transparent as possible in this regard by allowing for complete control of the threshold. For more details on PWMs, see the [introductory](IntroductionToSequenceMotifs.pdf) vignette.
 
 ### Logodds thresholds {.unnumbered}
 
@@ -770,7 +770,7 @@ you at the leaner function. (Silence it with
 
 `motif_finder()` is a _de novo_ motif discovery function. For each
 motif width in a
-user-controlled range, it enumerates the over-represented k-mer seeds
+configurable range, it enumerates the over-represented k-mer seeds
 (using a Fisher's exact test on per-sequence presence against a
 background set), aligns the Hamming-distance-1 neighbours of the best
 seed to form a PPM, refines that PPM over two re-scan passes, accepts

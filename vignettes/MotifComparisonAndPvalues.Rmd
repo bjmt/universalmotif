@@ -404,7 +404,7 @@ For simple DNA/RNA motif merging tasks:
 
 - `merge_similar_lite(motifs, qvalue)` clusters motifs by statistical
   significance: two motifs are linked if their pairwise q-value
-  meets the user's `qvalue` cutoff. Clustering is by connected
+  meets the chosen `qvalue` cutoff. Clustering is by connected
   components on the resulting graph (deterministic, no linkage-method
   to choose). Each component is collapsed via `merge_motifs_lite()`.
 

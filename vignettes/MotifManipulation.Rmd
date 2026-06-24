@@ -223,7 +223,7 @@ motifs <- merge_similar(motifs)
 length(motifs)
 ```
 
-Comparison and merging parameters can be fine-tuned as users wish. See the `compare_motifs()` / `compare_motifs_lite()` and `merge_motifs()` / `merge_motifs_lite()` documentation for more details, as well as the "Motif comparisons and P-values" vignette.
+Comparison and merging parameters can be fine-tuned as desired. See the `compare_motifs()` / `compare_motifs_lite()` and `merge_motifs()` / `merge_motifs_lite()` documentation for more details, as well as the "Motif comparisons and P-values" vignette.
 
 ## Motif reverse complement
 

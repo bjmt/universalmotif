@@ -111,7 +111,7 @@ create_motif()
 #> T 0.47 0 0.96 0.02 0.00 0.03 0.00 0.09 0.00 0.00
 ```
 
-See `?universalmotif` for a list of available metadata slots. Most slots can be accessed using square brackets, e.g. `MotifObject["motif"]` accesses the raw numeric matrix. You can also dump the contents of all user-facing motif slots at once into a list, e.g. `MotifObject[]`.
+See `?universalmotif` for a list of available metadata slots. Most slots can be accessed using square brackets, e.g. `MotifObject["motif"]` accesses the raw numeric matrix. You can also dump the contents of all accessible motif slots at once into a list, e.g. `MotifObject[]`.
 
 The `universalmotif` class supports five motif types: the four probabilistic representations `PCM`, `PPM`, `PWM` and `ICM`, plus `CWM` (contribution weight matrix). A CWM holds signed, unnormalised per-position, per-letter contribution scores of the kind produced by deep learning methods, and so (unlike the probabilistic types) it carries no column-sum constraint. CWMs can be created directly, read from and written to MEME and generic-matrix files, converted to a PPM, and trimmed by contribution:
 

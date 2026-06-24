@@ -133,7 +133,7 @@ MotifDb-MotifList, a list of \code{universalmotif} objects will be returned).
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{convert_motifs(AsIs)}: Generate an error to remind users to run
+\item \code{convert_motifs(AsIs)}: Generate an error as a reminder to run
 \code{\link[=to_list]{to_list()}} instead of using the column from \code{\link[=to_df]{to_df()}} directly.
 
 \item \code{convert_motifs(list)}: Convert a list of motifs.

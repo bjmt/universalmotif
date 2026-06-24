@@ -61,11 +61,11 @@ Unlike \code{\link[=merge_similar]{merge_similar()}} (which builds a distance ma
 similarity scores and applies hierarchical clustering at an absolute
 score cutoff) this function clusters on statistical
 significance: two motifs are linked if their pairwise q-value
-meets the user's \code{qvalue} cutoff. This matches the STAMP /
+meets the chosen \code{qvalue} cutoff. This matches the STAMP /
 TOMTOM-clustering semantics ("group all motifs that are
 significantly similar"), is deterministic, has no linkage-method
-choice to expose, and lets the user reason about the cutoff in
-q-value units rather than abstract distance.
+choice to expose, and expresses the cutoff in q-value units
+rather than abstract distance.
 
 The significance graph is built from a symmetrised q-value matrix:
 \code{Qsym[i,j] = pmin(Q[i,j], Q[j,i])}. \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}'s per-query BH

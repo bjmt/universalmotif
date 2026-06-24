@@ -57,7 +57,7 @@ Note that this differs from \code{\link[=scan_sequences]{scan_sequences()}}'s bu
 cluster to a single survivor (hierarchical clustering with
 \code{cutree}). The greedy approach used here keeps legitimately distinct
 hits even when an intermediate noisy hit bridges them, which is
-usually what users want.
+usually the desired behaviour.
 
 Coordinate convention: rows must have \code{start <= end}. Overlaps are
 inclusive: two hits overlap if \code{a$start <= b$end & b$start <= a$end}.

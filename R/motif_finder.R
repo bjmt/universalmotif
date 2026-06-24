@@ -2,7 +2,7 @@
 #'
 #' `motif_finder()` is a minimalist _de novo_ motif discovery function.
 #' The pipeline works through a
-#' user-controlled range of motif widths; at each width it enumerates the
+#' configurable range of motif widths; at each width it enumerates the
 #' over-represented k-mer seeds (using a Fisher's exact test on per-sequence
 #' presence against a background set), aligns the Hamming-1 neighbours of
 #' the best seed to form a PPM, refines that PPM over two re-scan passes,
@@ -69,7 +69,7 @@
 #' (Bailey 2021): seed enumeration via word
 #' counting with per-sequence Fisher's exact ranking, iterative PPM
 #' refinement on positive sequences, per-motif Fisher's exact
-#' significance against a shuffled or user-supplied background, and
+#' significance against a shuffled or supplied background, and
 #' position masking between discoveries.
 #'
 #' Motifs with `qvalue > qvalue` are dropped from the result. To see

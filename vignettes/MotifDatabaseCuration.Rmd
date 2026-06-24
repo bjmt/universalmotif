@@ -401,8 +401,8 @@ those back up.
 
 # Adding the metadata back
 
-For a curated library to be genuinely useful, users will want to
-know, for each final motif, which sources contributed to it. The
+For a curated library to be genuinely useful, it helps to know,
+for each final motif, which sources contributed to it. The
 `universalmotif_df` interface (`to_df()` returns a data-frame view,
 and `update_motifs()` writes columns back into the motif list) is
 the natural way to add per-motif annotations in a tidy fashion.
