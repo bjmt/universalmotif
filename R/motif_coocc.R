@@ -212,16 +212,40 @@ motif_coocc <- function(motifs, sequences = NULL,
   for (i in seq_len(n.motifs))
     presence[[i]] <- unique(hits$sequence.i[hits$motif.i == i])
 
-  ## --- for spatial mode: cache hit starts per (motif, sequence) --------
-  hit_pos <- NULL
+  ## --- for spatial mode: build global-coordinate hit lists -------------
+  ## The descriptive spatial columns need, for every co-occurring sequence,
+  ## the nearest within-sequence (A, B) hit pair. Rather than loop
+  ## sequence-by-sequence (and build an outer() distance matrix each time),
+  ## map every hit to a single global coordinate
+  ##     g = sequence.i * BIG + (start - minstart)
+  ## with BIG = 2 * (max(start) - min(start)) + 1. Two hits in the same
+  ## sequence then differ by at most `rng = max(start) - min(start)`, while
+  ## two hits in different sequences differ by at least BIG - rng > rng. So
+  ## the nearest hit by global value is always in the same sequence, which
+  ## lets a single sorted findInterval()/diff() per motif pair resolve every
+  ## within-sequence nearest pair with no per-sequence loop. Coordinates are
+  ## kept as doubles (the products can exceed the 2^31 integer range) but
+  ## stay well within 2^53 for realistic inputs.
+  g_pos <- g_seq <- NULL
   if (!is.null(max.distance)) {
-    hit_pos <- vector("list", n.motifs)
+    max.distance <- as.numeric(max.distance)
+    minstart <- as.numeric(min(hits$start))
+    rng <- as.numeric(max(hits$start)) - minstart
+    BIG <- 2 * rng + 1
+    g_pos <- vector("list", n.motifs)   # global coords, sorted ascending
+    g_seq <- vector("list", n.motifs)   # matching sequence ids
     for (i in seq_len(n.motifs)) {
       sub <- hits[hits$motif.i == i, , drop = FALSE]
-      if (nrow(sub) > 0L)
-        hit_pos[[i]] <- split(as.integer(sub$start), sub$sequence.i)
-      else
-        hit_pos[[i]] <- list()
+      if (nrow(sub) > 0L) {
+        g <- as.numeric(sub$sequence.i) * BIG +
+             (as.numeric(sub$start) - minstart)
+        o <- order(g)
+        g_pos[[i]] <- g[o]
+        g_seq[[i]] <- as.integer(sub$sequence.i)[o]
+      } else {
+        g_pos[[i]] <- numeric(0)
+        g_seq[[i]] <- integer(0)
+      }
     }
   }
 
@@ -307,37 +331,55 @@ motif_coocc <- function(motifs, sequences = NULL,
   out$odds_ratio[tested] <- (a[tested] * d[tested]) / (b[tested] * cc[tested])
 
   ## --- descriptive spatial columns (opt-in; do NOT feed the test) ------
-  ## These need the actual hit coordinates per (motif, sequence), so they
-  ## are computed in a loop, but only over pairs that co-occur and only
-  ## when `max.distance` is supplied:
-  ##   - both.clustered:  subset of `both` with at least one (A, B) hit
-  ##                      pair within `max.distance` bp.
-  ##   - median.distance: median of those nearest-pair distances.
-  ## A proper spatial significance test (e.g. SpaMo's permutation of the
-  ## distance distribution) is out of scope here.
+  ## Computed only when `max.distance` is supplied and only over pairs that
+  ## co-occur:
+  ##   - both.clustered:  number of co-occurring sequences whose nearest
+  ##                      (A, B) hit pair is within `max.distance` bp.
+  ##   - median.distance: median of those per-sequence nearest distances.
+  ## For each pair this is fully vectorised over hits using the global
+  ## coordinates built above: findInterval() finds each A-hit's nearest
+  ## B-hit (cross-pairs), or diff() of the sorted coordinates gives adjacent
+  ## gaps (self-pairs); a sorted group-min then collapses to one distance
+  ## per sequence. A proper spatial significance test (e.g. SpaMo's
+  ## permutation of the distance distribution) is out of scope here.
   if (!is.null(max.distance)) {
     both.clustered  <- integer(rows)
     median.distance <- rep(NA_real_, rows)
     for (k in which(both_v > 0L)) {
       i <- i_idx[k]; j <- j_idx[k]
-      coocc_seqs <- if (i == j) presence[[i]]
-                    else intersect(presence[[i]], presence[[j]])
-      kept_dists <- numeric(0)
-      for (seqkey in as.character(coocc_seqs)) {
-        sa <- hit_pos[[i]][[seqkey]]
-        sb <- hit_pos[[j]][[seqkey]]
-        if (length(sa) == 0L || length(sb) == 0L) next
-        if (i == j && length(sa) < 2L) next  # self-pair: need >= 2 hits
-        ds <- if (i == j)
-                outer(sa, sa, function(x, y) abs(x - y))[upper.tri(diag(length(sa)))]
-              else
-                as.numeric(outer(sa, sb, function(x, y) abs(x - y)))
-        d_min <- min(ds)
-        if (d_min <= max.distance) kept_dists <- c(kept_dists, d_min)
+      if (i == j) {
+        ## Self-pair: minimum adjacent gap among the motif's hits in each
+        ## sequence. A sequence with a single hit yields only a cross-
+        ## sequence diff (>= BIG), which is dropped, so it needs >= 2 hits
+        ## to count -- matching the original behaviour.
+        gi <- g_pos[[i]]; si <- g_seq[[i]]
+        if (length(gi) < 2L) next
+        d    <- diff(gi)
+        same <- si[-length(si)] == si[-1L]
+        if (!any(same)) next
+        seqd <- si[-length(si)][same]
+        dd   <- d[same]
+      } else {
+        ## Cross-pair: each A-hit's nearest B-hit (guaranteed same sequence
+        ## by the BIG offset), then the per-sequence minimum.
+        coocc <- intersect(presence[[i]], presence[[j]])
+        if (!length(coocc)) next
+        ina <- g_seq[[i]] %in% coocc
+        inb <- g_seq[[j]] %in% coocc
+        ga  <- g_pos[[i]][ina]; seqd <- g_seq[[i]][ina]
+        gb  <- g_pos[[j]][inb]                        # sorted ascending
+        len <- length(gb)
+        pos <- findInterval(ga, gb)                   # 0 .. len
+        below <- ifelse(pos >= 1L, ga - gb[pmax(pos, 1L)],      Inf)
+        above <- ifelse(pos < len, gb[pmin(pos + 1L, len)] - ga, Inf)
+        dd   <- pmin(below, above)                    # nearest dist per A-hit
       }
-      both.clustered[k] <- length(kept_dists)
-      if (length(kept_dists) > 0L)
-        median.distance[k] <- stats::median(kept_dists)
+      ## Sorted group-min: one nearest distance per co-occurring sequence.
+      o    <- order(seqd, dd)
+      dmin <- dd[o][!duplicated(seqd[o])]
+      qual <- dmin[dmin <= max.distance]
+      both.clustered[k] <- length(qual)
+      if (length(qual)) median.distance[k] <- stats::median(qual)
     }
     out$both.clustered  <- both.clustered
     out$median.distance <- median.distance
