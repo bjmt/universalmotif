@@ -77,14 +77,17 @@
 #'   (testing whether motif `i` co-occurs with itself). Usually only
 #'   meaningful for motifs that bind as homodimers. Default `FALSE`.
 #' @param nthreads `integer(1)`. Threads for the internal scan (when
-#'   `sequences` is supplied). The pairwise Fisher loop is single-
-#'   threaded R code regardless.
+#'   `sequences` is supplied). The pairwise co-occurrence test itself is
+#'   vectorised R (one `phyper()` call over all pairs) and does not use
+#'   threads.
 #'
 #' @return `data.frame` with columns:
 #'   * `motif_a`, `motif_b`: motif names (1-based indexing into the
 #'     supplied `motifs` list; deduplicated names if duplicates exist).
 #'   * `a_only`, `b_only`, `both`, `neither`: 2x2 contingency cells.
-#'   * `odds_ratio`: conditional MLE odds ratio from `fisher.test`.
+#'   * `odds_ratio`: sample odds ratio of the (pseudocount-adjusted)
+#'     2x2, `(both * neither) / (a_only * b_only)`; `Inf` when an
+#'     off-diagonal cell is zero. `NA` when `both < min.coocc`.
 #'   * `pvalue`: one-sided Fisher's exact p-value
 #'     (alternative = "greater"). NA when `both < min.coocc`.
 #'   * `qvalue`: BH-corrected q-value across all tested pairs.
@@ -233,75 +236,92 @@ motif_coocc <- function(motifs, sequences = NULL,
   storage.mode(pair_idx) <- "integer"
   rows <- nrow(pair_idx)
 
-  ## --- output skeleton -------------------------------------------------
+  ## --- contingency counts (vectorised over all pairs) ------------------
+  ## `both[i,j]` (sequences containing BOTH motifs) is exactly the (i,j)
+  ## entry of crossprod(incidence), where `incidence` is the sequence x
+  ## motif presence matrix. A single matrix product therefore gives every
+  ## pair's count, replacing the old per-pair intersect()/fisher.test()
+  ## loop that dominated the runtime once there were many motif
+  ## combinations. The 2x2 partition is always the SET question (does the
+  ## pair share sequences more than chance?) and is computed without the
+  ## spatial filter, so a_only + b_only + both + neither == n.sequences.
+  i_idx <- pair_idx[, 1L]
+  j_idx <- pair_idx[, 2L]
+  cnt <- lengths(presence)                 # sequences containing each motif
+
+  ## Restrict the incidence matrix to sequences that carry at least one
+  ## hit: hit-free sequences add nothing to any `both` count, and this
+  ## keeps the matrix small when n.sequences far exceeds the number of
+  ## sequences actually hit.
+  present_ids <- sort(unique(unlist(presence, use.names = FALSE)))
+  if (length(present_ids)) {
+    incidence <- matrix(0, nrow = length(present_ids), ncol = n.motifs)
+    for (i in seq_len(n.motifs))
+      incidence[match(presence[[i]], present_ids), i] <- 1
+    coocc <- crossprod(incidence)          # M[i,j] = sequences with both
+    both_v <- as.integer(coocc[pair_idx])  # M[i,i] == cnt[i] for self-pairs
+  } else {
+    both_v <- integer(rows)
+  }
+  ## For self-pairs M[i,i] == cnt[i], so a_only == b_only == 0 falls out
+  ## of the same formula with no special-casing.
+  a_only_v  <- cnt[i_idx] - both_v
+  b_only_v  <- cnt[j_idx] - both_v
+  neither_v <- n.sequences - a_only_v - b_only_v - both_v
+  neither_v[neither_v < 0L] <- 0L          # numerical guard
+
   out <- data.frame(
-    motif_a    = character(rows),
-    motif_b    = character(rows),
-    a_only     = integer(rows),
-    b_only     = integer(rows),
-    both       = integer(rows),
-    neither    = integer(rows),
-    odds_ratio = numeric(rows),
-    pvalue     = numeric(rows),
+    motif_a    = mot.names[i_idx],
+    motif_b    = mot.names[j_idx],
+    a_only     = as.integer(a_only_v),
+    b_only     = as.integer(b_only_v),
+    both       = as.integer(both_v),
+    neither    = as.integer(neither_v),
+    odds_ratio = NA_real_,
+    pvalue     = NA_real_,
     qvalue     = NA_real_,
     stringsAsFactors = FALSE
   )
-  if (!is.null(max.distance)) {
-    out$both.clustered  <- integer(rows)
-    out$median.distance <- NA_real_
-  }
 
-  ## --- pairwise loop ---------------------------------------------------
-  ## The Fisher test always answers the SET question: do A and B co-occur
-  ## in the same sequences more often than chance? The 2x2 partition
-  ## (a_only, b_only, both, neither) is therefore computed without the
-  ## spatial filter -- otherwise the partition stops summing to
-  ## n.sequences and the test result becomes meaningless.
-  ##
-  ## When `max.distance` is supplied, we additionally report:
-  ##   - both.clustered:  subset of `both` where at least one
-  ##                      (A, B) hit pair lies within `max.distance` bp.
-  ##   - median.distance: median of those nearest-pair distances.
-  ## These are descriptive of HOW co-occurring motifs are arranged;
-  ## a proper spatial significance test (e.g. SpaMo's permutation of
-  ## distance distributions) is out of scope here.
+  ## --- vectorised one-sided Fisher's exact test ------------------------
+  ## For a 2x2 table the one-sided ("greater") Fisher exact p-value is
+  ## exactly the upper tail of the hypergeometric distribution of the
+  ## top-left cell given the margins, so phyper() returns every pair's
+  ## p-value in a single call. With an all-integer table (the default
+  ## pseudocount = 0) this matches fisher.test() to floating-point
+  ## precision.
   pc <- as.numeric(pseudocount)
-  for (k in seq_len(rows)) {
-    i <- pair_idx[k, 1L]
-    j <- pair_idx[k, 2L]
-    Si <- presence[[i]]
-    Sj <- presence[[j]]
-    coocc_seqs <- if (i == j) Si else intersect(Si, Sj)
+  a  <- out$both    + pc        # top-left cell: sequences with both motifs
+  b  <- out$a_only  + pc
+  cc <- out$b_only  + pc
+  d  <- out$neither + pc
+  tested <- out$both >= as.integer(min.coocc)
+  out$pvalue[tested] <- stats::phyper(a[tested] - 1,
+                                      a[tested] + b[tested],
+                                      cc[tested] + d[tested],
+                                      a[tested] + cc[tested],
+                                      lower.tail = FALSE)
+  ## Sample odds ratio of the (pseudocount-adjusted) 2x2. This is `Inf`
+  ## when an off-diagonal cell is zero, matching the boundary behaviour
+  ## of the conditional-MLE estimate fisher.test() used to report.
+  out$odds_ratio[tested] <- (a[tested] * d[tested]) / (b[tested] * cc[tested])
 
-    both    <- length(coocc_seqs)
-    a_only  <- length(Si) - both
-    b_only  <- length(Sj) - both
-    if (i == j) {
-      ## self-pair: degenerate 2x2 (Si == Sj so a_only == b_only == 0).
-      a_only <- 0L; b_only <- 0L
-    }
-    neither <- n.sequences - a_only - b_only - both
-    if (neither < 0L) neither <- 0L  # numerical guard
-
-    out$motif_a[k] <- mot.names[i]
-    out$motif_b[k] <- mot.names[j]
-    out$a_only[k]  <- as.integer(a_only)
-    out$b_only[k]  <- as.integer(b_only)
-    out$both[k]    <- as.integer(both)
-    out$neither[k] <- as.integer(neither)
-
-    if (both >= as.integer(min.coocc)) {
-      tbl <- matrix(c(both, b_only, a_only, neither), nrow = 2L) + pc
-      ft  <- suppressWarnings(stats::fisher.test(tbl, alternative = "greater"))
-      out$pvalue[k]     <- ft$p.value
-      out$odds_ratio[k] <- unname(ft$estimate)
-    } else {
-      out$pvalue[k]     <- NA_real_
-      out$odds_ratio[k] <- NA_real_
-    }
-
-    ## Descriptive spatial columns (do NOT feed the Fisher test).
-    if (!is.null(max.distance) && both > 0L) {
+  ## --- descriptive spatial columns (opt-in; do NOT feed the test) ------
+  ## These need the actual hit coordinates per (motif, sequence), so they
+  ## are computed in a loop, but only over pairs that co-occur and only
+  ## when `max.distance` is supplied:
+  ##   - both.clustered:  subset of `both` with at least one (A, B) hit
+  ##                      pair within `max.distance` bp.
+  ##   - median.distance: median of those nearest-pair distances.
+  ## A proper spatial significance test (e.g. SpaMo's permutation of the
+  ## distance distribution) is out of scope here.
+  if (!is.null(max.distance)) {
+    both.clustered  <- integer(rows)
+    median.distance <- rep(NA_real_, rows)
+    for (k in which(both_v > 0L)) {
+      i <- i_idx[k]; j <- j_idx[k]
+      coocc_seqs <- if (i == j) presence[[i]]
+                    else intersect(presence[[i]], presence[[j]])
       kept_dists <- numeric(0)
       for (seqkey in as.character(coocc_seqs)) {
         sa <- hit_pos[[i]][[seqkey]]
@@ -315,10 +335,12 @@ motif_coocc <- function(motifs, sequences = NULL,
         d_min <- min(ds)
         if (d_min <= max.distance) kept_dists <- c(kept_dists, d_min)
       }
-      out$both.clustered[k] <- length(kept_dists)
+      both.clustered[k] <- length(kept_dists)
       if (length(kept_dists) > 0L)
-        out$median.distance[k] <- stats::median(kept_dists)
+        median.distance[k] <- stats::median(kept_dists)
     }
+    out$both.clustered  <- both.clustered
+    out$median.distance <- median.distance
   }
 
   ## --- BH q-values across tested pairs only ----------------------------

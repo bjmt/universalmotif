@@ -72,8 +72,9 @@ contingency before the Fisher test (matches the convention from
 meaningful for motifs that bind as homodimers. Default \code{FALSE}.}
 
 \item{nthreads}{\code{integer(1)}. Threads for the internal scan (when
-\code{sequences} is supplied). The pairwise Fisher loop is single-
-threaded R code regardless.}
+\code{sequences} is supplied). The pairwise co-occurrence test itself is
+vectorised R (one \code{phyper()} call over all pairs) and does not use
+threads.}
 }
 \value{
 \code{data.frame} with columns:
@@ -81,7 +82,9 @@ threaded R code regardless.}
 \item \code{motif_a}, \code{motif_b}: motif names (1-based indexing into the
 supplied \code{motifs} list; deduplicated names if duplicates exist).
 \item \code{a_only}, \code{b_only}, \code{both}, \code{neither}: 2x2 contingency cells.
-\item \code{odds_ratio}: conditional MLE odds ratio from \code{fisher.test}.
+\item \code{odds_ratio}: sample odds ratio of the (pseudocount-adjusted)
+2x2, \code{(both * neither) / (a_only * b_only)}; \code{Inf} when an
+off-diagonal cell is zero. \code{NA} when \code{both < min.coocc}.
 \item \code{pvalue}: one-sided Fisher's exact p-value
 (alternative = "greater"). NA when \code{both < min.coocc}.
 \item \code{qvalue}: BH-corrected q-value across all tested pairs.
