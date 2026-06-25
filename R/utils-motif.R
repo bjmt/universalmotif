@@ -363,6 +363,13 @@ get_consensus <- function(position, alphabet = "DNA", type = "PPM",
     stop("type must be one of ICM, PCM, PPM, PWM, CWM")
   if (!alphabet %in% c("DNA", "RNA"))
     stop("alphabet must be one of DNA, RNA")
+  ## Guard the input before it reaches C++: get_consensusC() indexes the
+  ## first four entries without bounds checks, and a non-numeric value
+  ## (e.g. a whole universalmotif object) aborts the R session during
+  ## argument conversion rather than raising a catchable error.
+  if (!is.numeric(position) || length(position) != 4)
+    stop("`position` must be a numeric vector of length 4 ",
+         "(one value per ", alphabet, " letter)")
 
   if (type == "CWM") {
     ## Normalise |cwm| -> PPM for the single-column consensus logic.
@@ -383,6 +390,11 @@ get_consensusAA <- function(position, type = "PPM", pseudocount = 0) {
 
   if (!type %in% c("PCM", "PPM", "PWM", "ICM", "CWM"))
     stop("type must be one of ICM, PCM, PPM, PWM, CWM")
+  ## See get_consensus(): guard before reaching get_consensusAAC(), which
+  ## indexes up to the twentieth entry and aborts on non-numeric input.
+  if (!is.numeric(position) || length(position) != 20)
+    stop("`position` must be a numeric vector of length 20 ",
+         "(one value per amino acid)")
 
   if (type == "CWM") {
     abs_pos <- abs(position)

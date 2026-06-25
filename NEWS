@@ -334,6 +334,15 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o Fixed get_consensus() and get_consensusAA() crashing the R session
+    when passed something other than a single numeric motif column, such
+    as a whole universalmotif object or a vector shorter than the
+    alphabet. The value went straight to C++, where a failed type
+    conversion aborted the session and out-of-bounds indexing was
+    undefined behaviour. Both functions now check that `position` is a
+    numeric vector of the expected length (4 for DNA/RNA, 20 for amino
+    acids) and raise a clear error instead.
+
   o Fixed motif_tree_lite() tip logos not stacking letters by height. The
     tip logos are drawn with geom_logo(), which takes bare matrices and
     leaves their rows in the given order by default, so the letters at

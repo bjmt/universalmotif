@@ -96,6 +96,18 @@ test_that("get_consensusAA returns an AA letter for an AA PPM column", {
   expect_true(out %in% AA_STANDARD2)
 })
 
+test_that("get_consensus()/get_consensusAA() error cleanly on bad input (regression: crash on a universalmotif object)", {
+  ## A whole motif object (or any non-numeric value) used to abort the R
+  ## session during the S4 -> double conversion in C++; a too-short vector
+  ## triggered out-of-bounds indexing. Both must now be catchable errors.
+  m <- create_motif("CCNNAA")
+  expect_error(get_consensus(m), "numeric vector of length 4")
+  expect_error(get_consensus(m, type = "CWM"), "numeric vector of length 4")
+  expect_error(get_consensus(c(0.5, 0.5)), "numeric vector of length 4")
+  expect_error(get_consensusAA(m), "numeric vector of length 20")
+  expect_error(get_consensusAA(c(0.5, 0.5)), "numeric vector of length 20")
+})
+
 test_that("add_gap toggles the gapinfo slot; ungap clears it", {
   m <- create_motif("ACGTACGT", nsites = 100)
   gapped <- add_gap(m, gaploc = 4L, mingap = 2L, maxgap = 2L)
