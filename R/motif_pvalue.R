@@ -98,6 +98,16 @@
 #' purpose, the basic premise of the dynamic programming algorithm is also
 #' described in Gupta et al. (2007).
 #'
+#' Each PWM entry is multiplied by 1000 and truncated towards zero before
+#' scores are summed. Dynamic P-values are upper-tail probabilities for this
+#' integerised distribution, which can differ from the distribution of the
+#' original real-valued scores. Query scores are rounded up to the next score
+#' grid point, with floating-point round-trip error handled at grid boundaries.
+#' For a requested P-value, the returned score is an inclusive threshold whose
+#' upper-tail probability is at most that P-value. If no attainable score
+#' satisfies the cutoff, the threshold is `Inf` and sequence scanning returns
+#' no hits for that motif.
+#'
 #' ## The exhaustive method
 #' Calculating P-values exhaustively for motifs can be very computationally
 #' intensive. This
@@ -282,6 +292,16 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
                       MoreArgs = list(use.freq = use.freq),
                       SIMPLIFY = FALSE)
 
+  # Keep the exact PWM used by the scanner when no background rebasing is
+  # needed. A PWM -> PPM -> PWM round-trip can cross integer-score boundaries.
+  original.pwms <- lapply(seq_along(motifs), function(i) {
+    m <- motifs[[i]]
+    if (method == "dynamic" && use.freq == 1 && m@type == "PWM" &&
+        all(is.finite(m@motif)) &&
+        identical(as.numeric(motif_pvalue_bkg(m, NULL, use.freq = 1)),
+                  as.numeric(bkg.probs[[i]]))) m@motif else NULL
+  })
+
   motifs <- convert_type_internal(motifs, "PPM")
   motifs2 <- convert_type_internal(motifs, "PWM")
 
@@ -300,6 +320,9 @@ motif_pvalue <- function(motifs, score, pvalue, bkg.probs, use.freq = 1,
     }
     motifs <- convert_type_internal(motifs, "PWM")
     motifs <- lapply(motifs, function(x) x@motif)
+    for (i in seq_along(motifs)) {
+      if (!is.null(original.pwms[[i]])) motifs[[i]] <- original.pwms[[i]]
+    }
   } else {
     motifs <- lapply(seq_along(motifs), function(x)
       MATRIX_ppm_to_pwm(motifs[[x]]@multifreq[[as.character(use.freq)]],

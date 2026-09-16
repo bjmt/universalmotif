@@ -194,6 +194,21 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o Fixed dynamic P-value thresholds admitting hits above the requested
+    cutoff in scan_sequences() and scan_sequences_lite(). Thresholds
+    now respect inclusive comparisons, and unattainable cutoffs return
+    no hits instead of admitting the highest-scoring matches. Some
+    scans and downstream analyses will therefore report fewer hits.
+
+  o Fixed decimal score thresholds rounding down during conversion to
+    the integer score grid. Dynamic P-value queries now use the same
+    inclusive boundary convention. Documented the distinction between
+    integerised and original real-valued score distributions.
+
+  o Dynamic motif_pvalue() now preserves supplied finite PWMs when the
+    background is unchanged, avoiding conversion round-trips that could
+    shift entries across integer-score boundaries.
+
   o Fixed scan_sequences() reporting truncated stop coordinates and
     matched sequences for higher-order motifs (use.freq > 1). Hits and
     the short-sequence check now use the full nucleotide span.

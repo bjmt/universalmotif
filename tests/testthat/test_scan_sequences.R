@@ -4,7 +4,9 @@ test_that("Results are accurate", {
 
   motif <- create_motif("AAAA", pseudocount = 1, nsites = 100)
   seq <- Biostrings::DNAStringSet("GGGAAAAGGGTTTTGGG")  # width 17
-  res <- scan_sequences(motif, seq, RC = TRUE, verbose = 0)
+  # A four-base exact match has P = 1/256, so the default 1e-4
+  # cutoff correctly yields no hits. Use an attainable cutoff here.
+  res <- scan_sequences(motif, seq, RC = TRUE, threshold = 0.01, verbose = 0)
 
   expect_equal(res$start[1], 4)
   expect_equal(res$motif[1], "motif")
@@ -77,10 +79,11 @@ test_that("calc.qvals.method = 'BH' matches the textbook BH formula (regression:
   motif <- create_motif("ACGT", pseudocount = 1, nsites = 100)
   set.seed(1)
   seq <- create_sequences(seqlen = 200, seqnum = 5)
-  r <- suppressWarnings(scan_sequences(motif, seq, threshold = 1e-3,
+  r <- suppressWarnings(scan_sequences(motif, seq, threshold = 0.01,
                       threshold.type = "pvalue", calc.pvals = TRUE,
                       calc.qvals = TRUE, calc.qvals.method = "BH",
                       verbose = 0))
+  expect_gt(nrow(r), 0L)
   if (nrow(r) > 0) {
     mLen <- ncol(motif@motif)
     mMax <- sum(Biostrings::width(seq) - mLen + 1)

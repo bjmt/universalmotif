@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include "types.h"
+#include "score-grid.h"
 
 void deal_with_higher_k_NA(list_int_t &seq_ints, const int &k, const int &let_len) {
 
@@ -181,6 +182,7 @@ list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
         [&hit_bufs, &score_mats, &seq_vecs, &lookup, &na_index,
          &min_scores2] (std::size_t i) {
           int min_score_i = min_scores2[i];
+          if (min_score_i == INT_MAX) return; // No attainable hit (+Inf cutoff).
           for (std::size_t j = 0; j < seq_vecs.size(); ++j) {
             // TODO: long-running scan -- candidate site for RcppThread::isInterrupted() early-return.
             if (na_index[j])
@@ -214,6 +216,7 @@ list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
       RcppThread::parallelFor(0, score_mats.size(),
           [&hit_bufs, &score_mats, &seq_ints, &min_scores2, &k] (std::size_t i) {
             int min_score_i = min_scores2[i];
+            if (min_score_i == INT_MAX) return;
             for (std::size_t j = 0; j < seq_ints.size(); ++j) {
               // TODO: long-running scan -- candidate site for RcppThread::isInterrupted() early-return.
               scan_single_seq_NA(score_mats[i], seq_ints[j], k, min_score_i,
@@ -226,6 +229,7 @@ list_int_t scan_sequences_cpp_internal(const list_mat_t &score_mats,
       RcppThread::parallelFor(0, score_mats.size(),
           [&hit_bufs, &score_mats, &seq_ints, &min_scores2, &k] (std::size_t i) {
             int min_score_i = min_scores2[i];
+            if (min_score_i == INT_MAX) return;
             for (std::size_t j = 0; j < seq_ints.size(); ++j) {
               // TODO: long-running scan -- candidate site for RcppThread::isInterrupted() early-return.
               scan_single_seq(score_mats[i], seq_ints[j], k, min_score_i,
@@ -358,7 +362,7 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
   vec_int_t min_scores2;
   min_scores2.reserve(min_scores.size());
   for (std::size_t i = 0; i < min_scores.size(); ++i) {
-    double val = min_scores[i] * 1000.0;
+    double val = score_grid_ceiling(min_scores[i]);
     if (val >= static_cast<double>(INT_MAX))
       min_scores2.push_back(INT_MAX);
     else if (val <= static_cast<double>(INT_MIN))

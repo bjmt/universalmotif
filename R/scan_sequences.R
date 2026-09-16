@@ -360,14 +360,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
                                method = motif_pvalue.method,
                                k = motif_pvalue.k, allow.nonfinite = allow.nonfinite)
-    if (any(is.infinite(thresholds))) {
+    if (any(thresholds == -Inf)) {
       stop(wmsg("Found -Inf values in threshold(s); try setting manual ",
           "thresholds with either `threshold.type=` \"logodds\" or ",
           "\"logodds.abs\" instead of \"pvalue\""),
         call. = FALSE)
-    }
-    for (i in seq_along(thresholds)) {
-      if (thresholds[i] > max.scores[i]) thresholds[i] <- max.scores[i]
     }
     if (verbose > 3) {
       for (i in seq_along(thresholds)) {

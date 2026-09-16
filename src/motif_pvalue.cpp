@@ -7,6 +7,7 @@
 #include <limits>
 #include "types.h"
 #include "utils-internal.h"
+#include "score-grid.h"
 
 /* TODO:
  *    - Benchmarking motif_pvalue() with autobenchR can result in the following
@@ -748,9 +749,9 @@ Rcpp::NumericVector motif_pvalue_dynamic_single_cpp(const Rcpp::NumericMatrix &m
   mot_min = trunc(mot_min);
   mot_min *= mot.ncol();
 
-  Rcpp::IntegerVector scores_index(scores.size());
+  Rcpp::NumericVector scores_index(scores.size());
   for (R_xlen_t i = 0; i < scores.size(); ++i) {
-    scores_index[i] = trunc(scores[i] * 1000.0) - mot_min;
+    scores_index[i] = score_grid_ceiling(scores[i]) - mot_min;
   }
   Rcpp::NumericVector motif_cdf = motif_cdf_cpp(mot, bkg);
 
@@ -759,7 +760,7 @@ Rcpp::NumericVector motif_pvalue_dynamic_single_cpp(const Rcpp::NumericMatrix &m
     if (scores_index[i] < 0) {
       pvalues[i] = 1;
     } else if (scores_index[i] < motif_cdf.size()) {
-      pvalues[i] = motif_cdf[scores_index[i]];
+      pvalues[i] = std::min(1.0, motif_cdf[static_cast<R_xlen_t>(scores_index[i])]);
     }
   }
 
@@ -780,51 +781,30 @@ Rcpp::NumericVector motif_score_dynamic_single_cpp(const Rcpp::NumericMatrix &mo
     Rcpp::stop("P-values vector is empty");
   }
 
-  double score_max = 0.0, score_min = 0.0, dynamic_min = 0.0;
+  long score_max = 0, score_min = 0;
+  int dynamic_min = 0;
 
   for (R_xlen_t j = 0; j < mot.ncol(); ++j) {
-    double tmp_score_max = 0, tmp_score_min = 0.0;
+    int tmp_score_max = static_cast<int>(mot(0, j) * 1000.0);
+    int tmp_score_min = tmp_score_max;
     for (R_xlen_t i = 0; i < mot.nrow(); ++i) {
-      if (mot(i, j) < dynamic_min) {
-        dynamic_min = mot(i, j);
-      }
-      if (mot(i, j) < tmp_score_min) {
-        tmp_score_min = mot(i, j);
-      }
-      if (mot(i, j) > tmp_score_max) {
-        tmp_score_max = mot(i, j);
-      }
+      int value = static_cast<int>(mot(i, j) * 1000.0);
+      dynamic_min = std::min(dynamic_min, value);
+      tmp_score_min = std::min(tmp_score_min, value);
+      tmp_score_max = std::max(tmp_score_max, value);
     }
     score_min += tmp_score_min;
     score_max += tmp_score_max;
   }
 
-  dynamic_min *= -1000.0;
-  dynamic_min = trunc(dynamic_min);
-  dynamic_min *= mot.ncol();
+  double offset = static_cast<double>(dynamic_min) * mot.ncol();
 
   Rcpp::NumericVector motif_cdf = motif_cdf_cpp(mot, bkg);
   Rcpp::NumericVector scores(pvalues.size());
 
   for (R_xlen_t i = 0; i < pvalues.size(); ++i) {
-    scores[i] = motif_cdf.size();
-    for (R_xlen_t j = 0; j < motif_cdf.size(); ++j) {
-      if (motif_cdf[j] < pvalues[i]) {
-        scores[i] = j - 1;
-        break;
-      }
-    }
-  }
-
-  scores = scores - dynamic_min;
-  scores = scores / 1000.0;
-
-  for (R_xlen_t i = 0; i < scores.size(); ++i) {
-    if (scores[i] > score_max) {
-      scores[i] = score_max;
-    } else if (scores[i] < score_min) {
-      scores[i] = score_min;
-    }
+    scores[i] = score_grid_threshold(motif_cdf.begin(), offset, score_min, score_max,
+                                     pvalues[i]);
   }
 
   return scores;
@@ -834,10 +814,10 @@ Rcpp::NumericVector motif_score_dynamic_single_cpp(const Rcpp::NumericMatrix &mo
 /* ============================================================================
  * Batched dynamic-DP path: parallel over motifs.
  *
- * The existing motif_{pvalue,score}_dynamic_single_cpp entry points are kept
- * untouched -- callers that hold one motif and a vector of scores/pvalues
- * still hit them directly. The functions below add the same algorithm
- * exposed as a batch over multiple (motif, bkg, scores/pvalues) triples,
+ * The existing motif_{pvalue,score}_dynamic_single_cpp entry points share
+ * score-grid boundary handling with the batched implementation below.
+ * The functions below expose the same algorithm as a batch over multiple
+ * (motif, bkg, scores/pvalues) triples,
  * parallelised with RcppThread over the motif axis. The R helpers
  * motif_pvalue_dynamic() / motif_score_dynamic() are switched over to
  * these new entry points, eliminating per-motif R-side overhead and
@@ -932,11 +912,11 @@ static vec_num_t pvalue_from_cdf(const vec_num_t &cdf,
   vec_num_t pvalues(scores.size(), 0.0);
   long cdf_size = (long) cdf.size();
   for (std::size_t i = 0; i < scores.size(); ++i) {
-    long idx = (long)(trunc(scores[i] * 1000.0) - mot_min_scaled);
+    double idx = score_grid_ceiling(scores[i]) - mot_min_scaled;
     if (idx < 0) {
       pvalues[i] = 1.0;
     } else if (idx < cdf_size) {
-      pvalues[i] = cdf[idx];
+      pvalues[i] = std::min(1.0, cdf[static_cast<std::size_t>(idx)]);
     } else {
       pvalues[i] = 0.0;
     }
@@ -945,23 +925,13 @@ static vec_num_t pvalue_from_cdf(const vec_num_t &cdf,
 }
 
 static vec_num_t score_from_cdf(const vec_num_t &cdf,
-                                double dynamic_min_scaled,
-                                double score_min,
-                                double score_max,
+                                double offset,
+                                long score_min,
+                                long score_max,
                                 const vec_num_t &pvalues) {
   vec_num_t scores(pvalues.size(), 0.0);
-  long cdf_size = (long) cdf.size();
   for (std::size_t i = 0; i < pvalues.size(); ++i) {
-    long s = cdf_size;
-    for (long j = 0; j < cdf_size; ++j) {
-      if (cdf[j] < pvalues[i]) {
-        s = j - 1;
-        break;
-      }
-    }
-    scores[i] = ((double) s - dynamic_min_scaled) / 1000.0;
-    if (scores[i] > score_max) scores[i] = score_max;
-    else if (scores[i] < score_min) scores[i] = score_min;
+    scores[i] = score_grid_threshold(cdf.data(), offset, score_min, score_max, pvalues[i]);
   }
   return scores;
 }
@@ -1052,42 +1022,39 @@ Rcpp::List motif_score_dynamic_batch_cpp(const Rcpp::List &motifs,
   extract_vec_list(bkgs,    v_bkgs);
   extract_vec_list(pvalues, v_pvalues);
 
-  // Also pre-compute per-motif score_min / score_max / dynamic_min in serial
+  // Pre-compute attainable score bounds in integer grid units in serial.
   // (touching v_motifs is std-only at this point, so this is just convenience).
-  std::vector<double> score_min(M, 0.0), score_max(M, 0.0), dyn_min(M, 0.0);
+  std::vector<long> score_min(M, 0), score_max(M, 0);
   for (R_xlen_t m = 0; m < M; ++m) {
     const list_num_t &mot = v_motifs[(std::size_t) m];
-    double smin = 0.0, smax = 0.0, dmin = 0.0;
+    long smin = 0, smax = 0;
     std::size_t width   = mot.size();
     std::size_t alphlen = mot.empty() ? 0 : mot[0].size();
     for (std::size_t i = 0; i < width; ++i) {
-      double pmin = 0.0, pmax = 0.0;
+      int pmin = static_cast<int>(mot[i][0] * 1000.0), pmax = pmin;
       for (std::size_t j = 0; j < alphlen; ++j) {
-        if (mot[i][j] < dmin) dmin = mot[i][j];
-        if (mot[i][j] < pmin) pmin = mot[i][j];
-        if (mot[i][j] > pmax) pmax = mot[i][j];
+        int value = static_cast<int>(mot[i][j] * 1000.0);
+        pmin = std::min(pmin, value);
+        pmax = std::max(pmax, value);
       }
       smin += pmin;
       smax += pmax;
     }
-    dmin *= -1000.0;
-    dmin = trunc(dmin) * (double) width;
     score_min[(std::size_t) m] = smin;
     score_max[(std::size_t) m] = smax;
-    dyn_min[(std::size_t) m]   = dmin;
   }
 
   std::vector<vec_num_t> out((std::size_t) M);
 
   RcppThread::parallelFor(0, (std::size_t) M,
     [&v_motifs, &v_bkgs, &v_pvalues, &out,
-     &score_min, &score_max, &dyn_min] (std::size_t m) {
+     &score_min, &score_max] (std::size_t m) {
       // TODO: per-motif CDF build via DP over scores -- candidate site for RcppThread::isInterrupted() early-return.
-      double mot_min_scaled = 0.0;   // unused here -- score_from_cdf uses dyn_min
+      double mot_min_scaled = 0.0;
       std::size_t motif_max = 0;
       vec_num_t cdf = motif_cdf_internal(v_motifs[m], v_bkgs[m],
                                          mot_min_scaled, motif_max);
-      out[m] = score_from_cdf(cdf, dyn_min[m], score_min[m], score_max[m],
+      out[m] = score_from_cdf(cdf, mot_min_scaled, score_min[m], score_max[m],
                               v_pvalues[m]);
     }, nthreads);
 

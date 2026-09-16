@@ -120,6 +120,16 @@ incompatible with \code{allow.nonfinite = TRUE}, as this would not allow for the
 creation of the initial range of scores. Although described for a different
 purpose, the basic premise of the dynamic programming algorithm is also
 described in Gupta et al. (2007).
+
+Each PWM entry is multiplied by 1000 and truncated towards zero before
+scores are summed. Dynamic P-values are upper-tail probabilities for this
+integerised distribution, which can differ from the distribution of the
+original real-valued scores. Query scores are rounded up to the next score
+grid point, with floating-point round-trip error handled at grid boundaries.
+For a requested P-value, the returned score is an inclusive threshold whose
+upper-tail probability is at most that P-value. If no attainable score
+satisfies the cutoff, the threshold is \code{Inf} and sequence scanning returns
+no hits for that motif.
 }
 
 \subsection{The exhaustive method}{
