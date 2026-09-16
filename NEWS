@@ -3,33 +3,15 @@ CHANGES IN VERSION 1.32.0
 
 NEW FEATURES
 
-  o Added support for CWM (Contribution Weight Matrix) motifs.
-    Contribution Weight Matrices come from TF-MoDISco / DeepLIFT
-    -style attribution methods and hold signed, unnormalised
-    per-position per-letter contribution scores. CWM is now a
-    first-class fifth motif type alongside PCM / PPM / PWM / ICM:
-    `create_motif(matrix, type = "CWM")` accepts signed matrices
-    with no column-sum constraint, `convert_type(cwm, "PPM")`
-    converts via the TF-MoDISco-lite convention
-    `ppm[i,j] = |cwm[i,j]| / sum_i |cwm[i,j]|` (and further
-    routing through PPM lets CWM motifs reach PWM / ICM / PCM);
-    `convert_type(non_cwm, "CWM")` errors with a clear message
-    because contribution scores cannot be recovered from
-    probabilities. `read_meme()` and `write_meme()` gain a
-    `CWM = FALSE` argument: with `CWM = TRUE`, MEME files are
-    parsed as CWMs (raw signed matrices, type tag = "CWM") or
-    written verbatim from a CWM motif list. `read_matrix()` and
-    `write_matrix()` read/write CWMs via `type = "CWM"` (the file
-    format is unchanged; the CWM type tag is opt-in and never
-    auto-detected, so a signed matrix without `type = "CWM"` still
-    reads as a PWM). `view_motifs()` and
-    `view_motifs_lite()` accept `use.type = "CWM"` and render the
-    raw signed values with a "contribution" y-axis label. CWM
-    motifs flow through every analysis function that
-    implicitly converts the type 
-    (`compare_motifs[_lite]()`, `scan_sequences[_lite]()`,
-    `merge_motifs[_lite]()`, `merge_similar[_lite]()`, `motif_pvalue()`,
-    `motif_tree[_lite]()`, `motif_rc()`, `trim_motifs()`).
+  o Added CWM (Contribution Weight Matrix) motifs for signed,
+    unnormalised scores from TF-MoDISco / DeepLIFT-style attribution
+    methods. Create with type = "CWM" and plot with use.type = "CWM".
+    convert_type(cwm, "PPM") normalises absolute contributions per
+    column, enabling downstream analyses; conversion from probabilistic
+    types to CWM is not supported. MEME readers/writers accept
+    CWM = TRUE, and generic matrix readers/writers accept type = "CWM".
+    CWM input is opt-in, not auto-detected. See ?create_motif and
+    ?convert_type.
 
   o Added trim_cwm(), a CWM-aware trimmer that drops edge
     columns by absolute column sum. Defaults to the
@@ -40,237 +22,120 @@ NEW FEATURES
     mirroring `trim_motifs()`'s edge-only semantics. Returns a
     trimmed CWM with the type tag preserved.
 
-  o Added compare_motifs_lite(), a minimalist DNA/RNA motif-vs-motif
-    comparison function aligned with the command-line tool yamtk cmp
-    (https://github.com/bjmt/yamtk). Uses Pearson correlation per
-    column as the only similarity metric and computes per-pair
-    p-values from a TOMTOM-style null PMF, either empirical from the
-    target database (default) or parametric via Dirichlet-Multinomial
-    over a K=5 simplex grid, with Bonferroni + Benjamini-Hochberg
-    adjustment. Returns either a square matrix
-    (matrix.out = "score" / "pvalue" / "qvalue") or a long-format
-    data.frame of significant pairs. On a 50-motif HOCOMOCOv11
-    self-comparison the port reproduces yamtk's hits exactly and the
-    p/q-values to within 5e-6 relative error; matrix.out = "score"
-    runs ~40x faster than compare_motifs() on a 200x200 set at 4
-    threads.
+  o Added compare_motifs_lite(), a DNA/RNA motif comparison function
+    aligned with yamtk cmp (https://github.com/bjmt/yamtk). Uses
+    per-column Pearson correlation and a TOMTOM-style empirical or
+    parametric null, with Bonferroni and Benjamini-Hochberg adjustment.
+    Returns a score/p-value/q-value matrix or a table of significant
+    pairs. Score-only comparisons were ~40x faster than compare_motifs()
+    on a 200x200 motif set at 4 threads. See ?compare_motifs_lite.
 
-  o Added scan_sequences_lite(), a minimalist DNA/RNA scanner aligned with
-    the defaults of the yamtk scan command-line tool
-    (https://github.com/bjmt/yamtk). Reuses the same C++ scanning core
-    as scan_sequences() but skips steps for features
-    it does not support (multifreq scoring, gapped motifs, q-values,
-    exhaustive p-values, non-pvalue threshold types, respect.strand,
-    allow.nonfinite). On a 50-motif HOCOMOCOv11 benchmark, ~2-3x
-    faster than scan_sequences(calc.pvals = TRUE) at 4 threads on
-    equivalent work, and within ~3x of yamtk scan on long-sequence
-    workloads. See the "A faster alternative: scan_sequences_lite()"
-    section in the Sequence Searches vignette for the full speed
-    comparison.
+  o Added scan_sequences_lite(), a minimalist DNA/RNA scanner using
+    the same C++ core as scan_sequences(). It omits multifreq scoring,
+    gapped motifs, q-values, exhaustive p-values, non-pvalue thresholds,
+    respect.strand, and allow.nonfinite. On a 50-motif HOCOMOCOv11
+    benchmark it was ~2-3x faster than scan_sequences(calc.pvals = TRUE)
+    at 4 threads on equivalent work. See the Sequence Searches vignette
+    for benchmarks, including comparisons with yamtk scan.
 
-  o Added view_motifs_lite() and motif_tree_lite(): drop-in display-time
-    siblings of view_motifs() and motif_tree() that use the new
-    Pearson-correlation backend (compare_motifs_lite()).
-    view_motifs_lite() picks the
-    highest-IC motif as the anchor, aligns every other motif
-    against it via the same routine used by merge_motifs_lite() and
-    merge_similar_lite(), and runs the result through the same logo
-    renderer as view_motifs(). motif_tree_lite() takes
-    compare_motifs_lite(matrix.out = "score") and converts the mean
-    Pearson matrix to a symmetric distance as (1 - score) / 2,
-    feeding it into the same hclust / ape::as.phylo /
-    ggtree::ggtree pipeline that motif_tree() uses. Both original
-    functions are unchanged. New arguments are minimal: tryRC,
-    min.overlap, nthreads. DNA / RNA only; for amino-acid or
-    custom-alphabet motifs continue to use the original functions.
+  o Added view_motifs_lite() and motif_tree_lite(), DNA/RNA plotting
+    alternatives using compare_motifs_lite(). Logos align to the
+    highest-IC motif; trees use Pearson distances, (1 - score) / 2.
+    Both reuse the existing plotting machinery. For amino-acid or
+    custom-alphabet motifs, use view_motifs() and motif_tree().
 
   o Added geom_motif(), annotate_motif(), geom_logo(), and
     annotate_logo(): ggplot2 layers that embed sequence logos into
-    arbitrary ggplot constructions, reusing the view_motifs() logo
-    renderer. The annotate_*() helpers place one logo at fixed
-    coordinates, while the geom_*() layers take their position from
-    aesthetics, either a bounding box (xmin/xmax/ymin/ymax) or an
-    anchor (x/y with width/height) and can draw a different motif per
-    group via a named-list argument together with a `motif` selector
-    aesthetic. The *_motif variants take universalmotif objects
-    (honouring use.type); the *_logo variants take bare row-named
-    numeric matrices. Letter colours are resolved internally, so the
-    layers never compete for the plot's fill scale and add no legend.
-    Built on the shared ggproto objects GeomMotif / StatMotif /
-    StatLogo.
+    arbitrary plots. The annotate_*() helpers use fixed coordinates;
+    geom_*() layers support mapped positions and different motifs per
+    group. The *_motif variants accept universalmotif objects, while
+    *_logo accepts row-named numeric matrices. Letter colours do not
+    affect the plot's fill scale. See ?geom_motif.
 
   o motif_tree_lite() now draws a sequence logo at each tip by default
-    (tiplogo = TRUE), so the motifs act as the tip labels. The logos
-    are aligned to a shared, zero-padded column frame (via
-    view_motifs_lite()) so homologous positions line up across tips. The
-    default layout changed from "circular" to "rectangular" so the tip
-    logos are visible out of the box; tip logos are drawn only on the
-    "rectangular" and "slanted" layouts (others warn and skip them),
-    and are not available for `dist` input. New arguments: tiplogo,
-    tiplogo.align, tiplogo.width, tiplogo.height, tiplogo.offset.
+    (tiplogo = TRUE), with aligned motif positions. The default layout
+    changes from "circular" to "rectangular". Tip logos support only
+    "rectangular" and "slanted" layouts and are unavailable for dist
+    input. See ?motif_tree_lite for alignment and sizing options.
 
   o New vignette "MotifDatabaseCuration.Rmd": end-to-end recipe for
     consolidating motif sets from several public sources into a
-    single deduplicated, trimmed, and annotated MEME file. Pulls
-    Homo sapiens motifs from three MotifDb sub-collections
-    (JASPAR2022, HOCOMOCOv11-core, CIS-BP), stamps source provenance
-    onto each motif's family slot, inspects the pairwise q-value
-    distribution from compare_motifs_lite() to pick a deduplication
-    threshold, runs merge_similar_lite() with a q-value chosen to avoid
-    graph-transitivity giant components, visualises the cluster
-    structure with motif_tree(), trims uninformative flanks with
-    trim_motifs(), decorates the survivors with provenance and date
-    metadata via to_df()/update_motifs(), and exports the whole
-    library with write_meme() before round-trip-reading it back with
-    read_meme() to verify the export.
+    single deduplicated, trimmed, and annotated MEME file. Uses human
+    JASPAR2022, HOCOMOCOv11-core, and CIS-BP motifs to demonstrate
+    threshold selection, clustering, provenance tracking, and export
+    verification.
 
   o New vignette "ChIPseqWorkflow.Rmd": an end-to-end ChIP-seq motif
     analysis on real data, starting from a peak BED file bundled in
     inst/extdata (VAL1-GFP peaks in Arabidopsis from Yuan et al.
-    2021, NAR 49:98-113). The vignette imports peaks via
-    rtracklayer, extracts sequences via BSgenome.Athaliana.TAIR.TAIR9,
-    discovers motifs de novo with motif_finder(), deduplicates with
-    merge_similar_lite(), compares to JASPAR2022 plant motifs via
-    MotifDb and compare_motifs_lite(), validates enrichment with
-    enrich_motifs_lite(), scans peaks with scan_sequences_lite(), tests
-    central positional bias with motif_peaks(), finds co-occurring
-    motif pairs with motif_coocc(), and closes with a summary table
-    that links each discovered motif to its evidence. New Suggests
-    dependencies: rtracklayer, BSgenome.Athaliana.TAIR.TAIR9.
+    2021, NAR 49:98-113). Covers discovery, deduplication, database
+    comparison, enrichment, scanning, positional bias, and co-occurrence.
+    New Suggests dependencies: rtracklayer, BSgenome.Athaliana.TAIR.TAIR9.
 
   o view_motifs() gains a `sort.by` argument controlling the display
-    order when plotting multiple motifs. Regardless of this setting,
-    alignment is always performed with the highest-IC motif as the
-    anchor (matching merge_motifs_lite()'s behaviour); `sort.by` controls
-    only the order in which the aligned motifs are shown. Options:
-    `"none"` (default; input order preserved for display while
-    alignment still uses the highest-IC anchor), `"ic"` (descending
-    information content), or `"similarity"` (hierarchical clustering
-    on Pearson correlation between aligned columns, so visually
-    similar motifs are adjacent).
+    order: "none" (default; input order), "ic" (descending information
+    content), or "similarity" (Pearson-based hierarchical clustering).
+    Alignment always uses the highest-IC anchor, regardless of display
+    order.
 
-  o Added motif_coocc(): pairwise motif co-occurrence testing. Given
-    a list of motifs and a set of host sequences, motif_coocc() scans
-    (via scan_sequences_lite) and tests every motif pair for over-co-
-    occurrence using a one-sided Fisher's exact test on the per-
-    sequence 2x2 contingency table, BH-correcting across all tested
-    pairs. Two input paths: the default scans internally and is
-    DNA/RNA only; alternatively pass a precomputed hit table via
-    `hits = ...` plus `n.sequences = ...` and any alphabet is
-    accepted (AA, custom). Optional `max.distance` argument adds two
-    descriptive columns (both.clustered, median.distance) useful for
-    flagging heterodimer-like arrangements; the Fisher p-value is
-    always computed on the unfiltered 2x2. A `no.overlaps` argument
-    (default FALSE, with `no.overlaps.by`) forwards to scan_sequences_lite()
-    on the internal-scan path; since the test is presence-based it only
-    affects the spatial columns, deduplicating overlapping matches
-    within each motif while preserving between-motif overlaps. See
-    ?motif_coocc.
+  o Added motif_coocc(), testing pairwise per-sequence co-occurrence
+    with one-sided Fisher's exact tests and BH correction. Scans DNA/RNA
+    internally or accepts precomputed hits plus n.sequences for any
+    alphabet. max.distance adds descriptive spatial summaries without
+    changing the test. Optional no.overlaps removes within-motif
+    overlaps during scanning, affecting only spatial summaries and
+    preserving between-motif overlaps. See ?motif_coocc.
 
-  o Added implant_motifs(): plant sampled motif instances into existing
-    sequences at known positions, producing benchmark-grade ground-truth
-    positive sequences for testing scan_sequences(), motif_finder(),
-    enrich_motifs_lite(), motif_peaks(), or any other discovery / scanning
-    pipeline against a known answer key. Three insertion modes:
-    fixed count per sequence (n.per.seq), per-bp Poisson rate (rate),
-    or explicit positions (positions). Optional controls: centre.bias
-    (Irwin-Hall N, 1 = uniform, larger = cluster near sequence centre,
-    pairs naturally with motif_peaks() / plot_motif_peaks() for ChIP-
-    seq-style simulations), min.spacing (minimum gap between adjacent
-    implants), strand ("both" or "+"), and max.retries on placement
-    collision. By default returns the modified XStringSet; with
-    return.indices = TRUE returns a list with the modified sequences
-    plus a data.frame of (sequence.i, motif.i, start, width, strand,
-    planted) ground-truth metadata. See ?implant_motifs.
+  o Added implant_motifs(), planting sampled motif instances at known
+    positions for testing analysis pipelines. Supports fixed counts
+    per sequence, a per-bp Poisson rate, or explicit positions, with
+    controls for central bias, spacing, and strand. return.indices = TRUE
+    includes placement metadata alongside the modified sequences.
+    See ?implant_motifs.
 
   o Added match_bkg() and plot_match_bkg(): composition-matched
     background sampling for DNA/RNA motif enrichment and de novo
-    discovery analyses. Given a target XStringSet and a larger
-    universe XStringSet (typically extracted from a BSgenome) or
-    a BSgenome object directly, match_bkg() samples background
-    sequences from the universe that match the target on GC fraction
-    and length, the HOMER-style binned approach. This complements
-    shuffle_sequences(), which preserves each input's own k-let
-    composition by shuffling in place; match_bkg() instead controls
-    for composition bias relative to a genomic universe. The result
-    is an XStringSet usable directly as `bkg.sequences` in
-    enrich_motifs_lite() / motif_finder(). plot_match_bkg() returns a
-    ggplot of overlaid target vs matched-background GC and length
-    densities for visual match-quality QC. Beyond GC and length,
-    match_bkg() can also match on arbitrary external per-sequence
-    covariates (a ChIP signal score, conservation, mappability and so
-    on), supplied through the `covariates` and `universe.covariates`
-    arguments, with `n.bins.covariates` and `bin.type.covariates`
-    controlling how each extra axis is binned. Covariate matching needs
-    an explicit `universe` paired with `universe.covariates` and cannot
-    be combined with `genome`, because internally-sampled genomic
-    windows carry no covariate values. With return.indices = TRUE the
-    result then carries a target.<name> / universe.<name> column for
-    each covariate, and plot_match_bkg() will facet a density panel for
-    every matched axis when handed that data.frame through its new
-    `indices` argument. See ?match_bkg.
+    discovery analyses. Samples from an XStringSet universe or BSgenome
+    to match target GC fraction and length, with plots for match-quality
+    assessment. Optional per-sequence covariates allow matching on
+    additional properties such as conservation or mappability; these
+    require an explicit universe and cannot be combined with genome.
+    return.indices = TRUE includes matched covariates for plotting via
+    plot_match_bkg(indices = ...). See ?match_bkg.
 
   o Rewrote motif_peaks() as an analytical CentriMo-style positional
-    enrichment function (Bailey & Machanick 2012). It takes a hit
-    table from scan_sequences() or scan_sequences_lite() (data.frame or
-    GRanges) and tests whether each motif's hits cluster non-uniformly
-    along the input sequences via a one-sided binomial test on
-    candidate windows. Two modes: mode = "central" (default) tests
-    only centre-of-sequence windows (appropriate for sequences
-    centred on a reference like ChIP-seq peak summits); mode = "local"
-    varies the window centre too. Best window per motif is reported
-    with Bonferroni correction across windows tested, then BH q-value
-    across motifs. Also added a companion plot_motif_peaks() that
-    returns a ggplot faceted by motif (hit-centre histogram +
-    best-window shade + per-motif annotation in the strip label).
+    enrichment function (Bailey & Machanick 2012), accepting scan hit
+    tables as data.frame or GRanges. Tests central (default) or local
+    windows with one-sided binomial tests, Bonferroni correction across
+    windows, and BH correction across motifs. Added plot_motif_peaks()
+    to show hit distributions and the best window per motif.
     See ?motif_peaks.
 
   o Added merge_motifs_lite() and merge_similar_lite(), minimalist DNA/RNA
     counterparts to merge_motifs() and merge_similar() built on
-    compare_motifs_lite(). merge_motifs_lite() uses anchor-based progressive
-    alignment (highest-IC anchor + single-call alignment of every
-    other motif against it) and column-union averaging (optionally
-    @nsites-weighted). merge_similar_lite() clusters
-    motifs by statistical significance: pairs are linked when their
-    compare_motifs_lite() q-value meets the user's cutoff, and connected
-    components on the resulting graph (via a small union-find) define
-    the clusters. Each multi-motif cluster is then collapsed via
-    merge_motifs_lite(). This matches the STAMP / TOMTOM-clustering
-    semantics ("group all motifs that are pairwise significantly
-    similar") and removes v1's linkage-method choice and abstract
-    distance-unit cutoff. merge_similar_lite(return.clusters = TRUE)
-    returns a universalmotif_df of the input motifs (motif objects in
-    the `motif` column, names in `name`) with added `motif.i` and
-    `cluster` columns describing the cluster assignment, instead of
-    the merged motifs. See ?merge_motifs_lite and ?merge_similar_lite.
+    compare_motifs_lite(). Merging aligns to the highest-IC motif and
+    averages columns, optionally weighted by nsites. Clustering uses
+    connected components of pairs passing a q-value cutoff, then merges
+    each cluster. return.clusters = TRUE returns the original motifs
+    and cluster assignments instead. See ?merge_motifs_lite and
+    ?merge_similar_lite.
 
   o Added motif_finder(), a DNA/RNA _de novo_ motif discovery function
     aligned with the command-line tool yamtk me
-    (https://github.com/bjmt/yamtk), whose own design is based on the
-    STREME algorithm (Bailey 2021): per-width word-counting seed
-    enumeration (Fisher's exact on per-sequence presence), iterative
-    PPM refinement, per-motif Fisher's exact significance against a
-    shuffled or user-supplied background, cross-width coverage-overlap
-    dedup, BH q-value filtering, and IC-trimming of low-information
-    flanks. Returns a universalmotif_df with one row per discovered
-    motif; the standard slot columns (name, consensus, alphabet, type,
-    nsites, pval, eval, motif, ...) sit alongside yamtk-style stats
-    (rank, width, seqs_pos, seqs_neg, sites_pos, sites_neg, n_pos,
-    n_neg, pvalue, qvalue). Width-parallel via RcppThread. Replaces
-    a long-standing unexported, untested motif_finder() stub. See
-    ?motif_finder.
+    (https://github.com/bjmt/yamtk), whose design is based on STREME
+    (Bailey 2021). Combines enriched k-mer seeds, iterative refinement,
+    Fisher tests against shuffled or supplied backgrounds, deduplication,
+    BH filtering, and IC trimming. Runs motif widths in parallel and
+    returns a universalmotif_df with discovery statistics. Replaces the
+    previous unexported stub. See ?motif_finder.
 
   o Added enrich_motifs_lite(), a minimalist DNA/RNA motif-enrichment
     function aligned with the command-line tool yamtk enr
-    (https://github.com/bjmt/yamtk). Built on scan_sequences_lite() and
-    exposes a single p-value hit threshold, a single q-value result
-    cutoff, two test modes (seqs = Fisher's exact on per-sequence hit
-    presence; sites = Fisher's exact on per-position rate), and
-    hard-coded Benjamini-Hochberg q-value adjustment. Returns a plain
-    data.frame with yamtk's TSV columns one-for-one (motif, motif.i,
-    consensus, target.seq.n/seq.hits/site.hits, bkg.seq.n/seq.hits/
-    site.hits, enrichment, log2.enrichment, pvalue, qvalue). See
-    ?enrich_motifs_lite.
+    (https://github.com/bjmt/yamtk). Uses scan_sequences_lite(), Fisher
+    tests on sequence presence or per-position hit rates, and BH
+    adjustment. Returns a data.frame of counts, enrichment, and p/q-values,
+    controlled by a hit p-value and result q-value cutoff.
+    See ?enrich_motifs_lite.
 
   o Added dedup_hits(), a fast C++ implementation of yamtk's greedy
     overlap-dedup algorithm. Accepts data.frame or GRanges input;
@@ -315,15 +180,10 @@ MINOR CHANGES
     function. Silence with
     options(universalmotif.suggest.motif_tree_lite = FALSE).
 
-  o Performance: several C++ hot loops now precompute integer
-    alphabet-power tables instead of calling pow() at every sequence
-    position. This affects the k-let counters behind shuffle_sequences()
-    and get_bkg() (Euler / Markov shuffling and higher-order background
-    models) and the Markov sequence generator behind create_sequences().
-    The per-column motif-comparison metrics in compare_motifs() now use
-    plain multiplication in place of pow(x, 2.0). All numerically
-    identical; modest, consistent speed-ups (roughly 10-20% on the
-    affected paths in informal benchmarks).
+  o Reduced repeated power calculations in the C++ backends for
+    shuffle_sequences(), get_bkg(), create_sequences(), and
+    compare_motifs(). Results are numerically identical, with roughly
+    10-20% speed-ups on affected paths in informal benchmarks.
 
   o motif_pvalue(method = "exhaustive") now stops with a clear error
     when a motif is too wide for exhaustive score enumeration (the
@@ -366,50 +226,26 @@ BUG FIXES
     columns when no hits were found. Empty results now retain the
     documented metadata columns.
 
-  o Fixed get_consensus() and get_consensusAA() crashing the R session
-    when passed something other than a single numeric motif column, such
-    as a whole universalmotif object or a vector shorter than the
-    alphabet. The value went straight to C++, where a failed type
-    conversion aborted the session and out-of-bounds indexing was
-    undefined behaviour. Both functions now check that `position` is a
-    numeric vector of the expected length (4 for DNA/RNA, 20 for amino
-    acids) and raise a clear error instead.
+  o Fixed get_consensus() and get_consensusAA() crashing R on invalid
+    input. Both now require a single numeric motif column of the
+    expected length (4 for DNA/RNA, 20 for amino acids) and raise a
+    clear error otherwise.
 
-  o Fixed motif_tree_lite() tip logos not stacking letters by height. The
-    tip logos are drawn with geom_logo(), which takes bare matrices and
-    leaves their rows in the given order by default, so the letters at
-    each position appeared in alphabetical order rather than with the
-    tallest on top (the standard sequence-logo convention). motif_tree_lite()
-    now passes sort.positions = TRUE so the tallest letter is always on
-    top.
+  o Fixed motif_tree_lite() tip logos stacking letters alphabetically
+    rather than by height. The tallest letter now appears on top.
 
-  o Fixed view_motifs() rendering of negative-height letter stacks of
-    three or more letters (a PWM position with three or more negative
-    log-odds letters). The internal stacking helper offset each letter
-    by only the immediately-preceding letter's height rather than the
-    cumulative height of all letters above it, so letters past the
-    first piled on top of one another below the baseline. Switched to
-    a cumulative offset. One- and two-letter negative stacks are
-    unaffected.
+  o Fixed overlapping letters in view_motifs() when three or more
+    letters at a position had negative heights. Stacking now uses
+    cumulative offsets; one- and two-letter stacks are unaffected.
 
-  o Fixed view_motifs() / view_logo() rendering letters with a
-    negative height when a small `min.height` kept letters shorter
-    than their per-letter `y.spacer` allotment. The glyph was scaled
-    by a negative height and flipped below the baseline, appearing as
-    an inverted sliver. The spacer is now capped at half the letter
-    height, keeping such letters upright and proportional. Normal
-    logos are unaffected. (Also reached via geom_motif() / geom_logo(),
-    which share the renderer.)
+  o Fixed view_motifs() / view_logo() inverting small letters when
+    y.spacer exceeded their height. Spacing is now capped at half the
+    letter height. Also affects geom_motif() / geom_logo(), which
+    share the renderer.
 
-  o Fixed create_motif() matrix dispatch silently dropping an
-    explicitly supplied alphabet = "DNA"/"RNA"/"AA" when the input
-    matrix also carried rownames. The else-if chain fell through to a
-    clause that overwrote the user's alphabet with collapse_cpp(
-    rownames(matrix)) ("ACGT" for DNA), which is not a key in the C++
-    alphabet lookup, leaving @consensus empty and colnames(@motif)
-    NULL. Downstream this broke to_list() round-trips via
-    update_motifs() (slot comparison error). Added the missing
-    `&& missing(alphabet)` guard.
+  o Fixed create_motif() ignoring an explicit DNA/RNA/AA alphabet when
+    the input matrix had rownames. This left the consensus and motif
+    column names unset and broke to_list() / update_motifs() round-trips.
 
   o Fixed nthreads = 0 silently running serially instead of using all
     available threads as documented (RcppThread::parallelFor treats 0
@@ -421,24 +257,15 @@ BUG FIXES
 
   o Fixed convert_motifs(motifs, class = "TFBSTools-PFMatrixList") (and
     the PWMatrixList / ICMatrixList variants) erroring with "unknown
-    'class'" instead of returning the corresponding TFBSTools list
-    object. These output classes were already listed in the help page
-    but had no implementation; the list method now converts each motif
-    to the singular motif and dispatched the right TFBSTools list
-    constructor.
+    'class'". These documented output classes now return the
+    corresponding TFBSTools list objects.
 
-  o Fixed compare_motifs() pairwise similarity calls passing the first
-    motif's background frequencies for both members of the pair when
-    nthreads > 1, instead of motif-1's and motif-2's backgrounds.
-    Comparisons whose two motifs declared different bkg vectors (e.g.
-    DNA at uniform 0.25 vs. a GC-skewed empirical background) were
-    scored against the wrong null.
+  o Fixed compare_motifs() using the first motif's background for both
+    motifs when nthreads > 1. Each motif's own background is now used.
 
-  o Fixed compare_motifs() p-value mode calling R's pnorm / plogis /
-    pweibull from inside an RcppThread::parallelFor body, where the R
-    API is not thread-safe and could corrupt internal state under load
-    (most visible on macOS). The row-search half stays parallel, and
-    the actual p-value evaluation now runs serially.
+  o Fixed unsafe parallel calls to R's probability functions in
+    compare_motifs(), which could corrupt state under load. P-value
+    evaluation now runs serially; the lookup search remains parallel.
 
   o Fixed compare_motifs() row-not-found path in the db.scores lookup
     infinite-looping when n1 / n2 ran past the table without finding a
