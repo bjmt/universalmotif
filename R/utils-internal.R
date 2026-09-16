@@ -511,3 +511,15 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
   out
 
 }
+## Warn at explicit export boundaries, not during internal type conversions.
+warn_motif_metadata_loss <- function(motifs, destination, keep.multifreq = character()) {
+  if (!is.list(motifs)) motifs <- list(motifs)
+  gaps <- any(vapply(motifs, function(m) isTRUE(m@gapinfo@isgapped), logical(1)))
+  multi <- any(vapply(motifs, function(m)
+    length(setdiff(names(m@multifreq), keep.multifreq)) > 0L, logical(1)))
+  lost <- c(if (gaps) "gap definitions", if (multi) "higher-order matrices")
+  if (length(lost)) warning(destination, " cannot preserve ",
+    paste(lost, collapse = " and "),
+    "; use write_motifs() or saveRDS() to retain them.", call. = FALSE)
+  invisible(NULL)
+}

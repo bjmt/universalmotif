@@ -1,107 +1,53 @@
-- Add a function to substitute ambiguous letters with ACGT
-- Do the read/write_motifs() functions work with the gap slots?
-- Scan for motif clusters?
-- motif_peaks() is in dire need of a re-write
-- Check that everything in convert_motifs() still works
-- Check that all read/write_*() functions still work
-- Add tests
-- Visualisation of scan_sequences()/enrich_motifs() --> mention EnrichedHeatmap
-- Work on Rmd output of compare_motifs()
-- motif_peaks(): compare two sets of sequences (enrichment analysis)
-- motif_peaks(): serious code cleanup needed
-- dependencies to consider removing:
-    + !! yaml (write my own parser, doesn't matter if it's slow)
-- Remove some of the input parameter checking in merge_motifs()/view_motifs()/
-  motif_tree(), rely solely on compare_motifs()
-- in read_*() files, check to input file exists
-- change internal motif precision limit from 1e-3 to 1e-6 (will require changes
-  to how allow.nonfinite works)
-- add a vignette section about pseudocounts and how the functions interact with
-  them
-- small meme p-values solution: keep the pval/qval/eval slots as log-transformed,
-  un-log for print and `[` methods?
-- de novo motifs:
-    + first search 4/5/6/7/8-mers for enrichment differences (either
-      against background or statistically expected based on 1/2/3-let frequencies)
-    + then for significantly enriched k-mers, start changing PWM positions to
-      see if that increases significance/enrichment OR start merging enriched
-      k-mers? (fast version: only k-mer merging?)
-    + for every enriched k-mer, scan with a logodds threshold of 0 -- look
-      for enrichment of lower score hits?
-    + finally extend motif until desired length
-    + trim useless edges
-- is the MEME E/p-value log10 or natural log?
-- let switch_alph() be used to change to arbitrary alphabets (but keep default
-  behaviour consistent with previous version!)
-- time for another make_DBscores() re-write I think --> use dynamic pvals?
-- need a function which can allow for motifs with different background freqs
-   to be comparable: maybe something like PPM --> PWM (change background) PWM
-   --> PPM?
-- read_*(): allow to set pseudocount
-- make n^k protection in motif_pvalue() optional
-- make sure no errors are possible inside c++ code -- can lead to memory leaks
-  since c++/R may not communicate properly about what needs to be freed
-- new view_logo() example idea: show how to plot A->C mutation change (need to
-  add arrows to fontDFroboto)
-- read_matrix(): make it so that it's possible to read all other formats with
-  it via tweaking parsing options
-- go through vignettes again
-- use NULL instead of missing for optional args
-- get rid of DataFrame and just go pure data.frame? (store metadata in attributes?)
-- better manipulation of alphabet slot
-- motif_pvalue() vignette bit: explain why exact calculations dont give exact
-  results (rounding to three digits for use as ints)
-- scan_sequences() and large datasets: spends a LOT of time in pre- and
-  post-processing... need to optimize this. The actual scanning is quite fast
-  even with billions of letters.
-- Make use of average_ic() to filter motifs in more function examples? Right
-  now it just shows up in compare_motifs().
-- merge_motifs() 2nd example: also plot submotifs
-- should I change the default comparison metric back to PCC...? I feel bad for
-  constantly switching but ALLR is kind of annoying to work with in some cases
-- add an extranum slot
-- does view_motifs(use.type="ICM") work with KL motifs? (is ylim properly set)
-- native logo plotting with trees
-- motif p-values vignette section: show effects of k using plots instead of tables
-- emit a warning whenever the multifreq/gap slots are lost
-- motif_tree() + view_motifs():
-  + ggtree::inset
-  + tree + ggtree::geom_subview(mot_plot_list [+theme_inset()], ...) [see inset code]
-  + ggtree::facet_plot
-  + ggtree::geom_fruit --> geom_subview for circular layouts
-- would it be faster to handle chars from XString directly instead of converting to
-  integer?
-- should def rework shuffle so that it doesn't create unconnected vertices!
-- klet --> kmer
-- multifreq --> higher order ? (maybe nmer motif)
-- work with methylated DNA?
-- stop using multifreq slot; make motif objects represent a single order level
-- comparison: add option to use sum to find best alignment, then apply mean/etc
-  (or p-value? see gupta et al 2007)
-- create a separate repo for a universalmotif website; otherwise the vignettes
-  in the package will become too big/annoying
-- scan_sequences() P-values: should they use the bkg of the input sequences instead
-  of the motif? wouldn't this calculate a better null for calc.qvals.method="fdr"?
-- Really need to get straight what background probabilities to use in motif_pvalue()
-  when scanning; the motifs own, or those of the sequences being scanned? Also need
-  to make sure that feeding bkg.probs to motif_pvalue() actually uses those in the
-  create of the PWMs!
-- Add an example in vignettes about methylated DNA, referring to
-  https://www.biorxiv.org/content/10.1101/043794v1
-  e.g. create_motif(alphabet="ACGTm", bkg = c(A=.25,C=.125,G=.25,T=.25,m=.125))
-  + however this means no reverse complement scanning...
-- to_df() et al: don't show warning when printing if errors are present?
-- change the default pseudocount value to 0.1? (instead of 1)
-  --> or... change default nsites to 1000?
-- fix motif_peaks()
-- compare_motifs(): allow overhangs to be compared to background fequencies (see
-  homer)
-- compare_motifs(): dynamic P-values!
-- create a separate container for higher order motifs
-- scan_sequences(): for large jobs, save temporary results on disk; maybe use the qs pkg?
-- combine view_motifs() with EnrichedHeatmap/ComplexHeatmap?
-- compare_motifs() w/ normalization: does this still work for scores w/ -ve values?
-- scan_sequences(): needs a serious performance overhaul for large jobs
-- write_*(): always write all digits in numbers, never scientific notation! (eg 1e5 vs 10000)
-- implant_motifs(): insert motifs (generated using sample_sites()) into seqs
-- proper dendros? just need all motifs in one plot: https://teunbrand.github.io/legendry/reference/scale_x_dendro.html, https://github.com/teunbrand/legendry/blob/main/R/scale-dendro.R
+Validation and correctness
+--------------------------
+- Extend conversion and parser fixture coverage to the remaining optional
+  package classes, RNA/custom alphabets, truncated input, and metadata that
+  each external format promises to preserve. Native gap/CWM/higher-order
+  round trips and representative TFBSTools conversions now have tests.
+- Calibrate scanning/enrichment under matched IID and higher-order backgrounds;
+  distinguish valid nulls from composition-mismatch stress tests. Keep the
+  local benchmark harness/results out of commits unless explicitly requested.
+- Assess background-weighted P-value-to-score inversion for the exhaustive
+  method; its current sequence-count quantile is not a non-uniform-background
+  inverse. Dynamic inversion is the documented preferred path for this case.
+- Add adversarial shuffling tests for exact k-mer preservation, repeated or
+  sparse sequences, disconnected unused vertices, and seeded reproducibility.
+- Test negative-score comparison normalisation and KL-logo axis limits with
+  explicit fixtures before deciding whether either needs a fix.
+- Audit C++ error/interrupt handling at thread boundaries and allocation-heavy
+  paths; preserve validation and exhaustive-enumeration safety limits.
+
+Documentation
+-------------
+- Refresh published speed/hit-count examples after threshold fixes, using
+  equivalent work and reproducible measurements rather than old timings.
+- Add a compact non-standard-motif workflow for amino-acid/custom alphabets,
+  higher-order motifs, and gaps using the original functions.
+- Expand pseudocount, information-content filtering, and submotif examples as
+  concrete user questions arise; avoid duplicating existing introductory text.
+- Consider heatmap/track integration examples and a mutation-effect logo
+  example; evaluate a separate documentation website only if size warrants it.
+
+Feature work
+--------------------
+- Add explicit presence-only and/or best-hit-per-motif-per-sequence scanning;
+  define strand handling and ties before implementing an allocation-saving path.
+- Profile and implement chunked scanning with stable ordering and bounded
+  memory; consider optional disk-backed output only after profiling.
+- Add opt-in progress messages and safe cancellation to long-running functions.
+- Add an enrichment HTML report with counts, controls, settings, and logos.
+- Improve reader diagnostics for missing files and expose consistent, documented
+  pseudocount controls where needed.
+- Add an ambiguity-resolution helper with explicit sampling/replacement rules.
+- Design alphabet remapping and methylated-DNA support together with background,
+  higher-order, and reverse-complement rules; do not merely relabel rows.
+- Investigate to_df()/update_motifs() warnings using a concrete failing example.
+
+Methods projects
+------------------------------------------------------------------------
+- Differential positional enrichment between two sets of sequences.
+- Spatial motif-cluster detection beyond pairwise sequence co-occurrence.
+- Optional alignment scoring against background at overhangs, or distinct
+  alignment-selection and reporting scores; first define statistical semantics.
+- Extend calibrated comparison P-values beyond the DNA/RNA PCC lite workflow
+  only where a supported use case justifies the added method.

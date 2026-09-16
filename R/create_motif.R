@@ -20,7 +20,9 @@
 #'    same order as the alphabetically sorted sequence alphabet.
 #' @param nsites `numeric(1)` Number of sites the motif was constructed from. If
 #'    blank, then `create_motif()` will guess the appropriate number if possible.
-#'    To prevent this, provide `nsites = numeric()`.
+#'    To prevent this, provide `nsites = numeric()`. `NA_real_` also denotes
+#'    unknown. Otherwise supply a finite positive integer; zero is not an
+#'    unknown-value sentinel. CWM column sums do not represent site counts.
 #' @param altname `character(1)` Alternate motif name.
 #' @param family `character(1)` Transcription factor family.
 #' @param organism `character(1)` Species of origin.
@@ -699,7 +701,7 @@ setMethod("create_motif", signature(input = "matrix"),
     cpp_args <- c(cpp_args, list(type = "CWM"))
   motif <- do.call(universalmotif_cpp, cpp_args)
 
-  if (missing(nsites)) {
+  if (missing(nsites) && motif@type == "PCM") {
     nsites <- sum(input[, 1])
     if (nsites == round(nsites) && nsites != 1 && abs(nsites) != Inf)
       motif@nsites <- nsites
@@ -937,6 +939,9 @@ setMethod("create_motif", signature(input = "BStringSet"),
 
 parse_args <- function(args, names) {
 
+  if (is.numeric(args$nsites) && length(args$nsites) == 1L &&
+      is.na(args$nsites)) args$nsites <- numeric()
+
   # param check --------------------------------------------
   all_checks <- character(0)
   char_check <- check_fun_params(list(alphabet = args$alphabet,
@@ -967,7 +972,9 @@ parse_args <- function(args, names) {
     stop("* Incorrect `strand` argument (must be one of ",
       "\"+\", \"-\", \"+-\")")
   }
-  if (is.numeric(args$nsites) && length(args$nsites) && args$nsites < 1) {
+  if (is.numeric(args$nsites) && length(args$nsites) &&
+      (any(!is.finite(args$nsites)) || any(args$nsites < 1) ||
+       any(args$nsites != floor(args$nsites)))) {
     stop("* Incorrect `nsites` argument (must be a positive",
       " integer)")
   }

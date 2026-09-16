@@ -682,7 +682,7 @@ Rcpp::S4 universalmotif_cpp(
     gap.slot("isgapped") = false;
 
   if (gaploc.length() > 0 && !Rcpp::NumericVector::is_na(gaploc[0]))
-    gap.slot("gaploc") = mingap;
+    gap.slot("gaploc") = gaploc;
 
   if (mingap.length() > 0 && !Rcpp::NumericVector::is_na(mingap[0]))
     gap.slot("mingap") = mingap;

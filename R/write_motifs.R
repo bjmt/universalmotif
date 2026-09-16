@@ -5,7 +5,9 @@
 #' [readRDS()]. Currently the `universalmotif` format is YAML-based, but
 #' this is subject to change.
 #'
-#' @param minimal `logical(1)` Only write essential motif information.
+#' @param minimal `logical(1)` Only write essential motif information. Gap
+#'   definitions are always retained. Use [saveRDS()] for lossless storage of
+#'   all metadata and full matrix precision.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.
 #' @param progress `logical(1)` Show progress.
 #' @param overwrite `logical(1)` Overwrite existing file.
@@ -131,6 +133,15 @@ write_motifs2_single <- function(motif, minimal, multifreq) {
 
   }
 
+
+  if (isTRUE(motif@gapinfo@isgapped)) {
+    lmot$isgapped <- TRUE
+    lmot$gaploc <- motif@gapinfo@gaploc
+    lmot$mingap <- motif@gapinfo@mingap
+    lmot$maxgap <- motif@gapinfo@maxgap
+    if (length(motif@gapinfo@extrapvals))
+      lmot$extrapvals <- motif@gapinfo@extrapvals
+  }
 
   mot.t <- t(motif@motif)
   mot.bycol <- apply(mot.t, 1, format_pos)

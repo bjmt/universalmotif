@@ -59,6 +59,7 @@ write_homer <- function(motifs, file, logodds_threshold = NULL,
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
+  warn_motif_metadata_loss(motifs, "HOMER format")
   motifsPWM <- convert_type_internal(motifs, "PWM")
 
   if (!is.null(logodds_threshold)) {

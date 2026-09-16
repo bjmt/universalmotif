@@ -733,18 +733,32 @@ ungap_single <- function(m) {
   )
   gaplens <- expand.grid(gaplens)
   out <- vector("list", nrow(gaplens))
-  submotifs <- get_submotifs(m)
+  # Work directly on PWM matrices. cbind(universalmotif, ...) converts its
+  # inputs to PPMs, which must never be passed to the scanner as scores.
+  starts <- c(1L, m@gapinfo@gaploc + 1L)
+  stops <- c(m@gapinfo@gaploc, ncol(m@motif))
+  submotifs <- lapply(seq_along(starts), function(j)
+    m@motif[, seq.int(starts[j], stops[j]), drop = FALSE])
+  subnames <- paste0("SUB_N", seq_along(submotifs), "_L",
+                     vapply(submotifs, ncol, integer(1)))
   for (i in seq_along(out)) {
     tmp <- list(submotifs[[1]])
+    labels <- subnames[1]
     for (j in seq_len(ncol(gaplens))) {
       if (gaplens[[j]][i] == 0) {
         tmp <- c(tmp, list(submotifs[[j + 1]]))
+        labels <- c(labels, subnames[j + 1])
       } else {
-        tmp <- c(tmp, list(make_blank_motif(gaplens[[j]][i], j, m@alphabet),
-            submotifs[[j + 1]]))
+        blank <- matrix(0, nrow(m@motif), gaplens[[j]][i],
+                        dimnames = list(rownames(m@motif), NULL))
+        tmp <- c(tmp, list(blank, submotifs[[j + 1]]))
+        labels <- c(labels, paste0("BLANK_N", j, "_L", gaplens[[j]][i]),
+                    subnames[j + 1])
       }
     }
-    out[[i]] <- do.call(cbind, tmp)
+    out[[i]] <- universalmotif_cpp(do.call(cbind, tmp), type = "PWM",
+      name = paste(labels, collapse = "/"), alphabet = m@alphabet,
+      bkg = m@bkg, nsites = m@nsites, pseudocount = m@pseudocount)
   }
   out
 }

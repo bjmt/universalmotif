@@ -13,6 +13,10 @@
 #' @return Single motif object or list.
 #'
 #' @details
+#' External classes may not represent gap definitions or higher-order matrices.
+#' These losses produce a warning on export. For complete preservation of the
+#' original object, use [saveRDS()].
+#'
 #' ## Input
 #' The following packge-class combinations can be used as input:
 #' * MotifDb-MotifList
@@ -142,6 +146,7 @@ setMethod("convert_motifs", signature(motifs = "list"),
   }
   if (class == "MotifDb-MotifList") {
     motifs <- lapply(motifs, function(x) convert_motifs(x))
+    warn_motif_metadata_loss(motifs, class)
     motifs <- convert_to_motifdb_motiflist(motifs)
   } else if (class %in% c("TFBSTools-PFMatrixList", "TFBSTools-PWMatrixList",
                           "TFBSTools-ICMatrixList")) {
@@ -170,6 +175,10 @@ setMethod("convert_motifs", signature(motifs = "universalmotif"),
 
   out_class <- strsplit(class, "-", fixed = TRUE)[[1]][2]
   out_class_pkg <- strsplit(class, "-", fixed = TRUE)[[1]][1]
+
+  if (out_class_pkg != "universalmotif")
+    warn_motif_metadata_loss(motifs, class,
+      keep.multifreq = if (class == "TFBSTools-TFFMFirst") "2" else character())
 
   switch(out_class_pkg,
     "universalmotif" = {

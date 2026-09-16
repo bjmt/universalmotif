@@ -585,9 +585,38 @@ Calculating the probability of a single match was easy, but then comes the chall
 
 ## The dynamic programming algorithm for calculating P-values and scores
 
-Instead of trying to find and calculate the probabilities of all matches with a score equal to or higher than the query score, one can use a dynamic programming algorithm to generate a much smaller distribution of probabilities for the possible range of scores using set intervals. This method is implemented by the FIMO tool [@grant11]. The theory behind it is also explained in @gupta07, though the purpose of the algorithm is for motif comparison instead of motif P-values (however it is the same algorithm). The basic concept will also be briefly explained here.
+Dynamic programming calculates the probability of each score without listing
+every possible sequence. FIMO uses this approach [@grant11], and @gupta07
+describes it in the context of motif comparison.
 
-For each individual position-letter score in the PWM, the chance of getting that score from the respective background probability of that letter is added to the intervals in which getting that specific score could allow the final score to land. Once this probability distribution is generated, it can be converted to a cumulative distribution and re-used for any input P-value/score to output the equivalent score/P-value. For P-value inputs, it finds the specific score interval where the accompanying P-value in the cumulative distribution is smaller than or equal to it, then reports the score of the previous interval. For score inputs, the scores are rounded to the nearest interval in the cumulative distribution and the accompanying P-value retrieved. The major advantages of this method include only looking for the probabilities of the range of scores with a set interval, cutting down on needing to find the probabilities of all actual possible scores (and thus increasing performance by several orders of magnitude for larger/higher-order motifs), and being able to re-use the distribution for any number of query P-value/scores. Although this method involves rounding off scores to allow a small set interval, in practice within the `universalmotif` package it offers the same maximum possible level of accuracy as the exhaustive method (described in the next section) as motif PWMs are always internally rounded to a thousandth of a decimal place for speed. This leaves as the only downside the inability to allow non-finite values to exist in the PWM (e.g. from zero-probabilities) since then a known range with set intervals could not possibly be created.
+The algorithm works through the motif one position at a time. At each position,
+it updates the possible total scores and their probabilities, using the
+background frequencies of the letters. Once this score distribution is built,
+it can answer many score or P-value queries without repeating the calculation.
+
+Internally, each PWM entry is multiplied by 1000 and its decimal part is
+dropped (truncation towards zero). The resulting integers are then added.
+This puts scores on a grid with steps of 0.001. When you supply a score, it is
+rounded up to the next grid point, or left unchanged if already on the grid.
+The returned P-value is the probability of getting that score or a higher one:
+`Pr(score >= query)`.
+
+When you supply a P-value cutoff instead, the function returns the lowest
+threshold on this grid for which the probability of a match at or above the
+threshold is no greater than the cutoff. The threshold need not be a score
+that a sequence can actually achieve. If even the highest-scoring match fails
+the cutoff, the function returns `Inf` and scanning reports no hits.
+
+These calculations use the truncated PWM scores, not the original scores at
+full precision. Truncation can give different sequences the same score, or
+change the order of very similar scores. This means that small score changes
+can sometimes cause much larger P-value changes. This effect comes from the
+score approximation, rather than small numerical errors when adding
+probabilities.
+
+Dynamic programming also needs finite PWM entries. If zero probabilities
+produce `-Inf` scores, use pseudocounts to make the scores finite, or consider
+the exhaustive method with `allow.nonfinite`.
 
 Going back to our example, we can see this in action using the `motif_pvalue()` function:
 
@@ -605,7 +634,46 @@ res$score
 motif_pvalue(motif, pvalue = pvals, bkg.probs = bkg)
 ```
 
-You may occasionally see slight errors at the last couple of digits. These are generally unavoidable due to the internal rounding mechanisms of the `universalmotif` package.
+Converting a score to a P-value and back may give a different score, because
+several thresholds can select the same matches. What matters is that the
+probability of a match at or above the returned threshold does not exceed the
+requested cutoff.
+
+### Which background does a P-value use?
+
+Background frequencies affect both the PWM scores and the chance of seeing
+each sequence. With the dynamic method and ordinary mononucleotide motifs
+(`use.freq = 1`), supplying `bkg.probs` changes both: the function recalculates the PWM
+using the new background, then uses that background to calculate probabilities.
+It does not leave the PWM scores unchanged. The same sequence can therefore
+have a different score under a different background.
+
+Both scanners use the background stored in the motif; they do not automatically
+estimate it from the sequences being scanned. To use a different background,
+first convert the motif to a PPM using its original background. Then set the
+new background and convert to a PWM:
+
+```{r background-rebasing}
+probabilities <- matrix(rep(c(.5, .25, .125, .125), 4), nrow = 4,
+                        dimnames = list(c("A", "C", "G", "T"), NULL))
+original <- create_motif(probabilities, type = "PPM", pseudocount = 0)
+rebased <- convert_type(original, "PPM")
+rebased["bkg"] <- c(A = .1, C = .4, G = .4, T = .1)
+rebased <- convert_type(rebased, "PWM")
+motif_pvalue(rebased, pvalue = .01)
+```
+
+Changing the `bkg` slot of a PWM alone does not update its scores: the
+PPM-to-PWM conversion is needed too. The example above uses `use.freq = 1`.
+For higher-order motifs, `use.freq` selects both the higher-order matrix and
+its corresponding background probabilities.
+
+The background sequences used in an enrichment test serve a different purpose:
+they are the control group. Matching their composition to the target sequences
+does not change the motif's PWM. Choose both the motif background and the
+control sequences to suit the question, and check how the test behaves on
+data with no enrichment. Composition matching alone does not guarantee
+accurate P-values or false discovery rates.
 
 Let us consider more examples, such as the following larger motif:
 
@@ -759,7 +827,11 @@ res <- data.frame(score = scores, pvalue = pvals,
                   score.k8 = scores.approx8)
 knitr::kable(res, format = "markdown", digits = 22)
 ```
-As you may have noticed, results from exact calculations are not _quite_ exact. This is due to the `universalmotif` package rounding off values internally for speed.
+Both algorithms use truncated PWM scores rather than the original scores at
+full precision. The exhaustive method also uses an approximation when it
+splits a long motif into shorter pieces. Agreement between the methods on
+short motifs does not mean that either always gives exact probabilities for
+the original, full-precision PWM.
 
 # Session info {.unnumbered}
 

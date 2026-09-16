@@ -12,11 +12,14 @@
 #' @param bkg.probs `numeric`, `list` A vector background probabilities.
 #'    If supplying individual background
 #'    probabilities for each motif, a list of such vectors. If missing,
-#'    retrieves the background from the motif `bkg` slot. Note that this
-#'    option is only used when `method = "dynamic"`, or when
-#'    `method = "exhaustive"` and providing a P-value and returning a score; for
-#'    the inverse, the motifs are first converted to PWMs via [convert_type()],
-#'    which uses the motif `bkg` slot for background adjustment.
+#'    retrieves the background from the motif `bkg` slot. With `use.freq = 1`,
+#'    changing this background first rebases the motif's probabilities into a
+#'    new PWM. For `method = "dynamic"`, it also weights the null distribution
+#'    for both score and P-value queries; this is not a fixed-PWM null-only
+#'    change. The exhaustive score-to-P-value calculation also uses these null
+#'    weights, but exhaustive P-value-to-score inversion uses sequence counts
+#'    rather than background-weighted probabilities; prefer the dynamic method
+#'    for non-uniform backgrounds.
 #' @param use.freq `numeric(1)` By default uses the regular motif matrix;
 #'    otherwise uses the corresponding `multifreq` matrix. Max is 3 when
 #'    `method = "exhaustive"`.
@@ -29,8 +32,8 @@
 #'    calculations. Note that this is ignored when `method = "dynamic"`,
 #'    as subsetting is not required.
 #' @param nthreads `numeric(1)` Run [motif_pvalue()] in parallel with `nthreads`
-#'    threads. `nthreads = 0` uses all available threads. Currently only
-#'    applied when `method = "exhaustive"`.
+#'    threads. `nthreads = 0` uses all available threads. The dynamic method
+#'    parallelises across motifs.
 #' @param rand.tries `numeric(1)` When `ncol(motif) < k` and
 #'    `method = "exhaustive"`, an approximation is
 #'    used. This involves randomly approximating the overall

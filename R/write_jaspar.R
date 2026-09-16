@@ -47,6 +47,7 @@ write_jaspar <- function(motifs, file, overwrite = FALSE, append = FALSE) {
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
+  warn_motif_metadata_loss(motifs, "JASPAR format")
 
   .write_jaspar <- function(motifs) {
 

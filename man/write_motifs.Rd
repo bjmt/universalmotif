@@ -12,7 +12,9 @@ write_motifs(motifs, file, minimal = FALSE, multifreq = TRUE,
 
 \item{file}{\code{character(1)} File name.}
 
-\item{minimal}{\code{logical(1)} Only write essential motif information.}
+\item{minimal}{\code{logical(1)} Only write essential motif information. Gap
+definitions are always retained. Use \code{\link[=saveRDS]{saveRDS()}} for lossless storage of
+all metadata and full matrix precision.}
 
 \item{multifreq}{\code{logical(1)} Write \code{multifreq} slot, if present.}
 

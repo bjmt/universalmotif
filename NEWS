@@ -194,6 +194,20 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o Native motif files now retain gap definitions, including in minimal
+    output. Fixed the constructor confusing gap positions with minimum
+    gap widths and gap expansion passing probabilities to the scanner
+    instead of PWM scores. External exports warn when gaps or higher-order
+    matrices cannot be preserved.
+
+  o create_motif() now accepts NA site counts as unknown and rejects
+    non-finite or fractional counts clearly. CWM column sums are no
+    longer inferred as site counts.
+
+  o Updated motif introductions and P-value documentation to explain
+    CWMs, function selection, integer-score thresholds, background
+    rebasing, and metadata-preservation limits.
+
   o Fixed dynamic P-value thresholds admitting hits above the requested
     cutoff in scan_sequences() and scan_sequences_lite(). Thresholds
     now respect inclusive comparisons, and unattainable cutoffs return

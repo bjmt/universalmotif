@@ -22,11 +22,14 @@ for \code{method = "dynamic"}.}
 \item{bkg.probs}{\code{numeric}, \code{list} A vector background probabilities.
 If supplying individual background
 probabilities for each motif, a list of such vectors. If missing,
-retrieves the background from the motif \code{bkg} slot. Note that this
-option is only used when \code{method = "dynamic"}, or when
-\code{method = "exhaustive"} and providing a P-value and returning a score; for
-the inverse, the motifs are first converted to PWMs via \code{\link[=convert_type]{convert_type()}},
-which uses the motif \code{bkg} slot for background adjustment.}
+retrieves the background from the motif \code{bkg} slot. With \code{use.freq = 1},
+changing this background first rebases the motif's probabilities into a
+new PWM. For \code{method = "dynamic"}, it also weights the null distribution
+for both score and P-value queries; this is not a fixed-PWM null-only
+change. The exhaustive score-to-P-value calculation also uses these null
+weights, but exhaustive P-value-to-score inversion uses sequence counts
+rather than background-weighted probabilities; prefer the dynamic method
+for non-uniform backgrounds.}
 
 \item{use.freq}{\code{numeric(1)} By default uses the regular motif matrix;
 otherwise uses the corresponding \code{multifreq} matrix. Max is 3 when
@@ -42,8 +45,8 @@ calculations. Note that this is ignored when \code{method = "dynamic"},
 as subsetting is not required.}
 
 \item{nthreads}{\code{numeric(1)} Run \code{\link[=motif_pvalue]{motif_pvalue()}} in parallel with \code{nthreads}
-threads. \code{nthreads = 0} uses all available threads. Currently only
-applied when \code{method = "exhaustive"}.}
+threads. \code{nthreads = 0} uses all available threads. The dynamic method
+parallelises across motifs.}
 
 \item{rand.tries}{\code{numeric(1)} When \code{ncol(motif) < k} and
 \code{method = "exhaustive"}, an approximation is

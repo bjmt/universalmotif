@@ -71,7 +71,9 @@ same order as the alphabetically sorted sequence alphabet.}
 
 \item{nsites}{\code{numeric(1)} Number of sites the motif was constructed from. If
 blank, then \code{create_motif()} will guess the appropriate number if possible.
-To prevent this, provide \code{nsites = numeric()}.}
+To prevent this, provide \code{nsites = numeric()}. \code{NA_real_} also denotes
+unknown. Otherwise supply a finite positive integer; zero is not an
+unknown-value sentinel. CWM column sums do not represent site counts.}
 
 \item{altname}{\code{character(1)} Alternate motif name.}
 

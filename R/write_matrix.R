@@ -85,6 +85,7 @@ write_matrix <- function(motifs, file, positions = "columns", rownames = FALSE,
   motifs <- convert_motifs(motifs)
   if (!missing(type)) motifs <- convert_type_internal(motifs, type)
   if (!is.list(motifs)) motifs <- list(motifs)
+  warn_motif_metadata_loss(motifs, "Raw matrix format")
 
   .write_matrix <- function(motifs, positions, rownames, sep, headers) {
 

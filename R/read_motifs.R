@@ -97,6 +97,9 @@ read_motifs_single <- function(mot) {
 
   mot <- yaml.load(mot)
 
+  # Extra gap P-values are not arguments of the C++ constructor.
+  extrapvals <- mot$extrapvals
+  mot$extrapvals <- NULL
   fields <- names(mot)
 
   mot[["bkg"]] <- unlist(mot[["bkg"]])
@@ -135,6 +138,12 @@ read_motifs_single <- function(mot) {
 
   }
 
+  if (!is.null(extrapvals)) {
+    if (!is.numeric(extrapvals) || any(!is.finite(extrapvals)) ||
+        any(extrapvals < 0 | extrapvals > 1))
+      stop("Invalid gap extrapvals: expected finite probabilities")
+    motif@gapinfo@extrapvals <- as.numeric(extrapvals)
+  }
   validObject_universalmotif(motif)
   motif
 

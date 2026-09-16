@@ -79,6 +79,7 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
+  warn_motif_metadata_loss(motifs, "MEME format")
 
   ## When CWM = TRUE, write CWM motifs verbatim into the
   ## letter-probability matrix block (signed values, no

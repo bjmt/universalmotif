@@ -83,6 +83,9 @@ nearly all other functions in this package, so any motifs of a compatible
 class can be used without needing to be converted beforehand.
 }
 \details{
+External classes may not represent gap definitions or higher-order matrices.
+These losses produce a warning on export. For complete preservation of the
+original object, use \code{\link[=saveRDS]{saveRDS()}}.
 \subsection{Input}{
 
 The following packge-class combinations can be used as input:

@@ -32,7 +32,7 @@ This vignette will introduce the `universalmotif` class and its structure, the i
 
 ## The universalmotif class
 
-The `universalmotif` package stores motifs using the `universalmotif` class. The most basic `universalmotif` object exposes the `name`, `alphabet`, `type`, `strand`, `icscore`, `consensus`, and `motif` slots; furthermore, the `pseudocount` and `bkg` slots are also stored but not shown. `universalmotif` class motifs can be PCM, PPM, PWM, or ICM type.
+The `universalmotif` package stores motifs using the `universalmotif` class. The most basic `universalmotif` object exposes the `name`, `alphabet`, `type`, `strand`, `icscore`, `consensus`, and `motif` slots; furthermore, the `pseudocount` and `bkg` slots are also stored but not shown. Motifs can be PCM, PPM, PWM, ICM, or CWM type; CWMs store contributions rather than a probability-based motif model.
 
 ```{r}
 library(universalmotif)
@@ -48,7 +48,7 @@ A brief description of all the available slots:
 * `organism`: (optional) organism of origin
 * `motif`: the actual motif matrix
 * `alphabet`: motif alphabet
-* `type`: motif 'type', one of PCM, PPM, PWM, ICM; see the [introductory](IntroductionToSequenceMotifs.pdf) vignette
+* `type`: motif 'type', one of PCM, PPM, PWM, ICM, CWM; see the [introductory](IntroductionToSequenceMotifs.pdf) vignette
 * `icscore`: (generated automatically) Sum of information content for the motif
 * `nsites`: (optional) number of sites the motif was created from
 * `pseudocount`: this value is added to the motif matrix during certain type conversions; this is necessary to avoid `-Inf` values from appearing in PWM type motifs
@@ -158,7 +158,13 @@ The `write_matrix()` function, similar to its `read_matrix()` counterpart, can w
 
 ## Converting motif type
 
-Any `universalmotif` object can transition between PCM, PPM, PWM, and ICM types seamlessly using the `convert_type()` function. The only exception to this is if the ICM calculation is performed with sample correction, or as relative entropy. If this occurs, then back conversion to another type will be inaccurate (and `convert_type()` would not warn you, since it won't know this has taken place).
+Use `convert_type()` to transition between PCM, PPM, PWM, and ICM types.
+Back conversion from an ICM calculated with sample correction or relative
+entropy can be inaccurate; the object does not record enough information for
+`convert_type()` to detect that history. CWM conversion is separately lossy:
+conversion to PPM normalises absolute contributions, discarding their signs
+and scale. Other conversions from CWM go through this PPM, and conversion
+from a probabilistic type back to CWM is not supported.
 
 ```{r}
 library(universalmotif)
@@ -181,6 +187,21 @@ You can either change the `pseudocount` slot manually beforehand, or pass one to
 ```{r}
 convert_type(examplemotif, "PWM", pseudocount = 1)
 ```
+
+Changing the `pseudocount` slot is not itself a request to resmooth an existing
+matrix. Use `normalize()` when you intend to apply smoothing to the motif, or
+set the argument on the conversion that needs it. Converting to a type the
+motif already has can be a no-op. For count-to-probability conversion the site
+count controls the relative influence of the pseudocount; an unknown count is
+not the same as zero observations. Likewise, converting an unknown-count PPM
+to a PCM uses an assumed count (100 by default), not a measured sample size.
+Retain that distinction when interpreting exported counts.
+
+For zero-probability entries, an unadjusted PWM can contain `-Inf`. Dynamic
+P-value calculations require finite scores and may apply a pseudocount
+correction with a message. Check these settings before comparing results from
+different conversion or scanning paths. CWMs instead store signed contributions;
+their column sums must not be interpreted as site counts or probabilities.
 There are a couple of additional options for ICM conversion: `nsize_correction` and `relative_entropy`. The former uses the `TFBSTools:::schneider_correction()` function (and thus requires that the `TFBSTools` package be installed) for sample size correction. The latter uses the `bkg` slot to calculate information content. See the IntroductionToSequenceMotifs vignette for an overview on the various types of ICM calculations.
 ```{r}
 examplemotif["nsites"] <- 10
@@ -630,8 +651,8 @@ examplemotif
 ## Get the min and max possible scores:
 motif_score(examplemotif)
 
-## Show matches above a score of 10:
-get_matches(examplemotif, 10)
+## Show matches scoring at least 80% of this motif's maximum:
+get_matches(examplemotif, .8 * motif_score(examplemotif, 1))
 
 ## Get the probability of a match:
 prob_match(examplemotif, "TTTTTTT", allow.zero = FALSE)

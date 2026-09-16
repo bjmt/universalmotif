@@ -22,9 +22,12 @@ suppressPackageStartupMessages(library(universalmotif))
 
 # Introduction to sequence motifs
 
-Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. There are a number of ways of representing motifs; four types are available here. All of these can be stored using the same `universalmotif` class. Unfortunately, the naming conventions for the various motif types are not consistent. In order to provide a simple and consistent interface to the various types, in this package they will always be referred to as Position Count Matrix (PCM), Position Probability Matrix (PPM), Position Weight Matrix (PWM), and Information Content Matrix (ICM).
+Motifs are a more practical representation of consensus elements in biological sequences, allowing for a more detailed description of the variability at each site [see @motifhist]. The `universalmotif` class supports Position Count Matrices (PCM), Position Probability Matrices (PPM), Position Weight Matrices (PWM), and Information Content Matrices (ICM), as well as Contribution Weight Matrices (CWM) from attribution analyses. Naming conventions vary between tools; these are the names used throughout this package.
 
-These four types are described within this vignette. Furthermore, the actual code used to go between these types can be seen in `?'utils-motif'`. They are also reviewed briefly in the [motif manipulation](MotifManipulation.pdf) vignette.
+The four conventional representations are described first, followed by CWMs
+and their different interpretation. Conversion helpers are documented in
+`?'utils-motif'` and `?convert_type`. The types are also reviewed in the
+[motif manipulation](MotifManipulation.pdf) vignette.
 
 # Position count matrices
 
@@ -277,5 +280,34 @@ Position |      1 |      2 |      3 |      4 |      5 |      6
 : (\#tab:icmkl2) Information Content Matrix as relative divergence with a non-uniform background.
 
 Notice how the height of A in position 1 has decreased, and how the height of G in position 3 has increased. This makes sense when you consider that you are more likely to get an A and less likely to get a G to begin with.
+
+# Contribution weight matrices
+
+A contribution weight matrix (CWM) stores signed, unnormalised contributions
+from an attribution analysis. Positive and negative entries represent effects
+in opposite directions under that analysis; they are neither base
+probabilities nor log-odds scores. Their interpretation depends on the model,
+prediction task, attribution method, and reference used to calculate them.
+
+```{r cwm-introduction}
+cwm.values <- matrix(c(1, -.5, 0, -.5, -.25, 1, -.5, 0), nrow = 4,
+                     dimnames = list(c("A", "C", "G", "T"), NULL))
+cwm <- create_motif(cwm.values, type = "CWM", name = "contributions")
+view_motifs_lite(cwm, use.type = "CWM")
+```
+
+Specify `type = "CWM"` explicitly: signed matrices otherwise look like PWMs
+to the type detector. `read_matrix(type = "CWM")` and `read_meme(CWM = TRUE)`
+provide opt-in import, and `trim_cwm()` trims weak edge positions using absolute
+contributions. Site counts are unknown unless supplied; a column sum is not a
+number of contributing sequences.
+
+`convert_type(cwm, "PPM")` normalises the **absolute** entries in each column
+(an all-zero column becomes uniform). This discards sign and absolute scale.
+It can provide a probability-matrix representation for downstream tools, but
+does not recover a binding model or make scan P-values probabilities of model
+attribution. There is no inverse conversion from a PPM to the original CWM.
+Retain the CWM alongside any derived PPM, preferably with `saveRDS()` when full
+precision and metadata matter.
 
 # References {.unnumbered}
