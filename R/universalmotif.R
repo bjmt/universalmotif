@@ -1,4 +1,4 @@
-#' universalmotif: Import, Modify and Export Motifs with R
+#' universalmotif: A Toolkit for Sequence Motif Analysis
 #'
 #' @description
 #' A collection of utility functions for working with motifs.

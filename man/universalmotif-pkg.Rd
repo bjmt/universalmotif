@@ -4,7 +4,7 @@
 \name{universalmotif-pkg}
 \alias{universalmotif-package}
 \alias{universalmotif-pkg}
-\title{universalmotif: Import, Modify and Export Motifs with R}
+\title{universalmotif: A Toolkit for Sequence Motif Analysis}
 \description{
 A collection of utility functions for working with motifs.
 }
