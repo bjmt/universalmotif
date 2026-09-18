@@ -183,12 +183,11 @@ MINOR CHANGES
   o Reduced repeated power calculations in the C++ backends for
     shuffle_sequences(), get_bkg(), create_sequences(), and
     compare_motifs(). Results are numerically identical, with roughly
-    10-20% speed-ups on affected paths in informal benchmarks.
+    10-20% speed-ups in informal benchmarks.
 
   o motif_pvalue(method = "exhaustive") now stops with a clear error
     when a motif is too wide for exhaustive score enumeration (the
-    nrow^width path would overflow a 32-bit integer), rather than
-    relying solely on the R-side guard.
+    nrow^width path would overflow a 32-bit integer).
 
   o Various textual improvements to the vignettes.
 
@@ -201,12 +200,7 @@ BUG FIXES
     matrices cannot be preserved.
 
   o create_motif() now accepts NA site counts as unknown and rejects
-    non-finite or fractional counts clearly. CWM column sums are no
-    longer inferred as site counts.
-
-  o Updated motif introductions and P-value documentation to explain
-    CWMs, function selection, integer-score thresholds, background
-    rebasing, and metadata-preservation limits.
+    non-finite or fractional counts clearly.
 
   o Fixed dynamic P-value thresholds admitting hits above the requested
     cutoff in scan_sequences() and scan_sequences_lite(). Thresholds
@@ -235,33 +229,13 @@ BUG FIXES
   o Fixed motif_pvalue() rejecting use.freq > 3 when method was omitted.
     The default dynamic method is now resolved before validation.
 
-  o Fixed motif_coocc() accepting fractional pseudocounts for its
-    Fisher's exact test. Pseudocounts must now be finite, non-negative
-    whole numbers.
-
-  o Fixed motif_coocc() accepting invalid precomputed hit indices and
-    silently clamping inconsistent contingency counts. Motif and
-    sequence indices are now checked against their bounds, and integer
-    parameters and spatial coordinates receive stricter validation.
-
-  o Fixed motif_coocc() emitting warnings for empty hit tables in
-    spatial mode. These now return zero co-occurrence counts and NA
-    median distances without warnings.
-
   o Fixed shuffle_sequences() accepting the unsupported method =
     "random". It now reports the supported methods in a clear error.
-
-  o Fixed scan_sequences_lite(return.granges = TRUE) dropping metadata
-    columns when no hits were found. Empty results now retain the
-    documented metadata columns.
 
   o Fixed get_consensus() and get_consensusAA() crashing R on invalid
     input. Both now require a single numeric motif column of the
     expected length (4 for DNA/RNA, 20 for amino acids) and raise a
     clear error otherwise.
-
-  o Fixed motif_tree_lite() tip logos stacking letters alphabetically
-    rather than by height. The tallest letter now appears on top.
 
   o Fixed overlapping letters in view_motifs() when three or more
     letters at a position had negative heights. Stacking now uses
@@ -327,11 +301,6 @@ BUG FIXES
   o The S4 validity method for PCM motifs now also checks that the
     motif matrix's column sums are all equal (within the same 1%
     tolerance the PPM validity check uses).
-
-  o Test coverage extended from 708 to 878 cases: I/O round-trips
-    and parser error paths per format, RNA / AA coverage across
-    scan / compare / enrich (v1 and v2), v1/v2 smoke parity, and
-    nthreads=1 vs nthreads=2 parity on every parallel function.
 
 CHANGES IN VERSION 1.30.1
 -------------------------

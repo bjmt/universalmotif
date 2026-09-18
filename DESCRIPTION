@@ -1,6 +1,6 @@
 Package: universalmotif
 Title: A Toolkit for Sequence Motif Analysis
-Version: 1.31.52
+Version: 1.31.53
 Authors@R: c(
       person(c("Benjamin", "Jean-Marie"), "Tremblay", role = c("aut", "cre"),
         email = "benjamin.tremblay@uwaterloo.ca",
