@@ -185,6 +185,8 @@
 #' motif_pvalue(examplemotif, TATATAG)
 #'
 #' ## Get all possible matches by P-value:
+#' get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.001))
+#' ## A stricter cutoff cannot be met: the threshold is Inf, with no matches.
 #' get_matches(examplemotif, motif_pvalue(examplemotif, pvalue = 0.0001))
 #'
 #' ## Vectorize the calculation for multiple motifs and scores/P-values:

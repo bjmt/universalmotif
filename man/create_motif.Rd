@@ -50,7 +50,7 @@ create_motif(input, alphabet, type = "PPM", name = "motif",
 }
 \arguments{
 \item{input}{\code{character}, \code{numeric}, \code{matrix},
-\code{\link{XStringSet}}, or \code{missing}.}
+\code{\link[Biostrings:XStringSet-class]{XStringSet}}, or \code{missing}.}
 
 \item{alphabet}{\code{character(1)} One of \code{c('DNA', 'RNA', 'AA')},
 or a combined string representing the letters. If no alphabet is
@@ -136,13 +136,13 @@ See the \code{examples} section for more info on motif creation.
 
 \item \code{create_motif(matrix)}: Create motif from a matrix.
 
-\item \code{create_motif(DNAStringSet)}: Create motif from a \code{\link{DNAStringSet}}.
+\item \code{create_motif(DNAStringSet)}: Create motif from a \code{\link[Biostrings:XStringSet-class]{DNAStringSet}}.
 
-\item \code{create_motif(RNAStringSet)}: Create motif from a \code{\link{RNAStringSet}}.
+\item \code{create_motif(RNAStringSet)}: Create motif from a \code{\link[Biostrings:XStringSet-class]{RNAStringSet}}.
 
-\item \code{create_motif(AAStringSet)}: Create motif from a \code{\link{AAStringSet}}.
+\item \code{create_motif(AAStringSet)}: Create motif from a \code{\link[Biostrings:XStringSet-class]{AAStringSet}}.
 
-\item \code{create_motif(BStringSet)}: Create motif from a \code{\link{BStringSet}}.
+\item \code{create_motif(BStringSet)}: Create motif from a \code{\link[Biostrings:XStringSet-class]{BStringSet}}.
 
 }}
 \examples{

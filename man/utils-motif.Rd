@@ -192,7 +192,9 @@ vector of length 4 and 20, respectively.
 For \code{\link[=get_consensus]{get_consensus()}} and \code{\link[=get_consensusAA]{get_consensusAA()}}: a character vector
 of length 1.
 
-For \code{\link[=get_matches]{get_matches()}}: a \code{character} vector of motif matches.
+For \code{\link[=get_matches]{get_matches()}}: a \code{character} vector of motif matches. A score of
+\code{Inf} (for example, from an unattainable \code{\link[=motif_pvalue]{motif_pvalue()}} cutoff) returns
+\code{character(0)}.
 
 For \code{\link[=motif_range]{motif_range()}}: a named \code{numeric} vector of motif scores.
 

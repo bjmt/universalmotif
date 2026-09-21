@@ -1,7 +1,7 @@
 #' Create random sequences.
 #'
 #' Generate random sequences from any set of characters, represented as
-#' \code{\link{XStringSet}} objects.
+#' \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects.
 #'
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`, or a string of
 #'    characters to be used as the alphabet.
@@ -21,7 +21,7 @@
 #'    number as chosen by [sample()], which effectively is making [create_sequences()]
 #'    dependent on the R RNG state.
 #'
-#' @return \code{\link{XStringSet}} The returned sequences are _unnamed_.
+#' @return \code{\link[Biostrings:XStringSet-class]{XStringSet}} The returned sequences are _unnamed_.
 #'
 #' @examples
 #' ## Create DNA sequences with slightly increased AT content:

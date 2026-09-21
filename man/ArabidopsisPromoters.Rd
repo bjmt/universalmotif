@@ -5,7 +5,7 @@
 \alias{ArabidopsisPromoters}
 \title{Arabidopsis promoters as a \code{DNAStringSet}.}
 \format{
-\code{\link{DNAStringSet}}
+\code{\link[Biostrings:XStringSet-class]{DNAStringSet}}
 }
 \usage{
 ArabidopsisPromoters

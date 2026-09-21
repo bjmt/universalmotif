@@ -3,7 +3,7 @@
 #' Calculate sequence complexity using either the Wootton-Federhen, Trifonov,
 #' or DUST algorithms.
 #'
-#' @param seqs \code{\link{XStringSet}} Input sequences.
+#' @param seqs \code{\link[Biostrings:XStringSet-class]{XStringSet}} Input sequences.
 #' @param window.size `numeric` Window size. If a number between 0 and 1 is
 #'    provided, the value is calculated as the number multiplied by the sequence
 #'    length. 

@@ -10,7 +10,7 @@ sequence_complexity(seqs, window.size = 20,
   trifonov.max.word.size = 7, nthreads = 1, return.granges = FALSE)
 }
 \arguments{
-\item{seqs}{\code{\link{XStringSet}} Input sequences.}
+\item{seqs}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} Input sequences.}
 
 \item{window.size}{\code{numeric} Window size. If a number between 0 and 1 is
 provided, the value is calculated as the number multiplied by the sequence

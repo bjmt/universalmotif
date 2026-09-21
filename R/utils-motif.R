@@ -73,7 +73,9 @@
 #'    For [get_consensus()] and [get_consensusAA()]: a character vector
 #'    of length 1.
 #'
-#'    For [get_matches()]: a `character` vector of motif matches.
+#'    For [get_matches()]: a `character` vector of motif matches. A score of
+#'    `Inf` (for example, from an unattainable [motif_pvalue()] cutoff) returns
+#'    `character(0)`.
 #'
 #'    For [motif_range()]: a named `numeric` vector of motif scores.
 #'
@@ -431,6 +433,9 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
   } else {
     score.range <- motif_score(motif, allow.nonfinite = allow.nonfinite)
   }
+
+  # motif_pvalue() uses +Inf when no attainable score meets the cutoff.
+  if (isTRUE(score == Inf)) return(character())
 
   if (score > score.range[2])
     stop(wmsg("input score is greater than max possible score [",

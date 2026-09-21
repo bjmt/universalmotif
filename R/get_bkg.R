@@ -3,11 +3,11 @@
 #' For a set of input sequences, calculate the overall sequence background for
 #' any k-let size. For very large sequences DNA and RNA sequences (in the billions of bases),
 #' please be aware of the much faster and more efficient
-#' \code{\link[Biostrings:nucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
+#' \code{\link[Biostrings:oligonucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
 #' [get_bkg()] can still be used in these cases, though it may take several seconds or
 #' minutes to calculate the results (depending on requested k-let sizes).
 #'
-#' @param sequences \code{\link{XStringSet}} Input sequences. Note that if
+#' @param sequences \code{\link[Biostrings:XStringSet-class]{XStringSet}} Input sequences. Note that if
 #'    multiple sequences are present, the results will be combined into one
 #'    (unless `merge.res = FALSE`).
 #' @param k `integer` Size of k-let. Background can be calculated for any

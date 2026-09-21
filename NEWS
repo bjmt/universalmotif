@@ -193,6 +193,9 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o get_matches() now returns no matches for an Inf threshold from an
+    unattainable motif_pvalue() cutoff, fixing an error in the examples.
+
   o Native motif files now retain gap definitions, including in minimal
     output. Fixed the constructor confusing gap positions with minimum
     gap widths and gap expansion passing probabilities to the scanner

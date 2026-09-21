@@ -19,10 +19,10 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 0.001,
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
 
-\item{sequences}{\code{\link{XStringSet}} Sequences to scan. Alphabet
+\item{sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} Sequences to scan. Alphabet
 should match motif.}
 
-\item{bkg.sequences}{\code{\link{XStringSet}} Optional. If missing,
+\item{bkg.sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} Optional. If missing,
 \code{\link[=shuffle_sequences]{shuffle_sequences()}} is used to create background sequences from
 the input sequences.}
 
@@ -71,7 +71,7 @@ sequence.}
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
 can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
-independent seed. Each individual sequence in an \code{\link{XStringSet}} object
+independent seed. Each individual sequence in an \code{\link[Biostrings:XStringSet-class]{XStringSet}} object
 will be given the following seed: \code{rng.seed * index}. See \code{\link[=shuffle_sequences]{shuffle_sequences()}}.}
 
 \item{motif_pvalue.k}{\code{numeric(1)} Control \code{\link[=motif_pvalue]{motif_pvalue()}} approximation.

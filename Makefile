@@ -5,8 +5,9 @@ PKGSRC  := $(shell basename `pwd`)
 all: prep build check clean
 
 prep:
-	R -q -e "Rcpp::compileAttributes(); devtools::document()";\
-	R -q -e "l <- readLines(con <- file('man/reexports.Rd')); close(con); l <- sub('[BiocGenerics]{ncol}', '[BiocGenerics:nrow]{ncol}', l, fixed = TRUE); l <- sub('[BiocGenerics]{rownames}', '[BiocGenerics:row_colnames]{rownames}', l, fixed = TRUE); l <- sub('[BiocGenerics]{colnames}', '[BiocGenerics:row_colnames]{colnames}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{rowSums}', '[MatrixGenerics:colSums]{rowSums}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{colSums}', '[MatrixGenerics:colSums]{colSums}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{rowMeans}', '[MatrixGenerics:colSums]{rowMeans}', l, fixed = TRUE); l <- sub('[MatrixGenerics]{colMeans}', '[MatrixGenerics:colSums]{colMeans}', l, fixed = TRUE); writeLines(l, 'man/reexports.Rd')";\
+	R -q -e "Rcpp::compileAttributes(); devtools::document()"
+	# roxygen2 7.3.2 emits a help-file name here instead of a topic alias.
+	R -q -e "p <- 'man/reexports.Rd'; l <- readLines(p); l <- gsub('[BiocGenerics:row_colnames]', '[BiocGenerics:rownames]', l, fixed = TRUE); writeLines(l, p)"
 
 build:
 	cd ..;\
@@ -51,4 +52,3 @@ benchmarks:
 	mkdir -p benchmarks/results;\
 	cd benchmarks;\
 	./benchmarks.R
-

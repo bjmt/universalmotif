@@ -24,6 +24,23 @@ test_that("dynamic thresholds select exactly the eligible integer-score support"
   }
 })
 
+test_that("get_matches accepts unattainable P-value thresholds", {
+  data(examplemotif, package = "universalmotif")
+  cutoff <- motif_pvalue(examplemotif, pvalue = 0.0001)
+  expect_identical(cutoff, Inf)
+  expect_identical(get_matches(examplemotif, cutoff), character())
+  expect_identical(get_matches(list(examplemotif), cutoff), character())
+  expect_identical(get_matches(examplemotif, c(threshold = Inf)), character())
+
+  cutoff <- motif_pvalue(examplemotif, pvalue = 0.001)
+  matches <- get_matches(examplemotif, cutoff)
+  expect_length(matches, 12L)
+  expect_lte(motif_pvalue(examplemotif, score = cutoff), 0.001)
+  # Ordinary invalid finite scores still receive the existing range error.
+  expect_error(get_matches(examplemotif, max(get_scores(examplemotif)) + 1),
+               "greater than max possible score")
+})
+
 test_that("dynamic score queries respect inclusive decimal boundaries", {
   m <- threshold_fixture(2L)
   queries <- c(-1.001, -1, -.9999, 0, .0001, .9999, 1, 1.001)

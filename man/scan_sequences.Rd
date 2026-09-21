@@ -18,7 +18,7 @@ scan_sequences(motifs, sequences, threshold = 1e-04,
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
 
-\item{sequences}{\code{\link{XStringSet}} Sequences to scan. Alphabet
+\item{sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} Sequences to scan. Alphabet
 should match motif.}
 
 \item{threshold}{\code{numeric(1)} See details.}
@@ -113,7 +113,7 @@ depth in the Sequence Searches vignette. Also see Noble (2009).}
 }
 \value{
 \code{DataFrame}, \code{GRanges} with each row representing one hit. If the input
-sequences are \code{\link{DNAStringSet}} or \code{\link{RNAStringSet}},
+sequences are \code{\link[Biostrings:XStringSet-class]{DNAStringSet}} or \code{\link[Biostrings:XStringSet-class]{RNAStringSet}},
 then an additional column with the strand is included. Function args are
 stored in the \code{metadata} slot. If \code{return.granges = TRUE}
 then a \code{GRanges} object is returned.
@@ -155,13 +155,13 @@ have to parse the larger number of hits from the internally-lowered threshold.
 
 \subsection{Non-standard letters}{
 
-Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
+Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link[Biostrings:DNAString-class]{DNAString}}
 objects) will be safely ignored, resulting only in a warning and a very
 minor performance cost. This can used to scan
 masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
 for masking sequences
-(generating \code{\link{MaskedXString}} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
-to recover masked \code{\link{XStringSet}} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
+(generating \code{\link[Biostrings:MaskedXString-class]{MaskedXString}} objects), and \code{\link[Biostrings:injectHardMask]{Biostrings::injectHardMask()}}
+to recover masked \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects for use with \code{\link[=scan_sequences]{scan_sequences()}}.
 There is also a provided wrapper function which performs both steps: \code{\link[=mask_seqs]{mask_seqs()}}.
 }
 }

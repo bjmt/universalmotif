@@ -4,7 +4,7 @@
 #' motif. See the "Motif import, export and manipulation" vignette for details.
 #'
 #' @param input `character`, `numeric`, `matrix`,
-#'    \code{\link{XStringSet}}, or `missing`.
+#'    \code{\link[Biostrings:XStringSet-class]{XStringSet}}, or `missing`.
 #' @param alphabet `character(1)` One of `c('DNA', 'RNA', 'AA')`,
 #'    or a combined string representing the letters. If no alphabet is
 #'    provided then it will try and guess the alphabet from the input.
@@ -714,7 +714,7 @@ setMethod("create_motif", signature(input = "matrix"),
 
 })
 
-#' @describeIn create_motif Create motif from a \code{\link{DNAStringSet}}.
+#' @describeIn create_motif Create motif from a \code{\link[Biostrings:XStringSet-class]{DNAStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "DNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -760,7 +760,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
 
 })
 
-#' @describeIn create_motif Create motif from a \code{\link{RNAStringSet}}.
+#' @describeIn create_motif Create motif from a \code{\link[Biostrings:XStringSet-class]{RNAStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "RNAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -808,7 +808,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
 
 })
 
-#' @describeIn create_motif Create motif from a \code{\link{AAStringSet}}.
+#' @describeIn create_motif Create motif from a \code{\link[Biostrings:XStringSet-class]{AAStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "AAStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,
@@ -863,7 +863,7 @@ setMethod("create_motif", signature(input = "AAStringSet"),
 
 })
 
-#' @describeIn create_motif Create motif from a \code{\link{BStringSet}}.
+#' @describeIn create_motif Create motif from a \code{\link[Biostrings:XStringSet-class]{BStringSet}}.
 #' @export
 setMethod("create_motif", signature(input = "BStringSet"),
           definition = function(input, alphabet, type, name, pseudocount,

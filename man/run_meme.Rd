@@ -20,7 +20,7 @@ run_meme(target.sequences, output = NULL, overwrite.dir = FALSE,
   timeout = Inf, bin = getOption("meme.bin"))
 }
 \arguments{
-\item{target.sequences}{\code{\link{XStringSet}} List of sequences to get motifs from.}
+\item{target.sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} List of sequences to get motifs from.}
 
 \item{output}{\code{character(1)} Name of the output folder. If \code{NULL}, MEME
 output will be deleted.}
@@ -28,7 +28,7 @@ output will be deleted.}
 \item{overwrite.dir}{\code{logical(1)} If \code{output} is set but already exists,
 allow over-writing.}
 
-\item{control.sequences}{\code{\link{XStringSet}} List of negative sequences. Only
+\item{control.sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} List of negative sequences. Only
 used if \code{objfun = c("de", "se")}.}
 
 \item{weights}{\code{numeric} Vector of numbers between 0 and 1, representing

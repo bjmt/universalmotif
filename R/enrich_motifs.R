@@ -7,7 +7,7 @@
 #' faster and simpler alternative.
 #'
 #' @param motifs See [convert_motifs()] for acceptable motif formats.
-#' @param bkg.sequences \code{\link{XStringSet}} Optional. If missing,
+#' @param bkg.sequences \code{\link[Biostrings:XStringSet-class]{XStringSet}} Optional. If missing,
 #'    [shuffle_sequences()] is used to create background sequences from
 #'    the input sequences.
 #' @param max.p `numeric(1)` P-value threshold.
@@ -34,7 +34,7 @@
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    can occur simultaneously in multiple threads using C++, it cannot communicate
 #'    with the regular `R` random number generator state and thus requires an
-#'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object
+#'    independent seed. Each individual sequence in an \code{\link[Biostrings:XStringSet-class]{XStringSet}} object
 #'    will be given the following seed: `rng.seed * index`. See [shuffle_sequences()].
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()].

@@ -10,7 +10,7 @@ get_bkg(sequences, k = 1:3, as.prob = NULL, pseudocount = 0,
   window.overlap = 0)
 }
 \arguments{
-\item{sequences}{\code{\link{XStringSet}} Input sequences. Note that if
+\item{sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} Input sequences. Note that if
 multiple sequences are present, the results will be combined into one
 (unless \code{merge.res = FALSE}).}
 
@@ -69,7 +69,7 @@ If \code{to.meme} is not \code{NULL}, then \code{NULL} is returned, invisibly.
 For a set of input sequences, calculate the overall sequence background for
 any k-let size. For very large sequences DNA and RNA sequences (in the billions of bases),
 please be aware of the much faster and more efficient
-\code{\link[Biostrings:nucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
+\code{\link[Biostrings:oligonucleotideFrequency]{Biostrings::oligonucleotideFrequency()}}.
 \code{\link[=get_bkg]{get_bkg()}} can still be used in these cases, though it may take several seconds or
 minutes to calculate the results (depending on requested k-let sizes).
 }

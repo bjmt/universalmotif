@@ -48,7 +48,7 @@
 #' vignette for an example workflow describing extracting promoter
 #' sequences.
 #'
-#' @format \code{\link{DNAStringSet}}
+#' @format \code{\link[Biostrings:XStringSet-class]{DNAStringSet}}
 #' @examples
 #' data(ArabidopsisPromoters)
 #' ArabidopsisPromoters
@@ -72,7 +72,7 @@
 #' letters. It was generated using the `createPolygons` function from the
 #' `gglogo` package for the font Roboto Medium.
 #'
-#' @format [DataFrame-class]
+#' @format [S4Vectors::DataFrame-class]
 #' @examples
 #' data(fontDFroboto)
 #' head(fontDFroboto)

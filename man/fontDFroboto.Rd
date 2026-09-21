@@ -5,7 +5,7 @@
 \alias{fontDFroboto}
 \title{Polygon coordinates for plotting letters.}
 \format{
-\linkS4class{DataFrame}
+\link[S4Vectors:DataFrame-class]{S4Vectors::DataFrame}
 }
 \usage{
 fontDFroboto

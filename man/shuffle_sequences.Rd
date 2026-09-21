@@ -9,7 +9,7 @@ shuffle_sequences(sequences, k = 1, method = "euler", nthreads = 1,
   window.overlap = 0.01)
 }
 \arguments{
-\item{sequences}{\code{\link{XStringSet}} Set of sequences to shuffle. Works
+\item{sequences}{\code{\link[Biostrings:XStringSet-class]{XStringSet}} Set of sequences to shuffle. Works
 with any set of characters.}
 
 \item{k}{\code{numeric(1)} K-let size.}
@@ -24,7 +24,7 @@ Note that no speed up will occur for jobs with only a single sequence.}
 \item{rng.seed}{\code{numeric(1)} Set random number generator seed. Since shuffling
 can occur simultaneously in multiple threads using C++, it cannot communicate
 with the regular \code{R} random number generator state and thus requires an
-independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
+independent seed. Each individual sequence in an \code{\link[Biostrings:XStringSet-class]{XStringSet}} object will be
 given the following seed: \code{rng.seed * index}. The default is to pick a random
 number as chosen by \code{\link[=sample]{sample()}}, which effectively is making \code{\link[=shuffle_sequences]{shuffle_sequences()}}
 dependent on the R RNG state.}
@@ -39,7 +39,7 @@ an integer representing the actual window size.}
 than one, or an integer representing the actual overlap size.}
 }
 \value{
-\code{\link{XStringSet}} The input sequences will be returned with
+\code{\link[Biostrings:XStringSet-class]{XStringSet}} The input sequences will be returned with
 identical names and lengths.
 }
 \description{

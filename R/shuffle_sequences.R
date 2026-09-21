@@ -3,7 +3,7 @@
 #' Given a set of input sequences, shuffle the letters within those
 #' sequences with any k-let size.
 #'
-#' @param sequences \code{\link{XStringSet}} Set of sequences to shuffle. Works
+#' @param sequences \code{\link[Biostrings:XStringSet-class]{XStringSet}} Set of sequences to shuffle. Works
 #'    with any set of characters.
 #' @param k `numeric(1)` K-let size.
 #' @param method `character(1)` One of `c('euler', 'markov', 'linear')`.
@@ -14,7 +14,7 @@
 #' @param rng.seed `numeric(1)` Set random number generator seed. Since shuffling
 #'    can occur simultaneously in multiple threads using C++, it cannot communicate
 #'    with the regular `R` random number generator state and thus requires an
-#'    independent seed. Each individual sequence in an \code{\link{XStringSet}} object will be
+#'    independent seed. Each individual sequence in an \code{\link[Biostrings:XStringSet-class]{XStringSet}} object will be
 #'    given the following seed: `rng.seed * index`. The default is to pick a random
 #'    number as chosen by [sample()], which effectively is making [shuffle_sequences()]
 #'    dependent on the R RNG state.
@@ -25,7 +25,7 @@
 #' @param window.overlap `numeric(1)` Overlap between windows. Can be a fraction less
 #'    than one, or an integer representing the actual overlap size.
 #'
-#' @return \code{\link{XStringSet}} The input sequences will be returned with
+#' @return \code{\link[Biostrings:XStringSet-class]{XStringSet}} The input sequences will be returned with
 #'    identical names and lengths.
 #'
 #' @details

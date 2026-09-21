@@ -32,11 +32,11 @@ number as chosen by \code{\link[=sample]{sample()}}, which effectively is making
 dependent on the R RNG state.}
 }
 \value{
-\code{\link{XStringSet}} The returned sequences are \emph{unnamed}.
+\code{\link[Biostrings:XStringSet-class]{XStringSet}} The returned sequences are \emph{unnamed}.
 }
 \description{
 Generate random sequences from any set of characters, represented as
-\code{\link{XStringSet}} objects.
+\code{\link[Biostrings:XStringSet-class]{XStringSet}} objects.
 }
 \examples{
 ## Create DNA sequences with slightly increased AT content:

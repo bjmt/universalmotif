@@ -7,12 +7,12 @@
 #' \[MEME\]. This function requires that the \pkg{processx} package be installed
 #' separately.
 #'
-#' @param target.sequences \code{\link{XStringSet}} List of sequences to get motifs from.
+#' @param target.sequences \code{\link[Biostrings:XStringSet-class]{XStringSet}} List of sequences to get motifs from.
 #' @param output `character(1)` Name of the output folder. If `NULL`, MEME
 #'    output will be deleted.
 #' @param overwrite.dir `logical(1)` If `output` is set but already exists,
 #'    allow over-writing.
-#' @param control.sequences \code{\link{XStringSet}} List of negative sequences. Only
+#' @param control.sequences \code{\link[Biostrings:XStringSet-class]{XStringSet}} List of negative sequences. Only
 #'    used if `objfun = c("de", "se")`.
 #' @param weights `numeric` Vector of numbers between 0 and 1, representing
 #'    sequence weights.

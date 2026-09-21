@@ -5,7 +5,7 @@
 #' [scan_sequences_lite()] for a faster and simpler alternative.
 #'
 #' @param motifs See `convert_motifs()` for acceptable motif formats.
-#' @param sequences \code{\link{XStringSet}} Sequences to scan. Alphabet
+#' @param sequences \code{\link[Biostrings:XStringSet-class]{XStringSet}} Sequences to scan. Alphabet
 #'    should match motif.
 #' @param threshold `numeric(1)` See details.
 #' @param threshold.type `character(1)` One of `c('pvalue', 'qvalue',
@@ -81,7 +81,7 @@
 #'    depth in the Sequence Searches vignette. Also see Noble (2009).
 #'
 #' @return `DataFrame`, `GRanges` with each row representing one hit. If the input
-#'    sequences are \code{\link{DNAStringSet}} or \code{\link{RNAStringSet}},
+#'    sequences are \code{\link[Biostrings:XStringSet-class]{DNAStringSet}} or \code{\link[Biostrings:XStringSet-class]{RNAStringSet}},
 #'    then an additional column with the strand is included. Function args are
 #'    stored in the `metadata` slot. If `return.granges = TRUE`
 #'    then a `GRanges` object is returned.
@@ -114,13 +114,13 @@
 #' have to parse the larger number of hits from the internally-lowered threshold.
 #'
 #' ## Non-standard letters
-#' Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link{DNAString}}
+#' Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link[Biostrings:DNAString-class]{DNAString}}
 #' objects) will be safely ignored, resulting only in a warning and a very
 #' minor performance cost. This can used to scan
 #' masked sequences. See \code{\link[Biostrings:maskMotif]{Biostrings::mask()}}
 #' for masking sequences
-#' (generating \code{\link{MaskedXString}} objects), and [Biostrings::injectHardMask()]
-#' to recover masked \code{\link{XStringSet}} objects for use with [scan_sequences()].
+#' (generating \code{\link[Biostrings:MaskedXString-class]{MaskedXString}} objects), and [Biostrings::injectHardMask()]
+#' to recover masked \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects for use with [scan_sequences()].
 #' There is also a provided wrapper function which performs both steps: [mask_seqs()].
 #'
 #' @references
