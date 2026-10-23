@@ -128,3 +128,24 @@ test_that("meme_alph declares each complementary pair once", {
   expect_equal(sum(grepl("~", out)), 2)
   expect_true(all(c("A ~ T", "C ~ G") %in% out))
 })
+
+test_that("write_homer thresholds are on HOMER's score scale", {
+  m <- create_motif("TGACGT", nsites = 20, pseudocount = 1)
+  f <- tempfile()
+  on.exit(unlink(f))
+  homer_matrix <- function(f) {
+    lines <- readLines(f)
+    p <- do.call(rbind, lapply(strsplit(lines[-1], "\t"), as.numeric))
+    list(threshold = as.numeric(strsplit(lines[1], "\t")[[1]][3]),
+         scores = log(pmax(p, 0.001) / 0.25))
+  }
+  write_homer(m, f, threshold = 0.8)
+  h <- homer_matrix(f)
+  expect_equal(h$threshold, 0.8 * sum(apply(h$scores, 1, max)), tolerance = 1e-6)
+  write_homer(m, f, threshold = 1e-3, threshold.type = "pvalue", overwrite = TRUE)
+  h <- homer_matrix(f)
+  sites <- as.matrix(expand.grid(rep(list(1:4), 6)))
+  site_scores <- rowSums(vapply(1:6, function(j) h$scores[j, sites[, j]], numeric(nrow(sites))))
+  expect_lte(mean(site_scores >= h$threshold), 1e-3)
+  expect_gt(mean(site_scores >= h$threshold - 0.1), 0)
+})

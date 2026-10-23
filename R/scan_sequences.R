@@ -390,6 +390,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   strands <- rep("+", length(score.mats))
 
   if (any(mot.hasgap) && use.gaps) {
+    ## Each gapped motif is scanned as one motif per combination of gap
+    ## sizes, so everything indexed by motif follows the expansion.
+    motifs <- motifs[gapdat$IDs]
     strands <- strands[gapdat$IDs]
     mot.names <- mot.names[gapdat$IDs]
     score.mats <- lapply(gapdat$motifs, function(x) x@motif)
@@ -673,6 +676,9 @@ adjust_rc_hits <- function(res, alph) {
 
 process_gapped_motifs <- function(motifs, hasgap) {
   motifs[hasgap] <- lapply(motifs[hasgap], ungap_single)
+  ## Ungapped motifs are wrapped too, so that c() joins lists rather than
+  ## dispatching on the first motif.
+  motifs[!hasgap] <- lapply(motifs[!hasgap], list)
   motifs_gapped <- mapply(function(x, y) rep(x, length(y)), hasgap, motifs,
     SIMPLIFY = FALSE)
   IDs <- mapply(function(x, y) rep(x, length(y)), seq_along(motifs), motifs,
@@ -696,7 +702,8 @@ get_gaplocs <- function(x) {
   lenslens <- cumsum(vapply(lens[-length(lens)], length, integer(1)))
   lens <- mapply(function(x, y) x + y, lens, c(0, lenslens), SIMPLIFY = FALSE)
   gapped <- grepl("BLANK", y)
-  do.call(c, lens[gapped])
+  ## A combination where every gap has size zero has no gap positions.
+  as.integer(unlist(lens[gapped]))
 }
 
 get_submotifs <- function(m) {

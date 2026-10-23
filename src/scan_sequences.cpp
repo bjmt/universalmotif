@@ -371,15 +371,12 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
       min_scores2.push_back(static_cast<int>(val));
   }
 
-  std::vector<int> motif_sizes(score_mats.size());
-  std::vector<int> seq_sizes(seq_vecs.size());
 
   list_mat_t score2_mats(score_mats.size());
   for (R_xlen_t i = 0; i < score_mats.size(); ++i) {
     Rcpp::NumericMatrix tmp = score_mats[i];
     R_xlen_t nr = tmp.nrow(), nc = tmp.ncol();
     score2_mats[i].reserve(nc);
-    motif_sizes[i] = nc;
     for (R_xlen_t j = 0; j < nc; ++j) {
       // Quantise column j (* 1000, truncate toward zero) directly into an int
       // column, avoiding a NumericVector copy and a temporary product per column.
@@ -391,16 +388,8 @@ Rcpp::DataFrame scan_sequences_cpp(const Rcpp::List &score_mats,
     }
   }
 
-  for (std::size_t i = 0; i < seq_vecs.size(); ++i) {
-    seq_sizes[i] = seq_vecs[i].size();
-  }
-  for (std::size_t i = 0; i < motif_sizes.size(); ++i) {
-    for (std::size_t j = 0; j < seq_sizes.size(); ++j) {
-      if (seq_sizes[j] < motif_sizes[i] + k - 1) {
-        Rcpp::stop("Found sequence(s) shorter than the width of the motif(s)");
-      }
-    }
-  }
+  // Sequences shorter than a motif simply give no hits for it; the scanning
+  // loops skip them.
 
   list_int_t res = scan_sequences_cpp_internal(score2_mats, seq_vecs, k,
       alph, min_scores2, nthreads, warnNA);

@@ -93,15 +93,16 @@ test_that("calc.qvals.method = 'BH' matches the textbook BH formula (regression:
 
 })
 
-test_that("scan_sequences() with multifreq motif on a short sequence gives a friendly error (regression: size_t underflow)", {
+test_that("scan_sequences() with multifreq motif on a short sequence gives no hits (regression: size_t underflow)", {
 
   m <- create_motif("ACGT", nsites = 100, pseudocount = 1)
   # Sequences the same length as the motif are used directly (no scan step)
   seqs_match <- Biostrings::DNAStringSet(rep("ACGT", 20))
   m <- add_multifreq(m, seqs_match, add.k = 2)
   short <- Biostrings::DNAStringSet("AC")
-  expect_error(suppressWarnings(scan_sequences(m, short, use.freq = 2,
-      verbose = 0)), regexp = "shorter than the width", fixed = TRUE)
+  res <- suppressWarnings(suppressMessages(scan_sequences(m, short, use.freq = 2,
+      verbose = 0)))
+  expect_equal(nrow(res), 0)
 
 })
 
@@ -236,4 +237,24 @@ test_that("scan_sequences gives the same hits at nthreads = 1 and 2", {
                         calc.pvals = FALSE)
     expect_equal(as.data.frame(a), as.data.frame(b))
   })
+})
+
+test_that("gapped motifs scan on both strands, with zero-size gaps and after ungapped motifs", {
+  seqs <- Biostrings::DNAStringSet(c(x = "TTACGTACGTTT", y = "TTACGTTTACGTTT"))
+  g <- add_gap(create_motif("ACGTACGT", name = "g"), gaploc = 4, mingap = 1, maxgap = 2)
+  res <- scan_sequences(g, seqs, threshold = 1e-3, RC = TRUE)
+  expect_setequal(res$strand, c("+", "-"))
+  expect_true(all(res$match == "ACGT..ACGT"))
+  g0 <- add_gap(create_motif("ACGTACGT", name = "g0"), gaploc = 4, mingap = 0, maxgap = 1)
+  res <- scan_sequences(g0, seqs, threshold = 1e-3)
+  expect_equal(res$match, "ACGTACGT")
+  res <- scan_sequences(list(create_motif("GGGG", name = "u"), g), seqs, threshold = 1e-3)
+  expect_equal(unique(res$motif.i), 2L)
+})
+
+test_that("sequences shorter than a motif give no hits", {
+  m <- create_motif("ACGTACGT", name = "m")
+  s <- Biostrings::DNAStringSet(c(a = "ACGT", b = "TTACGTACGTTT"))
+  expect_equal(unique(as.character(GenomicRanges::seqnames(scan_sequences_lite(m, s, pvalue = 1e-3)))), "b")
+  expect_equal(unique(scan_sequences(m, s, threshold = 1e-3)$sequence), "b")
 })

@@ -15,7 +15,10 @@
 #'    be recycled for all motifs, or a vector of equal length to the number of motifs.
 #' @param threshold.type `character(1)` How the `threshold` value should be used
 #'    to obtain the final threshold value in the written motif. See [scan_sequences()]
-#'    for how to use this.
+#'    for how to use this. Thresholds are written on HOMER's own score scale: the
+#'    natural log odds of the probabilities as written to the file, floored at
+#'    0.001, against a uniform background. P-value thresholds are raised by up to
+#'    0.001 per position so that every site HOMER accepts is within the P-value.
 #'
 #' @return `NULL`, invisibly.
 #'
@@ -60,30 +63,43 @@ write_homer <- function(motifs, file, logodds_threshold = NULL,
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
   warn_motif_metadata_loss(motifs, "HOMER format")
-  motifsPWM <- convert_type_internal(motifs, "PWM")
+  motifs <- convert_type(motifs, "PPM")
+  if (!is.list(motifs)) motifs <- list(motifs)
+
+  ## HOMER scores sites with the natural log odds of the probabilities as
+  ## written, floored at 0.001, against a uniform background
+  ## (Motif::logxform() in HOMER's cpp/Motif2.cpp), so thresholds are
+  ## computed on that scale.
+  homer.scores <- lapply(motifs, function(x) {
+    p <- as.numeric(formatC(x@motif, format = "f", digits = 3))
+    matrix(log(pmax(p, 0.001) / 0.25), nrow = nrow(x@motif),
+           dimnames = list(rownames(x@motif), NULL))
+  })
+  max_logodds <- vapply(homer.scores, function(x) sum(apply(x, 2, max)),
+                        numeric(1))
 
   if (!is.null(logodds_threshold)) {
     warning(wmsg("Deprecated `logodds_threshold` argument has been ",
         "set. In future please use `threshold` and `threshold.type`."),
       call. = FALSE)
-    max_logodds <- vapply(motifsPWM, function(x) sum(apply(x@motif, 2, max)),
-                          numeric(1))
     logodds_thresholds <- max_logodds * logodds_threshold
   } else {
     if (length(threshold) != 1 && length(threshold) != length(motifs))
       stop("A single value or one per motif should be provided for `threshold`")
     if (threshold.type == "logodds") {
-      max_logodds <- vapply(motifsPWM, function(x) sum(apply(x@motif, 2, max)),
-                            numeric(1))
       logodds_thresholds <- max_logodds * threshold
     } else if (threshold.type == "logodds.abs") {
-      logodds_thresholds <- threshold
+      logodds_thresholds <- rep_len(threshold, length(motifs))
     } else if (threshold.type == "pvalue") {
-      logodds_thresholds <- motif_pvalue(motifs, pvalue = threshold)
+      ## The score distribution truncates each entry to 1/1000, which can
+      ## lower a site's score by up to 0.001 per position, so the cutoff is
+      ## raised by that much.
+      logodds_thresholds <- mapply(function(x, p) {
+        pwm <- create_motif(x, type = "PWM")
+        motif_pvalue(pwm, pvalue = p) + ncol(x) / 1000
+      }, homer.scores, rep_len(threshold, length(motifs)))
     }
   }
-
-  motifs <- convert_type(motifs, "PPM")
 
   .write_homer <- function(motifs, logodds_thresholds) {
     motif <- motifs

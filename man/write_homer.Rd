@@ -27,7 +27,10 @@ be recycled for all motifs, or a vector of equal length to the number of motifs.
 
 \item{threshold.type}{\code{character(1)} How the \code{threshold} value should be used
 to obtain the final threshold value in the written motif. See \code{\link[=scan_sequences]{scan_sequences()}}
-for how to use this.}
+for how to use this. Thresholds are written on HOMER's own score scale: the
+natural log odds of the probabilities as written to the file, floored at
+0.001, against a uniform background. P-value thresholds are raised by up to
+0.001 per position so that every site HOMER accepts is within the P-value.}
 }
 \value{
 \code{NULL}, invisibly.

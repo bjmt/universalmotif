@@ -270,6 +270,14 @@ BUG FIXES
   o compare_motifs() and compare_columns() normalize WPCC weights, and
     KL and ALLR no longer give NaN for letters with probability 0.
 
+  o scan_sequences() scans gapped motifs on both strands, with gaps that
+    can have size zero and after ungapped motifs, and sequences shorter
+    than a motif give no hits for it in both scanners instead of an
+    error.
+
+  o write_homer() writes thresholds on HOMER's own score scale instead
+    of log2 odds, which made them about 44% too high.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 
