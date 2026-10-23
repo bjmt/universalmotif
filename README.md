@@ -17,6 +17,21 @@ Pearson-correlation implementations of motif comparison and sequence scanning
 are also available. Finally, this package implements higher-order motifs,
 allowing for more accurate sequence scanning and motif enrichment.
 
+## Python version
+
+The package is now also available for Python, as a port powered by a new
+Rust backend. It can be installed from
+[PyPI](https://pypi.org/project/universalmotif/) with `pip install
+universalmotif`, and its documentation and guides can be found at
+[bjmt.github.io/universalmotif-py](https://bjmt.github.io/universalmotif-py/)
+(the source is on GitHub at
+[bjmt/universalmotif-py](https://github.com/bjmt/universalmotif-py)). The
+Rust crate underneath, [universalmotif](https://crates.io/crates/universalmotif)
+([bjmt/universalmotif-rs](https://github.com/bjmt/universalmotif-rs)), can
+also be used on its own. The port covers most of what this package does,
+though not all of it, and the ways in which the two differ are described on
+the [differences page](https://bjmt.github.io/universalmotif-py/differences/).
+
 ## Installation
 
 ### [Bioconductor release version](https://bioconductor.org/packages/universalmotif/)
