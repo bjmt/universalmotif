@@ -130,3 +130,94 @@ test_that("read_homer leaves nsites empty when the count fields are missing", {
   expect_equal(length(m@nsites), 0L)
   expect_equal(length(m@bkgsites), 0L)
 })
+
+test_that("read_transfac skips header blocks, keeps whole fields and follows P0", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(c(
+    "VV  TRANSFAC MATRIX TABLE, Release 2024", "XX", "//",
+    "ID  my_id", "XX", "AC  M00001", "XX", "NA  Some factor",
+    "HC  Basic leucine zipper", "OS  Homo sapiens",
+    "P0      T      G      C      A",
+    "01      1      2      3      4",
+    "02      0      0      0     10", "XX", "//"
+  ), f)
+  m <- read_transfac(f)
+  expect_equal(m@name, "M00001")
+  expect_equal(m@altname, "my_id")
+  expect_equal(m@family, "Basic leucine zipper")
+  expect_equal(m@organism, "Homo sapiens")
+  expect_equal(unname(m@motif[, 1]), c(4, 3, 2, 1))
+  expect_equal(unname(m@motif[, 2]), c(10, 0, 0, 0))
+})
+
+test_that("read_cisbp keeps whole field values", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(c("TF\tT1", "TF Name\tSome name", "Family\tC2H2 ZF",
+               "Species\tHomo sapiens", "Pos\tA\tC\tG\tT", "1\t0.1\t0.2\t0.3\t0.4"), f)
+  m <- read_cisbp(f)
+  expect_equal(c(m@name, m@altname, m@family, m@organism),
+               c("T1", "Some name", "C2H2 ZF", "Homo sapiens"))
+})
+
+test_that("read_jaspar follows row labels and reads other alphabets", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(c(">m1 one", "T [ 1 0 ]", "G [ 2 0 ]", "C [ 3 0 ]", "A [ 4 10 ]",
+               ">m2 two", "X [ 1 2 ]", "Y [ 3 2 ]"), f)
+  m <- read_jaspar(f)
+  expect_equal(unname(m[[1]]@motif[, 1]), c(4, 3, 2, 1))
+  expect_equal(m[[2]]@alphabet, "XY")
+  writeLines(c(">m3", paste(rep(5, 20), collapse = " ")), f)
+  expect_error(read_jaspar(f))
+  writeLines(c(">m3", rep("[ 5 ]", 20)), f)
+  expect_equal(read_jaspar(f)@alphabet, "AA")
+})
+
+test_that("read_homer keeps spaces in tab-separated names", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(c(">ACGT\tmy motif name\t5.0\t-10\t0\tT:10(1%),B:5(0.5%),P:1e-5",
+               "0.7\t0.1\t0.1\t0.1", "0.1\t0.7\t0.1\t0.1"), f)
+  expect_equal(read_homer(f)@name, "my motif name")
+})
+
+test_that("read_meme matches custom backgrounds by letter", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(c("MEME version 5", "", "ALPHABET \"Test\"", "Q", "R", "1", "2",
+               "END ALPHABET", "", "strands: +", "",
+               "Background letter frequencies", "Q 0.1 R 0.2 1 0.3 2 0.4", "",
+               "MOTIF m1", "letter-probability matrix: alength= 4 w= 1 nsites= 10",
+               " 0.7  0.1  0.1  0.1"), f)
+  m <- read_meme(f)
+  expect_equal(m@bkg[c("1", "2", "Q", "R")], c(`1` = .3, `2` = .4, Q = .1, R = .2))
+  expect_equal(unname(m@motif["Q", 1]), .7)
+})
+
+test_that("read_meme reads sites at large positions and long block diagrams", {
+  lines <- readLines(system.file("extdata", "meme_full.txt", package = "universalmotif"))
+  i <- grep("^AT1G21910                \\(  744\\)", lines)[1]
+  lines[i] <- sub("(  744)", "(12744)", lines[i], fixed = TRUE)
+  j <- grep("^    \\[-3\\(2.60e-05\\)\\]_308_", lines)
+  lines[j] <- "    [-3(2.60e-05)]_308_[+3(7.17e-05)]_129_\\"
+  lines <- append(lines, "    [-2(7.96e-07)]_74_[+2(1.21e-05)]_56", after = j)
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(lines, f)
+  m <- read_meme(f, readsites = TRUE, readsites.meta = TRUE)
+  expect_equal(unname(as.character(m$sites[[1]][1])), "GAAAAAAAAAGAAAC")
+  d <- m$sites.meta.combined
+  expect_equal(d$Diagram[d$Sequence == "AT1G80840"],
+               "186_[-3(2.60e-05)]_156_[-3(2.60e-05)]_308_[+3(7.17e-05)]_129_[-2(7.96e-07)]_74_[+2(1.21e-05)]_56")
+})
+
+test_that("rounded probabilities are read as a PPM", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeLines(c("0.25 0.25 0.25 0.23", "0.5 0.5 0 0.02"), f)
+  m <- read_matrix(f, positions = "rows", headers = FALSE)
+  expect_equal(m@type, "PPM")
+  expect_equal(unname(colSums(m@motif)), c(1, 1))
+})

@@ -61,7 +61,7 @@ read_homer <- function(file, skip = 0) {
   }
 
   parse_meta <- function(x) {
-    x <- strsplit(x, "\\s+")[[1]]
+    x <- strsplit(x, if (grepl("\t", x, fixed = TRUE)) "\t" else "\\s+")[[1]]
     if (grepl("/", x[2])) {
       y <- strsplit(x[2], "/")[[1]]
       y <- strsplit(y[1], "\\(")[[1]]

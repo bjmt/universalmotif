@@ -113,15 +113,19 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
     bkg <- raw_lines[bkg.start + bkg.offset]
     bkg <- strsplit(bkg, "\\s+")[[1]]
     bkg <- bkg[bkg != ""]  # if the line if prepended with a space
-    bkg <- as.numeric(bkg[seq_len(length(bkg)) %% 2 == 0])
-    while (length(bkg) < alph.len) {
+    while (length(bkg) / 2 < alph.len) {
       bkg.offset <- bkg.offset + 1
       bkg.tmp <- raw_lines[bkg.start + bkg.offset]
       bkg.tmp <- strsplit(bkg.tmp, "\\s+")[[1]]
-      bkg.tmp <- bkg.tmp[bkg.tmp != ""]
-      bkg.tmp <- as.numeric(bkg.tmp[seq_along(bkg.tmp) %% 2 == 0])
-      bkg <- c(bkg, bkg.tmp)
+      bkg <- c(bkg, bkg.tmp[bkg.tmp != ""])
     }
+    ## Frequencies are matched to the letters they are given for, in the
+    ## order of the matrix rows, since MEME's letter order can differ from
+    ## ours in custom alphabets.
+    bkg.lets <- bkg[seq_along(bkg) %% 2 == 1]
+    bkg <- suppressWarnings(as.numeric(bkg[seq_along(bkg) %% 2 == 0]))
+    if (all(alph.split %in% bkg.lets))
+      bkg <- bkg[match(sort(alph.split, method = "radix"), bkg.lets)]
     if (anyNA(bkg))
       stop("Could not parse background frequencies, check that they match alphabet")
   } else {
@@ -205,12 +209,15 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
       block.len <- as.numeric(block.len)
       block.starts <- block.starts + 2
       block.stops <- block.starts +  block.len - 1
-      blocks <- mapply(function(x, y) read.table(text = raw_lines[x:y],
-                                                 stringsAsFactors = FALSE),
-                        block.starts, block.stops,
+      ## The site follows the position in parentheses, which loses its
+      ## padding from 10,000 on, as in "seq (12345) ACGT".
+      blocks <- mapply(function(x, y) {
+                          lapply(strsplit(trimws(raw_lines[x:y]), "\\s+"),
+                                 function(z) c(z[1], z[grep(")", z, fixed = TRUE)[1] + 1]))
+                        }, block.starts, block.stops,
                         SIMPLIFY = FALSE)
-      sites <- lapply(blocks, function(x) x$V4)
-      site.names <- lapply(blocks, function(x) x$V1)
+      sites <- lapply(blocks, function(x) vapply(x, function(y) y[2], character(1)))
+      site.names <- lapply(blocks, function(x) vapply(x, function(y) y[1], character(1)))
       sites <- switch(alph, "DNA" = lapply(sites, DNAStringSet),
                       "RNA" = lapply(sites, RNAStringSet),
                       "AA" = lapply(sites, AAStringSet),
@@ -275,18 +282,19 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
         } else {
           summ.start <- summ.start + 2
           summ.raw <- raw_lines[summ.start:(length(raw_lines) - 2)]
-          need.fix <- grep("\\", summ.raw, fixed = TRUE)
-          if (length(need.fix) > 0) {
-            need.fix2 <- need.fix + 1
-            summ.raw[need.fix] <- vapply(summ.raw[need.fix],
-                                         function(x) strsplit(x, "\\",
-                                                              fixed = TRUE)[[1]],
-                                         character(1))
-            summ.raw[need.fix2] <- gsub("\\s+", "", summ.raw[need.fix2])
-            summ.raw[need.fix] <- mapply(function(x, y) paste0(x, y),
-                                         summ.raw[need.fix], summ.raw[need.fix2])
-            summ.raw <- summ.raw[-need.fix2]
+          ## Long diagrams continue over lines ending in a backslash.
+          joined <- character()
+          current <- NULL
+          for (line in summ.raw) {
+            current <- if (is.null(current)) line else paste0(current, gsub("\\s+", "", line))
+            if (grepl("\\\\\\s*$", current)) {
+              current <- sub("\\\\\\s*$", "", current)
+            } else {
+              joined <- c(joined, current)
+              current <- NULL
+            }
           }
+          summ.raw <- joined
           summ.tab <- read.table(text = summ.raw, stringsAsFactors = FALSE)
           colnames(summ.tab) <- c("Sequence", "Combined.Pvalue", "Diagram")
           motif_list <- list(motifs = motif_list$motifs,

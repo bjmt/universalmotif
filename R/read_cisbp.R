@@ -108,6 +108,7 @@ read_cisbp <- function(file, skip = 0) {
                       } else if (all(colnames(x) %in% c("A", "C", "G", "T"))) {
                         alph <- "DNA"
                       }
+                      y <- unname(y)
                       mot <- universalmotif_cpp(name = y[1],
                                      altname = y[2],
                                      family = y[3],
@@ -129,24 +130,22 @@ read_cisbp <- function(file, skip = 0) {
 }
 
 parse_meta <- function(x) {
-  metas <- strsplit(x, "\\s+")
   metas_correct <- c(
     name = NA_character_,
     altname = NA_character_,
     family = NA_character_,
     organism = NA_character_
   )
-  for (i in seq_along(metas)) {
-    if (metas[[i]][1] == "TF") {
-      if (metas[[i]][2] == "Name") {
-        metas_correct["altname"] <- metas[[i]][3]
-      } else {
-        metas_correct["name"] <- metas[[i]][2]
-      }
-    } else if (metas[[i]][1] == "Family") {
-      metas_correct["family"] <- metas[[i]][2]
-    } else if (metas[[i]][1] == "Species") {
-      metas_correct["organism"] <- metas[[i]][2]
+  value <- function(line, key) trimws(sub(paste0("^", key, "\\s+"), "", line))
+  for (line in x) {
+    if (grepl("^TF\\s+Name\\s", line)) {
+      metas_correct["altname"] <- value(line, "TF\\s+Name")
+    } else if (grepl("^TF\\s", line)) {
+      metas_correct["name"] <- value(line, "TF")
+    } else if (grepl("^Family\\s", line)) {
+      metas_correct["family"] <- value(line, "Family")
+    } else if (grepl("^Species\\s", line)) {
+      metas_correct["organism"] <- value(line, "Species")
     }
   }
   metas_correct

@@ -94,9 +94,17 @@ read_transfac <- function(file, skip = 0) {
                      motif_starts, motif_stops,
                      SIMPLIFY = FALSE)
 
+  ## Records without a matrix, such as the VV header block of TRANSFAC
+  ## releases, are skipped.
+  motifs <- motifs[vapply(motifs, function(x) any(grepl("^P[0O]", x)), logical(1))]
+  if (length(motifs) == 0) {
+    stop("no motifs found in '", file, "'")
+  }
+
   get_matrix <- function(x) {
-    mot_start <- which(grepl("^P0", x) | grepl("^PO", x)) + 1
-    x <- x[-c(1:(mot_start - 1))]
+    p0 <- which(grepl("^P[0O]", x))[1]
+    header <- strsplit(trimws(x[p0]), "\\s+")[[1]][-1]
+    x <- x[-seq_len(p0)]
     mot_i <- vapply(x, function(x) {
                          x <- strsplit(x, "\\s+")[[1]][1]
                          x <- suppressWarnings(as.numeric(x))
@@ -105,63 +113,41 @@ read_transfac <- function(file, skip = 0) {
     mot <- x[mot_i]
     per_line <- function(x) {
       x <- strsplit(x, "\\s+")[[1]]
-      as.numeric(x[-c(1, 6)])
+      as.numeric(x[2:5])
     }
     mot <- vapply(mot, per_line, numeric(4))
-    matrix(mot, ncol = 4, byrow = TRUE)
+    mot <- matrix(mot, ncol = 4, byrow = TRUE)
+    ## Columns follow the letters of the P0 line when it names the bases.
+    if (length(header) == 4 && identical(sort(header), DNA_BASES))
+      mot <- mot[, match(DNA_BASES, header), drop = FALSE]
+    mot
   }
 
   motif_matrix <- lapply(motifs, get_matrix)
 
+  ## The name is the accession if there is one, with the identifier or
+  ## factor name as the alternate name, whatever order the fields come in.
   parse_meta <- function(x) {
-    metas <- lapply(x, function(x) strsplit(x, "\\s+")[[1]])
-    metas_correct <- vector()
-    for (i in seq_along(metas)) {
-      if (length(metas[[i]]) == 0) next
-      if (metas[[i]][1] == "AC") {
-        metas_correct <- c(metas_correct, AC = metas[[i]][2])
-      }
-      if (metas[[i]][1] == "ID") {
-        metas_correct <- c(metas_correct, ID = metas[[i]][2])
-      } 
-      if (metas[[i]][1] == "NA") {
-        metas_correct <- c(metas_correct, N.A = metas[[i]][2])
-      }
-      if (metas[[i]][1] == "HC") {
-        metas_correct <- c(metas_correct, family = metas[[i]][2])
-      }
-      if (metas[[i]][1] == "OS") {
-        metas_correct <- c(metas_correct, organism = metas[[i]][2])
-      }
-      if (all(c("AC", "ID") %in% names(metas_correct))) {
-        metas_correct <- c(metas_correct,
-                           name = metas_correct[names(metas_correct) ==
-                                                "AC"],
-                           altname = metas_correct[names(metas_correct) == 
-                                                   "ID"])
-      } else if (all(c("AC", "N.A") %in% names(metas_correct))) {
-        metas_correct <- c(metas_correct,
-                           name = metas_correct[names(metas_correct) == 
-                                                "AC"],
-                           altname = metas_correct[names(metas_correct) == 
-                                                   "N.A"])
-      } else if (all(c("ID", "N.A") %in% names(metas_correct))) {
-        metas_correct <- c(metas_correct,
-                           name = metas_correct[names(metas_correct) == 
-                                                "ID"],
-                           altname = metas_correct[names(metas_correct) == 
-                                                   "N.A"])
-      } else {
-        metas_correct <- c(metas_correct,
-                           name = metas_correct[names(metas_correct) %in%
-                                                c("ID", "AC", "N.A")])
-      }
+    key <- sub("\\s.*$", "", x)
+    value <- trimws(sub("^\\S+", "", x))
+    get <- function(k) {
+      v <- value[key == k & value != ""]
+      if (length(v)) v[1] else character()
     }
-    names(metas_correct) <- vapply(names(metas_correct),
-                                   function(x) strsplit(x, "[.]")[[1]][1],
-                                   character(1))
-    metas_correct <- metas_correct[!duplicated(names(metas_correct))]
-    metas_correct
+    ac <- get("AC")
+    id <- get("ID")
+    na <- get("NA")
+    if (length(ac) && length(id)) {
+      name <- ac; altname <- id
+    } else if (length(ac) && length(na)) {
+      name <- ac; altname <- na
+    } else if (length(id) && length(na)) {
+      name <- id; altname <- na
+    } else {
+      name <- c(ac, id, na); altname <- character()
+    }
+    list(name = if (length(name)) name[1] else "motif", altname = altname,
+         family = get("HC"), organism = get("OS"))
   }
 
   motif_meta <- lapply(motifs, parse_meta)
@@ -177,14 +163,10 @@ read_transfac <- function(file, skip = 0) {
                          })
 
   motifs <- mapply(function(x, y, z) {
-                      mot <- universalmotif_cpp(name = as.character(y[names(y) == 
-                                                         "name"]),
-                                     altname = as.character(y[names(y) == 
-                                                            "altname"]),
-                                     family = as.character(y[names(y) == 
-                                                           "family"]),
-                                     organism = as.character(y[names(y) == 
-                                                             "organism"]),
+                      mot <- universalmotif_cpp(name = y$name,
+                                     altname = if (length(y$altname)) y$altname else NA_character_,
+                                     family = if (length(y$family)) y$family else NA_character_,
+                                     organism = if (length(y$organism)) y$organism else NA_character_,
                                      motif = t(x),
                                      alphabet = "DNA",
                                      nsites = z,

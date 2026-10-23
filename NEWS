@@ -217,6 +217,28 @@ BUG FIXES
   o motif_range(allow.nonfinite = TRUE) no longer returns NA, and
     log_string_pval() works for values below 1e-308 on all platforms.
 
+  o read_transfac() skips header blocks, keeps whole HC and OS fields,
+    names motifs by accession whatever the field order, and follows the
+    letter order of the P0 line.
+
+  o read_cisbp() keeps whole TF Name, Family and Species fields.
+
+  o read_jaspar() follows row labels, reads custom alphabets from them
+    and reads unlabelled 20-row matrices as amino acids.
+
+  o read_homer() keeps spaces in names from tab-separated headers.
+
+  o read_meme() matches custom alphabet backgrounds by letter, reads
+    sites at positions of 10,000 or more and joins block diagrams over
+    any number of lines.
+
+  o write_meme() no longer writes E= 0 for motifs without an E-value or
+    leaves trailing spaces, and meme_alph() declares each complementary
+    pair once.
+
+  o Matrices of probabilities rounded to two decimals are read as PPMs
+    rather than ICMs.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

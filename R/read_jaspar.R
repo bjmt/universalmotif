@@ -91,16 +91,26 @@ read_jaspar <- function(file, skip = 0) {
     if (is.list(motif) || ncol(motif) == 0 || nrow(motif) == 0) {
       stop("empty motif matrix in '", file, "' for motif '", name[1], "'")
     }
-    alphabet <- rownames(motif)
-    if (all(c("A", "C", "D", "E", "F", "G", "H", "I", "K",
-              "L", "M", "N", "P", "Q", "R", "S", "T", "V",
-              "W", "Y") %in% alphabet)) {
-      alphabet <- "AA"
-    } else if (all(c("A", "C", "G", "U") %in% alphabet)) {
-      alphabet <- "RNA"
-    } else if (all(c("A", "C", "G", "T") %in% alphabet)) {
+    ## Labelled rows may come in any order and give the alphabet; unlabelled
+    ## matrices are DNA or, with 20 rows, amino acids.
+    if (!is.null(rownames(motif))) {
+      motif <- motif[order(rownames(motif)), , drop = FALSE]
+      lets <- rownames(motif)
+      if (identical(lets, AA_STANDARD2)) {
+        alphabet <- "AA"
+      } else if (identical(lets, RNA_BASES)) {
+        alphabet <- "RNA"
+      } else if (identical(lets, DNA_BASES)) {
+        alphabet <- "DNA"
+      } else alphabet <- collapse_cpp(lets)
+    } else if (nrow(motif) == 4) {
       alphabet <- "DNA"
-    } else alphabet <- "DNA"
+    } else if (nrow(motif) == 20) {
+      alphabet <- "AA"
+    } else {
+      stop("motif '", name[1], "' has ", nrow(motif),
+           " unlabelled rows; label the rows to give its alphabet")
+    }
     mot <- universalmotif_cpp(name = name[1], altname = name[2],
                    type = "PCM", alphabet = alphabet,
                    nsites = max(colSums(motif)),

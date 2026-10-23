@@ -112,3 +112,19 @@ test_that("matrix read/write round-trip preserves the matrix", {
   m2 <- read_matrix(f)
   expect_equal(extract_matrix(m), extract_matrix(m2), tolerance = 1e-4)
 })
+
+test_that("write_meme leaves out missing E-values and trailing spaces", {
+  f <- tempfile()
+  on.exit(unlink(f))
+  write_meme(create_motif("ACGT", name = "m1"), f)
+  lines <- readLines(f)
+  expect_false(any(grepl("\\s$", lines)))
+  expect_false(any(grepl("E=", lines)))
+  expect_length(read_meme(f)@eval, 0)
+})
+
+test_that("meme_alph declares each complementary pair once", {
+  out <- capture.output(meme_alph("ACGT", complements = "TGCA"))
+  expect_equal(sum(grepl("~", out)), 2)
+  expect_true(all(c("A ~ T", "C ~ G") %in% out))
+})

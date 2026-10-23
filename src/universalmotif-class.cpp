@@ -82,14 +82,23 @@ Rcpp::StringVector universalmotif_type(Rcpp::NumericMatrix &m_motif,
   Rcpp::LogicalVector mat_0_check = m_motif == 0;
   Rcpp::LogicalVector mat_1_0_check = mat_1_check | mat_0_check;
   Rcpp::LogicalVector mat_099_101_check = (motif_colsums > 0.99) & (motif_colsums < 1.01);
+  // Probabilities written to two decimals can sum to 0.98 or 1.02.
+  Rcpp::LogicalVector mat_098_102_check = (motif_colsums >= 0.98 - 1e-9)
+    & (motif_colsums <= 1.02 + 1e-9);
   Rcpp::LogicalVector mat_pos_check = m_motif >= 0;
 
   if (type.size() == 0 || Rcpp::StringVector::is_na(type[0])) {
     if (Rcpp::is_true(Rcpp::all(mat_1_0_check)))
       type = Rcpp::StringVector::create("PCM");
-    else if (Rcpp::is_true(Rcpp::all(mat_099_101_check))
-             && Rcpp::is_true(Rcpp::all(mat_pos_check)))
+    else if (Rcpp::is_true(Rcpp::all(mat_098_102_check))
+             && Rcpp::is_true(Rcpp::all(mat_pos_check))) {
       type = Rcpp::StringVector::create("PPM");
+      if (Rcpp::is_false(Rcpp::all(mat_099_101_check))) {
+        for (R_xlen_t i = 0; i < m_motif.ncol(); ++i) {
+          m_motif(Rcpp::_, i) = m_motif(Rcpp::_, i) / motif_colsums[i];
+        }
+      }
+    }
     else if (Rcpp::is_true(Rcpp::all(mat_pos_check)))
       type = Rcpp::StringVector::create("ICM");
     else

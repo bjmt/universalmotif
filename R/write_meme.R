@@ -192,7 +192,7 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
           n2 <- paste0(n2, collapse = "-")
         }
       }
-      out <- paste("MOTIF", n1, n2)
+      out <- paste(c("MOTIF", n1, n2), collapse = " ")
     }
 
     motif <- motifs
@@ -200,15 +200,14 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
     nsites <- motif@nsites
     nsites <- ifelse(length(nsites) == 0, 100, nsites)
     eval <- motif@eval
-    eval <- ifelse(length(eval) == 0, 0, eval)
     lines_out <- c(lines_out,
-                   paste("letter-probability matrix:", "alength=", alph.length,
-                         "w=", ncol(motif@motif), "nsites=", nsites,
-                         "E=", eval))
+                   paste(c("letter-probability matrix:", "alength=", alph.length,
+                           "w=", ncol(motif@motif), "nsites=", nsites,
+                           if (length(eval)) c("E=", eval)), collapse = " "))
     for (i in seq_len(ncol(motif@motif))) {
       pos <- motif@motif[alph.split, i, drop = TRUE]
       pos <- formatC(pos, format = "f", digits = 6)
-      pos <- paste("", pos, "", collapse = "")
+      pos <- paste0(" ", paste(pos, collapse = "  "))
       lines_out <- c(lines_out, pos)
     }
 

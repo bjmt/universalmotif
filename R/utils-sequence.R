@@ -378,7 +378,13 @@ meme_alph <- function(core, file = stdout(), complements = NULL, ambiguity = NUL
   }
 
   if (!is.null(compl)) {
-    alph <- c(alph, paste(lets, compl, sep = " ~ "))
+    ## Each complementary pair is declared once, on the line of its first
+    ## letter.
+    repeated <- vapply(seq_along(lets0), function(i) {
+      j <- match(compl0[i], lets0)
+      !is.na(j) && j < i && compl0[j] == lets0[i]
+    }, logical(1))
+    alph <- c(alph, paste(lets, compl, sep = " ~ ")[!repeated])
   } else {
     alph <- c(alph, lets)
   }
