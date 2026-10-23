@@ -239,6 +239,12 @@ BUG FIXES
   o Matrices of probabilities rounded to two decimals are read as PPMs
     rather than ICMs.
 
+  o Logos draw negative letters smaller than 0.03, with the same gaps
+    between them as positive letters, keep their top y-axis break, and
+    give CWMs round breaks without excess space below zero.
+
+  o motif_tree_lite() tip logos no longer fail for motifs sharing a name.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

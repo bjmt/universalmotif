@@ -316,7 +316,7 @@ add_tip_logos <- function(p, motifs, mot_names, layout, tiplogo, tiplogo.align,
   }
 
   td <- p$data
-  td <- td[td$isTip, c("label", "x", "y"), drop = FALSE]
+  td <- td[td$isTip, c("node", "label", "x", "y"), drop = FALSE]
   if (!nrow(td)) return(p)
 
   alphabet <- motifs[[1]]@alphabet
@@ -337,7 +337,9 @@ add_tip_logos <- function(p, motifs, mot_names, layout, tiplogo, tiplogo.align,
   } else {
     logos <- lapply(motifs, function(m) convert_type(m, "ICM")@motif)
   }
-  names(logos) <- mot_names
+  ## Tip i is motif i, so logos are matched to tips by position; the tip
+  ## labels of motifs sharing a name are made unique along the way.
+  names(logos) <- td$label[order(td$node)]
 
   if (is.null(tiplogo.offset)) {
     rng <- max(td$x) - min(td$x)

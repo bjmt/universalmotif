@@ -315,7 +315,8 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
     "ICM" = {
       yname <- "bits"
       ylim2 <- c(0, log2(nrow(mot.mats[[1]])))
-      breaks <- unique(round(c(0, ylim2[2] * 0.5, ylim2[2])))
+      ## The top break is rounded down so that it stays on the axis.
+      breaks <- unique(c(0, round(ylim2[2] * 0.5), floor(ylim2[2])))
     },
     "PWM" = {
       yname <- "logodds"
@@ -377,11 +378,9 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
       mot.mats.tmp <- mot.mats[[1]]
       mot.mats.tmp[mot.mats.tmp < 0] <- 0
       maxval <- max(colSums(mot.mats.tmp))
-      breaks <- c(minval, minval / 2, 0, maxval / 2, maxval)
-      if (use.type == "PWM") breaks <- round(breaks)
-      breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
-      ylim2 <- c(breaks[1], maxval)
-      breaks <- unique(breaks)
+      axis <- signed_logo_axis(minval, maxval, use.type)
+      breaks <- axis$breaks
+      ylim2 <- axis$limits
     }
 
     # not sure why but letters glitch out unless you do this
@@ -505,6 +504,7 @@ view_motifs <- function(motifs, use.type = "ICM", method = "ALLR",
         maxvals[i] <- max(colSums(mots.tmp[[i]]))
       }
       breaks <- round(c(min(minvals), min(minvals) / 2, 0, max(maxvals) / 2, max(maxvals)))
+      if (breaks[5] > max(maxvals)) breaks[5] <- floor(max(maxvals))
       breaks[1] <- breaks[1] - max(c(1, breaks[1] * 0.1))
       ylim2 <- c(breaks[1], max(maxvals))
       breaks <- unique(breaks)
@@ -667,7 +667,30 @@ make_matrix_polygon_data <- function(mat, fontDF, min.height = 0.03,
 
 }
 
-flip_neg_letters <- function(d, s, spd, flip) {
+## The y-axis breaks and limits of a logo with values below zero. The top
+## break of a PWM axis is rounded down so that it stays on the axis, and CWMs,
+## whose values can be of any size, get round breaks and a lower limit a
+## twentieth of the range below the lowest letter.
+signed_logo_axis <- function(lo, hi, use.type) {
+  if (use.type == "CWM") {
+    span <- hi - lo
+    if (span == 0) span <- 1
+    power <- 10^floor(log10(span / 4))
+    f <- c(1, 2, 2.5, 5, 10)
+    step <- f[which(f * power >= span / 4 * (1 - 1e-9))[1]] * power
+    breaks <- seq(ceiling(lo / step - 1e-9), floor(hi / step + 1e-9)) * step
+    return(list(breaks = round(breaks, 12), limits = c(lo - 0.05 * span, hi)))
+  }
+  breaks <- c(lo, lo / 2, 0, hi / 2, hi)
+  if (use.type == "PWM") {
+    breaks <- round(breaks)
+    if (breaks[5] > hi) breaks[5] <- floor(hi)
+  }
+  breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
+  list(breaks = unique(breaks), limits = c(breaks[1], hi))
+}
+
+flip_neg_letters <- function(d, s, spd, flip, y.spacer = 0) {
   j <- gsub("[.]\\d+$", "", d$letter.id)
   if (flip) {
     d$y <- unlist(tapply(d$y, j, function(x) (-x) - (-min(x))))
@@ -687,7 +710,9 @@ flip_neg_letters <- function(d, s, spd, flip) {
   ## 2..N piling on top of each other. Cumulative offset is the
   ## correct formula and is what the original commented-out line
   ## above always intended.
-  letMins <- c(0, cumsum(letMins))
+  ## Letters below zero keep the same gaps between them as those above.
+  gap <- y.spacer * (length(lets) - 1) / length(lets)
+  letMins <- c(0, cumsum(letMins - gap))
   for (i in seq_along(lets)) {
     lets_i <- lets[i]
     j_i <- j == lets_i
@@ -701,14 +726,15 @@ make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
   sort.positions.decreasing = TRUE, fit.to.height = NULL, fit.to.width = 1,
   position.id, trim.top = FALSE, trim.bot = FALSE, flip.neg = FALSE) {
 
-  anyNeg <- any(vec < 0) && any(abs(vec[vec < 0]) >= 0.03)
+  anyNeg <- any(vec < 0) && any(abs(vec[vec < 0]) >= min.height)
   if (anyNeg) {
     negvec <- abs(vec[vec < 0])
     negout <- make_position_polygon_data(negvec, fontDF, min.height,
       x.spacer, y.spacer, FALSE, !sort.positions.decreasing, NULL,
       fit.to.width, position.id, TRUE)
     negout$y <- negout$y - max(negout$y)
-    negout <- flip_neg_letters(negout, sort.positions, !sort.positions.decreasing, flip.neg)
+    negout <- flip_neg_letters(negout, sort.positions, !sort.positions.decreasing, flip.neg,
+      y.spacer)
     vec <- vec[vec >= 0]
   } else {
     vec[vec < 0] <- 0

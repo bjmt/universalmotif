@@ -94,3 +94,12 @@ test_that("motif_tree and motif_tree_lite both run on the same DNA fixture (v1/v
   expect_false(is.null(t1))
   expect_false(is.null(t2))
 })
+
+test_that("tip logos work for motifs sharing a name", {
+  skip_if_not_installed("ggtree")
+  m <- list(create_motif("TGACGTCA", name = "creb"),
+            create_motif("TGACGTCAT", name = "creb"),
+            create_motif("CACGTG", name = "ebox"))
+  p <- suppressWarnings(motif_tree_lite(m))
+  expect_no_error(suppressWarnings(ggplot2::ggplot_build(p)))
+})

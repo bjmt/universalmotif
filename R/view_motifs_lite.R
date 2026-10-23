@@ -245,7 +245,8 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
     "ICM" = {
       yname <- "bits"
       ylim2 <- c(0, log2(nrow(mot.mats[[1]])))
-      breaks <- unique(round(c(0, ylim2[2] * 0.5, ylim2[2])))
+      ## The top break is rounded down so that it stays on the axis.
+      breaks <- unique(c(0, round(ylim2[2] * 0.5), floor(ylim2[2])))
     },
     "PWM" = {
       yname <- "logodds"
@@ -307,11 +308,9 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
       mot.mats.tmp <- mot.mats[[1]]
       mot.mats.tmp[mot.mats.tmp < 0] <- 0
       maxval <- max(colSums(mot.mats.tmp))
-      breaks <- c(minval, minval / 2, 0, maxval / 2, maxval)
-      if (use.type == "PWM") breaks <- round(breaks)
-      breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
-      ylim2 <- c(breaks[1], maxval)
-      breaks <- unique(breaks)
+      axis <- signed_logo_axis(minval, maxval, use.type)
+      breaks <- axis$breaks
+      ylim2 <- axis$limits
     }
 
     plotobj$y <- plotobj$y * 0.999
@@ -419,11 +418,9 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
         mots.tmp[[i]][mots.tmp[[i]] < 0] <- 0
         maxvals[i] <- max(colSums(mots.tmp[[i]]))
       }
-      breaks <- c(min(minvals), min(minvals) / 2, 0, max(maxvals) / 2, max(maxvals))
-      if (use.type == "PWM") breaks <- round(breaks)
-      breaks[1] <- breaks[1] - max(c(0.1 * abs(breaks[1]), 0.1))
-      ylim2 <- c(breaks[1], max(maxvals))
-      breaks <- unique(breaks)
+      axis <- signed_logo_axis(min(minvals), max(maxvals), use.type)
+      breaks <- axis$breaks
+      ylim2 <- axis$limits
     }
 
     plotobj$motif.id <- factor(plotobj$motif.id, levels = mot.names)
