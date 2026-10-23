@@ -516,10 +516,14 @@ double compare_wpcc(const list_num_t &mot1, const list_num_t &mot2,
     }
   }
 
+  // Weights sum to 1, so that WPCC with a uniform background is PCC.
   vec_num_t weights(nrow, 0.0);
+  double wsum = 0.0;
   for (std::size_t i = 0; i < nrow; ++i) {
     weights[i] = bkg1[i] + bkg2[i];
+    wsum += weights[i];
   }
+  for (std::size_t i = 0; i < nrow; ++i) weights[i] /= wsum;
 
   vec_num_t wmean1(ncol, 0.0);
   vec_num_t wmean2(ncol, 0.0);
@@ -592,8 +596,9 @@ double compare_kl(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        ans[i] += mot1[i][j] * log(mot1[i][j] / mot2[i][j]);
-        ans[i] += mot2[i][j] * log(mot2[i][j] / mot1[i][j]);
+        // Letters with probability 0 add nothing (0 * log 0 = 0).
+        if (mot1[i][j] > 0) ans[i] += mot1[i][j] * log(mot1[i][j] / mot2[i][j]);
+        if (mot2[i][j] > 0) ans[i] += mot2[i][j] * log(mot2[i][j] / mot1[i][j]);
       }
       ans[i] *= 0.5;
     }
@@ -652,8 +657,9 @@ double compare_allr(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        left[i][j] = (mot2[i][j] * nsites2) * log(mot1[i][j] / bkg1[j]);
-        right[i][j] = (mot1[i][j] * nsites1) * log(mot2[i][j] / bkg2[j]);
+        // Letters with probability 0 add nothing (0 * log 0 = 0).
+        if (mot2[i][j] > 0) left[i][j] = (mot2[i][j] * nsites2) * log(mot1[i][j] / bkg1[j]);
+        if (mot1[i][j] > 0) right[i][j] = (mot1[i][j] * nsites1) * log(mot2[i][j] / bkg2[j]);
       }
     }
   }
@@ -690,8 +696,9 @@ double compare_allr_ll(const list_num_t &mot1, const list_num_t &mot2,
   for (std::size_t i = 0; i < ncol; ++i) {
     if (good[i]) {
       for (std::size_t j = 0; j < nrow; ++j) {
-        left[i][j] = (mot2[i][j] * nsites2) * log(mot1[i][j] / bkg1[j]);
-        right[i][j] = (mot1[i][j] * nsites1) * log(mot2[i][j] / bkg2[j]);
+        // Letters with probability 0 add nothing (0 * log 0 = 0).
+        if (mot2[i][j] > 0) left[i][j] = (mot2[i][j] * nsites2) * log(mot1[i][j] / bkg1[j]);
+        if (mot1[i][j] > 0) right[i][j] = (mot1[i][j] * nsites1) * log(mot2[i][j] / bkg2[j]);
       }
     }
   }

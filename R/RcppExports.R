@@ -81,8 +81,8 @@ compare_motifs_lite_pvalue_cpp <- function(query_mats, target_mats, qi, qstart, 
     .Call('_universalmotif_compare_motifs_lite_pvalue_cpp', PACKAGE = 'universalmotif', query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads)
 }
 
-compare_motifs_lite_consensus_cpp <- function(mots, mot_i, start, len) {
-    .Call('_universalmotif_compare_motifs_lite_consensus_cpp', PACKAGE = 'universalmotif', mots, mot_i, start, len)
+compare_motifs_lite_consensus_cpp <- function(mots, mot_i, start, len, alph = "DNA") {
+    .Call('_universalmotif_compare_motifs_lite_consensus_cpp', PACKAGE = 'universalmotif', mots, mot_i, start, len, alph)
 }
 
 dedup_hits_cpp <- function(seq_i, motif_i, start, end, strand_i, priority, ignore_strand = FALSE, ignore_motif = FALSE) {

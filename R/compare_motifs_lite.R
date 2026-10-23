@@ -300,13 +300,15 @@ compare_motifs_lite <- function(motifs,
     mot.mats,
     mot_i = as.integer(long$subject.i),
     start = as.integer(qstart_orig),
-    len   = as.integer(L)
+    len   = as.integer(L),
+    alph  = mot.alph
   )
   long$target.consensus <- compare_motifs_lite_consensus_cpp(
     mot.mats,
     mot_i = as.integer(long$target.i),
     start = as.integer(t_start),
-    len   = as.integer(L)
+    len   = as.integer(L),
+    alph  = mot.alph
   )
 
   ## filter + sort

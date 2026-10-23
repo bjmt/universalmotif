@@ -152,3 +152,11 @@ test_that("the total IC and consensus follow the matrix", {
   z <- suppressMessages(normalize(create_motif("AAAACCCC", pseudocount = 0)))
   expect_equal(z@icscore, create_motif(z@motif, pseudocount = 1)@icscore)
 })
+
+test_that("WPCC weights are normalized and zero probabilities are handled", {
+  x <- c(.1, .2, .3, .4)
+  y <- c(.4, .35, .15, .1)
+  expect_equal(compare_columns(x, y, "WPCC"), compare_columns(x, y, "PCC"))
+  expect_true(is.finite(compare_columns(c(.5, .5, 0, 0), c(.25, .75, 0, 0), "KL")))
+  expect_true(is.finite(compare_columns(c(.5, .5, 0, 0), c(.25, .75, 0, 0), "ALLR")))
+})

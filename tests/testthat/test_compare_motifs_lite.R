@@ -227,3 +227,26 @@ test_that("compare_motifs_lite gives the same similarity matrix at nthreads = 1 
   b <- compare_motifs_lite(motifs, nthreads = 2)
   expect_equal(a, b)
 })
+
+test_that("consensus strings use U for RNA and follow the motif consensus rule", {
+  r1 <- create_motif("ACGUUA", alphabet = "RNA", name = "r1")
+  r2 <- create_motif("ACGUUAG", alphabet = "RNA", name = "r2")
+  res <- compare_motifs_lite(c(r1, r2), compare.to = 1, qvalue = 1)
+  expect_false(any(grepl("T", c(res$subject.consensus, res$target.consensus))))
+  for (col in list(c(.4, .3, .2, .1), c(.6, .2, .1, .1))) {
+    m <- create_motif(matrix(c(col, diag(4)), 4, dimnames = list(DNA_BASES, NULL)), name = "a")
+    res <- compare_motifs_lite(c(m, m), compare.to = 1, qvalue = 1)
+    expect_equal(res$subject.consensus[1], m@consensus)
+  }
+})
+
+test_that("the parametric null gives near-perfect alignments a P-value above 0", {
+  mat <- matrix(c(0, .015, .295, .69, .983, 0, .011, .005, .003, .883, .001, .113,
+                  .181, .481, .069, .269, .021, .001, .737, .24, .008, .005, .542, .445,
+                  .007, .021, .964, .008, .004, .001, .811, .183), 4,
+                dimnames = list(DNA_BASES, NULL))
+  m <- create_motif(sweep(mat, 2, colSums(mat), "/"), name = "a")
+  p <- compare_motifs_lite(c(m, create_motif("ACGTACGT", name = "b")),
+                           null = "parametric", matrix.out = "pvalue")
+  expect_gt(p[1, 1], 0)
+})

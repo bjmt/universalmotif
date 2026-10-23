@@ -262,6 +262,14 @@ BUG FIXES
   o motif_finder() ranks seeds with tied P-values by k-mer, so results no
     longer depend on the standard library.
 
+  o compare_motifs_lite() breaks tied alignments by overlap length and
+    then order instead of rounding, writes RNA consensus strings with U
+    using the motif consensus rule, and no longer gives P-values of
+    exactly 0 under the parametric null.
+
+  o compare_motifs() and compare_columns() normalize WPCC weights, and
+    KL and ALLR no longer give NaN for letters with probability 0.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

@@ -324,15 +324,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // compare_motifs_lite_consensus_cpp
-Rcpp::CharacterVector compare_motifs_lite_consensus_cpp(const Rcpp::List& mots, const Rcpp::IntegerVector& mot_i, /* 1-based motif index per row */     const Rcpp::IntegerVector& start, /* 0-based start column */     const Rcpp::IntegerVector& len);
-RcppExport SEXP _universalmotif_compare_motifs_lite_consensus_cpp(SEXP motsSEXP, SEXP mot_iSEXP, SEXP startSEXP, SEXP lenSEXP) {
+Rcpp::CharacterVector compare_motifs_lite_consensus_cpp(const Rcpp::List& mots, const Rcpp::IntegerVector& mot_i, /* 1-based motif index per row */     const Rcpp::IntegerVector& start, /* 0-based start column */     const Rcpp::IntegerVector& len, const std::string& alph);
+RcppExport SEXP _universalmotif_compare_motifs_lite_consensus_cpp(SEXP motsSEXP, SEXP mot_iSEXP, SEXP startSEXP, SEXP lenSEXP, SEXP alphSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type mots(motsSEXP);
     Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type mot_i(mot_iSEXP);
     Rcpp::traits::input_parameter< /* 1-based motif index per row */     const Rcpp::IntegerVector& >::type start(startSEXP);
     Rcpp::traits::input_parameter< /* 0-based start column */     const Rcpp::IntegerVector& >::type len(lenSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_motifs_lite_consensus_cpp(mots, mot_i, start, len));
+    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_motifs_lite_consensus_cpp(mots, mot_i, start, len, alph));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1078,7 +1079,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_pval_extractor", (DL_FUNC) &_universalmotif_pval_extractor, 11},
     {"_universalmotif_compare_motifs_lite_align_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_align_cpp, 6},
     {"_universalmotif_compare_motifs_lite_pvalue_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_pvalue_cpp, 11},
-    {"_universalmotif_compare_motifs_lite_consensus_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_consensus_cpp, 4},
+    {"_universalmotif_compare_motifs_lite_consensus_cpp", (DL_FUNC) &_universalmotif_compare_motifs_lite_consensus_cpp, 5},
     {"_universalmotif_dedup_hits_cpp", (DL_FUNC) &_universalmotif_dedup_hits_cpp, 8},
     {"_universalmotif_count_klets_alph_cpp", (DL_FUNC) &_universalmotif_count_klets_alph_cpp, 4},
     {"_universalmotif_motif_finder_cpp", (DL_FUNC) &_universalmotif_motif_finder_cpp, 12},

@@ -35,14 +35,17 @@
  *   - PCC bins: 51, spanning [-1, 1] with step 0.04 (PCC_BINS).
  *   - Parametric grid: K=5 simplex, 56 columns (ENUM_N_COLS); Dirichlet
  *     concentration alpha = 4 * bkg (ENUM_DIRICHLET_N).
- *   - Consensus threshold for IUPAC: 0.75 (CONSENSUS_THRESHOLD).
+ *   - Consensus strings follow the package's motif consensus rule.
  */
 
 static const int    PCC_BINS              = 51;
 static const int    ENUM_GRID_K           = 5;
 static const int    ENUM_DIRICHLET_N      = 4;
 static const int    ENUM_N_COLS           = 56;   /* C(K+3, 3) for K=5 */
-static const double CONSENSUS_THRESHOLD   = 0.75;
+static const double TIE_TOLERANCE         = 1e-10;
+
+std::string get_consensusC(std::vector<double> pos, const std::string &alphabet,
+    const std::string &type, const double pseudocount);
 
 /* ============================================================
  * Column PCC and discretization (yamcmp.c:1028-1079)
@@ -82,48 +85,12 @@ static inline int sum_score_to_bin_pcc(double s, int L) {
   return bin;
 }
 
-/* ============================================================
- * IUPAC consensus (yamcmp.c:986-1016)
- * ============================================================ */
-
-static inline char iupac_from_mask(int mask) {
-  switch (mask) {
-    case 0x1: return 'A'; case 0x2: return 'C';
-    case 0x4: return 'G'; case 0x8: return 'T';
-    case 0x3: return 'M'; case 0x5: return 'R';
-    case 0x9: return 'W'; case 0x6: return 'S';
-    case 0xA: return 'Y'; case 0xC: return 'K';
-    case 0x7: return 'V'; case 0xB: return 'H';
-    case 0xD: return 'D'; case 0xE: return 'B';
-    default:  return 'N';
-  }
-}
-
-static char consensus_char(const double *probs) {
-  int order[4] = {0, 1, 2, 3};
-  for (int i = 1; i < 4; ++i) {
-    int j = i;
-    while (j > 0 && probs[order[j]] > probs[order[j-1]]) {
-      int tmp = order[j]; order[j] = order[j-1]; order[j-1] = tmp;
-      --j;
-    }
-  }
-  double cum = 0.0;
-  int mask = 0;
-  for (int k = 0; k < 4; ++k) {
-    cum += probs[order[k]];
-    mask |= 1 << order[k];
-    if (cum >= CONSENSUS_THRESHOLD) break;
-  }
-  return iupac_from_mask(mask);
-}
-
-/* Build IUPAC string for a column range of a motif. */
+/* Consensus string for a column range of a motif, by the same rule as the
+ * motif's own consensus. */
 static std::string consensus_range(const list_num_t &mot,
-                                   int start, int L) {
+                                   int start, int L, const std::string &alph) {
   std::string s;
-  s.resize((std::size_t) L);
-  for (int j = 0; j < L; ++j) s[j] = consensus_char(&mot[start + j][0]);
+  for (int j = 0; j < L; ++j) s += get_consensusC(mot[start + j], alph, "PPM", 0.0);
   return s;
 }
 
@@ -245,7 +212,13 @@ static vec_num_t convolve_with_col(const vec_num_t &a, const vec_num_t &b) {
 static double tail_prob(const vec_num_t &pmf, int observed_bin) {
   int len = (int) pmf.size();
   if (observed_bin < 0) observed_bin = 0;
-  if (observed_bin >= len) return 0.0;
+  /* A score beyond what the null reaches, as near-perfect alignments can
+   * be against the coarse parametric grid, gets the probability of the
+   * null's highest score rather than 0. */
+  int top = len - 1;
+  while (top >= 0 && pmf[top] <= 0.0) --top;
+  if (top < 0) return 0.0;
+  if (observed_bin > top) observed_bin = top;
   double s = 0.0;
   for (int i = observed_bin; i < len; ++i) s += pmf[i];
   if (s < 0.0) s = 0.0;
@@ -318,7 +291,12 @@ static align_result_t best_alignment_pcc(const list_num_t &q,
       double s = align_score_pcc(qq, wq, t, wt, d, &L, &q_start, &t_start);
       if (L < mo) continue;
       best.n_tested++;
-      bool better = (s > best.score) || best.n_tested == 1;
+      /* Ties, such as both strands of a palindrome, go to the longer
+       * overlap, so that comparing two motifs either way round gives the
+       * same mean score, and then to the first alignment, rather than to
+       * whichever sum rounds higher. */
+      bool tied_longer = std::fabs(s - best.score) <= TIE_TOLERANCE && L > best.L;
+      bool better = s > best.score + TIE_TOLERANCE || tied_longer || best.n_tested == 1;
       if (better) {
         best.score            = s;
         best.L                = L;
@@ -585,7 +563,8 @@ Rcpp::CharacterVector compare_motifs_lite_consensus_cpp(
     const Rcpp::List &mots,
     const Rcpp::IntegerVector &mot_i,    /* 1-based motif index per row */
     const Rcpp::IntegerVector &start,    /* 0-based start column */
-    const Rcpp::IntegerVector &len) {
+    const Rcpp::IntegerVector &len,
+    const std::string &alph = "DNA") {
 
   R_xlen_t n = mot_i.size();
   std::vector<list_num_t> motifs = extract_motif_list(mots);
@@ -603,7 +582,7 @@ Rcpp::CharacterVector compare_motifs_lite_consensus_cpp(
     if (s < 0) s = 0;
     if ((std::size_t)(s + L) > mot.size()) L = (int) mot.size() - s;
     if (L <= 0) { out[k] = ""; continue; }
-    out[k] = consensus_range(mot, s, L);
+    out[k] = consensus_range(mot, s, L, alph);
   }
   return out;
 }
