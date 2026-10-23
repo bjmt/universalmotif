@@ -119,7 +119,7 @@ std::vector<std::vector<std::size_t>> calc_wins_cpp2(const std::size_t seqlen, c
   }
 
   if (!return_incomplete_window) {
-    if (stops[stops.size() - 1] - starts[starts.size() - 1] < window) {
+    if (stops[stops.size() - 1] - starts[starts.size() - 1] + 1 < window) {
       stops.pop_back();
       starts.pop_back();
     }
@@ -198,18 +198,17 @@ double wootton_federhen_fast_cpp(const std::string &x, std::string alph = "") {
 
 // [[Rcpp::export]]
 double wootton_federhen_cpp(const std::string &x, std::string alph = "") {
-  // Stops working for DNA strings length 171+
+  // Works with log-factorials, since the factorials themselves overflow a
+  // double from 171!.
   if (!alph.size()) alph = get_alphabet_cpp(x); 
   double L = x.size(), N = alph.size();
   const std::vector<double> S = get_complexity_state_vector(x, alph);
-  const double Pi_top = prod_cpp(x.size());
-  std::vector<double> Pi_bot(S.size(), 1);
+  double log_Pi = std::lgamma(L + 1);
   for (std::size_t i = 0; i < S.size(); ++i) {
     if (!S[i]) continue;
-    Pi_bot[i] = prod_cpp(S[i]);
+    log_Pi -= std::lgamma(S[i] + 1);
   }
-  double Pi = Pi_top / prod_cpp(Pi_bot);
-  return (log(Pi) / log(N)) / L;
+  return (log_Pi / log(N)) / L;
 }
 
 // [[Rcpp::export]]

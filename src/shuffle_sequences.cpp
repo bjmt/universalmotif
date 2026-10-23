@@ -341,7 +341,7 @@ vec_int_t markov_generator(const std::size_t &seqsize, const vec_int_t &nlet_cou
   for (std::size_t i = k - 1; i < seqsize - 1; ++i) {
     previous_mlet = 0;
     for (int j = k - 1; j >= 1; --j) {
-      previous_mlet += out[i - j] * pow_table[j - 1];
+      previous_mlet += out[i - j + 1] * pow_table[j - 1];
     }
     std::discrete_distribution<int> next_gen(transitions[previous_mlet].begin(),
         transitions[previous_mlet].end());
@@ -706,7 +706,7 @@ std::vector<std::string> create_sequences_cpp(const int seqlen,
           for (int j = k - 1; j < seqlen; ++j) {
             prevmlet = 0;
             for (int b = k - 1; b >= 1; --b) {
-              prevmlet += out_i[j - b] * pow_table[b - 1];
+              prevmlet += out_i[j - b + 1] * pow_table[b - 1];
             }
             std::discrete_distribution<int> nextlet(trans[prevmlet].begin(),
                 trans[prevmlet].end());

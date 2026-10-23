@@ -7,26 +7,28 @@ vec_int_t klet_counter_NA(const vec_int_t &single_seq, const int &k,
     const std::size_t &nlets, const std::size_t &alphlen) {
 
   vec_int_t klet_counts(nlets, 0);
-  int l, counter;
+  if (single_seq.size() < std::size_t(k)) return klet_counts;
 
   // Precompute alphlen^j for j = 0..k-1 once instead of calling pow() at every
   // sequence position.
-  vec_int_t pow_table(k);
+  std::vector<long long> pow_table(k);
   pow_table[0] = 1;
-  for (int j = 1; j < k; ++j) pow_table[j] = pow_table[j - 1] * int(alphlen);
+  for (int j = 1; j < k; ++j) pow_table[j] = pow_table[j - 1] * (long long)(alphlen);
 
+  // k-mers containing a letter outside the alphabet (marked as negative) are
+  // skipped.
   for (std::size_t i = 0; i < single_seq.size() - k + 1; ++i) {
-    l = 0; counter = 0;
-    for (int j = k - 1; j >= 0; --j) {
-      l += pow_table[j] * single_seq[i + counter];
-      ++counter;
+    long long l = 0;
+    bool known = true;
+    for (int j = 0; j < k; ++j) {
+      int let = single_seq[i + j];
+      if (let < 0) {
+        known = false;
+        break;
+      }
+      l += pow_table[k - 1 - j] * let;
     }
-
-    if (l >= 0) ++klet_counts[l];
-    // Un-comment this line if you decide to use remainder count in probability
-    // calculations.
-    // else ++klet_counts[nlets];
-
+    if (known) ++klet_counts[l];
   }
 
   return klet_counts;

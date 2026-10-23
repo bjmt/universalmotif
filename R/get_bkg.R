@@ -358,8 +358,7 @@ to_meme_bkg_single <- function(counts, meme.order, count.names) {
   out[1] <- paste0("#   order ", meme.order)
   for (i in seq_along(counts)) {
     out[i + 1] <- paste0(format(count.names[i], width = 8),
-                         formatC(counts[i], format = "e", digits = 3),
-                         " ")
+                         formatC(counts[i], format = "e", digits = 3))
   }
   out
 }

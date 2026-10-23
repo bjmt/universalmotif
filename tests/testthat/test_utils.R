@@ -58,3 +58,15 @@ test_that("type utilities work", {
                c(0.625, 0.000, 0.375))
 
 })
+
+test_that("calc_windows keeps a complete last window", {
+  expect_equal(calc_windows(9, 3, 0, FALSE)$stop, c(3, 6, 9))
+  expect_equal(calc_windows(10, 3, 0, FALSE)$stop, c(3, 6, 9))
+})
+
+test_that("mask_ranges handles one range per sequence and sequences without any", {
+  s <- Biostrings::DNAStringSet(c(a = "AAAAAAAAAA", b = "CCCCCCCCCC", c = "GGGGGGGGGG"))
+  r <- GenomicRanges::GRanges(c("a", "b"), IRanges::IRanges(c(2, 3), c(4, 5)))
+  expect_equal(as.character(mask_ranges(s, r)),
+               c(a = "A---AAAAAA", b = "CC---CCCCC", c = "GGGGGGGGGG"))
+})

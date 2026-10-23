@@ -245,6 +245,23 @@ BUG FIXES
 
   o motif_tree_lite() tip logos no longer fail for motifs sharing a name.
 
+  o shuffle_sequences(method = "markov") and create_sequences() with
+    k-mer frequencies now condition each letter on the letters just
+    generated.
+
+  o get_bkg() skips k-mers with letters outside the alphabet, which
+    could be miscounted or crash R for long k-mers, and writes MEME
+    background files without trailing spaces.
+
+  o Wootton-Federhen complexity no longer gives NaN for windows of 171
+    letters or more.
+
+  o calc_windows(return.incomp = FALSE) keeps a complete last window, and
+    mask_ranges() works with one range per sequence or none.
+
+  o motif_finder() ranks seeds with tied P-values by k-mer, so results no
+    longer depend on the standard library.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

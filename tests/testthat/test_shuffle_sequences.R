@@ -65,3 +65,13 @@ test_that("removed random shuffle method is rejected", {
   expect_error(shuffle_sequences(seqs, method = "random", k = 2),
                "Incorrect 'shuffle.method'", fixed = TRUE)
 })
+
+test_that("markov shuffling and sequence creation follow the last letters", {
+  alt <- Biostrings::DNAStringSet(paste(rep("AC", 100), collapse = ""))
+  sh <- shuffle_sequences(alt, k = 2, method = "markov", rng.seed = 1)
+  expect_false(grepl("AA|CC", as.character(sh)))
+  freqs <- setNames(rep(0, 16), as.vector(outer(DNA_BASES, DNA_BASES, paste0)))
+  freqs[c("AC", "CA")] <- 0.5
+  cs <- create_sequences(seqlen = 200, seqnum = 5, freqs = freqs, rng.seed = 1)
+  expect_false(any(grepl("AA|CC", as.character(cs))))
+})

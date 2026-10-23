@@ -58,3 +58,10 @@ test_that("nthreads parity (1 vs 2) on a single method", {
                             method = "DUST", nthreads = 2)
   expect_equal(a$complexity, b$complexity)
 })
+
+test_that("Wootton-Federhen complexity works for long windows", {
+  long <- paste(rep("ACGT", 60), collapse = "")
+  wf <- sequence_complexity(Biostrings::DNAStringSet(long), window.size = 240,
+                            method = "WoottonFederhen")$complexity
+  expect_equal(wf, (lgamma(241) - 4 * lgamma(61)) / log(4) / 240, tolerance = 1e-4)
+})

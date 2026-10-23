@@ -32,3 +32,11 @@ test_that("get_bkg() with merge.res=FALSE allows multi-element window.overlap (r
   )
 
 })
+
+test_that("k-mers with unknown letters are skipped and MEME files have no trailing spaces", {
+  seqs <- Biostrings::DNAStringSet("ACGTNACGTACGTANNACGTACGTAC")
+  expect_equal(sum(get_bkg(seqs, k = 7)$count), 7)
+  out <- capture.output(get_bkg(Biostrings::DNAStringSet("ACGTACGTAC"), k = 1:2,
+                                to.meme = stdout(), pseudocount = 1))
+  expect_false(any(grepl(" $", out)))
+})

@@ -269,8 +269,11 @@ mask_ranges <- function(seqs, ranges, letter = "-") {
     stop(wmsg("`letter` must be a single character"), call. = FALSE)
   }
   ranges <- granges_fun2(GenomicRanges::reduce(ranges))
-  ranges <- unname(as(ranges, "IRangesList")[names(seqs)])
-  letterList <- sapply(ranges,
+  ranges <- as(ranges, "IRangesList")
+  ## Sequences without ranges are left as they are.
+  ranges <- IRanges::IRangesList(lapply(names(seqs), function(x)
+    if (x %in% names(ranges)) ranges[[x]] else IRanges::IRanges()))
+  letterList <- lapply(ranges,
     function(x) vapply(width(x),
       function(y) collapse_cpp(rep(letter, y)),
       character(1)

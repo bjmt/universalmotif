@@ -410,8 +410,12 @@ static int enumerate_seeds(const std::vector<std::string> &pos_seqs,
                                        n_neg > nc ? n_neg - nc : 0);
     cands.push_back(s);
   }
+  // Ties are ranked by k-mer, rather than in hash-table order.
   std::sort(cands.begin(), cands.end(),
-            [](const Seed &a, const Seed &b) { return a.pval < b.pval; });
+            [](const Seed &a, const Seed &b) {
+              if (a.pval != b.pval) return a.pval < b.pval;
+              return a.kmer < b.kmer;
+            });
   if (cands.size() > (uint64_t) TOP_K_SEEDS) cands.resize(TOP_K_SEEDS);
   out = std::move(cands);
   return 0;
@@ -797,7 +801,7 @@ static void rebuild_coverage(const std::vector<std::string> &pristine_pos,
 // -----------------------------------------------------------------------------
 static void dedup_results(std::vector<DiscResult> &results, double dedup_overlap) {
   if (results.size() < 2) return;
-  std::sort(results.begin(), results.end(),
+  std::stable_sort(results.begin(), results.end(),
             [](const DiscResult &a, const DiscResult &b) {
               return a.pvalue < b.pvalue;
             });
