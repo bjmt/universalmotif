@@ -214,7 +214,8 @@ setMethod("show", signature = "universalmotif",
   if (object@alphabet %in% c("DNA", "RNA"))
     cat(collapse_cpp(c("          Strands:   ", object@strand, "\n")))
 
-  cat(collapse_cpp(c("         Total IC:   ", round(object@icscore, 2), "\n")))
+  if (!is.na(object@icscore))
+    cat(collapse_cpp(c("         Total IC:   ", round(object@icscore, 2), "\n")))
 
   cat(collapse_cpp(c("      Pseudocount:   ", round(object@pseudocount, 2), "\n")))
 

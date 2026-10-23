@@ -533,8 +533,10 @@ refresh_motif_summary <- function(motif) {
   bkg <- motif@bkg[rownames(mat)]
   if (anyNA(bkg)) bkg <- rep(1 / nrow(mat), nrow(mat))
   nsites <- if (length(motif@nsites) > 0) motif@nsites else 100
-  motif@icscore <- sum(apply(mat, 2, position_icscoreC, bkg = bkg, type = type,
-                             pseudocount = pseudo, nsites = nsites))
+  ## Contribution weights are not probabilities, so CWMs have no total IC.
+  motif@icscore <- if (type == "CWM") NA_real_ else
+    sum(apply(mat, 2, position_icscoreC, bkg = bkg, type = type,
+              pseudocount = pseudo, nsites = nsites))
   alph <- motif@alphabet
   if (alph %in% c("DNA", "RNA")) {
     consensus <- apply(mat, 2, get_consensusC, alphabet = alph, type = type,

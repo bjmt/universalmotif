@@ -51,7 +51,7 @@ test_that("motif creation from matrix input works", {
 
   mat3 <- motif4["motif"]
 
-  motif5 <- create_motif(mat3)
+  expect_warning(motif5 <- create_motif(mat3), "negative values")
   motif5["nsites"] <- 10
   motif6 <- create_motif(mat2, alphabet = "QWER", type = "PCM")
 

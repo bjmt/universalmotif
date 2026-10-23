@@ -628,6 +628,7 @@ convert_from_cwm <- function(motif, type, pseudocount, bkg, nsites,
   rownames(motif@motif) <- alph
   motif@motif[is.na(motif@motif)] <- 0
 
-  motif
+  ## A CWM has no total IC, so one is computed for the converted motif.
+  refresh_motif_summary(motif)
 
 }

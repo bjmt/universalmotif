@@ -104,3 +104,21 @@ test_that("trim_motifs works on CWM input", {
   expect_equal(trimmed@type, "CWM")
   expect_lt(ncol(trimmed@motif), ncol(cwm@motif))
 })
+
+test_that("CWMs have no total IC until converted", {
+  m <- matrix(c(.1, -.05, 0, 0, 0, .4, -.1, 0, .02, 0, 0, .3), 4,
+              dimnames = list(DNA_BASES, NULL))
+  cwm <- create_motif(m, type = "CWM")
+  expect_true(is.na(cwm@icscore))
+  expect_false(any(grepl("Total IC", capture.output(print(cwm)))))
+  expect_true(is.finite(convert_type(cwm, "PPM")@icscore))
+  expect_true(is.na(trim_cwm(cwm)@icscore))
+  expect_length(filter_motifs(list(cwm, convert_type(cwm, "PPM")), icscore = 0), 1)
+})
+
+test_that("matrices with negative values and no type give a warning", {
+  m <- matrix(c(-1, .5, .2, .3, 1, -1, 0, 0), 4, dimnames = list(DNA_BASES, NULL))
+  expect_warning(create_motif(m), "negative values")
+  expect_silent(create_motif(m, type = "PWM"))
+  expect_silent(create_motif(m, type = "CWM"))
+})

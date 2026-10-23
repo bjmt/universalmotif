@@ -299,6 +299,15 @@ BUG FIXES
     itself; self-pairs count sequences with hits at two or more distinct
     positions.
 
+  o create_motif() warns when a matrix with negative values is converted
+    to a PPM because no type was given.
+
+  o CWMs have no total IC, which is computed when they are converted to
+    another type.
+
+  o calc_complexity() scores DNA and RNA against ACGT or ACGU by default,
+    as sequence_complexity() does, rather than each string's own letters.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

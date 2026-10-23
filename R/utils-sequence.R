@@ -1,8 +1,10 @@
 #' Sequence-related utility functions.
 #'
 #' @param alph `character(1)` A single character string with the desired
-#'    sequence alphabet. If missing, finds the unique letters within each
-#'    string.
+#'    sequence alphabet. If missing, it is `"ACGT"` when the strings hold only
+#'    those letters and N, `"ACGU"` likewise for RNA, and otherwise every letter
+#'    found in the strings, so that all strings are scored against the same
+#'    alphabet.
 #' @param alph.name `character(1)`, `NULL` Custom alphabet name.
 #' @param ambiguity `character(1)`, `NULL` A named vector providing ambiguity codes for
 #'    the custom alphabet.
@@ -157,7 +159,16 @@ calc_complexity <- function(string, complexity.method = c("WoottonFederhen",
 
   method <- match.arg(complexity.method)
 
-  if (is.null(alph)) alph <- ""
+  if (is.null(alph)) {
+    lets <- unique(safeExplode(collapse_cpp(string)))
+    alph <- if (all(lets %in% c(DNA_BASES, "N"))) {
+      "ACGT"
+    } else if (all(lets %in% c(RNA_BASES, "N"))) {
+      "ACGU"
+    } else {
+      collapse_cpp(sort_unique_cpp(lets))
+    }
+  }
   trifonov.max.word.size <- as.integer(trifonov.max.word.size)
   if (is.na(trifonov.max.word.size) || trifonov.max.word.size <= 0) {
     stop("trifonov.max.word.size must be a positive integer")

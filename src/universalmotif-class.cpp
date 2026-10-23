@@ -160,6 +160,10 @@ Rcpp::NumericVector universalmotif_icscore(Rcpp::NumericVector icscore,
   R_xlen_t alph_len = m_motif.nrow();
   Rcpp::IntegerVector bkg_i = Rcpp::seq_len(alph_len) - 1;
 
+  // Contribution weights are not probabilities, so CWMs have no total IC.
+  if (type.size() > 0 && type[0] == "CWM")
+    return Rcpp::NumericVector::create(NA_REAL);
+
   if (icscore.size() == 0 || Rcpp::NumericVector::is_na(icscore[0])) {
     double tmp_nsites = 0;
     if (nsites.size() != 0) tmp_nsites = nsites[0];

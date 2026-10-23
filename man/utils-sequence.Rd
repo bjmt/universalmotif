@@ -49,8 +49,10 @@ greater than one.}
 \code{\link[=sequence_complexity]{sequence_complexity()}}.}
 
 \item{alph}{\code{character(1)} A single character string with the desired
-sequence alphabet. If missing, finds the unique letters within each
-string.}
+sequence alphabet. If missing, it is \code{"ACGT"} when the strings hold only
+those letters and N, \code{"ACGU"} likewise for RNA, and otherwise every letter
+found in the strings, so that all strings are scored against the same
+alphabet.}
 
 \item{trifonov.max.word.size}{\code{integer(1)} Maximum word size for use
 in the Trifonov complexity methods. See \code{\link[=sequence_complexity]{sequence_complexity()}}.}

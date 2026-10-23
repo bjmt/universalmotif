@@ -65,3 +65,11 @@ test_that("Wootton-Federhen complexity works for long windows", {
                             method = "WoottonFederhen")$complexity
   expect_equal(wf, (lgamma(241) - 4 * lgamma(61)) / log(4) / 240, tolerance = 1e-4)
 })
+
+test_that("calc_complexity scores DNA against ACGT by default", {
+  expect_equal(calc_complexity("AAAAAAAAAA"), 0)
+  x <- calc_complexity(c("ATATATATAT", "ACGTTGCAAC"))
+  expect_equal(x, calc_complexity(c("ATATATATAT", "ACGTTGCAAC"), alph = "ACGT"))
+  expect_equal(x[1], sequence_complexity(Biostrings::DNAStringSet("ATATATATAT"),
+                                         window.size = 10)$complexity)
+})

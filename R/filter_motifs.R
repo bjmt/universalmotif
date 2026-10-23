@@ -116,7 +116,7 @@ filter_motifs <- function(motifs, name, altname, family, organism, width,
 
   if (!missing(icscore)) {
     motif_icscores <- vapply(motifs, function(x) x@icscore, numeric(1))
-    motifs <- motifs[motif_icscores >= icscore]
+    motifs <- motifs[!is.na(motif_icscores) & motif_icscores >= icscore]
   }
 
   if (!missing(nsites)) {

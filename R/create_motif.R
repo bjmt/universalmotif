@@ -705,6 +705,14 @@ setMethod("create_motif", signature(input = "matrix"),
     cpp_args <- c(cpp_args, list(type = "CWM"))
   motif <- do.call(universalmotif_cpp, cpp_args)
 
+  ## A matrix with negative values is read as a PWM, and the default
+  ## type = "PPM" then turns it into probabilities, which for contribution
+  ## weights gives nearly uniform columns.
+  if (missing(type) && motif@type == "PWM")
+    warning(wmsg("The matrix has negative values, so it was read as a PWM and ",
+                 "converted to a PPM. Use `type = \"PWM\"` to keep it as a PWM, ",
+                 "or `type = \"CWM\"` for contribution weights."), call. = FALSE)
+
   if (missing(nsites) && motif@type == "PCM") {
     nsites <- sum(input[, 1])
     if (nsites == round(nsites) && nsites != 1 && abs(nsites) != Inf)

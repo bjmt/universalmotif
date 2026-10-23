@@ -147,10 +147,7 @@ trim_cwm_single <- function(motif, trim.threshold, abs.threshold, trim.from) {
   bkg <- motif@bkg[rownames(motif@motif)]
   if (any(is.na(bkg))) bkg <- rep(1 / nrow(motif@motif), nrow(motif@motif))
 
-  motif@icscore <- sum(apply(motif@motif, 2, position_icscoreC,
-                             bkg = bkg, type = "CWM",
-                             pseudocount = pseudo,
-                             nsites = if (length(motif@nsites) > 0) motif@nsites else 100))
+  motif@icscore <- NA_real_
 
   if (alph %in% c("DNA", "RNA")) {
     consensus <- apply(motif@motif, 2, get_consensusC,
