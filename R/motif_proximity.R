@@ -46,6 +46,11 @@
 #' `method = "binomial"` falls back to a Poisson occupancy approximation
 #' (anti-conservative when hits cluster).
 #'
+#' Each hit is placed at its middle position, the lower one for even widths,
+#' for counting and for distances, since the null treats hits as single
+#' positions; counting a hit whenever any part of it reached the near zone
+#' would inflate counts for wide hits.
+#'
 #' @param hits Motif hits from [scan_sequences_lite()] or [scan_sequences()],
 #'   as a `GRanges` (preferred) or a `data.frame`, carrying genomic
 #'   coordinates plus `motif` and `score`. Supply this *or*
@@ -250,6 +255,7 @@ motif_proximity <- function(hits = NULL, anchors,
 
   if (count == "hits")
     hits.gr <- collapse_hits_per_cluster(hits.gr, ignore.strand)
+  hits.gr <- hit_middles(hits.gr)
 
   if (is.null(dist.thresholds))
     dist.thresholds <- default_dist_thresholds(U)
@@ -487,6 +493,7 @@ normalize_motif_proximity_input <- function(hits) {
       motif = as.character(mc$motif),
       score = as.numeric(mc$score)
     )
+    if ("motif.i" %in% names(mc)) S4Vectors::mcols(gr)$motif.i <- as.integer(mc$motif.i)
     return(gr)
   }
 
@@ -517,6 +524,7 @@ normalize_motif_proximity_input <- function(hits) {
       motif = as.character(hits$motif),
       score = as.numeric(hits$score)
     )
+    if ("motif.i" %in% names(hits)) S4Vectors::mcols(gr)$motif.i <- as.integer(hits$motif.i)
     return(gr)
   }
 
@@ -529,7 +537,17 @@ build_proximity_universe <- function(universe, hits.gr) {
   if (!is.null(universe)) {
     if (!inherits(universe, "GRanges"))
       stop("`universe` must be a GRanges or NULL", call. = FALSE)
-    return(GenomicRanges::reduce(universe, ignore.strand = TRUE))
+    U <- GenomicRanges::reduce(universe, ignore.strand = TRUE)
+    ## Chromosome lengths let zones be clipped at chromosome ends; those
+    ## the universe lacks are taken from the hits where known.
+    ul <- GenomeInfoDb::seqlengths(U)
+    hl <- GenomeInfoDb::seqlengths(hits.gr)
+    fill <- is.na(ul) & names(ul) %in% names(hl)[!is.na(hl)]
+    if (any(fill)) {
+      ul[fill] <- hl[names(ul)[fill]]
+      suppressWarnings(GenomeInfoDb::seqlengths(U) <- ul)
+    }
+    return(U)
   }
   sl <- GenomeInfoDb::seqlengths(hits.gr)
   sl <- sl[!is.na(sl) & sl > 0L]
@@ -539,8 +557,18 @@ build_proximity_universe <- function(universe, hits.gr) {
          "hits without seqlengths).", call. = FALSE)
   GenomicRanges::GRanges(
     seqnames = names(sl),
-    ranges   = IRanges::IRanges(start = 1L, end = as.integer(sl))
+    ranges   = IRanges::IRanges(start = 1L, end = as.integer(sl)),
+    seqlengths = sl
   )
+}
+
+## The middle position of each hit, taking the lower one for even widths.
+## Hits are tested at their middles, so that "near" means the same thing for
+## a hit as for a position of the universe, whatever the hit's width.
+hit_middles <- function(gr) {
+  mid <- (GenomicRanges::start(gr) + GenomicRanges::end(gr)) %/% 2L
+  GenomicRanges::ranges(gr) <- IRanges::IRanges(start = mid, width = 1L)
+  gr
 }
 
 ## Restrict to U* = chromosomes carrying >=1 anchor; reconcile seqlevels
@@ -582,7 +610,8 @@ restrict_to_anchored_universe <- function(U, hits.gr, anchors.gr) {
     GenomeInfoDb::seqinfo(hits.in)        <- si
   })
 
-  hits.star <- IRanges::subsetByOverlaps(hits.in, U.star, ignore.strand = TRUE)
+  hits.star <- hits.in[IRanges::overlapsAny(hit_middles(hits.in), U.star,
+                                             ignore.strand = TRUE)]
 
   n.hit.drop    <- n.hit0 - length(hits.star)
   n.anchor.drop <- n.anchor0 - length(anchors.star)
@@ -637,9 +666,10 @@ dilate_anchors <- function(anchors, d, orientation) {
   if (orientation == "undirected") {
     z <- anchors
     GenomicRanges::strand(z) <- "*"
-    GenomicRanges::ranges(z) <- IRanges::IRanges(
+    ## Zones running past a chromosome end are clipped by trim().
+    suppressWarnings(GenomicRanges::ranges(z) <- IRanges::IRanges(
       start = GenomicRanges::start(z) - d,
-      end   = GenomicRanges::end(z)   + d)
+      end   = GenomicRanges::end(z)   + d))
     z <- suppressWarnings(GenomicRanges::trim(z))
   } else {
     z <- suppressWarnings(

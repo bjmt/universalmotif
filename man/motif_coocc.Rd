@@ -68,9 +68,12 @@ every cell of the 2x2
 contingency before the Fisher test (matches the convention from
 \code{\link[=enrich_motifs_lite]{enrich_motifs_lite()}}). Default \code{0L}.}
 
-\item{self.pairs}{\code{logical(1)}. If \code{TRUE}, include \verb{(i, i)} rows
-(testing whether motif \code{i} co-occurs with itself). Usually only
-meaningful for motifs that bind as homodimers. Default \code{FALSE}.}
+\item{self.pairs}{\code{logical(1)}. If \code{TRUE}, include \verb{(i, i)} rows,
+usually only meaningful for motifs that bind as homodimers. These rows
+are not tested, since a motif's 2x2 table with itself has empty
+off-diagonal cells: \code{both} counts the sequences with hits at two or more
+positions and \code{a_only} those with hits at only one, and hits at the same
+position on both strands count once. Default \code{FALSE}.}
 
 \item{nthreads}{\code{integer(1)}. Threads for the internal scan (when
 \code{sequences} is supplied). The pairwise co-occurrence test itself is

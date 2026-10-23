@@ -74,9 +74,12 @@
 #'   every cell of the 2x2
 #'   contingency before the Fisher test (matches the convention from
 #'   [enrich_motifs_lite()]). Default `0L`.
-#' @param self.pairs `logical(1)`. If `TRUE`, include `(i, i)` rows
-#'   (testing whether motif `i` co-occurs with itself). Usually only
-#'   meaningful for motifs that bind as homodimers. Default `FALSE`.
+#' @param self.pairs `logical(1)`. If `TRUE`, include `(i, i)` rows,
+#'   usually only meaningful for motifs that bind as homodimers. These rows
+#'   are not tested, since a motif's 2x2 table with itself has empty
+#'   off-diagonal cells: `both` counts the sequences with hits at two or more
+#'   positions and `a_only` those with hits at only one, and hits at the same
+#'   position on both strands count once. Default `FALSE`.
 #' @param nthreads `integer(1)`. Threads for the internal scan (when
 #'   `sequences` is supplied). The pairwise co-occurrence test itself is
 #'   vectorised R (one `phyper()` call over all pairs) and does not use
@@ -207,12 +210,15 @@ motif_coocc <- function(motifs, sequences = NULL,
            "supplied", call. = FALSE)
     n.sequences <- as.integer(n.sequences)
     hits <- coerce_hits(hits, motifs, mot.names, n.sequences,
-                        need.start = !is.null(max.distance))
+                        need.start = !is.null(max.distance) || self.pairs)
   }
 
   if (!is.null(max.distance) && !"start" %in% names(hits))
     stop("spatial mode (`max.distance` non-NULL) requires a `start` ",
          "column in the hit table", call. = FALSE)
+  if (self.pairs && !"start" %in% names(hits))
+    stop("`self.pairs = TRUE` requires a `start` column in the hit table",
+         call. = FALSE)
 
   ## --- per-motif sequence sets -----------------------------------------
   presence <- vector("list", n.motifs)
@@ -299,10 +305,21 @@ motif_coocc <- function(motifs, sequences = NULL,
   } else {
     both_v <- integer(rows)
   }
-  ## For self-pairs M[i,i] == cnt[i], so a_only == b_only == 0 falls out
-  ## of the same formula with no special-casing.
   a_only_v  <- cnt[i_idx] - both_v
   b_only_v  <- cnt[j_idx] - both_v
+  ## A motif's table with itself would have empty off-diagonal cells, so
+  ## self-pairs instead count the sequences with hits at two or more
+  ## distinct positions (both) or at only one (a_only), and are not tested.
+  self <- i_idx == j_idx
+  if (any(self)) {
+    multi <- vapply(seq_len(n.motifs), function(i) {
+      sub <- unique(hits[hits$motif.i == i, c("sequence.i", "start"), drop = FALSE])
+      sum(table(sub$sequence.i) >= 2L)
+    }, integer(1))
+    both_v[self]   <- multi[i_idx[self]]
+    a_only_v[self] <- cnt[i_idx[self]] - both_v[self]
+    b_only_v[self] <- 0L
+  }
   neither_v <- n.sequences - a_only_v - b_only_v - both_v
   if (any(neither_v < 0L))
     stop("internal error: contingency counts exceed `n.sequences`",
@@ -334,7 +351,7 @@ motif_coocc <- function(motifs, sequences = NULL,
   b  <- out$a_only  + pc
   cc <- out$b_only  + pc
   d  <- out$neither + pc
-  tested <- out$both >= as.integer(min.coocc)
+  tested <- out$both >= as.integer(min.coocc) & !self
   out$pvalue[tested] <- stats::phyper(a[tested] - 1,
                                       a[tested] + b[tested],
                                       cc[tested] + d[tested],
@@ -367,7 +384,10 @@ motif_coocc <- function(motifs, sequences = NULL,
         ## sequence. A sequence with a single hit yields only a cross-
         ## sequence diff (>= BIG), which is dropped, so it needs >= 2 hits
         ## to count -- matching the original behaviour.
-        gi <- g_pos[[i]]; si <- g_seq[[i]]
+        ## Hits at the same position, as on both strands of a
+        ## palindrome, count once.
+        keep <- !duplicated(g_pos[[i]])
+        gi <- g_pos[[i]][keep]; si <- g_seq[[i]][keep]
         if (length(gi) < 2L) next
         d    <- diff(gi)
         same <- si[-length(si)] == si[-1L]

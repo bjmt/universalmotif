@@ -330,3 +330,19 @@ test_that("odds ratios do not overflow for large tables", {
   r <- expect_silent(motif_coocc(mots, hits = hits, n.sequences = 240000))
   expect_equal(r$odds_ratio, 1)
 })
+
+test_that("self pairs are counted by distinct positions and not tested", {
+  mots <- list(create_motif("ACGT", name = "A"), create_motif("CCCC", name = "B"))
+  hits <- data.frame(motif.i = c(1, 1, 1, 1, 1, 2, 2), motif = c(rep("A", 5), "B", "B"),
+    sequence.i = c(1, 1, 2, 3, 3, 1, 4), sequence = paste0("s", c(1, 1, 2, 3, 3, 1, 4)),
+    start = c(5, 5, 10, 3, 20, 7, 1), stop = c(8, 8, 13, 6, 23, 10, 4),
+    strand = c("+", "-", "+", "+", "+", "+", "+"))
+  r <- motif_coocc(mots, hits = hits, n.sequences = 10, self.pairs = TRUE,
+                   max.distance = 100)
+  aa <- r[r$motif_a == "A" & r$motif_b == "A", ]
+  expect_equal(c(aa$a_only, aa$b_only, aa$both, aa$neither), c(2, 0, 1, 7))
+  expect_true(is.na(aa$pvalue) && is.na(aa$qvalue))
+  expect_equal(aa$median.distance, 17)
+  ab <- r[r$motif_a == "A" & r$motif_b == "B", ]
+  expect_equal(ab$qvalue, ab$pvalue)
+})

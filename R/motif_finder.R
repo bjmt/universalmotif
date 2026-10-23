@@ -26,7 +26,7 @@
 #' @param stop.pvalue `numeric(1)`. Per-motif Fisher's exact p-value below
 #'   which a candidate motif is accepted. Default `1e-3`.
 #' @param qvalue `numeric(1)`. Final BH-adjusted q-value cutoff. Motifs
-#'   with `qvalue` above this are dropped. Default `1e-3`.
+#'   with `qvalue` above this are dropped. Default `0.05`.
 #' @param dedup.overlap `numeric(1)`. Cross-width dedup overlap fraction.
 #'   When the intersection of two motifs' positional coverage divided by
 #'   the smaller motif's coverage exceeds this, the higher-p-value motif
@@ -57,8 +57,11 @@
 #'   \item `sites_neg`: total background hits
 #'   \item `n_pos`: number of positive sequences
 #'   \item `n_neg`: number of background sequences
-#'   \item `pvalue`: Fisher's exact one-sided p-value
-#'   \item `qvalue`: Benjamini-Hochberg q-value
+#'   \item `pvalue`: Fisher's exact one-sided p-value, multiplied by the
+#'     number of words tried in the search that found the motif and capped
+#'     at 1
+#'   \item `qvalue`: Benjamini-Hochberg q-value, counting every word tried
+#'     at every width as a test
 #' }
 #'
 #' Use [to_list()] on the returned object to recover a plain list of
@@ -71,6 +74,12 @@
 #' refinement on positive sequences, per-motif Fisher's exact
 #' significance against a shuffled or supplied background, and
 #' position masking between discoveries.
+#'
+#' Each motif is the best of the thousands of words tried at its width, so
+#' its P-value is corrected for that search, and the q-values count every
+#' word tried at every width. Without these corrections, random sequences
+#' compared with shuffled ones give apparent motifs with very small
+#' q-values.
 #'
 #' Motifs with `qvalue > qvalue` are dropped from the result. To see
 #' all discovered motifs regardless of significance, set
@@ -108,7 +117,7 @@ motif_finder <- function(sequences, bkg.sequences = NULL,
                          nmotifs     = 10L,
                          hit.pvalue  = 1e-4,
                          stop.pvalue = 1e-3,
-                         qvalue      = 1e-3,
+                         qvalue      = 0.05,
                          dedup.overlap = 0.5,
                          RC          = TRUE,
                          shuffle.k   = 2L,

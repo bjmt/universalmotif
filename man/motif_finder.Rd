@@ -6,7 +6,7 @@
 \usage{
 motif_finder(sequences, bkg.sequences = NULL, min.width = 6L,
   max.width = 15L, nmotifs = 10L, hit.pvalue = 1e-04,
-  stop.pvalue = 0.001, qvalue = 0.001, dedup.overlap = 0.5, RC = TRUE,
+  stop.pvalue = 0.001, qvalue = 0.05, dedup.overlap = 0.5, RC = TRUE,
   shuffle.k = 2L, rng.seed = sample.int(1e+06, 1), pseudocount = 1L,
   nthreads = 1)
 }
@@ -32,7 +32,7 @@ hit during scanning. Default \code{1e-4}.}
 which a candidate motif is accepted. Default \code{1e-3}.}
 
 \item{qvalue}{\code{numeric(1)}. Final BH-adjusted q-value cutoff. Motifs
-with \code{qvalue} above this are dropped. Default \code{1e-3}.}
+with \code{qvalue} above this are dropped. Default \code{0.05}.}
 
 \item{dedup.overlap}{\code{numeric(1)}. Cross-width dedup overlap fraction.
 When the intersection of two motifs' positional coverage divided by
@@ -70,8 +70,11 @@ stats are carried as additional columns:
 \item \code{sites_neg}: total background hits
 \item \code{n_pos}: number of positive sequences
 \item \code{n_neg}: number of background sequences
-\item \code{pvalue}: Fisher's exact one-sided p-value
-\item \code{qvalue}: Benjamini-Hochberg q-value
+\item \code{pvalue}: Fisher's exact one-sided p-value, multiplied by the
+number of words tried in the search that found the motif and capped
+at 1
+\item \code{qvalue}: Benjamini-Hochberg q-value, counting every word tried
+at every width as a test
 }
 
 Use \code{\link[=to_list]{to_list()}} on the returned object to recover a plain list of
@@ -97,6 +100,12 @@ counting with per-sequence Fisher's exact ranking, iterative PPM
 refinement on positive sequences, per-motif Fisher's exact
 significance against a shuffled or supplied background, and
 position masking between discoveries.
+
+Each motif is the best of the thousands of words tried at its width, so
+its P-value is corrected for that search, and the q-values count every
+word tried at every width. Without these corrections, random sequences
+compared with shuffled ones give apparent motifs with very small
+q-values.
 
 Motifs with \code{qvalue > qvalue} are dropped from the result. To see
 all discovered motifs regardless of significance, set

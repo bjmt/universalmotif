@@ -286,6 +286,19 @@ BUG FIXES
   o motif_peaks() numbers motifs by code point rather than locale, and
     motif_proximity() keeps the motif.i from scan_sequences().
 
+  o motif_finder() corrects each motif's P-value for the words tried in
+    its search and counts every word tried in the q-values, so random
+    sequences no longer give significant motifs. The default `qvalue`
+    cutoff is now 0.05.
+
+  o motif_proximity() places hits at their middle positions, which
+    stops wide hits being reported as enriched near random anchors, and
+    clips anchor zones at chromosome ends.
+
+  o motif_coocc(self.pairs = TRUE) no longer tests a motif against
+    itself; self-pairs count sequences with hits at two or more distinct
+    positions.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

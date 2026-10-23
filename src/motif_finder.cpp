@@ -314,9 +314,12 @@ static double fishers_exact_log_greater(uint64_t a, uint64_t b,
   double p = std::exp(log_sum);
   return p > 1.0 ? 1.0 : p;
 }
-static void bh_qvalues(const std::vector<double> &p, std::vector<double> &q) {
+// BH q-values for p, counting `m` tests in all (at least p.size()).
+static void bh_qvalues(const std::vector<double> &p, std::vector<double> &q,
+                       double m) {
   uint64_t n = p.size();
   if (n == 0) { q.clear(); return; }
+  if (m < (double) n) m = (double) n;
   q.assign(n, 1.0);
   std::vector<std::pair<double, uint64_t>> srt(n);
   for (uint64_t i = 0; i < n; i++) srt[i] = {p[i], i};
@@ -328,7 +331,7 @@ static void bh_qvalues(const std::vector<double> &p, std::vector<double> &q) {
   double prev = 1.0;
   for (uint64_t i = n; i > 0;) {
     i--;
-    double qv = srt[i].first * (double) n / (double) (i + 1);
+    double qv = srt[i].first * m / (double) (i + 1);
     if (qv > prev) qv = prev;
     prev = qv;
     q[srt[i].second] = qv > 1.0 ? 1.0 : qv;
@@ -362,8 +365,9 @@ struct Seed { uint64_t kmer; double pval; };
 static int enumerate_seeds(const std::vector<std::string> &pos_seqs,
                            const std::vector<std::string> &neg_seqs,
                            uint64_t w, bool RC,
-                           std::vector<Seed> &out) {
+                           std::vector<Seed> &out, uint64_t &n_candidates) {
   out.clear();
+  n_candidates = 0;
   std::unordered_map<uint64_t, uint64_t> pos_h, neg_h;
 
   // Reuse the `seen` set across sequences within this call. clear() preserves
@@ -393,6 +397,7 @@ static int enumerate_seeds(const std::vector<std::string> &pos_seqs,
   count_set(neg_seqs, neg_h);
 
   uint64_t n_pos = pos_seqs.size(), n_neg = neg_seqs.size();
+  n_candidates = pos_h.size();
   if (pos_h.empty()) return 0;
 
   std::vector<Seed> cands;
@@ -678,6 +683,7 @@ struct DiscResult {
   uint64_t seqs_pos,  seqs_neg;
   uint64_t width;
   uint64_t discovery_seq;
+  uint64_t candidates;  // words tried in the search that found the motif
   bool     dropped;
 };
 
@@ -690,7 +696,8 @@ static void discover_for_width(const std::vector<std::string> &pristine_pos,
                                uint64_t w, int nmotifs, bool RC,
                                const std::array<double, 4> &bkg,
                                int pseudocount, double hit_pval, double stop_pval,
-                               std::vector<DiscResult> &local_results) {
+                               std::vector<DiscResult> &local_results,
+                               uint64_t &tested) {
   std::vector<std::string> mut_pos = pristine_pos;  // mutable copy for masking
 
   // Scratch buffers reused across iterations and across seed attempts; only
@@ -712,7 +719,9 @@ static void discover_for_width(const std::vector<std::string> &pristine_pos,
     // all per-width buffers are released before control returns to R.
     RcppThread::checkUserInterrupt();
 
-    if (enumerate_seeds(mut_pos, neg_seqs, w, RC, seeds) != 0) return;
+    uint64_t candidates = 0;
+    if (enumerate_seeds(mut_pos, neg_seqs, w, RC, seeds, candidates) != 0) return;
+    tested += candidates;
     if (seeds.empty()) break;
 
     bool accepted = false;
@@ -760,6 +769,7 @@ static void discover_for_width(const std::vector<std::string> &pristine_pos,
       r.seqs_neg      = en;
       r.width         = w;
       r.discovery_seq = intra;
+      r.candidates    = candidates;
       r.dropped       = false;
       local_results.push_back(std::move(r));
 
@@ -876,14 +886,17 @@ Rcpp::List motif_finder_cpp(const std::vector<std::string> &pos_seqs,
   uint64_t n_widths = (uint64_t) (max_w - min_w + 1);
   // Per-width local results; threading picks widths off this.
   std::vector<std::vector<DiscResult>> per_width(n_widths);
+  std::vector<uint64_t> tested(n_widths, 0);
 
   RcppThread::parallelFor(0, n_widths,
     [&](uint64_t wi) {
       uint64_t w = (uint64_t) min_w + wi;
       discover_for_width(pos_seqs, neg_seqs, w, nmotifs, RC, bkg,
                          pseudocount, hit_pvalue, stop_pvalue,
-                         per_width[wi]);
+                         per_width[wi], tested[wi]);
     }, nthreads);
+  double total_tests = 0;
+  for (uint64_t t : tested) total_tests += (double) t;
 
   // Merge in deterministic (width, discovery_seq) order
   std::vector<DiscResult> merged;
@@ -908,14 +921,24 @@ Rcpp::List motif_finder_cpp(const std::vector<std::string> &pos_seqs,
   // Cross-width dedup (this also sorts by pvalue ascending)
   dedup_results(merged, dedup_overlap);
 
-  // Collect survivors in p-value order; BH q-values across survivors only
+  // Each motif is the best of many words tried, so its P-value is
+  // multiplied by the number of words tried in the search that found it,
+  // and the q-values count every word tried at every width.
   std::vector<DiscResult> survivors;
   for (auto &r : merged) if (!r.dropped) survivors.push_back(std::move(r));
   std::vector<double> pvals(survivors.size());
   for (uint64_t i = 0; i < survivors.size(); i++) pvals[i] = survivors[i].pvalue;
   std::vector<double> qvals;
-  bh_qvalues(pvals, qvals);
-  for (uint64_t i = 0; i < survivors.size(); i++) survivors[i].qvalue = qvals[i];
+  bh_qvalues(pvals, qvals, total_tests);
+  for (uint64_t i = 0; i < survivors.size(); i++) {
+    survivors[i].qvalue = qvals[i];
+    double p = survivors[i].pvalue * (double) survivors[i].candidates;
+    survivors[i].pvalue = p > 1.0 ? 1.0 : p;
+  }
+  std::stable_sort(survivors.begin(), survivors.end(),
+                   [](const DiscResult &a, const DiscResult &b) {
+                     return a.pvalue < b.pvalue;
+                   });
 
   // IC-trim flanks on the final survivors
   for (auto &r : survivors) ic_trim_motif(r.motif);

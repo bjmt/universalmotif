@@ -340,3 +340,32 @@ test_that("motifs keep the index scan_sequences() gave them", {
   res <- suppressWarnings(motif_proximity(hits, anchors, universe = universe, qvalue = 1))
   expect_equal(res$motif.i[match(c("zeta", "alpha"), res$motif)], c(1L, 2L))
 })
+
+test_that("wide random hits are not reported as enriched", {
+  set.seed(1)
+  L <- 5e6
+  hits <- GenomicRanges::GRanges("chr1",
+    IRanges::IRanges(sample.int(L - 20, 20000), width = 10),
+    motif = "m", score = 1, seqlengths = c(chr1 = L))
+  anchors <- GenomicRanges::GRanges("chr1", IRanges::IRanges(sample.int(L, 1000), width = 1),
+                                    seqlengths = c(chr1 = L))
+  r <- motif_proximity(hits, anchors, qvalue = 1, dist.thresholds = c(10L, 50L, 100L))
+  expect_gt(r$pvalue, 0.01)
+})
+
+test_that("motif.i follows scan_sequences() rather than first appearance", {
+  h <- GenomicRanges::GRanges("chr1", IRanges::IRanges(c(100, 500, 900, 1300), width = 10),
+    motif = c("zeta", "alpha", "zeta", "alpha"), motif.i = c(2L, 1L, 2L, 1L), score = 1)
+  a <- GenomicRanges::GRanges("chr1", IRanges::IRanges(c(105, 905), width = 1))
+  r <- suppressWarnings(motif_proximity(h, a, universe = GenomicRanges::GRanges("chr1",
+    IRanges::IRanges(1, 2000)), qvalue = 1))
+  expect_equal(r$motif.i[match(c("zeta", "alpha"), r$motif)], c(2L, 1L))
+})
+
+test_that("zones are clipped at chromosome ends", {
+  U <- build_proximity_universe(NULL, GenomicRanges::GRanges("chr1",
+    IRanges::IRanges(1, 10), seqlengths = c(chr1 = 1000)))
+  expect_equal(unname(GenomeInfoDb::seqlengths(U)), 1000)
+  a <- GenomicRanges::GRanges("chr1", IRanges::IRanges(5, 5), seqlengths = c(chr1 = 1000))
+  expect_equal(GenomicRanges::start(dilate_anchors(a, 50, "undirected")), 1)
+})

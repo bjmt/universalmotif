@@ -137,6 +137,11 @@ the fraction of anchors that have at least one nearby hit; it has no
 clean analytical null, so \code{method = "permutation"} is recommended and
 \code{method = "binomial"} falls back to a Poisson occupancy approximation
 (anti-conservative when hits cluster).
+
+Each hit is placed at its middle position, the lower one for even widths,
+for counting and for distances, since the null treats hits as single
+positions; counting a hit whenever any part of it reached the near zone
+would inflate counts for wide hits.
 }
 \section{Caveats}{
 

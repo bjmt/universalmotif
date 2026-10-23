@@ -170,3 +170,13 @@ test_that("motif_finder is reproducible under rng.seed at nthreads = 2", {
                     nthreads = 2, rng.seed = 1)
   expect_equal(length(a), length(b))
 })
+
+test_that("P-values account for the words tried in the search", {
+  s <- create_sequences(seqnum = 300, seqlen = 300, rng.seed = 3)
+  r <- motif_finder(s, qvalue = 1, rng.seed = 3)
+  if (nrow(r)) expect_true(all(r$qvalue > 0.05))
+  x <- as.character(s)
+  for (i in 1:150) substr(x[i], 50, 59) <- "TGACGTCATG"
+  r <- motif_finder(Biostrings::DNAStringSet(x), rng.seed = 3)
+  expect_true(any(grepl("GACGTCA|TGACGTC", r$consensus)))
+})
