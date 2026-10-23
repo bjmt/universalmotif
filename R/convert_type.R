@@ -281,6 +281,7 @@ convert_type_single <- function(motif, type, pseudocount,
          call. = FALSE)
   }
 
+  new.pseudocount <- !is.null(pseudocount) && !identical(pseudocount, motif@pseudocount)
   if (is.null(pseudocount)) {
     pseudocount <- motif@pseudocount
   } else {
@@ -306,6 +307,8 @@ convert_type_single <- function(motif, type, pseudocount,
                   "ICM" = convert_from_icm(motif, type, pseudocount, bkg, nsites),
                   "CWM" = convert_from_cwm(motif, type, pseudocount, bkg, nsites,
                                            nsize_correction, relative_entropy))
+
+  if (new.pseudocount) motif <- refresh_motif_summary(motif)
 
   validObject_universalmotif(motif)
   motif

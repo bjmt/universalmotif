@@ -360,6 +360,12 @@ setMethod("create_motif", signature(input = "character"),
   } else {
     if (nchar(alphabet) == 1) stop("alphabet string must be longer than 1 character")
     alphabet <- collapse_cpp(sort_unique_cpp(safeExplode(alphabet)))
+    if (any(!lets.uniq %in% safeExplode(alphabet))) {
+      stop(wmsg(
+        "Detected letters in input that are not in the alphabet [",
+        collapse_cpp(lets.uniq[!lets.uniq %in% safeExplode(alphabet)]), "]"
+      ))
+    }
   }
 
   if (length(input) == 1) {
@@ -638,7 +644,7 @@ setMethod("create_motif", signature(input = "matrix"),
   matrix <- input
 
   if (!is.null(rownames(matrix)))
-    matrix <- matrix[order(rownames(matrix)), ]
+    matrix <- matrix[order(rownames(matrix)), , drop = FALSE]
 
   if (!missing(alphabet) && alphabet == "custom")
     stop(wmsg("`alphabet = 'custom'` is no longer acceptable; please provide ",
@@ -665,8 +671,6 @@ setMethod("create_motif", signature(input = "matrix"),
   else if (all(rownames(matrix) %in% RNA_BASES) &&
            missing(alphabet) && nrow(matrix) == 4)
     alphabet <- "RNA"
-  else if (nrow(matrix) == 20 && missing(alphabet))
-    alphabet <- "AA"
   else if (all(rownames(matrix) %in% AA_STANDARD2) &&
            missing(alphabet) && nrow(matrix) == 20)
     alphabet <- "AA"
@@ -909,7 +913,7 @@ setMethod("create_motif", signature(input = "BStringSet"),
     motif <- matrix(unlist(motif), ncol = mot_len, byrow = TRUE)
     motif <- apply(motif, 2, pcm_to_ppmC, pseudocount = 0)
     if (!is.null(rownames(motif)))
-      motif <- motif[order(rownames(motif)), ]
+      motif <- motif[order(rownames(motif)), , drop = FALSE]
 
     motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                            list(type = "PPM"), margs,

@@ -543,7 +543,7 @@ motif_range <- function(motif, use.freq = 1, allow.nonfinite = FALSE) {
 
   }
 
-  mat <- apply(mat * 1000, 1:2, as.integer)
+  mat <- trunc(mat * 1000)
 
   c(min = sum(apply(mat, 2, min)) / 1000, max = sum(apply(mat, 2, max)) / 1000)
 
@@ -616,7 +616,12 @@ motif_score <- function(motif, threshold = c(0, 1), use.freq = 1,
 #' @rdname utils-motif
 #' @export
 log_string_pval <- function(pval) {
-  pval_str2double(as.character(pval))
+  ## Works from the mantissa and exponent, so that values too small for a
+  ## double are fine.
+  parts <- strsplit(tolower(trimws(as.character(pval))), "e", fixed = TRUE)[[1]]
+  if (length(parts) > 2 || anyNA(suppressWarnings(as.numeric(parts))))
+    stop("could not read '", pval, "' as a number")
+  log(as.numeric(parts[1])) + if (length(parts) == 2) as.numeric(parts[2]) * log(10) else 0
 }
 
 #' @rdname utils-motif
@@ -849,7 +854,7 @@ round_motif <- function(motif, pct.tolerance = 0.05) {
   type <- motif@type
   motif <- convert_type_single(motif, "PPM", 0)
   motif@motif <- round_motif_cpp(motif@motif, pct.tolerance)
-  convert_type(motif, type)
+  refresh_motif_summary(convert_type(motif, type))
 }
 
 #' @rdname utils-motif

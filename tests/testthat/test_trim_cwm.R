@@ -58,3 +58,10 @@ test_that("trim_cwm on a uniformly-strong CWM returns the input unchanged", {
   trimmed <- trim_cwm(cwm)
   expect_equal(ncol(trimmed@motif), ncol(cwm@motif))
 })
+
+test_that("trim_cwm moves gaps", {
+  m <- matrix(c(0, 0, 0, .01, .5, 0, 0, 0, 0, .5, 0, 0, 0, 0, .5, 0), 4,
+              dimnames = list(DNA_BASES, NULL))
+  cwm <- add_gap(create_motif(m, type = "CWM"), gaploc = 2, mingap = 1, maxgap = 2)
+  expect_equal(trim_cwm(cwm)@gapinfo@gaploc, 1)
+})

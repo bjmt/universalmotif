@@ -32,3 +32,17 @@ test_that("motif_rc errors or no-ops on AA motifs", {
   m <- create_motif("AAYY", alphabet = "AA")
   expect_error(motif_rc(m))
 })
+
+test_that("motif_rc keeps gaps and higher-order matrices", {
+  g <- add_gap(create_motif("AAAACCCCGG"), gaploc = 3, mingap = 1, maxgap = 3)
+  rc <- motif_rc(g)
+  expect_equal(rc@gapinfo@gaploc, 7)
+  expect_equal(c(rc@gapinfo@mingap, rc@gapinfo@maxgap), c(1, 3))
+  expect_true(rc@gapinfo@isgapped)
+  seqs <- Biostrings::DNAStringSet(c("AACGT", "AACGT", "ATCGA"))
+  m <- add_multifreq(create_motif(seqs), seqs, add.k = 2)
+  rcs <- Biostrings::reverseComplement(seqs)
+  m.rc <- add_multifreq(create_motif(rcs), rcs, add.k = 2)
+  expect_equal(unname(motif_rc(m)@multifreq[["2"]]), unname(m.rc@multifreq[["2"]]))
+  expect_equal(motif_rc(motif_rc(m))@multifreq, m@multifreq)
+})

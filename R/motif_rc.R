@@ -41,15 +41,29 @@ motif_rc_internal <- function(motifs, ignore.alphabet = FALSE) {
   if (!motifs@alphabet %in% c("DNA", "RNA") && !ignore.alphabet)
     stop("Only DNA/RNA motifs are allowed")
 
+  ## Each k-mer row takes the values of its reverse complement, in the
+  ## reverse column order.
   multifreq <- motifs@multifreq
   if (length(multifreq) > 0) {
+    comp <- if (motifs@alphabet == "RNA") c("ACGU", "UGCA") else c("ACGT", "TGCA")
     for (i in seq_along(multifreq)) {
-      rown.prev <- rownames(multifreq[[i]])
-      multifreq[[i]] <- matrix(rev(as.numeric(multifreq[[i]])),
-                               nrow = nrow(multifreq[[i]]))
-      rownames(multifreq[[i]]) <- rown.prev
-      colnames(multifreq[[i]]) <- seq_len(ncol(multifreq[[i]]))
+      mat <- multifreq[[i]]
+      rc.names <- vapply(rownames(mat), function(x)
+        collapse_cpp(rev(safeExplode(chartr(comp[1], comp[2], x)))), character(1))
+      mat <- mat[rc.names, rev(seq_len(ncol(mat))), drop = FALSE]
+      dimnames(mat) <- dimnames(multifreq[[i]])
+      multifreq[[i]] <- mat
     }
+  }
+
+  ## A gap after column g of a motif of width n falls after column n - g of
+  ## its reverse complement.
+  gapinfo <- motifs@gapinfo
+  if (length(gapinfo@gaploc) > 0) {
+    o <- rev(seq_along(gapinfo@gaploc))
+    gapinfo@gaploc <- ncol(motifs@motif) - gapinfo@gaploc[o]
+    gapinfo@mingap <- gapinfo@mingap[o]
+    gapinfo@maxgap <- gapinfo@maxgap[o]
   }
 
   motifs <- universalmotif_cpp(name = motifs@name, altname = motifs@altname,
@@ -65,7 +79,8 @@ motif_rc_internal <- function(motifs, ignore.alphabet = FALSE) {
                            qval = motifs@qval, eval = motifs@eval,
                            extrainfo = motifs@extrainfo)
 
-  if (length(multifreq) > 0) motif@multifreq <- multifreq
+  if (length(multifreq) > 0) motifs@multifreq <- multifreq
+  motifs@gapinfo <- gapinfo
 
   validObject_universalmotif(motifs)
   motifs

@@ -51,3 +51,16 @@ test_that("trim_motifs() trims only from the right when trim.from = 'right'", {
   expect_lte(ncol(trimmed), ncol(m))
   expect_gt(ncol(trimmed), 3)
 })
+
+test_that("trim_motifs leaves nsites empty and moves gaps", {
+  mat <- matrix(c(.25, .25, .25, .25, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+                  .25, .25, .25, .25), 4, dimnames = list(DNA_BASES, NULL))
+  m <- create_motif(mat)
+  expect_length(m@nsites, 0)
+  expect_length(trim_motifs(m)@nsites, 0)
+  g <- trim_motifs(add_gap(m, gaploc = 2, mingap = 1, maxgap = 2))
+  expect_equal(g@gapinfo@gaploc, 1)
+  g <- trim_motifs(add_gap(m, gaploc = 1, mingap = 1, maxgap = 2))
+  expect_length(g@gapinfo@gaploc, 0)
+  expect_false(g@gapinfo@isgapped)
+})

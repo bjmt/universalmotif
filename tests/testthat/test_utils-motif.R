@@ -126,3 +126,29 @@ test_that("prob_match returns a finite probability for a matching string", {
   expect_true(all(is.finite(p)))
   expect_true(all(p >= 0))
 })
+
+test_that("ppm_to_pcm keeps counts even and positive", {
+  expect_equal(ppm_to_pcm(rep(.25, 4), nsites = 50), c(13, 13, 12, 12))
+  expect_equal(ppm_to_pcm(c(.5, .3, .2, 0), nsites = 10), c(5, 3, 2, 0))
+  expect_s4_class(create_motif("BZJX", nsites = 50), "universalmotif")
+})
+
+test_that("relative entropy, motif_range and log_string_pval handle extremes", {
+  expect_equal(ppm_to_icm(c(1, 0, 0, 0), relative_entropy = TRUE), c(2, 0, 0, 0))
+  r <- motif_range(create_motif("ACGT", pseudocount = 0), allow.nonfinite = TRUE)
+  expect_equal(unname(r), c(-Inf, 8))
+  expect_equal(log_string_pval("1e-400"), -400 * log(10))
+  expect_equal(log_string_pval("2.5e-3"), log(2.5e-3))
+})
+
+test_that("the total IC and consensus follow the matrix", {
+  m <- create_motif(matrix(c(.6, .3, .06, .04, .5, .5, 0, 0), 4,
+                           dimnames = list(DNA_BASES, NULL)))
+  r <- round_motif(m, .1)
+  expect_equal(r@icscore, create_motif(r@motif)@icscore)
+  x <- create_motif("AAAACCCC", nsites = 10, type = "PCM")
+  y <- convert_type(x, "PPM", pseudocount = 5)
+  expect_equal(y@icscore, create_motif(y@motif, pseudocount = 5, nsites = 10)@icscore)
+  z <- suppressMessages(normalize(create_motif("AAAACCCC", pseudocount = 0)))
+  expect_equal(z@icscore, create_motif(z@motif, pseudocount = 1)@icscore)
+})

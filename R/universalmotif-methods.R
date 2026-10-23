@@ -428,7 +428,8 @@ setMethod("normalize", signature(object = "universalmotif"),
     pseudo <- 1
   }
   object <- convert_type(object, "PCM")
-  convert_type(object, type, pseudocount = pseudo)
+  object <- convert_type(object, type, pseudocount = pseudo)
+  refresh_motif_summary(object)
 })
 
 #' @rdname universalmotif-class

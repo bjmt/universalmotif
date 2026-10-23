@@ -193,6 +193,30 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o motif_rc() keeps gaps and no longer fails for motifs with
+    higher-order matrices, which are now reverse complemented correctly.
+
+  o trim_motifs() and trim_cwm() move gaps with the trimmed columns, and
+    trim_motifs() no longer fills in an empty nsites slot.
+
+  o create_motif() accepts one-column matrices with row names, rejects
+    letters outside a custom alphabet, and only reads 20-row matrices as
+    amino acids when the row names are amino acids.
+
+  o Validation now checks single gaps, gap sizes, NaN values and
+    negative pseudocounts.
+
+  o PPM to PCM conversion no longer gives uneven or negative counts when
+    rounding overshoots.
+
+  o round_motif(), normalize() and convert_type() with a new pseudocount
+    update the total IC and consensus.
+
+  o Relative entropy is 0 rather than NaN for letters with probability 0.
+
+  o motif_range(allow.nonfinite = TRUE) no longer returns NA, and
+    log_string_pval() works for values below 1e-308 on all platforms.
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 

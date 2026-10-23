@@ -42,13 +42,6 @@ trim_motifs <- function(motifs, min.ic = 0.25, trim.from = c("both", "left", "ri
   if (!is.list(motifs)) motifs <- list(motifs)
   mot.names <- vapply(motifs, function(x) x@name, character(1))
 
-  motifs <- lapply(motifs,
-                     function(x) {
-                       y <- x@nsites
-                       if (length(y) == 0) x@nsites <- 100
-                       x
-                     })
-
   mot.mats <- lapply(motifs, function(x) x@motif)
 
   mot.mats.k <- lapply(motifs, function(x) x@multifreq)
@@ -59,8 +52,14 @@ trim_motifs <- function(motifs, min.ic = 0.25, trim.from = c("both", "left", "ri
                                 bkg = x@bkg[rownames(x@motif)],
                                 type = x@type,
                                 pseudocount = x@pseudocount,
-                                nsites = x@nsites)
+                                nsites = if (length(x@nsites)) x@nsites else 100)
                          })
+
+  cut.left <- vapply(mot.scores, function(x) {
+    if (!trim.from %in% c(0, 1)) return(0)
+    kept <- which(x >= min.ic)
+    if (length(kept)) kept[1] - 1 else length(x)
+  }, numeric(1))
 
   new.mats <- mapply(function(x, y) trim_motif_internal(x, y, min.ic, trim.from),
     mot.mats, mot.scores, SIMPLIFY = FALSE)
@@ -75,12 +74,12 @@ trim_motifs <- function(motifs, min.ic = 0.25, trim.from = c("both", "left", "ri
   )
 
   motifs <- mapply(
-    function(x, y, z) {
+    function(x, y, z, cut) {
       if (length(x) == 0) return(NULL)
       z@motif <- x
       z@multifreq <- y
-      z
-     }, new.mats, new.mats.k, motifs,
+      trim_gapinfo(z, cut)
+     }, new.mats, new.mats.k, motifs, cut.left,
      SIMPLIFY = FALSE
   )
 
@@ -98,30 +97,7 @@ trim_motifs <- function(motifs, min.ic = 0.25, trim.from = c("both", "left", "ri
 
   motifs <- lapply(motifs,
                      function(x) {
-                       alph <- x@alphabet
-                       type <- x@type
-                       pseudo <- x@pseudocount
-                       mat <- x@motif
-                       bkg <- x@bkg[rownames(mat)]
-                       nsites <- x@nsites
-                       ic <- sum(apply(mat, 2, position_icscoreC, bkg = bkg,
-                                 type = type, pseudocount = pseudo,
-                                 nsites = nsites))
-                       x@icscore <- ic
-                       if (alph %in% c("DNA", "RNA")) {
-                         consensus <- apply(mat, 2, get_consensusC,
-                                            alphabet = alph, type = type,
-                                            pseudocount = pseudo)
-                         colnames(mat) <- consensus
-                         x@motif <- mat
-                         x@consensus <- paste(consensus, collapse = "")
-                       } else if (alph == "AA") {
-                         consensus <- apply(mat, 2, get_consensusAAC,
-                                            type = type, pseudocount = pseudo)
-                         colnames(mat) <- consensus
-                         x@motif <- mat
-                         x@consensus <- paste(consensus, collapse = "")
-                       }
+                       x <- refresh_motif_summary(x)
                        validObject_universalmotif(x)
                        x
                      })

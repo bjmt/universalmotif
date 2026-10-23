@@ -213,10 +213,6 @@ round_motif_cpp <- function(mot, pct_tolerance) {
     .Call('_universalmotif_round_motif_cpp', PACKAGE = 'universalmotif', mot, pct_tolerance)
 }
 
-pval_str2double <- function(pval) {
-    .Call('_universalmotif_pval_str2double', PACKAGE = 'universalmotif', pval)
-}
-
 split_gapped <- function(mot, gaploc) {
     .Call('_universalmotif_split_gapped', PACKAGE = 'universalmotif', mot, gaploc)
 }

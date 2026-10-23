@@ -2,6 +2,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <algorithm>
+#include <numeric>
 #include <limits>
 #include "utils-internal.h"
 #include "types.h"
@@ -109,14 +110,6 @@ Rcpp::NumericMatrix round_motif_cpp(const Rcpp::NumericMatrix &mot,
     motif(Rcpp::_, i) = motif(Rcpp::_, i) / mcs[i];
   }
   return motif;
-}
-
-// [[Rcpp::export(rng = false)]]
-double pval_str2double(const std::string &pval) {
-  // error when pval < 1e-4931
-  long double pval2 = std::stold(pval);
-  pval2 = std::log(pval2);
-  return double(pval2);
 }
 
 // [[Rcpp::export(rng = false)]]
@@ -383,11 +376,32 @@ std::vector<double> ppm_to_pcmC(std::vector<double> pos, double nsites = 0) {
 
   std::size_t n = pos.size();
 
+  vec_num_t scaled(n);
   for (std::size_t i = 0; i < n; ++i) {
-    pos[i] = round(pos[i] * nsites);
+    scaled[i] = pos[i] * nsites;
+    pos[i] = round(scaled[i]);
   }
 
   double spos = std::accumulate(pos.begin(), pos.end(), 0.0);
+
+  // When rounding overshoots by more than one site, taking the excess from
+  // the largest count can leave uneven or even negative counts. Instead,
+  // round down and give the sites left over to the largest remainders
+  // (compared to nine decimal places, so that equal values tie).
+  if (spos - nsites > 1) {
+    for (std::size_t i = 0; i < n; ++i) pos[i] = std::floor(scaled[i]);
+    double shortfall = round(nsites - std::accumulate(pos.begin(), pos.end(), 0.0));
+    if (shortfall >= 1) {
+      std::vector<std::size_t> order(n);
+      std::iota(order.begin(), order.end(), 0);
+      std::stable_sort(order.begin(), order.end(),
+          [&](std::size_t a, std::size_t b) {
+            return round((scaled[a] - pos[a]) * 1e9) > round((scaled[b] - pos[b]) * 1e9);
+          });
+      for (std::size_t i = 0; i < std::size_t(shortfall) && i < n; ++i) pos[order[i]] += 1;
+    }
+    spos = std::accumulate(pos.begin(), pos.end(), 0.0);
+  }
 
   if (spos != nsites) {
     double fix = nsites - spos;
@@ -479,7 +493,7 @@ std::vector<double> ppm_to_icmC(std::vector<double> pos,
   if (relative_entropy) {
     for (std::size_t i = 0; i < n_pos; ++i) {
       double tmp = pos[i] / bkg[i];
-      pos[i] *= tmp >= 0 ? log2(tmp) : 0.0;
+      pos[i] = tmp > 0 ? pos[i] * log2(tmp) : 0.0;
       if (pos[i] < 0) pos[i] = 0.0;
     }
   } else {

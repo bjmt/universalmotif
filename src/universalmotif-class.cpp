@@ -283,6 +283,8 @@ Rcpp::StringVector check_length(const Rcpp::StringVector &m_name,
   if (m_icscore.size()     != 1) msg.push_back("* icscore must be length 1");
   if (m_nsites.size()       > 1) msg.push_back("* nsites cannot be longer than 1");
   if (m_pseudocount.size() != 1) msg.push_back("* pseudocount must be length 1");
+  else if (!std::isfinite(m_pseudocount[0]) || m_pseudocount[0] < 0)
+    msg.push_back("* pseudocount must be a finite number, 0 or greater");
   if (m_bkgsites.size()     > 1) msg.push_back("* bkgsites cannot be longer than 1");
   if (m_consensus.size()    > 1) msg.push_back("* consensus cannot be longer than 1");
   if (m_strand.size()      != 1) msg.push_back("* strand must be length 1");
@@ -414,6 +416,13 @@ Rcpp::StringVector check_motif_and_type(const Rcpp::NumericMatrix &m_motif,
 
   SEXP s_type = m_type[0];
   if (Rf_isNull(s_type)) return msg;
+
+  for (R_xlen_t i = 0; i < m_motif.size(); ++i) {
+    if (std::isnan(m_motif[i])) {
+      msg.push_back("* motif matrix cannot have NaN or NA values");
+      return msg;
+    }
+  }
 
   Rcpp::NumericVector motif_colsums = Rcpp::colSums(m_motif);
 
@@ -553,13 +562,17 @@ Rcpp::StringVector check_gap(const Rcpp::RObject &gap, const R_xlen_t ncol,
   if (gaploc.length() != mingap.length() || gaploc.length() != maxgap.length())
     msg.push_back("* gaploc, mingap and maxgap should all be the same length");
 
-  if (gaploc.length() > 1) {
+  if (gaploc.length() == mingap.length() && gaploc.length() == maxgap.length()) {
     for (R_xlen_t i = 0; i < gaploc.length(); ++i) {
       if (gaploc[i] <= 0)
         msg.push_back("* position 0 gaps or less are not allowed");
       if (gaploc[i] >= ncol) {
         msg.push_back("* gap location values should not exceed motif size - 1");
       }
+      if (mingap[i] < 0 || mingap[i] > maxgap[i])
+        msg.push_back("* mingap must be between 0 and maxgap");
+      if (maxgap[i] <= 0)
+        msg.push_back("* maxgap must be greater than 0");
     }
   }
 

@@ -139,6 +139,7 @@ trim_cwm_single <- function(motif, trim.threshold, abs.threshold, trim.from) {
   if (length(keep_range) == 0L) return(NULL)
 
   motif@motif <- mat[, keep_range, drop = FALSE]
+  motif <- trim_gapinfo(motif, left - 1L)
 
   ## Refresh derived slots so the trimmed motif validates cleanly.
   alph <- motif@alphabet

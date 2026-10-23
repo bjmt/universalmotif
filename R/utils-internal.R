@@ -523,3 +523,46 @@ warn_motif_metadata_loss <- function(motifs, destination, keep.multifreq = chara
     "; use write_motifs() or saveRDS() to retain them.", call. = FALSE)
   invisible(NULL)
 }
+
+## Recompute the total IC and consensus from the matrix, for functions that
+## change the matrix, pseudocount or nsites of a motif.
+refresh_motif_summary <- function(motif) {
+  mat <- motif@motif
+  type <- motif@type
+  pseudo <- motif@pseudocount
+  bkg <- motif@bkg[rownames(mat)]
+  if (anyNA(bkg)) bkg <- rep(1 / nrow(mat), nrow(mat))
+  nsites <- if (length(motif@nsites) > 0) motif@nsites else 100
+  motif@icscore <- sum(apply(mat, 2, position_icscoreC, bkg = bkg, type = type,
+                             pseudocount = pseudo, nsites = nsites))
+  alph <- motif@alphabet
+  if (alph %in% c("DNA", "RNA")) {
+    consensus <- apply(mat, 2, get_consensusC, alphabet = alph, type = type,
+                       pseudocount = pseudo)
+  } else if (alph == "AA") {
+    consensus <- apply(mat, 2, get_consensusAAC, type = type,
+                       pseudocount = pseudo)
+  } else {
+    return(motif)
+  }
+  consensus <- unname(consensus)
+  colnames(mat) <- consensus
+  motif@motif <- mat
+  motif@consensus <- paste(consensus, collapse = "")
+  motif
+}
+
+## Move the gaps of a motif whose first `cut.left` columns were removed,
+## dropping any that no longer fall between two of its columns.
+trim_gapinfo <- function(motif, cut.left) {
+  gap <- motif@gapinfo
+  if (length(gap@gaploc) == 0) return(motif)
+  loc <- gap@gaploc - cut.left
+  keep <- loc >= 1 & loc < ncol(motif@motif)
+  gap@gaploc <- loc[keep]
+  gap@mingap <- gap@mingap[keep]
+  gap@maxgap <- gap@maxgap[keep]
+  gap@isgapped <- any(keep)
+  motif@gapinfo <- gap
+  motif
+}

@@ -109,3 +109,23 @@ test_that("motif creation from character input works", {
   expect_equal(m2["icscore"], 0)
 
 })
+
+test_that("create_motif handles single columns, custom letters and 20 rows", {
+  m <- create_motif(matrix(c(.1, .2, .3, .4), 4, dimnames = list(DNA_BASES, NULL)))
+  expect_equal(ncol(m@motif), 1)
+  expect_error(create_motif(c("ABCD", "ABCX"), alphabet = "ABCD"), "not in the alphabet")
+  x <- matrix(1 / 20, 20, 3, dimnames = list(LETTERS[1:20], NULL))
+  expect_equal(create_motif(x)@alphabet, "ABCDEFGHIJKLMNOPQRST")
+  rownames(x) <- AA_STANDARD2
+  expect_equal(create_motif(x)@alphabet, "AA")
+})
+
+test_that("invalid pseudocounts and gaps are rejected", {
+  expect_error(create_motif("ACGT", pseudocount = -1), "pseudocount")
+  g <- add_gap(create_motif("AAAACCCC"), gaploc = 4, mingap = 1, maxgap = 3)
+  g@gapinfo@gaploc <- 50
+  expect_error(validObject_universalmotif(g), "motif size")
+  g@gapinfo@gaploc <- 4
+  g@gapinfo@mingap <- 5
+  expect_error(validObject_universalmotif(g), "mingap")
+})
