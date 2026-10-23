@@ -271,7 +271,15 @@ motif_proximity <- function(hits = NULL, anchors,
   }
 
   ## --- per-motif test --------------------------------------------------
-  motif_ids <- sort(unique(as.character(S4Vectors::mcols(hits.gr)$motif)))
+  ## Motifs keep the index scan_sequences() gave them, or are numbered in
+  ## order of first appearance.
+  hit.motifs <- as.character(S4Vectors::mcols(hits.gr)$motif)
+  motif_ids <- unique(hit.motifs)
+  motif_idx <- if ("motif.i" %in% names(S4Vectors::mcols(hits.gr))) {
+    as.integer(S4Vectors::mcols(hits.gr)$motif.i[match(motif_ids, hit.motifs)])
+  } else seq_along(motif_ids)
+  motif_ids <- motif_ids[order(motif_idx)]
+  motif_idx <- sort(motif_idx)
 
   one <- function(i) {
     hm <- hits.gr[as.character(S4Vectors::mcols(hits.gr)$motif) == motif_ids[i]]
@@ -285,7 +293,8 @@ motif_proximity <- function(hits = NULL, anchors,
     lapply(seq_along(motif_ids), one)
   }
 
-  assemble_proximity_result(motif_ids, per, method, count, orientation, qvalue)
+  assemble_proximity_result(motif_ids, per, method, count, orientation, qvalue,
+                            motif_idx)
 }
 
 #' Plot the distance-to-anchor distribution of motif hits.
@@ -842,14 +851,15 @@ per_motif_proximity <- function(hits.m, anchors, U, Utot, dthr, method, count,
 
 ## Bind per-motif results, BH-adjust, filter by qvalue, sort.
 assemble_proximity_result <- function(motif_ids, per, method, count,
-                                      orientation, qvalue) {
+                                      orientation, qvalue,
+                                      motif_idx = seq_along(motif_ids)) {
   if (!length(motif_ids)) return(empty_proximity_result())
   num <- function(f) vapply(per, function(x) as.numeric(x[[f]]), numeric(1))
   int <- function(f) vapply(per, function(x) as.integer(x[[f]]), integer(1))
 
   out <- data.frame(
     motif           = as.character(motif_ids),
-    motif.i         = seq_along(motif_ids),
+    motif.i         = as.integer(motif_idx),
     method          = method,
     count           = count,
     orientation     = orientation,

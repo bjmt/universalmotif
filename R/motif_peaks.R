@@ -190,7 +190,8 @@ motif_peaks <- function(hits, seq.length = NULL,
   if (nrow(hits.df) == 0L) return(empty_peaks_result())
 
   ## --- per-motif positional test --------------------------------------
-  motif_ids <- sort(unique(hits.df$motif))
+  ## Sorted by code point, so that the numbering does not depend on locale.
+  motif_ids <- sort(unique(hits.df$motif), method = "radix")
   per_motif <- if (nthreads > 1L && requireNamespace("parallel", quietly = TRUE)) {
     parallel::mclapply(motif_ids,
                        function(m) test_one_motif(hits.df[hits.df$motif == m, ],

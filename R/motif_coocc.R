@@ -328,7 +328,8 @@ motif_coocc <- function(motifs, sequences = NULL,
   ## p-value in a single call. With an all-integer table (the default
   ## pseudocount = 0) this matches fisher.test() to floating-point
   ## precision.
-  pc <- as.integer(pseudocount)
+  ## Doubles, so that the odds ratio's products cannot overflow.
+  pc <- as.numeric(as.integer(pseudocount))
   a  <- out$both    + pc        # top-left cell: sequences with both motifs
   b  <- out$a_only  + pc
   cc <- out$b_only  + pc

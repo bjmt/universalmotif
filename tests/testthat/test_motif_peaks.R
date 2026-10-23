@@ -265,3 +265,12 @@ test_that("seq.strand errors on missing / invalid entries", {
   bad <- ss; bad[1] <- "?"
   expect_error(motif_peaks(hits, seq.strand = bad), regexp = "\\+")
 })
+
+test_that("motifs are numbered by code point, not locale", {
+  s <- create_sequences(seqnum = 50, seqlen = 200, rng.seed = 1)
+  ms <- list(create_motif("ACGT", name = "b"), create_motif("TGCA", name = "B"),
+             create_motif("GGCC", name = "a"))
+  h <- scan_sequences(ms, s, threshold = 0.6, threshold.type = "logodds", verbose = 0)
+  res <- motif_peaks(as.data.frame(h), seq.length = 200, qvalue = 1)
+  expect_equal(res$motif.i[match(c("B", "a", "b"), res$motif)], 1:3)
+})

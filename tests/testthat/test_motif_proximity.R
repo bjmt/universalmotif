@@ -330,3 +330,13 @@ test_that("plot_motif_proximity returns a ggplot and guards bad input", {
   expect_error(plot_motif_proximity(data.frame(motif = "x")),
                regexp = "dist.to.nearest")
 })
+
+test_that("motifs keep the index scan_sequences() gave them", {
+  hits <- GenomicRanges::GRanges("chr1", IRanges::IRanges(c(100, 500, 900, 1300), width = 10),
+                                 motif = c("zeta", "alpha", "zeta", "alpha"),
+                                 motif.i = c(1L, 2L, 1L, 2L), score = 1)
+  anchors <- GenomicRanges::GRanges("chr1", IRanges::IRanges(c(105, 905), width = 1))
+  universe <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1, 2000))
+  res <- suppressWarnings(motif_proximity(hits, anchors, universe = universe, qvalue = 1))
+  expect_equal(res$motif.i[match(c("zeta", "alpha"), res$motif)], c(1L, 2L))
+})

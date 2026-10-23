@@ -591,7 +591,8 @@ sample_genomic_universe <- function(genome, sequences,
 
   chr.sample    <- sample(names(chr.lens), n.try, replace = TRUE,
                           prob = as.numeric(chr.lens) / sum(chr.lens))
-  width.sample  <- sample(target.widths, n.try, replace = TRUE)
+  ## sample.int() rather than sample(), which takes a single width n as 1:n.
+  width.sample  <- target.widths[sample.int(length(target.widths), n.try, replace = TRUE)]
   max.start     <- as.numeric(chr.lens[chr.sample]) - width.sample + 1
   fits          <- max.start >= 1
   chr.sample    <- chr.sample[fits]

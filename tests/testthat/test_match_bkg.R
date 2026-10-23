@@ -419,3 +419,13 @@ test_that("plot_match_bkg(indices=) facets gc, length and covariates", {
   g2 <- plot_match_bkg(indices = df, by = "signal")
   expect_setequal(levels(g2$data$axis), "signal")
 })
+
+test_that("genome shortcut keeps the width of a single target", {
+  skip_if_not_installed("BSgenome.Athaliana.TAIR.TAIR9")
+  ath <- BSgenome.Athaliana.TAIR.TAIR9::Athaliana
+  target.gr <- GenomicRanges::GRanges("Chr1", IRanges::IRanges(100001, width = 150))
+  target.seqs <- Biostrings::getSeq(ath, target.gr)
+  set.seed(1)
+  bkg <- match_bkg(target.seqs, genome = ath, exclude = target.gr, n.candidates = 500L)
+  expect_true(all(Biostrings::width(bkg) == 150))
+})

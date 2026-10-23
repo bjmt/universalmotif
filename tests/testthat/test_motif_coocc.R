@@ -319,3 +319,14 @@ test_that("empty spatial hit tables return cleanly without warnings", {
   expect_equal(co$both.clustered, 0L)
   expect_true(is.na(co$median.distance))
 })
+
+test_that("odds ratios do not overflow for large tables", {
+  mots <- list(create_motif("AAAA", name = "A"), create_motif("CCCC", name = "B"))
+  hits <- data.frame(motif = rep(c("A", "B"), each = 120000),
+                     motif.i = rep(1:2, each = 120000),
+                     sequence = paste0("s", c(1:120000, 60001:180000)),
+                     sequence.i = c(1:120000, 60001:180000),
+                     start = 1L, stop = 4L, strand = "+")
+  r <- expect_silent(motif_coocc(mots, hits = hits, n.sequences = 240000))
+  expect_equal(r$odds_ratio, 1)
+})

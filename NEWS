@@ -278,6 +278,14 @@ BUG FIXES
   o write_homer() writes thresholds on HOMER's own score scale instead
     of log2 odds, which made them about 44% too high.
 
+  o motif_coocc() odds ratios no longer overflow to NA for large tables.
+
+  o match_bkg(genome = ...) keeps the width of a single target sequence
+    instead of drawing random widths.
+
+  o motif_peaks() numbers motifs by code point rather than locale, and
+    motif_proximity() keeps the motif.i from scan_sequences().
+
   o get_matches() now returns no matches for an Inf threshold from an
     unattainable motif_pvalue() cutoff, fixing an error in the examples.
 
