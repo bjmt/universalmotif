@@ -428,6 +428,12 @@ setMethod("normalize", signature(object = "universalmotif"),
     message(wmsg("Note: motif [", shrink_string(object@name), "] has a pseudocount of 0, using 1."))
     pseudo <- 1
   }
+  if (type == "PCM") {
+    # Converting a PCM to a PCM changes nothing, so the pseudocount is set
+    # here; it applies when the counts are converted.
+    object@pseudocount <- pseudo
+    return(refresh_motif_summary(object))
+  }
   object <- convert_type(object, "PCM")
   object <- convert_type(object, type, pseudocount = pseudo)
   refresh_motif_summary(object)

@@ -444,7 +444,12 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
     stop(wmsg("input score is less than min possible score [",
         score.range[1], "]"))
 
-  score <- as.integer(score * 1000)
+  # Scores between grid points round up, as in scanning and P-values;
+  # values within rounding error of a grid point are taken as that point.
+  scaled <- score * 1000
+  nearest <- round(scaled)
+  score <- as.integer(if (abs(scaled - nearest) <= 4 * .Machine$double.eps *
+      max(1, abs(scaled))) nearest else ceiling(scaled))
 
   alph <- rownames(motif@motif)
 
@@ -460,7 +465,7 @@ get_matches <- function(motif, score, allow.nonfinite = FALSE) {
   }
 
   col.sort <- order(apply(score.mat, 2, max), decreasing = TRUE)
-  score.mat <- score.mat[, col.sort]
+  score.mat <- score.mat[, col.sort, drop = FALSE]
 
   all.paths <- branch_and_bound_cpp_exposed(score.mat, score)
 
@@ -898,9 +903,11 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
 
   score <- numeric(length(match))
 
+  # Entries are truncated to the integer grid and added as integers, as
+  # scanning does, so that a word scores exactly what a scan reports.
   mat <- motif@motif
   finite <- is.finite(mat)
-  mat[finite] <- as.integer(mat[finite] * 1000) / 1000
+  mat[finite] <- as.integer(mat[finite] * 1000)
 
   for (i in seq_len(ncol(mat))) {
     for (j in seq_along(score)) {
@@ -908,8 +915,7 @@ score_match <- function(motif, match, allow.nonfinite = FALSE) {
     }
   }
 
-  score[is.finite(score)] <- as.integer(score[is.finite(score)] * 1000) / 1000
-  score
+  score / 1000
 
 }
 

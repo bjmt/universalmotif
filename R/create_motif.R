@@ -244,7 +244,7 @@ setMethod("create_motif", signature(input = "numeric"),
                         safeExplode(alphabet))
   alph_len <- length(alph.split)
 
-  if (missing(bkg)) {
+  if (missing(bkg) || is.null(bkg)) {
 
     bkg <- rpois(alph_len, 1000 / alph_len) / 1000
     bkg <- bkg / sum(bkg)
@@ -748,7 +748,7 @@ setMethod("create_motif", signature(input = "DNAStringSet"),
   if (sum(sequences[5, ]) > 0) stop("only ACGT are accepted for DNA")
   motif <- apply(sequences[1:4, ], 2, pcm_to_ppmC, pseudocount = 0)
 
-  if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+  if (!missing(bkg) && !is.null(bkg)) margs <- c(margs, list(bkg = bkg))
 
   motif <- do.call(universalmotif_cpp,
                    c(list(motif = motif), list(type = "PPM"), margs,
@@ -794,7 +794,7 @@ setMethod("create_motif", signature(input = "RNAStringSet"),
   if (sum(sequences[5, ]) > 0) stop("only ACGU are accepted for RNA")
   motif <- apply(sequences[1:4, ], 2, pcm_to_ppmC, pseudocount = 0)
 
-  if (!missing(bkg)) margs <- c(margs, list(bkg = bkg))
+  if (!missing(bkg) && !is.null(bkg)) margs <- c(margs, list(bkg = bkg))
 
   motif <- do.call(universalmotif_cpp, c(list(motif = motif),
                                          list(type = "PPM"),
@@ -990,6 +990,9 @@ parse_args <- function(args, names) {
     stop("* Incorrect `nsites` argument (must be a positive",
       " integer)")
   }
+
+  # bkg = NULL means the default background, as when it is left out.
+  if ("bkg" %in% names(args) && is.null(args$bkg)) args$bkg <- NULL
 
   to.keep <- !vapply(args, is.symbol, logical(1))
   args <- args[to.keep]

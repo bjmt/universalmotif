@@ -153,6 +153,12 @@ read_transfac <- function(file, skip = 0) {
   motif_meta <- lapply(motifs, parse_meta)
 
   nsites <- lapply(motif_matrix, function(x) max(rowSums(x)))
+  # Whole counts with the same sum at every position are kept exactly,
+  # since converting back from probabilities takes an nsites of 1 for 100.
+  counts <- lapply(motif_matrix, function(x) {
+    cs <- rowSums(x)
+    if (all(x == round(x)) && all(cs == cs[1])) t(x) else NULL
+  })
   motif_matrix <- lapply(motif_matrix,
                          function(x) {
                            cs <- rowSums(x)
@@ -175,7 +181,17 @@ read_transfac <- function(file, skip = 0) {
                       mot
                      }, motif_matrix, motif_meta, nsites)
 
+  motifs <- mapply(function(m, x) {
+    m <- convert_type_internal(m, "PCM")
+    if (!is.null(x)) {
+      dimnames(x) <- dimnames(m@motif)
+      m@motif <- x
+      validObject_universalmotif(m)
+    }
+    m
+  }, motifs, counts)
+
   if (length(motifs) == 1) motifs <- motifs[[1]]
-  convert_type_internal(motifs, "PCM")
+  motifs
 
 }

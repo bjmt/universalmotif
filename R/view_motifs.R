@@ -733,7 +733,9 @@ make_position_polygon_data <- function(vec, fontDF, min.height = 0.03,
       x.spacer, y.spacer, FALSE, !sort.positions.decreasing, NULL,
       fit.to.width, position.id, TRUE)
     negout$y <- negout$y - max(negout$y)
-    negout <- flip_neg_letters(negout, sort.positions, !sort.positions.decreasing, flip.neg,
+    # Sorted the same way as the letters above zero, so that the stack below
+    # is their mirror image, with the largest letter furthest from zero.
+    negout <- flip_neg_letters(negout, sort.positions, sort.positions.decreasing, flip.neg,
       y.spacer)
     vec <- vec[vec >= 0]
   } else {

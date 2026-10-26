@@ -561,6 +561,11 @@ double position_icscoreC(std::vector<double> pos,
 std::vector<double> icm_to_ppmC(std::vector<double> pos) {
 
   double total_ic = std::accumulate(pos.begin(), pos.end(), 0.0);
+  // A column without information content is uniform.
+  if (total_ic == 0.0) {
+    std::fill(pos.begin(), pos.end(), 1.0 / pos.size());
+    return pos;
+  }
   for (std::size_t i = 0; i < pos.size(); ++i) {
     pos[i] /= total_ic;
   }

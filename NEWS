@@ -193,6 +193,22 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o get_matches() no longer returns words scoring just below the score,
+    and works for single-column motifs.
+
+  o score_match() gives the same scores as scanning.
+
+  o normalize() gives PCMs without a pseudocount a pseudocount of 1, so
+    scanning them no longer gives hits almost everywhere.
+
+  o An ICM column of zeros converts to a uniform column rather than NaN.
+
+  o create_motif(bkg = NULL) uses the default background.
+
+  o read_transfac() keeps counts from a single site.
+
+  o Negative letters in sorted logos mirror the positive ones.
+
   o motif_rc() keeps gaps and no longer fails for motifs with
     higher-order matrices, which are now reverse complemented correctly.
 
