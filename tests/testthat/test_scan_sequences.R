@@ -252,6 +252,17 @@ test_that("gapped motifs scan on both strands, with zero-size gaps and after ung
   expect_equal(unique(res$motif.i), 2L)
 })
 
+test_that("hits of every motif get their own P-values next to gapped motifs", {
+  seqs <- Biostrings::DNAStringSet(c(x = "TTACGTACGTTTGATAAGTT", y = "TTACGTTTACGTTTAGATAAT"))
+  g <- add_gap(create_motif("ACGTACGT", name = "g"), gaploc = 4, mingap = 1, maxgap = 2)
+  u <- create_motif("GATAA", name = "u")
+  both <- scan_sequences(list(g, u), seqs, threshold = 1e-2, RC = FALSE)
+  alone_u <- scan_sequences(u, seqs, threshold = 1e-2, RC = FALSE)
+  alone_g <- scan_sequences(g, seqs, threshold = 1e-2, RC = FALSE)
+  expect_equal(both$pvalue[both$motif.i == 2], alone_u$pvalue)
+  expect_equal(both$pvalue[both$motif.i == 1], alone_g$pvalue)
+})
+
 test_that("sequences shorter than a motif give no hits", {
   m <- create_motif("ACGTACGT", name = "m")
   s <- Biostrings::DNAStringSet(c(a = "ACGT", b = "TTACGTACGTTT"))

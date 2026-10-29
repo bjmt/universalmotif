@@ -69,4 +69,6 @@ test_that("mask_ranges handles one range per sequence and sequences without any"
   r <- GenomicRanges::GRanges(c("a", "b"), IRanges::IRanges(c(2, 3), c(4, 5)))
   expect_equal(as.character(mask_ranges(s, r)),
                c(a = "A---AAAAAA", b = "CC---CCCCC", c = "GGGGGGGGGG"))
+  r <- GenomicRanges::GRanges(c("a", "d"), IRanges::IRanges(c(2, 3), c(4, 5)))
+  expect_error(mask_ranges(s, r), "not in `seqs`: d")
 })

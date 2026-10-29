@@ -389,6 +389,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   sequences <- as.character(sequences)
   strands <- rep("+", length(score.mats))
 
+  ## Hits end up indexed by the motifs as given, so P-values are computed
+  ## from these rather than the expanded and strand-split lists below.
+  motifs.input <- motifs
+
   if (any(mot.hasgap) && use.gaps) {
     ## Each gapped motif is scanned as one motif per combination of gap
     ## sizes, so everything indexed by motif follows the expansion.
@@ -482,14 +486,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     out$pvalue <- NA_real_
 
     if (motif_pvalue.method == "exhaustive") {
-      out$pvalue <- motif_pvalue(motifs[out$motif.i], out$score, use.freq = use.freq,
+      out$pvalue <- motif_pvalue(motifs.input[out$motif.i], out$score, use.freq = use.freq,
         nthreads = nthreads, allow.nonfinite = allow.nonfinite, k = motif_pvalue.k,
         method = motif_pvalue.method)
     } else {
       # TODO: do multithreaded w/ c++
       for (i in unique(out$motif.i)) {
         which.rows <- which(out$motif.i == i)
-        out$pvalue[which.rows] <- motif_pvalue(motifs[[i]], out$score[which.rows],
+        out$pvalue[which.rows] <- motif_pvalue(motifs.input[[i]], out$score[which.rows],
           use.freq = use.freq, nthreads = nthreads, allow.nonfinite = allow.nonfinite,
           k = motif_pvalue.k, method = motif_pvalue.method)
       }
@@ -511,19 +515,19 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
         for (i in unique(out$motif.i)) {
           which.rows <- which(out$motif.i == i)
           out$qvalue[which.rows] <- calc_motif_fdr(
-            max_hits(motifs[[i]], sequences), out$score[which.rows], out$pvalue[which.rows])
+            max_hits(motifs.input[[i]], sequences), out$score[which.rows], out$pvalue[which.rows])
         }
       } else if (calc.qvals.method == "BH") {
         for (i in unique(out$motif.i)) {
           which.rows <- which(out$motif.i == i)
           out$qvalue[which.rows] <- calc_motif_bh(
-            max_hits(motifs[[i]], sequences), out$pvalue[which.rows])
+            max_hits(motifs.input[[i]], sequences), out$pvalue[which.rows])
         }
       } else if (calc.qvals.method == "bonferroni") {
         for (i in unique(out$motif.i)) {
           which.rows <- which(out$motif.i == i)
           out$qvalue[which.rows] <- calc_motif_bonferroni(
-            max_hits(motifs[[i]], sequences), out$pvalue[which.rows])
+            max_hits(motifs.input[[i]], sequences), out$pvalue[which.rows])
         }
       }
 

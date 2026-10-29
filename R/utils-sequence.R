@@ -33,7 +33,7 @@
 #' @param overlap `integer(1)` Overlap size between windows.
 #' @param pattern `character(1)` Pattern to mask.
 #' @param ranges `GRanges` The ranges to mask. Must be a `GRanges` object
-#'    from the `GenomicRanges` package.
+#'    from the `GenomicRanges` package, on sequences named in `seqs`.
 #' @param RC `logical(1)` Whether to mask the reverse complement of the pattern.
 #' @param return.incomp `logical(1)` Whether to return the last window if it is
 #'    smaller then the requested window size.
@@ -278,6 +278,11 @@ mask_ranges <- function(seqs, ranges, letter = "-") {
   }
   if (!is.character(letter) || length(letter) != 1) {
     stop(wmsg("`letter` must be a single character"), call. = FALSE)
+  }
+  unknown <- setdiff(as.character(unique(GenomicRanges::seqnames(ranges))), names(seqs))
+  if (length(unknown)) {
+    stop(wmsg("`ranges` has ranges on sequences not in `seqs`: ",
+      paste(head(unknown, 5), collapse = ", ")), call. = FALSE)
   }
   ranges <- granges_fun2(GenomicRanges::reduce(ranges))
   ranges <- as(ranges, "IRangesList")

@@ -74,7 +74,7 @@ considered a single unit.}
 \item{seqs}{\code{XStringSet} Sequences to mask. Cannot be \code{BStringSet}.}
 
 \item{ranges}{\code{GRanges} The ranges to mask. Must be a \code{GRanges} object
-from the \code{GenomicRanges} package.}
+from the \code{GenomicRanges} package, on sequences named in \code{seqs}.}
 
 \item{letter}{\code{character(1)} Character to use for masking.}
 

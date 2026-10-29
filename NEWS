@@ -193,6 +193,12 @@ MINOR CHANGES
 
 BUG FIXES
 
+  o scan_sequences() gives every motif its own P-values when gapped
+    motifs are scanned with others.
+
+  o mask_ranges() stops with an error for ranges on sequences not in
+    `seqs` instead of ignoring them.
+
   o get_matches() no longer returns words scoring just below the score,
     and works for single-column motifs.
 
