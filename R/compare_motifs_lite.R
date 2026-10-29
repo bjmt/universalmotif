@@ -19,7 +19,7 @@
 #'
 #' \describe{
 #'   \item{`null = "empirical"` (default)}{Per-query column, score
-#'     against every target-database column, histogram into 51 PCC bins,
+#'     against every target-database column, histogram into 201 PCC bins,
 #'     convolve to overlap length L. Cost per query is O(N x T) where N
 #'     is the number of target motifs and T their mean width. Best for
 #'     databases with more than a few hundred total columns.}

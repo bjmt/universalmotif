@@ -32,13 +32,13 @@
  *   - Motifs are PPMs, position-major (mat[i][j] = probability of base j
  *     at position i). 4-base alphabet only (DNA/RNA, treated as ACGT).
  *   - PCC is centred on a uniform 0.25 background (yamcmp.c:1028-1039).
- *   - PCC bins: 51, spanning [-1, 1] with step 0.04 (PCC_BINS).
+ *   - PCC bins: 201, spanning [-1, 1] with step 0.01 (PCC_BINS).
  *   - Parametric grid: K=5 simplex, 56 columns (ENUM_N_COLS); Dirichlet
  *     concentration alpha = 4 * bkg (ENUM_DIRICHLET_N).
  *   - Consensus strings follow the package's motif consensus rule.
  */
 
-static const int    PCC_BINS              = 51;
+static const int    PCC_BINS              = 201;
 static const int    ENUM_GRID_K           = 5;
 static const int    ENUM_DIRICHLET_N      = 4;
 static const int    ENUM_N_COLS           = 56;   /* C(K+3, 3) for K=5 */
