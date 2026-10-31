@@ -23,7 +23,7 @@ Description: A comprehensive toolkit for working with sequence motifs in R.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
-Imports: methods, stats, utils, parallel, MASS, ggplot2, yaml, IRanges, Rcpp,
+Imports: methods, stats, utils, parallel, MASS, ggplot2 (>= 4.0.0), yaml, IRanges, Rcpp,
     Biostrings, BiocGenerics, S4Vectors, rlang, grid, grDevices, MatrixGenerics
 Suggests: spelling, knitr, bookdown, TFBSTools, rmarkdown, MotifDb, testthat,
     BiocParallel, seqLogo, motifStack, dplyr, ape, ggtree, processx,
@@ -69,6 +69,11 @@ Collate:
     'motif_rc.R'
     'motif_tree.R'
     'motif_tree_lite.R'
+    'plot_comparison.R'
+    'plot_coocc.R'
+    'plot_enrichment.R'
+    'plot_hits.R'
+    'plot_score_distribution.R'
     'read_cisbp.R'
     'read_homer.R'
     'read_jaspar.R'
