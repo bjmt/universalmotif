@@ -282,7 +282,7 @@ mask_ranges <- function(seqs, ranges, letter = "-") {
   unknown <- setdiff(as.character(unique(GenomicRanges::seqnames(ranges))), names(seqs))
   if (length(unknown)) {
     stop(wmsg("`ranges` has ranges on sequences not in `seqs`: ",
-      paste(head(unknown, 5), collapse = ", ")), call. = FALSE)
+      paste(utils::head(unknown, 5), collapse = ", ")), call. = FALSE)
   }
   ranges <- granges_fun2(GenomicRanges::reduce(ranges))
   ranges <- as(ranges, "IRangesList")
