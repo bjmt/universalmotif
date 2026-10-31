@@ -145,7 +145,16 @@ NEW FEATURES
     existing no.overlaps argument, which uses connected-components
     clustering and is left unchanged.
 
+  o Added plot_comparison(), a clustered heatmap of compare_motifs_lite()
+    results with dendrograms, logos and an optional tree cut.
+
+  o Added plot_hits(), plot_enrichment(), plot_coocc() and
+    plot_score_distribution() for scan, enrichment, co-occurrence and
+    score distribution results.
+
 MINOR CHANGES
+
+  o ggplot2 >= 4.0.0 is now required.
 
   o merge_motifs() and merge_similar() now emit one-line hints
     pointing at merge_motifs_lite() / merge_similar_lite() when the user's
