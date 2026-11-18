@@ -171,7 +171,8 @@ annotate_logo <- function(logo, xmin, xmax, ymin, ymax, fill = "black",
 
 #' @rdname geom_motif
 #' @usage NULL
-#' @format NULL
+#' @format \code{StatMotif}, \code{StatLogo} and \code{GeomMotif} are
+#'   \code{ggproto} objects.
 #' @export
 StatMotif <- ggproto("StatMotif", Stat,
   required_aes = character(0),

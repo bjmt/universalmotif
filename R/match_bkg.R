@@ -740,7 +740,7 @@ ring_candidates <- function(gc.b, len.b, ring, cells, n.gc.bins, n.len.bins) {
     return(cells[[as.character(key)]] %||% integer(0))
   }
   out <- integer(0)
-  for (dg in -ring:ring) {
+  for (dg in seq.int(-ring, ring)) {
     dl <- ring - abs(dg)
     for (dlen in c(dl, -dl)) {
       g2 <- gc.b  + dg

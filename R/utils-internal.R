@@ -3,6 +3,7 @@
 #' Utility functions have been split into two categories: those related to
 #' motifs ?'utils-motif', and those related to sequences ?'utils-sequence'.
 #'
+#' @return None; this page only points to the pages of the functions.
 #' @seealso [utils-motif], [utils-sequence]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @name utilities

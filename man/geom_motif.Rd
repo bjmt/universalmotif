@@ -10,6 +10,10 @@
 \alias{StatLogo}
 \alias{GeomMotif}
 \title{Embed motif logos in ggplot2 constructions.}
+\format{
+\code{StatMotif}, \code{StatLogo} and \code{GeomMotif} are
+\code{ggproto} objects.
+}
 \usage{
 geom_motif(mapping = NULL, data = NULL, stat = StatMotif,
   position = "identity", ..., motif, use.type = "ICM",

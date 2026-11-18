@@ -3,6 +3,9 @@
 \name{utilities}
 \alias{utilities}
 \title{Utility functions.}
+\value{
+None; this page only points to the pages of the functions.
+}
 \description{
 Utility functions have been split into two categories: those related to
 motifs ?'utils-motif', and those related to sequences ?'utils-sequence'.

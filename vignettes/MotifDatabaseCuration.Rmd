@@ -40,7 +40,7 @@ has_pkgs <- suppressWarnings(suppressMessages(vapply(
   c("MotifDb", "ape", "ggtree"),
   requireNamespace, logical(1), quietly = TRUE)))
 if (!all(has_pkgs)) {
-  knitr::opts_chunk$set(eval = FALSE)
+  knitr::opts_chunk$set(eval = all(has_pkgs))
   message("Skipping curated-DB vignette: required Suggests packages ",
           "are not installed (",
           paste(names(has_pkgs)[!has_pkgs], collapse = ", "),
