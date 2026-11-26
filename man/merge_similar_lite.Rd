@@ -95,8 +95,9 @@ symmetrised q-values, cut at \code{qvalue}, with pairs that could not be
 compared kept apart. This joins the closest clusters first and breaks
 ties by input order, so the result is fully determined by the motifs.
 
-Either way, a cluster of more than two motifs that holds over a quarter
-of them is named in a warning, as a sign that unlike motifs were joined.
+Either way, when there are at least ten motifs, a cluster of more than
+two that holds over a quarter of them is named in a warning, as a sign
+that unlike motifs were joined.
 
 Each cluster of two motifs or more becomes a single merged motif via
 \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}; singletons pass through unchanged.
@@ -107,8 +108,6 @@ m1 <- create_motif("TTGACATA", name = "a")
 m2 <- create_motif("CTTGACAT", name = "b")
 m3 <- create_motif("TGACATAT", name = "c")
 m4 <- create_motif("GGGCCCCC", name = "unrelated")
-## With so few motifs, the cluster of three holds over a quarter of
-## them, which brings a warning that unlike motifs may have been joined.
 merged <- merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05)
 length(merged)  # 2: one merged + the unrelated singleton
 ## Complete linkage only joins motifs that are all linked to each other.

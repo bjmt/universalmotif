@@ -15,8 +15,7 @@ test_that("clusters related motifs together; keeps unrelated separate", {
   m2 <- create_motif("CTTGACAT", name = "b")
   m3 <- create_motif("TGACATAT", name = "c")
   m4 <- create_motif("GGGCCCCC", name = "unrelated")
-  expect_warning(r <- merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05),
-                 "cluster 1 holds 3 of the 4 motifs")
+  r <- expect_silent(merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05))
   expect_equal(length(r), 2L)
 })
 
@@ -32,8 +31,7 @@ test_that("very loose qvalue collapses all motifs into one cluster", {
   m1 <- create_motif("TTGACATA", name = "a")
   m2 <- create_motif("CTTGACAT", name = "b")
   m3 <- create_motif("TGACATAT", name = "c")
-  expect_warning(r <- merge_similar_lite(list(m1, m2, m3), qvalue = 1),
-                 "unlike motifs were joined")
+  r <- merge_similar_lite(list(m1, m2, m3), qvalue = 1)
   expect_equal(length(r), 1L)
 })
 
@@ -57,8 +55,8 @@ test_that("return.clusters = TRUE yields a universalmotif_df", {
   m2 <- create_motif("CTTGACAT", name = "b")
   m3 <- create_motif("TGACATAT", name = "c")
   m4 <- create_motif("GGGCCCCC", name = "unrelated")
-  df <- suppressWarnings(merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05,
-                                            return.clusters = TRUE))
+  df <- merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05,
+                       return.clusters = TRUE)
   expect_s3_class(df, "universalmotif_df")
   expect_true(all(c("motif", "name", "motif.i", "cluster") %in% names(df)))
   expect_equal(nrow(df), 4L)
@@ -117,42 +115,45 @@ test_that("complete linkage agrees with the reference values", {
     "0.06" = list(single = c(1, 1, 1, 2, 3, 1, 1), complete = c(1, 1, 1, 2, 3, 4, 4)),
     "0.2"  = list(single = c(1, 1, 1, 2, 1, 1, 1), complete = c(1, 1, 1, 2, 3, 4, 4)))
   for (q in names(ref)) for (link in c("single", "complete")) {
-    res <- suppressWarnings(merge_similar_lite(ms, qvalue = as.numeric(q),
-      linkage = link, return.clusters = TRUE))
+    res <- merge_similar_lite(ms, qvalue = as.numeric(q), linkage = link,
+                              return.clusters = TRUE)
     expect_equal(res$cluster, as.integer(ref[[q]][[link]]), info = paste(q, link))
   }
   merged <- merge_similar_lite(ms, qvalue = 0.01, linkage = "complete")
   expect_equal(vapply(merged, function(m) m@name, character(1)),
                c("merged_M1+M2", "M3", "M4", "M5", "M6", "M7"))
   expect_equal(merged[[1]]@consensus, "CTTGACATAG")
-  merged <- suppressWarnings(merge_similar_lite(ms, qvalue = 0.06))
+  merged <- merge_similar_lite(ms, qvalue = 0.06)
   expect_equal(merged[[1]]@name, "merged_M1+M2+M3+M6+M7")
   expect_equal(merged[[1]]@consensus, "SMTRWGTCAWG")
 })
 
 test_that("single linkage is the default", {
   ms <- lite_fixture()
-  a <- suppressWarnings(merge_similar_lite(ms, qvalue = 0.06, return.clusters = TRUE))
-  b <- suppressWarnings(merge_similar_lite(ms, qvalue = 0.06, return.clusters = TRUE,
-                                           linkage = "single"))
+  a <- merge_similar_lite(ms, qvalue = 0.06, return.clusters = TRUE)
+  b <- merge_similar_lite(ms, qvalue = 0.06, return.clusters = TRUE,
+                          linkage = "single")
   expect_identical(a, b)
   expect_error(merge_similar_lite(ms, linkage = "average"), "should be one of")
 })
 
-test_that("a cluster holding over a quarter of the motifs brings a warning", {
+test_that("a cluster holding over a quarter of ten motifs or more brings a warning", {
   ms <- lite_fixture()
-  w <- cluster_warnings(merge_similar_lite(ms, qvalue = 0.06))$warnings
+  x <- c(ms, list(create_motif("GGGCCCCC", name = "X1"),
+                  create_motif("CACGTGAC", name = "X2"),
+                  create_motif("AAACCCAA", name = "X3")))
+  w <- cluster_warnings(merge_similar_lite(x, qvalue = 0.06))$warnings
   expect_length(w, 1L)
-  expect_match(w, "cluster 1 holds 5 of the 7 motifs")
+  expect_match(w, "cluster 1 holds 5 of the 10 motifs")
   expect_match(w, "complete linkage")
-  w <- cluster_warnings(merge_similar_lite(ms, qvalue = 0.06, linkage = "complete",
+  w <- cluster_warnings(merge_similar_lite(x, qvalue = 0.06, linkage = "complete",
                                            return.clusters = TRUE))$warnings
   expect_length(w, 1L)
-  expect_match(w, "cluster 1 holds 3 of the 7 motifs")
+  expect_match(w, "cluster 1 holds 3 of the 10 motifs")
   expect_no_match(w, "complete linkage")
-  ## Clusters of two never bring it, however few the motifs.
-  expect_silent(merge_similar_lite(ms, qvalue = 0.01, linkage = "complete"))
-  expect_silent(merge_similar_lite(ms[c(1, 2, 4)], qvalue = 0.01))
+  ## Fewer than ten motifs never bring it, nor do clusters of two.
+  expect_silent(merge_similar_lite(ms, qvalue = 0.06))
+  expect_silent(merge_similar_lite(x, qvalue = 0.01, linkage = "complete"))
 })
 
 test_that("gapped motifs are clustered and merged with their gaps", {
@@ -165,8 +166,8 @@ test_that("gapped motifs are clustered and merged with their gaps", {
                c("merged_M1+M2+M3+M5+M6", "M4", "M7"))
   expect_equal(res$value[[1]]@consensus, "NHTATGTCANGTG")
   expect_equal(res$value[[3]]@gapinfo@gaploc, 3)
-  expect_length(res$warnings, 2L)
-  expect_match(res$warnings[2],
+  expect_length(res$warnings, 1L)
+  expect_match(res$warnings,
                "^cluster 1: the gaps of M6 were filled with blank columns")
   cl <- suppressWarnings(merge_similar_lite(x, qvalue = 0.3, return.clusters = TRUE))
   expect_equal(cl$cluster, c(1L, 1L, 1L, 2L, 1L, 1L, 3L))
