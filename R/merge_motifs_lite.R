@@ -7,7 +7,8 @@
 #' @param motifs `list` of motifs. See [convert_motifs()] for accepted
 #'   formats. DNA or RNA only.
 #' @param min.overlap `integer(1)`. Minimum overlap (in columns) for an
-#'   alignment to be considered. Default `5L`. Forwarded to
+#'   alignment to be considered. Default `5L`. Motifs narrower than this
+#'   need only overlap by their own width. Forwarded to
 #'   [compare_motifs_lite()].
 #' @param RC `logical(1)`. If `TRUE` (default), also test reverse-complement
 #'   alignments. Motifs whose best alignment hits the `-` strand of the
@@ -142,7 +143,9 @@ merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
       next
     }
     L_i <- al$overlap[i]
-    if (is.na(L_i) || L_i < min.overlap) {
+    ## As in the alignment itself, motifs narrower than min.overlap need
+    ## only overlap by their own width.
+    if (is.na(L_i) || L_i < min(min.overlap, w_anchor, widths[i])) {
       used[i] <- FALSE
       next
     }

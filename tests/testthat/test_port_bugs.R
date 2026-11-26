@@ -78,3 +78,33 @@ test_that("compare_motifs_lite() leaves self-comparisons out of the q-values", {
   expect_equal(diag(m), diag(p))
   expect_equal(unname(m[1, -1]), unname(p.adjust(p[1, -1], "BH")))
 })
+
+test_that("read_motifs() skips unknown fields and write_motifs() keeps full precision", {
+  m1 <- create_motif(matrix(c(12345.6, 1, 1, 1, 0.1, 2, 3, 12341.6), 4,
+    dimnames = list(DNA_BASES, NULL)), type = "PCM")
+  m2 <- convert_type(create_motif("ACGTRYN"), "PWM")
+  f <- tempfile()
+  on.exit(unlink(f), add = TRUE)
+  write_motifs(list(m1, m2), f)
+  r <- read_motifs(f)
+  expect_identical(r[[1]]@motif, m1@motif)
+  expect_identical(r[[2]]@motif, m2@motif)
+  lines <- readLines(f)
+  lines <- append(lines, c("newfield: x", "another: 2"),
+    after = grep("^name", lines)[1])
+  writeLines(lines, f)
+  expect_warning(r <- read_motifs(f), "newfield, another")
+  expect_length(r, 2)
+  expect_null(attr(r[[1]], "unknown"))
+  expect_identical(r[[1]]@motif, m1@motif)
+})
+
+test_that("lite merging and logos align motifs narrower than min.overlap", {
+  a <- create_motif("TTGACGTCAAGG", nsites = 20, pseudocount = 0, name = "a")
+  b <- create_motif("GACA", nsites = 20, name = "b")
+  m <- merge_motifs_lite(c(a, b))
+  expect_gt(max(abs(m@motif - convert_type(a, "PPM")@motif)), 0.4)
+  b <- create_motif("GACGA", nsites = 20, name = "b")
+  p <- view_motifs_lite(c(a, b), return.raw = TRUE)
+  expect_equal(unname(which(colSums(p[[2]]) > 0)), 3:7)
+})

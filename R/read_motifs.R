@@ -3,7 +3,8 @@
 #' Import motifs created from [write_motifs()]. For optimal storage of
 #' `universalmotif` class motifs, consider using [saveRDS()] and
 #' [readRDS()]. Currently the `universalmotif` format is YAML-based, but
-#' this is subject to change.
+#' this is subject to change. Fields that are not recognized, such as those
+#' added by newer versions of the package, are skipped with a warning.
 #'
 #' @param progress `logical(1)` Show progress.
 #' @param BP `logical(1)` Allows for the use of \pkg{BiocParallel} within
@@ -75,6 +76,15 @@ read_motifs_1_2 <- function(raw_lines, progress, BP) {
                     MoreArgs = list(raw_lines = raw_lines),
                     SIMPLIFY = FALSE, PB = progress, BP = BP)
 
+  unknown <- unique(unlist(lapply(motifs, attr, which = "unknown")))
+  motifs <- lapply(motifs, function(m) {
+    if (!is.null(m)) attr(m, "unknown") <- NULL
+    m
+  })
+  if (length(unknown))
+    warning(wmsg("Skipped unknown motif fields: ", paste0(unknown, collapse = ", ")),
+            call. = FALSE)
+
   mots.check <- vapply(motifs, is.null, logical(1))
   if (all(mots.check))
     stop("Failed to read any motifs")
@@ -100,6 +110,12 @@ read_motifs_single <- function(mot) {
   # Extra gap P-values are not arguments of the C++ constructor.
   extrapvals <- mot$extrapvals
   mot$extrapvals <- NULL
+
+  # Fields from newer versions are skipped, so that the motifs still come
+  # through.
+  known <- c(names(formals(universalmotif_cpp)), "multifreq")
+  unknown <- setdiff(names(mot), known)
+  mot <- mot[names(mot) %in% known]
   fields <- names(mot)
 
   mot[["bkg"]] <- unlist(mot[["bkg"]])
@@ -145,6 +161,7 @@ read_motifs_single <- function(mot) {
     motif@gapinfo@extrapvals <- as.numeric(extrapvals)
   }
   validObject_universalmotif(motif)
+  if (length(unknown)) attr(motif, "unknown") <- unknown
   motif
 
 }

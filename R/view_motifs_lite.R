@@ -16,7 +16,8 @@
 #' @param tryRC `logical(1)` Also test reverse-complement alignments.
 #'   Default `TRUE`.
 #' @param min.overlap `integer(1)` Minimum overlap (in columns) for an
-#'   alignment to be accepted. Default `6`.
+#'   alignment to be accepted. Default `6`. Motifs narrower than this need
+#'   only overlap by their own width.
 #' @param relative_entropy `logical(1)` If `TRUE`, compute information
 #'   content using the motif's background frequencies (relative-entropy
 #'   ICM). Used only for display when `use.type = "ICM"`.
@@ -529,7 +530,9 @@ view_motifs_lite_align <- function(mot.mats.ppm, mot.mats.disp, min.overlap,
   for (i in seq_len(n)) {
     if (i == anchor) next
     L_i <- al$overlap[i]
-    if (is.na(L_i) || L_i < min.overlap) {
+    ## As in the alignment itself, motifs narrower than min.overlap need
+    ## only overlap by their own width.
+    if (is.na(L_i) || L_i < min(min.overlap, w.anchor, widths[i])) {
       ## No alignment at min.overlap: drop the motif at offset 0
       ## (anchor-aligned by left edge). Matches view_motifs() v1
       ## behaviour for motifs that don't meet the threshold.
