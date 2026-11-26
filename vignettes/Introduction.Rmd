@@ -46,7 +46,7 @@ output type.
 Task | DNA/RNA starting point | Use the original function when you need
 -----|-----------------------|-----------------------------------------
 Scan sequences | `scan_sequences_lite()` | Amino-acid/custom alphabets, higher-order motifs, non-P-value thresholds, exhaustive P-values, or q-values
-Compare motifs | `compare_motifs_lite()` | Other alphabets, non-PCC metrics, higher-order comparisons, IC filters, or alternative score aggregation
+Compare motifs | `compare_motifs_lite()` | Other alphabets, metrics other than PCC and EUCL, higher-order comparisons, IC filters, or alternative score aggregation
 Enrichment | `enrich_motifs_lite()` | Scanning options outside the lite interface; check the counting and statistical-test defaults before switching
 Align logos or draw trees | `view_motifs_lite()`, `motif_tree_lite()` | Other alphabets or comparison options available only in the original functions
 Merge motifs | `merge_motifs_lite()`, `merge_similar_lite()` | Other alphabets or the broader original comparison and clustering options
