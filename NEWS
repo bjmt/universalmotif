@@ -1,6 +1,28 @@
 CHANGES IN VERSION 1.34.0
 -------------------------
 
+NEW FEATURES
+
+  o Added name_motifs(), which names motifs by their closest matches in
+    a database.
+
+  o compare_motifs_lite() gains complete, method = "EUCL" and
+    overhang = "background" options.
+
+  o merge_similar_lite() gains linkage = "complete", and warns when one
+    cluster holds over a quarter of ten motifs or more.
+
+  o The lite comparison, merging, alignment and tree functions handle
+    gapped motifs with their gaps (use.gaps).
+
+  o scan_sequences_lite() scans gapped motifs with their gaps.
+
+MAJOR CHANGES
+
+  o scan_sequences() and enrich_motifs() correct the P-values and
+    thresholds of gapped motifs for their number of gap sizes
+    (correct.gaps = TRUE), which gives fewer hits than before.
+
 MINOR CHANGES
 
   o write_meme(), write_jaspar() and write_transfac() keep the gaps of
