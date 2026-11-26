@@ -132,6 +132,7 @@ Other lite motif functions:
 \code{\link{enrich_motifs_lite}()},
 \code{\link{merge_motifs_lite}()},
 \code{\link{merge_similar_lite}()},
+\code{\link{name_motifs}()},
 \code{\link{scan_sequences_lite}()},
 \code{\link{view_motifs_lite}()}
 }

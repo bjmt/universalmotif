@@ -510,12 +510,9 @@ view_motifs_lite_align <- function(mot.mats.ppm, mot.mats.disp, min.overlap,
   anchor <- 1L
   qi <- rep.int(anchor, n)
   ti <- seq_len(n)
-  al <- compare_motifs_lite_align_cpp(mot.mats.ppm,
-                                  qi          = as.integer(qi),
-                                  ti          = as.integer(ti),
-                                  min_overlap = as.integer(min.overlap),
-                                  RC          = as.logical(tryRC),
-                                  nthreads    = as.integer(nthreads))
+  al <- lite_align(mot.mats.ppm, qi, ti,
+                   lite_opts(min.overlap = min.overlap, RC = tryRC,
+                             nthreads = nthreads))
 
   widths <- vapply(mot.mats.disp, ncol, integer(1))
   w.anchor <- widths[anchor]

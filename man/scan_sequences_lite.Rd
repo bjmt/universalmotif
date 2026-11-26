@@ -122,6 +122,7 @@ Other lite motif functions:
 \code{\link{merge_motifs_lite}()},
 \code{\link{merge_similar_lite}()},
 \code{\link{motif_tree_lite}()},
+\code{\link{name_motifs}()},
 \code{\link{view_motifs_lite}()}
 }
 \author{

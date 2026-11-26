@@ -291,20 +291,18 @@ P-values are made possible by estimating distribution (usually the best fitting 
 
 ## A faster alternative: `compare_motifs_lite()`
 
-For DNA or RNA motif comparison that does not need the alternative
-similarity metrics (EUCL, KL, ALLR, and so on), the score-aggregation
+For DNA or RNA motif comparison that does not need the other
+similarity metrics (KL, ALLR, and so on), the score-aggregation
 strategies, the IC-based filters, multifreq scoring, or the
 JASPAR-derived `db.scores` lookup-table P-value path, the lighter
 `compare_motifs_lite()` is generally much faster than `compare_motifs()`,
-and it parallelises rather better across queries. It uses the
-per-column Pearson correlation as its only similarity metric, computes
-p-values from a TOMTOM-style empirical or parametric null PMF (with
-both Bonferroni and Benjamini-Hochberg adjustment), and returns either
-a square matrix or a long-format `data.frame`.
-
-The function has eight formals (`motifs`, `compare.to`, `qvalue`,
-`min.overlap`, `RC`, `null`, `bkg`, `matrix.out`, `nthreads`); see
-`?compare_motifs_lite` for the details. There are two null-PMF modes:
+and it parallelises rather better across queries. It compares columns by
+their Pearson correlation (or by their Euclidean distance, with
+`method = "EUCL"`), computes p-values from a TOMTOM-style empirical or
+parametric null PMF (with both Bonferroni and Benjamini-Hochberg
+adjustment), and returns either a square matrix or a long-format
+`data.frame`. See `?compare_motifs_lite` for the details of its
+arguments. There are two null-PMF modes:
 
 - **`null = "empirical"`** (default): per-query column, score against
   every target-database column, histogram into 201 PCC bins, convolve
@@ -329,6 +327,20 @@ mq <- compare_motifs_lite(motifs, matrix.out = "qvalue")
 
 ## Long-format: motif 1 against the rest, q-value <= 0.05
 hits <- compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.05)
+```
+
+By default only the overlapping columns of an alignment count, so that a
+short target matching part of a long query can score as well as one
+covering all of it. With `complete = TRUE` the whole query is scored
+instead, as TOMTOM does by default, which suits searching a database with
+a query motif. The `name_motifs()` function does exactly this to name
+motifs, such as those from `motif_finder()`, after the database motifs
+they resemble most:
+
+```{r, eval = FALSE}
+## The three closest database motifs of each motif, with q-values
+## corrected for the size of the database
+name_motifs(motifs, database, top = 3, qvalue = 0.05)
 ```
 
 When `compare_motifs()` is called with arguments that map cleanly onto

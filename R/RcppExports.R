@@ -73,12 +73,16 @@ pval_extractor <- function(ncols, scores, indices1, indices2, method, subject, t
     .Call('_universalmotif_pval_extractor', PACKAGE = 'universalmotif', ncols, scores, indices1, indices2, method, subject, target, paramA, paramB, distribution, nthreads)
 }
 
-compare_motifs_lite_align_cpp <- function(mots, qi, ti, min_overlap, RC, nthreads = 1L) {
-    .Call('_universalmotif_compare_motifs_lite_align_cpp', PACKAGE = 'universalmotif', mots, qi, ti, min_overlap, RC, nthreads)
+compare_motifs_lite_medians_cpp <- function(mots, wanted, RC, null_mode, bkg, method, nthreads = 1L) {
+    .Call('_universalmotif_compare_motifs_lite_medians_cpp', PACKAGE = 'universalmotif', mots, wanted, RC, null_mode, bkg, method, nthreads)
 }
 
-compare_motifs_lite_pvalue_cpp <- function(query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads = 1L) {
-    .Call('_universalmotif_compare_motifs_lite_pvalue_cpp', PACKAGE = 'universalmotif', query_mats, target_mats, qi, qstart, overlap, strand, score, n_tested, bkg, null_mode, nthreads)
+compare_motifs_lite_align_cpp <- function(mots, qi, ti, min_overlap, RC, nthreads, method, overhang, complete, medians, bkg) {
+    .Call('_universalmotif_compare_motifs_lite_align_cpp', PACKAGE = 'universalmotif', mots, qi, ti, min_overlap, RC, nthreads, method, overhang, complete, medians, bkg)
+}
+
+compare_motifs_lite_pvalue_cpp <- function(query_mats, target_mats, qi, ti, qstart, overlap, strand, offset, score, chosen, n_tested, bkg, null_mode, nthreads, method, overhang, complete, medians, RC, min_overlap) {
+    .Call('_universalmotif_compare_motifs_lite_pvalue_cpp', PACKAGE = 'universalmotif', query_mats, target_mats, qi, ti, qstart, overlap, strand, offset, score, chosen, n_tested, bkg, null_mode, nthreads, method, overhang, complete, medians, RC, min_overlap)
 }
 
 compare_motifs_lite_consensus_cpp <- function(mots, mot_i, start, len, alph = "DNA") {

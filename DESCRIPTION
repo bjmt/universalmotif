@@ -70,6 +70,7 @@ Collate:
     'motif_rc.R'
     'motif_tree.R'
     'motif_tree_lite.R'
+    'name_motifs.R'
     'plot_comparison.R'
     'plot_coocc.R'
     'plot_enrichment.R'

@@ -250,3 +250,143 @@ test_that("the parametric null gives near-perfect alignments a P-value above 0",
                            null = "parametric", matrix.out = "pvalue")
   expect_gt(p[1, 1], 0)
 })
+
+# ---- Complete scores, Euclidean distances and overhangs ----------------------
+#
+# The reference values below were worked out independently for the fixture
+# motifs of helper-lite-fixture.R and are listed target by target.
+
+expect_lite_rows <- function(res, offset, strand, overlap, score, pvalue,
+                             tol = 1e-5) {
+  res <- by_target(res)
+  expect_equal(res$offset, offset)
+  expect_equal(res$strand, strand)
+  expect_equal(res$overlap, overlap)
+  expect_equal(res$score, score, tolerance = tol)
+  expect_equal(res$pvalue, pvalue, tolerance = tol)
+}
+
+test_that("the default comparison of the fixture agrees with the reference values", {
+  ms <- lite_fixture()
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 1, qvalue = 1),
+    offset = c(0, -1, 1, 0, -3, 0, 1),
+    strand = c("+", "+", "+", "-", "+", "-", "+"),
+    overlap = c(9, 8, 8, 9, 5, 9, 8),
+    score = c(1, 0.9367918, 0.7810601, 0.06043549, 0.6910652, 0.4062361, 0.66503),
+    pvalue = c(4.43299e-12, 0.000225354, 0.0054934, 1, 0.0969893, 0.427816, 0.0213852))
+  expect_equal(unname(compare_motifs_lite(ms)[6, ]),
+               c(0.4062361, 0.4719982, 0.6103467, 0.2069896, 0.697356, 1, 0.7857823),
+               tolerance = 1e-6)
+})
+
+test_that("the new arguments at their defaults leave results unchanged", {
+  ms <- lite_fixture()
+  for (out in c("score", "pvalue", "qvalue"))
+    expect_identical(
+      compare_motifs_lite(ms, matrix.out = out),
+      compare_motifs_lite(ms, matrix.out = out, complete = FALSE, method = "PCC",
+                          overhang = "ignore"))
+  expect_identical(
+    compare_motifs_lite(ms, compare.to = 2:3, qvalue = 1),
+    compare_motifs_lite(ms, compare.to = 2:3, qvalue = 1, complete = FALSE,
+                        method = "PCC", overhang = "ignore"))
+})
+
+test_that("complete scores agree with the reference values", {
+  ms <- lite_fixture()
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 1, qvalue = 1, complete = TRUE),
+    offset = c(0, -1, 1, 0, 1, 0, 1),
+    strand = c("+", "+", "+", "-", "-", "-", "+"),
+    overlap = c(9, 8, 8, 9, 8, 9, 8),
+    score = c(1, 0.9367918, 0.7810601, 0.06043549, 0.4038858, 0.4062361, 0.66503),
+    pvalue = c(2.46277e-13, 0.000155432, 0.00176302, 0.995201, 0.240369, 0.15286,
+               0.00599699))
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 6, qvalue = 1, complete = TRUE,
+                                       null = "parametric"),
+    offset = c(0, -1, 1, 0, -3, 0, 1),
+    strand = c("-", "-", "-", "-", "-", "+", "-"),
+    overlap = c(9, 8, 8, 9, 5, 9, 8),
+    score = c(0.4062361, 0.4719982, 0.6103467, 0.1292942, 0.697356, 1, 0.7857823),
+    pvalue = c(0.113621, 0.122021, 0.0169857, 0.95813, 0.271192, 8.86235e-15,
+               0.000226626))
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 4, qvalue = 1, complete = TRUE,
+                                       RC = FALSE),
+    offset = c(0, 2, 1, 0, -3, -2, 1),
+    strand = rep("+", 7),
+    overlap = c(9, 7, 8, 9, 5, 7, 8),
+    score = c(0.02237042, 0.141224, 0.05874193, 1, 0.459737, 0.2069896, 0.3007845),
+    pvalue = c(0.961207, 0.930408, 0.963884, 6.56739e-14, 0.532366, 0.761735,
+               0.305558))
+})
+
+test_that("Euclidean distances agree with the reference values", {
+  ms <- lite_fixture()
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 1, qvalue = 1, method = "EUCL"),
+    offset = c(0, -1, 1, -3, -3, -2, 1),
+    strand = rep("+", 7),
+    overlap = c(9, 8, 8, 6, 5, 7, 8),
+    score = c(0, 0.1953143, 0.2819487, 0.6635426, 0.3015772, 0.5168532, 0.3987325),
+    pvalue = c(1.53923e-15, 0.000188241, 0.00469218, 1, 0.0481933, 0.772742,
+               0.0634991))
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 1, qvalue = 1, method = "EUCL",
+                                       complete = TRUE, null = "parametric"),
+    offset = c(0, -1, 1, -3, -3, 0, 1),
+    strand = c("+", "+", "+", "+", "+", "-", "+"),
+    overlap = c(9, 8, 8, 6, 5, 9, 8),
+    score = c(0, 0.1953143, 0.2819487, 0.6635426, 0.3015772, 0.5624529, 0.3987325),
+    pvalue = c(1.84632e-16, 2.42108e-07, 3.43428e-05, 0.999592, 0.0877776, 0.279622,
+               0.00273695))
+  d <- compare_motifs_lite(ms, method = "EUCL")
+  expect_true(isSymmetric(d))
+  expect_equal(unname(diag(d)), rep(0, 7))
+  expect_true(all(d >= 0 & d <= sqrt(2)))
+})
+
+test_that("background overhangs agree with the reference values", {
+  ms <- lite_fixture()
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 1, qvalue = 1,
+                                       overhang = "background"),
+    offset = c(0, -1, 1, 0, -3, 0, 1),
+    strand = c("+", "+", "+", "-", "+", "-", "+"),
+    overlap = c(9, 8, 8, 9, 5, 9, 8),
+    score = c(1, 0.8327038, 0.6942756, 0.06043549, 0.4065089, 0.4062361, 0.6259106),
+    pvalue = c(4.43299e-12, 0.000217059, 0.0054934, 1, 0.0969893, 0.427816,
+               0.0213852))
+  expect_lite_rows(compare_motifs_lite(ms, compare.to = 1, qvalue = 1,
+                                       overhang = "background", method = "EUCL",
+                                       bkg = c(.3, .2, .2, .3)),
+    offset = c(0, -1, 1, 4, -3, -2, 1),
+    strand = c("+", "+", "+", "-", "+", "+", "+"),
+    overlap = c(9, 8, 8, 5, 5, 7, 8),
+    score = c(0, 0.2409087, 0.3086445, 0.6571249, 0.4423452, 0.5301697, 0.401942),
+    pvalue = c(1.53923e-15, 0.000186881, 0.0046728, 1, 0.0760153, 0.642945,
+               0.0634991))
+})
+
+test_that("background overhangs with correlations only lower the scores of partial overlaps", {
+  ms <- lite_fixture()
+  a <- by_target(compare_motifs_lite(ms, compare.to = 3, qvalue = 1))
+  b <- by_target(compare_motifs_lite(ms, compare.to = 3, qvalue = 1,
+                                     overhang = "background"))
+  expect_equal(a$offset, b$offset)
+  expect_equal(a$strand, b$strand)
+  full <- a$overlap == 9 & vapply(ms, function(m) ncol(m@motif), integer(1)) == 9
+  expect_equal(a$score[full], b$score[full])
+  expect_true(all(b$score[!full] < a$score[!full]))
+})
+
+test_that("comparison options are checked", {
+  ms <- lite_fixture(c("M1", "M2"))
+  expect_error(compare_motifs_lite(ms, complete = TRUE, overhang = "background"),
+               "cannot be combined")
+  expect_error(compare_motifs_lite(ms, method = "ALLR"), "should be one of")
+  expect_error(compare_motifs_lite(ms, overhang = "both"), "should be one of")
+  expect_error(compare_motifs_lite(ms, complete = NA), "single logical")
+})
+
+test_that("complete scores depend on which motif is the query", {
+  ms <- lite_fixture()
+  p <- compare_motifs_lite(ms, complete = TRUE, matrix.out = "pvalue")
+  expect_false(isSymmetric(p))
+  expect_true(all(p >= 0 & p <= 1))
+})

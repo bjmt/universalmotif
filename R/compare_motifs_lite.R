@@ -2,7 +2,8 @@
 #'
 #' `compare_motifs_lite()` is a deliberately pared-down counterpart to
 #' [compare_motifs()]. It uses the
-#' per-column Pearson correlation as its similarity metric, computes
+#' per-column Pearson correlation as its similarity metric (or the Euclidean
+#' distance, with `method = "EUCL"`), computes
 #' significance from a TOMTOM-style null PMF (either empirical, from the
 #' target database, or parametric, via a Dirichlet-Multinomial over a K=5
 #' simplex grid), applies both Bonferroni and Benjamini-Hochberg adjustment,
@@ -10,16 +11,17 @@
 #' a square score / p-value / q-value matrix.
 #'
 #' Use [compare_motifs()] when you need any of the broader features:
-#' alternative similarity metrics (EUCL, ALLR, KL, …), score-aggregation
+#' other similarity metrics (ALLR, KL, …), score-aggregation
 #' strategies, IC-based filters, multifreq scoring, ICM/PPM dispatch,
 #' relative-entropy mode, or the JASPAR-derived `db.scores` lookup-table
-#' p-value path.
+#' p-value path. To name motifs after the database motifs they resemble most,
+#' see [name_motifs()].
 #'
 #' P-values are computed in two modes:
 #'
 #' \describe{
 #'   \item{`null = "empirical"` (default)}{Per-query column, score
-#'     against every target-database column, histogram into 201 PCC bins,
+#'     against every target-database column, histogram into 201 bins,
 #'     convolve to overlap length L. Cost per query is O(N x T) where N
 #'     is the number of target motifs and T their mean width. Best for
 #'     databases with more than a few hundred total columns.}
@@ -32,6 +34,44 @@
 #'
 #' The reported `score` is the mean PCC over the overlap (always in
 #' \eqn{[-1, 1]}), not the raw sum.
+#'
+#' @details
+#' **Euclidean distances.** With `method = "EUCL"`, columns are compared by
+#' the Euclidean distance between their probabilities. The `score` is then
+#' the mean distance, from 0 for identical columns up to the square root of
+#' 2, so that lower means more alike. Summed distances favour short
+#' overlaps, which is why these alignments are chosen by their mean distance
+#' unless `complete` or background overhangs make every alignment count the
+#' same number of columns. P-values are worked out exactly as for
+#' correlations, from either null, with distances counting as negative
+#' similarities.
+#'
+#' **Overhanging columns.** With `overhang = "background"`, the columns of
+#' either motif hanging over the ends of the other are compared with `bkg`,
+#' so that every column of both motifs is scored against whatever faces it.
+#' The alignment with the highest total is kept, `score` is the mean of all
+#' these column scores, and the P-value comes from the exact distribution of
+#' the total, with the target's overhanging columns drawn from the null as
+#' well. A partial overlap thus pays for however much its overhanging
+#' columns differ from the background. With correlations and a uniform
+#' background the overhanging columns score 0, which leaves the alignments
+#' much as they are and only lowers the scores of partial overlaps.
+#'
+#' **Complete scores.** By default only the overlap counts, so that a short
+#' target matching part of a long query can score as well as one covering
+#' all of it. With `complete = TRUE` whole queries are scored instead, as
+#' TOMTOM does by default. Each query column's scores are measured against
+#' the median of its scores with the null columns, which makes a typical
+#' column score zero and lets query columns hanging over the ends of the
+#' target count as typical ones. The P-value of the best alignment is then
+#' the probability that the best of all the alignments tried reaches its
+#' score, taking them to be independent, rather than a Bonferroni
+#' correction. This favours alignments covering more of the query and makes
+#' the results depend on which motif is the query, so it suits searching a
+#' database with a query motif (as [name_motifs()] does) better than
+#' all-against-all comparisons. The reported `score` is still the mean
+#' column score over the overlap. Complete scores cannot be combined with
+#' background overhangs.
 #'
 #' @param motifs See [convert_motifs()] for accepted motif formats. DNA or
 #'   RNA only.
@@ -51,8 +91,8 @@
 #'   `"parametric"`. See Details.
 #' @param bkg `numeric(4)` or `NULL`. Background base frequencies (A, C,
 #'   G, T). If `NULL`, uniform `c(.25, .25, .25, .25)` is used. Critical
-#'   for `"parametric"` (sets the Dirichlet prior); affects only
-#'   pseudocount smoothing for `"empirical"`.
+#'   for `"parametric"` (sets the Dirichlet prior); also used by
+#'   `overhang = "background"`.
 #' @param matrix.out `character(1)`. In matrix mode, which metric to
 #'   return: `"score"` (mean PCC; default), `"pvalue"`, or `"qvalue"`.
 #'   Ignored in long-format mode.
@@ -66,6 +106,14 @@
 #'   pandoc). Only meaningful in long-format mode.
 #' @param output.report.max.print `numeric(1)`. Maximum number of top matches
 #'   to show in the report (table and figures). Default `10`.
+#' @param complete `logical(1)`. Score whole queries rather than the overlap
+#'   alone, as described in Details. Default `FALSE`.
+#' @param method `character(1)`. How columns are compared: `"PCC"`, by their
+#'   Pearson correlation (default), or `"EUCL"`, by their Euclidean
+#'   distance.
+#' @param overhang `character(1)`. `"ignore"` (default) to score only the
+#'   overlapping columns, or `"background"` to compare overhanging columns
+#'   with `bkg`, as described in Details.
 #'
 #' @return
 #' - **Matrix mode** (`compare.to = NULL`): a square numeric matrix
@@ -98,8 +146,13 @@
 #' round(m, 2)
 #' ## Long-format hits at q <= 0.5 with motif 1 as the query
 #' compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5)
+#' ## The same, scoring the whole query as TOMTOM does
+#' compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5, complete = TRUE)
+#' ## Mean Euclidean distances, lower meaning more alike
+#' round(compare_motifs_lite(motifs, method = "EUCL"), 2)
 #'
-#' @seealso [compare_motifs()], [scan_sequences_lite()], [view_motifs_lite()]
+#' @seealso [compare_motifs()], [name_motifs()], [scan_sequences_lite()],
+#'   [view_motifs_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
 #' @family lite motif functions
 #' @export
@@ -113,7 +166,10 @@ compare_motifs_lite <- function(motifs,
                             matrix.out    = c("score", "pvalue", "qvalue"),
                             nthreads      = 1,
                             output.report,
-                            output.report.max.print = 10) {
+                            output.report.max.print = 10,
+                            complete      = FALSE,
+                            method        = c("PCC", "EUCL"),
+                            overhang      = c("ignore", "background")) {
 
   fun.call <- match.call()
 
@@ -121,6 +177,8 @@ compare_motifs_lite <- function(motifs,
   if (missing(motifs)) stop("`motifs` is required", call. = FALSE)
   null       <- match.arg(null)
   matrix.out <- match.arg(matrix.out)
+  method     <- match.arg(method)
+  overhang   <- match.arg(overhang)
 
   ## Fail fast on output.report misuse, before any comparison work.
   if (!missing(output.report)) {
@@ -143,6 +201,11 @@ compare_motifs_lite <- function(motifs,
   min.overlap <- as.integer(min.overlap)
   if (!isTRUEorFALSE(RC))
     stop("`RC` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(complete))
+    stop("`complete` must be a single logical", call. = FALSE)
+  if (complete && overhang == "background")
+    stop("complete scores and background overhangs cannot be combined",
+         call. = FALSE)
 
   ## Background
   if (is.null(bkg)) {
@@ -204,58 +267,16 @@ compare_motifs_lite <- function(motifs,
     }
   }
 
-  ## --- pair index: every (query, target) -------------------------------
-  tix <- seq_len(n_mot)
-  pairs <- expand.grid(qi = qix, ti = tix, KEEP.OUT.ATTRS = FALSE)
+  opts <- list(min.overlap = min.overlap, RC = RC, null = null, bkg = bkg_v,
+               method = method, overhang = overhang, complete = complete,
+               nthreads = nthreads)
 
-  ## --- alignment scan --------------------------------------------------
-  al <- compare_motifs_lite_align_cpp(mot.mats,
-                                  qi          = as.integer(pairs$qi),
-                                  ti          = as.integer(pairs$ti),
-                                  min_overlap = min.overlap,
-                                  RC          = RC,
-                                  nthreads    = nthreads)
-  ## attach pair indices for downstream
-  al$qi <- pairs$qi
-  al$ti <- pairs$ti
-
-  ## --- p-value (skip when caller only wants the score matrix) ----------
-  ## The best alignment is chosen by score in compare_motifs_lite_align_cpp
-  ## (yamcmp.c:1310-1312); p-values are a post-hoc significance step on
-  ## that already-chosen alignment. Matrix-mode `matrix.out = "score"`
-  ## never reads `pvals` or `qvals`, so we can skip both calls entirely.
-  need_pvals <- !matrix.mode || matrix.out != "score"
-  if (need_pvals) {
-    null_mode <- if (null == "empirical") 0L else 1L
-    pvals <- compare_motifs_lite_pvalue_cpp(
-      query_mats  = mot.mats,
-      target_mats = mot.mats,
-      qi          = as.integer(al$qi),
-      qstart      = as.integer(al$q_start_oriented),
-      overlap     = as.integer(al$overlap),
-      strand      = as.integer(al$strand),
-      score       = as.numeric(al$score),
-      n_tested    = as.integer(al$n_tested),
-      bkg         = bkg_v,
-      null_mode   = null_mode,
-      nthreads    = nthreads
-    )
-    ## A query's comparison with itself is no test, and its tiny P-value
-    ## would shrink every other q-value, so it keeps its P-value and is left
-    ## out of the others' adjustment.
-    qvals <- pvals
-    for (qq in unique(pairs$qi)) {
-      rows <- which(pairs$qi == qq & pairs$ti != qq)
-      qvals[rows] <- stats::p.adjust(pvals[rows], method = "BH")
-    }
-  } else {
-    pvals <- rep(NA_real_, nrow(al))
-    qvals <- rep(NA_real_, nrow(al))
-  }
-
-  ## --- mean PCC for display -------------------------------------------
-  mean_pcc <- ifelse(al$overlap > 0L, al$score / al$overlap, NA_real_)
-  strand_chr <- ifelse(al$strand == 1L, "-", "+")
+  ## --- alignments and P-values -----------------------------------------
+  ## Matrix-mode `matrix.out = "score"` never reads P-values or q-values, so
+  ## they are skipped there.
+  rows <- lite_compare_pairs(mot.mats, qix, opts,
+                             need.pvals = !matrix.mode || matrix.out != "score")
+  all.mats <- mot.mats
 
   ## --- assemble result -------------------------------------------------
   if (matrix.mode) {
@@ -263,60 +284,59 @@ compare_motifs_lite <- function(motifs,
       warning("`qvalue` is ignored when `compare.to = NULL` (matrix mode); ",
               "filter the returned matrix yourself.", call. = FALSE)
     val <- switch(matrix.out,
-                  "score"  = mean_pcc,
-                  "pvalue" = pvals,
-                  "qvalue" = qvals)
-    out <- matrix(val,
-                  nrow = n_mot, ncol = n_mot,
+                  "score"  = rows$score,
+                  "pvalue" = rows$pvalue,
+                  "qvalue" = rows$qvalue)
+    out <- matrix(NA_real_, nrow = n_mot, ncol = n_mot,
                   dimnames = list(mot.names, mot.names))
+    out[cbind(rows$qi, rows$ti)] <- val
     return(out)
   }
 
-  ## Long format: per query, keep the best alignment per (query, target)
-  ## pair, filter by qvalue, and decorate with consensus strings.
-  L <- al$overlap
-  qstart_orig <- ifelse(
-    al$strand == 1L,
-    ## RC: oriented col q_start corresponds to original col w_q - 1 - (q_start + L - 1)
-    vapply(seq_along(L), function(k) {
-      wq <- ncol(mot.mats[[al$qi[k]]])
-      wq - 1L - (al$q_start_oriented[k] + L[k] - 1L)
-    }, integer(1)),
-    al$q_start_oriented
-  )
-  ## target start: derived from offset (d_in_q) and overlap
-  ## t_start in original target coords = max(0, -offset)
-  t_start <- pmax(0L, -al$offset)
+  ## Long format: the best alignment per (query, target) pair, filtered by
+  ## qvalue and decorated with consensus strings.
+  L <- rows$overlap
+  wq <- vapply(all.mats, ncol, integer(1))[rows$iq]
+  ## RC: oriented col q_start corresponds to original col w_q - 1 - (q_start + L - 1)
+  qstart_orig <- ifelse(rows$strand == 1L,
+                        wq - 1L - (rows$q_start_oriented + L - 1L),
+                        rows$q_start_oriented)
+  ## target start in original target coords = max(0, -offset)
+  t_start <- pmax(0L, -rows$offset)
 
   long <- data.frame(
-    subject     = mot.names[al$qi],
-    subject.i   = al$qi,
-    target      = mot.names[al$ti],
-    target.i    = al$ti,
-    offset      = al$offset,
-    strand      = strand_chr,
+    subject     = mot.names[rows$qi],
+    subject.i   = rows$qi,
+    target      = mot.names[rows$ti],
+    target.i    = rows$ti,
+    offset      = rows$offset,
+    strand      = ifelse(rows$strand == 1L, "-", "+"),
     overlap     = L,
-    score       = mean_pcc,
-    pvalue      = pvals,
-    qvalue      = qvals,
+    score       = rows$score,
+    pvalue      = rows$pvalue,
+    qvalue      = rows$qvalue,
     stringsAsFactors = FALSE
   )
 
   ## attach consensus strings (start is 0-based for the C++ helper)
   long$subject.consensus <- compare_motifs_lite_consensus_cpp(
-    mot.mats,
-    mot_i = as.integer(long$subject.i),
+    all.mats,
+    mot_i = as.integer(rows$iq),
     start = as.integer(qstart_orig),
     len   = as.integer(L),
     alph  = mot.alph
   )
   long$target.consensus <- compare_motifs_lite_consensus_cpp(
-    mot.mats,
-    mot_i = as.integer(long$target.i),
+    all.mats,
+    mot_i = as.integer(rows$it),
     start = as.integer(t_start),
     len   = as.integer(L),
     alph  = mot.alph
   )
+  cols <- c("subject", "subject.i", "target", "target.i",
+            "offset", "strand", "overlap",
+            "score", "subject.consensus", "target.consensus",
+            "pvalue", "qvalue")
 
   ## filter + sort
   keep <- !is.na(long$qvalue) & long$qvalue <= qvalue & long$overlap > 0L
@@ -325,10 +345,7 @@ compare_motifs_lite <- function(motifs,
   rownames(long) <- NULL
 
   ## final column order
-  long <- long[, c("subject", "subject.i", "target", "target.i",
-                   "offset", "strand", "overlap",
-                   "score", "subject.consensus", "target.consensus",
-                   "pvalue", "qvalue")]
+  long <- long[, cols]
 
   if (!missing(output.report)) {
     tryCatch(
@@ -342,4 +359,115 @@ compare_motifs_lite <- function(motifs,
   }
 
   long
+}
+
+## ---------------------------------------------------------------------------
+## Internal helpers shared by the lite comparison, merging and display
+## functions.
+## ---------------------------------------------------------------------------
+
+## The default comparison options, as compare_motifs_lite() fills them in.
+lite_opts <- function(min.overlap = 5L, RC = TRUE, null = "empirical",
+                      bkg = rep(0.25, 4), method = "PCC", overhang = "ignore",
+                      complete = FALSE, nthreads = 1L) {
+  list(min.overlap = as.integer(min.overlap), RC = RC, null = null, bkg = bkg,
+       method = method, overhang = overhang, complete = complete,
+       nthreads = as.integer(nthreads))
+}
+
+## The median score of each column of the wanted motifs against the null
+## columns, for complete scores; empty for the other motifs.
+lite_medians <- function(mats, wanted, opts) {
+  compare_motifs_lite_medians_cpp(mats, wanted = wanted, RC = opts$RC,
+    null_mode = if (opts$null == "empirical") 0L else 1L, bkg = opts$bkg,
+    method = if (opts$method == "EUCL") 1L else 0L, nthreads = opts$nthreads)
+}
+
+## The best alignment of each (qi, ti) pair of PPM matrices.
+lite_align <- function(mats, qi, ti, opts, medians = NULL) {
+  if (opts$complete && is.null(medians)) {
+    wanted <- logical(length(mats))
+    wanted[unique(qi)] <- TRUE
+    medians <- lite_medians(mats, wanted, opts)
+  }
+  if (is.null(medians)) medians <- rep(list(numeric(0)), length(mats))
+  compare_motifs_lite_align_cpp(mats,
+    qi          = as.integer(qi),
+    ti          = as.integer(ti),
+    min_overlap = as.integer(opts$min.overlap),
+    RC          = as.logical(opts$RC),
+    nthreads    = as.integer(opts$nthreads),
+    method      = if (opts$method == "EUCL") 1L else 0L,
+    overhang    = if (opts$overhang == "background") 1L else 0L,
+    complete    = opts$complete,
+    medians     = medians,
+    bkg         = as.numeric(opts$bkg))
+}
+
+## Compare each query in `qix` with every matrix in `mats`, itself included.
+## One row per pair, with the query varying fastest: the matrix indices
+## (qi, ti, and the same as iq, it), the alignment, the reported score and,
+## with `need.pvals`, P-values and q-values adjusted within each query,
+## leaving out its comparison with itself.
+lite_compare_pairs <- function(mats, qix, opts, need.pvals = TRUE) {
+  pairs <- expand.grid(qi = qix, ti = seq_along(mats), KEEP.OUT.ATTRS = FALSE)
+  medians <- NULL
+  if (opts$complete) {
+    wanted <- logical(length(mats))
+    wanted[unique(qix)] <- TRUE
+    medians <- lite_medians(mats, wanted, opts)
+  }
+  al <- lite_align(mats, pairs$qi, pairs$ti, opts, medians)
+  al$qi <- al$iq <- pairs$qi
+  al$ti <- al$it <- pairs$ti
+
+  if (need.pvals) {
+    if (is.null(medians)) medians <- rep(list(numeric(0)), length(mats))
+    pvals <- compare_motifs_lite_pvalue_cpp(
+      query_mats  = mats,
+      target_mats = mats,
+      qi          = as.integer(al$qi),
+      ti          = as.integer(al$ti),
+      qstart      = as.integer(al$q_start_oriented),
+      overlap     = as.integer(al$overlap),
+      strand      = as.integer(al$strand),
+      offset      = as.integer(al$offset),
+      score       = as.numeric(al$score),
+      chosen      = as.numeric(al$chosen),
+      n_tested    = as.integer(al$n_tested),
+      bkg         = as.numeric(opts$bkg),
+      null_mode   = if (opts$null == "empirical") 0L else 1L,
+      nthreads    = as.integer(opts$nthreads),
+      method      = if (opts$method == "EUCL") 1L else 0L,
+      overhang    = if (opts$overhang == "background") 1L else 0L,
+      complete    = opts$complete,
+      medians     = medians,
+      RC          = as.logical(opts$RC),
+      min_overlap = as.integer(opts$min.overlap)
+    )
+    ## A query's comparison with itself is no test, and its tiny P-value
+    ## would shrink every other q-value, so it keeps its P-value and is left
+    ## out of the others' adjustment.
+    qvals <- pvals
+    for (qq in unique(al$qi)) {
+      rows <- which(al$qi == qq & al$ti != qq)
+      qvals[rows] <- stats::p.adjust(pvals[rows], method = "BH")
+    }
+  } else {
+    pvals <- rep(NA_real_, nrow(al))
+    qvals <- rep(NA_real_, nrow(al))
+  }
+  al$pvalue <- pvals
+  al$qvalue <- qvals
+
+  ## The mean column score, over the overlap or with background overhangs
+  ## over every column of both motifs, with distances as they are.
+  widths <- vapply(mats, ncol, integer(1))
+  mean.score <- if (opts$overhang == "background") {
+    al$chosen / (widths[al$qi] + widths[al$ti])
+  } else al$score / al$overlap
+  if (opts$method == "EUCL") mean.score <- 0 - mean.score
+  al$score.sum <- al$score
+  al$score <- ifelse(al$overlap > 0L, mean.score, NA_real_)
+  al
 }

@@ -7,7 +7,8 @@
 compare_motifs_lite(motifs, compare.to = NULL, qvalue = 0.1,
   min.overlap = 5L, RC = TRUE, null = c("empirical", "parametric"),
   bkg = NULL, matrix.out = c("score", "pvalue", "qvalue"), nthreads = 1,
-  output.report, output.report.max.print = 10)
+  output.report, output.report.max.print = 10, complete = FALSE,
+  method = c("PCC", "EUCL"), overhang = c("ignore", "background"))
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or
@@ -34,8 +35,8 @@ in reverse-complement orientation and report the best of the two.}
 
 \item{bkg}{\code{numeric(4)} or \code{NULL}. Background base frequencies (A, C,
 G, T). If \code{NULL}, uniform \code{c(.25, .25, .25, .25)} is used. Critical
-for \code{"parametric"} (sets the Dirichlet prior); affects only
-pseudocount smoothing for \code{"empirical"}.}
+for \code{"parametric"} (sets the Dirichlet prior); also used by
+\code{overhang = "background"}.}
 
 \item{matrix.out}{\code{character(1)}. In matrix mode, which metric to
 return: \code{"score"} (mean PCC; default), \code{"pvalue"}, or \code{"qvalue"}.
@@ -53,6 +54,17 @@ pandoc). Only meaningful in long-format mode.}
 
 \item{output.report.max.print}{\code{numeric(1)}. Maximum number of top matches
 to show in the report (table and figures). Default \code{10}.}
+
+\item{complete}{\code{logical(1)}. Score whole queries rather than the overlap
+alone, as described in Details. Default \code{FALSE}.}
+
+\item{method}{\code{character(1)}. How columns are compared: \code{"PCC"}, by their
+Pearson correlation (default), or \code{"EUCL"}, by their Euclidean
+distance.}
+
+\item{overhang}{\code{character(1)}. \code{"ignore"} (default) to score only the
+overlapping columns, or \code{"background"} to compare overhanging columns
+with \code{bkg}, as described in Details.}
 }
 \value{
 \itemize{
@@ -74,7 +86,8 @@ and is left out of the others' adjustment.
 \description{
 \code{compare_motifs_lite()} is a deliberately pared-down counterpart to
 \code{\link[=compare_motifs]{compare_motifs()}}. It uses the
-per-column Pearson correlation as its similarity metric, computes
+per-column Pearson correlation as its similarity metric (or the Euclidean
+distance, with \code{method = "EUCL"}), computes
 significance from a TOMTOM-style null PMF (either empirical, from the
 target database, or parametric, via a Dirichlet-Multinomial over a K=5
 simplex grid), applies both Bonferroni and Benjamini-Hochberg adjustment,
@@ -83,16 +96,17 @@ a square score / p-value / q-value matrix.
 }
 \details{
 Use \code{\link[=compare_motifs]{compare_motifs()}} when you need any of the broader features:
-alternative similarity metrics (EUCL, ALLR, KL, …), score-aggregation
+other similarity metrics (ALLR, KL, …), score-aggregation
 strategies, IC-based filters, multifreq scoring, ICM/PPM dispatch,
 relative-entropy mode, or the JASPAR-derived \code{db.scores} lookup-table
-p-value path.
+p-value path. To name motifs after the database motifs they resemble most,
+see \code{\link[=name_motifs]{name_motifs()}}.
 
 P-values are computed in two modes:
 
 \describe{
 \item{\code{null = "empirical"} (default)}{Per-query column, score
-against every target-database column, histogram into 201 PCC bins,
+against every target-database column, histogram into 201 bins,
 convolve to overlap length L. Cost per query is O(N x T) where N
 is the number of target motifs and T their mean width. Best for
 databases with more than a few hundred total columns.}
@@ -105,6 +119,43 @@ when histogram sparsity would distort the empirical estimate.}
 
 The reported \code{score} is the mean PCC over the overlap (always in
 \eqn{[-1, 1]}), not the raw sum.
+
+\strong{Euclidean distances.} With \code{method = "EUCL"}, columns are compared by
+the Euclidean distance between their probabilities. The \code{score} is then
+the mean distance, from 0 for identical columns up to the square root of
+2, so that lower means more alike. Summed distances favour short
+overlaps, which is why these alignments are chosen by their mean distance
+unless \code{complete} or background overhangs make every alignment count the
+same number of columns. P-values are worked out exactly as for
+correlations, from either null, with distances counting as negative
+similarities.
+
+\strong{Overhanging columns.} With \code{overhang = "background"}, the columns of
+either motif hanging over the ends of the other are compared with \code{bkg},
+so that every column of both motifs is scored against whatever faces it.
+The alignment with the highest total is kept, \code{score} is the mean of all
+these column scores, and the P-value comes from the exact distribution of
+the total, with the target's overhanging columns drawn from the null as
+well. A partial overlap thus pays for however much its overhanging
+columns differ from the background. With correlations and a uniform
+background the overhanging columns score 0, which leaves the alignments
+much as they are and only lowers the scores of partial overlaps.
+
+\strong{Complete scores.} By default only the overlap counts, so that a short
+target matching part of a long query can score as well as one covering
+all of it. With \code{complete = TRUE} whole queries are scored instead, as
+TOMTOM does by default. Each query column's scores are measured against
+the median of its scores with the null columns, which makes a typical
+column score zero and lets query columns hanging over the ends of the
+target count as typical ones. The P-value of the best alignment is then
+the probability that the best of all the alignments tried reaches its
+score, taking them to be independent, rather than a Bonferroni
+correction. This favours alignments covering more of the query and makes
+the results depend on which motif is the query, so it suits searching a
+database with a query motif (as \code{\link[=name_motifs]{name_motifs()}} does) better than
+all-against-all comparisons. The reported \code{score} is still the mean
+column score over the overlap. Complete scores cannot be combined with
+background overhangs.
 }
 \examples{
 library(universalmotif)
@@ -117,6 +168,10 @@ m <- compare_motifs_lite(motifs)
 round(m, 2)
 ## Long-format hits at q <= 0.5 with motif 1 as the query
 compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5)
+## The same, scoring the whole query as TOMTOM does
+compare_motifs_lite(motifs, compare.to = 1, qvalue = 0.5, complete = TRUE)
+## Mean Euclidean distances, lower meaning more alike
+round(compare_motifs_lite(motifs, method = "EUCL"), 2)
 
 }
 \references{
@@ -124,13 +179,15 @@ Gupta S, Stamatoyannopoulos JA, Bailey TL, Noble WS (2007). "Quantifying
 similarity between motifs." \emph{Genome Biology}, \strong{8}(2), R24.
 }
 \seealso{
-\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=scan_sequences_lite]{scan_sequences_lite()}}, \code{\link[=view_motifs_lite]{view_motifs_lite()}}
+\code{\link[=compare_motifs]{compare_motifs()}}, \code{\link[=name_motifs]{name_motifs()}}, \code{\link[=scan_sequences_lite]{scan_sequences_lite()}},
+\code{\link[=view_motifs_lite]{view_motifs_lite()}}
 
 Other lite motif functions: 
 \code{\link{enrich_motifs_lite}()},
 \code{\link{merge_motifs_lite}()},
 \code{\link{merge_similar_lite}()},
 \code{\link{motif_tree_lite}()},
+\code{\link{name_motifs}()},
 \code{\link{scan_sequences_lite}()},
 \code{\link{view_motifs_lite}()}
 }
