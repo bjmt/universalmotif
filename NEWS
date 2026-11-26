@@ -1,3 +1,19 @@
+CHANGES IN VERSION 1.32.1
+-------------------------
+
+BUG FIXES
+
+  o compare_motifs_lite() leaves each motif's comparison with itself out
+    of the q-values.
+
+  o write_motifs() no longer rounds matrix values.
+
+  o read_motifs() skips unknown fields with a warning instead of failing
+    to read the motif.
+
+  o merge_motifs_lite() and view_motifs_lite() align motifs narrower than
+    min.overlap.
+
 CHANGES IN VERSION 1.32.0
 -------------------------
 
