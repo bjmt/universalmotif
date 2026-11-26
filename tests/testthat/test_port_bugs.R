@@ -61,3 +61,20 @@ test_that("negative letters mirror the positive ones", {
   expect_gt(max(y$A), max(y$C))
   expect_lt(min(y$G), min(y$T))
 })
+
+test_that("compare_motifs_lite() leaves self-comparisons out of the q-values", {
+  set.seed(2)
+  q <- create_motif("TGACGTCAGG", nsites = 20, name = "q")
+  hits <- lapply(1:4, function(i) create_motif(c("TGACGTCAGG", "TGACTTCAGG",
+    "TGAGGTCAGC")[sample(3, 1)], nsites = 20, name = paste0("hit", i)))
+  rand <- lapply(1:20, function(i) create_motif(10, nsites = 20,
+    name = paste0("r", i)))
+  r <- compare_motifs_lite(c(list(q), hits, rand), compare.to = 1, qvalue = 1)
+  self <- r$target == "q"
+  expect_identical(r$qvalue[self], r$pvalue[self])
+  expect_equal(r$qvalue[!self], p.adjust(r$pvalue[!self], "BH"))
+  m <- compare_motifs_lite(c(list(q), hits, rand), matrix.out = "qvalue")
+  p <- compare_motifs_lite(c(list(q), hits, rand), matrix.out = "pvalue")
+  expect_equal(diag(m), diag(p))
+  expect_equal(unname(m[1, -1]), unname(p.adjust(p[1, -1], "BH")))
+})

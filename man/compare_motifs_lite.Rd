@@ -66,6 +66,10 @@ columns
 q-value ascending. Coordinates are 1-based; \code{offset} is the query
 column where target column 1 aligns.
 }
+
+Q-values are adjusted among the comparisons of each query with the other
+motifs. A query's comparison with itself keeps its P-value as its q-value
+and is left out of the others' adjustment.
 }
 \description{
 \code{compare_motifs_lite()} is a deliberately pared-down counterpart to

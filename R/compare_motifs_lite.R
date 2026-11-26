@@ -78,6 +78,10 @@
 #'   q-value ascending. Coordinates are 1-based; `offset` is the query
 #'   column where target column 1 aligns.
 #'
+#' Q-values are adjusted among the comparisons of each query with the other
+#' motifs. A query's comparison with itself keeps its P-value as its q-value
+#' and is left out of the others' adjustment.
+#'
 #' @references
 #'
 #' Gupta S, Stamatoyannopoulos JA, Bailey TL, Noble WS (2007). "Quantifying
@@ -236,9 +240,12 @@ compare_motifs_lite <- function(motifs,
       null_mode   = null_mode,
       nthreads    = nthreads
     )
-    qvals <- rep(NA_real_, length(pvals))
+    ## A query's comparison with itself is no test, and its tiny P-value
+    ## would shrink every other q-value, so it keeps its P-value and is left
+    ## out of the others' adjustment.
+    qvals <- pvals
     for (qq in unique(pairs$qi)) {
-      rows <- which(pairs$qi == qq)
+      rows <- which(pairs$qi == qq & pairs$ti != qq)
       qvals[rows] <- stats::p.adjust(pvals[rows], method = "BH")
     }
   } else {
