@@ -17,6 +17,14 @@
 #' To turn off the informative messages/warnings when printing the object to
 #' the console, set `options(universalmotif_df.warning=FALSE)`.
 #'
+#' The motifs in the `motif` column can also be edited directly, as long as
+#' the new column is wrapped in [I()] (see the examples). The other columns
+#' are then out of date until [update_motifs()] or [to_list()] is run, which
+#' keeps the changes made to the motifs as well as those made to the other
+#' columns since [to_df()]. Where both a motif and its column were changed,
+#' the column wins, unless the motif was replaced by a new one (as
+#' [motif_rc()] returns), in which case the motif wins.
+#'
 #' @examples
 #' \dontrun{
 #' library(universalmotif)
@@ -34,6 +42,12 @@
 #' m_df <- to_df(m)
 #' m_df$MyMetadata <- c("Info_1", "Info_2")
 #' m <- to_list(m_df, extrainfo = TRUE)
+#'
+#' # Edit some of the motifs within the data.frame, then bring the other
+#' # columns up to date:
+#' m_df <- to_df(m) %>%
+#'    mutate(motif = I(ifelse(name == "motif B-2", lapply(motif, motif_rc), motif))) %>%
+#'    update_motifs()
 #' }
 #'
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
@@ -105,6 +119,7 @@ to_df <- function(motifs, extrainfo = TRUE) {
   x <- convert_motifs(motifs)
   if (!is.list(x)) x <- list(x)
   y <- summarise_motifs_with_extras(x)
+  x <- tag_df_rows(x, y)
   if (extrainfo) {
     einfo <- extrainfo_to_df(x)
     if (!is.null(einfo) && nrow(einfo))
@@ -148,7 +163,15 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
     stop("Could not find 'motif' column.")
   m <- updated_df$motif
   class(m) <- NULL
-  old_df <- as.data.frame(to_df(m, extrainfo = FALSE))
+  ## Each motif from to_df() carries the values its row had then, so that a
+  ## column can be told apart from its motif: the column was changed if it
+  ## differs from those values, and the motif if it no longer matches them.
+  ## Motifs without them, as returned by functions that build a new motif,
+  ## are taken to be changed and their columns to be stale.
+  orig <- lapply(m, attr, which = "universalmotif_df.row", exact = TRUE)
+  m <- untag_df_rows(m)
+  tagged <- !vapply(orig, is.null, logical(1))
+  old_df <- summarise_motifs_with_extras(m)
   cols_new <- colnames(updated_df)
   cols_new <- cols_new[cols_new != "motif"]
   cols_old <- colnames(old_df)
@@ -211,16 +234,22 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
   }
   cols_to_check <- cols_new[cols_new %in% cols_old]
   if ("bkg" %in% cols_to_check) {
-    for (i in which(mapply(bkgs_are_different, old_df$bkg, updated_df$bkg, SIMPLIFY = TRUE))) {
-      m[[i]]["bkg"] <- updated_df$bkg[[i]]
+    for (i in which(tagged)) {
+      if (bkgs_are_different(orig[[i]]$bkg, updated_df$bkg[[i]]))
+        m[[i]]["bkg"] <- updated_df$bkg[[i]]
     }
     cols_to_check <- cols_to_check[cols_to_check != "bkg"]
   }
+  stale <- character()
   for (i in seq_along(cols_to_check)) {
     checking <- cols_to_check[i]
-    changed <- xor(is.na(updated_df[[checking]]), is.na(old_df[[checking]])) |
-      (!is.na(updated_df[[checking]]) & !is.na(old_df[[checking]]) &
-       updated_df[[checking]] != old_df[[checking]])
+    if (!checking %in% c("icscore", "consensus", "alphabet") &&
+        any(!tagged & values_differ(updated_df[[checking]], old_df[[checking]])))
+      stale <- c(stale, checking)
+    was <- updated_df[[checking]]
+    if (any(tagged))
+      was[tagged] <- unlist(lapply(orig[tagged], `[[`, checking))
+    changed <- values_differ(updated_df[[checking]], was)
     if (any(changed)) {
       if (checking == "type") {
         for (j in which(changed)) {
@@ -242,6 +271,9 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
       }
     }
   }
+  if (length(stale))
+    message(wmsg("Took column(s) ", paste0("'", stale, "'", collapse = ", "),
+      " from motifs that were replaced since to_df()."))
   if (holdout & extrainfo & all(!is.na(extrainfo_holdout_cols))){
     # Add back any heldout info
     # TODO: is `cbind` safe here? will row order always preserve?
@@ -256,7 +288,8 @@ update_motifs <- function(motif_df, extrainfo = TRUE, force = FALSE) {
 #' @export
 #' @rdname tidy-motifs
 to_list <- function(motif_df, extrainfo = TRUE, force = FALSE) {
-  structure(update_motifs(motif_df, extrainfo, force)$motif, class = NULL)
+  untag_df_rows(structure(update_motifs(motif_df, extrainfo, force)$motif,
+                          class = NULL))
 }
 
 #' @export
@@ -275,6 +308,25 @@ summarise_motifs_with_extras <- function(x) {
   y$pseudocount <- vapply(x, function(x) x@pseudocount, numeric(1))
   y$bkg <- lapply(x, function(x) x@bkg)
   y
+}
+
+tag_df_rows <- function(motifs, summary) {
+  rows <- .mapply(list, as.list(summary), NULL)
+  mapply(function(x, row) {
+    attr(x, "universalmotif_df.row") <- stats::setNames(row, names(summary))
+    x
+  }, motifs, rows, SIMPLIFY = FALSE, USE.NAMES = FALSE)
+}
+
+untag_df_rows <- function(motifs) {
+  lapply(motifs, function(x) {
+    attr(x, "universalmotif_df.row") <- NULL
+    x
+  })
+}
+
+values_differ <- function(x, y) {
+  xor(is.na(x), is.na(y)) | (!is.na(x) & !is.na(y) & x != y)
 }
 
 bkgs_are_different <- function(x, y) {

@@ -109,3 +109,41 @@ test_that("update works", {
   expect_equal(2, nrow(update_motifs(to_df(m, TRUE), TRUE)))
   
 })
+
+test_that("edits to the motif column are kept by update_motifs()", {
+  m <- c(create_motif("AACCGGTT", name = "m1"),
+         create_motif("AAACCCGT", name = "m2"))
+  df <- to_df(m)
+  ## A function that returns a new motif: its columns are refreshed quietly.
+  df2 <- df
+  df2$motif <- I(lapply(seq_along(m), function(i)
+    if (i == 2) motif_rc(df$motif[[i]]) else df$motif[[i]]))
+  expect_silent(u <- update_motifs(df2))
+  expect_equal(u$consensus, c("AACCGGTT", "ACGGGTTT"))
+  expect_equal(to_list(df2)[[2]]@consensus, "ACGGGTTT")
+  ## Functions that modify the motif in place are no longer undone by the
+  ## old values of its columns.
+  df2$motif <- I(lapply(df$motif, convert_type, type = "PWM", nsize_correction = FALSE))
+  expect_equal(vapply(suppressMessages(to_list(df2)), function(x) x@type,
+                      character(1)), c("PWM", "PWM"))
+  df2$motif <- I(lapply(df$motif, function(x) { x["name"] <- "new"; x }))
+  expect_equal(update_motifs(df2)$name, c("new", "new"))
+  ## Changes to the columns still reach the motifs, also in rows whose motif
+  ## changed too.
+  df2 <- df
+  df2$name <- c("a", "b")
+  df2$motif <- I(lapply(df$motif, trim_motifs, min.ic = 0.5))
+  expect_equal(vapply(to_list(df2), function(x) x@name, character(1)), c("a", "b"))
+  ## A column of a replaced motif that disagrees with it comes from the motif.
+  df2 <- df
+  df2$motif <- I(lapply(df$motif, function(x) { x <- motif_rc(x); x["name"] <- "z"; x }))
+  expect_message(u <- update_motifs(df2), "'name'")
+  expect_equal(u$name, c("z", "z"))
+  ## Changing an unmodifiable column still warns.
+  df2 <- df
+  df2$consensus <- "AAAA"
+  expect_warning(update_motifs(df2), "unmodifiable")
+  ## Motifs leave the data.frame as they entered it.
+  expect_identical(to_list(df), m)
+  expect_null(attributes(to_list(df)[[1]])$universalmotif_df.row)
+})

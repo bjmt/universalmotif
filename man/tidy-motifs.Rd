@@ -59,6 +59,14 @@ Tidy manipulation of motifs.
 \details{
 To turn off the informative messages/warnings when printing the object to
 the console, set \code{options(universalmotif_df.warning=FALSE)}.
+
+The motifs in the \code{motif} column can also be edited directly, as long as
+the new column is wrapped in \code{\link[=I]{I()}} (see the examples). The other columns
+are then out of date until \code{\link[=update_motifs]{update_motifs()}} or \code{\link[=to_list]{to_list()}} is run, which
+keeps the changes made to the motifs as well as those made to the other
+columns since \code{\link[=to_df]{to_df()}}. Where both a motif and its column were changed,
+the column wins, unless the motif was replaced by a new one (as
+\code{\link[=motif_rc]{motif_rc()}} returns), in which case the motif wins.
 }
 \examples{
 \dontrun{
@@ -77,6 +85,12 @@ m <- m \%>\%
 m_df <- to_df(m)
 m_df$MyMetadata <- c("Info_1", "Info_2")
 m <- to_list(m_df, extrainfo = TRUE)
+
+# Edit some of the motifs within the data.frame, then bring the other
+# columns up to date:
+m_df <- to_df(m) \%>\%
+   mutate(motif = I(ifelse(name == "motif B-2", lapply(motif, motif_rc), motif))) \%>\%
+   update_motifs()
 }
 
 }
