@@ -1,3 +1,22 @@
+CHANGES IN VERSION 1.34.0
+-------------------------
+
+MINOR CHANGES
+
+  o write_meme(), write_jaspar() and write_transfac() keep the gaps of
+    gapped motifs in the alternative name (as in AGGTCA[1-5]AGGTCA), and
+    read_meme(), read_jaspar() and read_transfac() restore them.
+
+BUG FIXES
+
+  o write_motifs() no longer rounds matrix values.
+
+  o read_motifs() skips unknown fields with a warning instead of failing
+    to read the motif.
+
+  o merge_motifs_lite() and view_motifs_lite() align motifs narrower than
+    min.overlap.
+
 CHANGES IN VERSION 1.32.0
 -------------------------
 
