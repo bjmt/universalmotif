@@ -25,7 +25,8 @@ default backend.}
 Import motifs created from \code{\link[=write_motifs]{write_motifs()}}. For optimal storage of
 \code{universalmotif} class motifs, consider using \code{\link[=saveRDS]{saveRDS()}} and
 \code{\link[=readRDS]{readRDS()}}. Currently the \code{universalmotif} format is YAML-based, but
-this is subject to change.
+this is subject to change. Fields that are not recognized, such as those
+added by newer versions of the package, are skipped with a warning.
 }
 \examples{
 motif <- create_motif("CARGTG", name = "MyMotif")

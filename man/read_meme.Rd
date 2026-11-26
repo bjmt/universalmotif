@@ -48,6 +48,9 @@ formats are supported. DREME and STREME motifs can also be imported, but note
 that \code{readsites} and \code{readsites.meta} arguments do nothing.
 }
 \details{
+A motif whose alternative name gives gaps in the notation written by
+\code{\link[=write_meme]{write_meme()}}, as in \verb{AGGTCA[1-5]AGGTCA}, is read with those gaps.
+
 Please note that the typical number precision limit in R is around 1e-308.
 This means that motif P-values in MEME files below this limit are rounded
 automatically to 0. To get around this, the E-value is also stored as a

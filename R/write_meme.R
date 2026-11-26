@@ -3,6 +3,9 @@
 #' Convert motifs to minimal MEME format and write to file.
 #' See \url{http://meme-suite.org/doc/meme-format.html}.
 #'
+#' A gapped motif gets its gaps as its alternative name, written into its
+#' consensus as in `AGGTCA[1-5]AGGTCA`, which [read_meme()] reads back as gaps.
+#'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.
 #' @param version `numeric(1)` MEME version.
@@ -79,7 +82,7 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
-  warn_motif_metadata_loss(motifs, "MEME format")
+  warn_motif_metadata_loss(motifs, "MEME format", gap.notation = TRUE)
 
   ## When CWM = TRUE, write CWM motifs verbatim into the
   ## letter-probability matrix block (signed values, no
@@ -174,12 +177,12 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
         )
         n1 <- paste0(n1, collapse = "-")
       }
-      n2 <- motif@altname
+      n2 <- file_altname(motif)
       if (length(n2)) {
         if (grepl("=", n2)) {
           message(
             "Note: found equal signs in motif altname \"",
-            motif@altname, "\". These will be substituted with periods."
+            n2, "\". These will be substituted with periods."
           )
           n2 <- gsub("=", ".", n2, fixed = TRUE)
         }
@@ -187,7 +190,7 @@ write_meme <- function(motifs, file, version = 5, bkg, strand,
         if (length(n2) > 1) {
           message(
             "Note: found spaces in motif altname \"",
-            motif@altname, "\". These will be substituted with dashes."
+            n2, "\". These will be substituted with dashes."
           )
           n2 <- paste0(n2, collapse = "-")
         }

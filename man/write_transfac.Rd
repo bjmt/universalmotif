@@ -30,6 +30,9 @@ slot is empty.}
 Convert motifs to TRANSFAC format and write to file.
 }
 \details{
+A gapped motif gets its gaps as its alternative name, written into its
+consensus as in \verb{AGGTCA[1-5]AGGTCA}, which \code{\link[=read_transfac]{read_transfac()}} reads back as gaps.
+
 If the family slot of a motif is not empty, then its contents will
 included using the HC tag. Similarly for the organism slot using the
 tag OS. The default name and alternate name tags are ID and NA,

@@ -3,6 +3,9 @@
 #' Convert motifs to JASPAR format and write to file.
 #' See \url{http://jaspar.genereg.net/}.
 #'
+#' A gapped motif gets its gaps as its alternative name, written into its
+#' consensus as in `AGGTCA[1-5]AGGTCA`, which [read_jaspar()] reads back as gaps.
+#'
 #' @param motifs See [convert_motifs()] for acceptable formats.
 #' @param file `character(1)` File name.
 #' @param overwrite `logical(1)` Overwrite existing file.
@@ -47,16 +50,16 @@ write_jaspar <- function(motifs, file, overwrite = FALSE, append = FALSE) {
   motifs <- convert_motifs(motifs)
   motifs <- convert_type_internal(motifs, "PCM")
   if (!is.list(motifs)) motifs <- list(motifs)
-  warn_motif_metadata_loss(motifs, "JASPAR format")
+  warn_motif_metadata_loss(motifs, "JASPAR format", gap.notation = TRUE)
 
   .write_jaspar <- function(motifs) {
 
     lines_out <- vector()
 
     motif <- motifs
-    if (length(motif@altname) > 0) {
-      lines_out <- c(lines_out, paste0(">", motif@name, " ",
-                                       motif@altname))
+    altname <- file_altname(motif)
+    if (length(altname) > 0) {
+      lines_out <- c(lines_out, paste0(">", motif@name, " ", altname))
     } else {
       lines_out <- c(lines_out, paste0(">", motif@name))
     }

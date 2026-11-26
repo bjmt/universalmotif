@@ -61,3 +61,65 @@ test_that("negative letters mirror the positive ones", {
   expect_gt(max(y$A), max(y$C))
   expect_lt(min(y$G), min(y$T))
 })
+
+test_that("read_motifs() skips unknown fields and write_motifs() keeps full precision", {
+  m1 <- create_motif(matrix(c(12345.6, 1, 1, 1, 0.1, 2, 3, 12341.6), 4,
+    dimnames = list(DNA_BASES, NULL)), type = "PCM")
+  m2 <- convert_type(create_motif("ACGTRYN"), "PWM")
+  f <- tempfile()
+  on.exit(unlink(f), add = TRUE)
+  write_motifs(list(m1, m2), f)
+  r <- read_motifs(f)
+  expect_identical(r[[1]]@motif, m1@motif)
+  expect_identical(r[[2]]@motif, m2@motif)
+  lines <- readLines(f)
+  lines <- append(lines, c("newfield: x", "another: 2"),
+    after = grep("^name", lines)[1])
+  writeLines(lines, f)
+  expect_warning(r <- read_motifs(f), "newfield, another")
+  expect_length(r, 2)
+  expect_null(attr(r[[1]], "unknown"))
+  expect_identical(r[[1]]@motif, m1@motif)
+})
+
+test_that("MEME, JASPAR and TRANSFAC files keep gaps in the alternative name", {
+  m <- add_gap(create_motif("AGGTCAAGGTCA", nsites = 10, name = "nr"),
+    gaploc = c(3, 6), mingap = c(0, 1), maxgap = c(1, 5))
+  expect_identical(gap_notation(m), "AGG[0-1]TCA[1-5]AGGTCA")
+  for (fmt in c("meme", "jaspar", "transfac")) {
+    f <- tempfile()
+    on.exit(unlink(f), add = TRUE)
+    expect_silent(get(paste0("write_", fmt))(m, f))
+    r <- suppressMessages(get(paste0("read_", fmt))(f))
+    expect_identical(r@altname, "AGG[0-1]TCA[1-5]AGGTCA")
+    expect_true(r@gapinfo@isgapped)
+    expect_equal(r@gapinfo@gaploc, c(3, 6))
+    expect_equal(r@gapinfo@mingap, c(0, 1))
+    expect_equal(r@gapinfo@maxgap, c(1, 5))
+  }
+  # An alternative name is replaced with a warning.
+  m@altname <- "orig"
+  expect_warning(write_meme(m, tempfile()), "replaced by their gaps")
+  # Notation that does not fit the motif is left as a name.
+  expect_null(parse_gap_notation("AGG[1-2]TCA", 7))
+  expect_null(parse_gap_notation("[1-2]AGG", 3))
+  u <- create_motif("AGGTCA", altname = "AGG[1-2]TC")
+  expect_false(with_noted_gaps(u)@gapinfo@isgapped)
+  # A motif whose gaps were removed does not write a stale notation.
+  u@altname <- "AGG[1-2]TCA"
+  expect_length(file_altname(u), 0)
+  # Custom alphabets have no consensus, so their gaps are still lost.
+  cu <- add_gap(create_motif("ABCABC", alphabet = "ABC", nsites = 5),
+    gaploc = 3, mingap = 1, maxgap = 2)
+  expect_warning(write_meme(cu, tempfile()), "cannot preserve gap definitions")
+})
+
+test_that("lite merging and logos align motifs narrower than min.overlap", {
+  a <- create_motif("TTGACGTCAAGG", nsites = 20, pseudocount = 0, name = "a")
+  b <- create_motif("GACA", nsites = 20, name = "b")
+  m <- merge_motifs_lite(c(a, b))
+  expect_gt(max(abs(m@motif - convert_type(a, "PPM")@motif)), 0.4)
+  b <- create_motif("GACGA", nsites = 20, name = "b")
+  p <- view_motifs_lite(c(a, b), return.raw = TRUE)
+  expect_equal(unname(which(colSums(p[[2]]) > 0)), 3:7)
+})

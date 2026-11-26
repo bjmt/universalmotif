@@ -46,6 +46,10 @@ CWM semantics.}
 Convert motifs to minimal MEME format and write to file.
 See \url{http://meme-suite.org/doc/meme-format.html}.
 }
+\details{
+A gapped motif gets its gaps as its alternative name, written into its
+consensus as in \verb{AGGTCA[1-5]AGGTCA}, which \code{\link[=read_meme]{read_meme()}} reads back as gaps.
+}
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",
                                     package = "universalmotif"))

@@ -12,7 +12,8 @@ merge_motifs_lite(motifs, min.overlap = 5L, RC = TRUE, new.name = NULL,
 formats. DNA or RNA only.}
 
 \item{min.overlap}{\code{integer(1)}. Minimum overlap (in columns) for an
-alignment to be considered. Default \code{5L}. Forwarded to
+alignment to be considered. Default \code{5L}. Motifs narrower than this
+need only overlap by their own width. Forwarded to
 \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}.}
 
 \item{RC}{\code{logical(1)}. If \code{TRUE} (default), also test reverse-complement

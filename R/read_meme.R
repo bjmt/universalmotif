@@ -5,6 +5,9 @@
 #' formats are supported. DREME and STREME motifs can also be imported, but note
 #' that `readsites` and `readsites.meta` arguments do nothing.
 #'
+#' A motif whose alternative name gives gaps in the notation written by
+#' [write_meme()], as in `AGGTCA[1-5]AGGTCA`, is read with those gaps.
+#'
 #' @param file `character(1)` File name.
 #' @param skip `numeric(1)` If not zero, will skip however many desired lines in the
 #'    file before starting to read.
@@ -187,7 +190,7 @@ read_meme <- function(file, skip = 0, readsites = FALSE,
                                            motif = t(matrix(z, ncol = alph.len,
                                                             byrow = TRUE)))
                           validObject_universalmotif(mot)
-                          mot
+                          with_noted_gaps(mot)
                          }, motif_names, motif_meta, motif_list, motif_altnames,
                          SIMPLIFY = FALSE)
 

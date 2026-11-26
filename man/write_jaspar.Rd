@@ -22,6 +22,10 @@ write_jaspar(motifs, file, overwrite = FALSE, append = FALSE)
 Convert motifs to JASPAR format and write to file.
 See \url{http://jaspar.genereg.net/}.
 }
+\details{
+A gapped motif gets its gaps as its alternative name, written into its
+consensus as in \verb{AGGTCA[1-5]AGGTCA}, which \code{\link[=read_jaspar]{read_jaspar()}} reads back as gaps.
+}
 \examples{
 transfac <- read_transfac(system.file("extdata", "transfac.txt",
                                     package = "universalmotif"))

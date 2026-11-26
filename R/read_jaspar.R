@@ -3,6 +3,9 @@
 #' Import JASPAR formatted motifs. See \url{http://jaspar.genereg.net/}.
 #' Can be either DNA, RNA, or AA motifs.
 #'
+#' A motif whose alternative name gives gaps in the notation written by
+#' [write_jaspar()], as in `AGGTCA[1-5]AGGTCA`, is read with those gaps.
+#'
 #' @return `list` [universalmotif-class] objects.
 #'
 #' @examples
@@ -116,7 +119,7 @@ read_jaspar <- function(file, skip = 0) {
                    nsites = max(colSums(motif)),
                    motif = motif)
     validObject_universalmotif(mot)
-    mot
+    with_noted_gaps(mot)
   }
 
   motifs <- mapply(jaspar2umot, motifs, motif_names, 

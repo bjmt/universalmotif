@@ -513,9 +513,27 @@ mapply_ <- function(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE,
 
 }
 ## Warn at explicit export boundaries, not during internal type conversions.
-warn_motif_metadata_loss <- function(motifs, destination, keep.multifreq = character()) {
+## Formats that keep gaps in the alternative name (gap.notation = TRUE) lose
+## them only for motifs without a consensus, and replace the alternative names
+## of gapped motifs.
+warn_motif_metadata_loss <- function(motifs, destination, keep.multifreq = character(),
+                                     gap.notation = FALSE) {
   if (!is.list(motifs)) motifs <- list(motifs)
-  gaps <- any(vapply(motifs, function(m) isTRUE(m@gapinfo@isgapped), logical(1)))
+  gapped <- vapply(motifs, function(m) isTRUE(m@gapinfo@isgapped), logical(1))
+  gaps <- if (gap.notation) {
+    any(vapply(motifs[gapped], function(m) !length(gap_notation(m)), logical(1)))
+  } else any(gapped)
+  if (gap.notation && any(gapped)) {
+    replaced <- vapply(motifs[gapped], function(m) {
+      length(m@altname) > 0 && length(gap_notation(m)) > 0 &&
+        m@altname != gap_notation(m)
+    }, logical(1))
+    replaced <- vapply(motifs[gapped][replaced], function(m) m@name, character(1))
+    if (length(replaced)) warning(wmsg("The alternative names of gapped motifs (",
+      paste(utils::head(replaced, 3), collapse = ", "),
+      if (length(replaced) > 3) ", ...", ") are replaced by their gaps, ",
+      "written as in AGGTCA[1-5]AGGTCA."), call. = FALSE)
+  }
   multi <- any(vapply(motifs, function(m)
     length(setdiff(names(m@multifreq), keep.multifreq)) > 0L, logical(1)))
   lost <- c(if (gaps) "gap definitions", if (multi) "higher-order matrices")
@@ -523,6 +541,63 @@ warn_motif_metadata_loss <- function(motifs, destination, keep.multifreq = chara
     paste(lost, collapse = " and "),
     "; use write_motifs() or saveRDS() to retain them.", call. = FALSE)
   invisible(NULL)
+}
+
+## A gapped motif's gaps written into its consensus, as in AGGTCA[1-5]AGGTCA:
+## each gap's range of sizes, in brackets, after the letters of the columns
+## before it. Empty for motifs without gaps or without a consensus. The MEME,
+## JASPAR and TRANSFAC writers give gapped motifs this as their alternative
+## name, and the readers restore the gaps from it.
+gap_notation <- function(motif) {
+  if (!isTRUE(motif@gapinfo@isgapped) || !length(motif@consensus) ||
+      is.na(motif@consensus)) return(character())
+  gap <- motif@gapinfo
+  runs <- substring(motif@consensus, c(0, gap@gaploc) + 1,
+                    c(gap@gaploc, nchar(motif@consensus)))
+  brackets <- c(paste0("[", gap@mingap, "-", gap@maxgap, "]"), "")
+  collapse_cpp(paste0(runs, brackets))
+}
+
+## The gaps that a string gives in the notation of gap_notation(), if it is
+## exactly that notation and its letters number `width`; otherwise NULL.
+parse_gap_notation <- function(text, width) {
+  if (length(text) != 1 || is.na(text) ||
+      !grepl("^([A-Za-z]+\\[[0-9]+-[0-9]+\\])+[A-Za-z]*$", text)) return(NULL)
+  runs <- regmatches(text, gregexpr("[A-Za-z]+", text))[[1]]
+  sizes <- regmatches(text, gregexpr("[0-9]+-[0-9]+", text))[[1]]
+  sizes <- matrix(as.numeric(unlist(strsplit(sizes, "-", fixed = TRUE))), nrow = 2)
+  lens <- nchar(runs)
+  if (sum(lens) != width) return(NULL)
+  list(gaploc = cumsum(lens)[seq_len(ncol(sizes))],
+       mingap = sizes[1, ], maxgap = sizes[2, ])
+}
+
+## The alternative name a motif file gets: the gap notation for a gapped
+## motif, and the motif's own alternative name otherwise, unless that name is
+## itself a gap notation that fits the motif (as when a motif read with gaps
+## has had them removed), since reading it back would restore them.
+file_altname <- function(motif) {
+  notation <- gap_notation(motif)
+  if (length(notation)) return(notation)
+  altname <- motif@altname
+  if (length(altname) && !is.null(parse_gap_notation(altname, ncol(motif@motif))))
+    return(character())
+  altname
+}
+
+## A motif read from a file, with the gaps its alternative name gives if that
+## name is in the notation of gap_notation(). Gaps that do not fit the motif
+## leave it as it is.
+with_noted_gaps <- function(motif) {
+  if (isTRUE(motif@gapinfo@isgapped) || !length(motif@altname)) return(motif)
+  gap <- parse_gap_notation(motif@altname, ncol(motif@motif))
+  if (is.null(gap)) return(motif)
+  gapped <- motif
+  gapped@gapinfo@isgapped <- TRUE
+  gapped@gapinfo@gaploc <- gap$gaploc
+  gapped@gapinfo@mingap <- gap$mingap
+  gapped@gapinfo@maxgap <- gap$maxgap
+  if (length(validObject_universalmotif(gapped, FALSE))) motif else gapped
 }
 
 ## Recompute the total IC and consensus from the matrix, for functions that

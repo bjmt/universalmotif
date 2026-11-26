@@ -90,11 +90,17 @@ test_that("malformed native gap metadata is rejected", {
 
 test_that("exports warn when gap or higher-order metadata cannot be represented", {
   m <- metadata_fixture()
-  writers <- list(write_meme, write_homer, write_jaspar, write_transfac, write_matrix)
-  for (writer in writers) {
+  for (writer in list(write_homer, write_matrix)) {
     f <- tempfile()
     on.exit(unlink(f), add = TRUE)
     expect_warning(writer(m, f), "cannot preserve gap definitions and higher-order matrices")
+    expect_true(file.exists(f))
+  }
+  # These keep gaps in the alternative name.
+  for (writer in list(write_meme, write_jaspar, write_transfac)) {
+    f <- tempfile()
+    on.exit(unlink(f), add = TRUE)
+    expect_warning(writer(m, f), "cannot preserve higher-order matrices")
     expect_true(file.exists(f))
   }
   expect_identical(convert_motifs(m), m)

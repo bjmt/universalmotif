@@ -21,6 +21,9 @@ See \code{system.file("extdata", "transfac.txt", pacakge="universalmotif")}
 for an example motif.
 }
 \details{
+A motif whose alternative name gives gaps in the notation written by
+\code{\link[=write_transfac]{write_transfac()}}, as in \verb{AGGTCA[1-5]AGGTCA}, is read with those gaps.
+
 A few TRANSFAC tags are recognized, including AC, ID, NA, HC and OS.
 HC will be set to the family slot and OS to the organism slot.
 If AC, ID and NA are present, then AC will be set as the motif name

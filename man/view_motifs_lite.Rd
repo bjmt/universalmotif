@@ -26,7 +26,8 @@ Controls the matrix type used for display.}
 Default \code{TRUE}.}
 
 \item{min.overlap}{\code{integer(1)} Minimum overlap (in columns) for an
-alignment to be accepted. Default \code{6}.}
+alignment to be accepted. Default \code{6}. Motifs narrower than this need
+only overlap by their own width.}
 
 \item{relative_entropy}{\code{logical(1)} If \code{TRUE}, compute information
 content using the motif's background frequencies (relative-entropy

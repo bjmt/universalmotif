@@ -7,7 +7,7 @@
 #'
 #' @param minimal `logical(1)` Only write essential motif information. Gap
 #'   definitions are always retained. Use [saveRDS()] for lossless storage of
-#'   all metadata and full matrix precision.
+#'   all metadata.
 #' @param multifreq `logical(1)` Write `multifreq` slot, if present.
 #' @param progress `logical(1)` Show progress.
 #' @param overwrite `logical(1)` Overwrite existing file.
@@ -168,6 +168,14 @@ write_motifs2_single <- function(motif, minimal, multifreq) {
 
 }
 
+## Each number with the fewest significant digits that read back as the same
+## double, so files can be read and written repeatedly without drift.
 format_pos <- function(x) {
-  paste0(formatC(x, format = "e", digits = 3), collapse = " ")
+  out <- sprintf("%.15g", x)
+  for (digits in 16:17) {
+    redo <- is.finite(x) & suppressWarnings(as.numeric(out)) != x
+    if (!any(redo)) break
+    out[redo] <- sprintf(paste0("%.", digits, "g"), x[redo])
+  }
+  paste0(out, collapse = " ")
 }

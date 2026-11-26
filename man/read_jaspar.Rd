@@ -19,6 +19,10 @@ file before starting to read.}
 Import JASPAR formatted motifs. See \url{http://jaspar.genereg.net/}.
 Can be either DNA, RNA, or AA motifs.
 }
+\details{
+A motif whose alternative name gives gaps in the notation written by
+\code{\link[=write_jaspar]{write_jaspar()}}, as in \verb{AGGTCA[1-5]AGGTCA}, is read with those gaps.
+}
 \examples{
 jaspar <- read_jaspar(system.file("extdata", "jaspar.txt",
                                   package = "universalmotif"))

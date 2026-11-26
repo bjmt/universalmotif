@@ -60,7 +60,9 @@ probability matrices or ordinary scanning PWMs. See the contribution-weight
 section of the sequence-motif introduction before converting them.
 
 Use `saveRDS()`/`readRDS()` for lossless storage of complete motif objects.
-The native `write_motifs()` format retains gap definitions and, by default,
-higher-order matrices, but rounds matrix entries. External motif formats
-preserve different subsets of metadata and warn when gaps or higher-order
-matrices cannot be represented.
+The native `write_motifs()` format retains gap definitions, matrix values
+and, by default, higher-order matrices. External motif formats preserve
+different subsets of metadata and warn when gaps or higher-order matrices
+cannot be represented. MEME, JASPAR and TRANSFAC files keep gaps in the
+alternative name, written into the consensus as in `AGGTCA[1-5]AGGTCA`,
+and their readers restore them.

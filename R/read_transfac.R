@@ -4,6 +4,9 @@
 #' See `system.file("extdata", "transfac.txt", pacakge="universalmotif")`
 #' for an example motif.
 #'
+#' A motif whose alternative name gives gaps in the notation written by
+#' [write_transfac()], as in `AGGTCA[1-5]AGGTCA`, is read with those gaps.
+#'
 #' @return `list` [universalmotif-class] objects.
 #'
 #' @details
@@ -188,7 +191,7 @@ read_transfac <- function(file, skip = 0) {
       m@motif <- x
       validObject_universalmotif(m)
     }
-    m
+    with_noted_gaps(m)
   }, motifs, counts)
 
   if (length(motifs) == 1) motifs <- motifs[[1]]
