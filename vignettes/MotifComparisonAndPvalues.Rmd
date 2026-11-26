@@ -416,9 +416,14 @@ For simple DNA/RNA motif merging tasks:
 
 - `merge_similar_lite(motifs, qvalue)` clusters motifs by statistical
   significance: two motifs are linked if their pairwise q-value
-  meets the chosen `qvalue` cutoff. Clustering is by connected
-  components on the resulting graph (deterministic, no linkage-method
-  to choose). Each component is collapsed via `merge_motifs_lite()`.
+  meets the chosen `qvalue` cutoff. By default clusters are the
+  connected components of the resulting graph, which can chain motifs
+  alike only in part into one large cluster; with
+  `linkage = "complete"`, every pair of motifs in a cluster must be
+  linked instead. Both are deterministic. Each cluster is collapsed via
+  `merge_motifs_lite()`, and a cluster of more than two motifs holding
+  over a quarter of them brings a warning, as below, where three of the
+  four motifs are alike.
 
 ```{r}
 library(universalmotif)
@@ -433,8 +438,9 @@ merge_motifs_lite(list(m1, m2, m3))
 ## Cluster + merge: returns a shorter list, with similar motifs collapsed.
 merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05)
 
-## Or just the cluster assignments (no merging):
-merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE)
+## Or just the cluster assignments (no merging), here by complete linkage:
+merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05, return.clusters = TRUE,
+                   linkage = "complete")
 ```
 
 When a `merge_motifs()` or `merge_similar()` call uses only features

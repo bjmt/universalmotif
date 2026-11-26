@@ -3,8 +3,9 @@
 #' `merge_similar_lite()` is a faster minimalist counterpart to [merge_similar()]
 #' that builds a pairwise similarity-significance graph using
 #' [compare_motifs_lite()]'s empirical or parametric null q-values, finds
-#' connected components on that graph, and collapses each component
-#' (cluster) into a single merged motif via [merge_motifs_lite()].
+#' clusters on that graph (its connected components by default), and
+#' collapses each cluster into a single merged motif via
+#' [merge_motifs_lite()].
 #'
 #' Unlike [merge_similar()] (which builds a distance matrix from raw
 #' similarity scores and applies hierarchical clustering at an absolute
@@ -12,9 +13,8 @@
 #' significance: two motifs are linked if their pairwise q-value
 #' meets the chosen `qvalue` cutoff. This matches the STAMP /
 #' TOMTOM-clustering semantics ("group all motifs that are
-#' significantly similar"), is deterministic, has no linkage-method
-#' choice to expose, and expresses the cutoff in q-value units
-#' rather than abstract distance.
+#' significantly similar"), is deterministic, and expresses the cutoff
+#' in q-value units rather than abstract distance.
 #'
 #' @param motifs `list` of motifs. DNA or RNA only.
 #' @param qvalue `numeric(1)`. BH-adjusted q-value cutoff for linking
@@ -34,6 +34,10 @@
 #'   motifs. Default `FALSE`.
 #' @param nthreads `numeric(1)`. Threads forwarded to [compare_motifs_lite()]
 #'   and [merge_motifs_lite()]. `nthreads = 0` uses all available threads.
+#' @param linkage `character(1)`. How clusters grow from the links between
+#'   motifs: `"single"` (default), where clusters are the connected groups of
+#'   linked motifs, or `"complete"`, where every pair of motifs in a cluster
+#'   is linked. See Details.
 #'
 #' @return If `return.clusters = FALSE` (default): a `list` of
 #'   `universalmotif` S4 objects with similar motifs collapsed (the
@@ -55,10 +59,22 @@
 #' the cutoff (more permissive of the two, which is appropriate when
 #' the goal is to group similar motifs).
 #'
-#' Clustering is by connected components on the resulting graph,
-#' implemented with a small union-find. Each component (size >= 2)
-#' becomes a single merged motif via [merge_motifs_lite()]; singletons
-#' (size == 1) pass through unchanged.
+#' With `linkage = "single"` (the default), clusters are the connected
+#' components of the resulting graph, found with a small union-find, so one
+#' link to any member is enough to join a cluster. Motifs that are only
+#' alike in part, such as those of one family of transcription factors, can
+#' then chain into one large cluster. With `linkage = "complete"`, every pair
+#' of motifs in a cluster is linked instead: the clusters come from
+#' complete-linkage hierarchical clustering ([stats::hclust()]) of the
+#' symmetrised q-values, cut at `qvalue`, with pairs that could not be
+#' compared kept apart. This joins the closest clusters first and breaks
+#' ties by input order, so the result is fully determined by the motifs.
+#'
+#' Either way, a cluster of more than two motifs that holds over a quarter
+#' of them is named in a warning, as a sign that unlike motifs were joined.
+#'
+#' Each cluster of two motifs or more becomes a single merged motif via
+#' [merge_motifs_lite()]; singletons pass through unchanged.
 #'
 #' @examples
 #' ## A clear cluster of 3 related motifs + 1 unrelated motif
@@ -66,8 +82,13 @@
 #' m2 <- create_motif("CTTGACAT", name = "b")
 #' m3 <- create_motif("TGACATAT", name = "c")
 #' m4 <- create_motif("GGGCCCCC", name = "unrelated")
+#' ## With so few motifs, the cluster of three holds over a quarter of
+#' ## them, which brings a warning that unlike motifs may have been joined.
 #' merged <- merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05)
 #' length(merged)  # 2: one merged + the unrelated singleton
+#' ## Complete linkage only joins motifs that are all linked to each other.
+#' merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05,
+#'                    linkage = "complete", return.clusters = TRUE)$cluster
 #'
 #' @seealso [merge_similar()], [merge_motifs_lite()], [compare_motifs_lite()]
 #' @author Benjamin Jean-Marie Tremblay, \email{benjamin.tremblay@@uwaterloo.ca}
@@ -78,12 +99,14 @@ merge_similar_lite <- function(motifs, qvalue = 0.01,
                            min.overlap = 5L, RC = TRUE,
                            bkg = NULL, weighted = FALSE,
                            return.clusters = FALSE,
-                           nthreads = 1) {
+                           nthreads = 1,
+                           linkage = c("single", "complete")) {
 
   ## --- arg validation ---------------------------------------------------
   if (missing(motifs))
     stop("`motifs` is required", call. = FALSE)
   null <- match.arg(null)
+  linkage <- match.arg(linkage)
   if (!is.numeric(qvalue) || length(qvalue) != 1L || is.na(qvalue) ||
       qvalue <= 0 || qvalue > 1)
     stop("`qvalue` must be a single numeric in (0, 1]", call. = FALSE)
@@ -140,46 +163,30 @@ merge_similar_lite <- function(motifs, qvalue = 0.01,
                                         bkg         = bkg,
                                         matrix.out  = "qvalue",
                                         nthreads    = nthreads))
-  ## Symmetrise: pair linked if either direction is significant.
+  ## Symmetrise: pair linked if either direction is significant. Pairs that
+  ## could not be compared are never linked.
   Qsym <- pmin(Q, t(Q), na.rm = FALSE)
+  Qsym[is.na(Qsym)] <- Inf
 
-  ## --- union-find on significance edges --------------------------------
-  parent <- seq_len(n_mot)
-  find <- function(x) {
-    ## Iterative path compression.
-    root <- x
-    while (parent[root] != root) root <- parent[root]
-    while (parent[x] != root) { nxt <- parent[x]; parent[x] <<- root; x <- nxt }
-    root
+  cluster_id <- if (linkage == "single") {
+    single_linkage_groups(Qsym, qvalue)
+  } else {
+    ## Distances above any q-value keep motifs that are not linked apart.
+    d <- pmin(Qsym, 2)
+    diag(d) <- 0
+    stats::cutree(stats::hclust(stats::as.dist(d), method = "complete"),
+                  h = qvalue)
   }
-  unite <- function(a, b) {
-    ra <- find(a); rb <- find(b)
-    if (ra != rb) parent[rb] <<- ra
-  }
+  cluster_id <- as.integer(cluster_id)
 
-  for (i in seq_len(n_mot - 1L)) {
-    for (j in seq.int(i + 1L, n_mot)) {
-      q_ij <- Qsym[i, j]
-      if (!is.na(q_ij) && q_ij <= qvalue) unite(i, j)
-    }
-  }
-
-  ## --- collect clusters in stable order --------------------------------
-  roots    <- vapply(seq_len(n_mot), find, integer(1))
-  ## Renumber clusters by first-occurrence order so the output is
-  ## independent of root-selection details.
-  cluster_id <- integer(n_mot)
-  seen <- integer(0)
-  for (i in seq_len(n_mot)) {
-    r <- roots[i]
-    pos <- match(r, seen)
-    if (is.na(pos)) {
-      seen <- c(seen, r)
-      cluster_id[i] <- length(seen)
-    } else {
-      cluster_id[i] <- pos
-    }
-  }
+  ## A large cluster has likely grown from chains of partial likenesses.
+  sizes <- tabulate(cluster_id)
+  big <- which.max(sizes)
+  if (sizes[big] > 2 && sizes[big] * 4 > n_mot)
+    warning("cluster ", big, " holds ", sizes[big], " of the ", n_mot,
+            " motifs, which suggests that unlike motifs were joined; try ",
+            if (linkage == "single") "a smaller `qvalue` or complete linkage"
+            else "a smaller `qvalue`", " to split it", call. = FALSE)
 
   if (return.clusters) {
     return(clusters_to_df(motifs, cluster_id))
@@ -211,4 +218,34 @@ clusters_to_df <- function(motifs, cluster_id) {
   df$motif.i <- seq_len(nrow(df))
   df$cluster <- as.integer(cluster_id)
   df
+}
+
+## The connected groups of motifs linked by q-values of at most `qvalue`,
+## numbered from 1 in order of first appearance, found with a small
+## union-find.
+single_linkage_groups <- function(Qsym, qvalue) {
+  n_mot <- nrow(Qsym)
+  parent <- seq_len(n_mot)
+  find <- function(x) {
+    ## Iterative path compression.
+    root <- x
+    while (parent[root] != root) root <- parent[root]
+    while (parent[x] != root) { nxt <- parent[x]; parent[x] <<- root; x <- nxt }
+    root
+  }
+  unite <- function(a, b) {
+    ra <- find(a); rb <- find(b)
+    if (ra != rb) parent[rb] <<- ra
+  }
+
+  for (i in seq_len(n_mot - 1L)) {
+    for (j in seq.int(i + 1L, n_mot)) {
+      if (Qsym[i, j] <= qvalue) unite(i, j)
+    }
+  }
+
+  ## Renumber clusters by first-occurrence order so the output is
+  ## independent of root-selection details.
+  roots <- vapply(seq_len(n_mot), find, integer(1))
+  match(roots, unique(roots))
 }

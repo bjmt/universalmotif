@@ -6,7 +6,8 @@
 \usage{
 merge_similar_lite(motifs, qvalue = 0.01, null = c("empirical",
   "parametric"), min.overlap = 5L, RC = TRUE, bkg = NULL,
-  weighted = FALSE, return.clusters = FALSE, nthreads = 1)
+  weighted = FALSE, return.clusters = FALSE, nthreads = 1,
+  linkage = c("single", "complete"))
 }
 \arguments{
 \item{motifs}{\code{list} of motifs. DNA or RNA only.}
@@ -35,6 +36,11 @@ motifs. Default \code{FALSE}.}
 
 \item{nthreads}{\code{numeric(1)}. Threads forwarded to \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}
 and \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}. \code{nthreads = 0} uses all available threads.}
+
+\item{linkage}{\code{character(1)}. How clusters grow from the links between
+motifs: \code{"single"} (default), where clusters are the connected groups of
+linked motifs, or \code{"complete"}, where every pair of motifs in a cluster
+is linked. See Details.}
 }
 \value{
 If \code{return.clusters = FALSE} (default): a \code{list} of
@@ -53,8 +59,9 @@ id; motifs in the same cluster share an id).
 \code{merge_similar_lite()} is a faster minimalist counterpart to \code{\link[=merge_similar]{merge_similar()}}
 that builds a pairwise similarity-significance graph using
 \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}'s empirical or parametric null q-values, finds
-connected components on that graph, and collapses each component
-(cluster) into a single merged motif via \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}.
+clusters on that graph (its connected components by default), and
+collapses each cluster into a single merged motif via
+\code{\link[=merge_motifs_lite]{merge_motifs_lite()}}.
 }
 \details{
 Unlike \code{\link[=merge_similar]{merge_similar()}} (which builds a distance matrix from raw
@@ -63,9 +70,8 @@ score cutoff) this function clusters on statistical
 significance: two motifs are linked if their pairwise q-value
 meets the chosen \code{qvalue} cutoff. This matches the STAMP /
 TOMTOM-clustering semantics ("group all motifs that are
-significantly similar"), is deterministic, has no linkage-method
-choice to expose, and expresses the cutoff in q-value units
-rather than abstract distance.
+significantly similar"), is deterministic, and expresses the cutoff
+in q-value units rather than abstract distance.
 
 The significance graph is built from a symmetrised q-value matrix:
 \code{Qsym[i,j] = pmin(Q[i,j], Q[j,i])}. \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}'s per-query BH
@@ -74,10 +80,22 @@ symmetrisation defines a pair as linked if either direction meets
 the cutoff (more permissive of the two, which is appropriate when
 the goal is to group similar motifs).
 
-Clustering is by connected components on the resulting graph,
-implemented with a small union-find. Each component (size >= 2)
-becomes a single merged motif via \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}; singletons
-(size == 1) pass through unchanged.
+With \code{linkage = "single"} (the default), clusters are the connected
+components of the resulting graph, found with a small union-find, so one
+link to any member is enough to join a cluster. Motifs that are only
+alike in part, such as those of one family of transcription factors, can
+then chain into one large cluster. With \code{linkage = "complete"}, every pair
+of motifs in a cluster is linked instead: the clusters come from
+complete-linkage hierarchical clustering (\code{\link[stats:hclust]{stats::hclust()}}) of the
+symmetrised q-values, cut at \code{qvalue}, with pairs that could not be
+compared kept apart. This joins the closest clusters first and breaks
+ties by input order, so the result is fully determined by the motifs.
+
+Either way, a cluster of more than two motifs that holds over a quarter
+of them is named in a warning, as a sign that unlike motifs were joined.
+
+Each cluster of two motifs or more becomes a single merged motif via
+\code{\link[=merge_motifs_lite]{merge_motifs_lite()}}; singletons pass through unchanged.
 }
 \examples{
 ## A clear cluster of 3 related motifs + 1 unrelated motif
@@ -85,8 +103,13 @@ m1 <- create_motif("TTGACATA", name = "a")
 m2 <- create_motif("CTTGACAT", name = "b")
 m3 <- create_motif("TGACATAT", name = "c")
 m4 <- create_motif("GGGCCCCC", name = "unrelated")
+## With so few motifs, the cluster of three holds over a quarter of
+## them, which brings a warning that unlike motifs may have been joined.
 merged <- merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05)
 length(merged)  # 2: one merged + the unrelated singleton
+## Complete linkage only joins motifs that are all linked to each other.
+merge_similar_lite(list(m1, m2, m3, m4), qvalue = 0.05,
+                   linkage = "complete", return.clusters = TRUE)$cluster
 
 }
 \seealso{

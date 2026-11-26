@@ -222,8 +222,9 @@ sum(qvals < 1e-6)
 # Deduplicating via graph clustering
 
 `merge_similar_lite()` builds a graph whose edges link any two motifs
-that pass the q-value threshold, finds the connected components,
-and returns one representative motif per cluster. We use it twice:
+that pass the q-value threshold, finds the connected components
+(or with `linkage = "complete"`, clusters whose motifs are all linked
+to each other), and returns one representative motif per cluster. We use it twice:
 once with `return.clusters = TRUE` to get the per-motif cluster
 assignments (so we can confirm them visually), and once without, to
 get the final merged set of motifs.
