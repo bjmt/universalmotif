@@ -46,3 +46,25 @@ test_that("enrich_motifs runs on RNA motifs and sequences", {
     expect_true(is.data.frame(res) || isS4(res))
   }))
 })
+
+test_that("enrich_motifs() corrects the threshold of gapped motifs as scan_sequences() does", {
+  op <- options(universalmotif.suggest.enrich_motifs_lite = FALSE)
+  on.exit(options(op), add = TRUE)
+  j <- read_jaspar(system.file("extdata", "jaspar.txt", package = "universalmotif"))
+  m <- j[[which.max(vapply(j, function(x) ncol(x@motif), integer(1)))]]
+  m <- add_gap(m, gaploc = 5, mingap = 0, maxgap = 5)
+  s <- create_sequences(seqnum = 50, seqlen = 1000, rng.seed = 1)
+  b <- create_sequences(seqnum = 50, seqlen = 1000, rng.seed = 2)
+  for (cg in c(FALSE, TRUE)) {
+    r <- suppressMessages(enrich_motifs(m, s, b, max.p = 1, max.q = 1, max.e = Inf,
+      threshold = 1e-3, correct.gaps = cg, RC = FALSE, no.overlaps = FALSE))
+    x <- scan_sequences(m, s, threshold = 1e-3, threshold.type = "pvalue",
+      RC = FALSE, correct.gaps = cg, verbose = 0)
+    expect_equal(r$target.hits, nrow(x))
+  }
+  r0 <- suppressMessages(enrich_motifs(m, s, b, max.p = 1, max.q = 1, max.e = Inf,
+    threshold = 1e-3, correct.gaps = FALSE, RC = FALSE, no.overlaps = FALSE))
+  r1 <- suppressMessages(enrich_motifs(m, s, b, max.p = 1, max.q = 1, max.e = Inf,
+    threshold = 1e-3, RC = FALSE, no.overlaps = FALSE))
+  expect_lt(r1$target.hits, r0$target.hits)
+})

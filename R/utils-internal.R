@@ -194,13 +194,15 @@ suggest_compare_motifs_lite <- function(method, use.freq, use.type,
 suggest_enrich_motifs_lite <- function(threshold.type, qval.method, use.freq,
                                    use.gaps, allow.nonfinite, no.overlaps,
                                    respect.strand, motif_pvalue.method,
-                                   mode, alphabet, mot.hasgap) {
+                                   mode, alphabet, mot.hasgap,
+                                   correct.gaps = TRUE) {
   if (!isTRUE(getOption("universalmotif.suggest.enrich_motifs_lite")))
     return(invisible())
   if (threshold.type != "pvalue")                      return(invisible())
   if (!qval.method %in% c("BH", "fdr"))                return(invisible())
   if (use.freq != 1)                                   return(invisible())
   if (any(mot.hasgap) && !isTRUE(use.gaps))            return(invisible())
+  if (any(mot.hasgap) && !isTRUE(correct.gaps))        return(invisible())
   if (isTRUE(allow.nonfinite))                         return(invisible())
   ## no.overlaps is only meaningful in total.hits mode; enrich_motifs()
   ## forces it off in seq.hits mode internally (R/enrich_motifs.R:183-188),

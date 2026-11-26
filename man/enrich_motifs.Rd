@@ -14,7 +14,8 @@ enrich_motifs(motifs, sequences, bkg.sequences, max.p = 0.001,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
   scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"),
-  mode = c("total.hits", "seq.hits"), pseudocount = 1)
+  mode = c("total.hits", "seq.hits"), pseudocount = 1,
+  correct.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for acceptable motif formats.}
@@ -134,6 +135,10 @@ cases where there are many small sequences).}
 
 \item{pseudocount}{\code{integer(1)} Add a pseudocount to the motif hit counts
 when performing the Fisher test.}
+
+\item{correct.gaps}{\code{logical(1)} Bonferroni-correct the P-value threshold of
+gapped motifs for the number of combinations of gap sizes scanned, as
+\code{\link[=scan_sequences]{scan_sequences()}} does. Only used with \code{threshold.type = "pvalue"}.}
 }
 \value{
 \code{DataFrame} Enrichment results in a \code{DataFrame}. Function args and

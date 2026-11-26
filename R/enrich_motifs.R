@@ -40,6 +40,9 @@
 #'    See [motif_pvalue()].
 #' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
 #'    present.
+#' @param correct.gaps `logical(1)` Bonferroni-correct the P-value threshold of
+#'    gapped motifs for the number of combinations of gap sizes scanned, as
+#'    [scan_sequences()] does. Only used with `threshold.type = "pvalue"`.
 #' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
 #'    non-finite values are found in the PWM. Note that if the motif has a
 #'    pseudocount greater than zero and the motif is not currently of type PWM,
@@ -99,7 +102,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
   no.overlaps.strat = "score", respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
   scan_sequences.qvals.method = c("BH", "fdr", "bonferroni"),
-  mode = c("total.hits", "seq.hits"), pseudocount = 1) {
+  mode = c("total.hits", "seq.hits"), pseudocount = 1, correct.gaps = TRUE) {
 
   motif_pvalue.method <- match.arg(motif_pvalue.method)
   scan_sequences.qvals.method <- match.arg(scan_sequences.qvals.method)
@@ -144,7 +147,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                                      motif_pvalue.k = args$motif_pvalue.k),
                                 c(1, 1, 1, 0, 1, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
-                                      return.scan.results = args$return.scan.results),
+                                      return.scan.results = args$return.scan.results,
+                                      correct.gaps = args$correct.gaps),
                                  numeric(), logical(), TYPE_LOGI)
   s4_check <- check_fun_params(list(sequences = args$sequences,
                                     bkg.sequences = args$bkg.sequences),
@@ -179,6 +183,7 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     message("   > respect.strand:      ", respect.strand)
     message("   > use.freq:            ", use.freq)
     message("   > use.gaps:            ", use.gaps)
+    message("   > correct.gaps:        ", correct.gaps)
     message("   > no.overlaps:         ", no.overlaps)
     message("   > return.scan.results: ", return.scan.results)
   }
@@ -225,12 +230,19 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
                          motif_pvalue.method = motif_pvalue.method,
                          mode                = mode,
                          alphabet            = unique(mot.alphs)[1L],
-                         mot.hasgap          = mot.hasgap)
+                         mot.hasgap          = mot.hasgap,
+                         correct.gaps        = correct.gaps)
 
   if (threshold.type == "pvalue") {
     if (verbose > 0)
       message(" > Converting P-values to logodds thresholds")
-    threshold <- suppressMessages(motif_pvalue(motifs, pvalue = threshold,
+    ## The scans below get score thresholds, which they do not correct, so
+    ## the P-value threshold of gapped motifs is corrected for the number of
+    ## combinations of gap sizes here.
+    pvalue.scale <- vapply(motifs, function(x)
+      if (correct.gaps && scans_with_gaps(x, use.gaps)) gap_layout(x)$combos else 1,
+      numeric(1))
+    threshold <- suppressMessages(motif_pvalue(motifs, pvalue = threshold / pvalue.scale,
         method = motif_pvalue.method,
         use.freq = use.freq, k = motif_pvalue.k, allow.nonfinite = allow.nonfinite))
     max.scores <- vapply(motifs, function(x)
@@ -251,7 +263,8 @@ enrich_motifs <- function(motifs, sequences, bkg.sequences,
     verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
     nthreads, args[-(1:3)], use.gaps, allow.nonfinite, warn.NA,
     no.overlaps, no.overlaps.by.strand, no.overlaps.strat, respect.strand,
-    motif_pvalue.method, scan_sequences.qvals.method, mode, pseudocount)
+    motif_pvalue.method, scan_sequences.qvals.method, mode, pseudocount,
+    correct.gaps)
 
   if (nrow(res.all) == 0) {
     message(" ! No enriched motifs")
@@ -282,7 +295,8 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
   verbose, RC, use.freq, threshold.type, motcount, return.scan.results,
   nthreads, args, use.gaps, allow.nonfinite, warn.NA, no.overlaps,
   no.overlaps.by.strand, no.overlaps.strat, respect.strand,
-  motif_pvalue.method, scan_sequences.qvals.method, mode, pseudocount) {
+  motif_pvalue.method, scan_sequences.qvals.method, mode, pseudocount,
+  correct.gaps) {
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- seq_len(length(sequences))
@@ -299,7 +313,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
     no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand,
     motif_pvalue.method = motif_pvalue.method,
-    calc.qvals.method = scan_sequences.qvals.method)
+    calc.qvals.method = scan_sequences.qvals.method, correct.gaps = correct.gaps)
 
   if (verbose > 0) message(" > Scanning background sequences")
   results.bkg <- scan_sequences(motifs, bkg.sequences, threshold,
@@ -308,7 +322,7 @@ enrich_mots2 <- function(motifs, sequences, bkg.sequences, threshold,
     no.overlaps = no.overlaps, no.overlaps.by.strand = no.overlaps.by.strand,
     no.overlaps.strat = no.overlaps.strat, respect.strand = respect.strand,
     motif_pvalue.method = motif_pvalue.method,
-    calc.qvals.method = scan_sequences.qvals.method)
+    calc.qvals.method = scan_sequences.qvals.method, correct.gaps = correct.gaps)
 
   if (verbose > 0) message(" > Processing output")
 
