@@ -7,7 +7,7 @@
 scan_sequences_lite(motifs, sequences, pvalue = 1e-04, RC = TRUE,
   nthreads = 1, return.granges = NULL, no.overlaps = FALSE,
   no.overlaps.by = c("pvalue", "score"), no.overlaps.by.strand = FALSE,
-  no.overlaps.by.motif = FALSE)
+  no.overlaps.by.motif = FALSE, use.gaps = TRUE, correct.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or RNA
@@ -45,6 +45,15 @@ strand is deduplicated independently.}
 \item{no.overlaps.by.motif}{\code{logical(1)}. If \code{TRUE}, overlapping hits from
 different motifs compete with each other. If \code{FALSE} (default), each
 motif is deduplicated independently.}
+
+\item{use.gaps}{\code{logical(1)}. If \code{TRUE} (default), scan gapped motifs with
+every combination of their gap sizes. If \code{FALSE}, their gaps are ignored.}
+
+\item{correct.gaps}{\code{logical(1)}. If \code{TRUE} (default), Bonferroni-correct
+the P-values of gapped motifs, and the \code{pvalue} cutoff they must reach,
+for the number of combinations of gap sizes tried. If \code{FALSE}, each hit
+gets the P-value of its score under the motif without its gaps. Motifs
+without gaps are not affected.}
 }
 \value{
 Either a \code{GRanges} or a \code{data.frame}.
@@ -61,7 +70,8 @@ Coordinate fields:
 Coordinates are always 1-based, inclusive, with \code{start <= end} regardless of
 strand. For hits on the \code{-} strand the \code{match} column is the reverse
 complement of the sequence substring; i.e. the sequence as matched against
-the motif.
+the motif. The hits of gapped motifs span their gaps, which are shown as
+dots in \code{match}.
 }
 \description{
 \code{scan_sequences_lite()} is a deliberately pared-down counterpart to
@@ -69,7 +79,7 @@ the motif.
 (a P-value), always scans both strands by default, always computes a
 per-hit P-value, and returns either a \code{GRanges} (preferred, when
 GenomicRanges is installed) or a \code{data.frame}. Use \code{\link[=scan_sequences]{scan_sequences()}} when
-you need any of multifreq scoring, gapped motifs, q-values, exhaustive
+you need any of multifreq scoring, q-values, exhaustive
 P-values, \code{respect.strand}, \code{allow.nonfinite}, or \code{threshold.type}s other
 than a P-value.
 }
@@ -80,6 +90,16 @@ features this function does not support.
 
 P-values are computed via the dynamic-programming algorithm of
 \code{\link[=motif_pvalue]{motif_pvalue()}} (FIMO-style; Grant et al. 2011).
+
+Gapped motifs (see \code{\link[=add_gap]{add_gap()}}) are scanned with every combination of their
+gap sizes, and the matched sequences show the gaps as dots. A hit's score
+is that of the motif without its gaps. Since every window is scored once
+per combination, the P-values of gapped motifs are multiplied by the number
+of combinations (and capped at one) by default, and hits must reach
+\code{pvalue} divided by that number. Hits of different combinations at the same
+position are all kept, listed by strand and then by combination;
+\code{no.overlaps = TRUE} keeps only the best of them. See the section on gapped
+motifs in \code{\link[=scan_sequences]{scan_sequences()}} for more.
 }
 \examples{
 library(universalmotif)

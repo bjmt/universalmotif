@@ -145,16 +145,16 @@ motif_score_dynamic_batch_cpp <- function(motifs, bkgs, pvalues, nthreads = 1L) 
     .Call('_universalmotif_motif_score_dynamic_batch_cpp', PACKAGE = 'universalmotif', motifs, bkgs, pvalues, nthreads)
 }
 
+scan_gapped_cpp <- function(score_mats, seq_vecs, alph, min_scores, piece_widths, gap_min, gap_max, gap_strides, nthreads, warnNA = TRUE) {
+    .Call('_universalmotif_scan_gapped_cpp', PACKAGE = 'universalmotif', score_mats, seq_vecs, alph, min_scores, piece_widths, gap_min, gap_max, gap_strides, nthreads, warnNA)
+}
+
 calc_hit_gc <- function(hits, ignoreN = FALSE) {
     .Call('_universalmotif_calc_hit_gc', PACKAGE = 'universalmotif', hits, ignoreN)
 }
 
 switch_antisense_coords_cpp <- function(res) {
     .Call('_universalmotif_switch_antisense_coords_cpp', PACKAGE = 'universalmotif', res)
-}
-
-add_gap_dots_cpp <- function(seqs, gaplocs) {
-    .Call('_universalmotif_add_gap_dots_cpp', PACKAGE = 'universalmotif', seqs, gaplocs)
 }
 
 scan_sequences_cpp <- function(score_mats, seq_vecs, k, alph, min_scores, nthreads, allow_nonfinite = FALSE, warnNA = TRUE) {

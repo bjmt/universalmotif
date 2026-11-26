@@ -263,6 +263,115 @@ test_that("hits of every motif get their own P-values next to gapped motifs", {
   expect_equal(both$pvalue[both$motif.i == 1], alone_g$pvalue)
 })
 
+## gapped_fixture() and read_hits() are in helper-gapped.R.
+
+scan_full_fixture <- function(...) {
+  f <- gapped_fixture()
+  suppressMessages(scan_sequences(f$motifs, f$seqs, RC = TRUE, warn.NA = FALSE,
+                                  ...))
+}
+
+## A hit's identity, with '-' strand hits given by their leftmost position as
+## scan_sequences_lite() gives them.
+hit_key <- function(x) {
+  x <- as.data.frame(x)
+  stop <- if (is.null(x$stop)) x$end else x$stop
+  paste(x$motif, x$sequence, pmin(x$start, stop), pmax(x$start, stop),
+        x$strand, x$match)
+}
+
+test_that("gapped scans give the same hits as scanning every combination of gap sizes", {
+  f <- gapped_fixture()
+  ## A site of g2 in s5, and the same site with an unknown letter inside its
+  ## gap in s4, which rules it out.
+  seqs <- c(f$seqs, Biostrings::DNAStringSet(c(s4 = "CCAGGTNTCAGGACC",
+                                               s5 = "CCAGGTATCAGGACC")))
+  for (m in f$motifs[2:3]) {
+    m <- convert_type(m, "PWM")
+    got <- suppressWarnings(suppressMessages(scan_sequences(m, seqs,
+      threshold = 2, threshold.type = "logodds.abs", RC = TRUE,
+      calc.pvals = FALSE, correct.gaps = FALSE)))
+    want <- lapply(ungap_single(m), function(x) {
+      gaps <- get_gaplocs(x)
+      x@gapinfo@isgapped <- FALSE
+      x@name <- m@name
+      res <- suppressWarnings(suppressMessages(scan_sequences(x, seqs,
+        threshold = 2, threshold.type = "logodds.abs", RC = TRUE,
+        calc.pvals = FALSE)))
+      if (nrow(res) && length(gaps)) {
+        res$match <- vapply(res$match, function(s) {
+          s <- strsplit(s, "")[[1]]
+          s[gaps] <- "."
+          paste(s, collapse = "")
+        }, character(1), USE.NAMES = FALSE)
+      }
+      as.data.frame(res)
+    })
+    want <- do.call(rbind, want)
+    expect_gt(nrow(got), 0)
+    expect_setequal(paste(hit_key(got), got$score),
+                    paste(hit_key(want), want$score))
+    if (m@name == "g2") {
+      site <- function(s) any(got$sequence == s & got$start == 3 &
+                              got$stop == 13 & got$strand == "+")
+      expect_true(site("s5"))
+      expect_false(site("s4"))
+    }
+  }
+})
+
+test_that("correct.gaps corrects gapped P-values and P-value thresholds", {
+  combos <- c(u = 1, g = 3, g2 = 4)
+  raw <- scan_full_fixture(threshold = 0.01, correct.gaps = FALSE)
+  cor <- scan_full_fixture(threshold = 0.01)
+  expect_lt(nrow(cor), nrow(raw))
+  m <- match(hit_key(cor), hit_key(raw))
+  expect_false(anyNA(m))
+  expect_equal(cor$score, raw$score[m])
+  expect_equal(cor$pvalue, unname(pmin(raw$pvalue[m] * combos[cor$motif], 1)))
+  keep <- raw$pvalue * combos[raw$motif] <= 0.01
+  expect_setequal(hit_key(cor), hit_key(raw)[keep])
+  ## The score thresholds are those of the corrected cutoffs.
+  f <- gapped_fixture()
+  expect_equal(unique(cor$thresh.score[cor$motif == "g2"]),
+               motif_pvalue(f$motifs[[3]], pvalue = 0.01 / 4))
+  ## Motifs without gaps are not affected.
+  expect_identical(as.data.frame(cor[cor$motif == "u", ]),
+                   as.data.frame(raw[raw$motif == "u", ]))
+})
+
+test_that("correct.gaps leaves logodds thresholds alone but corrects P-values", {
+  raw <- scan_full_fixture(threshold = 0.6, threshold.type = "logodds",
+                           correct.gaps = FALSE)
+  cor <- scan_full_fixture(threshold = 0.6, threshold.type = "logodds")
+  expect_identical(hit_key(cor), hit_key(raw))
+  combos <- c(u = 1, g = 3, g2 = 4)
+  expect_equal(cor$pvalue, unname(pmin(raw$pvalue * combos[raw$motif], 1)))
+})
+
+test_that("scan_sequences() and scan_sequences_lite() agree on gapped motifs", {
+  f <- gapped_fixture()
+  for (correct in c(TRUE, FALSE)) {
+    full <- scan_full_fixture(threshold = 0.01, correct.gaps = correct)
+    lite <- suppressMessages(scan_sequences_lite(f$motifs, f$seqs,
+      pvalue = 0.01, correct.gaps = correct, return.granges = FALSE))
+    expect_setequal(paste(hit_key(full), full$score, signif(full$pvalue, 10)),
+                    paste(hit_key(lite), lite$score, signif(lite$pvalue, 10)))
+  }
+})
+
+test_that("gapped motifs are scanned on the strands respect.strand asks for", {
+  f <- gapped_fixture()
+  g <- f$motifs[[2]]
+  g@strand <- "-"
+  res <- suppressMessages(scan_sequences(list(f$motifs[[1]], g), f$seqs,
+    threshold = 0.003, respect.strand = TRUE, warn.NA = FALSE))
+  expect_identical(unique(res$strand[res$motif == "g"]), "-")
+  both <- scan_full_fixture(threshold = 0.003)
+  expect_setequal(hit_key(res[res$motif == "g", ]),
+                  hit_key(both[both$motif == "g" & both$strand == "-", ]))
+})
+
 test_that("sequences shorter than a motif give no hits", {
   m <- create_motif("ACGTACGT", name = "m")
   s <- Biostrings::DNAStringSet(c(a = "ACGT", b = "TTACGTACGTTT"))

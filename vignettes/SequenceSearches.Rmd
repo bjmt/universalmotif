@@ -510,8 +510,8 @@ scan_sequences(motif.k2, ArabidopsisPromoters, RC = TRUE,
 
 ## A faster alternative: `scan_sequences_lite()`
 
-For DNA or RNA scans that do not need multifreq scoring, gapped
-motifs, q-values, exhaustive P-values, or any threshold type other
+For DNA or RNA scans that do not need multifreq scoring,
+q-values, exhaustive P-values, or any threshold type other
 than a P-value, the lighter `scan_sequences_lite()` is generally faster,
 and it parallelises rather better across motifs. Internally it uses
 the same C++ scanner, computes its per-hit P-values via the same
@@ -976,7 +976,7 @@ plot_motif_proximity(res)
 
 ## Fixed and variable-length gapped motifs
 
-`universalmotif` class motifs can be gapped, which can be used by `scan_sequences()` and `enrich_motifs()`. Note that gapped motif support is currently limited to these two functions. All other functions will ignore the gap information, and even discard them in functions such as `merge_motifs()`.
+`universalmotif` class motifs can be gapped, which can be used by `scan_sequences()`, `scan_sequences_lite()`, `enrich_motifs()` and `enrich_motifs_lite()`. Note that gapped motif support is currently limited to these functions. All other functions will ignore the gap information, and even discard them in functions such as `merge_motifs()`.
 
 First, obtain the component motifs:
 
@@ -1001,6 +1001,8 @@ Now, it can be used directly in `scan_sequences()` or `enrich_motifs()`:
 ```{r}
 scan_sequences(m, ArabidopsisPromoters, threshold = 0.4, threshold.type = "logodds")
 ```
+
+Every combination of gap sizes is tried at each position, and the matched sequences show the gaps as dots. The score of a hit is that of the motif without its gap, but since each window is scored once for every combination (three in this case), the P-value of the score alone would let through several times too many chance hits. The P-values of gapped motifs are thus multiplied by the number of combinations, and P-value thresholds divided by it, unless `correct.gaps = FALSE` is set.
 
 ## Detecting low complexity regions and sequence masking
 

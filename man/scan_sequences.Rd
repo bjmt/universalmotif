@@ -13,7 +13,7 @@ scan_sequences(motifs, sequences, threshold = 1e-04,
   no.overlaps.strat = c("score", "order"), respect.strand = FALSE,
   motif_pvalue.method = c("dynamic", "exhaustive"),
   calc.qvals = calc.pvals, calc.qvals.method = c("fdr", "BH",
-  "bonferroni"))
+  "bonferroni"), correct.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{convert_motifs()} for acceptable motif formats.}
@@ -45,7 +45,7 @@ sequence.}
 See \code{\link[=motif_pvalue]{motif_pvalue()}}. Only used if \code{motif_pvalue.method = "exhaustive"}.}
 
 \item{use.gaps}{\code{logical(1)} Set this to \code{FALSE} to ignore motif gaps, if
-present.}
+present. See the section on gapped motifs in Details.}
 
 \item{allow.nonfinite}{\code{logical(1)} If \code{FALSE}, then apply a pseudocount if
 non-finite values are found in the PWM. Note that if the motif has a
@@ -110,6 +110,13 @@ P-values. Only valid if \code{calc.pvals = TRUE}.}
 \item{calc.qvals.method}{\code{character(1)} One of \code{c("fdr", "BH", "bonferroni")}.
 The method for calculating adjusted P-values. These are described in
 depth in the Sequence Searches vignette. Also see Noble (2009).}
+
+\item{correct.gaps}{\code{logical(1)} Bonferroni-correct the P-values of gapped
+motifs, and their P-value thresholds, for the number of combinations of
+gap sizes tried. Set this to \code{FALSE} to give each hit the P-value of its
+score under the motif without its gaps, as earlier versions did.
+Motifs without gaps are not affected. See the section on gapped motifs
+in Details.}
 }
 \value{
 \code{DataFrame}, \code{GRanges} with each row representing one hit. If the input
@@ -151,6 +158,27 @@ since most Q-values cannot be calculated prior to scanning. If you are
 running a very large job, it may be wise to use a P-value threshold
 followed by manually filtering by Q-value; this will avoid the scanning
 have to parse the larger number of hits from the internally-lowered threshold.
+}
+
+\subsection{Gapped motifs}{
+
+Motifs with gaps (see \code{\link[=add_gap]{add_gap()}}) are scanned with every combination of
+their gap sizes, as though each combination were a separate motif with
+blank columns in its gaps, and the matched sequences show the gaps as dots.
+Each piece of the motif between its gaps is scored once per position and
+the combinations are built from these scores, which is faster than
+scanning each combination in turn and gives the same hits. A hit's score
+is that of the motif without its gaps, but since every window is scored
+once per combination, the P-value of that score alone would let several
+times too many chance hits through. By default the P-values of gapped
+motifs are thus multiplied by the number of combinations (and capped at
+one), and P-value thresholds are divided by it before being turned into
+score thresholds. This includes the P-value cutoff that hits are first
+scanned at when \code{threshold.type = "qvalue"}, whose Q-values then come from
+the corrected P-values. Logodds thresholds are left as they are.
+Set \code{correct.gaps = FALSE} to turn this correction off. Hits of different
+combinations at the same position are all kept, so it can be worth
+setting \code{no.overlaps = TRUE} to keep only the best of them.
 }
 
 \subsection{Non-standard letters}{

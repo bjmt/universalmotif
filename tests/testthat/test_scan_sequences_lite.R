@@ -241,3 +241,147 @@ test_that("scan_sequences_lite gives the same hits at nthreads = 1 and 2", {
     expect_equal(a, b)
   })
 })
+
+## Gapped motifs ----------------------------------------------------------
+
+## gapped_fixture() and read_hits() are in helper-gapped.R.
+
+## Reference values from the Rust/Python port (universalmotif-py 0.7.0,
+## scan_sequences() with pvalue = 0.003), in 1-based inclusive coordinates.
+port_hits_corrected <- read_hits("
+u  s1 33 38 + 6.522 CACGTG       0.000244140625
+u  s1 33 38 - 6.522 CACGTG       0.000244140625
+g  s1 11 20 + 8.696 TGAC..GTCA   4.57763671875e-05
+g  s1 11 20 - 8.696 TGAC..GTCA   4.57763671875e-05
+g  s1 37 46 + 8.696 TGAC..GTCA   4.57763671875e-05
+g  s1 37 46 - 8.696 TGAC..GTCA   4.57763671875e-05
+g  s1 49 56 + 8.696 TGACGTCA     4.57763671875e-05
+g  s1 49 56 - 8.696 TGACGTCA     4.57763671875e-05
+g  s3 13 21 + 8.696 TGAC.GTCA    4.57763671875e-05
+g  s3 13 21 - 8.696 TGAC.GTCA    4.57763671875e-05
+g  s3 32 41 + 8.696 TGAC..GTCA   4.57763671875e-05
+g  s3 32 41 - 8.696 TGAC..GTCA   4.57763671875e-05
+g2 s2  9 20 + 9.783 AGG..TCA.GGA 1.52587890625e-05
+g2 s2 36 45 - 9.783 AGG.TCAGGA   1.52587890625e-05
+")
+port_hits_uncorrected <- read_hits("
+u  s1 33 38 + 6.522 CACGTG       0.000244140625
+u  s1 33 38 - 6.522 CACGTG       0.000244140625
+g  s1 11 20 + 8.696 TGAC..GTCA   1.52587890625e-05
+g  s1 11 20 - 8.696 TGAC..GTCA   1.52587890625e-05
+g  s1 37 46 + 8.696 TGAC..GTCA   1.52587890625e-05
+g  s1 37 46 - 8.696 TGAC..GTCA   1.52587890625e-05
+g  s1 49 56 + 8.696 TGACGTCA     1.52587890625e-05
+g  s1 49 56 - 8.696 TGACGTCA     1.52587890625e-05
+g  s3 13 21 + 8.696 TGAC.GTCA    1.52587890625e-05
+g  s3 13 21 - 8.696 TGAC.GTCA    1.52587890625e-05
+g  s3 32 41 + 8.696 TGAC..GTCA   1.52587890625e-05
+g  s3 32 41 - 8.696 TGAC..GTCA   1.52587890625e-05
+g2 s2  9 19 + 6.253 AGG..TCACGG  0.0013427734375
+g2 s2  9 20 + 9.783 AGG..TCA.GGA 3.814697265625e-06
+g2 s2 10 20 + 6.253 GGT.TCA.GGA  0.0013427734375
+g2 s2 28 39 - 6.253 AGG..TAA.CGA 0.0013427734375
+g2 s2 35 45 - 6.253 AGG.TCA.GAT  0.0013427734375
+g2 s2 36 45 - 9.783 AGG.TCAGGA   3.814697265625e-06
+g2 s2 36 46 - 6.253 CAG..TCAGGA  0.0013427734375
+")
+
+expect_hits <- function(res, ref) {
+  res <- as.data.frame(res)[, colnames(ref)]
+  rownames(res) <- rownames(ref) <- NULL
+  cols <- c("motif", "sequence", "start", "end", "strand", "match")
+  expect_identical(res[, cols], ref[, cols])
+  expect_equal(res$score, ref$score, tolerance = 1e-9)
+  expect_equal(res$pvalue, ref$pvalue, tolerance = 1e-9)
+}
+
+scan_gapped_fixture <- function(...) {
+  f <- gapped_fixture()
+  suppressMessages(scan_sequences_lite(f$motifs, f$seqs, return.granges = FALSE,
+                                       ...))
+}
+
+test_that("gapped scans agree with the port's reference values", {
+  expect_hits(scan_gapped_fixture(pvalue = 0.003), port_hits_corrected)
+  expect_hits(scan_gapped_fixture(pvalue = 0.003, correct.gaps = FALSE),
+              port_hits_uncorrected)
+  ## The forward strand alone.
+  expect_hits(scan_gapped_fixture(pvalue = 0.003, correct.gaps = FALSE,
+                                  RC = FALSE),
+              port_hits_uncorrected[port_hits_uncorrected$strand == "+", ])
+})
+
+test_that("correct.gaps scales gapped P-values and cutoffs by the number of combinations", {
+  combos <- c(u = 1, g = 3, g2 = 4)
+  raw <- scan_gapped_fixture(pvalue = 0.01, correct.gaps = FALSE)
+  cor <- scan_gapped_fixture(pvalue = 0.01)
+  expect_lt(nrow(cor), nrow(raw))
+  key <- function(x) paste(x$motif, x$sequence, x$start, x$end, x$strand,
+                           x$match)
+  m <- match(key(cor), key(raw))
+  expect_false(anyNA(m))
+  expect_equal(cor$score, raw$score[m])
+  expect_equal(cor$pvalue, unname(pmin(raw$pvalue[m] * combos[cor$motif], 1)))
+  keep <- raw$pvalue * combos[raw$motif] <= 0.01
+  expect_setequal(key(cor), key(raw)[keep])
+})
+
+test_that("use.gaps = FALSE scans gapped motifs without their gaps", {
+  res <- scan_gapped_fixture(pvalue = 0.003, use.gaps = FALSE)
+  expect_hits(res, read_hits("
+u  s1 33 38 + 6.522 CACGTG    0.000244140625
+u  s1 33 38 - 6.522 CACGTG    0.000244140625
+g  s1 49 56 + 8.696 TGACGTCA  1.52587890625e-05
+g  s1 49 56 - 8.696 TGACGTCA  1.52587890625e-05
+g2 s2 36 44 - 6.253 GGTTCAGGA 0.0013427734375
+"))
+  f <- gapped_fixture()
+  ungapped <- lapply(f$motifs, function(m) {
+    m@gapinfo@isgapped <- FALSE
+    m
+  })
+  ref <- suppressMessages(scan_sequences_lite(ungapped, f$seqs, pvalue = 0.003,
+                                              return.granges = FALSE))
+  expect_identical(res, ref)
+})
+
+test_that("ungapped motifs scan the same next to gapped motifs", {
+  f <- gapped_fixture()
+  run <- function(motifs, ...) suppressMessages(scan_sequences_lite(motifs,
+    f$seqs, pvalue = 0.01, return.granges = FALSE, ...))
+  alone <- run(f$motifs[1])
+  for (correct in c(TRUE, FALSE)) {
+    mixed <- run(f$motifs, correct.gaps = correct)
+    mixed <- mixed[mixed$motif == "u", ]
+    rownames(mixed) <- NULL
+    expect_identical(mixed, alone)
+  }
+  ## Gapped hits are the same whatever comes before them.
+  both <- run(f$motifs)
+  both <- both[both$motif != "u", ]
+  both$motif.i <- both$motif.i - 1L
+  rownames(both) <- NULL
+  expect_identical(both, run(f$motifs[2:3]))
+})
+
+test_that("gapped hits at the same start are listed by strand and then by combination", {
+  f <- gapped_fixture()
+  res <- suppressMessages(scan_sequences_lite(f$motifs[2], f$seqs,
+                                              pvalue = 0.01, correct.gaps = FALSE,
+                                              return.granges = FALSE))
+  at <- res[res$sequence == "s1" & res$start == 32, ]
+  expect_identical(at$strand, c("+", "+", "-", "-"))
+  expect_identical(at$end, c(39L, 41L, 39L, 41L))
+  expect_identical(at$match,
+                   c("TCACGTGA", "TCAC..GACA", "TCACGTGA", "TGTC..GTGA"))
+})
+
+test_that("gapped GRanges results span the gaps", {
+  f <- gapped_fixture()
+  gr <- suppressMessages(scan_sequences_lite(f$motifs, f$seqs, pvalue = 0.003,
+                                             return.granges = TRUE))
+  df <- scan_gapped_fixture(pvalue = 0.003)
+  expect_s4_class(gr, "GRanges")
+  expect_identical(BiocGenerics::end(gr), df$end)
+  expect_identical(S4Vectors::mcols(gr)$match, df$match)
+})

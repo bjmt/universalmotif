@@ -80,7 +80,7 @@ sequences. The p-value adjustment is hard-coded to Benjamini-Hochberg.
 }
 \details{
 Use \code{\link[=enrich_motifs]{enrich_motifs()}} when you need any of: q-value adjustment methods
-other than BH; multifreq / gapped motifs; multiple-testing E-values;
+other than BH; multifreq motifs; multiple-testing E-values;
 the \code{respect.strand}, \code{allow.nonfinite}, or non-pvalue \code{threshold.type}
 machinery; or amino-acid motifs.
 

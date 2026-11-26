@@ -116,20 +116,18 @@ resolve_nthreads <- function(nthreads) {
 # served by the faster, multi-threaded scan_sequences_lite() without losing any
 # functionality. Only fires when every argument the user passed maps cleanly
 # onto scan_sequences_lite()'s feature set; advanced features (multifreq,
-# gapped motifs, q-values, exhaustive p-values, respect.strand,
+# q-values, exhaustive p-values, respect.strand,
 # allow.nonfinite, intra-motif overlap removal via the connected-components
 # algorithm, non-pvalue threshold types, amino-acid alphabets) suppress it.
 #
 # Opt out: options(universalmotif.suggest.scan_sequences_lite = FALSE).
-suggest_scan_sequences_lite <- function(threshold.type, use.freq, use.gaps,
+suggest_scan_sequences_lite <- function(threshold.type, use.freq,
                                     allow.nonfinite, no.overlaps,
                                     calc.qvals, respect.strand,
-                                    motif_pvalue.method, alphabet,
-                                    mot.hasgap) {
+                                    motif_pvalue.method, alphabet) {
   if (!isTRUE(getOption("universalmotif.suggest.scan_sequences_lite"))) return(invisible())
   if (threshold.type != "pvalue")        return(invisible())
   if (use.freq != 1)                      return(invisible())
-  if (any(mot.hasgap) && isTRUE(use.gaps)) return(invisible())
   if (isTRUE(allow.nonfinite))            return(invisible())
   if (isTRUE(no.overlaps))                return(invisible())
   if (isTRUE(calc.qvals))                 return(invisible())
@@ -188,8 +186,8 @@ suggest_compare_motifs_lite <- function(method, use.freq, use.type,
 # served by enrich_motifs_lite() without losing any functionality. Same pattern
 # as suggest_scan_sequences_lite() / suggest_compare_motifs_lite(). Fires when every
 # argument maps cleanly onto enrich_motifs_lite()'s feature set: pvalue
-# threshold type, BH/fdr q-value adjustment, use.freq = 1, no gapped
-# motifs, default allow.nonfinite/respect.strand/no.overlaps, dynamic
+# threshold type, BH/fdr q-value adjustment, use.freq = 1, gaps used if
+# any, default allow.nonfinite/respect.strand/no.overlaps, dynamic
 # motif_pvalue, and DNA/RNA alphabet.
 #
 # Opt out: options(universalmotif.suggest.enrich_motifs_lite = FALSE).
@@ -202,7 +200,7 @@ suggest_enrich_motifs_lite <- function(threshold.type, qval.method, use.freq,
   if (threshold.type != "pvalue")                      return(invisible())
   if (!qval.method %in% c("BH", "fdr"))                return(invisible())
   if (use.freq != 1)                                   return(invisible())
-  if (any(mot.hasgap) && isTRUE(use.gaps))             return(invisible())
+  if (any(mot.hasgap) && !isTRUE(use.gaps))            return(invisible())
   if (isTRUE(allow.nonfinite))                         return(invisible())
   ## no.overlaps is only meaningful in total.hits mode; enrich_motifs()
   ## forces it off in seq.hits mode internally (R/enrich_motifs.R:183-188),

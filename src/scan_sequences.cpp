@@ -274,12 +274,6 @@ vec_str_t get_matches(const list_int_t &res, const vec_str_t &seq_vecs,
 
 }
 
-void replace_gap_chars(str_t &seqstring, const vec_int_t &gaplocs) {
-  for (std::size_t i = 0; i < gaplocs.size(); ++i) {
-    seqstring.replace(gaplocs[i] - 1, 1, ".");
-  }
-}
-
 /* C++ ENTRY ---------------------------------------------------------------- */
 
 // [[Rcpp::export(rng = false)]]
@@ -340,17 +334,6 @@ Rcpp::DataFrame switch_antisense_coords_cpp(const Rcpp::DataFrame &res) {
   out["start"] = col_start_new;
   out["stop"] = col_stop_new;
   return out;
-}
-
-// [[Rcpp::export(rng = false)]]
-std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs,
-    const std::vector<std::vector<int>> &gaplocs) {
-  for (std::size_t i = 0; i < seqs.size(); ++i) {
-    if (gaplocs[i].size() > 0) {
-      replace_gap_chars(seqs[i], gaplocs[i]);
-    }
-  }
-  return seqs;
 }
 
 // [[Rcpp::export(rng = false)]]

@@ -5,7 +5,7 @@
 #' (a P-value), always scans both strands by default, always computes a
 #' per-hit P-value, and returns either a `GRanges` (preferred, when
 #' GenomicRanges is installed) or a `data.frame`. Use [scan_sequences()] when
-#' you need any of multifreq scoring, gapped motifs, q-values, exhaustive
+#' you need any of multifreq scoring, q-values, exhaustive
 #' P-values, `respect.strand`, `allow.nonfinite`, or `threshold.type`s other
 #' than a P-value.
 #'
@@ -15,6 +15,16 @@
 #'
 #' P-values are computed via the dynamic-programming algorithm of
 #' [motif_pvalue()] (FIMO-style; Grant et al. 2011).
+#'
+#' Gapped motifs (see [add_gap()]) are scanned with every combination of their
+#' gap sizes, and the matched sequences show the gaps as dots. A hit's score
+#' is that of the motif without its gaps. Since every window is scored once
+#' per combination, the P-values of gapped motifs are multiplied by the number
+#' of combinations (and capped at one) by default, and hits must reach
+#' `pvalue` divided by that number. Hits of different combinations at the same
+#' position are all kept, listed by strand and then by combination;
+#' `no.overlaps = TRUE` keeps only the best of them. See the section on gapped
+#' motifs in [scan_sequences()] for more.
 #'
 #' @param motifs See [convert_motifs()] for accepted motif formats. DNA or RNA
 #'   only -- amino-acid and custom alphabet motifs are rejected.
@@ -42,6 +52,13 @@
 #' @param no.overlaps.by.motif `logical(1)`. If `TRUE`, overlapping hits from
 #'   different motifs compete with each other. If `FALSE` (default), each
 #'   motif is deduplicated independently.
+#' @param use.gaps `logical(1)`. If `TRUE` (default), scan gapped motifs with
+#'   every combination of their gap sizes. If `FALSE`, their gaps are ignored.
+#' @param correct.gaps `logical(1)`. If `TRUE` (default), Bonferroni-correct
+#'   the P-values of gapped motifs, and the `pvalue` cutoff they must reach,
+#'   for the number of combinations of gap sizes tried. If `FALSE`, each hit
+#'   gets the P-value of its score under the motif without its gaps. Motifs
+#'   without gaps are not affected.
 #'
 #' @return Either a `GRanges` or a `data.frame`.
 #'
@@ -55,7 +72,8 @@
 #' Coordinates are always 1-based, inclusive, with `start <= end` regardless of
 #' strand. For hits on the `-` strand the `match` column is the reverse
 #' complement of the sequence substring; i.e. the sequence as matched against
-#' the motif. 
+#' the motif. The hits of gapped motifs span their gaps, which are shown as
+#' dots in `match`.
 #'
 #' @references
 #'
@@ -78,7 +96,8 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
                             no.overlaps = FALSE,
                             no.overlaps.by = c("pvalue", "score"),
                             no.overlaps.by.strand = FALSE,
-                            no.overlaps.by.motif  = FALSE) {
+                            no.overlaps.by.motif  = FALSE,
+                            use.gaps = TRUE, correct.gaps = TRUE) {
 
   if (missing(motifs) || missing(sequences))
     stop("need both `motifs` and `sequences`", call. = FALSE)
@@ -96,6 +115,10 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
     stop("`no.overlaps.by.strand` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(no.overlaps.by.motif))
     stop("`no.overlaps.by.motif` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(use.gaps))
+    stop("`use.gaps` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(correct.gaps))
+    stop("`correct.gaps` must be a single logical", call. = FALSE)
 
   nthreads <- resolve_nthreads(nthreads)
 
@@ -137,8 +160,20 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
   max.scores <- vapply(score.mats, function(m) sum(apply(m, 2, max)),
                        numeric(1))
 
+  ## --- gaps -------------------------------------------------------------
+  ## Gapped motifs are scanned with every combination of their gap sizes.
+  ## Since each window is scored once per combination, P-values and the
+  ## P-value cutoff are Bonferroni-corrected for the number of combinations
+  ## unless `correct.gaps = FALSE`.
+  layouts <- lapply(motifs, function(x)
+    if (scans_with_gaps(x, use.gaps)) gap_layout(x) else NULL)
+  pvalue.scale <- vapply(layouts, function(x)
+    if (is.null(x) || !correct.gaps) 1 else x$combos, numeric(1))
+
   ## --- P-value -> per-motif score threshold -----------------------------
-  thresholds <- motif_pvalue(motifs.pwm, pvalue = pvalue,
+  thresholds <- motif_pvalue(motifs.pwm,
+                             pvalue = if (any(pvalue.scale > 1))
+                               pvalue / pvalue.scale else pvalue,
                              method = "dynamic", nthreads = nthreads)
 
   ## --- RC duplication ---------------------------------------------------
@@ -148,6 +183,9 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
     score.mats.rc <- lapply(score.mats,
       function(x) matrix(rev(as.numeric(x)), nrow = nrow(x)))
     score.mats  <- c(score.mats, score.mats.rc)
+    layouts     <- c(layouts, lapply(motifs, function(x)
+                     if (scans_with_gaps(x, use.gaps)) gap_layout(x, rc = TRUE)
+                     else NULL))
     thresholds  <- c(thresholds, thresholds)
     max.scores  <- c(max.scores, max.scores)
     strands     <- c(strands, rep("-", length(motifs)))
@@ -161,10 +199,9 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
     seq.names <- sprintf("seq%d", seq_len(length(sequences)))
 
   ## --- scan -------------------------------------------------------------
-  res <- scan_sequences_cpp(score.mats, as.character(sequences),
-                            k = 1L, alph, thresholds,
-                            nthreads = nthreads,
-                            allow_nonfinite = FALSE, warnNA = FALSE)
+  res <- scan_mixed(score.mats, layouts, as.character(sequences),
+                    k = 1L, alph, thresholds, nthreads = nthreads,
+                    allow.nonfinite = FALSE, warn.NA = FALSE)
 
   if (nrow(res) == 0L)
     return(empty_scan2_result(seq.names, sequences, return.granges))
@@ -193,6 +230,8 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
                                  nthreads = nthreads)
   res$pvalue <- unsplit(pvals_by_motif,
                         factor(res$motif.i, levels = hit_motif_i))
+  if (any(pvalue.scale > 1))
+    res$pvalue <- pmin(res$pvalue * pvalue.scale[res$motif.i], 1)
 
   ## --- score.pct --------------------------------------------------------
   res$score.pct <- 100 * res$score / max.scores[scan.idx]
@@ -208,7 +247,10 @@ scan_sequences_lite <- function(motifs, sequences, pvalue = 1e-4, RC = TRUE,
   }
 
   ## --- order & shape ----------------------------------------------------
-  res <- res[order(res$motif.i, res$sequence.i, res$start), , drop = FALSE]
+  ## Hits of different combinations of gap sizes at the same start are
+  ## listed by strand and then by combination.
+  res <- res[order(res$motif.i, res$sequence.i, res$start, res$strand == "-",
+                   res$combo), , drop = FALSE]
   rownames(res) <- NULL
   res <- res[, c("motif", "motif.i", "sequence", "sequence.i",
                  "start", "end", "strand",

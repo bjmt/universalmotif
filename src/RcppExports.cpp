@@ -541,6 +541,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scan_gapped_cpp
+Rcpp::DataFrame scan_gapped_cpp(const Rcpp::List& score_mats, const std::vector<std::string>& seq_vecs, const std::string& alph, const std::vector<double>& min_scores, const Rcpp::List& piece_widths, const Rcpp::List& gap_min, const Rcpp::List& gap_max, const Rcpp::List& gap_strides, const int& nthreads, const bool& warnNA);
+RcppExport SEXP _universalmotif_scan_gapped_cpp(SEXP score_matsSEXP, SEXP seq_vecsSEXP, SEXP alphSEXP, SEXP min_scoresSEXP, SEXP piece_widthsSEXP, SEXP gap_minSEXP, SEXP gap_maxSEXP, SEXP gap_stridesSEXP, SEXP nthreadsSEXP, SEXP warnNASEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type score_mats(score_matsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type seq_vecs(seq_vecsSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type min_scores(min_scoresSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type piece_widths(piece_widthsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type gap_min(gap_minSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type gap_max(gap_maxSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type gap_strides(gap_stridesSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type warnNA(warnNASEXP);
+    rcpp_result_gen = Rcpp::wrap(scan_gapped_cpp(score_mats, seq_vecs, alph, min_scores, piece_widths, gap_min, gap_max, gap_strides, nthreads, warnNA));
+    return rcpp_result_gen;
+END_RCPP
+}
 // calc_hit_gc
 Rcpp::NumericVector calc_hit_gc(const Rcpp::StringVector& hits, const bool ignoreN);
 RcppExport SEXP _universalmotif_calc_hit_gc(SEXP hitsSEXP, SEXP ignoreNSEXP) {
@@ -559,17 +578,6 @@ BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type res(resSEXP);
     rcpp_result_gen = Rcpp::wrap(switch_antisense_coords_cpp(res));
-    return rcpp_result_gen;
-END_RCPP
-}
-// add_gap_dots_cpp
-std::vector<std::string> add_gap_dots_cpp(std::vector<std::string> seqs, const std::vector<std::vector<int>>& gaplocs);
-RcppExport SEXP _universalmotif_add_gap_dots_cpp(SEXP seqsSEXP, SEXP gaplocsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type seqs(seqsSEXP);
-    Rcpp::traits::input_parameter< const std::vector<std::vector<int>>& >::type gaplocs(gaplocsSEXP);
-    rcpp_result_gen = Rcpp::wrap(add_gap_dots_cpp(seqs, gaplocs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1124,9 +1132,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_universalmotif_motif_score_dynamic_single_cpp", (DL_FUNC) &_universalmotif_motif_score_dynamic_single_cpp, 3},
     {"_universalmotif_motif_pvalue_dynamic_batch_cpp", (DL_FUNC) &_universalmotif_motif_pvalue_dynamic_batch_cpp, 4},
     {"_universalmotif_motif_score_dynamic_batch_cpp", (DL_FUNC) &_universalmotif_motif_score_dynamic_batch_cpp, 4},
+    {"_universalmotif_scan_gapped_cpp", (DL_FUNC) &_universalmotif_scan_gapped_cpp, 10},
     {"_universalmotif_calc_hit_gc", (DL_FUNC) &_universalmotif_calc_hit_gc, 2},
     {"_universalmotif_switch_antisense_coords_cpp", (DL_FUNC) &_universalmotif_switch_antisense_coords_cpp, 1},
-    {"_universalmotif_add_gap_dots_cpp", (DL_FUNC) &_universalmotif_add_gap_dots_cpp, 2},
     {"_universalmotif_scan_sequences_cpp", (DL_FUNC) &_universalmotif_scan_sequences_cpp, 8},
     {"_universalmotif_shuffle_markov_cpp", (DL_FUNC) &_universalmotif_shuffle_markov_cpp, 4},
     {"_universalmotif_shuffle_euler_cpp", (DL_FUNC) &_universalmotif_shuffle_euler_cpp, 4},

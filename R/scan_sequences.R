@@ -25,7 +25,7 @@
 #' @param motif_pvalue.k `numeric(1)` Control [motif_pvalue()] approximation.
 #'    See [motif_pvalue()]. Only used if `motif_pvalue.method = "exhaustive"`.
 #' @param use.gaps `logical(1)` Set this to `FALSE` to ignore motif gaps, if
-#'    present.
+#'    present. See the section on gapped motifs in Details.
 #' @param allow.nonfinite `logical(1)` If `FALSE`, then apply a pseudocount if
 #'    non-finite values are found in the PWM. Note that if the motif has a
 #'    pseudocount greater than zero and the motif is not currently of type PWM,
@@ -79,6 +79,12 @@
 #' @param calc.qvals.method `character(1)` One of `c("fdr", "BH", "bonferroni")`.
 #'    The method for calculating adjusted P-values. These are described in
 #'    depth in the Sequence Searches vignette. Also see Noble (2009).
+#' @param correct.gaps `logical(1)` Bonferroni-correct the P-values of gapped
+#'    motifs, and their P-value thresholds, for the number of combinations of
+#'    gap sizes tried. Set this to `FALSE` to give each hit the P-value of its
+#'    score under the motif without its gaps, as earlier versions did.
+#'    Motifs without gaps are not affected. See the section on gapped motifs
+#'    in Details.
 #'
 #' @return `DataFrame`, `GRanges` with each row representing one hit. If the input
 #'    sequences are \code{\link[Biostrings:XStringSet-class]{DNAStringSet}} or \code{\link[Biostrings:XStringSet-class]{RNAStringSet}},
@@ -112,6 +118,25 @@
 #' running a very large job, it may be wise to use a P-value threshold
 #' followed by manually filtering by Q-value; this will avoid the scanning
 #' have to parse the larger number of hits from the internally-lowered threshold.
+#'
+#' ## Gapped motifs
+#' Motifs with gaps (see [add_gap()]) are scanned with every combination of
+#' their gap sizes, as though each combination were a separate motif with
+#' blank columns in its gaps, and the matched sequences show the gaps as dots.
+#' Each piece of the motif between its gaps is scored once per position and
+#' the combinations are built from these scores, which is faster than
+#' scanning each combination in turn and gives the same hits. A hit's score
+#' is that of the motif without its gaps, but since every window is scored
+#' once per combination, the P-value of that score alone would let several
+#' times too many chance hits through. By default the P-values of gapped
+#' motifs are thus multiplied by the number of combinations (and capped at
+#' one), and P-value thresholds are divided by it before being turned into
+#' score thresholds. This includes the P-value cutoff that hits are first
+#' scanned at when `threshold.type = "qvalue"`, whose Q-values then come from
+#' the corrected P-values. Logodds thresholds are left as they are.
+#' Set `correct.gaps = FALSE` to turn this correction off. Hits of different
+#' combinations at the same position are all kept, so it can be worth
+#' setting `no.overlaps = TRUE` to keep only the best of them.
 #'
 #' ## Non-standard letters
 #' Non-standard letters (such as "N", "+", "-", ".", etc in \code{\link[Biostrings:DNAString-class]{DNAString}}
@@ -168,7 +193,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   no.overlaps = FALSE, no.overlaps.by.strand = FALSE,
   no.overlaps.strat = c("score", "order"),
   respect.strand = FALSE, motif_pvalue.method = c("dynamic", "exhaustive"),
-  calc.qvals = calc.pvals, calc.qvals.method = c("fdr", "BH", "bonferroni")) {
+  calc.qvals = calc.pvals, calc.qvals.method = c("fdr", "BH", "bonferroni"),
+  correct.gaps = TRUE) {
 
   # TODO: add a flag to use the bkg probabilities from the actual input sequence
   # to be used in motif_pvalue() instead of using the bkgs from the motifs
@@ -183,6 +209,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
                                      motif_pvalue.k = args$motif_pvalue.k),
                                 c(0, 1, 1, 1, 1), logical(), TYPE_NUM)
   logi_check <- check_fun_params(list(RC = args$RC, use.gaps = args$use.gaps,
+                                      correct.gaps = args$correct.gaps,
                                       return.granges = args$return.granges,
                                       no.overlaps = args$no.overlaps,
                                       calc.qvals = args$calc.qvals,
@@ -218,6 +245,7 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     message("   * respect.strand:      ", respect.strand)
     message("   * use.freq:            ", use.freq)
     message("   * use.gaps:            ", use.gaps)
+    message("   * correct.gaps:        ", correct.gaps)
     message("   * calc.pvals:          ", calc.pvals)
     message("   * calc.qvals:          ", calc.qvals)
     message("   * calc.qvals.method:   ", calc.qvals.method)
@@ -265,9 +293,14 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   mot.gaps <- lapply(motifs, function(x) x@gapinfo)
   mot.hasgap <- vapply(mot.gaps, function(x) x@isgapped, logical(1))
-  if (any(mot.hasgap) && use.gaps) {
-    gapdat <- process_gapped_motifs(motifs, mot.hasgap)
-  }
+  ## Gapped motifs are scanned with every combination of their gap sizes, and
+  ## their P-values and P-value thresholds are corrected for the number of
+  ## combinations unless `correct.gaps = FALSE`.
+  mot.layouts <- lapply(motifs, function(x)
+    if (scans_with_gaps(x, use.gaps)) gap_layout(x) else NULL)
+  mot.combos <- vapply(mot.layouts, function(x)
+    if (is.null(x)) 1 else x$combos, numeric(1))
+  pvalue.scale <- if (correct.gaps) mot.combos else rep(1, length(motifs))
 
   mot.pwms <- lapply(motifs, function(x) x@motif)
   mot.alphs <- vapply(motifs, function(x) x@alphabet, character(1))
@@ -277,14 +310,12 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   suggest_scan_sequences_lite(threshold.type      = threshold.type,
                           use.freq            = use.freq,
-                          use.gaps            = use.gaps,
                           allow.nonfinite     = allow.nonfinite,
                           no.overlaps         = no.overlaps,
                           calc.qvals          = calc.qvals,
                           respect.strand      = respect.strand,
                           motif_pvalue.method = motif_pvalue.method,
-                          alphabet            = mot.alphs,
-                          mot.hasgap          = mot.hasgap)
+                          alphabet            = mot.alphs)
 
   seq.names <- names(sequences)
   if (is.null(seq.names)) seq.names <- as.character(seq_len(length(sequences)))
@@ -357,7 +388,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
     if (verbose > 0)
       message(" * Converting P-values to logodds thresholds")
-    thresholds <- motif_pvalue(motifs, pvalue = threshold, use.freq = use.freq,
+    threshold.p <- if (any(pvalue.scale > 1)) threshold / pvalue.scale else threshold
+    thresholds <- motif_pvalue(motifs, pvalue = threshold.p, use.freq = use.freq,
                                method = motif_pvalue.method,
                                k = motif_pvalue.k, allow.nonfinite = allow.nonfinite)
     if (any(thresholds == -Inf)) {
@@ -390,22 +422,10 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
   strands <- rep("+", length(score.mats))
 
   ## Hits end up indexed by the motifs as given, so P-values are computed
-  ## from these rather than the expanded and strand-split lists below.
+  ## from these rather than the strand-split lists below.
   motifs.input <- motifs
 
-  if (any(mot.hasgap) && use.gaps) {
-    ## Each gapped motif is scanned as one motif per combination of gap
-    ## sizes, so everything indexed by motif follows the expansion.
-    motifs <- motifs[gapdat$IDs]
-    strands <- strands[gapdat$IDs]
-    mot.names <- mot.names[gapdat$IDs]
-    score.mats <- lapply(gapdat$motifs, function(x) x@motif)
-    thresholds <- thresholds[gapdat$IDs]
-    min.scores <- min.scores[gapdat$IDs]
-    max.scores <- max.scores[gapdat$IDs]
-  }
-
-  score.mats.original <- score.mats
+  layouts <- mot.layouts
 
   if (RC || respect.strand) {
     if (respect.strand) {
@@ -424,6 +444,8 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     score.mats.rc <- lapply(score.mats,
                             function(x) matrix(rev(as.numeric(x)), nrow = nrow(x)))
     score.mats <- c(score.mats[keep.pos], score.mats.rc[keep.neg])
+    layouts <- c(layouts[keep.pos], lapply(motifs[keep.neg], function(x)
+      if (scans_with_gaps(x, use.gaps)) gap_layout(x, rc = TRUE) else NULL))
     min.scores <- c(min.scores[keep.pos], min.scores[keep.neg])
     max.scores <- c(max.scores[keep.pos], max.scores[keep.neg])
     mot.indices <- c(seq_along(motifs)[keep.pos], seq_along(motifs)[keep.neg])
@@ -446,8 +468,9 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
 
   if (verbose > 0) message(" * Scanning")
 
-  res <- scan_sequences_cpp(score.mats, sequences, use.freq, alph, thresholds,
+  res <- scan_mixed(score.mats, layouts, sequences, use.freq, alph, thresholds,
     nthreads, allow.nonfinite, warn.NA)
+  res$combo <- NULL
 
   if (verbose > 1) message("   * Number of matches: ", nrow(res))
   if (verbose > 0) message(" * Processing results")
@@ -475,11 +498,6 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
     seqlengths = structure(width(sequences), names = names(sequences))
   )
 
-  if (nrow(out) && any(mot.hasgap) && use.gaps) {
-    out$match <- add_gap_dots_cpp(out$match, gapdat$gaplocs[out$motif.i])
-    out$motif.i <- gapdat$IDs[out$motif.i]
-  }
-
   if (verbose > 1) message("   * Calculating P-values")
   if (nrow(out) && calc.pvals) {
 
@@ -498,6 +516,11 @@ scan_sequences <- function(motifs, sequences, threshold = 0.0001,
           k = motif_pvalue.k, method = motif_pvalue.method)
       }
     }
+
+    ## Each window of a gapped motif is scored once per combination of gap
+    ## sizes, so its P-values are Bonferroni-corrected for the combinations.
+    if (any(pvalue.scale > 1))
+      out$pvalue <- pmin(out$pvalue * pvalue.scale[out$motif.i], 1)
 
     if (verbose > 1) message("   * Calculating Q-values")
     if (calc.qvals) {
@@ -673,28 +696,101 @@ adjust_rc_hits <- function(res, alph) {
   res
 }
 
-# Note: It's probably a lot faster to scan the individual submotifs and then
-# process the gapped motifs afterwards, versus scanning all possible gapped
-# motif combinations. Would need to think about how to score the submotifs
-# though; so for now, go with the dumb and slow brute force option.
+# Whether motif `m` is scanned with its gaps.
+scans_with_gaps <- function(m, use.gaps = TRUE) {
+  isTRUE(use.gaps) && m@gapinfo@isgapped && length(m@gapinfo@gaploc) > 0
+}
 
-process_gapped_motifs <- function(motifs, hasgap) {
-  motifs[hasgap] <- lapply(motifs[hasgap], ungap_single)
-  ## Ungapped motifs are wrapped too, so that c() joins lists rather than
-  ## dispatching on the first motif.
-  motifs[!hasgap] <- lapply(motifs[!hasgap], list)
-  motifs_gapped <- mapply(function(x, y) rep(x, length(y)), hasgap, motifs,
-    SIMPLIFY = FALSE)
-  IDs <- mapply(function(x, y) rep(x, length(y)), seq_along(motifs), motifs,
-    SIMPLIFY = FALSE)
+# How a gapped motif is laid out for scan_gapped_cpp(): the widths of the
+# pieces between its gaps, the smallest and largest size of each gap, the
+# step each gap takes in the number given to a combination of gap sizes
+# (counted with the first gap varying fastest, as in ungap_single()), and the
+# number of combinations. With `rc` the layout is that of the reverse
+# complement, with the pieces and gaps in reverse order but the combinations
+# still numbered in the motif's own orientation.
+gap_layout <- function(m, rc = FALSE) {
+  g <- m@gapinfo
+  gaploc <- as.integer(g@gaploc)
+  w <- ncol(m@motif)
+  if (is.unsorted(gaploc, strictly = TRUE) || any(gaploc < 1L) ||
+      any(gaploc >= w))
+    stop(wmsg("the gap locations of motif '", m@name, "' must be increasing ",
+        "and lie between its first and last positions"), call. = FALSE)
+  if (length(g@mingap) != length(gaploc) || length(g@maxgap) != length(gaploc))
+    stop(wmsg("motif '", m@name, "' must have one smallest and one largest ",
+        "size for each gap"), call. = FALSE)
+  mingap <- as.integer(g@mingap)
+  maxgap <- as.integer(g@maxgap)
+  sizes <- maxgap - mingap + 1
+  combos <- prod(sizes)
+  if (combos > .Machine$integer.max)
+    stop(wmsg("motif '", m@name, "' has too many combinations of gap sizes ",
+        "to scan"), call. = FALSE)
   out <- list(
-    motifs = do.call(c, motifs),
-    gapped = do.call(c, motifs_gapped),
-    IDs = do.call(c, IDs)
+    widths = diff(c(0L, gaploc, w)),
+    mingap = mingap,
+    maxgap = maxgap,
+    strides = as.integer(cumprod(c(1, sizes))[seq_along(sizes)]),
+    combos = combos
   )
-  out$gaplocs <- lapply(seq_along(out$motifs), function(x) integer())
-  out$gaplocs[out$gapped] <- lapply(out$motifs[out$gapped], get_gaplocs)
+  if (rc) {
+    out$widths <- rev(out$widths)
+    out$mingap <- rev(out$mingap)
+    out$maxgap <- rev(out$maxgap)
+    out$strides <- rev(out$strides)
+  }
   out
+}
+
+# The number of combinations of gap sizes each motif is scanned with, which
+# is 1 for motifs scanned without gaps.
+gap_combos <- function(motifs, use.gaps = TRUE) {
+  vapply(motifs, function(m) {
+    if (scans_with_gaps(m, use.gaps)) gap_layout(m)$combos else 1
+  }, numeric(1))
+}
+
+# Scan with a mix of gapped and ungapped motifs, with `layouts` giving the
+# layout from gap_layout() of each gapped motif and NULL for the others. Every
+# matrix in `score.mats` is already in the orientation it is scanned in. Each
+# piece of a gapped motif is scored once per position and the combinations of
+# gap sizes are built from those scores by scan_gapped_cpp(), which gives the
+# same hits as scanning each combination with blank columns in its gaps. The
+# hits come out as from scan_sequences_cpp(), with motifs numbered by their
+# places in `score.mats`, gapped hits' matches showing the gaps as dots, and
+# a `combo` column (0 for ungapped motifs) numbering each hit's combination of
+# gap sizes. They are ordered by motif, combination, sequence and position.
+scan_mixed <- function(score.mats, layouts, sequences, k, alph, thresholds,
+                       nthreads, allow.nonfinite = FALSE, warn.NA = TRUE) {
+  gapped <- !vapply(layouts, is.null, logical(1))
+  if (!any(gapped)) {
+    res <- scan_sequences_cpp(score.mats, sequences, k, alph, thresholds,
+      nthreads, allow.nonfinite, warn.NA)
+    res$combo <- integer(nrow(res))
+    return(res)
+  }
+  ung <- which(!gapped)
+  gap <- which(gapped)
+  res <- NULL
+  if (length(ung)) {
+    res <- scan_sequences_cpp(score.mats[ung], sequences, k, alph,
+      thresholds[ung], nthreads, allow.nonfinite, warn.NA)
+    res$motif <- res$motif.i <- ung[res$motif]
+    res$combo <- integer(nrow(res))
+  }
+  lay <- layouts[gap]
+  res2 <- scan_gapped_cpp(score.mats[gap], sequences, alph, thresholds[gap],
+    lapply(lay, function(x) x$widths),
+    lapply(lay, function(x) x$mingap),
+    lapply(lay, function(x) x$maxgap),
+    lapply(lay, function(x) x$strides),
+    nthreads, warn.NA && !length(ung))
+  res2$motif <- res2$motif.i <- gap[res2$motif]
+  res <- rbind(res, res2)
+  res <- res[order(res$motif, res$combo, res$sequence, res$start), ,
+    drop = FALSE]
+  rownames(res) <- NULL
+  res
 }
 
 get_gaplocs <- function(x) {
