@@ -17,6 +17,9 @@ BUG FIXES
   o merge_motifs_lite() and view_motifs_lite() align motifs narrower than
     min.overlap.
 
+  o compare_motifs_lite() leaves each motif's comparison with itself out
+    of the q-values.
+
 CHANGES IN VERSION 1.32.0
 -------------------------
 
