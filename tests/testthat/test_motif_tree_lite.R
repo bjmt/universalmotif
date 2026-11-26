@@ -103,3 +103,34 @@ test_that("tip logos work for motifs sharing a name", {
   p <- suppressWarnings(motif_tree_lite(m))
   expect_no_error(suppressWarnings(ggplot2::ggplot_build(p)))
 })
+
+test_that("motif_tree_lite compares gapped motifs with their gaps", {
+  skip_if_not_installed("ggtree")
+  ms <- lite_fixture()
+  x <- c(ms[1:5],
+         list(add_gap(ms[[6]], gaploc = 4, mingap = 0, maxgap = 3),
+              add_gap(ms[[7]], gaploc = 3, mingap = 1, maxgap = 2)))
+  ## The tree's distances, with reference heights worked out independently.
+  h <- hclust(as.dist((1 - compare_motifs_lite(x, min.overlap = 6)) / 2))
+  expect_equal(h$labels[h$order], c("M5", "M1", "M2", "M3", "M4", "M6", "M7"))
+  expect_equal(h$height, c(0.023338, 0.10947, 0.118235, 0.298057, 0.321386,
+                           0.470629), tolerance = 1e-5)
+  tip_order <- function(p) {
+    tips <- p$data[p$data$isTip, ]
+    tips$label[order(tips$y)]
+  }
+  d <- (1 - compare_motifs_lite(x, min.overlap = 6)) / 2
+  d0 <- (1 - compare_motifs_lite(x, min.overlap = 6, use.gaps = FALSE)) / 2
+  p <- suppressWarnings(motif_tree_lite(x, labels = "name"))
+  expect_equal(tip_order(p),
+    tip_order(suppressWarnings(motif_tree_lite(as.dist(d), labels = "name",
+                                               linecol = "none", tiplogo = FALSE))))
+  expect_no_error(suppressWarnings(ggplot2::ggplot_build(p)))
+  p0 <- p
+  p <- suppressWarnings(motif_tree_lite(x, labels = "name", use.gaps = FALSE,
+                                        tiplogo = FALSE))
+  expect_false(identical(tip_order(p), tip_order(p0)))
+  expect_equal(tip_order(p),
+    tip_order(suppressWarnings(motif_tree_lite(as.dist(d0), labels = "name",
+                                               linecol = "none", tiplogo = FALSE))))
+})

@@ -57,6 +57,8 @@
 #' @param RC.text `character(1)` Text appended to motif names shown
 #'   as their reverse complement.
 #' @param flip.neg `logical(1)` Flip letters with negative heights.
+#' @param use.gaps `logical(1)` Align gapped motifs with their gaps, as
+#'   described in Details. Default `TRUE`.
 #'
 #' @return A `ggplot` object. If `return.raw = TRUE`, a list of
 #'   matrices.
@@ -71,6 +73,13 @@
 #' a shared column frame with zero-padding on either side as needed.
 #' The padded matrices then flow through the same logo-rendering
 #' pipeline used by [view_motifs()].
+#'
+#' When several motifs are shown and some have gaps (see [add_gap()]), each
+#' gapped motif is aligned as the combination of its gap sizes that fits
+#' best, as [merge_motifs_lite()] aligns them, and drawn with its gaps
+#' filled by that many blank columns. On its own, or with `use.gaps = FALSE`
+#' or `use.freq` above 1, a gapped motif is drawn with its gaps taking no
+#' columns.
 #'
 #' See [view_motifs()] for the original version, which supports
 #' Euclidean / similarity metrics and arbitrary alphabets.
@@ -98,7 +107,7 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
   y.spacer = 0.01, sort.positions = !use.type %in% c("PCM", "PPM"),
   sort.positions.decreasing = TRUE, text.size = 16,
   fit.to.height = if (use.type == "PPM") 1 else NULL, RC.text = " [RC]",
-  flip.neg = FALSE) {
+  flip.neg = FALSE, use.gaps = TRUE) {
 
   ## --- arg validation ---------------------------------------------------
   if (!use.type %in% c("PPM", "ICM", "PWM", "PCM", "CWM"))
@@ -117,6 +126,8 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
     stop("`dedup.names` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(flip.neg))
     stop("`flip.neg` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(use.gaps))
+    stop("`use.gaps` must be a single logical", call. = FALSE)
 
   nthreads <- resolve_nthreads(nthreads)
 
@@ -341,6 +352,20 @@ view_motifs_lite <- function(motifs, use.type = "ICM", tryRC = TRUE,
   } else {
 
     ## ---- v2 alignment: PCC via compare_motifs_lite_align_cpp -------------
+    ## Gapped motifs are aligned as the instance of their gap sizes that fits
+    ## best, and drawn with their gaps filled by that many blank columns.
+    if (use.gaps && use.freq == 1 && lite_any_gapped(motifs)) {
+      expansion <- lite_expand(motifs, rep(0.25, 4))
+      fits <- lite_fit_instances(expansion, 1L, lite_opts(
+        min.overlap = min.overlap, RC = tryRC, nthreads = nthreads))
+      mot.mats.ppm <- expansion$mats[fits$chosen]
+      for (i in seq_along(mot.mats)) {
+        sizes <- expansion$sizes[[fits$chosen[i]]]
+        if (length(sizes))
+          mot.mats[[i]] <- lite_gap_instance(mot.mats[[i]],
+            motifs[[i]]@gapinfo@gaploc, sizes, rep(0, nrow(mot.mats[[i]])))$mat
+      }
+    }
     res <- view_motifs_lite_align(mot.mats.ppm, mot.mats, min.overlap, tryRC,
                               nthreads)
     which.rc <- res$motIsRC

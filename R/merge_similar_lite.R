@@ -38,6 +38,9 @@
 #'   motifs: `"single"` (default), where clusters are the connected groups of
 #'   linked motifs, or `"complete"`, where every pair of motifs in a cluster
 #'   is linked. See Details.
+#' @param use.gaps `logical(1)`. Compare and merge gapped motifs with their
+#'   gaps, as [compare_motifs_lite()] and [merge_motifs_lite()] do. Default
+#'   `TRUE`.
 #'
 #' @return If `return.clusters = FALSE` (default): a `list` of
 #'   `universalmotif` S4 objects with similar motifs collapsed (the
@@ -100,7 +103,8 @@ merge_similar_lite <- function(motifs, qvalue = 0.01,
                            bkg = NULL, weighted = FALSE,
                            return.clusters = FALSE,
                            nthreads = 1,
-                           linkage = c("single", "complete")) {
+                           linkage = c("single", "complete"),
+                           use.gaps = TRUE) {
 
   ## --- arg validation ---------------------------------------------------
   if (missing(motifs))
@@ -116,6 +120,8 @@ merge_similar_lite <- function(motifs, qvalue = 0.01,
     stop("`weighted` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(return.clusters))
     stop("`return.clusters` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(use.gaps))
+    stop("`use.gaps` must be a single logical", call. = FALSE)
 
   nthreads <- resolve_nthreads(nthreads)
 
@@ -162,7 +168,8 @@ merge_similar_lite <- function(motifs, qvalue = 0.01,
                                         null        = null,
                                         bkg         = bkg,
                                         matrix.out  = "qvalue",
-                                        nthreads    = nthreads))
+                                        nthreads    = nthreads,
+                                        use.gaps    = use.gaps))
   ## Symmetrise: pair linked if either direction is significant. Pairs that
   ## could not be compared are never linked.
   Qsym <- pmin(Q, t(Q), na.rm = FALSE)
@@ -199,11 +206,16 @@ merge_similar_lite <- function(motifs, qvalue = 0.01,
     if (length(members) == 1L) {
       out[[cid]] <- motifs[[members]]
     } else {
-      out[[cid]] <- merge_motifs_lite(motifs[members],
-                                  min.overlap = min.overlap,
-                                  RC          = RC,
-                                  weighted    = weighted,
-                                  nthreads    = nthreads)
+      res <- lite_merge(motifs[members],
+                        min.overlap = min.overlap,
+                        RC          = RC,
+                        new.name    = NULL,
+                        weighted    = weighted,
+                        nthreads    = nthreads,
+                        use.gaps    = use.gaps)
+      for (note in res$notes)
+        warning("cluster ", cid, ": ", note, call. = FALSE)
+      out[[cid]] <- res$motif
     }
   }
   out

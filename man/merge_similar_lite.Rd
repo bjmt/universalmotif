@@ -7,7 +7,7 @@
 merge_similar_lite(motifs, qvalue = 0.01, null = c("empirical",
   "parametric"), min.overlap = 5L, RC = TRUE, bkg = NULL,
   weighted = FALSE, return.clusters = FALSE, nthreads = 1,
-  linkage = c("single", "complete"))
+  linkage = c("single", "complete"), use.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{\code{list} of motifs. DNA or RNA only.}
@@ -41,6 +41,10 @@ and \code{\link[=merge_motifs_lite]{merge_motifs_lite()}}. \code{nthreads = 0} u
 motifs: \code{"single"} (default), where clusters are the connected groups of
 linked motifs, or \code{"complete"}, where every pair of motifs in a cluster
 is linked. See Details.}
+
+\item{use.gaps}{\code{logical(1)}. Compare and merge gapped motifs with their
+gaps, as \code{\link[=compare_motifs_lite]{compare_motifs_lite()}} and \code{\link[=merge_motifs_lite]{merge_motifs_lite()}} do. Default
+\code{TRUE}.}
 }
 \value{
 If \code{return.clusters = FALSE} (default): a \code{list} of

@@ -106,3 +106,57 @@ test_that("merge_motifs and merge_motifs_lite both return a universalmotif (v1/v
   expect_s4_class(r1, "universalmotif")
   expect_s4_class(r2, "universalmotif")
 })
+
+# ---- Gapped motifs ---------------------------------------------------------------
+#
+# Reference values for the fixture motifs of helper-lite-fixture.R were worked
+# out independently.
+
+gapped_pair <- function() {
+  ms <- lite_fixture()
+  list(g6 = add_gap(ms[[6]], gaploc = 4, mingap = 0, maxgap = 3),
+       g7 = add_gap(ms[[7]], gaploc = 3, mingap = 1, maxgap = 2),
+       ms = ms)
+}
+
+test_that("motifs with the same number of gaps are merged part by part", {
+  g <- gapped_pair()
+  m <- merge_motifs_lite(list(g$g6, g$g7))
+  expect_equal(m@name, "merged_M6+M7")
+  expect_equal(m@consensus, "MTGAGGTCAT")
+  expect_true(m@gapinfo@isgapped)
+  expect_equal(m@gapinfo@gaploc, 5)
+  expect_equal(m@gapinfo@mingap, 0)
+  expect_equal(m@gapinfo@maxgap, 3)
+  expect_equal(m@nsites, 2)
+  expect_equal(as.vector(m@motif)[13:24],
+               c(0.701, 0.058, 0.1735, 0.0675, 0.132, 0.136, 0.731, 0.001,
+                 0.115, 0.047, 0.675, 0.163))
+})
+
+test_that("motifs with different numbers of gaps are merged with their gaps filled", {
+  g <- gapped_pair()
+  expect_warning(m <- merge_motifs_lite(list(g$g6, g$ms[[7]])),
+                 "the gaps of M6 were filled with blank columns")
+  expect_equal(m@consensus, "MTGAGTCAT")
+  expect_false(m@gapinfo@isgapped)
+  expect_warning(m <- merge_motifs_lite(list(g$ms[[7]], g$g6, g$g7)),
+                 "the gaps of M6, M7 were filled")
+  expect_equal(m@name, "merged_M7+M6+M7")
+  expect_equal(m@consensus, "CTVWGAGTCAT")
+  expect_equal(as.vector(m@motif)[9:16],
+               c(0.304333, 0.35, 0.311, 0.034667, 0.295667, 0.059667, 0.129667,
+                 0.515), tolerance = 1e-5)
+  g1 <- add_gap(g$ms[[1]], gaploc = c(3, 6), mingap = c(1, 0), maxgap = c(2, 1))
+  expect_warning(m <- merge_motifs_lite(list(g1, g$ms[[2]], g$ms[[3]])),
+                 "the gaps of M1 were filled")
+  expect_equal(m@consensus, "CTTGNNAYATAKS")
+})
+
+test_that("use.gaps = FALSE merges gapped motifs as if their parts followed one another", {
+  g <- gapped_pair()
+  m <- expect_silent(merge_motifs_lite(list(g$g6, g$g7), use.gaps = FALSE))
+  expect_false(m@gapinfo@isgapped)
+  expect_equal(m@consensus, "MTGAGTCAT")
+  expect_equal(m@motif, merge_motifs_lite(g$ms[6:7])@motif)
+})

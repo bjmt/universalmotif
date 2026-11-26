@@ -73,6 +73,16 @@
 #' column score over the overlap. Complete scores cannot be combined with
 #' background overhangs.
 #'
+#' **Gapped motifs.** A gapped motif (see [add_gap()]) is compared as each
+#' of the motifs it stands for, one for every combination of its gap sizes,
+#' with each gap filled by columns of the background (`bkg`). Every
+#' combination of one motif is compared with every combination of the
+#' other, the comparison with the lowest P-value is kept, and its P-value
+#' is multiplied by the number of combinations tried. Its score is then
+#' taken over the columns that face no gap. A motif may have at most 32
+#' combinations of gap sizes. With `use.gaps = FALSE` the gaps are ignored
+#' and the columns compared as if they followed one another.
+#'
 #' @param motifs See [convert_motifs()] for accepted motif formats. DNA or
 #'   RNA only.
 #' @param compare.to `integer`, `character`, or `NULL`. When `NULL`
@@ -92,7 +102,7 @@
 #' @param bkg `numeric(4)` or `NULL`. Background base frequencies (A, C,
 #'   G, T). If `NULL`, uniform `c(.25, .25, .25, .25)` is used. Critical
 #'   for `"parametric"` (sets the Dirichlet prior); also used by
-#'   `overhang = "background"`.
+#'   `overhang = "background"` and to fill the gaps of gapped motifs.
 #' @param matrix.out `character(1)`. In matrix mode, which metric to
 #'   return: `"score"` (mean PCC; default), `"pvalue"`, or `"qvalue"`.
 #'   Ignored in long-format mode.
@@ -114,6 +124,8 @@
 #' @param overhang `character(1)`. `"ignore"` (default) to score only the
 #'   overlapping columns, or `"background"` to compare overhanging columns
 #'   with `bkg`, as described in Details.
+#' @param use.gaps `logical(1)`. Compare gapped motifs with their gaps, as
+#'   described in Details. Default `TRUE`.
 #'
 #' @return
 #' - **Matrix mode** (`compare.to = NULL`): a square numeric matrix
@@ -124,7 +136,12 @@
 #'   `overlap`, `score`, `subject.consensus`, `target.consensus`,
 #'   `pvalue`, `qvalue`, filtered to `qvalue <= qvalue` and sorted by
 #'   q-value ascending. Coordinates are 1-based; `offset` is the query
-#'   column where target column 1 aligns.
+#'   column where target column 1 aligns. When gapped motifs are compared
+#'   with their gaps, two more columns, `subject.gaps` and `target.gaps`,
+#'   give the size of each gap in the comparison kept (separated by commas,
+#'   and empty for motifs without gaps); the offset, overlap and consensus
+#'   sequences are then those of the motifs with their gaps filled to these
+#'   sizes.
 #'
 #' Q-values are adjusted among the comparisons of each query with the other
 #' motifs. A query's comparison with itself keeps its P-value as its q-value
@@ -169,7 +186,8 @@ compare_motifs_lite <- function(motifs,
                             output.report.max.print = 10,
                             complete      = FALSE,
                             method        = c("PCC", "EUCL"),
-                            overhang      = c("ignore", "background")) {
+                            overhang      = c("ignore", "background"),
+                            use.gaps      = TRUE) {
 
   fun.call <- match.call()
 
@@ -203,6 +221,8 @@ compare_motifs_lite <- function(motifs,
     stop("`RC` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(complete))
     stop("`complete` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(use.gaps))
+    stop("`use.gaps` must be a single logical", call. = FALSE)
   if (complete && overhang == "background")
     stop("complete scores and background overhangs cannot be combined",
          call. = FALSE)
@@ -273,10 +293,20 @@ compare_motifs_lite <- function(motifs,
 
   ## --- alignments and P-values -----------------------------------------
   ## Matrix-mode `matrix.out = "score"` never reads P-values or q-values, so
-  ## they are skipped there.
-  rows <- lite_compare_pairs(mot.mats, qix, opts,
-                             need.pvals = !matrix.mode || matrix.out != "score")
-  all.mats <- mot.mats
+  ## they are skipped there, except for gapped motifs, whose comparisons are
+  ## chosen by their P-values.
+  gapped <- use.gaps && lite_any_gapped(motifs.ppm)
+  if (gapped) {
+    expansion <- lite_expand(motifs.ppm, bkg_v)
+    inst.q <- unlist(expansion$of[qix], use.names = FALSE)
+    rows <- lite_compare_pairs(expansion$mats, inst.q, opts, need.pvals = TRUE)
+    rows <- lite_collapse(rows, expansion, qix, opts)
+    all.mats <- expansion$mats
+  } else {
+    rows <- lite_compare_pairs(mot.mats, qix, opts,
+                               need.pvals = !matrix.mode || matrix.out != "score")
+    all.mats <- mot.mats
+  }
 
   ## --- assemble result -------------------------------------------------
   if (matrix.mode) {
@@ -337,6 +367,12 @@ compare_motifs_lite <- function(motifs,
             "offset", "strand", "overlap",
             "score", "subject.consensus", "target.consensus",
             "pvalue", "qvalue")
+  if (gapped) {
+    sizes <- vapply(expansion$sizes, paste, character(1), collapse = ",")
+    long$subject.gaps <- sizes[rows$iq]
+    long$target.gaps <- sizes[rows$it]
+    cols <- c(cols, "subject.gaps", "target.gaps")
+  }
 
   ## filter + sort
   keep <- !is.na(long$qvalue) & long$qvalue <= qvalue & long$overlap > 0L
@@ -470,4 +506,169 @@ lite_compare_pairs <- function(mats, qix, opts, need.pvals = TRUE) {
   al$score.sum <- al$score
   al$score <- ifelse(al$overlap > 0L, mean.score, NA_real_)
   al
+}
+
+## Whether any motif has gaps.
+lite_any_gapped <- function(motifs) {
+  any(vapply(motifs, function(m)
+    isTRUE(m@gapinfo@isgapped) && length(m@gapinfo@gaploc) > 0, logical(1)))
+}
+
+## Combinations of gap sizes beyond which a gapped motif is refused. Every
+## combination of one motif is compared with every one of another, so the
+## cost of a pair grows with the product.
+LITE_MAX_GAP_COMBOS <- 32
+
+## Every combination of the gap sizes of a gapped motif, smallest first, as
+## the rows of a matrix with one column per gap.
+lite_gap_combos <- function(motif) {
+  g <- motif@gapinfo
+  lo <- as.integer(g@mingap)
+  hi <- as.integer(g@maxgap)
+  n <- prod(hi - lo + 1)
+  if (n > LITE_MAX_GAP_COMBOS)
+    stop(wmsg(motif@name, " has ", n, " combinations of gap sizes, more than ",
+              "the ", LITE_MAX_GAP_COMBOS, " that can be compared; narrow its ",
+              "gap range, or set `use.gaps = FALSE` to compare it without its ",
+              "gaps"), call. = FALSE)
+  ## expand.grid() varies its first column fastest, so the gaps are given
+  ## in reverse to vary the last gap fastest.
+  ranges <- rev(Map(seq.int, lo, hi))
+  out <- as.matrix(expand.grid(ranges, KEEP.OUT.ATTRS = FALSE))
+  out <- out[, rev(seq_len(ncol(out))), drop = FALSE]
+  dimnames(out) <- NULL
+  out
+}
+
+## The matrix of a gapped motif with gaps of the given sizes filled by blank
+## columns (`blank.col`, such as the background), and which of its columns are
+## blank.
+lite_gap_instance <- function(mat, gaploc, sizes, blank.col) {
+  bounds <- c(0, gaploc, ncol(mat))
+  pieces <- list()
+  blank <- logical(0)
+  for (k in seq_len(length(bounds) - 1L)) {
+    if (k > 1L && sizes[k - 1L] > 0) {
+      pieces <- c(pieces, list(matrix(blank.col, nrow = nrow(mat),
+                                      ncol = sizes[k - 1L])))
+      blank <- c(blank, rep(TRUE, sizes[k - 1L]))
+    }
+    cols <- seq_len(bounds[k + 1L] - bounds[k]) + bounds[k]
+    pieces <- c(pieces, list(mat[, cols, drop = FALSE]))
+    blank <- c(blank, rep(FALSE, length(cols)))
+  }
+  out <- do.call(cbind, pieces)
+  dimnames(out) <- list(rownames(mat), NULL)
+  list(mat = out, blank = blank)
+}
+
+## Each motif as the matrices of its combinations of gap sizes, or as its own
+## matrix when it has no gaps: the matrices, the motif each stands for, its gap
+## sizes and blank columns, and the matrices of each motif.
+lite_expand <- function(motifs, bkg) {
+  mats <- list()
+  origin <- integer(0)
+  sizes <- list()
+  blank <- list()
+  of <- vector("list", length(motifs))
+  for (i in seq_along(motifs)) {
+    m <- motifs[[i]]
+    mat <- m@motif
+    if (isTRUE(m@gapinfo@isgapped) && length(m@gapinfo@gaploc) > 0) {
+      combos <- lite_gap_combos(m)
+      for (r in seq_len(nrow(combos))) {
+        inst <- lite_gap_instance(mat, m@gapinfo@gaploc, combos[r, ],
+                                  bkg / sum(bkg))
+        mats <- c(mats, list(inst$mat))
+        blank <- c(blank, list(inst$blank))
+        sizes <- c(sizes, list(combos[r, ]))
+        origin <- c(origin, i)
+        of[[i]] <- c(of[[i]], length(mats))
+      }
+    } else {
+      mats <- c(mats, list(mat))
+      blank <- c(blank, list(logical(ncol(mat))))
+      sizes <- c(sizes, list(integer(0)))
+      origin <- c(origin, i)
+      of[[i]] <- length(mats)
+    }
+  }
+  list(mats = mats, origin = origin, sizes = sizes, blank = blank, of = of)
+}
+
+## The mean column score of a comparison of two gap instances over the
+## columns that face each other, leaving out those facing a blank column in
+## either, which would otherwise dilute it. Distances are given as they are.
+lite_gap_free_score <- function(qm, tm, q.blank, t.blank, minus, offset,
+                                overlap, method) {
+  if (minus) {
+    qm <- rev_comp_mat(qm)
+    q.blank <- rev(q.blank)
+  }
+  k <- seq_len(overlap) - 1L
+  a <- max(offset, 0L) + k + 1L
+  b <- max(-offset, 0L) + k + 1L
+  ok <- a <= ncol(qm) & b <= ncol(tm)
+  a <- a[ok]
+  b <- b[ok]
+  ok <- !q.blank[a] & !t.blank[b]
+  a <- a[ok]
+  b <- b[ok]
+  if (!length(a)) return(NaN)
+  qa <- qm[, a, drop = FALSE]
+  tb <- tm[, b, drop = FALSE]
+  if (method == "EUCL") return(mean(sqrt(colSums((qa - tb)^2))))
+  qd <- qa - 0.25
+  td <- tb - 0.25
+  sqq <- colSums(qd * qd)
+  stt <- colSums(td * td)
+  sqt <- colSums(qd * td)
+  r <- ifelse(sqq < 1e-12 | stt < 1e-12, 0, sqt / sqrt(sqq * stt))
+  mean(r)
+}
+
+## Comparisons of gap instances reduced to those of the motifs they stand
+## for. Each pair of motifs keeps the comparison of its instances with the
+## lowest P-value, or the best score among equal ones, and its P-value is
+## multiplied by the number of pairs of instances tried. Comparisons between
+## gapped motifs are scored over the columns that face no gap (with overhangs
+## ignored), and q-values are worked out again within each query, leaving out
+## its comparison with itself.
+lite_collapse <- function(rows, expansion, qix, opts) {
+  n <- length(expansion$of)
+  rows$qi <- expansion$origin[rows$iq]
+  rows$ti <- expansion$origin[rows$it]
+  ## The instances are compared query instance by query instance, and the
+  ## first of equally good comparisons is kept.
+  seen <- order(match(rows$iq, unique(rows$iq)), rows$it)
+  rows <- rows[seen, , drop = FALSE]
+  score.key <- if (opts$method == "EUCL") rows$score else -rows$score
+  best <- order(rows$qi, rows$ti, is.nan(rows$score) | is.na(rows$score),
+                rows$pvalue, score.key, seq_len(nrow(rows)))
+  rows <- rows[best, , drop = FALSE]
+  rows <- rows[!duplicated(rows[, c("qi", "ti")]), , drop = FALSE]
+  key <- paste(rows$qi, rows$ti)
+
+  out <- rows[match(paste(rep(qix, each = n), rep(seq_len(n), length(qix))),
+                    key), , drop = FALSE]
+  if (opts$overhang == "ignore") {
+    for (k in which(lengths(expansion$sizes[out$iq]) > 0 |
+                    lengths(expansion$sizes[out$it]) > 0)) {
+      if (out$overlap[k] == 0L) next
+      out$score[k] <- lite_gap_free_score(
+        expansion$mats[[out$iq[k]]], expansion$mats[[out$it[k]]],
+        expansion$blank[[out$iq[k]]], expansion$blank[[out$it[k]]],
+        out$strand[k] == 1L, out$offset[k], out$overlap[k], opts$method)
+    }
+  }
+  n.inst <- lengths(expansion$of)
+  out$pvalue <- pmin(out$pvalue * n.inst[out$qi] * n.inst[out$ti], 1)
+  out$qvalue <- out$pvalue
+  for (j in seq_along(qix)) {
+    r <- (j - 1L) * n + seq_len(n)
+    others <- r[out$ti[r] != qix[j]]
+    out$qvalue[others] <- stats::p.adjust(out$pvalue[others], method = "BH")
+  }
+  rownames(out) <- NULL
+  out
 }

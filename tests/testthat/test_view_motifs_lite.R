@@ -75,3 +75,26 @@ test_that("view_motifs_lite dedup.names default rewrites duplicates", {
   raw <- view_motifs_lite(list(m1, m2), return.raw = TRUE)
   expect_equal(length(unique(names(raw))), 2L)
 })
+
+test_that("view_motifs_lite aligns gapped motifs with their gaps filled", {
+  ms <- lite_fixture()
+  g6 <- add_gap(ms[[6]], gaploc = 4, mingap = 0, maxgap = 3)
+  g7 <- add_gap(ms[[7]], gaploc = 3, mingap = 1, maxgap = 2)
+  ## Which columns of each aligned motif hold letters, for reference layouts
+  ## worked out independently.
+  filled <- function(raw) vapply(raw, function(m)
+    paste(as.integer(colSums(m) > 0), collapse = ""), character(1))
+  raw <- view_motifs_lite(list(g6, ms[[7]], ms[[3]]), return.raw = TRUE,
+                          sort.by = "none")
+  expect_equal(names(raw), c("M6", "M7 [RC]", "M3 [RC]"))
+  expect_equal(unname(filled(raw)), c("0111111111", "0111111110", "1111111110"))
+  raw <- view_motifs_lite(list(ms[[1]], g6, g7), return.raw = TRUE,
+                          sort.by = "none")
+  expect_equal(names(raw), c("M1 [RC]", "M6", "M7 [RC]"))
+  expect_equal(unname(filled(raw)), c("0111111111", "1111011111", "1111101110"))
+  ## Without their gaps, the motifs are laid out as the ungapped ones are.
+  expect_identical(
+    view_motifs_lite(list(ms[[1]], g6, g7), return.raw = TRUE, use.gaps = FALSE),
+    view_motifs_lite(list(ms[[1]], ms[[6]], ms[[7]]), return.raw = TRUE))
+  expect_s3_class(view_motifs_lite(list(ms[[1]], g6, g7)), "ggplot")
+})

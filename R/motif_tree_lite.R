@@ -58,6 +58,9 @@
 #' @param tiplogo.offset `numeric(1)` or `NULL`. Gap between the tips and the
 #'   start of the logos, in tree x-axis units. If `NULL`, a small fraction of
 #'   the tree width is used. Default `NULL`.
+#' @param use.gaps `logical(1)`. Compare gapped motifs with their gaps, as
+#'   [compare_motifs_lite()] does, and align their tip logos the same way.
+#'   Default `TRUE`.
 #' @param ... Additional arguments passed through to
 #'   [ggtree::ggtree()].
 #'
@@ -66,7 +69,9 @@
 #' @details
 #' The PCC-to-distance conversion `d = (1 - score) / 2` is symmetric
 #' (the comparison matrix from [compare_motifs_lite()] is symmetric in
-#' matrix mode), so `as.dist()` and `hclust()` accept it directly.
+#' matrix mode for motifs without gaps), so `as.dist()` and `hclust()`
+#' accept it directly. Comparisons with gapped motifs depend a little on
+#' which motif is the query, and the lower triangle of the matrix is used.
 #' Anti-correlated motif pairs land at the maximum distance of `1`;
 #' identical motifs land at `0`.
 #'
@@ -105,7 +110,7 @@ motif_tree_lite <- function(motifs, layout = "rectangular", linecol = "family",
                         tryRC = TRUE, nthreads = 1, progress = FALSE,
                         tiplogo = TRUE, tiplogo.align = TRUE,
                         tiplogo.width = 1, tiplogo.height = 0.9,
-                        tiplogo.offset = NULL, ...) {
+                        tiplogo.offset = NULL, use.gaps = TRUE, ...) {
 
   ## --- arg validation ---------------------------------------------------
   if (!layout %in% c("rectangular", "slanted", "fan", "circular", "radial",
@@ -133,6 +138,8 @@ motif_tree_lite <- function(motifs, layout = "rectangular", linecol = "family",
     stop("`tiplogo` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(tiplogo.align))
     stop("`tiplogo.align` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(use.gaps))
+    stop("`use.gaps` must be a single logical", call. = FALSE)
 
   nthreads <- resolve_nthreads(nthreads)
 
@@ -155,7 +162,8 @@ motif_tree_lite <- function(motifs, layout = "rectangular", linecol = "family",
                                  matrix.out  = "score",
                                  RC          = tryRC,
                                  min.overlap = min.overlap,
-                                 nthreads    = nthreads)
+                                 nthreads    = nthreads,
+                                 use.gaps    = use.gaps)
     if (anyNA(score.mat))
       stop(wmsg("Found NA values in comparison matrix; check the inputs ",
                 "or relax `min.overlap`"))
@@ -184,7 +192,7 @@ motif_tree_lite <- function(motifs, layout = "rectangular", linecol = "family",
   ## returning, regardless of which branch built the plot.
   finish <- function(p) add_tip_logos(p, motifs, mot_names, layout, tiplogo,
     tiplogo.align, tiplogo.width, tiplogo.height, tiplogo.offset, tryRC,
-    min.overlap, nthreads)
+    min.overlap, nthreads, use.gaps)
 
   ## --- linecol-coloured branches ---------------------------------------
   if (linecol != "none" && !is(motifs, "dist")) {
@@ -300,7 +308,7 @@ motif_tree_lite <- function(motifs, layout = "rectangular", linecol = "family",
 
 add_tip_logos <- function(p, motifs, mot_names, layout, tiplogo, tiplogo.align,
   tiplogo.width, tiplogo.height, tiplogo.offset, tryRC, min.overlap,
-  nthreads) {
+  nthreads, use.gaps = TRUE) {
 
   if (!tiplogo) return(p)
 
@@ -333,7 +341,8 @@ add_tip_logos <- function(p, motifs, mot_names, layout, tiplogo, tiplogo.align,
     ## dedup = TRUE: the logo names are overwritten with the tip labels just
     ## below, so disambiguating any duplicate motif names here is harmless.
     logos <- align_motif_mats(motifs, use.type = "ICM", tryRC = tryRC,
-      min.overlap = min.overlap, nthreads = nthreads, dedup = TRUE)
+      min.overlap = min.overlap, nthreads = nthreads, dedup = TRUE,
+      use.gaps = use.gaps)
   } else {
     logos <- lapply(motifs, function(m) convert_type(m, "ICM")@motif)
   }

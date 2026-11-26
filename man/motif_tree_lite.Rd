@@ -8,7 +8,8 @@ motif_tree_lite(motifs, layout = "rectangular", linecol = "family",
   labels = "none", tipsize = "none", legend = TRUE,
   branch.length = "none", min.overlap = 6, tryRC = TRUE, nthreads = 1,
   progress = FALSE, tiplogo = TRUE, tiplogo.align = TRUE,
-  tiplogo.width = 1, tiplogo.height = 0.9, tiplogo.offset = NULL, ...)
+  tiplogo.width = 1, tiplogo.height = 0.9, tiplogo.offset = NULL,
+  use.gaps = TRUE, ...)
 }
 \arguments{
 \item{motifs}{\code{list} or \code{dist}. See \code{\link[=convert_motifs]{convert_motifs()}} for accepted
@@ -72,6 +73,10 @@ y-axis units, centred on each tip. Default \code{0.9}.}
 start of the logos, in tree x-axis units. If \code{NULL}, a small fraction of
 the tree width is used. Default \code{NULL}.}
 
+\item{use.gaps}{\code{logical(1)}. Compare gapped motifs with their gaps, as
+\code{\link[=compare_motifs_lite]{compare_motifs_lite()}} does, and align their tip logos the same way.
+Default \code{TRUE}.}
+
 \item{...}{Additional arguments passed through to
 \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 }
@@ -94,7 +99,9 @@ short-circuit all behave the same.
 \details{
 The PCC-to-distance conversion \code{d = (1 - score) / 2} is symmetric
 (the comparison matrix from \code{\link[=compare_motifs_lite]{compare_motifs_lite()}} is symmetric in
-matrix mode), so \code{as.dist()} and \code{hclust()} accept it directly.
+matrix mode for motifs without gaps), so \code{as.dist()} and \code{hclust()}
+accept it directly. Comparisons with gapped motifs depend a little on
+which motif is the query, and the lower triangle of the matrix is used.
 Anti-correlated motif pairs land at the maximum distance of \code{1};
 identical motifs land at \code{0}.
 

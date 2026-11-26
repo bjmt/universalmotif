@@ -8,7 +8,8 @@ compare_motifs_lite(motifs, compare.to = NULL, qvalue = 0.1,
   min.overlap = 5L, RC = TRUE, null = c("empirical", "parametric"),
   bkg = NULL, matrix.out = c("score", "pvalue", "qvalue"), nthreads = 1,
   output.report, output.report.max.print = 10, complete = FALSE,
-  method = c("PCC", "EUCL"), overhang = c("ignore", "background"))
+  method = c("PCC", "EUCL"), overhang = c("ignore", "background"),
+  use.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats. DNA or
@@ -36,7 +37,7 @@ in reverse-complement orientation and report the best of the two.}
 \item{bkg}{\code{numeric(4)} or \code{NULL}. Background base frequencies (A, C,
 G, T). If \code{NULL}, uniform \code{c(.25, .25, .25, .25)} is used. Critical
 for \code{"parametric"} (sets the Dirichlet prior); also used by
-\code{overhang = "background"}.}
+\code{overhang = "background"} and to fill the gaps of gapped motifs.}
 
 \item{matrix.out}{\code{character(1)}. In matrix mode, which metric to
 return: \code{"score"} (mean PCC; default), \code{"pvalue"}, or \code{"qvalue"}.
@@ -65,6 +66,9 @@ distance.}
 \item{overhang}{\code{character(1)}. \code{"ignore"} (default) to score only the
 overlapping columns, or \code{"background"} to compare overhanging columns
 with \code{bkg}, as described in Details.}
+
+\item{use.gaps}{\code{logical(1)}. Compare gapped motifs with their gaps, as
+described in Details. Default \code{TRUE}.}
 }
 \value{
 \itemize{
@@ -76,7 +80,12 @@ columns
 \code{overlap}, \code{score}, \code{subject.consensus}, \code{target.consensus},
 \code{pvalue}, \code{qvalue}, filtered to \code{qvalue <= qvalue} and sorted by
 q-value ascending. Coordinates are 1-based; \code{offset} is the query
-column where target column 1 aligns.
+column where target column 1 aligns. When gapped motifs are compared
+with their gaps, two more columns, \code{subject.gaps} and \code{target.gaps},
+give the size of each gap in the comparison kept (separated by commas,
+and empty for motifs without gaps); the offset, overlap and consensus
+sequences are then those of the motifs with their gaps filled to these
+sizes.
 }
 
 Q-values are adjusted among the comparisons of each query with the other
@@ -156,6 +165,16 @@ database with a query motif (as \code{\link[=name_motifs]{name_motifs()}} does) 
 all-against-all comparisons. The reported \code{score} is still the mean
 column score over the overlap. Complete scores cannot be combined with
 background overhangs.
+
+\strong{Gapped motifs.} A gapped motif (see \code{\link[=add_gap]{add_gap()}}) is compared as each
+of the motifs it stands for, one for every combination of its gap sizes,
+with each gap filled by columns of the background (\code{bkg}). Every
+combination of one motif is compared with every combination of the
+other, the comparison with the lowest P-value is kept, and its P-value
+is multiplied by the number of combinations tried. Its score is then
+taken over the columns that face no gap. A motif may have at most 32
+combinations of gap sizes. With \code{use.gaps = FALSE} the gaps are ignored
+and the columns compared as if they followed one another.
 }
 \examples{
 library(universalmotif)

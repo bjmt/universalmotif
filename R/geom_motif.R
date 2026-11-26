@@ -291,7 +291,7 @@ GeomMotif <- ggproto("GeomMotif", GeomPolygon,
 ## ambiguous, so by default duplicates are an error; set `dedup = TRUE` to
 ## disambiguate them with make.unique() instead.
 align_motif_mats <- function(motifs, use.type = "ICM", tryRC = TRUE,
-  min.overlap = 6, nthreads = 1, dedup = FALSE) {
+  min.overlap = 6, nthreads = 1, dedup = FALSE, use.gaps = TRUE) {
 
   motifs <- convert_motifs(motifs)
   if (!is.list(motifs)) motifs <- list(motifs)
@@ -306,7 +306,7 @@ align_motif_mats <- function(motifs, use.type = "ICM", tryRC = TRUE,
 
   mats <- view_motifs_lite(motifs, return.raw = TRUE, use.type = use.type,
     sort.by = "none", tryRC = tryRC, min.overlap = min.overlap,
-    nthreads = nthreads)
+    nthreads = nthreads, use.gaps = use.gaps)
 
   names(mats) <- nm
   mats

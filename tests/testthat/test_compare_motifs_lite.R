@@ -285,11 +285,11 @@ test_that("the new arguments at their defaults leave results unchanged", {
     expect_identical(
       compare_motifs_lite(ms, matrix.out = out),
       compare_motifs_lite(ms, matrix.out = out, complete = FALSE, method = "PCC",
-                          overhang = "ignore"))
+                          overhang = "ignore", use.gaps = TRUE))
   expect_identical(
     compare_motifs_lite(ms, compare.to = 2:3, qvalue = 1),
     compare_motifs_lite(ms, compare.to = 2:3, qvalue = 1, complete = FALSE,
-                        method = "PCC", overhang = "ignore"))
+                        method = "PCC", overhang = "ignore", use.gaps = TRUE))
 })
 
 test_that("complete scores agree with the reference values", {
@@ -382,6 +382,7 @@ test_that("comparison options are checked", {
   expect_error(compare_motifs_lite(ms, method = "ALLR"), "should be one of")
   expect_error(compare_motifs_lite(ms, overhang = "both"), "should be one of")
   expect_error(compare_motifs_lite(ms, complete = NA), "single logical")
+  expect_error(compare_motifs_lite(ms, use.gaps = "yes"), "single logical")
 })
 
 test_that("complete scores depend on which motif is the query", {
@@ -389,4 +390,102 @@ test_that("complete scores depend on which motif is the query", {
   p <- compare_motifs_lite(ms, complete = TRUE, matrix.out = "pvalue")
   expect_false(isSymmetric(p))
   expect_true(all(p >= 0 & p <= 1))
+})
+
+# ---- Gapped motifs ---------------------------------------------------------------
+
+gapped_fixture <- function() {
+  ms <- lite_fixture()
+  ms[[6]] <- add_gap(ms[[6]], gaploc = 4, mingap = 0, maxgap = 3)
+  ms
+}
+
+test_that("gapped comparisons agree with the reference values", {
+  x <- gapped_fixture()
+  res <- compare_motifs_lite(x, compare.to = 6, qvalue = 1)
+  expect_lite_rows(res,
+    offset = c(4, -1, 1, 1, -3, 0, 1),
+    strand = c("+", "-", "-", "-", "-", "+", "-"),
+    overlap = c(7, 8, 9, 9, 5, 9, 8),
+    score = c(0.7354258, 0.5917948, 0.8273505, 0.3572281, 0.697356, 1, 0.7857823),
+    pvalue = c(0.420072, 0.491505, 0.0167411, 1, 0.602345, 2.60559e-08, 0.0129109))
+  res <- by_target(res)
+  expect_equal(res$subject.gaps, c("2", "1", "3", "2", "0", "0", "0"))
+  expect_equal(res$target.gaps, c("", "", "", "", "", "0", ""))
+  expect_equal(res$subject.consensus[3], "GANNNGTCA")
+
+  res <- compare_motifs_lite(x, compare.to = 1, qvalue = 1)
+  expect_lite_rows(res,
+    offset = c(0, -1, 1, 0, -3, -1, 1),
+    strand = c("+", "+", "+", "-", "+", "-", "+"),
+    overlap = c(9, 8, 8, 9, 5, 9, 8),
+    score = c(1, 0.9367918, 0.7810601, 0.06043549, 0.6910652, 0.542895, 0.66503),
+    pvalue = c(5.79021e-13, 0.000206615, 0.00456879, 1, 0.0929189, 0.732373,
+               0.0218785))
+  expect_equal(by_target(res)$target.gaps, c("", "", "", "", "", "1", ""))
+
+  expect_lite_rows(compare_motifs_lite(x, compare.to = 6, qvalue = 1, complete = TRUE,
+                                       method = "EUCL"),
+    offset = c(0, -1, 1, 0, -3, 0, 1),
+    strand = c("-", "-", "-", "-", "-", "+", "-"),
+    overlap = c(9, 8, 9, 9, 5, 12, 8),
+    score = c(0.5055545, 0.4427527, 0.2680973, 0.6160448, 0.420438, 0, 0.2942647),
+    pvalue = c(0.631995, 0.625379, 0.0799677, 1, 1, 1.90362e-15, 0.00843349))
+
+  y <- c(list(add_gap(lite_fixture("M1")[[1]], gaploc = c(3, 6), mingap = c(1, 0),
+                      maxgap = c(2, 1)), x[[6]]), lite_fixture(c("M2", "M3", "M4")))
+  res <- compare_motifs_lite(y, compare.to = 1, qvalue = 1)
+  expect_lite_rows(res,
+    offset = c(0, 0, -1, 3, 3),
+    strand = c("+", "+", "+", "+", "-"),
+    overlap = c(10, 9, 8, 8, 9),
+    score = c(1, 0.6654105, 0.7382328, 0.7317124, 0.437684),
+    pvalue = c(8.99908e-10, 0.69032, 0.138201, 0.233113, 1))
+  expect_equal(by_target(res)$subject.gaps, c("1,0", "2,0", "2,0", "2,0", "2,1"))
+  expect_equal(by_target(res)$target.gaps, c("1,0", "0", "", "", ""))
+})
+
+test_that("gapped comparison matrices agree with the reference values", {
+  x <- gapped_fixture()
+  s <- compare_motifs_lite(x)
+  expect_equal(unname(s[6, ]), c(0.7354258, 0.5917948, 0.8273505, 0.3572281,
+                                 0.697356, 1, 0.7857823), tolerance = 1e-6)
+  expect_equal(unname(s[, 6]), c(0.542895, 0.5917948, 0.6103467, 0.3572281,
+                                 0.697356, 1, 0.7857823), tolerance = 1e-6)
+  q <- compare_motifs_lite(x, matrix.out = "qvalue")
+  expect_equal(unname(q[6, ]), c(0.72281424, 0.72281424, 0.050223364, 1,
+                                 0.72281424, 2.6055943e-08, 0.050223364),
+               tolerance = 1e-5)
+  expect_equal(unname(q[1, ]), c(5.7902096e-13, 1.2396920e-03, 1.3706371e-02, 1,
+                                 1.3937840e-01, 8.7884706e-01, 4.3757085e-02),
+               tolerance = 1e-5)
+})
+
+test_that("use.gaps = FALSE compares gapped motifs as if their parts followed one another", {
+  x <- gapped_fixture()
+  ms <- lite_fixture()
+  a <- compare_motifs_lite(x, compare.to = 6, qvalue = 1, use.gaps = FALSE)
+  b <- compare_motifs_lite(ms, compare.to = 6, qvalue = 1)
+  expect_identical(a, b)
+  expect_identical(compare_motifs_lite(x, use.gaps = FALSE), compare_motifs_lite(ms))
+})
+
+test_that("motifs without gaps give the same results either way", {
+  ms <- lite_fixture()
+  expect_identical(compare_motifs_lite(ms, compare.to = 1:2, qvalue = 1),
+                   compare_motifs_lite(ms, compare.to = 1:2, qvalue = 1,
+                                       use.gaps = FALSE))
+  expect_false("subject.gaps" %in% colnames(
+    compare_motifs_lite(ms, compare.to = 1, qvalue = 1)))
+})
+
+test_that("gapped motifs with too many combinations of gap sizes are refused", {
+  ms <- lite_fixture()
+  big <- add_gap(ms[[1]], gaploc = c(3, 6), mingap = c(0, 0), maxgap = c(5, 5))
+  expect_error(compare_motifs_lite(c(list(big), ms[2:3])),
+               "36 combinations of gap sizes, more than the 32")
+  expect_equal(dim(compare_motifs_lite(c(list(big), ms[2:3]), use.gaps = FALSE)),
+               c(3L, 3L))
+  ok <- add_gap(ms[[1]], gaploc = c(3, 6), mingap = c(0, 0), maxgap = c(3, 7))
+  expect_equal(dim(compare_motifs_lite(c(list(ok), ms[2:3]))), c(3L, 3L))
 })

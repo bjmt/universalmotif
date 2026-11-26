@@ -5,7 +5,7 @@
 \title{Merge a list of motifs into a single consensus motif.}
 \usage{
 merge_motifs_lite(motifs, min.overlap = 5L, RC = TRUE, new.name = NULL,
-  weighted = FALSE, nthreads = 1)
+  weighted = FALSE, nthreads = 1, use.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{\code{list} of motifs. See \code{\link[=convert_motifs]{convert_motifs()}} for accepted
@@ -31,6 +31,9 @@ to weight 1 in either mode.}
 
 \item{nthreads}{\code{numeric(1)}. Number of threads passed to
 \code{\link[=compare_motifs_lite]{compare_motifs_lite()}}. \code{nthreads = 0} uses all available threads.}
+
+\item{use.gaps}{\code{logical(1)}. Align and merge gapped motifs with their
+gaps, as described in Details. Default \code{TRUE}.}
 }
 \value{
 A single \code{universalmotif} S4 object of type \code{"PPM"}.
@@ -55,6 +58,19 @@ shrink low-information edges.
 The merged motif's \verb{@bkg} is the unweighted mean of the input
 motifs' \verb{@bkg} vectors (or uniform if missing). \verb{@nsites} is the
 sum of input \verb{@nsites}.
+
+Gapped motifs (see \code{\link[=add_gap]{add_gap()}}) are aligned with their gaps, as
+\code{\link[=compare_motifs_lite]{compare_motifs_lite()}} compares them: each is aligned to the anchor as
+the combination of its gap sizes that fits best, with the gaps filled by
+blank columns, and the anchor's own gap sizes are chosen so that the
+others fit it best in all. When every motif merged has the same number
+of gaps, they are merged part by part and the merged motif keeps gaps
+spanning the sizes of all of theirs (its \verb{@bkg} and \verb{@pseudocount} are
+then those of the first motif). Otherwise each gapped motif goes in at
+its best-fitting gap sizes, with its gaps filled by blank columns, and a
+warning says so. With \code{use.gaps = FALSE}, the columns of gapped motifs
+are taken as if they followed one another, and the merged motif has no
+gaps.
 }
 \examples{
 library(universalmotif)

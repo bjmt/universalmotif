@@ -22,6 +22,8 @@
 #'   to weight 1 in either mode.
 #' @param nthreads `numeric(1)`. Number of threads passed to
 #'   [compare_motifs_lite()]. `nthreads = 0` uses all available threads.
+#' @param use.gaps `logical(1)`. Align and merge gapped motifs with their
+#'   gaps, as described in Details. Default `TRUE`.
 #'
 #' @return A single `universalmotif` S4 object of type `"PPM"`.
 #'
@@ -41,6 +43,19 @@
 #' motifs' `@bkg` vectors (or uniform if missing). `@nsites` is the
 #' sum of input `@nsites`.
 #'
+#' Gapped motifs (see [add_gap()]) are aligned with their gaps, as
+#' [compare_motifs_lite()] compares them: each is aligned to the anchor as
+#' the combination of its gap sizes that fits best, with the gaps filled by
+#' blank columns, and the anchor's own gap sizes are chosen so that the
+#' others fit it best in all. When every motif merged has the same number
+#' of gaps, they are merged part by part and the merged motif keeps gaps
+#' spanning the sizes of all of theirs (its `@bkg` and `@pseudocount` are
+#' then those of the first motif). Otherwise each gapped motif goes in at
+#' its best-fitting gap sizes, with its gaps filled by blank columns, and a
+#' warning says so. With `use.gaps = FALSE`, the columns of gapped motifs
+#' are taken as if they followed one another, and the merged motif has no
+#' gaps.
+#'
 #' @examples
 #' library(universalmotif)
 #' m1 <- create_motif("TTGACATA", name = "a")
@@ -56,7 +71,7 @@
 #' @export
 merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
                           new.name = NULL, weighted = FALSE,
-                          nthreads = 1) {
+                          nthreads = 1, use.gaps = TRUE) {
 
   ## --- arg validation ---------------------------------------------------
   if (missing(motifs))
@@ -68,6 +83,8 @@ merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
     stop("`RC` must be a single logical", call. = FALSE)
   if (!isTRUEorFALSE(weighted))
     stop("`weighted` must be a single logical", call. = FALSE)
+  if (!isTRUEorFALSE(use.gaps))
+    stop("`use.gaps` must be a single logical", call. = FALSE)
   if (!is.null(new.name) &&
       (!is.character(new.name) || length(new.name) != 1L))
     stop("`new.name` must be NULL or a single string", call. = FALSE)
@@ -89,14 +106,37 @@ merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
          mot.alph, "`. Use `merge_motifs()` for other alphabets.",
          call. = FALSE)
 
+  res <- lite_merge(motifs, min.overlap = min.overlap, RC = RC,
+                    new.name = new.name, weighted = weighted,
+                    nthreads = nthreads, use.gaps = use.gaps)
+  for (note in res$notes) warning(note, call. = FALSE)
+  res$motif
+}
+
+## merge_motifs_lite() once its arguments are checked, giving the merged motif,
+## the indices of the motifs that went into it and any notes to warn with.
+lite_merge <- function(motifs, min.overlap, RC, new.name, weighted, nthreads,
+                       use.gaps) {
+
   ## --- single-motif fast path ------------------------------------------
   if (length(motifs) == 1L) {
     out <- convert_type_internal(motifs[[1L]], "PPM")
     if (!is.null(new.name)) out@name <- new.name
-    return(out)
+    return(list(motif = out, used = 1L, notes = character()))
   }
 
   motifs.ppm <- convert_type_internal(motifs, "PPM")
+  if (use.gaps && lite_any_gapped(motifs.ppm))
+    return(lite_merge_gapped(motifs.ppm, min.overlap, RC, new.name, weighted,
+                             nthreads))
+  lite_merge_plain(motifs.ppm, min.overlap, RC, new.name, weighted, nthreads)
+}
+
+## Merge PPMs, with any gaps ignored.
+lite_merge_plain <- function(motifs.ppm, min.overlap, RC, new.name, weighted,
+                             nthreads) {
+
+  mot.alph   <- motifs.ppm[[1L]]@alphabet
   mot.names  <- vapply(motifs.ppm, function(x) x@name, character(1))
   mot.mats   <- lapply(motifs.ppm, function(x) x@motif)
   widths     <- vapply(mot.mats, ncol, integer(1))
@@ -222,13 +262,133 @@ merge_motifs_lite <- function(motifs, min.overlap = 5L, RC = TRUE,
                        paste(mot.names[use.idx], collapse = "+"))
   }
 
-  create_motif(out_mat,
-               alphabet    = mot.alph,
-               type        = "PPM",
-               name        = new.name,
-               nsites      = total_nsites,
-               bkg         = bkg_avg,
-               pseudocount = motifs.ppm[[anchor]]@pseudocount)
+  merged <- create_motif(out_mat,
+                         alphabet    = mot.alph,
+                         type        = "PPM",
+                         name        = new.name,
+                         nsites      = total_nsites,
+                         bkg         = bkg_avg,
+                         pseudocount = motifs.ppm[[anchor]]@pseudocount)
+  list(motif = merged, used = use.idx, notes = character())
+}
+
+## A PPM motif with its gaps filled to the given sizes by blank columns of the
+## background, or split at its gaps, as motifs without gaps.
+lite_gap_filled_motif <- function(motif, mat) {
+  motif@motif <- mat
+  motif@gapinfo <- universalmotif_gapped()
+  refresh_motif_summary(motif)
+}
+
+lite_split_at_gaps <- function(motif) {
+  bounds <- c(0, motif@gapinfo@gaploc, ncol(motif@motif))
+  lapply(seq_len(length(bounds) - 1L), function(k) {
+    cols <- seq_len(bounds[k + 1L] - bounds[k]) + bounds[k]
+    lite_gap_filled_motif(motif, motif@motif[, cols, drop = FALSE])
+  })
+}
+
+## For motifs expanded into the instances of their gap sizes (see
+## lite_expand()), the instance of each motif to align to the anchor's and how
+## it aligns: its score (higher is better), overlap and whether it is reverse
+## complemented. The anchor's instance is the one that the others, each at its
+## best, fit best in all.
+lite_fit_instances <- function(expansion, anchor, opts) {
+  n.inst <- length(expansion$mats)
+  best <- NULL
+  for (a in expansion$of[[anchor]]) {
+    al <- lite_align(expansion$mats, rep.int(a, n.inst), seq_len(n.inst), opts)
+    score <- ifelse(al$overlap == 0L, -Inf, al$chosen)
+    chosen <- vapply(seq_along(expansion$of), function(i) {
+      if (i == anchor) return(a)
+      inst <- expansion$of[[i]]
+      s <- score[inst]
+      ## The last of equally good instances, as the clustering and layout
+      ## functions break such ties.
+      inst[max(which(s == max(s)))]
+    }, integer(1))
+    others <- score[chosen[-anchor]]
+    total <- sum(others[is.finite(others)])
+    if (is.null(best) || total > best$total)
+      best <- list(total = total, chosen = chosen, score = score[chosen],
+                   overlap = al$overlap[chosen], minus = al$strand[chosen] == 1L)
+  }
+  best
+}
+
+## Merge PPMs some of which have gaps. Each motif is aligned to the anchor as
+## its best instance. When every motif used has the same number of gaps, they
+## are turned to face the anchor and merged part by part, the merged motif
+## keeping gaps that span the sizes of all of theirs; otherwise their best
+## instances are merged with their gaps filled, with a note saying so.
+lite_merge_gapped <- function(motifs.ppm, min.overlap, RC, new.name, weighted,
+                              nthreads) {
+  opts <- lite_opts(min.overlap = min.overlap, RC = RC, nthreads = nthreads)
+  ic <- vapply(motifs.ppm, function(x) x@icscore, numeric(1))
+  anchor <- which.max(ic)
+  expansion <- lite_expand(motifs.ppm, rep(0.25, 4))
+  fits <- lite_fit_instances(expansion, anchor, opts)
+  widths <- vapply(expansion$mats, ncol, integer(1))
+  a <- fits$chosen[anchor]
+  need <- pmin(min.overlap, widths[fits$chosen], widths[a])
+  used <- which(seq_along(motifs.ppm) == anchor | fits$overlap >= need)
+  gapped <- vapply(motifs.ppm, function(m) isTRUE(m@gapinfo@isgapped), logical(1))
+  n.gaps <- ifelse(gapped, lengths(lapply(motifs.ppm, function(m)
+    m@gapinfo@gaploc)), 0L)[used]
+
+  if (n.gaps[1] > 0 && all(n.gaps == n.gaps[1])) {
+    ## Every motif used, turned to face the anchor, split at its gaps.
+    oriented <- lapply(used, function(i) {
+      if (i != anchor && fits$minus[i]) motif_rc(motifs.ppm[[i]])
+      else motifs.ppm[[i]]
+    })
+    pieces <- lapply(oriented, lite_split_at_gaps)
+    cols <- list()
+    gaploc <- integer(0)
+    for (j in seq_len(n.gaps[1] + 1L)) {
+      part <- lapply(pieces, function(p) p[[j]])
+      merged <- lite_merge_plain(part, min.overlap, RC = FALSE, new.name = NULL,
+                                 weighted = weighted, nthreads = nthreads)$motif
+      if (j > 1L) gaploc <- c(gaploc, sum(vapply(cols, ncol, integer(1))))
+      cols <- c(cols, list(merged@motif))
+    }
+    mat <- do.call(cbind, cols)
+    mingap <- vapply(seq_len(n.gaps[1]), function(g)
+      min(vapply(oriented, function(m) m@gapinfo@mingap[g], numeric(1))), numeric(1))
+    maxgap <- vapply(seq_len(n.gaps[1]), function(g)
+      max(vapply(oriented, function(m) m@gapinfo@maxgap[g], numeric(1))), numeric(1))
+    if (is.null(new.name))
+      new.name <- paste0("merged_", paste(vapply(motifs.ppm[used],
+        function(x) x@name, character(1)), collapse = "+"))
+    nsites <- vapply(motifs.ppm[used], function(x) {
+      n <- x@nsites
+      if (length(n) == 1L && !is.na(n) && n > 0) n else 1
+    }, numeric(1))
+    first <- oriented[[1L]]
+    letters <- rownames(first@motif)
+    bkg <- first@bkg[letters]
+    if (anyNA(bkg)) bkg <- stats::setNames(rep(0.25, 4), letters)
+    merged <- create_motif(unname(mat), alphabet = first@alphabet, type = "PPM",
+                           name = new.name, nsites = sum(nsites), bkg = bkg,
+                           pseudocount = first@pseudocount)
+    merged@gapinfo@isgapped <- TRUE
+    merged@gapinfo@gaploc <- as.integer(gaploc)
+    merged@gapinfo@mingap <- as.integer(mingap)
+    merged@gapinfo@maxgap <- as.integer(maxgap)
+    return(list(motif = merged, used = used, notes = character()))
+  }
+
+  ## The motifs differ in their gaps, so their best instances are merged.
+  picked <- lapply(seq_along(motifs.ppm), function(i)
+    lite_gap_filled_motif(motifs.ppm[[i]], expansion$mats[[fits$chosen[i]]]))
+  out <- lite_merge_plain(picked, min.overlap, RC, new.name, weighted, nthreads)
+  filled <- out$used[gapped[out$used]]
+  if (length(filled))
+    out$notes <- paste0("the gaps of ", paste(vapply(motifs.ppm[filled],
+      function(x) x@name, character(1)), collapse = ", "), " were filled with ",
+      "blank columns rather than kept, as the motifs merged do not all have ",
+      "the same number of gaps")
+  out
 }
 
 ## ---------------------------------------------------------------------------

@@ -154,3 +154,28 @@ test_that("a cluster holding over a quarter of the motifs brings a warning", {
   expect_silent(merge_similar_lite(ms, qvalue = 0.01, linkage = "complete"))
   expect_silent(merge_similar_lite(ms[c(1, 2, 4)], qvalue = 0.01))
 })
+
+test_that("gapped motifs are clustered and merged with their gaps", {
+  ms <- lite_fixture()
+  x <- c(ms[1:5],
+         list(add_gap(ms[[6]], gaploc = 4, mingap = 0, maxgap = 3),
+              add_gap(ms[[7]], gaploc = 3, mingap = 1, maxgap = 2)))
+  res <- cluster_warnings(merge_similar_lite(x, qvalue = 0.3))
+  expect_equal(vapply(res$value, function(m) m@name, character(1)),
+               c("merged_M1+M2+M3+M5+M6", "M4", "M7"))
+  expect_equal(res$value[[1]]@consensus, "NHTATGTCANGTG")
+  expect_equal(res$value[[3]]@gapinfo@gaploc, 3)
+  expect_length(res$warnings, 2L)
+  expect_match(res$warnings[2],
+               "^cluster 1: the gaps of M6 were filled with blank columns")
+  cl <- suppressWarnings(merge_similar_lite(x, qvalue = 0.3, return.clusters = TRUE))
+  expect_equal(cl$cluster, c(1L, 1L, 1L, 2L, 1L, 1L, 3L))
+  cl <- suppressWarnings(merge_similar_lite(x, qvalue = 0.05, return.clusters = TRUE))
+  expect_equal(cl$cluster, c(1L, 1L, 1L, 2L, 3L, 4L, 5L))
+  ## Without their gaps, the motifs cluster as the ungapped fixture does.
+  expect_identical(
+    suppressWarnings(merge_similar_lite(x, qvalue = 0.06, use.gaps = FALSE,
+                                        return.clusters = TRUE))$cluster,
+    suppressWarnings(merge_similar_lite(ms, qvalue = 0.06,
+                                        return.clusters = TRUE))$cluster)
+})

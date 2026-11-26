@@ -13,7 +13,7 @@ view_motifs_lite(motifs, use.type = "ICM", tryRC = TRUE, min.overlap = 6,
   else 0.1, y.spacer = 0.01, sort.positions = !use.type \%in\% c("PCM",
   "PPM"), sort.positions.decreasing = TRUE, text.size = 16,
   fit.to.height = if (use.type == "PPM") 1 else NULL, RC.text = " [RC]",
-  flip.neg = FALSE)
+  flip.neg = FALSE, use.gaps = TRUE)
 }
 \arguments{
 \item{motifs}{See \code{\link[=convert_motifs]{convert_motifs()}} for accepted motif formats.
@@ -88,6 +88,9 @@ position by height.}
 as their reverse complement.}
 
 \item{flip.neg}{\code{logical(1)} Flip letters with negative heights.}
+
+\item{use.gaps}{\code{logical(1)} Align gapped motifs with their gaps, as
+described in Details. Default \code{TRUE}.}
 }
 \value{
 A \code{ggplot} object. If \code{return.raw = TRUE}, a list of
@@ -113,6 +116,13 @@ reverse-complemented before display, and all motifs are placed in
 a shared column frame with zero-padding on either side as needed.
 The padded matrices then flow through the same logo-rendering
 pipeline used by \code{\link[=view_motifs]{view_motifs()}}.
+
+When several motifs are shown and some have gaps (see \code{\link[=add_gap]{add_gap()}}), each
+gapped motif is aligned as the combination of its gap sizes that fits
+best, as \code{\link[=merge_motifs_lite]{merge_motifs_lite()}} aligns them, and drawn with its gaps
+filled by that many blank columns. On its own, or with \code{use.gaps = FALSE}
+or \code{use.freq} above 1, a gapped motif is drawn with its gaps taking no
+columns.
 
 See \code{\link[=view_motifs]{view_motifs()}} for the original version, which supports
 Euclidean / similarity metrics and arbitrary alphabets.
